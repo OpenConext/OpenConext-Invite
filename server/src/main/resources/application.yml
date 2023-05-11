@@ -1,0 +1,89 @@
+---
+logging:
+  level:
+    org.springframework: WARN
+    org.springframework.web: WARN
+    com.zaxxer.hikari: ERROR
+
+spring:
+  mvc:
+    log-request-details: false
+  security:
+    user:
+      name: disabled
+      password: disabled
+  jpa:
+    properties:
+      hibernate:
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost/access
+    username: access
+    password: secret
+  flyway:
+    locations: classpath:db/{vendor}/migration
+  mail:
+    host: localhost
+    port: 3025
+
+oidc:
+  introspection_uri: "https://connect.test2.surfconext.nl/oidc/introspect"
+  authorization_uri: "https://connect.test2.surfconext.nl/oidc/authorize"
+  token_uri: "https://connect.test2.surfconext.nl/oidc/token"
+  relying_party_id: "rp.guests.localhost"
+  client_redirect_uri: "http://localhost:3000/redirect"
+  #  resource_server_id: "rs.guests.localhost"
+  #  rs_secret: secret
+  resource_server_id: "resource-server-playground-client"
+  rs_secret: l36VaA1YXR9gG7Pw9POuiQ60h1rU3IhfT5kC
+
+cron:
+  node-cron-job-responsible: true
+  user-cleaner-expression: "0 0/30 * * * *"
+  last-activity-duration-days: 1000
+  metadata-resolver-initial-delay-milliseconds: 1
+  metadata-resolver-fixed-rate-milliseconds: 86_400_000
+  metadata-resolver-url: "classpath:/metadata/idps-metadata.xml"
+
+super-admin:
+  users:
+    - "j.doe@example.com"
+  institution:
+    entity_id: "http://mock-idp"
+    home_institution: "mujina.nl"
+    displayName: "Mujina"
+
+voot:
+  user: voot
+  password: secret
+  group_urn_domain: test.eduid.nl
+
+email:
+  from: "no-reply@surf.nl"
+  base-url: "http://localhost:3000"
+  scim-failure: "j.doe@example.com"
+  environment: "local"
+
+management:
+  health:
+    mail:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,mappings"
+  endpoint:
+    info:
+      enabled: true
+    mappings:
+      enabled: true
+  info:
+    git:
+      mode: full
+
+server:
+  error:
+    include-message: always
+
