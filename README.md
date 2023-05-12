@@ -12,7 +12,7 @@
 - Maven 3
 
 First install Java 17 with a package manager
-and then export the correct the `JAVA_HOME`. For example on Mac OS:
+and then export the correct the `JAVA_HOME`. For example on macOS:
 
 ```bash
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home/
@@ -40,3 +40,8 @@ To build and deploy (the latter requires credentials in your maven settings):
 ```bash
 mvn clean deploy
 ```
+
+### [Swagger](#swagger)
+
+http://localhost:8080/swagger-ui.html
+http://localhost:8080/v3/api-docs

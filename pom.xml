@@ -26,6 +26,7 @@
     <modules>
         <module>server</module>
         <module>client</module>
+        <module>welcome</module>
         <module>scim-mock</module>
     </modules>
 

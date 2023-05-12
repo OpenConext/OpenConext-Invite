@@ -9,14 +9,29 @@ spring:
   mvc:
     log-request-details: false
   security:
-    user:
-      name: disabled
-      password: disabled
+    oauth2:
+      client:
+        registration:
+          oidcng:
+            client-id: playground_client
+            client-secret: secret
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: "authorization_code"
+            scope: openid
+        provider:
+          oidcng:
+            authorization-uri: "https://connect.test2.surfconext.nl/oidc/authorize"
+            token-uri: "https://connect.test2.surfconext.nl/oidc/token"
+            user-info-uri: "https://connect.test2.surfconext.nl/oidc/userinfo"
+            jwk-set-uri: "https://connect.test2.surfconext.nl/oidc/certs"
+            user-name-attribute: sub
+            user-info-authentication-method: client_secret_basic
   jpa:
     properties:
       hibernate:
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost/access
@@ -28,32 +43,13 @@ spring:
     host: localhost
     port: 3025
 
-oidc:
-  introspection_uri: "https://connect.test2.surfconext.nl/oidc/introspect"
-  authorization_uri: "https://connect.test2.surfconext.nl/oidc/authorize"
-  token_uri: "https://connect.test2.surfconext.nl/oidc/token"
-  relying_party_id: "rp.guests.localhost"
-  client_redirect_uri: "http://localhost:3000/redirect"
-  #  resource_server_id: "rs.guests.localhost"
-  #  rs_secret: secret
-  resource_server_id: "resource-server-playground-client"
-  rs_secret: l36VaA1YXR9gG7Pw9POuiQ60h1rU3IhfT5kC
-
-cron:
-  node-cron-job-responsible: true
-  user-cleaner-expression: "0 0/30 * * * *"
-  last-activity-duration-days: 1000
-  metadata-resolver-initial-delay-milliseconds: 1
-  metadata-resolver-fixed-rate-milliseconds: 86_400_000
-  metadata-resolver-url: "classpath:/metadata/idps-metadata.xml"
+oidcng:
+  discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
+  base-url: http://localhost:8080
 
 super-admin:
   users:
     - "j.doe@example.com"
-  institution:
-    entity_id: "http://mock-idp"
-    home_institution: "mujina.nl"
-    displayName: "Mujina"
 
 voot:
   user: voot
@@ -65,6 +61,19 @@ email:
   base-url: "http://localhost:3000"
   scim-failure: "j.doe@example.com"
   environment: "local"
+
+springdoc:
+  pathsToMatch: "/api/v1/**"
+  api-docs:
+    path: "/ui/api-docs"
+  swagger-ui:
+    path: "/ui/api-ui.html"
+    operationsSorter: method
+    oauth:
+      client-id: playground_client
+      client-secret: secret
+      use-basic-authentication-with-access-code-grant: true
+
 
 management:
   health:
