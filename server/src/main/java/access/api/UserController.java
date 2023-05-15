@@ -12,12 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
-
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = "/api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/api/v1/users", "/api/internal/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 public class UserController {

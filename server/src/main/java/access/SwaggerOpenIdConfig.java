@@ -18,14 +18,16 @@ public class SwaggerOpenIdConfig {
     public static final String OPEN_ID_SCHEME_NAME = "openId";
 
     @Bean
-    OpenAPI customOpenApi(@Value("${oidcng.discovery-url}") String discoveryURL,
+    OpenAPI customOpenApi(@Value("${spring.security.oauth2.client.provider.oidcng.authorization-uri}") String authorizationUrl,
+                          @Value("${spring.security.oauth2.client.provider.oidcng.token-uri}") String tokenUrl,
+                          @Value("${oidcng.discovery-url}") String discoveryURL,
                           @Value("${oidcng.base-url}") String baseUrl) {
         SecurityScheme securityScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.OAUTH2)
                 .openIdConnectUrl(discoveryURL)
                 .flows(new OAuthFlows().authorizationCode(new OAuthFlow()
-                        .authorizationUrl("https://connect.test2.surfconext.nl/oidc/authorize/")
-                        .tokenUrl("https://connect.test2.surfconext.nl/oidc/token/")
+                        .authorizationUrl(authorizationUrl)
+                        .tokenUrl(tokenUrl)
                         .scopes(new Scopes().addString("openid", "openid"))));
 
         Components components = new Components()

@@ -45,7 +45,11 @@ spring:
 
 oidcng:
   discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
+  introspect-url: "https://connect.test2.surfconext.nl/oidc/introspect"
+  resource-server-id: myconext.rs
+  resource-server-secret: secret
   base-url: http://localhost:8080
+
 
 super-admin:
   users:
@@ -63,15 +67,15 @@ email:
   environment: "local"
 
 springdoc:
-  pathsToMatch: "/api/v1/**"
+  pathsToMatch: "/api/internal/v1/**"
   api-docs:
     path: "/ui/api-docs"
   swagger-ui:
     path: "/ui/api-ui.html"
     operationsSorter: method
     oauth:
-      client-id: playground_client
-      client-secret: secret
+      client-id: ${spring.security.oauth2.client.registration.oidcng.client-id}
+      client-secret: ${spring.security.oauth2.client.registration.oidcng.client-secret}
       use-basic-authentication-with-access-code-grant: true
 
 

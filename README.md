@@ -43,5 +43,5 @@ mvn clean deploy
 
 ### [Swagger](#swagger)
 
-http://localhost:8080/swagger-ui.html
-http://localhost:8080/v3/api-docs
+http://localhost:8080/ui/api-ui.html
+http://localhost:8080/ui/api-docs
