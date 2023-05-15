@@ -24,27 +24,26 @@ jobs:
     - name: Yarn Audit welcome
       run: yarn audit --level high --groups dependencies optionalDependencies
       working-directory: welcome
-        - uses: actions/checkout@v2
-        - name: Set up JDK 17
-          uses: actions/setup-java@v2
-          with:
-            java-version: '17'
-            distribution: 'adopt'
-            cache: 'maven'
-        - name: Set up MySQL
-          uses: shogo82148/actions-setup-mysql@v1
-          with:
-            mysql-version: '8.0'
-        - run: |
-            mysql -uroot -h127.0.0.1 -e \
-            "CREATE DATABASE access CHARACTER SET utf8mb4 \
-            COLLATE utf8mb4_0900_ai_ci;"
-        - run: |
-            mysql -uroot -h127.0.0.1 -e \
-            "CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';";
-        - run: |
-            mysql -uroot -h127.0.0.1 -e \
-            "GRANT ALL privileges ON access.* TO 'access'@'localhost';"
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+        cache: 'maven'
+    - name: Set up MySQL
+      uses: shogo82148/actions-setup-mysql@v1
+      with:
+        mysql-version: '8.0'
+    - run: |
+        mysql -uroot -h127.0.0.1 -e \
+        "CREATE DATABASE access CHARACTER SET utf8mb4 \
+        COLLATE utf8mb4_0900_ai_ci;"
+    - run: |
+        mysql -uroot -h127.0.0.1 -e \
+        "CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';";
+    - run: |
+        mysql -uroot -h127.0.0.1 -e \
+        "GRANT ALL privileges ON access.* TO 'access'@'localhost';"
     - name: Build with Maven
       run: mvn clean install --file pom.xml
     - name: Codecov
