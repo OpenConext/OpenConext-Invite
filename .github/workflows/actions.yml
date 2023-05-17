@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v3
       with:
-        node-version: 12
+        node-version: 16
     - name: Yarn Audit client
       run: yarn audit --level high --groups dependencies
       working-directory: client
