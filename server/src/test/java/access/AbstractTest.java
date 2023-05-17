@@ -7,6 +7,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -16,6 +17,8 @@ import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.cookie.CookieFilter;
+import io.restassured.http.ContentType;
 import lombok.SneakyThrows;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,8 +31,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -40,6 +46,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @ExtendWith(SpringExtension.class)
@@ -56,10 +65,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
 
-    private static final BouncyCastleProvider bcProvider = new BouncyCastleProvider();
-
     static {
-        Security.addProvider(bcProvider);
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @Autowired
@@ -102,6 +109,80 @@ public abstract class AbstractTest {
                 .withBody(introspectResultWithScope)));
         return UUID.randomUUID().toString();
     }
+
+    protected AccessCookieFilter openIDConnectFlow(String path, String sub) throws Exception {
+        CookieFilter cookieFilter = new CookieFilter();
+        String location = given()
+                .redirects()
+                .follow(false)
+                .when()
+                .filter(cookieFilter)
+                .get(path)
+                .header("Location");
+        assertEquals("http://localhost:" + this.port + "/oauth2/authorization/oidcng", location);
+
+        location = given()
+                .redirects()
+                .follow(false)
+                .when()
+                .filter(cookieFilter)
+                .get(location)
+                .header("Location");
+        assertTrue(location.startsWith("http://localhost:8081/authorization?"));
+
+        MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(location).build().getQueryParams();
+        String redirectUri = queryParams.getFirst("redirect_uri");
+        //The state and nonce are is url encoded
+        String state = URLDecoder.decode(queryParams.getFirst("state"), "UTF-8");
+        String nonce = URLDecoder.decode(queryParams.getFirst("nonce"), "UTF-8");
+
+        String keyId = String.format("key_%s", new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()));
+        RSAKey rsaKey = generateRsaKey(keyId);
+        String publicKeysJson = new JWKSet(rsaKey.toPublicJWK()).toJSONObject().toString();
+        stubFor(get(urlPathMatching("/jwk-set")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(publicKeysJson)));
+
+        SignedJWT signedJWT = getSignedJWT(keyId, redirectUri, rsaKey, sub, nonce, state);
+        String serialized = signedJWT.serialize();
+        Map<String, Object> tokenResult = Map.of(
+                "access_token", serialized,
+                "expires_in", 864000,
+                "id_token", serialized,
+                "refresh_token", serialized,
+                "token_type", "Bearer"
+        );
+        String validTokenResult = objectMapper.writeValueAsString(tokenResult);
+        stubFor(post(urlPathMatching("/token")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(validTokenResult)));
+
+        Map<String, Object> userInfo = objectMapper.readValue(new ClassPathResource("user-info.json").getInputStream(), new TypeReference<>() {
+        });
+        userInfo.put("sub", sub);
+        userInfo.put("eduperson_principal_name", sub);
+        String userInfoResult = objectMapper.writeValueAsString(userInfo);
+        stubFor(get(urlPathMatching("/user-info")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(userInfoResult)));
+
+        Map<String, String> body = new HashMap<>();
+        body.put("code", UUID.randomUUID().toString());
+        body.put("state", state);
+
+        location = given()
+                .redirects()
+                .follow(false)
+                .filter(cookieFilter)
+                .when()
+                .contentType(ContentType.URLENC)
+                .formParams(body)
+                .post(redirectUri)
+                .header("Location");
+        return new AccessCookieFilter(cookieFilter, location);
+    }
+
+
 
     protected RSAKey generateRsaKey(String keyID) throws NoSuchProviderException, NoSuchAlgorithmException {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", "BC");
