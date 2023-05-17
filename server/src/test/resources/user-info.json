@@ -1,0 +1,17 @@
+{
+  "eduperson_principal_name": "%s",
+  "email": "admin@utrecht.nl",
+  "email_verified": true,
+  "family_name": "Doe",
+  "given_name": "Mary",
+  "name": "John Doe",
+  "nickname": "John Doe",
+  "preferred_username": "John Doe",
+  "schac_home_organization": "example.com",
+  "scope": "%s",
+  "sub": "%s",
+  "uids": [
+    "1234567890"
+  ],
+  "updated_at": 1606133230
+}

@@ -3,6 +3,7 @@ logging:
   level:
     org.springframework: WARN
     org.springframework.web: WARN
+    org.springframework.security: WARN
     com.zaxxer.hikari: ERROR
 
 spring:
@@ -50,10 +51,9 @@ oidcng:
   resource-server-secret: secret
   base-url: http://localhost:8080
 
-
 super-admin:
   users:
-    - "j.doe@example.com"
+    - "urn:collab:person:example.com:admin"
 
 voot:
   user: voot
@@ -65,6 +65,12 @@ email:
   base-url: "http://localhost:3000"
   scim-failure: "j.doe@example.com"
   environment: "local"
+
+manage:
+  enabled: true
+  url: "https://manage.test2.surfconext.nl"
+  user: access
+  password: secret
 
 springdoc:
   pathsToMatch: "/api/internal/v1/**"

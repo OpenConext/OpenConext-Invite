@@ -55,7 +55,7 @@ public class SecurityConfig {
     @Order(2)
     SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .securityMatcher("/api/internal/v1/**")
+                .securityMatcher("/api/external/v1/**")
                 .authorizeHttpRequests()
                 .anyRequest()
                 .authenticated()

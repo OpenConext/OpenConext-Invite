@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = {"/api/v1/users", "/api/internal/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/api/v1/users", "/api/external/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 public class UserController {
@@ -27,15 +29,15 @@ public class UserController {
     }
 
     @GetMapping("config")
-    public ResponseEntity<String> config(Authentication authentication) {
+    public ResponseEntity<Map<String, String>> config(Authentication authentication) {
         LOG.debug("/config");
-        return ResponseEntity.ok("config");
+        return ResponseEntity.ok(Map.of("res", "config"));
     }
 
     @GetMapping("me")
-    public ResponseEntity<String> me(Authentication authentication) {
+    public ResponseEntity<Map<String, String>> me(Authentication authentication) {
         LOG.debug("/me");
-        return ResponseEntity.ok("me");
+        return ResponseEntity.ok(Map.of("res", "me"));
     }
 
 }

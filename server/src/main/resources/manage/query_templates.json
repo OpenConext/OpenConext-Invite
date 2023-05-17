@@ -1,0 +1,9 @@
+{
+  "base_query": {
+    "REQUESTED_ATTRIBUTES": [
+      "metaDataFields.scim:url",
+      "metaDataFields.scim:user_name",
+      "metaDataFields.scim:password"
+    ]
+  }
+}

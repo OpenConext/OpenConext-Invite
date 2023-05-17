@@ -1,0 +1,23 @@
+{
+  "active": true,
+  "authenticating_authority": "http://mock-idp",
+  "client_id": "playground_client",
+  "eduperson_principal_name": "%s",
+  "email": "guest@utrecht.nl",
+  "email_verified": true,
+  "exp": 1606140430,
+  "family_name": "ln",
+  "given_name": "fn",
+  "iss": "https://connect.test2.surfconext.nl",
+  "name": "Mary Doe",
+  "nickname": "Mary Doe",
+  "preferred_username": "Mary Doe",
+  "schac_home_organization": "example.com",
+  "scope": "%s",
+  "sub": "%s",
+  "token_type": "Bearer",
+  "uids": [
+    "1234567890"
+  ],
+  "updated_at": 1606133230
+}
