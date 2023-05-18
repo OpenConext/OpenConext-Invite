@@ -1,5 +1,6 @@
 package access;
 
+import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEObjectType;
@@ -12,14 +13,11 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.openid.connect.sdk.ClaimsRequest;
-import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
-import lombok.SneakyThrows;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +70,9 @@ public abstract class AbstractTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    @Autowired
+    protected UserRepository userRepository;
+
     @RegisterExtension
     WireMockExtension mockServer = new WireMockExtension(8081);
 
@@ -89,6 +90,11 @@ public abstract class AbstractTest {
     @BeforeEach
     protected void beforeEach() throws Exception {
         RestAssured.port = port;
+        this.seed();
+    }
+
+    private void seed() {
+        userRepository.deleteAll();
     }
 
     protected String opaqueAccessToken(String sub, String responseJsonFileName, String... scopes) throws IOException {
@@ -98,7 +104,11 @@ public abstract class AbstractTest {
         Map<String, Object> introspectResult = objectMapper.readValue(new ClassPathResource(responseJsonFileName).getInputStream(), new TypeReference<>() {
         });
         introspectResult.put("sub", sub);
-        introspectResult.put("eduperson_principal_name", sub);
+        introspectResult.put("eduperson_principal_name", "jdoe@example.com");
+        introspectResult.put("email", "jdoe@example.com");
+        introspectResult.put("given_name", "John");
+        introspectResult.put("family_name", "Doe");
+
         introspectResult.put("scope", String.join(" ", scopeList));
         introspectResult.put("exp", (System.currentTimeMillis() / 1000) + 60);
         introspectResult.put("updated_at", System.currentTimeMillis() / 1000);
@@ -183,7 +193,6 @@ public abstract class AbstractTest {
     }
 
 
-
     protected RSAKey generateRsaKey(String keyID) throws NoSuchProviderException, NoSuchAlgorithmException {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", "BC");
         kpg.initialize(2048);
@@ -220,7 +229,10 @@ public abstract class AbstractTest {
                 .subject(subject)
                 .notBeforeTime(new Date(System.currentTimeMillis()))
                 .claim("redirect_uri", redirectURI)
-                .claim("scope", "openid")
+                .claim("eduperson_principal_name", "jdoe@example.com")
+                .claim("email", "jdoe@example.com")
+                .claim("given_name", "John")
+                .claim("family_name", "Doe")
                 .claim("nonce", nonce)
                 .claim("state", state);
         return builder.build();

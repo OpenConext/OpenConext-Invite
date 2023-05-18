@@ -1,18 +1,32 @@
 package access.secuirty;
 
+import access.config.UserHandlerMethodArgumentResolver;
+import access.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.List;
+import java.util.function.Consumer;
 
 @EnableWebSecurity
 @EnableScheduling
@@ -22,16 +36,36 @@ public class SecurityConfig {
     private final String introspectionUri;
     private final String clientId;
     private final String secret;
-    private final ProvisioningOidcUserService provisioningOidcUserService;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
-    public SecurityConfig(ProvisioningOidcUserService provisioningOidcUserService,
+    @Autowired
+    public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
                           @Value("${oidcng.resource-server-secret}") String secret) {
-        this.provisioningOidcUserService = provisioningOidcUserService;
+        this.clientRegistrationRepository = clientRegistrationRepository;
         this.introspectionUri = introspectionUri;
         this.clientId = clientId;
         this.secret = secret;
+    }
+
+    @Configuration
+    @EnableConfigurationProperties(SuperAdmin.class)
+    public class MvcConfig implements WebMvcConfigurer {
+
+        private final UserRepository userRepository;
+        private final SuperAdmin superAdmin;
+
+        @Autowired
+        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin) {
+            this.userRepository = userRepository;
+            this.superAdmin = superAdmin;
+        }
+
+        @Override
+        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin));
+        }
     }
 
     @Bean
@@ -45,10 +79,38 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/**")
                 .authenticated()
                 .and()
-                .oauth2Login()
-                .userInfoEndpoint()
-                .oidcUserService(provisioningOidcUserService);
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .authorizationRequestResolver(
+                                        authorizationRequestResolver(this.clientRegistrationRepository)
+                                )
+                        )
+                );
+
         return http.build();
+    }
+
+    private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository, "/oauth2/authorization");
+        authorizationRequestResolver.setAuthorizationRequestCustomizer(
+                authorizationRequestCustomizer());
+
+        return  authorizationRequestResolver;
+    }
+
+    private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
+        return customizer -> customizer
+                .additionalParameters(params -> {
+                    RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+                    DefaultSavedRequest savedRequest = (DefaultSavedRequest) ((ServletRequestAttributes) requestAttributes)
+                            .getRequest().getSession(false).getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+                    String requestURI = savedRequest.getRequestURI();
+                    //Check if this a invitation link which needs a scoped WAYF
+                    params.put("prompt", "consent");
+                });
     }
 
     @Bean

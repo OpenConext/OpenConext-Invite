@@ -1,12 +1,13 @@
 package access.api;
 
+import access.model.User;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,15 +30,15 @@ public class UserController {
     }
 
     @GetMapping("config")
-    public ResponseEntity<Map<String, String>> config(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> config(User user) {
         LOG.debug("/config");
-        return ResponseEntity.ok(Map.of("res", "config"));
+        return ResponseEntity.ok(Map.of("authenticated", user != null));
     }
 
     @GetMapping("me")
-    public ResponseEntity<Map<String, String>> me(Authentication authentication) {
+    public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug("/me");
-        return ResponseEntity.ok(Map.of("res", "me"));
+        return ResponseEntity.ok(user);
     }
 
 }

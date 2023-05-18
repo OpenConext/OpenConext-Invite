@@ -21,7 +21,7 @@ public class Institution implements Serializable {
 
     @Column(name = "manage_id")
     @NotNull
-    private String manage_id;
+    private String manageId;
 
     @Embedded
     private Auditable auditable = new Auditable();

@@ -2,57 +2,63 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.SignedJWT;
-import io.restassured.filter.cookie.CookieFilter;
+import access.model.User;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest extends AbstractTest {
 
     @Test
+    void config() {
+        Map res = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(Map.class);
+        assertFalse((Boolean) res.get("authenticated"));
+    }
+
+    @Test
     void meWithOauth2Login() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "inviter@utrecht.nl");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "urn:collab:person:example.com:admin");
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(User.class);
+        assertEquals("jdoe@example.com", user.getEmail());
 
         Map res = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .get(accessCookieFilter.apiURL())
+                .get("/api/v1/users/config")
                 .as(Map.class);
-        assertEquals("me", res.get("res"));
+        assertTrue((Boolean) res.get("authenticated"));
     }
 
     @Test
     void meWithAccessToken() throws IOException {
-        Map res = given()
+        User user = given()
                 .when()
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .auth()
-                .oauth2(opaqueAccessToken("inviter@utrecht.nl", "introspect.json"))
+                .oauth2(opaqueAccessToken("urn:collab:person:example.com:admin", "introspect.json"))
                 .get("/api/external/v1/users/me")
-                .as(Map.class);
-        assertEquals("me", res.get("res"));
+                .as(User.class);
+        assertEquals("jdoe@example.com", user.getEmail());
     }
 
 }

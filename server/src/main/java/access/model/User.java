@@ -25,7 +25,11 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "sub")
+    @Column(name = "super_user")
+    @NotNull
+    private boolean superUser;
+
+    @Column
     @NotNull
     private String sub;
 
@@ -51,28 +55,27 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
 
-    public User(Authority authority, Map<String, Object> tokenAttributes) {
-        this(authority,
-                (String) tokenAttributes.get("eduperson_principal_name"),
-                (String) tokenAttributes.get("sub"),
-                (String) tokenAttributes.get("given_name"),
-                (String) tokenAttributes.get("family_name"),
-                (String) tokenAttributes.get("email"));
+    public User(Map<String, Object> attributes) {
+        this(false, attributes);
     }
 
-    public User(Authority authority, String eppn, String sub, String givenName, String familyName, String email) {
+    public User(boolean superUser, Map<String, Object> attributes) {
+        this(superUser,
+                (String) attributes.get("eduperson_principal_name"),
+                (String) attributes.get("sub"),
+                (String) attributes.get("given_name"),
+                (String) attributes.get("family_name"),
+                (String) attributes.get("email"));
+    }
+
+    public User(boolean superUser, String eppn, String sub, String givenName, String familyName, String email) {
+        this.superUser = superUser;
         this.eduPersonPrincipalName = eppn;
         this.sub = sub;
         this.givenName = givenName;
         this.familyName = familyName;
         this.email = email;
         this.createdAt = Instant.now();
-    }
-
-    private User(String givenName, String familyName, String email) {
-        this.givenName = givenName;
-        this.familyName = familyName;
-        this.email = email;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -97,9 +100,7 @@ public class User implements Serializable {
 
     @JsonIgnore
     public boolean hasChanged(Map<String, Object> tokenAttributes) {
-        User user = new User((String) tokenAttributes.get("given_name"),
-                (String) tokenAttributes.get("family_name"),
-                (String) tokenAttributes.get("email"));
+        User user = new User(tokenAttributes);
         boolean changed = !this.toScimString().equals(user.toScimString());
         if (changed) {
             this.familyName = user.familyName;

@@ -40,6 +40,7 @@ spring:
     password: secret
   flyway:
     locations: classpath:db/{vendor}/migration
+    fail-on-missing-locations: true
   mail:
     host: localhost
     port: 3025
@@ -73,7 +74,7 @@ manage:
   password: secret
 
 springdoc:
-  pathsToMatch: "/api/internal/v1/**"
+  pathsToMatch: "/api/external/v1/**"
   api-docs:
     path: "/ui/api-docs"
   swagger-ui:

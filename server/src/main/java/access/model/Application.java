@@ -42,7 +42,6 @@ public class Application implements Serializable, NameHolder {
     @Embedded
     private Auditable auditable = new Auditable();
 
-
     @JsonIgnore
     public void addRole(Role role) {
         this.roles.add(role);

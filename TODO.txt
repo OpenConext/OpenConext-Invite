@@ -1,11 +1,12 @@
 curl -H 'Content-Type: application/json' -u pdp:secret "https://manage.test2.surfconext.nl/manage/api/internal/rawSearch/saml20_sp?query=%7B%22_id%22%3A%2284b46191-ab43-42fc-bd21-ffe379d402c0%22%7D" | jq .
 
 Tasks:
-Create welcome GUI
+Create welcome GUI - store current location in session
 Use SDS
 Code Manage interface
 Database tables
 Add UserHandlerMethodArgumentResolver (see myconext)
+Add oauthlogin succes handler
 
 
 http://locahost:8080/api/v1/users/me
