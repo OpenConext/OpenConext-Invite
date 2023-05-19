@@ -74,7 +74,7 @@ public class SecurityConfig {
         http.csrf().disable()
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/users/config", "/ui/**")
+                .requestMatchers("/api/v1/users/config", "/ui/**", "internal/**")
                 .permitAll()
                 .requestMatchers("/api/v1/**")
                 .authenticated()

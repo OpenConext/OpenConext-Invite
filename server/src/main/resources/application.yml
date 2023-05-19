@@ -6,6 +6,12 @@ logging:
     org.springframework.security: WARN
     com.zaxxer.hikari: ERROR
 
+server:
+  error:
+    path: "/error"
+    include-message: always
+  forward-headers-strategy: framework
+
 spring:
   mvc:
     log-request-details: false
@@ -94,16 +100,14 @@ management:
     web:
       exposure:
         include: "health,info,mappings"
+      base-path: "/internal"
   endpoint:
     info:
+      enabled: true
+    health:
       enabled: true
     mappings:
       enabled: true
   info:
     git:
       mode: full
-
-server:
-  error:
-    include-message: always
-

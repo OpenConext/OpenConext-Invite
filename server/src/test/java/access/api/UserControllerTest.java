@@ -49,6 +49,22 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void loginWithOauth2Login() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "urn:collab:person:example.com:admin");
+
+        String location = given()
+                .redirects()
+                .follow(false)
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .header("Location");
+        assertEquals("http://localhost:" + super.port + "/client", location);
+    }
+
+    @Test
     void meWithAccessToken() throws IOException {
         User user = given()
                 .when()
