@@ -13,6 +13,10 @@ server:
   forward-headers-strategy: framework
 
 spring:
+  session:
+    jdbc:
+      initialize-schema: always
+    store-type: jdbc
   mvc:
     log-request-details: false
   security:

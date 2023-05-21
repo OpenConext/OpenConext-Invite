@@ -9,10 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
@@ -23,6 +22,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -66,12 +66,18 @@ public class SecurityConfig {
         public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
             argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin));
         }
+
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/**").allowedOrigins("http://localhost:3000");
+        }
     }
 
     @Bean
     @Order(1)
     SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf(c -> c
+                        .ignoringRequestMatchers("/login/oauth2/code/oidcng"))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests()
                 .requestMatchers("/api/v1/users/config", "/ui/**", "internal/**")
@@ -98,7 +104,7 @@ public class SecurityConfig {
         authorizationRequestResolver.setAuthorizationRequestCustomizer(
                 authorizationRequestCustomizer());
 
-        return  authorizationRequestResolver;
+        return authorizationRequestResolver;
     }
 
     private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
@@ -121,6 +127,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .anyRequest()
                 .authenticated()
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .oauth2ResourceServer()
                 .opaqueToken()

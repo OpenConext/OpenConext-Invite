@@ -3,7 +3,7 @@ import {render} from 'react-dom';
 import './index.scss';
 import App from './pages/App';
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-
+import '@surfnet/sds/styles/sds.css';
 
 render(
     <React.StrictMode>

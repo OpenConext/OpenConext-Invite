@@ -1,12 +1,11 @@
 package access.config;
 
-import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.model.User;
 import access.repository.UserRepository;
 import access.secuirty.SuperAdmin;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -48,6 +47,6 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 superAdmin.getUsers().stream().filter(adminSub -> adminSub.equals(sub))
                         .findFirst()
                         .map(adminSub -> userRepository.save(new User(true, attributes)))
-        ).orElseThrow(NotFoundException::new);
+        ).orElseThrow(UserRestrictionException::new);
     }
 }

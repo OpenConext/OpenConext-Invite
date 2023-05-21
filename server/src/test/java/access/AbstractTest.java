@@ -1,5 +1,6 @@
 package access;
 
+import access.repository.ApplicationRepository;
 import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,10 +15,12 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.MultiValueMap;
@@ -73,6 +78,9 @@ public abstract class AbstractTest {
     @Autowired
     protected UserRepository userRepository;
 
+    @Autowired
+    protected ApplicationRepository applicationRepository;
+
     @RegisterExtension
     WireMockExtension mockServer = new WireMockExtension(8081);
 
@@ -95,6 +103,7 @@ public abstract class AbstractTest {
 
     private void seed() {
         userRepository.deleteAll();
+        applicationRepository.deleteAll();
     }
 
     protected String opaqueAccessToken(String sub, String responseJsonFileName, String... scopes) throws IOException {
@@ -122,22 +131,24 @@ public abstract class AbstractTest {
 
     protected AccessCookieFilter openIDConnectFlow(String path, String sub) throws Exception {
         CookieFilter cookieFilter = new CookieFilter();
-        String location = given()
+        Headers headers = given()
                 .redirects()
                 .follow(false)
                 .when()
                 .filter(cookieFilter)
                 .get(path)
-                .header("Location");
+                .headers();
+        String location = headers.getValue("Location");
         assertEquals("http://localhost:" + this.port + "/oauth2/authorization/oidcng", location);
 
-        location = given()
+        headers = given()
                 .redirects()
                 .follow(false)
                 .when()
                 .filter(cookieFilter)
                 .get(location)
-                .header("Location");
+                .headers();
+        location = headers.getValue("Location");
         assertTrue(location.startsWith("http://localhost:8081/authorization?"));
 
         MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(location).build().getQueryParams();
@@ -180,7 +191,7 @@ public abstract class AbstractTest {
         body.put("code", UUID.randomUUID().toString());
         body.put("state", state);
 
-        location = given()
+        headers = given()
                 .redirects()
                 .follow(false)
                 .filter(cookieFilter)
@@ -188,8 +199,22 @@ public abstract class AbstractTest {
                 .contentType(ContentType.URLENC)
                 .formParams(body)
                 .post(redirectUri)
-                .header("Location");
-        return new AccessCookieFilter(cookieFilter, location);
+                .headers();
+        location = headers.getValue("Location");
+        //Refreshing the token after authentication success and logout success is required
+        Map<String, String> map = given()
+                .when()
+                .filter(cookieFilter)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/csrf")
+                .then()
+                .extract()
+                .as(new TypeRef<>() {
+                });
+
+        CsrfToken csrfToken = new DefaultCsrfToken(map.get("headerName"), map.get("parameterName"), map.get("token"));
+        return new AccessCookieFilter(cookieFilter, location, csrfToken);
     }
 
 

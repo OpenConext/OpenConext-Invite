@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.FORBIDDEN)
 public class UserRestrictionException extends AuthenticationException {
 
-    public UserRestrictionException(String msg) {
-        super(msg);
+    public UserRestrictionException() {
+        super("Forbidden");
     }
 }
