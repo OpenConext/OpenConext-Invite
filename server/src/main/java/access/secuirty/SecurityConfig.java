@@ -22,10 +22,13 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 @EnableWebSecurity
@@ -51,7 +54,7 @@ public class SecurityConfig {
 
     @Configuration
     @EnableConfigurationProperties(SuperAdmin.class)
-    public class MvcConfig implements WebMvcConfigurer {
+    public static class MvcConfig implements WebMvcConfigurer {
 
         private final UserRepository userRepository;
         private final SuperAdmin superAdmin;
@@ -76,15 +79,15 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(c -> c
-                        .ignoringRequestMatchers("/login/oauth2/code/oidcng"))
+        http
+                .csrf(c -> c.ignoringRequestMatchers("/login/oauth2/code/oidcng"))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
-                .authorizeHttpRequests()
-                .requestMatchers("/api/v1/users/config", "/ui/**", "internal/**")
-                .permitAll()
-                .requestMatchers("/api/v1/**")
-                .authenticated()
-                .and()
+                .authorizeHttpRequests(c -> c
+                        .requestMatchers("/api/v1/users/config", "/ui/**", "internal/**")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated()
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorization -> authorization
                                 .authorizationRequestResolver(
@@ -122,19 +125,27 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf(c -> c.disable())
                 .securityMatcher("/api/external/v1/**")
-                .authorizeHttpRequests()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .oauth2ResourceServer()
-                .opaqueToken()
-                .introspectionUri(introspectionUri)
-                .introspectionClientCredentials(clientId, secret);
+                .authorizeHttpRequests(c -> c
+                        .anyRequest()
+                        .authenticated()
+                )
+                .sessionManagement(c -> c
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .oauth2ResourceServer(c -> c
+                        .opaqueToken(c1 -> c1
+                                .introspectionUri(introspectionUri)
+                                .introspectionClientCredentials(clientId, secret)
+                        ));
         return http.build();
+    }
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        AcceptHeaderLocaleResolver slr = new AcceptHeaderLocaleResolver();
+        slr.setDefaultLocale(Locale.ENGLISH);
+        return slr;
     }
 }

@@ -1,11 +1,14 @@
 package access.api;
 
+import access.config.Config;
 import access.model.User;
+import access.secuirty.SuperAdmin;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,18 +26,23 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @RequestMapping(value = {"/api/v1/users", "/api/external/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
+@EnableConfigurationProperties(Config.class)
 public class UserController {
 
     private static final Log LOG = LogFactory.getLog(UserController.class);
 
+    private final Config config;
+
     @Autowired
-    public UserController() {
+    public UserController(Config config) {
+        this.config = config;
     }
 
     @GetMapping("config")
-    public ResponseEntity<Map<String, Object>> config(User user) {
+    public ResponseEntity<Config> config(User user) {
         LOG.debug("/config");
-        return ResponseEntity.ok(Map.of("authenticated", user != null));
+        boolean authenticated = user != null;
+        return ResponseEntity.ok(config.withAuthenticated(authenticated));
     }
 
     @GetMapping("me")
@@ -44,8 +52,8 @@ public class UserController {
     }
 
     @GetMapping("login")
-    public View login(@Parameter(hidden = true) User user) {
-        LOG.debug("/me");
-        return new RedirectView("/client");
+    public View login() {
+        LOG.debug("/login");
+        return new RedirectView(config.getClientUrl(), false);
     }
 }

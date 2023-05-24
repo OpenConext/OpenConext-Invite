@@ -1,3 +1,12 @@
+logging:
+  level:
+    org.springframework: INFO
+    org.springframework.security: INFO
+
+inviter:
+  user: inviter
+  password: secret
+
 server:
   port: 8090
   error:

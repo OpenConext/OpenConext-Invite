@@ -14,6 +14,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -43,10 +44,13 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             return null;
         }
         String sub = attributes.get("sub").toString();
-        return userRepository.findBySubIgnoreCase(sub).or(() ->
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+        return optionalUser.or(() ->
                 superAdmin.getUsers().stream().filter(adminSub -> adminSub.equals(sub))
                         .findFirst()
-                        .map(adminSub -> userRepository.save(new User(true, attributes)))
+                        .map(adminSub -> {
+                            return userRepository.save(new User(true, attributes));
+                        })
         ).orElseThrow(UserRestrictionException::new);
     }
 }

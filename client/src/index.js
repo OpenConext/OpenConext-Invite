@@ -1,17 +1,17 @@
 import React from 'react';
-import {render} from 'react-dom';
 import './index.scss';
-import App from './pages/App';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {App} from './pages/App';
 import '@surfnet/sds/styles/sds.css';
+import ReactDOM from 'react-dom/client';
+import {BrowserRouter,Routes, Route} from "react-router-dom";
 
-render(
+const root = ReactDOM.createRoot(document.getElementById("app"));
+root.render(
     <React.StrictMode>
         <BrowserRouter>
             <Routes>
                 <Route path="/*" element={<App/>}/>
             </Routes>
         </BrowserRouter>
-    </React.StrictMode>,
-    document.getElementById("app")
+    </React.StrictMode>
 );

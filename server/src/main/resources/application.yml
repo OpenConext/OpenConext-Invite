@@ -14,6 +14,7 @@ server:
 
 spring:
   session:
+    enabled: false
     jdbc:
       initialize-schema: always
     store-type: jdbc
@@ -65,6 +66,10 @@ oidcng:
 super-admin:
   users:
     - "urn:collab:person:example.com:admin"
+
+config:
+  client-url: "http://localhost:3000"
+  server-url: "http://localhost:8080/api/v1/users/login"
 
 voot:
   user: voot

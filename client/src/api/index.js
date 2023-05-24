@@ -26,7 +26,6 @@ function validateResponse(showErrorDialog) {
             throw error;
         }
         const sessionAlive = res.headers.get("x-session-alive");
-
         if (sessionAlive !== "true") {
             window.location.reload(true);
         }
@@ -51,7 +50,8 @@ function validFetch(path, options, headers = {}, showErrorDialog = true) {
         "X-CSRF-TOKEN": useAppStore.getState().csrfToken,
         ...headers
     };
-    if (useAppStore.getState().impersonator) {
+    const impersonator = useAppStore.getState().impersonator;
+    if (impersonator) {
         impersonation_attributes.forEach(attr =>
             contentHeaders[`X-IMPERSONATE-${attr.toUpperCase()}`] = sanitizeHeader(impersonator[attr]));
     }
@@ -81,7 +81,7 @@ export function health() {
     return fetchJson("/internal/health");
 }
 
-export function config() {
+export function configuration() {
     return fetchJson("api/v1/users/config");
 }
 
@@ -93,3 +93,8 @@ export function me() {
 export function login() {
     return fetchJson("api/v1/users/login");
 }
+
+export function logout() {
+    return fetchJson("/api/v1/users/logout");
+}
+
