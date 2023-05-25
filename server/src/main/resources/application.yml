@@ -14,9 +14,10 @@ server:
 
 spring:
   session:
-    enabled: false
     jdbc:
       initialize-schema: always
+      schema: classpath:org/springframework/session/jdbc/schema-mysql.sql
+      cleanup-cron: "0 * * * * *"
     store-type: jdbc
   mvc:
     log-request-details: false
