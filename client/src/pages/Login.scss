@@ -1,38 +1,135 @@
-.App {
-  text-align: center;
-}
+@import "../styles/vars.scss";
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+.top-container {
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+  flex-grow: 2;
+  background-color: $background;
 
-.App-link {
-  color: #61dafb;
-}
+  .mod-login-container {
+    @media (max-width: $tablet-max) {
+      padding: 0 15px;
+    }
+    background-color: white;
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+    .header-title {
+      margin-bottom: 60px;
+    }
+
+    &.bottom {
+      background-color: $background;
+    }
+
+    .mod-login {
+      @media (max-width: $tablet-max) {
+        flex-direction: column;
+      }
+      margin: 60px auto 0;
+      max-width: 768px;
+      width: 100%;
+      display: flex;
+      padding-bottom: 35px;
+
+      &.reversed {
+        flex-direction: row-reverse;
+        @media (max-width: $tablet-max) {
+          flex-direction: column;
+        }
+      }
+
+      &.bottom {
+        flex-direction: column;
+        margin: 30px auto 0;
+      }
+
+      &.info {
+        background-color: white;
+        border-radius: 16px;
+        padding: 25px 40px;
+        margin: 30px auto 0;
+        min-height: 244px;
+
+        @media (max-width: $tablet-max) {
+          padding: 15px 20px;
+        }
+      }
+
+      .header-left {
+        margin-right: 40px;
+        width: 50%;
+
+        button.sds--btn--primary {
+          width: 280px;
+          padding: 15px 60px;
+          font-size: 22px;
+        }
+
+        @media (max-width: $tablet-max) {
+          width: auto;
+          margin: 25px auto;
+        }
+
+        &.info {
+          width: 50%;
+          @media (max-width: $tablet-max) {
+            width: auto;
+            margin: 25px auto;
+          }
+
+        }
+      }
+
+      .header-right {
+        width: 48%;
+        @media (max-width: $tablet-max) {
+          width: auto;
+          margin: 25px auto;
+        }
+
+        img {
+          width: 310px;
+          height: auto;
+
+          @media (max-width: $tablet-max) {
+            width: 180px;
+          }
+
+        }
+
+        &.info {
+          display: flex;
+          width: 55%;
+          @media (max-width: $tablet-max) {
+            width: auto;
+            margin: 25px auto;
+          }
+
+          img {
+            margin: 0 0 0 20px;
+            width: 190px;
+            height: auto;
+
+            &.reversed {
+              margin: 0 40px 0 0;
+            }
+
+            @media (max-width: $tablet-max) {
+              width: 180px;
+            }
+
+          }
+        }
+      }
+    }
+
+    p.sup {
+      margin-top: 20px;
+      font-size: 18px;
+      line-height: 22px;
+    }
+
   }
 }

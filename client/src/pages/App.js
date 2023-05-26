@@ -6,6 +6,9 @@ import {useAppStore} from "../stores/AppStore";
 import {configuration, me} from "../api";
 import {Login} from "./Login";
 import {Home} from "./Home";
+import {Flash} from "../components/Flash";
+import {Header} from "../components/Header";
+import {Footer} from "../components/Footer";
 
 export const App = () => {
 
@@ -31,7 +34,7 @@ export const App = () => {
                 });
             }
         })
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         if (!authenticated) {
@@ -46,8 +49,9 @@ export const App = () => {
     return (
         <div className="access">
             <div className="container">
-                {/*<Flash/>*/}
-                {/*<Header user={user}/>*/}
+                <Flash/>
+                <Header user={useAppStore.getState().user}
+                        config={useAppStore.getState().config}/>
                 {authenticated &&
                 <Routes>
                     <Route path="/" element={<Navigate replace to="home"/>}/>
@@ -65,7 +69,7 @@ export const App = () => {
                     <Route path="login" element={<Login/>}/>
                 </Routes>}
             </div>
-            {/*<Footer/>*/}
+            {<Footer/>}
         </div>
     );
 }

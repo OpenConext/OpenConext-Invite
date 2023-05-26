@@ -98,3 +98,8 @@ export function logout() {
     return fetchJson("/api/v1/users/logout");
 }
 
+export function reportError(error) {
+    return postPutJson("/api/v1/users/error", error, "post");
+}
+
+

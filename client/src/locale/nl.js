@@ -1,6 +1,34 @@
 const nl = {
     code: "NL",
     name: "Nederlands",
+    landing: {
+        header: {
+            title: "Manage access to your applications",
+            login: "Login",
+            sup: "New to SURF Access? Login and see your possibilities.",
+        },
+        works: "How does it work?",
+        adminFunction: "admin function",
+        create: "Applications",
+        createInfo: "<p>Administrators create applications for service providers.</p>" +
+            "<p>They then create roles to manage the access for the applications.</p>",
+        invite: "Invite",
+        inviteInfo: "<p>Administrators invite colleagues for the configured roles.</p>" +
+            "<p>They can also ask other administrators to help manage the application and roles.</p>",
+        join: "Join",
+        joinInfo: "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>",
+        collaborate: "Groups",
+        collaborateInfo: "<p>The roles are actually group membership.</p>",
+        footer: "<p>SURF Access is a service for access management of Dutch led service providers.</p>" +
+            "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/access'>https://surf.nl/en/access</a>.</p>"
+    },
+    footer: {
+        terms: "Terms of Use",
+        termsLink: "https://edu.nl/6wb63",
+        privacy: "Privacy policy",
+        privacyLink: "https://edu.nl/fcgbd",
+        surfLink: "https://surf.nl",
+    },
     expirations: {
         expires: "Verloopt {{relativeTime}}",
         expired: "Verlopen {{relativeTime}}",
@@ -56,3 +84,5 @@ const nl = {
     },
 
 }
+
+export default nl;

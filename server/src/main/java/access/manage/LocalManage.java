@@ -1,25 +1,28 @@
 package access.manage;
 
+import access.exception.NotFoundException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 
+import java.util.List;
 import java.util.Map;
 
 public record LocalManage(ObjectMapper objectMapper) implements Manage {
 
     @SneakyThrows
     @Override
-    public Map<String, Object> serviceProviders() {
-        return objectMapper.readValue(new ClassPathResource("/manage/service_providers.json").getInputStream(), new TypeReference<>() {
+    public List<Map<String, Object>> providers(EntityType entityType) {
+        return objectMapper.readValue(new ClassPathResource("/manage/" + entityType.getType() + ".json").getInputStream(), new TypeReference<>() {
         });
     }
 
-    @SneakyThrows
     @Override
-    public Map<String, Object> identityProviders() {
-        return objectMapper.readValue(new ClassPathResource("/manage/identity_providers.json").getInputStream(), new TypeReference<>() {
-        });
+    public Map<String, Object> providerById(EntityType entityType, String id) {
+        return providers(entityType).stream()
+                .filter(provider -> provider.get("_id").equals(id))
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
     }
 }

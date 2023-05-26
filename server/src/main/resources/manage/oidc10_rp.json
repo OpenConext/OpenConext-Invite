@@ -1,4 +1,4 @@
-[
+  [
   {
     "_id": "002231f8-40c3-4fa0-9b8a-fbda1a4ae65c",
     "version": 88,
@@ -392,9 +392,11 @@
         "name:nl": "Mujina SP Name NL",
         "OrganizationName:en": "Mujina SP OrganizationName EN",
         "OrganizationName:nl": "Mujina SP OrganizationName NL",
-        "scim:url": "http://localhost:8080",
-        "scim:user_name": "user",
-        "scim:password": "secret"
+        "access:provisioning_type": "scim",
+        "access:scim_url": "http://localhost:8080",
+        "access:scim_user_name": "user",
+        "access:scim_password": "secret",
+        "access:scim_update_role_put_method": true
       }
     }
   }

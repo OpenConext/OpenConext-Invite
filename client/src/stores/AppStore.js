@@ -5,6 +5,7 @@ export const useAppStore = create((set) => ({
     impersonator: null,
     config: {},
     user: null,
+    objectRole: "",
     flash: {msg: "", className: "hide", type: "info"},
     setFlash: (message, type) => {
         set({flash: {msg: message, type: type || "info"}});

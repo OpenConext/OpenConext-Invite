@@ -1,10 +1,13 @@
 package access.manage;
 
+import java.util.List;
 import java.util.Map;
 
 public interface Manage {
 
-    Map<String, Object> serviceProviders();
+    List<Map<String, Object>> providers(EntityType entityType);
 
-    Map<String, Object> identityProviders();
+    Map<String, Object> providerById(EntityType entityType, String id);
+
+
 }

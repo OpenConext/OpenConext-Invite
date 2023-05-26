@@ -7,6 +7,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unchecked")
@@ -25,12 +28,18 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public Map<String, Object> serviceProviders() {
-        return restTemplate.postForObject(url + "/manage/api/internal/search/saml20_sp", this.queries.get("base_query"), Map.class);
+    public List<Map<String, Object>> providers(EntityType entityType) {
+        return getRemoteMetaData(entityType.getType());
     }
 
     @Override
-    public Map<String, Object> identityProviders() {
-        return restTemplate.postForObject(url + "/manage/api/internal/internal/saml20_idp", this.queries.get("base_query"), Map.class);
+    public Map<String, Object> providerById(EntityType entityType, String id) {
+        String query = URLEncoder.encode( String.format("{\"_id\":\"%s\"}", id), Charset.defaultCharset());
+        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.getType(), id, query);
+        return restTemplate.getForEntity(queryUrl, Map.class).getBody();
+    }
+
+    private List<Map<String, Object>> getRemoteMetaData(String type) {
+        return restTemplate.postForObject(String.format("%s/manage/api/internal/search/%s", url, type), this.queries.get("base_query"), List.class);
     }
 }
