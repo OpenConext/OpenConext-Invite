@@ -1,0 +1,10 @@
+@mixin input-field {
+    label {
+        display: inline-block;
+        min-width: 210px;
+        color: black;
+        position: relative;
+        margin: 12px 0 var(--sds--space--1);
+    }
+
+}

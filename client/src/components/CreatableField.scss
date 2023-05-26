@@ -1,0 +1,90 @@
+@import "../styles/vars.scss";
+
+div.creatable-field {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+
+    label {
+        display: inline-block;
+        margin: 12px 0 6px 0;
+        min-width: 210px;
+        color: black;
+        position: relative;
+        font-weight: 600;
+    }
+
+    .inner-creatable-field {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        border: 1px solid var(--sds--color--gray--400);
+        border-radius: $br;
+        font-size: 16px;
+
+        &:focus-within {
+            border: 2px solid #015fcb;
+        }
+
+        &.error {
+            background-color: var(--sds--color--red--200);
+            border: 1px solid var(--sds--color--red--400);
+        }
+
+        &.disabled {
+            cursor: not-allowed;
+            background-color: 1px solid var(--sds--color--gray--200);
+            min-height: 40px;
+        }
+
+    }
+
+    textarea {
+        border: none;
+        flex-grow: 2;
+        display: inline-block;
+        background-color: transparent;
+        font-size: 16px;
+        padding: 12px 5px 0 6px;
+        line-height: 16px;
+
+        &:focus {
+            border: none;
+            outline: none;
+        }
+    }
+
+    div.creatable-tag {
+        border: 1px solid var(--sds--color--gray--200);
+        border-radius: $br;
+        margin: 5px;
+        display: inline-block;
+        position: relative;
+        background-color: var(--sds--color--gray--100);
+        padding: 4px 26px 4px 10px;
+        max-height: 32px;
+
+        span {
+            &:first-child {
+                word-break: break-all;
+            }
+
+            &:last-child {
+                padding: 8px 14px;
+                cursor: pointer;
+                font-size: 14px;
+                color: var(--sds--color--gray--400);;
+                position: absolute;
+                right: -8px;
+                top: -2px;
+
+                &.disabled {
+                    cursor: not-allowed;
+                    color: var(--sds--color--green--400);;
+                }
+            }
+        }
+    }
+
+
+}
