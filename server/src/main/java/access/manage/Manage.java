@@ -9,5 +9,6 @@ public interface Manage {
 
     Map<String, Object> providerById(EntityType entityType, String id);
 
+    List<Map<String, Object>> provisioning(String providerId);
 
 }

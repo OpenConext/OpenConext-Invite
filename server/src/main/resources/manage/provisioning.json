@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "d642b87c-1f5f-482c-af03-358198e54e1e",
+    "version": 1,
+    "type": "provisioning",
+    "data": {
+      "entityid": "https://emntasdkjfb",
+      "state": "prodaccepted",
+      "metaDataFields": {
+        "name:en": "Test",
+        "provisioning_type": "scim",
+        "scim_url": "https://scim"
+      },
+      "applications": [
+        {
+          "id": "002231f8-40c3-4fa0-9b8a-fbda1a4ae65c",
+          "type": "saml20_sp"
+        }
+      ]
+    }
+  }
+]

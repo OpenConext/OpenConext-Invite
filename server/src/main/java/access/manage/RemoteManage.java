@@ -34,9 +34,15 @@ public class RemoteManage implements Manage {
 
     @Override
     public Map<String, Object> providerById(EntityType entityType, String id) {
-        String query = URLEncoder.encode( String.format("{\"_id\":\"%s\"}", id), Charset.defaultCharset());
+        String query = URLEncoder.encode(String.format("{\"_id\":\"%s\"}", id), Charset.defaultCharset());
         String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.getType(), id, query);
         return restTemplate.getForEntity(queryUrl, Map.class).getBody();
+    }
+
+    @Override
+    public List<Map<String, Object>> provisioning(String providerId) {
+        String queryUrl = String.format("%s/manage/api/internal/provisioning/%s", url, providerId);
+        return restTemplate.getForEntity(queryUrl, List.class).getBody();
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type) {

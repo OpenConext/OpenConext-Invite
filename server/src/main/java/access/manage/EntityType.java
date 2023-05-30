@@ -3,7 +3,8 @@ package access.manage;
 public enum EntityType {
     IDP("saml20_idp"),
     SP("saml20_sp"),
-    RP("oidc10_rp");
+    RP("oidc10_rp"),
+    PROV("provisioning");
 
     private final String type;
 
