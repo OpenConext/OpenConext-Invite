@@ -1,11 +1,18 @@
 {
   "base_query": {
     "REQUESTED_ATTRIBUTES": [
-      "metaDataFields.access:provisioning_type",
-      "metaDataFields.access:scim_url",
-      "metaDataFields.access:scim_user_name",
-      "metaDataFields.access:scim_password",
-      "metaDataFields.access:scim_update_role_put_method"
+      "metaDataFields.name:nl"
+    ]
+  },
+  "provisioning_query": {
+    "REQUESTED_ATTRIBUTES": [
+      "metaDataFields.name:nl",
+      "metaDataFields.name:nl",
+      "metaDataFields.name:nl",
+      "metaDataFields.name:nl",
+      "metaDataFields.name:nl",
+      "applications"
     ]
   }
+
 }

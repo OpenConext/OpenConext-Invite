@@ -1,5 +1,10 @@
 curl -H 'Content-Type: application/json' -u pdp:secret "https://manage.test2.surfconext.nl/manage/api/internal/rawSearch/saml20_sp?query=%7B%22_id%22%3A%2284b46191-ab43-42fc-bd21-ffe379d402c0%22%7D" | jq .
 
+curl -H 'Content-Type: application/json' -u pdp:secret "https://manage.test2.surfconext.nl/manage/api/internal/rawSearch/saml20_sp?query=%7B%22_id%22%3A%2284b46191-ab43-42fc-bd21-ffe379d402c0%22%7D" | jq .
+
+https://wiki.surfnet.nl/display/EDUID/Rollen+en+rechten
+
+curl -H 'Content-Type: application/json' -u pdp:secret  -X POST -d '{"REQUESTED_ATTRIBUTES":["applications"]}' 'https://manage.test2.surfconext.nl/manage/api/internal/search/provisioning'
 Tasks:
 Create welcome GUI - store current location in session
 Use SDS

@@ -10,9 +10,3 @@ export function login(e, currentUrl = window.location.href) {
     const config = useAppStore.getState().config;
     window.location.href =  `${config.serverUrl}/login`;
 }
-
-export function logoutUser(e) {
-    stopEvent(e);
-    const config = useAppStore.getState().config;
-    logout().then(() => window.location.href = `${config.clientUrl}/login`)
-}

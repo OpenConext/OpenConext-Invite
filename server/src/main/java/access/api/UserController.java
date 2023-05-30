@@ -5,12 +5,14 @@ import access.model.User;
 import access.secuirty.SuperAdmin;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,5 +57,13 @@ public class UserController {
     public View login() {
         LOG.debug("/login");
         return new RedirectView(config.getClientUrl(), false);
+    }
+
+    @GetMapping("logout")
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+        LOG.debug("/logout");
+        SecurityContextHolder.clearContext();
+        request.getSession(false).invalidate();
+        return ResponseEntity.ok(Map.of("result", "ok"));
     }
 }

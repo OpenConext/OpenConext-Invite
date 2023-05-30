@@ -15,7 +15,7 @@ export const Header = ({user, config}) => {
                           color={LogoColor.White}/>
                 </Link>
                 {user &&
-                <UserMenu currentUser={user}
+                <UserMenu user={user}
                           config={config}
                           actions={[]}
                 />

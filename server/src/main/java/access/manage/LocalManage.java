@@ -30,7 +30,10 @@ public record LocalManage(ObjectMapper objectMapper) implements Manage {
     @Override
     public List<Map<String, Object>> provisioning(String providerId) {
         return providers(EntityType.PROV).stream()
-                .filter(map -> ((List<Map<String, String>>)((Map)map.get("data")).get("applications")).stream().filter(m -> m.get("id").equals(providerId)))
+                .filter(map -> {
+                    List<Map<String, String>> applications = (List<Map<String, String>>) ((Map) map.get("data")).get("applications");
+                    return applications.stream().anyMatch(m -> m.get("id").equals(providerId));
+                })
                 .collect(Collectors.toList());
     }
 }

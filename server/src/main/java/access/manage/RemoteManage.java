@@ -46,6 +46,7 @@ public class RemoteManage implements Manage {
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type) {
-        return restTemplate.postForObject(String.format("%s/manage/api/internal/search/%s", url, type), this.queries.get("base_query"), List.class);
+        Object baseQuery = this.queries.get("base_query");
+        return restTemplate.postForObject(String.format("%s/manage/api/internal/search/%s", url, type), baseQuery, List.class);
     }
 }
