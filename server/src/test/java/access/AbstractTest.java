@@ -1,6 +1,6 @@
 package access;
 
-import access.repository.ApplicationRepository;
+import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,7 +80,7 @@ public abstract class AbstractTest {
     protected UserRepository userRepository;
 
     @Autowired
-    protected ApplicationRepository applicationRepository;
+    protected RoleRepository roleRepository;
 
     @RegisterExtension
     WireMockExtension mockServer = new WireMockExtension(8081);
@@ -104,7 +104,7 @@ public abstract class AbstractTest {
 
     private void seed() {
         userRepository.deleteAll();
-        applicationRepository.deleteAll();
+        roleRepository.deleteAll();
     }
 
     protected String opaqueAccessToken(String sub, String responseJsonFileName, String... scopes) throws IOException {

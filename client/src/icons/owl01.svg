@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+xmlns:xlink="http://www.w3.org/1999/xlink" width="416" height="457">
+
+  <defs>
+    <pattern id="mytri" patternUnits="userSpaceOnUse" y="14" x="10" width="21.9239" height="26.238027">
+      <path d="M 20.462031,0 10.96153,10.13708 1.4610282,0 Z M 0,13.11974 0,23.25647 9.5000456,13.11974 0,13.11974 Z m 12.421874,0 9.501983,10.13673 0,-10.13673 -9.501983,0 z"/>
+    </pattern>
+
+    <path id="belly" d="m 207.68327,235.28676 a 115,115 0 0 0 -115.000005,115 115,115 0 0 0 2.5761,23.5645 197.5,197.5 0 0 0 111.820305,34.7285 197.5,197.5 0 0 0 113.4121,-36.1016 115,115 0 0 0 2.1915,-22.1914 115,115 0 0 0 -115,-115 z"/>
+
+  </defs>
+
+  <path id="leg" d="m 150,441 15,-14 14,14 m -14,-61 0,67" fill="none" stroke-width="14.5" stroke-linecap="round" stroke="#f99a32"/>
+  <use xlink:href="#leg" transform="translate(84.8,0)"/>
+
+  <path id="body" d="M 369,3.12 C 410,98.4 391,353 325,369 292,392 251,408 207,408 164,408 125,394 92.5,372 29.3,283 4.24,177 42.7,4.01 70.2,17.6 77.2,31.1 93.2,44.6 123,27.2 169,22 207,22 c 39,0 88,11.7 116,21.3 16,-13.5 30,-30.8 46,-40.18 z" fill="#9a6d5a"/>
+
+  <use xlink:href="#belly" fill="white"/>
+  <use xlink:href="#belly" fill="url(#mytri)"/>
+
+  <path id="wing" d="M 25.5,174 C -30.4,302 45.3,362 91,379 108,336 115,279 25.5,174 Z" fill="#734d38"/>
+  <use xlink:href="#wing" transform="translate(416, 0) scale(-1,1)"/>
+
+  <g id="eye">
+    <circle cx="124.5" cy="146.3" r="84" fill="#f77a04"/>
+    <circle cx="121" cy="144" r="62.3" fill="white"/>
+    <circle cx="120" cy="149" r="44.5" fill="black"/>
+    <circle cx="114" cy="131" r="11.5" fill="white"/>
+  </g>
+  <use xlink:href="#eye" transform="translate(414, 0) scale(-1,1)"/>
+
+  <path id="beak" d="m 207,150 0,52 -22,-32 z" fill="#fcb62e" stroke="#666" stroke-width="0.1"/>
+  <use xlink:href="#beak" fill="#f89b33" transform="translate(413.7, 0) scale(-1,1)"/>
+
+</svg>

@@ -35,6 +35,12 @@ const en = {
             helpUrl: "https://edu.nl/vw3jx"
         },
     },
+    paths: {
+        home: "Home"
+    },
+    home: {
+        access: "SURF Access",
+    },
     footer: {
         terms: "Terms of Use",
         termsLink: "https://edu.nl/6wb63",

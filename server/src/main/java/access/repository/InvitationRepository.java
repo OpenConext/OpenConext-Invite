@@ -13,10 +13,10 @@ import java.util.Optional;
 public interface InvitationRepository extends JpaRepository<Invitation, Long> {
 
     @EntityGraph(value = "findByHash", type = EntityGraph.EntityGraphType.LOAD,
-            attributePaths = {"inviter", "roles", "roles.role", "roles.role.application"})
+            attributePaths = {"inviter", "roles", "roles.role"})
     Optional<Invitation> findByHash(String hash);
 
     Optional<Invitation> findByIdAndStatus(Long id, Status status);
 
-    List<Invitation> findByStatusAndRoles_role_application_id(Status status, Long applicationId);
+    List<Invitation> findByStatusAndRoles_role_id(Status status, Long roleId);
 }

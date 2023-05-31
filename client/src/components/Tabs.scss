@@ -1,4 +1,4 @@
-@import "../stylesheets/vars.scss";
+@import "../styles/vars.scss";
 
 .tabs-container {
     width: 100%;
@@ -11,13 +11,10 @@
         gap: var(--sds--space--1);
 
         @media (max-width: $tablet-max) {
-            padding: 0 15px;
-        }
-
-        @media (max-width: $compact-medium) {
             flex-direction: column;
             padding: 0;
         }
+
 
     }
 

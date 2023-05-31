@@ -25,13 +25,13 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "super_user")
-    @NotNull
-    private boolean superUser;
-
     @Column
     @NotNull
     private String sub;
+
+    @Column(name = "super_user")
+    @NotNull
+    private boolean superUser;
 
     @Column(name = "eduperson_principal_name")
     @NotNull

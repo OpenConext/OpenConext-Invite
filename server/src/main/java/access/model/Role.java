@@ -32,53 +32,36 @@ public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
     @NotNull
     private String name;
 
-    @Column(name = "display_name")
-    private String displayName;
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "remote_scim_identifier")
     private String remoteScimIdentifier;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    @NotNull
-    private Authority authority = Authority.INVITER;
-
-    @Column(name = "instant_available")
-    private boolean instantAvailable;
+    @Column(name = "landing_page")
+    private String landingPage;
 
     @Column(name = "default_expiry_days")
     private Integer defaultExpiryDays;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Application application;
+    @Column(name = "manage_id")
+    private String manageId;
+
+    @Column(name = "manage_type")
+    private String manageType;
 
     @Embedded
     private Auditable auditable = new Auditable();
 
-    public Role(String name, Application application) {
+    @Transient
+    private Map<String, Object> application;
+
+    public Role(String name, String description, String manageId, String manageType, Map<String, Object> application) {
         this.name = name;
+        this.description = description;
+        this.manageId = manageId;
+        this.manageType = manageType;
         this.application = application;
-    }
-
-    public Role(Long id, String roleName) {
-        this.id = id;
-        this.name = roleName;
-    }
-
-    @JsonProperty(value = "application", access = JsonProperty.Access.READ_ONLY)
-    public Map<String, Object> getApplicationMap() {
-        try {
-            Application application = this.getApplication();
-
-            Map<String, Object> applicationMap = new HashMap<>();
-            applicationMap.put("id", application.getId());
-            applicationMap.put("name", application.getName());
-            return applicationMap;
-        } catch (LazyInitializationException e) {
-            return null;
-        }
     }
 
     @Override

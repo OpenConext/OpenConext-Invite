@@ -14,4 +14,6 @@ export const useAppStore = create((set) => ({
         }
     },
     clearFlash: () => set({flash: {}}),
+    //[{path: "/roles/4", value: role.name}]
+    breadcrumbPath: []
 }));

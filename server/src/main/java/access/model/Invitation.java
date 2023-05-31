@@ -57,13 +57,6 @@ public class Invitation implements Serializable {
     @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<InvitationRole> roles = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "invitations_institutions",
-            joinColumns = @JoinColumn(name = "invitation_id"),
-            inverseJoinColumns = @JoinColumn(name = "institution_id"))
-    private Set<Institution> institution = new HashSet<>();
-
     @Transient
     private boolean emailEqualityConflict = false;
 

@@ -46,15 +46,13 @@ public class Auditable implements Serializable {
     @JsonIgnore
     private String currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Map<String, Object> attributes;
+        Map<String, Object> attributes = Map.of("eduperson_principal_name", "ResourceCleaner");
         if (authentication instanceof BearerTokenAuthentication bearerTokenAuthentication) {
             attributes = bearerTokenAuthentication.getTokenAttributes();
         } else if (authentication instanceof OAuth2AuthenticationToken authenticationToken) {
             attributes = authenticationToken.getPrincipal().getAttributes();
-        } else {
-            attributes = Map.of("eduperson_principal_name", "ResourceCleaner");
         }
-        return attributes.get("eduperson_principal_name").toString();
+        return attributes.getOrDefault("eduperson_principal_name", "ResourceCleaner").toString();
     }
 
 }

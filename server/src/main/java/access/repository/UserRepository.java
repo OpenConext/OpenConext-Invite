@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findBySubIgnoreCase(String sub);
 
-    List<User> findByUserRoles_role_application_id(Long applicationId);
+    List<User> findByUserRoles_role_id(Long roleId);
 
     List<User> findByLastActivityBefore(Instant instant);
 }

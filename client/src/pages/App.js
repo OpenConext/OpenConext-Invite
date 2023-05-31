@@ -9,6 +9,7 @@ import {Home} from "./Home";
 import {Flash} from "../components/Flash";
 import {Header} from "../components/Header";
 import {Footer} from "../components/Footer";
+import {BreadCrumb} from "../components/BreadCrumb";
 
 export const App = () => {
 
@@ -52,6 +53,7 @@ export const App = () => {
                 <Flash/>
                 <Header user={useAppStore.getState().user}
                         config={useAppStore.getState().config}/>
+                {authenticated && <BreadCrumb />}
                 {authenticated &&
                 <Routes>
                     <Route path="/" element={<Navigate replace to="home"/>}/>

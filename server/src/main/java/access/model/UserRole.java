@@ -1,6 +1,7 @@
 package access.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,10 +38,16 @@ public class UserRole implements Serializable, RemoteSCIMIdentifier {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    public UserRole(Role role, String inviter, Instant endDate) {
-        this.role = role;
+    @Enumerated(EnumType.STRING)
+    @Column
+    @NotNull
+    private Authority authority = Authority.GUEST;
+
+    public UserRole(String inviter, Instant endDate, User user, Role role, Authority authority) {
         this.inviter = inviter;
         this.endDate = endDate;
+        this.user = user;
+        this.role = role;
+        this.authority = authority;
     }
-
 }

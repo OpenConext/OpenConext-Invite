@@ -78,8 +78,8 @@ voot:
 email:
   from: "no-reply@surf.nl"
   base-url: "http://localhost:3000"
-  scim-failure: "j.doe@example.com"
   environment: "local"
+  enabled: false
 
 manage:
   enabled: true

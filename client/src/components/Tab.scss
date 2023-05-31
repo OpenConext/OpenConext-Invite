@@ -1,4 +1,4 @@
-@import "../stylesheets/vars.scss";
+@import "../styles/vars.scss";
 
 
 .tab {
@@ -23,7 +23,7 @@
         margin-right: 0;
     }
 
-    @media (max-width: $compact-medium) {
+    @media (max-width: $tablet-max) {
         margin: 0;
     }
 
@@ -60,11 +60,11 @@
             cursor: not-allowed;
 
             span.tab-label, svg {
-                color: $medium-grey;
+                color: var(--sds--color--gray--300);
             }
 
             svg {
-                fill: $medium-grey;
+                fill: var(--sds--color--gray--300);
             }
         }
     }
@@ -106,7 +106,7 @@
             height: auto;
         }
 
-        @media (max-width: $compact-medium) {
+        @media (max-width: $tablet-max) {
             top: 8px;
             right: 4px;
         }
