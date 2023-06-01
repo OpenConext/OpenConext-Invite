@@ -1,7 +1,10 @@
 package access;
 
+import access.manage.LocalManage;
+import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
+import access.repository.UserRoleRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEObjectType;
@@ -82,6 +85,14 @@ public abstract class AbstractTest {
     @Autowired
     protected RoleRepository roleRepository;
 
+    @Autowired
+    protected UserRoleRepository userRoleRepository;
+
+    @Autowired
+    protected InvitationRepository invitationRepository;
+
+    protected LocalManage manage;
+
     @RegisterExtension
     WireMockExtension mockServer = new WireMockExtension(8081);
 
@@ -93,18 +104,21 @@ public abstract class AbstractTest {
         RestAssured.config = RestAssuredConfig.config()
                 .objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
                         new ConfigurableJackson2ObjectMapperFactory()));
-
     }
 
     @BeforeEach
     protected void beforeEach() throws Exception {
         RestAssured.port = port;
-        this.seed();
+        if (seedDatabase()) {
+            new Seed(roleRepository, userRepository, userRoleRepository, invitationRepository).doSeed();
+        }
+        if (this.manage == null) {
+            this.manage = new LocalManage(objectMapper);
+        }
     }
 
-    private void seed() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
+    protected boolean seedDatabase() {
+        return true;
     }
 
     protected String opaqueAccessToken(String sub, String responseJsonFileName, String... scopes) throws IOException {

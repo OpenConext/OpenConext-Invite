@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
@@ -33,20 +34,29 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
+        String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(","));
+        String query = URLEncoder.encode(String.format("{ \"id\": { $in: [%s]}}", param), Charset.defaultCharset());
+        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.getType(), query);
+        return addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
+    }
+
+    @Override
     public Map<String, Object> providerById(EntityType entityType, String id) {
-        String query = URLEncoder.encode(String.format("{\"_id\":\"%s\"}", id), Charset.defaultCharset());
-        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.getType(), id, query);
-        return restTemplate.getForEntity(queryUrl, Map.class).getBody();
+        String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.getType(), id);
+        return addIdentifierAlias(restTemplate.getForEntity(queryUrl, Map.class).getBody());
     }
 
     @Override
     public List<Map<String, Object>> provisioning(String providerId) {
         String queryUrl = String.format("%s/manage/api/internal/provisioning/%s", url, providerId);
-        return restTemplate.getForEntity(queryUrl, List.class).getBody();
+        return addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type) {
         Object baseQuery = this.queries.get("base_query");
-        return restTemplate.postForObject(String.format("%s/manage/api/internal/search/%s", url, type), baseQuery, List.class);
+        String url = String.format("%s/manage/api/internal/search/%s", this.url, type);
+        return addIdentifierAlias(restTemplate.postForObject(url, baseQuery, List.class));
+
     }
 }

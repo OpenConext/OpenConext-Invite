@@ -11,7 +11,8 @@ CREATE TABLE `users`
     `last_activity`            datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `users_unique_eppn` (`eduperson_principal_name`),
-    UNIQUE INDEX `users_unique_sub` (`sub`)
+    UNIQUE INDEX `users_unique_sub` (`sub`),
+    FULLTEXT KEY `full_text_index` (`given_name`,`family_name`,`email`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;

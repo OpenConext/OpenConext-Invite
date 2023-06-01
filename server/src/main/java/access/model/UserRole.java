@@ -43,9 +43,8 @@ public class UserRole implements Serializable, RemoteSCIMIdentifier {
     @NotNull
     private Authority authority = Authority.GUEST;
 
-    public UserRole(String inviter, Instant endDate, User user, Role role, Authority authority) {
+    public UserRole(String inviter, User user, Role role, Authority authority) {
         this.inviter = inviter;
-        this.endDate = endDate;
         this.user = user;
         this.role = role;
         this.authority = authority;

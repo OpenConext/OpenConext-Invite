@@ -68,9 +68,11 @@ public class ManageController {
     @GetMapping("providers")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug("/providers");
-        List<Map<String, Object>> serviceProviders = manage.providers(EntityType.SP);
-        List<Map<String, Object>> relyingParties = manage.providers(EntityType.RP);
+        List<Map<String, Object>> serviceProviders = manage.providers(EntityType.SAML20_SP);
+        List<Map<String, Object>> relyingParties = manage.providers(EntityType.OIDC10_RP);
         serviceProviders.addAll(relyingParties);
         return ResponseEntity.ok(serviceProviders);
     }
+
+
 }

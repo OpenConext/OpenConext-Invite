@@ -1,3 +1,7 @@
+Sometimes _id and sometimes id
+
+curl -H 'Content-Type: application/json' -u pdp:secret  -X POST -d '{"REQUESTED_ATTRIBUTES":["applications"]}' 'https://manage.test2.surfconext.nl/manage/api/internal/search/provisioning' | jq .
+
 curl -H 'Content-Type: application/json' -u pdp:secret "https://manage.test2.surfconext.nl/manage/api/internal/rawSearch/saml20_sp?query=%7B%22_id%22%3A%2284b46191-ab43-42fc-bd21-ffe379d402c0%22%7D" | jq .
 
 curl -H 'Content-Type: application/json' -u pdp:secret "https://manage.test2.surfconext.nl/manage/api/internal/rawSearch/saml20_sp?query=%7B%22_id%22%3A%2284b46191-ab43-42fc-bd21-ffe379d402c0%22%7D" | jq .
@@ -5,6 +9,8 @@ curl -H 'Content-Type: application/json' -u pdp:secret "https://manage.test2.sur
 https://wiki.surfnet.nl/display/EDUID/Rollen+en+rechten
 
 curl -H 'Content-Type: application/json' -u pdp:secret  -X POST -d '{"REQUESTED_ATTRIBUTES":["applications"]}' 'https://manage.test2.surfconext.nl/manage/api/internal/search/provisioning'
+
+curl -H 'Content-Type: application/json' -u pdp:secret "https://manage.test2.surfconext.nl/manage/api/internal/rawSearch/saml20_sp?query=%7B%20%22id%22%3A%20%7B%20%24in%3A%20%5B%22d642b87c-1f5f-482c-af03-358198e54e1e%22%5D%7D%7D" | jq .
 Tasks:
 Create welcome GUI - store current location in session
 Use SDS

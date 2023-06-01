@@ -4,6 +4,8 @@ import access.exception.UserRestrictionException;
 import access.model.Authority;
 import access.model.User;
 
+import java.util.Map;
+
 public class UserPermissions {
 
     private UserPermissions() {
@@ -19,6 +21,16 @@ public class UserPermissions {
         if (!user.isSuperUser() && user.getUserRoles().stream()
                 .noneMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(authority)))
             throw new UserRestrictionException();
+    }
+
+    public static void assertManageRole(Map<String, Object> provider, User user) {
+        if (!user.isSuperUser()) {
+            user.getUserRoles().stream()
+                    .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)
+                            && userRole.getRole().getManageId().equals(provider.get("id")))
+                    .findFirst()
+                    .orElseThrow(UserRestrictionException::new);
+        }
     }
 
 }

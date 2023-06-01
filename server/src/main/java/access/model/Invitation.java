@@ -60,10 +60,11 @@ public class Invitation implements Serializable {
     @Transient
     private boolean emailEqualityConflict = false;
 
-    public Invitation(Authority intendedAuthority, String message, String email, boolean enforceEmailEquality, Set<InvitationRole> roles) {
+    public Invitation(Authority intendedAuthority, String hash, String email, boolean enforceEmailEquality, User inviter, Set<InvitationRole> roles) {
         this.intendedAuthority = intendedAuthority;
-        this.message = message;
+        this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
+        this.inviter = inviter;
         this.status = Status.OPEN;
         this.roles = roles;
         this.email = email;

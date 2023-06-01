@@ -1,6 +1,7 @@
 package access.model;
 
 
+import access.manage.EntityType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +50,7 @@ public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
     private String manageId;
 
     @Column(name = "manage_type")
-    private String manageType;
+    private EntityType manageType;
 
     @Embedded
     private Auditable auditable = new Auditable();
@@ -56,7 +58,11 @@ public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
     @Transient
     private Map<String, Object> application;
 
-    public Role(String name, String description, String manageId, String manageType, Map<String, Object> application) {
+    public Role(String name, String description, String manageId, EntityType manageType) {
+        this(name, description, manageId, manageType, Collections.emptyMap());
+    }
+
+    public Role(String name, String description, String manageId, EntityType manageType, Map<String, Object> application) {
         this.name = name;
         this.description = description;
         this.manageId = manageId;

@@ -16,27 +16,44 @@ class RemoteManageTest extends AbstractTest {
     @Autowired
     private Manage manage;
 
+    @Override
+    protected boolean seedDatabase() {
+        return false;
+    }
+
     @Test
     void providers() throws JsonProcessingException {
         LocalManage localManage = new LocalManage(objectMapper);
-        List<Map<String, Object>> serviceProviders = localManage.providers(EntityType.SP);
+        List<Map<String, Object>> serviceProviders = localManage.providers(EntityType.SAML20_SP);
         String body = objectMapper.writeValueAsString(serviceProviders);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        List<Map<String, Object>> remoteServiceProviders = manage.providers(EntityType.SP);
-        assertEquals(28, remoteServiceProviders.size());
+        List<Map<String, Object>> remoteServiceProviders = manage.providers(EntityType.SAML20_SP);
+        assertEquals(4, remoteServiceProviders.size());
     }
 
     @Test
     void providerById() throws JsonProcessingException {
         LocalManage localManage = new LocalManage(objectMapper);
-        Map<String, Object> provider = localManage.providerById(EntityType.SP, "76171457-6ed5-4505-9071-9e0e47557985");
+        Map<String, Object> provider = localManage.providerById(EntityType.SAML20_SP, "1");
         String body = objectMapper.writeValueAsString(provider);
+        stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+        Map<String, Object> remoteProvider = manage.providerById(EntityType.SAML20_SP, "1");
+        assertEquals(provider, remoteProvider);
+    }
+
+    @Test
+    void providersByIdIn() throws JsonProcessingException {
+        LocalManage localManage = new LocalManage(objectMapper);
+        List<Map<String, Object>> providers = localManage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
+        String body = objectMapper.writeValueAsString(providers);
         stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        Map<String, Object> remoteProvider = manage.providerById(EntityType.SP, "76171457-6ed5-4505-9071-9e0e47557985");
-        assertEquals(provider, remoteProvider);
+        List<Map<String, Object>> remoteProviders =  manage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
+        assertEquals(providers, remoteProviders);
     }
 }

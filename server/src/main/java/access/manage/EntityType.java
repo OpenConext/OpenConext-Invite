@@ -1,17 +1,9 @@
 package access.manage;
 
 public enum EntityType {
-    SP("saml20_sp"),
-    RP("oidc10_rp"),
-    PROV("provisioning");
-
-    private final String type;
-
-    EntityType(String type) {
-        this.type = type;
-    }
+    SAML20_SP, OIDC10_RP, PROVISIONING;
 
     public String getType() {
-        return type;
+        return name().toLowerCase();
     }
 }

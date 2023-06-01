@@ -35,6 +35,7 @@ public class MockMailBox extends MailBox {
     private void openInBrowser(String html) {
         File tempFile = File.createTempFile("javamail", ".html");
         FileCopyUtils.copy(html.getBytes(), tempFile);
-        Runtime.getRuntime().exec("open " + tempFile.getAbsolutePath());
+        new ProcessBuilder("open " + tempFile.getAbsolutePath()).start();
+//        Runtime.getRuntime().exec();
     }
 }
