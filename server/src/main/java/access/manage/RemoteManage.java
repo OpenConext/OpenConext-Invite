@@ -30,20 +30,20 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providers(EntityType entityType) {
-        return getRemoteMetaData(entityType.getType());
+        return getRemoteMetaData(entityType.collectionName());
     }
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
         String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(","));
         String query = URLEncoder.encode(String.format("{ \"id\": { $in: [%s]}}", param), Charset.defaultCharset());
-        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.getType(), query);
+        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.collectionName(), query);
         return addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
     }
 
     @Override
     public Map<String, Object> providerById(EntityType entityType, String id) {
-        String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.getType(), id);
+        String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.collectionName(), id);
         return addIdentifierAlias(restTemplate.getForEntity(queryUrl, Map.class).getBody());
     }
 

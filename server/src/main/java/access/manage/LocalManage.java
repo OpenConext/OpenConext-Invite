@@ -23,7 +23,7 @@ public final class LocalManage implements Manage {
 
     @SneakyThrows
     private List<Map<String, Object>> initialize(ObjectMapper objectMapper, EntityType entityType) {
-        return objectMapper.readValue(new ClassPathResource("/manage/" + entityType.getType() + ".json").getInputStream(), new TypeReference<>() {
+        return objectMapper.readValue(new ClassPathResource("/manage/" + entityType.collectionName() + ".json").getInputStream(), new TypeReference<>() {
         });
     }
 

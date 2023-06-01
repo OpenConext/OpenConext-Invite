@@ -50,6 +50,7 @@ public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
     private String manageId;
 
     @Column(name = "manage_type")
+    @Enumerated(EnumType.STRING)
     private EntityType manageType;
 
     @Embedded
