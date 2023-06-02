@@ -18,7 +18,6 @@ class RoleControllerTest extends AbstractTest {
 
     @Test
     void create() throws Exception {
-//        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "urn:collab:person:example.com:admin");
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
         Role role = new Role("New", "New desc", "1", EntityType.SAML20_SP);
 

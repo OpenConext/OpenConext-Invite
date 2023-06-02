@@ -47,7 +47,7 @@ public class RoleController {
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
-        LOG.debug("/me");
+        LOG.debug("/newRole");
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManageRole(provider, user);
         return ResponseEntity.ok(roleRepository.save(role));

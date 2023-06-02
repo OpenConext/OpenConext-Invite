@@ -26,11 +26,11 @@ public record Seed(RoleRepository roleRepository,
                 Authority.SUPER_USER.name(),
                 new User(true, "super@example.com", "super@example.com", "David", "Doe", "super@example.com"),
                 Authority.MANAGER.name(),
-                new User(true, "manager@example.com", "manager@example.com", "Mary", "Doe", "manager@example.com"),
+                new User(false, "manager@example.com", "manager@example.com", "Mary", "Doe", "manager@example.com"),
                 Authority.INVITER.name(),
-                new User(true, "inviter@example.com", "inviter@example.com", "Paul", "Doe", "inviter@example.com"),
+                new User(false, "inviter@example.com", "inviter@example.com", "Paul", "Doe", "inviter@example.com"),
                 Authority.GUEST.name(),
-                new User(true, "guest@example.com", "guest@example.com", "Ann", "Doe", "guest@example.com")
+                new User(false, "guest@example.com", "guest@example.com", "Ann", "Doe", "guest@example.com")
         );
         doSave(this.userRepository, users);
 
