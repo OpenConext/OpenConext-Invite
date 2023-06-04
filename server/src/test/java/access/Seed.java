@@ -45,8 +45,8 @@ public record Seed(RoleRepository roleRepository,
                 new Role("Research", "Research desc", "4", EntityType.SAML20_SP),
                 "calendar",
                 new Role("Calendar", "Calendar desc", "5", EntityType.OIDC10_RP),
-                "cloud",
-                new Role("Cloud", "Cloud desc", "6", EntityType.OIDC10_RP)
+                "mail",
+                new Role("Mail", "Mail desc", "5", EntityType.OIDC10_RP)
         );
         doSave(this.roleRepository, roles);
 
@@ -70,20 +70,15 @@ public record Seed(RoleRepository roleRepository,
                         inviter, Set.of(new InvitationRole(roles.get("research")))),
                 Authority.INVITER.name(),
                 new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false,
-                        inviter, Set.of(new InvitationRole(roles.get("calendar")), new InvitationRole(roles.get("cloud")))),
+                        inviter, Set.of(new InvitationRole(roles.get("calendar")), new InvitationRole(roles.get("mail")))),
                 Authority.GUEST.name(),
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false,
-                        inviter, Set.of(new InvitationRole(roles.get("cloud"))))
+                        inviter, Set.of(new InvitationRole(roles.get("mail"))))
         );
         doSave(invitationRepository, invitations);
     }
 
     private <M> void doSave(JpaRepository<M, Long> repository, Map<String, M> entities) {
-        //Must ensure the generated ID is stored in the map
         repository.saveAll(entities.values());
-//        Map<String, M> collect = entities.entrySet().stream()
-//                .map(entry -> List.of(entry, repository.save(entry.getValue())))
-//                .collect(Collectors.toMap(l -> l.get(0), l -> l.get(1)));
-//
     }
 }

@@ -3,7 +3,11 @@ package access.api;
 import access.config.Config;
 import access.manage.EntityType;
 import access.manage.Manage;
+import access.model.Authority;
 import access.model.User;
+import access.repository.Projections;
+import access.repository.RoleRepository;
+import access.secuirty.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -18,9 +22,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
@@ -35,10 +42,12 @@ public class ManageController {
     private static final Log LOG = LogFactory.getLog(ManageController.class);
 
     private final Manage manage;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public ManageController(Manage manage) {
+    public ManageController(Manage manage, RoleRepository roleRepository) {
         this.manage = manage;
+        this.roleRepository = roleRepository;
     }
 
     @GetMapping("provider/{type}/{id}")
@@ -53,7 +62,8 @@ public class ManageController {
     @GetMapping("provisioning/{id}")
     public ResponseEntity<List<Map<String, Object>>> provisioning(@PathVariable("id") String id,
                                                                   @Parameter(hidden = true) User user) {
-        LOG.debug("/provider");
+        LOG.debug("provider");
+        UserPermissions.assertAuthority(user, Authority.MANAGER);
         List<Map<String, Object>> provisioning = manage.provisioning(id);
         if (!user.isSuperUser()) {
             provisioning.forEach(prov -> {
@@ -68,11 +78,25 @@ public class ManageController {
     @GetMapping("providers")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug("/providers");
+        UserPermissions.assertAuthority(user, Authority.MANAGER);
         List<Map<String, Object>> serviceProviders = manage.providers(EntityType.SAML20_SP);
         List<Map<String, Object>> relyingParties = manage.providers(EntityType.OIDC10_RP);
         serviceProviders.addAll(relyingParties);
         return ResponseEntity.ok(serviceProviders);
     }
 
+    @GetMapping("applications")
+    public ResponseEntity<List<Map<String, Object>>> applications(@Parameter(hidden = true) User user) {
+        UserPermissions.assertSuperUser(user);
+        List<String[]> manageIdentifiers = roleRepository.findDistinctManageIdentifiers();
+        Map<String, List<String[]>> groupedByManageType = manageIdentifiers.stream().collect(Collectors.groupingBy(s -> s[0]));
+        List<Map<String, Object>> providers = groupedByManageType.entrySet().stream()
+                .map(entry -> manage.providersByIdIn(
+                        EntityType.valueOf(entry.getKey()),
+                        entry.getValue().stream().map(s -> s[1]).collect(Collectors.toList())))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(providers);
+    }
 
 }

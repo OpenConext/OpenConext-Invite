@@ -91,7 +91,7 @@ public abstract class AbstractTest {
     @Autowired
     protected InvitationRepository invitationRepository;
 
-    protected LocalManage manage;
+    protected LocalManage localManage;
 
     @RegisterExtension
     WireMockExtension mockServer = new WireMockExtension(8081);
@@ -112,8 +112,8 @@ public abstract class AbstractTest {
         if (seedDatabase()) {
             new Seed(roleRepository, userRepository, userRoleRepository, invitationRepository).doSeed();
         }
-        if (this.manage == null) {
-            this.manage = new LocalManage(objectMapper);
+        if (this.localManage == null) {
+            this.localManage = new LocalManage(objectMapper);
         }
     }
 

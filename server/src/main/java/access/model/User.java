@@ -84,9 +84,9 @@ public class User implements Serializable {
     }
 
     @JsonIgnore
-    public void addUserRole(UserRole role) {
-        this.userRoles.add(role);
-        role.setUser(this);
+    public void addUserRole(UserRole userRole) {
+        this.userRoles.add(userRole);
+        userRole.setUser(this);
     }
 
     @JsonIgnore

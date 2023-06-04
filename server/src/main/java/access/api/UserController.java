@@ -2,7 +2,9 @@ package access.api;
 
 import access.config.Config;
 import access.model.User;
-import access.secuirty.SuperAdmin;
+import access.model.UserRole;
+import access.repository.UserRepository;
+import access.secuirty.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
@@ -34,10 +37,12 @@ public class UserController {
     private static final Log LOG = LogFactory.getLog(UserController.class);
 
     private final Config config;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserController(Config config) {
+    public UserController(Config config, UserRepository userRepository) {
         this.config = config;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("config")
@@ -50,6 +55,16 @@ public class UserController {
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug("/me");
+        user.getUserRoles().forEach(UserRole::getRole);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<User> search(@RequestParam(value = "query") String query,
+                                       @Parameter(hidden = true) User user) {
+        LOG.debug("/search");
+        UserPermissions.assertSuperUser(user);
+        userRepository.search(query + "*", 15);
         return ResponseEntity.ok(user);
     }
 

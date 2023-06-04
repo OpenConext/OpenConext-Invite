@@ -30,7 +30,6 @@ public class UserRole implements Serializable, RemoteSCIMIdentifier {
     private Instant endDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;
 
@@ -42,6 +41,11 @@ public class UserRole implements Serializable, RemoteSCIMIdentifier {
     @Column
     @NotNull
     private Authority authority = Authority.GUEST;
+
+    public UserRole(Authority authority, Role role) {
+        this.role = role;
+        this.authority = authority;
+    }
 
     public UserRole(String inviter, User user, Role role, Authority authority) {
         this.inviter = inviter;

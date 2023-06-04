@@ -26,7 +26,6 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @RequestMapping(value = {"/api/v1/roles", "/api/external/v1/roles"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
-@EnableConfigurationProperties(Config.class)
 public class RoleController {
 
     private static final Log LOG = LogFactory.getLog(RoleController.class);
@@ -49,7 +48,7 @@ public class RoleController {
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
         LOG.debug("/newRole");
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
-        UserPermissions.assertManageRole(provider, user);
+        UserPermissions.assertManagerRole(provider, user);
         return ResponseEntity.ok(roleRepository.save(role));
     }
 }

@@ -1,5 +1,6 @@
 package access.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,9 +25,9 @@ public class InvitationRole implements Serializable {
     @Column(name = "end_date")
     private Instant endDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invitation_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnore
     @ToString.Exclude
     private Invitation invitation;
 
