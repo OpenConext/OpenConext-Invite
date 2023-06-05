@@ -6,6 +6,7 @@ import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -51,6 +52,7 @@ public class AbstractMailTest extends AbstractTest {
 //        greenMail.stop();
     }
 
+    @SneakyThrows
     protected MimeMessageParser mailMessage() {
         await().until(() -> greenMail.getReceivedMessages().length != 0);
         MimeMessage receivedMessage = greenMail.getReceivedMessages()[0];
@@ -58,12 +60,17 @@ public class AbstractMailTest extends AbstractTest {
         return parser.parse();
     }
 
-    protected List<org.apache.commons.mail.util.MimeMessageParser> allMailMessages(int expectedLength) throws Exception {
+    protected List<MimeMessageParser> allMailMessages(int expectedLength) throws Exception {
         await().until(() -> greenMail.getReceivedMessages().length == expectedLength);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
         return Stream.of(receivedMessages)
                 .map(mimeMessage -> this.mimeMessageParser(mimeMessage))
                 .collect(Collectors.toList());
+    }
+
+    @SneakyThrows
+    protected MimeMessageParser mimeMessageParser(MimeMessage mimeMessage) {
+        return new MimeMessageParser(mimeMessage).parse();
     }
 
 }

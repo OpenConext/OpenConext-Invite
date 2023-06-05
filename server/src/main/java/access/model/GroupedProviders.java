@@ -17,7 +17,7 @@ public record GroupedProviders(Map<String, Object> provider, List<Role> roles, S
         return getAttribute("OrganizationName:");
     }
 
-    public String getRoles() {
+    public String getRolesDisplay() {
         return roles.stream().map(role -> role.getName()).collect(Collectors.joining(", "));
     }
 

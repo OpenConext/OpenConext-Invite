@@ -39,11 +39,10 @@ class MailBoxTest extends AbstractMailTest {
                         invitation.getRoles().stream().map(role -> role.getRole()).toList(),
                         UUID.randomUUID().toString())
         ));
-        MimeMessage mimeMessage = super.mailMessage();
-        MimeMultipart mimeMultipart = (MimeMultipart) mimeMessage.getContent();
-        BodyPart bodyPart = mimeMultipart.getBodyPart(0);
+        MimeMessageParser mimeMessageParser = super.mailMessage();
+        String htmlContent = mimeMessageParser.getHtmlContent();
 
-        System.out.println(mimeMultipart);
+        System.out.println(htmlContent);
     }
 
 

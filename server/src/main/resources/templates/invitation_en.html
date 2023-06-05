@@ -36,12 +36,12 @@
                     <td>{{#logo}}
                         <img src="cid:{{logoName}}" alt="logo"/>
                         {{/logo}}
-                        {{#logo}}
+                        {{^logo}}
                         <img src="cid:not_found" alt="logo"/>
                         {{/logo}}
                     </td>
                     <td>{{name}} ({{organisation}})</td>
-                    <td>{{roles}}</td>
+                    <td>{{rolesDisplay}}</td>
                 </tr>
                 </tbody>
             </table>
