@@ -1,1 +1,73 @@
-[]
+[
+  {
+    "_id": "7",
+    "version": 1,
+    "type": "saml20_idp",
+    "data": {
+      "entityid": "https://mock-idp",
+      "allowedall": false,
+      "allowedEntities": [
+        {
+          "name": "https://wiki"
+        },
+        {
+          "name": "https://network"
+        },
+        {
+          "name": "https://storage"
+        },
+        {
+          "name": "https://research"
+        }
+      ],
+      "metaDataFields": {
+        "name:en": "Mock IdP EN",
+        "name:nl": "Mock IdP NL",
+        "OrganizationName:en": "SURF bv",
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png"
+      }
+    }
+  },
+  {
+    "_id": "8",
+    "version": 1,
+    "type": "saml20_idp",
+    "data": {
+      "entityid": "https://eduid",
+      "allowedall": false,
+      "allowedEntities": [
+        {
+          "name": "https://calendar"
+        },
+        {
+          "name": "https://cloud"
+        },
+        {
+          "name": "https://research"
+        }
+      ],
+      "metaDataFields": {
+        "name:en": "eduID IdP EN",
+        "name:nl": "eduID IdP NL",
+        "OrganizationName:en": "SURF bv",
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png"
+      }
+    }
+  },
+  {
+    "_id": "9",
+    "version": 1,
+    "type": "saml20_idp",
+    "data": {
+      "entityid": "https://idp-uu",
+      "allowedall": true,
+      "allowedEntities": [],
+      "metaDataFields": {
+        "name:en": "Idp UU EN",
+        "name:nl": "IdP UU NL",
+        "OrganizationName:en": "SURF bv",
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png"
+      }
+    }
+  }
+  ]

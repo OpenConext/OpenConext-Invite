@@ -64,11 +64,14 @@ CREATE TABLE `invitations`
     `message`                text         DEFAULT NULL,
     `hash`                   varchar(255) DEFAULT NULL,
     `enforce_email_equality` bool         DEFAULT 0,
+    `scope_wayf`             bool         DEFAULT 0,
+    `edu_id_only`            bool         DEFAULT 0,
     `created_at`             datetime     DEFAULT CURRENT_TIMESTAMP,
-    `expiry_date`            datetime     NOT NULL,
+    `expiry_date`            datetime     DEFAULT NULL,
+    `role_expiry_date`       datetime     DEFAULT NULL,
     `inviter_id`             bigint       NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `index_invitation_hash` (`hash`),
+    INDEX                    `index_invitation_hash` (`hash`),
     CONSTRAINT `fk_invitations_user` FOREIGN KEY (`inviter_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
@@ -84,6 +87,20 @@ CREATE TABLE `invitation_roles`
     UNIQUE KEY `invitation_roles_unique_user_role` (`invitation_id`, `role_id`),
     CONSTRAINT `fk_invitation_roles_invitation` FOREIGN KEY (`invitation_id`) REFERENCES `invitations` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_invitation_roles_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `identity_providers`
+(
+    `id`              bigint       NOT NULL AUTO_INCREMENT,
+    `manage_id`       varchar(255) NOT NULL,
+    `manage_entityid` varchar(255) NOT NULL,
+    `manage_name`     varchar(255) NOT NULL,
+    `invitation_id`   bigint       NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `identity_providers_unique_invitation` (`invitation_id`, `manage_id`),
+    CONSTRAINT `fk_identity_providers_invitation` FOREIGN KEY (`invitation_id`) REFERENCES `invitations` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;

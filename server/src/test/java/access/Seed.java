@@ -69,6 +69,7 @@ public record Seed(RoleRepository roleRepository,
         Invitation guestInvitation =
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false,
                         inviter, Set.of(new InvitationRole(mail)));
+        guestInvitation.setEduIDOnly(true);
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation);
     }
 

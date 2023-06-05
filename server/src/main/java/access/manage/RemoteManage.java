@@ -53,6 +53,12 @@ public class RemoteManage implements Manage {
         return addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
     }
 
+    @Override
+    public List<Map<String, Object>> allowedEntries(EntityType entityType, String id) {
+        String queryUrl = String.format("%s/manage/api/internal/allowedEntities/%s/%s", url, entityType, id);
+        return addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
+    }
+
     private List<Map<String, Object>> getRemoteMetaData(String type) {
         Object baseQuery = this.queries.get("base_query");
         String url = String.format("%s/manage/api/internal/search/%s", this.url, type);

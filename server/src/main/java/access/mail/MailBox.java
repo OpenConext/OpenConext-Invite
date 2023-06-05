@@ -1,6 +1,7 @@
 package access.mail;
 
 import access.model.Authority;
+import access.model.GroupedProviders;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -12,19 +13,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MailBox {
@@ -55,20 +59,16 @@ public class MailBox {
         });
     }
 
-    public void sendInviteMail(User user, Invitation invitation) {
+    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         String lang = preferredLanguage().toLowerCase();
         String title = String.format(subjects.get(lang).get("newInvitation"),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", ")));
-        //https://www.codejava.net/frameworks/spring-boot/email-sending-tutorial
-        //Use inline attachment for logo of the manage application
-//        Optional<String> logoOptional = metaDataResolver.getLogo(entityId);
-
         Map<String, Object> variables = new HashMap<>();
-//        logoOptional.ifPresent(logo -> variables.put("logo", logo));
+        variables.put("groupedProviders", groupedProviders);
         variables.put("title", title);
-//        variables.put("role", role);
         variables.put("invitation", invitation);
+        variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(lang));
         variables.put("user", user);
         String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : baseUrl;
 
@@ -106,6 +106,20 @@ public class MailBox {
         setText(plainText, htmlText, helper);
         helper.setTo(to);
         helper.setFrom(emailFrom);
+        //Add logo, if there
+        if (variables.containsKey("groupedProviders")) {
+            List<GroupedProviders> groupedProviders = (List<GroupedProviders>) variables.get("groupedProviders");
+            groupedProviders.stream()
+                    .filter(groupedProvider -> StringUtils.hasText(groupedProvider.getLogo()))
+                    .forEach(groupedProvider -> {
+                        try {
+                            helper.addInline(groupedProvider.logoName(), new UrlResource(new URI(groupedProvider.getLogo())));
+                        } catch (Exception e) {
+                            //Can't be helped
+                        }
+                    });
+            helper.addInline("not_found", new ClassPathResource("templates/image-not-found.svg"));
+        }
         doSendMail(message);
     }
 

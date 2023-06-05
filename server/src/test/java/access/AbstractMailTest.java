@@ -1,46 +1,69 @@
 package access;
 
+import access.mail.MimeMessageParser;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.awaitility.Awaitility.await;
 
 
-@ActiveProfiles(value = "prod", inheritProfiles = false)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {
+                "oidcng.introspect-url=http://localhost:8081/introspect",
+                "spring.security.oauth2.client.provider.oidcng.authorization-uri=http://localhost:8081/authorization",
+                "spring.security.oauth2.client.provider.oidcng.token-uri=http://localhost:8081/token",
+                "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
+                "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
+                "email.enabled=true",
+                "manage.url: http://localhost:8081",
+        })
+
 public class AbstractMailTest extends AbstractTest {
 
+    private static ServerSetup serverSetup = ServerSetupTest.SMTP;
+    static {
+        serverSetup.setServerStartupTimeout(500000);
+    }
+
     @RegisterExtension
-    static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
+    static final GreenMailExtension greenMail = new GreenMailExtension(serverSetup);
 
     @BeforeEach
     protected void beforeEach() throws Exception {
         super.beforeEach();
-        greenMail.start();
         greenMail.purgeEmailFromAllMailboxes();
     }
 
     @AfterEach
     void afterEach() {
-        greenMail.stop();
+//        greenMail.stop();
     }
 
-    protected MimeMessage mailMessage() throws Exception {
+    protected MimeMessageParser mailMessage() {
         await().until(() -> greenMail.getReceivedMessages().length != 0);
-        return greenMail.getReceivedMessages()[0];
+        MimeMessage receivedMessage = greenMail.getReceivedMessages()[0];
+        MimeMessageParser parser = new MimeMessageParser(receivedMessage);
+        return parser.parse();
     }
 
-    protected List<MimeMessage> allMailMessages(int expectedLength) throws Exception {
+    protected List<org.apache.commons.mail.util.MimeMessageParser> allMailMessages(int expectedLength) throws Exception {
         await().until(() -> greenMail.getReceivedMessages().length == expectedLength);
-        return Arrays.asList(greenMail.getReceivedMessages());
+        MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
+        return Stream.of(receivedMessages)
+                .map(mimeMessage -> this.mimeMessageParser(mimeMessage))
+                .collect(Collectors.toList());
     }
-
 
 }

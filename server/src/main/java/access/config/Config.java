@@ -11,6 +11,7 @@ public class Config {
 
     private String clientUrl;
     private String serverUrl;
+    private String eduidEntityId;
     private boolean authenticated;
 
     public Config withAuthenticated(boolean authenticated) {

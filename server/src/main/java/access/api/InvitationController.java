@@ -1,8 +1,11 @@
 package access.api;
 
 import access.config.HashGenerator;
+import access.exception.InvitationStatusException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
+import access.manage.Identity;
+import access.manage.Manage;
 import access.model.*;
 import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
@@ -15,12 +18,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static java.util.stream.Collectors.toSet;
@@ -34,13 +37,16 @@ public class InvitationController {
     private static final Log LOG = LogFactory.getLog(InvitationController.class);
 
     private final MailBox mailBox;
+    private final Manage manage;
     private final InvitationRepository invitationRepository;
     private final RoleRepository roleRepository;
 
     public InvitationController(MailBox mailBox,
+                                Manage manage,
                                 InvitationRepository invitationRepository,
                                 RoleRepository roleRepository) {
         this.mailBox = mailBox;
+        this.manage = manage;
         this.invitationRepository = invitationRepository;
         this.roleRepository = roleRepository;
     }
@@ -66,9 +72,28 @@ public class InvitationController {
                                 .map(role -> new InvitationRole(role, invitationRequest.getExpiryDate()))
                                 .collect(toSet())))
                 .toList();
-        //TODO send mails
         invitationRepository.saveAll(invitations);
+        //We need to display the roles per manage application with the logo
+
+        List<GroupedProviders> groupedProviders = requestedRoles.stream()
+                .collect(Collectors.groupingBy(role -> new Identity(role.getManageId(), role.getManageType())))
+                .entrySet().stream()
+                .map(entry -> new GroupedProviders(
+                        manage.providerById(entry.getKey().entityType(), entry.getKey().id()),
+                        entry.getValue(),
+                        UUID.randomUUID().toString())
+                ).toList();
+        invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders));
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("public")
+    public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
+        Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
+        if (invitation.getStatus().equals(Status.OPEN)) {
+            return ResponseEntity.ok(invitation);
+        }
+        throw new InvitationStatusException();
     }
 
 }

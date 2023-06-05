@@ -43,13 +43,22 @@ public class Invitation implements Serializable {
     @Column(name = "enforce_email_equality")
     private boolean enforceEmailEquality;
 
+    @Column(name = "scope_wayf")
+    private boolean scopeWayf;
+
+    @Column(name = "edu_id_only")
+    private boolean eduIDOnly;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
     @Column(name = "expiry_date")
     private Instant expiryDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "role_expiry_date")
+    private Instant roleExpiryDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inviter_id")
     @JsonIgnore
     private User inviter;
@@ -57,10 +66,28 @@ public class Invitation implements Serializable {
     @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<InvitationRole> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<IdentityProvider> identityProviders = new HashSet<>();
+
     @Transient
     private boolean emailEqualityConflict = false;
 
-    public Invitation(Authority intendedAuthority, String hash, String email, boolean enforceEmailEquality, User inviter, Set<InvitationRole> roles) {
+    public Invitation(Authority intendedAuthority,
+                      String hash,
+                      String email,
+                      boolean enforceEmailEquality,
+                      User inviter,
+                      Set<InvitationRole> roles) {
+        this(intendedAuthority, hash, email, enforceEmailEquality, inviter, roles, Collections.emptySet());
+    }
+
+    public Invitation(Authority intendedAuthority,
+                      String hash,
+                      String email,
+                      boolean enforceEmailEquality,
+                      User inviter,
+                      Set<InvitationRole> roles,
+                      Set<IdentityProvider> identityProviders) {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
@@ -69,6 +96,8 @@ public class Invitation implements Serializable {
         this.roles = roles;
         this.email = email;
         roles.forEach(role -> role.setInvitation(this));
+        this.identityProviders = identityProviders;
+        identityProviders.forEach(identityProvider -> identityProvider.setInvitation(this));
         this.defaults();
     }
 

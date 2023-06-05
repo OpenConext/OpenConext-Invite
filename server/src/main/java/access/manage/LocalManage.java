@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("checked")
 public final class LocalManage implements Manage {
 
     private final Map<EntityType, List<Map<String, Object>>> allProviders;
@@ -58,4 +59,19 @@ public final class LocalManage implements Manage {
                 .collect(Collectors.toList()));
     }
 
+    @Override
+    public List<Map<String, Object>> allowedEntries(EntityType entityType, String id) {
+        Map<String, Object> provider = providers(entityType).stream()
+                .filter(prov -> prov.get("_id").equals(id))
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
+        String entityId = (String) ((Map) provider.get("data")).get("entityid");
+        return addIdentifierAlias(providers(EntityType.SAML20_IDP).stream()
+                .filter(prov -> {
+                    Map data = (Map) prov.get("data");
+                    return (boolean) data.get("allowedall") ||
+                            ((List<Map<String, String>>) data.get("allowedEntities")).stream().anyMatch(entity -> entity.get("name").equals(entityId));
+                })
+                .collect(Collectors.toList()));
+    }
 }

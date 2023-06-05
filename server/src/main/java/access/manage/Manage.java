@@ -13,6 +13,8 @@ public interface Manage {
 
     List<Map<String, Object>> provisioning(String providerId);
 
+    List<Map<String, Object>> allowedEntries(EntityType entityType, String id);
+
     //Due to the different API's we are using, the result sometimes contains an "_id" and sometimes an "id"
     default List<Map<String, Object>> addIdentifierAlias(List<Map<String, Object>> providers) {
         providers.forEach(this::addIdentifierAlias);

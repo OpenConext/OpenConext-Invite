@@ -8,7 +8,8 @@
       "metaDataFields": {
         "name:en": "Calendar EN",
         "name:nl": "Calendar NL",
-        "OrganizationName:en": "SURF bv"
+        "OrganizationName:en": "SURF bv",
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png"
       }
     }
   },
@@ -21,7 +22,8 @@
       "metaDataFields": {
         "name:en": "Cloud EN",
         "name:nl": "Cloud NL",
-        "OrganizationName:en": "SURF bv"
+        "OrganizationName:en": "SURF bv",
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png"
       }
     }
   }
