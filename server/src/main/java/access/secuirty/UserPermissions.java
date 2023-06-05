@@ -74,4 +74,16 @@ public class UserPermissions {
         }
     }
 
+    public static void assertRoleAccess(User user, Role accessRole) {
+        if (user.isSuperUser()) {
+            return;
+        }
+        user.getUserRoles().stream()
+                .filter(userRole -> userRole.getRole().getId().equals(accessRole.getId()) ||
+                        (userRole.getRole().getManageId().equals(accessRole.getManageId()) &&
+                                userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)))
+                .findFirst()
+                .orElseThrow(UserRestrictionException::new);
+    }
+
 }

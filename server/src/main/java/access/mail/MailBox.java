@@ -1,6 +1,8 @@
 package access.mail;
 
 import access.model.Authority;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 import access.model.Invitation;
@@ -9,40 +11,57 @@ import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
+import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MailBox {
 
     private final JavaMailSender mailSender;
     private final String baseUrl;
+    private final String welcomeUrl;
     private final String emailFrom;
     private final String environment;
+    private final Map<String, Map<String, String>> subjects;
 
     private static final Log LOG = LogFactory.getLog(MailBox.class);
 
     private final MustacheFactory mustacheFactory = new DefaultMustacheFactory("templates");
 
-    public MailBox(JavaMailSender mailSender, String emailFrom, String baseUrl,  String environment) {
+    public MailBox(ObjectMapper objectMapper,
+                   JavaMailSender mailSender,
+                   String emailFrom,
+                   String baseUrl,
+                   String welcomeUrl,
+                   String environment) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
         this.baseUrl = baseUrl;
+        this.welcomeUrl = welcomeUrl;
         this.environment = environment;
+        this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
+        });
     }
 
     public void sendInviteMail(User user, Invitation invitation) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
-        String lang = preferredLanguage().toLowerCase(Locale.ROOT);
-        String title = String.format("en".equals("en") ? "Invitation for %s at eduID inviters" :
-                "Uitnodiging voor %s bij eduID uitnodigingen", invitation.getRoles());
+        String lang = preferredLanguage().toLowerCase();
+        String title = String.format(subjects.get(lang).get("newInvitation"),
+                invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", ")));
+        //https://www.codejava.net/frameworks/spring-boot/email-sending-tutorial
+        //Use inline attachment for logo of the manage application
 //        Optional<String> logoOptional = metaDataResolver.getLogo(entityId);
 
         Map<String, Object> variables = new HashMap<>();
@@ -51,7 +70,9 @@ public class MailBox {
 //        variables.put("role", role);
         variables.put("invitation", invitation);
         variables.put("user", user);
-        variables.put("url", String.format("%s/invitations?h=%s", baseUrl, invitation.getHash()));
+        String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : baseUrl;
+
+        variables.put("url", String.format("%s/invitations?h=%s", url, invitation.getHash()));
 
         sendMail(String.format("invitation_%s", lang),
                 title,

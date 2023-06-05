@@ -5,7 +5,6 @@ import access.manage.EntityType;
 import access.manage.Manage;
 import access.model.Authority;
 import access.model.User;
-import access.repository.Projections;
 import access.repository.RoleRepository;
 import access.secuirty.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
@@ -63,8 +61,8 @@ public class ManageController {
     public ResponseEntity<List<Map<String, Object>>> provisioning(@PathVariable("id") String id,
                                                                   @Parameter(hidden = true) User user) {
         LOG.debug("provider");
-        UserPermissions.assertAuthority(user, Authority.MANAGER);
         List<Map<String, Object>> provisioning = manage.provisioning(id);
+        provisioning.forEach(prov -> UserPermissions.assertManagerRole(prov, user));
         if (!user.isSuperUser()) {
             provisioning.forEach(prov -> {
                 Map<String, Object> data = (Map<String, Object>) prov.get("data");

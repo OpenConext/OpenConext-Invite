@@ -1,5 +1,6 @@
 package access.mail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -8,13 +9,14 @@ import org.springframework.util.FileCopyUtils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.IOException;
 
 public class MockMailBox extends MailBox {
 
     private final String environment;
 
-    public MockMailBox(JavaMailSender mailSender, String emailFrom, String baseUrl, String environment) {
-        super(mailSender, emailFrom, baseUrl, environment);
+    public MockMailBox(ObjectMapper objectMapper , JavaMailSender mailSender, String emailFrom, String baseUrl, String welcomeUrl, String environment) throws IOException {
+        super(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, environment);
         this.environment = environment;
     }
 

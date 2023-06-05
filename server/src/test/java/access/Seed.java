@@ -8,7 +8,7 @@ import access.repository.UserRepository;
 import access.repository.UserRoleRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Set;
 
 public record Seed(RoleRepository roleRepository,
@@ -22,63 +22,57 @@ public record Seed(RoleRepository roleRepository,
         this.userRoleRepository.deleteAllInBatch();
         this.invitationRepository.deleteAllInBatch();
 
-        Map<String, User> users = Map.of(
-                Authority.SUPER_USER.name(),
-                new User(true, "super@example.com", "super@example.com", "David", "Doe", "super@example.com"),
-                Authority.MANAGER.name(),
-                new User(false, "manager@example.com", "manager@example.com", "Mary", "Doe", "manager@example.com"),
-                Authority.INVITER.name(),
-                new User(false, "inviter@example.com", "inviter@example.com", "Paul", "Doe", "inviter@example.com"),
-                Authority.GUEST.name(),
-                new User(false, "guest@example.com", "guest@example.com", "Ann", "Doe", "guest@example.com")
-        );
-        doSave(this.userRepository, users);
 
-        Map<String, Role> roles = Map.of(
-                "wiki",
-                new Role("Wiki", "Wiki desc", "1", EntityType.SAML20_SP),
-                "network",
-                new Role("Network", "Network desc", "2", EntityType.SAML20_SP),
-                "storage",
-                new Role("Storage", "Storage desc", "3", EntityType.SAML20_SP),
-                "research",
-                new Role("Research", "Research desc", "4", EntityType.SAML20_SP),
-                "calendar",
-                new Role("Calendar", "Calendar desc", "5", EntityType.OIDC10_RP),
-                "mail",
-                new Role("Mail", "Mail desc", "5", EntityType.OIDC10_RP)
-        );
-        doSave(this.roleRepository, roles);
+        User superUser =
+                new User(true, "super@example.com", "super@example.com", "David", "Doe", "super@example.com");
+        User manager =
+                new User(false, "manager@example.com", "manager@example.com", "Mary", "Doe", "manager@example.com");
+        User inviter =
+                new User(false, "inviter@example.com", "inviter@example.com", "Paul", "Doe", "inviter@example.com");
+        User guest =
+                new User(false, "guest@example.com", "guest@example.com", "Ann", "Doe", "guest@example.com");
+        doSave(this.userRepository, superUser, manager, inviter, guest);
 
-        Map<String, UserRole> userRoles = Map.of(
-                "wiki_manager",
-                new UserRole("system", users.get(Authority.MANAGER.name()), roles.get("wiki"), Authority.MANAGER),
-                "network_inviter",
-                new UserRole("system", users.get(Authority.INVITER.name()), roles.get("network"), Authority.INVITER),
-                "storage_guest",
-                new UserRole("system", users.get(Authority.GUEST.name()), roles.get("storage"), Authority.GUEST)
-        );
-        doSave(this.userRoleRepository, userRoles);
+        Role wiki =
+                new Role("Wiki", "Wiki desc", "1", EntityType.SAML20_SP);
+        Role network =
+                new Role("Network", "Network desc", "2", EntityType.SAML20_SP);
+        Role storage =
+                new Role("Storage", "Storage desc", "3", EntityType.SAML20_SP);
+        Role research =
+                new Role("Research", "Research desc", "4", EntityType.SAML20_SP);
+        Role calendar =
+                new Role("Calendar", "Calendar desc", "5", EntityType.OIDC10_RP);
+        Role mail =
+                new Role("Mail", "Mail desc", "5", EntityType.OIDC10_RP);
+        doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 
-        User inviter = users.get(Authority.SUPER_USER.name());
-        Map<String, Invitation> invitations = Map.of(
-                Authority.SUPER_USER.name(),
+        UserRole wikiManager =
+                new UserRole("system", manager, wiki, Authority.MANAGER);
+        UserRole calendarInviter =
+                new UserRole("system", inviter, calendar, Authority.INVITER);
+        UserRole mailInviter =
+                new UserRole("system", inviter, mail, Authority.INVITER);
+        UserRole storageGuest =
+                new UserRole("system", guest, storage, Authority.GUEST);
+        doSave(this.userRoleRepository, wikiManager, calendarInviter, mailInviter, storageGuest);
+
+        Invitation superUserInvitation =
                 new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false,
-                        inviter, Set.of()),
-                Authority.MANAGER.name(),
+                        inviter, Set.of());
+        Invitation managerInvitation =
                 new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false,
-                        inviter, Set.of(new InvitationRole(roles.get("research")))),
-                Authority.INVITER.name(),
+                        inviter, Set.of(new InvitationRole(research)));
+        Invitation inviterInvitation =
                 new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false,
-                        inviter, Set.of(new InvitationRole(roles.get("calendar")), new InvitationRole(roles.get("mail")))),
-                Authority.GUEST.name(),
+                        inviter, Set.of(new InvitationRole(calendar), new InvitationRole(mail)));
+        Invitation guestInvitation =
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false,
-                        inviter, Set.of(new InvitationRole(roles.get("mail"))))
-        );
-        doSave(invitationRepository, invitations);
+                        inviter, Set.of(new InvitationRole(mail)));
+        doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation);
     }
 
-    private <M> void doSave(JpaRepository<M, Long> repository, Map<String, M> entities) {
-        repository.saveAll(entities.values());
+    private <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
+        repository.saveAll(Arrays.asList(entities));
     }
 }

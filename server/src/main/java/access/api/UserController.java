@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.List;
 import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -60,12 +61,12 @@ public class UserController {
     }
 
     @GetMapping("search")
-    public ResponseEntity<User> search(@RequestParam(value = "query") String query,
+    public ResponseEntity<List<User>> search(@RequestParam(value = "query") String query,
                                        @Parameter(hidden = true) User user) {
         LOG.debug("/search");
         UserPermissions.assertSuperUser(user);
-        userRepository.search(query + "*", 15);
-        return ResponseEntity.ok(user);
+        List<User> users = userRepository.search(query + "*", 15);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("login")

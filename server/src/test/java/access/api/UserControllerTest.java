@@ -7,6 +7,7 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -46,6 +47,22 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/config")
                 .as(Map.class);
         assertTrue((Boolean) res.get("authenticated"));
+    }
+
+    @Test
+    void meWithRoles() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "inviter@example.com");
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(User.class);
+        List<String> roleNames = List.of("Mail", "Calendar").stream().sorted().toList();
+
+        assertEquals(roleNames, user.getUserRoles().stream().map(userRole -> userRole.getRole().getName()).sorted().toList());
     }
 
     @Test

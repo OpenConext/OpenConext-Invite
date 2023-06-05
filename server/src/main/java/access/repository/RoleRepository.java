@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
@@ -17,6 +18,8 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
             "AND id > 0 LIMIT ?2",
             nativeQuery = true)
     List<Role> search(String keyWord, int limit);
+
+    List<Role> findByManageIdIn(Set<String> manageIdentifiers);
 
     @Query(value = "SELECT DISTINCT manage_type, manage_id FROM roles", nativeQuery = true)
     List<String[]> findDistinctManageIdentifiers();

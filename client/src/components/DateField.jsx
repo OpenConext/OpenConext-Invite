@@ -26,16 +26,10 @@ export const DateField = ({
     const toggle = () => inputRef.current.setOpen(true);
 
     const invalidValue = (onChange) => {
-
         setTimeout(() => onChange(DateTime.now().plus({days: 16}).toJSDate()), 250);
     }
 
     const validateOnBlur = e => {
-        if (!performValidateOnBlur) {
-            stopEvent(e);
-            return;
-        }
-
         if (e && e.target) {
             const minimalDate = minDate || DateTime.now().plus({days: 1}).toJSDate();
             minimalDate.setHours(0, 0, 0, 0);
@@ -79,7 +73,6 @@ export const DateField = ({
                     minDate={pastDatesAllowed ? null : minimalDate}
                 />
                 <div className={"calendar-icon"} onClick={toggle}><CardIcon/></div>
-
             </label>
         </div>
     );

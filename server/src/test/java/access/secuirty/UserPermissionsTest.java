@@ -83,6 +83,31 @@ class UserPermissionsTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(Map.of("id", identifier), user));
     }
 
+    @Test
+    void assertRoleAccess() {
+        String identifier = UUID.randomUUID().toString();
+        User user = userWithRole(Authority.GUEST, identifier);
+        UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole());
+    }
+
+    @Test
+    void assertRoleAccessManager() {
+        String identifier = UUID.randomUUID().toString();
+        User user = userWithRole(Authority.MANAGER, identifier);
+        Role role = new Role("name", "description", identifier, EntityType.SAML20_SP);
+        role.setId(random.nextLong());
+        UserPermissions.assertRoleAccess(user, role);
+    }
+
+    @Test
+    void assertNoRoleAccess() {
+        String identifier = UUID.randomUUID().toString();
+        User user = userWithRole(Authority.GUEST, identifier);
+        Role role = new Role("name", "description", identifier, EntityType.SAML20_SP);
+        role.setId(random.nextLong());
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role));
+    }
+
     private User userWithRole(Authority authority, String manageIdentifier) {
         return userWithRole(new User(), authority, manageIdentifier);
     }
