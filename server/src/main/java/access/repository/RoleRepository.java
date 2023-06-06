@@ -23,4 +23,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     @Query(value = "SELECT DISTINCT manage_type, manage_id FROM roles", nativeQuery = true)
     List<String[]> findDistinctManageIdentifiers();
+
+    Optional<Role> findByManageIdAndNameIgnoreCase(String managerId, String name);
 }

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("checked")
+@SuppressWarnings("unchecked")
 public final class LocalManage implements Manage {
 
     private final Map<EntityType, List<Map<String, Object>>> allProviders;

@@ -2,11 +2,16 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.model.Authority;
 import access.model.User;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +72,16 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void loginWithOauth2Login() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "urn:collab:person:example.com:admin");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow(
+                "/api/v1/users/login?force=true&hash=" + Authority.GUEST.name(),
+                "urn:collab:person:example.com:admin",
+                authorizationUrl -> {
+                    MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(authorizationUrl).build().getQueryParams();
+                    String prompt = queryParams.getFirst("prompt");
+                    assertEquals("login", prompt);
+                    String loginHint = URLDecoder.decode(queryParams.getFirst("login_hint"), StandardCharsets.UTF_8);
+                    assertEquals("https://login.test2.eduid.nl", loginHint);
+                });
 
         String location = given()
                 .redirects()

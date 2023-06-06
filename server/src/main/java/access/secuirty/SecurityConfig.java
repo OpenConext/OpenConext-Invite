@@ -1,6 +1,8 @@
 package access.secuirty;
 
 import access.config.UserHandlerMethodArgumentResolver;
+import access.model.Invitation;
+import access.repository.InvitationRepository;
 import access.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +31,7 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @EnableWebSecurity
@@ -36,17 +39,23 @@ import java.util.function.Consumer;
 @Configuration
 public class SecurityConfig {
 
+    private final String eduidEntityId;
     private final String introspectionUri;
     private final String clientId;
     private final String secret;
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final InvitationRepository invitationRepository;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
+                          InvitationRepository invitationRepository,
+                          @Value("${config.eduid-entity-id}") String eduidEntityId,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
                           @Value("${oidcng.resource-server-secret}") String secret) {
         this.clientRegistrationRepository = clientRegistrationRepository;
+        this.invitationRepository = invitationRepository;
+        this.eduidEntityId = eduidEntityId;
         this.introspectionUri = introspectionUri;
         this.clientId = clientId;
         this.secret = secret;
@@ -83,7 +92,11 @@ public class SecurityConfig {
                 .csrf(c -> c.ignoringRequestMatchers("/login/oauth2/code/oidcng"))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests(c -> c
-                        .requestMatchers("/api/v1/users/config", "/ui/**", "internal/**")
+                        .requestMatchers(
+                                "/api/v1/users/config",
+                                "/api/v1/invitations/public",
+                                "/ui/**",
+                                "internal/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
@@ -116,9 +129,19 @@ public class SecurityConfig {
                     RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
                     DefaultSavedRequest savedRequest = (DefaultSavedRequest) ((ServletRequestAttributes) requestAttributes)
                             .getRequest().getSession(false).getAttribute("SPRING_SECURITY_SAVED_REQUEST");
-                    String requestURI = savedRequest.getRequestURI();
-                    //Check if this a invitation link which needs a scoped WAYF
-                    params.put("prompt", "consent");
+                    String[] force = savedRequest.getParameterValues("force");
+                    if (force != null && force.length == 1) {
+                        params.put("prompt", "login");
+                    }
+                    String[] hash = savedRequest.getParameterValues("hash");
+                    if (hash != null && hash.length == 1) {
+                        Optional<Invitation> optionalInvitation = invitationRepository.findByHash(hash[0]);
+                        optionalInvitation.ifPresent(invitation -> {
+                            if (invitation.isEduIDOnly()) {
+                                params.put("login_hint", eduidEntityId);
+                            }
+                        });
+                    }
                 });
     }
 

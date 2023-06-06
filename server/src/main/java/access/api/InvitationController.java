@@ -14,8 +14,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -88,12 +91,28 @@ public class InvitationController {
     }
 
     @GetMapping("public")
-    public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
+    public ResponseEntity<MetaInvitation> getInvitation(@RequestParam("hash") String hash) {
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
         if (invitation.getStatus().equals(Status.OPEN)) {
-            return ResponseEntity.ok(invitation);
+            List<Map<String, Object>> providers = invitation.getRoles().stream()
+                    .map(invitationRole -> invitationRole.getRole())
+                    .map(role -> manage.providerById(role.getManageType(), role.getManageId()))
+                    .toList();
+            return ResponseEntity.ok(new MetaInvitation(invitation, providers));
         }
         throw new InvitationStatusException();
     }
 
+
+    @PostMapping("accept")
+    public ResponseEntity<Void> accept(@Validated @RequestBody AcceptInvitation acceptInvitation, Authentication authentication) {
+        Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
+        if (!invitation.getId().equals(acceptInvitation.invitationId())) {
+            throw new NotFoundException();
+        }
+        if (!invitation.getStatus().equals(Status.OPEN)) {
+            throw new InvitationStatusException();
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }

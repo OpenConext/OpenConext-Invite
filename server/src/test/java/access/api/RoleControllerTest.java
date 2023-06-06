@@ -4,15 +4,19 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
 import access.model.Role;
+import access.model.RoleExists;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RoleControllerTest extends AbstractTest {
 
@@ -36,5 +40,67 @@ class RoleControllerTest extends AbstractTest {
                 .post("/api/v1/roles")
                 .as(Map.class);
         assertNotNull(result.get("id"));
+    }
+
+    @Test
+    void nameExistsTransientRole() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
+        Map result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(new RoleExists("WIKI", "1", null))
+                .post("/api/v1/roles/validation/name")
+                .as(Map.class);
+        assertTrue((Boolean) result.get("exists"));
+    }
+
+    @Test
+    void nameNotExistsTransientRole() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
+        Map result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(new RoleExists("unique", "1", null))
+                .post("/api/v1/roles/validation/name")
+                .as(Map.class);
+        assertFalse((Boolean) result.get("exists"));
+    }
+
+    @Test
+    void nameExists() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
+        Role role = roleRepository.findByManageIdAndNameIgnoreCase("1", "WIKI").get();
+        Map result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(new RoleExists(role.getName(), role.getManageId(), role.getId()))
+                .post("/api/v1/roles/validation/name")
+                .as(Map.class);
+        assertTrue((Boolean) result.get("exists"));
+    }
+
+    @Test
+    void rolesByApplication() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
+        List<Role> roles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, roles.size());
+        assertEquals("Wiki", roles.get(0).getName());
     }
 }

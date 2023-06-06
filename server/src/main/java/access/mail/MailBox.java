@@ -70,9 +70,12 @@ public class MailBox {
         variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(lang));
         variables.put("user", user);
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
         String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : baseUrl;
 
-        variables.put("url", String.format("%s/invitations?h=%s", url, invitation.getHash()));
+        variables.put("url", String.format("%s/invitation/accept?h=%s", url, invitation.getHash()));
 
         sendMail(String.format("invitation_%s", lang),
                 title,

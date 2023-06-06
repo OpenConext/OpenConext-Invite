@@ -10,30 +10,35 @@ import {Chip, ChipType} from "@surfnet/sds"
 
 export const LandingInfo = () => {
 
-    const infoBlock = (name, isAdminFunction, Logo, reversed) =>
-        <div key={name} className={`mod-login info ${reversed ? "reversed" : ""}`}>
-            <div className="header-left info">
-                <div className={"info-title"}>
-                    <h2>{I18n.t(`landing.${name}`)}</h2>
-                    {isAdminFunction && <div className={"admin-function-container"}>
-                        <Chip label={I18n.t("landing.adminFunction")} type={ChipType.Main_400}/>
-                    </div>}
+    const infoBlock = (info, Logo, index) => {
+        const reversed = index % 2 === 0 ? "reversed" : "";
+        return (
+            <div key={index} className={`mod-login info ${reversed}`}>
+                <div className="header-left info">
+                    <div className={"info-title"}>
+                        <h2>{info[0]}</h2>
+                        {info[2] && <div className={"admin-function-container"}>
+                            <Chip label={I18n.t("landing.adminFunction")} type={ChipType.Main_400}/>
+                        </div>}
+                    </div>
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info[1])}}/>
                 </div>
-                <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`landing.${name}Info`))}}/>
+                <div className="header-right info">
+                    <img src={Logo} alt="logo" className={`${reversed}`}/>
+                </div>
             </div>
-            <div className="header-right info">
-                <img src={Logo} alt="logo" className={`${reversed ? "reversed" : ""}`}/>
-            </div>
-        </div>
+        );
+    }
 
+
+    const logos = [AccessDeniedLogo, AuthenticationLogo, EnterLogo, SCIMLogo];
     return (
         <div className="mod-login-container bottom">
             <div className="mod-login bottom">
                 <h1>{I18n.t("landing.works")}</h1>
-                {infoBlock("create", true, AccessDeniedLogo, true)}
-                {infoBlock("invite", true, AuthenticationLogo, false)}
-                {infoBlock("join", false, EnterLogo, true)}
-                {infoBlock("collaborate", false, SCIMLogo, false)}
+                {I18n.translations[I18n.locale].landing.info.map((info, index) =>
+                    infoBlock(info, logos[index], index)
+                )}
                 <div className={"landing-footer"}>
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t(`landing.footer`))}}/>
                 </div>

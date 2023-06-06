@@ -1,19 +1,17 @@
 import {Button, ButtonSize, ButtonType} from "@surfnet/sds";
-import {stopEvent} from "../utils/Utils";
-import {useAppStore} from "../stores/AppStore";
 import './Login.scss';
 import I18n from "../locale/I18n";
 import DOMPurify from "dompurify";
 import {LandingInfo} from "../components/LandingInfo";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
+import {login} from "../utils/Login";
+import {useAppStore} from "../stores/AppStore";
 
 export const Login = () => {
 
-    const config = useAppStore((state) => state.config)
-
-    const doLogin = e => {
-        stopEvent(e);
-        window.location.href = config.serverUrl;
+    const config = useAppStore((state) => state.config);
+    const doLogin = () => {
+        login(config);
     }
 
     return (

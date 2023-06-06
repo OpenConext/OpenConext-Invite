@@ -58,16 +58,13 @@ public class Invitation implements Serializable {
     @Column(name = "role_expiry_date")
     private Instant roleExpiryDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "inviter_id")
     @JsonIgnore
     private User inviter;
 
     @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<InvitationRole> roles = new HashSet<>();
-
-    @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<IdentityProvider> identityProviders = new HashSet<>();
 
     @Transient
     private boolean emailEqualityConflict = false;
@@ -78,16 +75,6 @@ public class Invitation implements Serializable {
                       boolean enforceEmailEquality,
                       User inviter,
                       Set<InvitationRole> roles) {
-        this(intendedAuthority, hash, email, enforceEmailEquality, inviter, roles, Collections.emptySet());
-    }
-
-    public Invitation(Authority intendedAuthority,
-                      String hash,
-                      String email,
-                      boolean enforceEmailEquality,
-                      User inviter,
-                      Set<InvitationRole> roles,
-                      Set<IdentityProvider> identityProviders) {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
@@ -96,8 +83,6 @@ public class Invitation implements Serializable {
         this.roles = roles;
         this.email = email;
         roles.forEach(role -> role.setInvitation(this));
-        this.identityProviders = identityProviders;
-        identityProviders.forEach(identityProvider -> identityProvider.setInvitation(this));
         this.defaults();
     }
 

@@ -5,6 +5,8 @@ import access.model.User;
 import access.model.UserRole;
 import access.repository.UserRepository;
 import access.secuirty.UserPermissions;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,13 +18,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -39,11 +42,13 @@ public class UserController {
 
     private final Config config;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public UserController(Config config, UserRepository userRepository) {
+    public UserController(Config config, UserRepository userRepository, ObjectMapper objectMapper) {
         this.config = config;
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("config")
@@ -82,4 +87,15 @@ public class UserController {
         request.getSession(false).invalidate();
         return ResponseEntity.ok(Map.of("result", "ok"));
     }
+
+    @PostMapping("error")
+    public void error(@RequestBody Map<String, Object> payload, User user) throws
+            JsonProcessingException, UnknownHostException {
+        payload.put("dateTime", new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss").format(new Date()));
+        payload.put("machine", InetAddress.getLocalHost().getHostName());
+        payload.put("user", user);
+        String msg = objectMapper.writeValueAsString(payload);
+        LOG.error(msg, new IllegalArgumentException(msg));
+    }
+
 }

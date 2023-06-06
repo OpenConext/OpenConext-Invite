@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.io.IOException;
@@ -19,10 +20,11 @@ public class MailConf {
                            @Value("${email.base-url}") String baseUrl,
                            @Value("${email.welcome-url}") String welcomeUrl,
                            @Value("${email.enabled}") boolean enabled,
-                           @Value("${email.environment}") String environment,
+                           @Value("${email.environment}") String env,
+                           Environment environment,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
-        return enabled ? new MailBox(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, environment) :
+        return enabled ? new MailBox(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, env) :
                 new MockMailBox(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, environment);
     }
 

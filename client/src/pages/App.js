@@ -10,6 +10,10 @@ import {Flash} from "../components/Flash";
 import {Header} from "../components/Header";
 import {Footer} from "../components/Footer";
 import {BreadCrumb} from "../components/BreadCrumb";
+import {Invitation} from "./Invitation";
+import {isEmpty} from "../utils/Utils";
+import {login} from "../utils/Login";
+import NotFound from "./NotFound";
 
 export const App = () => {
 
@@ -19,29 +23,31 @@ export const App = () => {
 
     useEffect(() => {
         configuration().then(res => {
+            debugger;
             useAppStore.setState(() => ({config: res}));
             if (!res.authenticated) {
-                localStorage.setItem("location", window.location.pathname + window.location.search);
+                const direction = window.location.pathname + window.location.search;
+                localStorage.setItem("location", direction);
                 setLoading(false);
                 setAuthenticated(false);
+                const pathname = window.location.pathname;
+                if (!authenticated && (pathname === "/" || pathname === "/login")) {
+                    navigate("/login");
+                } else if (!pathname.startsWith("/invitation/accept")) {
+                    login(res);
+                }
             } else {
                 me().then(res => {
                     useAppStore.setState(() => ({user: res}));
                     setLoading(false);
                     setAuthenticated(true);
                     const location = localStorage.getItem("location");
-                    const newLocation = location.startsWith("/login") ? "/home" : location
+                    const newLocation = isEmpty(location) || location.startsWith("/login") ? "/home" : location;
                     navigate(newLocation);
                 });
             }
         })
     }, [navigate]);
-
-    useEffect(() => {
-        if (!authenticated) {
-            navigate("/login");
-        }
-    }, [navigate, authenticated])
 
     if (loading) {
         return <Loader/>
@@ -53,13 +59,14 @@ export const App = () => {
                 <Flash/>
                 <Header user={useAppStore.getState().user}
                         config={useAppStore.getState().config}/>
-                {authenticated && <BreadCrumb />}
+                {authenticated && <BreadCrumb/>}
                 {authenticated &&
-                <Routes>
-                    <Route path="/" element={<Navigate replace to="home"/>}/>
-                    <Route path="home" element={<Home/>}/>
-                </Routes>}
-
+                    <Routes>
+                        <Route path="/" element={<Navigate replace to="home"/>}/>
+                        <Route path="home" element={<Home/>}/>
+                        <Route path="invitation/accept" element={<Invitation authenticated={true}/>}/>
+                        <Route path="*" element={<NotFound/>}/>
+                    </Routes>}
                 {/*  <Route path="home">*/}
                 {/*    <Route path=":tab" element={<Home user={user}/>}/>*/}
                 {/*    <Route path="" element={<Home user={user}/>}/>*/}
@@ -67,9 +74,11 @@ export const App = () => {
                 {/*  <Route path="invitations" element={<Invitation user={user}/>}/>*/}
                 {/*  <Route path="institution/:institutionId" element={<InstitutionForm user={user}/>}/>*/}
                 {!authenticated &&
-                <Routes>
-                    <Route path="login" element={<Login/>}/>
-                </Routes>}
+                    <Routes>
+                        <Route path="invitation/accept" element={<Invitation authenticated={false}/>}/>
+                        <Route path="login" element={<Login/>}/>
+                        <Route path="/*" element={<Login/>}/>
+                    </Routes>}
             </div>
             {<Footer/>}
         </div>

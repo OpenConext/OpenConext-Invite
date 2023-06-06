@@ -1,9 +1,11 @@
 package access.api;
 
+import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.manage.Manage;
 import access.model.Authority;
 import access.model.Role;
+import access.model.RoleExists;
 import access.model.User;
 import access.repository.RoleRepository;
 import access.secuirty.UserPermissions;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,6 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 public class RoleController {
-
     private static final Log LOG = LogFactory.getLog(RoleController.class);
 
     private final RoleRepository roleRepository;
@@ -65,6 +67,16 @@ public class RoleController {
         return ResponseEntity.ok(roles);
     }
 
+    @PostMapping("validation/name")
+    public ResponseEntity<Map<String, Boolean>> nameExists(@RequestBody RoleExists roleExists, @Parameter(hidden = true) User user) {
+        Optional<Role> optionalRole = roleRepository.findByManageIdAndNameIgnoreCase(roleExists.manageId(), roleExists.name());
+        UserPermissions.assertAuthority(user, Authority.MANAGER);
+        Map<String, Boolean> result = optionalRole
+                .map(role -> Map.of("exists", roleExists.id() == null || role.getId().equals(roleExists.id())))
+                .orElse(Map.of("exists", false));
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
         LOG.debug("/newRole");
@@ -78,6 +90,10 @@ public class RoleController {
     }
 
     private ResponseEntity<Role> saveOrUpdate(@RequestBody @Validated Role role, @Parameter(hidden = true) User user) {
+        ResponseEntity<Map<String, Boolean>> exists = this.nameExists(new RoleExists(role.getName(), role.getManageId(), role.getId()), user);
+        if (exists.getBody().get("exists")) {
+            throw new NotAllowedException("Duplicate name: '" + role.getName() + "' for manage entity:'" + role.getManageId() + "'");
+        }
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
         return ResponseEntity.ok(roleRepository.save(role));

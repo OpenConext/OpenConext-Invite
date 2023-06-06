@@ -2,7 +2,7 @@ import {isEmpty} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
 
-const impersonation_attributes = ["id", "sub", "name", "email"];
+const impersonation_attributes = ["id"];
 
 //Internal API
 function validateResponse(showErrorDialog) {
@@ -34,7 +34,7 @@ function validateResponse(showErrorDialog) {
     };
 }
 
-// It is not allowed to put non asci characters in HTTP headers
+// It is not allowed to put non ASCI characters in HTTP headers
 function sanitizeHeader(s) {
     if (typeof s === 'string' || s instanceof String) {
         s = s.replace(/[^\x00-\x7F]/g, ""); // eslint-disable-line no-control-regex
@@ -82,16 +82,12 @@ export function health() {
 }
 
 export function configuration() {
-    return fetchJson("api/v1/users/config");
+    return fetchJson("/api/v1/users/config");
 }
 
 //Users
 export function me() {
-    return fetchJson("api/v1/users/me", {}, {}, false);
-}
-
-export function login() {
-    return fetchJson("api/v1/users/login");
+    return fetchJson("/api/v1/users/me", {}, {}, false);
 }
 
 export function logout() {
@@ -100,6 +96,11 @@ export function logout() {
 
 export function reportError(error) {
     return postPutJson("/api/v1/users/error", error, "post");
+}
+
+//Invitations
+export function invitationByHash(hash) {
+    return fetchJson(`/api/v1/invitations/public?hash=${hash}`);
 }
 
 

@@ -32,6 +32,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -42,6 +43,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -50,6 +52,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -58,6 +61,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @ExtendWith(SpringExtension.class)
+@Profile("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
                 "oidcng.introspect-url=http://localhost:8081/introspect",
@@ -66,6 +70,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.url: http://localhost:8081",
+                "manage.enabled: true"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
@@ -143,6 +148,10 @@ public abstract class AbstractTest {
     }
 
     protected AccessCookieFilter openIDConnectFlow(String path, String sub) throws Exception {
+        return this.openIDConnectFlow(path, sub, s -> {});
+    }
+
+    protected AccessCookieFilter openIDConnectFlow(String path, String sub, Consumer<String> authorizationConsumer) throws Exception {
         CookieFilter cookieFilter = new CookieFilter();
         Headers headers = given()
                 .redirects()
@@ -164,11 +173,13 @@ public abstract class AbstractTest {
         location = headers.getValue("Location");
         assertTrue(location.startsWith("http://localhost:8081/authorization?"));
 
+        authorizationConsumer.accept(location);
+
         MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(location).build().getQueryParams();
         String redirectUri = queryParams.getFirst("redirect_uri");
-        //The state and nonce are is url encoded
-        String state = URLDecoder.decode(queryParams.getFirst("state"), "UTF-8");
-        String nonce = URLDecoder.decode(queryParams.getFirst("nonce"), "UTF-8");
+        //The state and nonce are url encoded
+        String state = URLDecoder.decode(queryParams.getFirst("state"), StandardCharsets.UTF_8);
+        String nonce = URLDecoder.decode(queryParams.getFirst("nonce"), StandardCharsets.UTF_8);
 
         String keyId = String.format("key_%s", new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()));
         RSAKey rsaKey = generateRsaKey(keyId);
@@ -214,7 +225,7 @@ public abstract class AbstractTest {
                 .post(redirectUri)
                 .headers();
         location = headers.getValue("Location");
-        //Refreshing the token after authentication success and logout success is required
+        //Refreshing the CSRF token after authentication success and logout success is required
         Map<String, String> map = given()
                 .when()
                 .filter(cookieFilter)

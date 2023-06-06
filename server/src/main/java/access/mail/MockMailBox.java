@@ -2,6 +2,7 @@ package access.mail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.FileCopyUtils;
@@ -13,10 +14,10 @@ import java.io.IOException;
 
 public class MockMailBox extends MailBox {
 
-    private final String environment;
+    private final Environment environment;
 
-    public MockMailBox(ObjectMapper objectMapper , JavaMailSender mailSender, String emailFrom, String baseUrl, String welcomeUrl, String environment) throws IOException {
-        super(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, environment);
+    public MockMailBox(ObjectMapper objectMapper , JavaMailSender mailSender, String emailFrom, String baseUrl, String welcomeUrl, Environment environment) throws IOException {
+        super(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, "local");
         this.environment = environment;
     }
 
@@ -28,7 +29,7 @@ public class MockMailBox extends MailBox {
     @Override
     protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws MessagingException {
         String osName = System.getProperty("os.name").toLowerCase();
-        if (osName.contains("mac os x") && environment.equals("local")) {
+        if (osName.contains("mac os x") && environment.matchesProfiles("test")) {
             openInBrowser(htmlText);
         }
     }
@@ -37,7 +38,7 @@ public class MockMailBox extends MailBox {
     private void openInBrowser(String html) {
         File tempFile = File.createTempFile("javamail", ".html");
         FileCopyUtils.copy(html.getBytes(), tempFile);
-        new ProcessBuilder("open " + tempFile.getAbsolutePath()).start();
-//        Runtime.getRuntime().exec();
+        String absolutePath = tempFile.getAbsolutePath();
+        new ProcessBuilder("open", absolutePath).start();
     }
 }

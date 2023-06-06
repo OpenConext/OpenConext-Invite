@@ -32,7 +32,7 @@ CREATE TABLE `roles`
     `updated_by`             varchar(255) DEFAULT NULL,
     `updated_at`             datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `roles_unique_name` (`name`),
+    UNIQUE KEY `roles_unique_name` (`name`, `manage_id`),
     FULLTEXT KEY `full_text_index` (`name`,`description`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
