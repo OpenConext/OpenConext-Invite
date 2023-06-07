@@ -81,7 +81,8 @@ public class SecurityConfig {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**").allowedOrigins("http://localhost:3000");
+            registry.addMapping("/**")
+                    .allowedOrigins("*");
         }
     }
 
@@ -93,7 +94,9 @@ public class SecurityConfig {
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests(c -> c
                         .requestMatchers(
+                                "/api/v1/csrf",
                                 "/api/v1/users/config",
+                                "/api/v1/users/logout",
                                 "/api/v1/invitations/public",
                                 "/ui/**",
                                 "internal/**")

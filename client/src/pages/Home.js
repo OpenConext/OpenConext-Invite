@@ -21,9 +21,10 @@ export const Home = () => {
             <div className="mod-home-container">
                 {<UnitHeader obj={({name: I18n.t("home.access"), svg: Logo})}
                                                               svgClick={() => new Audio(owl).play()}/>}
-                <Tabs standAlone={!user.superUser} activeTab={tab} tabChanged={this.tabChanged}>
-                    {tabs}
-                </Tabs>
+                <p>{JSON.stringify(user)}</p>
+                {/*<Tabs standAlone={!user.superUser} activeTab={tab} tabChanged={this.tabChanged}>*/}
+                {/*    {tabs}*/}
+                {/*</Tabs>*/}
             </div>);
 
         </div>

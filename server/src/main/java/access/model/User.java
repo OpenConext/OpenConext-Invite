@@ -11,6 +11,7 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,6 +56,9 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
 
+    @Transient
+    private List<Map<String, Object>> providers;
+
     public User(Map<String, Object> attributes) {
         this(false, attributes);
     }
@@ -82,6 +86,7 @@ public class User implements Serializable {
     public String getName() {
         return String.format("%s %s", givenName, familyName);
     }
+
 
     @JsonIgnore
     public void addUserRole(UserRole userRole) {

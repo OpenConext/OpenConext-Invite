@@ -43,6 +43,7 @@ function sanitizeHeader(s) {
 }
 
 function validFetch(path, options, headers = {}, showErrorDialog = true) {
+
     const contentHeaders = {
         "Accept": "application/json",
         "Content-Type": "application/json",
@@ -57,9 +58,11 @@ function validFetch(path, options, headers = {}, showErrorDialog = true) {
     }
     const fetchOptions = Object.assign({}, {headers: contentHeaders}, options, {
         credentials: "same-origin",
-        redirect: "manual"
+        redirect: "manual",
+        changeOrigin: false,
     });
     return fetch(path, fetchOptions).then(validateResponse(showErrorDialog))
+
 }
 
 function fetchJson(path, options = {}, headers = {}, showErrorDialog = true) {
@@ -89,6 +92,9 @@ export function configuration() {
 export function me() {
     return fetchJson("/api/v1/users/me", {}, {}, false);
 }
+export function csrf() {
+    return fetchJson("/api/v1/csrf", {}, {}, false);
+}
 
 export function logout() {
     return fetchJson("/api/v1/users/logout");
@@ -101,6 +107,11 @@ export function reportError(error) {
 //Invitations
 export function invitationByHash(hash) {
     return fetchJson(`/api/v1/invitations/public?hash=${hash}`);
+}
+
+export function acceptInvitation(hash, invitationId) {
+    const body = {hash: hash, invitationId: invitationId};
+    return postPutJson("/api/v1/invitations/accept", body, "POST");
 }
 
 

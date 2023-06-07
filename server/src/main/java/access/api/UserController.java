@@ -1,6 +1,9 @@
 package access.api;
 
 import access.config.Config;
+import access.manage.Identity;
+import access.manage.Manage;
+import access.model.GroupedProviders;
 import access.model.User;
 import access.model.UserRole;
 import access.repository.UserRepository;
@@ -10,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
@@ -43,25 +49,37 @@ public class UserController {
     private final Config config;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final Manage manage;
+
 
     @Autowired
-    public UserController(Config config, UserRepository userRepository, ObjectMapper objectMapper) {
+    public UserController(Config config, UserRepository userRepository, ObjectMapper objectMapper, Manage manage) {
         this.config = config;
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
+        this.manage = manage;
     }
 
     @GetMapping("config")
     public ResponseEntity<Config> config(User user) {
         LOG.debug("/config");
-        boolean authenticated = user != null;
+        boolean authenticated = user != null && user.getId() != null;
+        config.withName(user != null ? user.getName() : null);
         return ResponseEntity.ok(config.withAuthenticated(authenticated));
     }
 
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug("/me");
-        user.getUserRoles().forEach(UserRole::getRole);
+        List<Map<String, Object>> providers = user.getUserRoles().stream()
+                .map(userRole -> new Identity(userRole.getRole().getManageId(), userRole.getRole().getManageType()))
+                //Prevent unnecessary round-trips to Manage
+                .collect(Collectors.toSet())
+                .stream()
+                .map(identity -> manage.providerById(identity.entityType(), identity.id()))
+                .toList();
+        user.setProviders(providers);
+
         return ResponseEntity.ok(user);
     }
 
@@ -84,7 +102,10 @@ public class UserController {
     public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
         LOG.debug("/logout");
         SecurityContextHolder.clearContext();
-        request.getSession(false).invalidate();
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
         return ResponseEntity.ok(Map.of("result", "ok"));
     }
 

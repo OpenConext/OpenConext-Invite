@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.manage.EntityType;
 import access.model.Authority;
 import access.model.User;
 import io.restassured.http.ContentType;
@@ -15,6 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,6 +61,11 @@ class UserControllerTest extends AbstractTest {
     void meWithRoles() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "inviter@example.com");
 
+        String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.OIDC10_RP, "5"));
+        stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/5")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+
         User user = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -68,6 +76,9 @@ class UserControllerTest extends AbstractTest {
         List<String> roleNames = List.of("Mail", "Calendar").stream().sorted().toList();
 
         assertEquals(roleNames, user.getUserRoles().stream().map(userRole -> userRole.getRole().getName()).sorted().toList());
+        assertEquals(1, user.getProviders().size());
+        assertEquals("5",user.getProviders().get(0).get("id"));
+        assertEquals("5",user.getProviders().get(0).get("_id"));
     }
 
     @Test

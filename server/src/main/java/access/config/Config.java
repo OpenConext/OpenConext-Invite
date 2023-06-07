@@ -13,9 +13,15 @@ public class Config {
     private String serverUrl;
     private String eduidEntityId;
     private boolean authenticated;
+    private String name;
 
     public Config withAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
+        return this;
+    }
+
+    public Config withName(String name) {
+        this.name = name;
         return this;
     }
 }

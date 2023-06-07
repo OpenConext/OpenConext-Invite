@@ -16,7 +16,7 @@ $width: 70px;
         width: $width;
         height: $width;
         border-radius: 50%;
-        border: solid 5px $lighter-grey;
+        border: solid 5px var(--sds--color--gray--200);
         position: absolute;
         top: 0;
         left: 0;

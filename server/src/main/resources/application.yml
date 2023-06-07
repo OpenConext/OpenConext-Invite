@@ -5,6 +5,7 @@ logging:
     org.springframework.web: WARN
     org.springframework.security: WARN
     com.zaxxer.hikari: ERROR
+    access: DEBUG
 
 server:
   error:

@@ -1,6 +1,8 @@
 package access.api;
 
 import access.config.HashGenerator;
+import access.exception.InvitationEmailMatchingException;
+import access.exception.InvitationExpiredException;
 import access.exception.InvitationStatusException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
@@ -9,22 +11,26 @@ import access.manage.Manage;
 import access.model.*;
 import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
+import access.repository.UserRepository;
 import access.secuirty.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,15 +48,18 @@ public class InvitationController {
     private final MailBox mailBox;
     private final Manage manage;
     private final InvitationRepository invitationRepository;
+
+    private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
     public InvitationController(MailBox mailBox,
                                 Manage manage,
                                 InvitationRepository invitationRepository,
-                                RoleRepository roleRepository) {
+                                UserRepository userRepository, RoleRepository roleRepository) {
         this.mailBox = mailBox;
         this.manage = manage;
         this.invitationRepository = invitationRepository;
+        this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
 
@@ -93,19 +102,19 @@ public class InvitationController {
     @GetMapping("public")
     public ResponseEntity<MetaInvitation> getInvitation(@RequestParam("hash") String hash) {
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
-        if (invitation.getStatus().equals(Status.OPEN)) {
-            List<Map<String, Object>> providers = invitation.getRoles().stream()
-                    .map(invitationRole -> invitationRole.getRole())
-                    .map(role -> manage.providerById(role.getManageType(), role.getManageId()))
-                    .toList();
-            return ResponseEntity.ok(new MetaInvitation(invitation, providers));
+        if (!invitation.getStatus().equals(Status.OPEN)) {
+            throw new InvitationStatusException();
         }
-        throw new InvitationStatusException();
+        List<Map<String, Object>> providers = invitation.getRoles().stream()
+                .map(invitationRole -> invitationRole.getRole())
+                .map(role -> manage.providerById(role.getManageType(), role.getManageId()))
+                .toList();
+        return ResponseEntity.ok(new MetaInvitation(invitation, providers));
     }
 
 
     @PostMapping("accept")
-    public ResponseEntity<Void> accept(@Validated @RequestBody AcceptInvitation acceptInvitation, Authentication authentication) {
+    public ResponseEntity<User> accept(@Validated @RequestBody AcceptInvitation acceptInvitation, Authentication authentication) {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
             throw new NotFoundException();
@@ -113,6 +122,28 @@ public class InvitationController {
         if (!invitation.getStatus().equals(Status.OPEN)) {
             throw new InvitationStatusException();
         }
+        if (invitation.getExpiryDate().isBefore(Instant.now())) {
+            throw new InvitationExpiredException();
+        }
+        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+        OAuth2User principal = token.getPrincipal();
+        Map<String, Object> attributes = principal.getAttributes();
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase((String) attributes.get("sub"));
+        //TODO check for logic in invite tool
+
+        checkEmailEquality(user, invitation);
+
+        invitation.setStatus(Status.ACCEPTED);
+        Authority intendedAuthority = invitation.getIntendedAuthority();
+        String email = invitation.getEmail();
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    private void checkEmailEquality(User user, Invitation invitation) {
+        if (invitation.isEnforceEmailEquality() && !invitation.getEmail().equalsIgnoreCase(user.getEmail())) {
+            throw new InvitationEmailMatchingException(
+                    String.format("Invitation email %s does not match user email %s", invitation.getEmail(), user.getEmail()));
+        }
+    }
+
 }
