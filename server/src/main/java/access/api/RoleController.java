@@ -69,8 +69,10 @@ public class RoleController {
 
     @PostMapping("validation/name")
     public ResponseEntity<Map<String, Boolean>> nameExists(@RequestBody RoleExists roleExists, @Parameter(hidden = true) User user) {
-        Optional<Role> optionalRole = roleRepository.findByManageIdAndNameIgnoreCase(roleExists.manageId(), roleExists.name());
         UserPermissions.assertAuthority(user, Authority.MANAGER);
+
+        String roleName = roleExists.name().trim().replaceAll(" +", " ");
+        Optional<Role> optionalRole = roleRepository.findByManageIdAndNameIgnoreCase(roleExists.manageId(), roleName);
         Map<String, Boolean> result = optionalRole
                 .map(role -> Map.of("exists", roleExists.id() == null || role.getId().equals(roleExists.id())))
                 .orElse(Map.of("exists", false));

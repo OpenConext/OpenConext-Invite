@@ -6,17 +6,19 @@ import access.exception.InvitationExpiredException;
 import access.exception.InvitationStatusException;
 import access.exception.NotFoundException;
 import access.mail.MailBox;
-import access.manage.Identity;
+import access.manage.ManageIdentifier;
 import access.manage.Manage;
 import access.model.*;
 import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
+import access.secuirty.SuperAdmin;
 import access.secuirty.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,7 @@ import static java.util.stream.Collectors.toSet;
 @RequestMapping(value = {"/api/v1/invitations", "/api/external/v1/invitations"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
+@EnableConfigurationProperties(SuperAdmin.class)
 public class InvitationController {
 
     private static final Log LOG = LogFactory.getLog(InvitationController.class);
@@ -50,17 +53,22 @@ public class InvitationController {
     private final InvitationRepository invitationRepository;
 
     private final UserRepository userRepository;
+
     private final RoleRepository roleRepository;
 
+    private final SuperAdmin superAdmin;
     public InvitationController(MailBox mailBox,
                                 Manage manage,
                                 InvitationRepository invitationRepository,
-                                UserRepository userRepository, RoleRepository roleRepository) {
+                                UserRepository userRepository,
+                                RoleRepository roleRepository,
+                                SuperAdmin superAdmin) {
         this.mailBox = mailBox;
         this.manage = manage;
         this.invitationRepository = invitationRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.superAdmin = superAdmin;
     }
 
     @PostMapping("")
@@ -88,7 +96,7 @@ public class InvitationController {
         //We need to display the roles per manage application with the logo
 
         List<GroupedProviders> groupedProviders = requestedRoles.stream()
-                .collect(Collectors.groupingBy(role -> new Identity(role.getManageId(), role.getManageType())))
+                .collect(Collectors.groupingBy(role -> new ManageIdentifier(role.getManageId(), role.getManageType())))
                 .entrySet().stream()
                 .map(entry -> new GroupedProviders(
                         manage.providerById(entry.getKey().entityType(), entry.getKey().id()),
@@ -128,8 +136,12 @@ public class InvitationController {
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         OAuth2User principal = token.getPrincipal();
         Map<String, Object> attributes = principal.getAttributes();
-        Optional<User> optionalUser = userRepository.findBySubIgnoreCase((String) attributes.get("sub"));
-        //TODO check for logic in invite tool
+        String sub = (String) attributes.get("sub");
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+        User user = optionalUser.orElseGet(() -> {
+            boolean superUser = this.superAdmin.getUsers().stream().anyMatch(superSub -> superSub.equals(sub));
+            return userRepository.save(new User(superUser, attributes));
+        });
 
         checkEmailEquality(user, invitation);
 

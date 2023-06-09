@@ -56,6 +56,11 @@ spring:
     host: localhost
     port: 3025
 
+cron:
+  node-cron-job-responsible: true
+  user-cleaner-expression: "0 0/30 * * * *"
+  last-activity-duration-days: 1000
+
 oidcng:
   discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
   introspect-url: "https://connect.test2.surfconext.nl/oidc/introspect"
@@ -75,7 +80,7 @@ config:
 voot:
   user: voot
   password: secret
-  group_urn_domain: test.eduid.nl
+  group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
 
 email:
   from: "no-reply@surf.nl"

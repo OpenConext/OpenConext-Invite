@@ -11,7 +11,7 @@ public interface Manage {
 
     List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers);
 
-    List<Map<String, Object>> provisioning(String providerId);
+    List<Map<String, Object>> provisioning(List<String> ids);
 
     List<Map<String, Object>> allowedEntries(EntityType entityType, String id);
 

@@ -19,8 +19,8 @@ public class SCIMController {
 
     private static final Log LOG = LogFactory.getLog(SCIMController.class);
 
-    private final Map<String, Map<String, Object>> users = new HashMap();
-    private final Map<String, Map<String, Object>> groups = new HashMap();
+    private final Map<String, Map<String, Object>> users = new HashMap<>();
+    private final Map<String, Map<String, Object>> groups = new HashMap<>();
 
     @PostMapping("/users")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody Map<String, Object> user) {

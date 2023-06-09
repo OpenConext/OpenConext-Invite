@@ -12,7 +12,7 @@ CREATE TABLE `users`
     PRIMARY KEY (`id`),
     UNIQUE INDEX `users_unique_eppn` (`eduperson_principal_name`),
     UNIQUE INDEX `users_unique_sub` (`sub`),
-    FULLTEXT KEY `full_text_index` (`given_name`,`family_name`,`email`)
+    FULLTEXT KEY `full_text_index` (`given_name`, `family_name`, `email`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
@@ -33,7 +33,7 @@ CREATE TABLE `roles`
     `updated_at`             datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `roles_unique_name` (`name`, `manage_id`),
-    FULLTEXT KEY `full_text_index` (`name`,`description`)
+    FULLTEXT KEY `full_text_index` (`name`, `description`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
@@ -71,7 +71,7 @@ CREATE TABLE `invitations`
     `role_expiry_date`       datetime     DEFAULT NULL,
     `inviter_id`             bigint       NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX                    `index_invitation_hash` (`hash`),
+    INDEX `index_invitation_hash` (`hash`),
     CONSTRAINT `fk_invitations_user` FOREIGN KEY (`inviter_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
@@ -91,16 +91,29 @@ CREATE TABLE `invitation_roles`
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE `identity_providers`
+CREATE TABLE `remote_provisioned_users`
 (
-    `id`              bigint       NOT NULL AUTO_INCREMENT,
-    `manage_id`       varchar(255) NOT NULL,
-    `manage_entityid` varchar(255) NOT NULL,
-    `manage_name`     varchar(255) NOT NULL,
-    `invitation_id`   bigint       NOT NULL,
+    `id`                     bigint       NOT NULL AUTO_INCREMENT,
+    `manage_provisioning_id` varchar(255) NOT NULL,
+    `remote_scim_identifier` varchar(255) NOT NULL,
+    `user_id`                bigint       NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `identity_providers_unique_invitation` (`invitation_id`, `manage_id`),
-    CONSTRAINT `fk_identity_providers_invitation` FOREIGN KEY (`invitation_id`) REFERENCES `invitations` (`id`) ON DELETE CASCADE
+    UNIQUE KEY `remote_provisioned_users_unique` (`user_id`, `manage_provisioning_id`, `remote_scim_identifier`),
+    CONSTRAINT `fk_remote_provisioned_groups_role` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `remote_provisioned_groups`
+(
+    `id`                     bigint       NOT NULL AUTO_INCREMENT,
+    `manage_provisioning_id` varchar(255) NOT NULL,
+    `remote_scim_identifier` varchar(255) NOT NULL,
+    `role_id`                bigint       NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `remote_provisioned_groups_unique` (`role_id`, `manage_provisioning_id`, `remote_scim_identifier`),
+    CONSTRAINT `fk_remote_provisioned_groups_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
+

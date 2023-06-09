@@ -15,16 +15,13 @@ import org.springframework.util.StringUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Entity(name = "roles")
 @NoArgsConstructor
 @Getter
 @Setter
-@EntityListeners(NameHolderListener.class)
-public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
+public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +33,6 @@ public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
 
     @Column(name = "description")
     private String description;
-
-    @Column(name = "remote_scim_identifier")
-    private String remoteScimIdentifier;
 
     @Column(name = "landing_page")
     private String landingPage;
@@ -52,6 +46,12 @@ public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
     @Column(name = "manage_type")
     @Enumerated(EnumType.STRING)
     private EntityType manageType;
+
+    @OneToMany(mappedBy = "role", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<RemoteProvisionedGroup> remoteProvisionedGroups = new HashSet<>();
+
+    @OneToMany(mappedBy = "role", orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<UserRole> userRoles = new HashSet<>();
 
     @Embedded
     private Auditable auditable = new Auditable();
@@ -69,12 +69,6 @@ public class Role implements Serializable, NameHolder, RemoteSCIMIdentifier {
         this.manageId = manageId;
         this.manageType = manageType;
         this.application = application;
-    }
-
-    @Override
-    @JsonIgnore
-    public void nameUrnCompatibilityCheck() {
-        this.name = compatibleUrnName(this.name);
     }
 
 }

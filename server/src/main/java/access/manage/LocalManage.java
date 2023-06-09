@@ -50,11 +50,11 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> provisioning(String providerId) {
+    public List<Map<String, Object>> provisioning(List<String> ids) {
         return addIdentifierAlias(providers(EntityType.PROVISIONING).stream()
                 .filter(map -> {
                     List<Map<String, String>> applications = (List<Map<String, String>>) ((Map) map.get("data")).get("applications");
-                    return applications.stream().anyMatch(m -> m.get("id").equals(providerId));
+                    return applications.stream().anyMatch(m -> ids.contains(m.get("id")));
                 })
                 .collect(Collectors.toList()));
     }

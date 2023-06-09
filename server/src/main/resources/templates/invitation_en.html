@@ -30,9 +30,9 @@
     <div class="middle" style="padding: 20px 0 40px 60px;max-width: 600px;">
         <p>Hi,</p>
         <p>You have been invited by <a href="mailto:{{user.email}}">{{user.givenName}} {{user.familyName}}</a> to become
-            a <strong>{{intendedAuthority}}</strong> at the application <strong>{{application.name}}</strong>.</p>
+            a <strong>{{intendedAuthority}}</strong> at the provisioning <strong>{{provisioning.name}}</strong>.</p>
         {{#invitation.anyRoles}}
-        <p>You will be granted access to the following applications:</p>
+        <p>You will be granted access to the following provisionings:</p>
             {{#groupedProviders}}
             <table>
                 <thead/>

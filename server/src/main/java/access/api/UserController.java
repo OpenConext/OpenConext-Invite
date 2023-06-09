@@ -1,11 +1,9 @@
 package access.api;
 
 import access.config.Config;
-import access.manage.Identity;
+import access.manage.ManageIdentifier;
 import access.manage.Manage;
-import access.model.GroupedProviders;
 import access.model.User;
-import access.model.UserRole;
 import access.repository.UserRepository;
 import access.secuirty.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,7 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -72,7 +69,7 @@ public class UserController {
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug("/me");
         List<Map<String, Object>> providers = user.getUserRoles().stream()
-                .map(userRole -> new Identity(userRole.getRole().getManageId(), userRole.getRole().getManageType()))
+                .map(userRole -> new ManageIdentifier(userRole.getRole().getManageId(), userRole.getRole().getManageType()))
                 //Prevent unnecessary round-trips to Manage
                 .collect(Collectors.toSet())
                 .stream()

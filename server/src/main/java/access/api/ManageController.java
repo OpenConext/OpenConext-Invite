@@ -61,7 +61,7 @@ public class ManageController {
     public ResponseEntity<List<Map<String, Object>>> provisioning(@PathVariable("id") String id,
                                                                   @Parameter(hidden = true) User user) {
         LOG.debug("provider");
-        List<Map<String, Object>> provisioning = manage.provisioning(id);
+        List<Map<String, Object>> provisioning = manage.provisioning(List.of(id));
         provisioning.forEach(prov -> UserPermissions.assertManagerRole(prov, user));
         if (!user.isSuperUser()) {
             provisioning.forEach(prov -> {

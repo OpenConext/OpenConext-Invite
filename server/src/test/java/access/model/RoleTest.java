@@ -1,7 +1,7 @@
 package access.model;
 
 import access.manage.EntityType;
-import access.manage.Identity;
+import access.manage.ManageIdentifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -19,10 +19,10 @@ class RoleTest {
                 new Role("mail", "mail","1", EntityType.OIDC10_RP),
                 new Role("wiki", "wiki","2", EntityType.SAML20_SP)
         );
-        Map<Identity, List<Role>> rolesByApplication = roles.stream()
-                .collect(Collectors.groupingBy(role -> new Identity(role.getManageId(), role.getManageType())));
+        Map<ManageIdentifier, List<Role>> rolesByApplication = roles.stream()
+                .collect(Collectors.groupingBy(role -> new ManageIdentifier(role.getManageId(), role.getManageType())));
         assertEquals(2, rolesByApplication.size());
-        assertEquals(2, rolesByApplication.get(new Identity("1", EntityType.OIDC10_RP)).size());
-        assertEquals(1, rolesByApplication.get(new Identity("2", EntityType.SAML20_SP)).size());
+        assertEquals(2, rolesByApplication.get(new ManageIdentifier("1", EntityType.OIDC10_RP)).size());
+        assertEquals(1, rolesByApplication.get(new ManageIdentifier("2", EntityType.SAML20_SP)).size());
     }
 }

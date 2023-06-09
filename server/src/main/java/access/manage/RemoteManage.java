@@ -48,9 +48,9 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> provisioning(String providerId) {
-        String queryUrl = String.format("%s/manage/api/internal/provisioning/%s", url, providerId);
-        return addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
+    public List<Map<String, Object>> provisioning(List<String> ids) {
+        String queryUrl = String.format("%s/manage/api/internal/provisioning", url);
+        return addIdentifierAlias(restTemplate.postForObject(queryUrl, ids, List.class));
     }
 
     @Override

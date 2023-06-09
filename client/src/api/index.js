@@ -2,8 +2,6 @@ import {isEmpty} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
 
-const impersonation_attributes = ["id"];
-
 //Internal API
 function validateResponse(showErrorDialog) {
     return res => {
@@ -53,8 +51,7 @@ function validFetch(path, options, headers = {}, showErrorDialog = true) {
     };
     const impersonator = useAppStore.getState().impersonator;
     if (impersonator) {
-        impersonation_attributes.forEach(attr =>
-            contentHeaders[`X-IMPERSONATE-${attr.toUpperCase()}`] = sanitizeHeader(impersonator[attr]));
+        contentHeaders["X-IMPERSONATE-ID"] = sanitizeHeader(impersonator.id);
     }
     const fetchOptions = Object.assign({}, {headers: contentHeaders}, options, {
         credentials: "same-origin",

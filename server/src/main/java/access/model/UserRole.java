@@ -1,12 +1,12 @@
 package access.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -14,14 +14,11 @@ import java.time.Instant;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserRole implements Serializable, RemoteSCIMIdentifier {
+public class UserRole implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "remote_scim_identifier")
-    private String remoteScimIdentifier;
 
     @Column(name = "inviter")
     private String inviter;
@@ -29,12 +26,14 @@ public class UserRole implements Serializable, RemoteSCIMIdentifier {
     @Column(name = "end_date")
     private Instant endDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Role role;
 
     @Enumerated(EnumType.STRING)

@@ -1,5 +1,6 @@
 package access.model;
 
+import access.manage.ManageIdentifier;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -56,6 +57,9 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<RemoteProvisionedUser> remoteProvisionedUsers = new HashSet<>();
+
     @Transient
     private List<Map<String, Object>> providers;
 
@@ -102,6 +106,18 @@ public class User implements Serializable {
         userRoles.addAll(newRoles);
     }
 
+    @JsonIgnore
+    public Set<ManageIdentifier> manageIdentifierSet() {
+        return userRoles.stream()
+                .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST))
+                .map(userRole -> new ManageIdentifier(userRole.getRole().getManageId(), userRole.getRole().getManageType()))
+                .collect(Collectors.toSet());
+    }
+
+    @JsonIgnore
+    public List<UserRole> guestUserRoles() {
+        return this.userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.GUEST)).toList();
+    }
 
     @JsonIgnore
     public boolean hasChanged(Map<String, Object> tokenAttributes) {
