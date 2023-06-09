@@ -9,7 +9,6 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +51,7 @@ class RoleControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
                 .body(new RoleExists("WIKI", "1", null))
-                .post("/api/v1/roles/validation/name")
+                .post("/api/v1/roles/validation/short_name")
                 .as(Map.class);
         assertTrue((Boolean) result.get("exists"));
     }
@@ -67,7 +66,7 @@ class RoleControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
                 .body(new RoleExists("unique", "1", null))
-                .post("/api/v1/roles/validation/name")
+                .post("/api/v1/roles/validation/short_name")
                 .as(Map.class);
         assertFalse((Boolean) result.get("exists"));
     }
@@ -75,7 +74,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void nameExists() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
-        Role role = roleRepository.findByManageIdAndNameIgnoreCase("1", "WIKI").get();
+        Role role = roleRepository.findByManageIdAndShortNameIgnoreCase("1", "WIKI").get();
         Map result = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -83,7 +82,7 @@ class RoleControllerTest extends AbstractTest {
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
                 .body(new RoleExists(role.getName(), role.getManageId(), role.getId()))
-                .post("/api/v1/roles/validation/name")
+                .post("/api/v1/roles/validation/short_name")
                 .as(Map.class);
         assertTrue((Boolean) result.get("exists"));
     }

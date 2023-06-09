@@ -12,8 +12,6 @@ import java.util.Set;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    Optional<Role> findByRemoteScimIdentifier(String remoteScimIdentifier);
-
     @Query(value = "SELECT * FROM roles WHERE MATCH (name, description) against (?1  IN BOOLEAN MODE) " +
             "AND id > 0 LIMIT ?2",
             nativeQuery = true)
@@ -24,5 +22,5 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     @Query(value = "SELECT DISTINCT manage_type, manage_id FROM roles", nativeQuery = true)
     List<String[]> findDistinctManageIdentifiers();
 
-    Optional<Role> findByManageIdAndNameIgnoreCase(String managerId, String name);
+    Optional<Role> findByManageIdAndShortNameIgnoreCase(String managerId, String name);
 }

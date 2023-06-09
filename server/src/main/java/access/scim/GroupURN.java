@@ -10,9 +10,10 @@ public class GroupURN {
     private GroupURN() {
     }
 
-    private static String sanitizeRoleName(String name) {
-        return Normalizer.normalize(name, Normalizer.Form.NFKD)
+    public static String sanitizeRoleShortName(String shortName) {
+        return Normalizer.normalize(shortName, Normalizer.Form.NFKD)
                 .trim()
+                .replaceAll(" +", " ")
                 .replaceAll(" ", "_")
                 .replaceAll("[^A-Za-z0-9_.]", "")
                 .toLowerCase();
@@ -22,7 +23,7 @@ public class GroupURN {
         return String.format("%s:%s:%s",
                 groupUrnPrefix,
                 role.getManageId(),
-                sanitizeRoleName(role.getName()));
+                role.getShortName());
     }
 
 }

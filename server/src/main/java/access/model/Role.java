@@ -2,6 +2,7 @@ package access.model;
 
 
 import access.manage.EntityType;
+import access.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -31,6 +32,10 @@ public class Role implements Serializable {
     @NotNull
     private String name;
 
+    @Column(name = "short_name")
+    @NotNull
+    private String shortName;
+
     @Column(name = "description")
     private String description;
 
@@ -47,11 +52,12 @@ public class Role implements Serializable {
     @Enumerated(EnumType.STRING)
     private EntityType manageType;
 
-    @OneToMany(mappedBy = "role", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "role",
+            orphanRemoval = true,
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<RemoteProvisionedGroup> remoteProvisionedGroups = new HashSet<>();
-
-    @OneToMany(mappedBy = "role", orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<UserRole> userRoles = new HashSet<>();
 
     @Embedded
     private Auditable auditable = new Auditable();
@@ -60,11 +66,12 @@ public class Role implements Serializable {
     private Map<String, Object> application;
 
     public Role(String name, String description, String manageId, EntityType manageType) {
-        this(name, description, manageId, manageType, Collections.emptyMap());
+        this(name, GroupURN.sanitizeRoleShortName(name), description, manageId, manageType, Collections.emptyMap());
     }
 
-    public Role(String name, String description, String manageId, EntityType manageType, Map<String, Object> application) {
+    public Role(String name, String shortName, String description, String manageId, EntityType manageType, Map<String, Object> application) {
         this.name = name;
+        this.shortName = shortName;
         this.description = description;
         this.manageId = manageId;
         this.manageType = manageType;

@@ -72,8 +72,8 @@ public class InvitationController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Void> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
-                                              @Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, Integer>> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
+                                                              @Parameter(hidden = true) User user) {
         LOG.debug("/newInvitation");
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
@@ -104,7 +104,7 @@ public class InvitationController {
                         UUID.randomUUID().toString())
                 ).toList();
         invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders));
-        return ResponseEntity.ok().build();
+        return Results.createResult();
     }
 
     @GetMapping("public")

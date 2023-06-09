@@ -14,8 +14,8 @@ public class Operation {
     private final String path = "members";
     private final List<Member> value;
 
-    public Operation(OperationType op, String remoteScimIdentifer) {
+    public Operation(OperationType op, List<String> remoteScimIdentifiers) {
         this.op = op;
-        this.value = Collections.singletonList(new Member(remoteScimIdentifer));
+        this.value = remoteScimIdentifiers.stream().map(Member::new).toList();
     }
 }

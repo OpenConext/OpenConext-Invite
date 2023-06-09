@@ -32,5 +32,9 @@ public class RemoteProvisionedGroup implements Serializable, RemoteScimIdentifie
     @NotNull
     private String manageProvisioningId;
 
-
+    public RemoteProvisionedGroup(Role role, @NotNull String remoteScimIdentifier, @NotNull String manageProvisioningId) {
+        this.role = role;
+        this.remoteScimIdentifier = remoteScimIdentifier;
+        this.manageProvisioningId = manageProvisioningId;
+    }
 }

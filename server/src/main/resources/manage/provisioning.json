@@ -10,7 +10,7 @@
         "name:en": "Scim",
         "provisioning_type": "scim",
         "scim_update_role_put_method": true,
-        "scim_url": "https://scim",
+        "scim_url": "http://localhost:8081",
         "scim_user": "user",
         "scim_passwor": "secret"
       },

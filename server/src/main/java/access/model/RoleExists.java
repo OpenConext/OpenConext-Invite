@@ -2,5 +2,5 @@ package access.model;
 
 import java.io.Serializable;
 
-public record RoleExists(String name, String manageId, Long id) implements Serializable {
+public record RoleExists(String shortName, String manageId, Long id) implements Serializable {
 }

@@ -8,6 +8,7 @@ import access.model.Role;
 import access.model.RoleExists;
 import access.model.User;
 import access.repository.RoleRepository;
+import access.scim.GroupURN;
 import access.secuirty.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -67,12 +68,11 @@ public class RoleController {
         return ResponseEntity.ok(roles);
     }
 
-    @PostMapping("validation/name")
-    public ResponseEntity<Map<String, Boolean>> nameExists(@RequestBody RoleExists roleExists, @Parameter(hidden = true) User user) {
+    @PostMapping("validation/short_name")
+    public ResponseEntity<Map<String, Boolean>> shortNameExists(@RequestBody RoleExists roleExists, @Parameter(hidden = true) User user) {
         UserPermissions.assertAuthority(user, Authority.MANAGER);
-
-        String roleName = roleExists.name().trim().replaceAll(" +", " ");
-        Optional<Role> optionalRole = roleRepository.findByManageIdAndNameIgnoreCase(roleExists.manageId(), roleName);
+        String shortName = GroupURN.sanitizeRoleShortName(roleExists.shortName());
+        Optional<Role> optionalRole = roleRepository.findByManageIdAndShortNameIgnoreCase(roleExists.manageId(), shortName);
         Map<String, Boolean> result = optionalRole
                 .map(role -> Map.of("exists", roleExists.id() == null || role.getId().equals(roleExists.id())))
                 .orElse(Map.of("exists", false));
@@ -92,12 +92,14 @@ public class RoleController {
     }
 
     private ResponseEntity<Role> saveOrUpdate(@RequestBody @Validated Role role, @Parameter(hidden = true) User user) {
-        ResponseEntity<Map<String, Boolean>> exists = this.nameExists(new RoleExists(role.getName(), role.getManageId(), role.getId()), user);
+        String shortName = GroupURN.sanitizeRoleShortName( role.getShortName());
+        ResponseEntity<Map<String, Boolean>> exists = this.shortNameExists(new RoleExists(shortName, role.getManageId(), role.getId()), user);
         if (exists.getBody().get("exists")) {
-            throw new NotAllowedException("Duplicate name: '" + role.getName() + "' for manage entity:'" + role.getManageId() + "'");
+            throw new NotAllowedException("Duplicate name: '" + shortName + "' for manage entity:'" + role.getManageId() + "'");
         }
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
+        role.setShortName(shortName);
         return ResponseEntity.ok(roleRepository.save(role));
     }
 

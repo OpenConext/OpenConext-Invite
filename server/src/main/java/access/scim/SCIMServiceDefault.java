@@ -1,11 +1,13 @@
 package access.scim;
 
+import access.mail.MailBox;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import access.model.*;
-import access.mail.MailBox;
-import access.repository.*;
+import access.repository.RemoteProvisionedGroupRepository;
+import access.repository.RemoteProvisionedUserRepository;
+import access.repository.UserRoleRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import org.apache.commons.logging.Log;
@@ -26,7 +28,6 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class SCIMServiceDefault implements SCIMService {
@@ -81,7 +82,7 @@ public class SCIMServiceDefault implements SCIMService {
         //Provision the user to all provisionings in Manage where the user is unknown or the ProvisionType is mail
         provisionings.stream()
                 .filter(provisioning -> this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user)
-                        .isEmpty() || hasEmailHook(provisioning))
+                        .isEmpty())
                 .forEach(provisioning -> {
                     String userRequest = prettyJson(new UserRequest(user));
                     String remoteScimIdentifier = this.newRequest(provisioning, userRequest, USER_API);
@@ -95,7 +96,7 @@ public class SCIMServiceDefault implements SCIMService {
     public void deleteUserRequest(User user) {
         //First send update role requests
         user.getUserRoles()
-                .forEach(userRole -> this.doUpdateGroupRequest(userRole, OperationType.Remove, user.getUserRoles()));
+                .forEach(userRole -> this.updateGroupRequest(userRole, OperationType.Remove));
 
         List<Provisioning> provisionings = getProvisionings(user);
         //Delete the user to all provisionings in Manage where the user is known
@@ -114,12 +115,81 @@ public class SCIMServiceDefault implements SCIMService {
 
     @Override
     public void newGroupRequest(Role role) {
-        doNewGroupRequest(role, Collections.emptyList());
+        List<Provisioning> provisionings = getProvisionings(role);
+        provisionings.forEach(provisioning -> {
+            Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
+                    .findByManageProvisioningIdAndRole(provisioning.getId(), role);
+            if (provisionedGroupOptional.isEmpty()) {
+                String groupRequest = constructGroupRequest(role, null, Collections.emptyList());
+                String remoteScimIdentifier = this.newRequest(provisioning, groupRequest, GROUP_API);
+                RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, remoteScimIdentifier, provisioning.getId());
+                this.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
+            }
+        });
     }
 
     @Override
     public void updateGroupRequest(UserRole userRole, OperationType operationType) {
-        doUpdateGroupRequest(userRole, operationType, Collections.emptyList());
+        Role role = userRole.getRole();
+        List<Provisioning> provisionings = getProvisionings(role);
+        provisionings.forEach(provisioning -> {
+            Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
+                    .findByManageProvisioningIdAndRole(provisioning.getId(), role);
+            provisionedGroupOptional.ifPresentOrElse(provisionedGroup -> {
+                        if (provisioning.isScimUpdateRolePutMethod()) {
+                            //We need all userRoles for a PUT
+                            List<UserRole> userRoles = userRoleRepository.findByRole(userRole.getRole());
+                            boolean userRolePresent = userRoles.stream().anyMatch(dbUserRole -> dbUserRole.getId().equals(userRole.getId()));
+                            if (operationType.equals(OperationType.Add) && !userRolePresent) {
+                                userRoles.add(userRole);
+                            } else if (operationType.equals(OperationType.Remove) && userRolePresent) {
+                                userRoles = userRoles.stream()
+                                        .filter(dbUserRole -> !dbUserRole.getId().equals(userRole.getId()))
+                                        .toList();
+                            }
+                            List<String> userScimIdentifiers = userRoles.stream()
+                                    .map(ur -> {
+                                        Optional<RemoteProvisionedUser> provisionedUser = this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), ur.getUser());
+                                        //Should not happen, but try to provision anyway
+                                        if (provisionedUser.isEmpty()) {
+                                            this.newUserRequest(ur.getUser());
+                                            provisionedUser = this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), ur.getUser());
+                                        }
+                                        return provisionedUser;
+                                    })
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .map(RemoteProvisionedUser::getRemoteScimIdentifier)
+                                    .toList();
+                            String groupRequest = constructGroupRequest(
+                                    role,
+                                    provisionedGroup.getRemoteScimIdentifier(),
+                                    userScimIdentifiers);
+                            this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteScimIdentifier(), HttpMethod.PUT);
+                        } else {
+                            Optional<RemoteProvisionedUser> provisionedUserOptional = this.remoteProvisionedUserRepository
+                                    .findByManageProvisioningIdAndUser(provisioning.getId(), userRole.getUser())
+                                    .or(() -> {
+                                        this.newUserRequest(userRole.getUser());
+                                        return this.remoteProvisionedUserRepository
+                                                .findByManageProvisioningIdAndUser(provisioning.getId(), userRole.getUser());
+                                    });
+                            //Should not be empty, but avoid error on this
+                            provisionedUserOptional.ifPresent(provisionedUser -> {
+                                String groupRequest = patchGroupRequest(
+                                        role,
+                                        provisionedUser.getRemoteScimIdentifier(),
+                                        provisionedGroup.getRemoteScimIdentifier(),
+                                        operationType);
+                                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteScimIdentifier(), HttpMethod.PATCH);
+                            });
+                        }
+                    }, () -> {
+                        this.newGroupRequest(role);
+                        this.updateGroupRequest(userRole, operationType);
+                    }
+            );
+        });
     }
 
     @Override
@@ -139,100 +209,6 @@ public class SCIMServiceDefault implements SCIMService {
         });
     }
 
-    private void doGroupRequest(Role role, List<UserRole> userRolesToDelete) {
-        List<Provisioning> provisionings = getProvisionings(role);
-        provisionings.forEach(provisioning -> {
-            Optional<RemoteProvisionedGroup> remoteRoleOptional = this.remoteProvisionedGroupRepository
-                    .findByManageProvisioningIdAndRole(provisioning.getId(), role);
-            if (remoteRoleOptional.isPresent()) {
-                if (provisioning.isScimUpdateRolePutMethod()) {
-                    Set<UserRole> userRoles = role.getUserRoles()
-
-                    String groupRequest = constructGroupRequest(role, userRoles);
-                    this.updateRequest(provisioning, groupRequest, GROUP_API, role, HttpMethod.PUT);
-                } else {
-                    String groupRequest = patchGroupRequest(role, userRole, operationType);
-                    this.updateRequest(provisioning, groupRequest, GROUP_API, role, HttpMethod.PATCH);
-                }
-
-            } else {
-                List<UserRole> userRoles = role.getU
-                RemoteProvisionedGroup remoteProvisionedGroup = provisionedGroupOptional.get();
-                String scimIdentifier = remoteProvisionedGroup.getRemoteScimIdentifier();
-                String groupRequest = constructGroupRequest(role, scimIdentifier, userRoles.stream().map());
-                this.newRequest(provisioning, groupRequest, GROUP_API, role);
-
-                String remoteScimIdentifier = provisionedGroupOptional.map(RemoteProvisionedGroup::getRemoteScimIdentifier)
-                        .orElse(null);
-                String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
-                String groupRequest = prettyJson(new GroupRequest(externalId, remoteScimIdentifier, role.getName(), Collections.emptyList()));
-                this.deleteRequest(provisioning, groupRequest, GROUP_API, remoteScimIdentifier);
-                provisionedGroupOptional.ifPresent(this.remoteProvisionedGroupRepository::delete);
-            }
-        });
-    }
-
-    private void doNewGroupRequest(Role role, Collection<UserRole> userRolesToBeDeleted) {
-        List<Provisioning> provisionings = getProvisionings(role);
-        provisionings.forEach(provisioning -> {
-            Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
-                    .findByManageProvisioningIdAndRole(provisioning.getId(), role);
-            if (provisionedGroupOptional.isEmpty()) {
-                List<UserRole> userRoles = getUserRoles(role, userRolesToBeDeleted);
-                RemoteProvisionedGroup remoteProvisionedGroup = provisionedGroupOptional.get();
-                String scimIdentifier = remoteProvisionedGroup.getRemoteScimIdentifier();
-                String groupRequest = constructGroupRequest(role, scimIdentifier, userRoles.stream().map());
-                this.newRequest(provisioning, groupRequest, GROUP_API, role);
-
-                String remoteScimIdentifier = provisionedGroupOptional.map(RemoteProvisionedGroup::getRemoteScimIdentifier)
-                        .orElse(null);
-                String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
-                String groupRequest = prettyJson(new GroupRequest(externalId, remoteScimIdentifier, role.getName(), Collections.emptyList()));
-                this.deleteRequest(provisioning, groupRequest, GROUP_API, remoteScimIdentifier);
-                provisionedGroupOptional.ifPresent(this.remoteProvisionedGroupRepository::delete);
-            }
-        });
-
-        Provisioning provisioning = role.getApplication();
-        if (provisioning.provisioningEnabled()) {
-            if (hasEmailHook(provisioning)) {
-                role.setServiceProviderId(UUID.randomUUID().toString());
-            }
-        }
-    }
-
-    private List<UserRole> getUserRoles(Role role, Collection<UserRole> userRolesToBeDeleted) {
-        List<Long> userRoleIdentifiers = userRolesToBeDeleted.stream()
-                .map(UserRole::getId)
-                .toList();
-        return userRoleRepository.findByRoleAndIdNotIn(role, userRoleIdentifiers);
-    }
-
-    private void doUpdateGroupRequest(UserRole userRole, OperationType operationType, Collection<UserRole> userRolesToBeDeleted) {
-        Role role = userRole.getRole();
-        List<Provisioning> provisionings = getProvisionings(role);
-        provisionings.forEach(provisioning -> {
-            Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
-                    .findByManageProvisioningIdAndRole(provisioning.getId(), role);
-            if (provisionedGroupOptional.isPresent() || this.hasEmailHook(provisioning)) {
-                if (provisioning.isScimUpdateRolePutMethod()) {
-                    List<UserRole> userRoles = getUserRoles(role, userRolesToBeDeleted);
-                    String groupRequest = constructGroupRequest(role, userRoles);
-                    this.updateRequest(provisioning, groupRequest, GROUP_API, role, HttpMethod.PUT);
-                } else {
-                    String groupRequest = patchGroupRequest(role, userRole, operationType);
-                    this.updateRequest(provisioning, groupRequest, GROUP_API, role, HttpMethod.PATCH);
-                }
-            } else {
-                this.doNewGroupRequest(role, userRolesToBeDeleted);
-            }
-        });
-        if (provisioning.provisioningEnabled()) {
-            if (StringUtils.hasText(role.getServiceProviderId())) {
-            }
-        }
-    }
-
     private String constructGroupRequest(Role role, String remoteGroupScimIdentifier, List<String> remoteUserScimIdentifiers) {
         List<Member> members = remoteUserScimIdentifiers.stream()
                 .filter(StringUtils::hasText)
@@ -248,7 +224,7 @@ public class SCIMServiceDefault implements SCIMService {
                                      OperationType operationType) {
         String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
         GroupPatchRequest request = new GroupPatchRequest(externalId, remoteScimProvisionedGroup,
-                new Operation(operationType, remoteScimProvisionedUser));
+                new Operation(operationType, List.of(remoteScimProvisionedUser)));
         return prettyJson(request);
     }
 
@@ -283,13 +259,11 @@ public class SCIMServiceDefault implements SCIMService {
     private List<Provisioning> getProvisionings(User user) {
         Set<ManageIdentifier> manageIdentifiers = user.manageIdentifierSet();
         List<String> identifiers = manageIdentifiers.stream().map(ManageIdentifier::id).toList();
-        List<Provisioning> provisionings = manage.provisioning(identifiers).stream().map(Provisioning::new).toList();
-        return provisionings;
+        return manage.provisioning(identifiers).stream().map(Provisioning::new).toList();
     }
 
     private List<Provisioning> getProvisionings(Role role) {
-        List<Provisioning> provisionings = manage.provisioning(List.of(role.getManageId())).stream().map(Provisioning::new).toList();
-        return provisionings;
+        return manage.provisioning(List.of(role.getManageId())).stream().map(Provisioning::new).toList();
     }
 
 

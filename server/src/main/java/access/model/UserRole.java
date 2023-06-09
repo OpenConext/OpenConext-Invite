@@ -33,7 +33,6 @@ public class UserRole implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Role role;
 
     @Enumerated(EnumType.STRING)

@@ -21,6 +21,7 @@ CREATE TABLE `roles`
 (
     `id`                     bigint       NOT NULL AUTO_INCREMENT,
     `name`                   varchar(255) NOT NULL,
+    `short_name`                   varchar(255) NOT NULL,
     `description`            text         DEFAULT NULL,
     `remote_scim_identifier` varchar(255) DEFAULT NULL,
     `landing_page`           varchar(255) DEFAULT NULL,
@@ -32,7 +33,7 @@ CREATE TABLE `roles`
     `updated_by`             varchar(255) DEFAULT NULL,
     `updated_at`             datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `roles_unique_name` (`name`, `manage_id`),
+    UNIQUE KEY `roles_unique_short_name` (`short_name`, `manage_id`),
     FULLTEXT KEY `full_text_index` (`name`, `description`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
@@ -98,8 +99,8 @@ CREATE TABLE `remote_provisioned_users`
     `remote_scim_identifier` varchar(255) NOT NULL,
     `user_id`                bigint       NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `remote_provisioned_users_unique` (`user_id`, `manage_provisioning_id`, `remote_scim_identifier`),
-    CONSTRAINT `fk_remote_provisioned_groups_role` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+    UNIQUE KEY `remote_provisioned_users_unique` (`user_id`, `manage_provisioning_id`),
+    CONSTRAINT `fk_remote_provisioned_users_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
@@ -111,7 +112,7 @@ CREATE TABLE `remote_provisioned_groups`
     `remote_scim_identifier` varchar(255) NOT NULL,
     `role_id`                bigint       NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `remote_provisioned_groups_unique` (`role_id`, `manage_provisioning_id`, `remote_scim_identifier`),
+    UNIQUE KEY `remote_provisioned_groups_unique` (`role_id`, `manage_provisioning_id`),
     CONSTRAINT `fk_remote_provisioned_groups_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
