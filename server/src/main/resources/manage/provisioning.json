@@ -9,10 +9,10 @@
       "metaDataFields": {
         "name:en": "Scim",
         "provisioning_type": "scim",
-        "scim_update_role_put_method": true,
-        "scim_url": "http://localhost:8081",
+        "scim_url": "http://localhost:8081/scim/v2",
         "scim_user": "user",
-        "scim_passwor": "secret"
+        "scim_password": "secret",
+        "scim_update_role_put_method": true
       },
       "applications": [
         {
@@ -31,12 +31,13 @@
     "version": 1,
     "type": "provisioning",
     "data": {
-      "entityid": "https://mail",
+      "entityid": "https://graph",
       "state": "prodaccepted",
       "metaDataFields": {
-        "name:en": "Mail",
-        "provisioning_type": "mail",
-        "provisioning_mail": "info@example.com"
+        "name:en": "graph",
+        "provisioning_type": "graph",
+        "graph_url": "http;//localhost:8081/graph",
+        "graph_token" : "secret"
       },
       "applications": [
         {
@@ -60,7 +61,9 @@
       "metaDataFields": {
         "name:en": "EVA",
         "provisioning_type": "eva",
-        "eva_token": "secret"
+        "eva_url": "http;//localhost:8081/eva",
+        "eva_token": "secret",
+        "eva_guest_account_duration": 30
       },
       "applications": [
         {

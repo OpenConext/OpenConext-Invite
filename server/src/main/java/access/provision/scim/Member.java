@@ -1,4 +1,4 @@
-package access.scim;
+package access.provision.scim;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

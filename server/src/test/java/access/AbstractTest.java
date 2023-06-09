@@ -5,6 +5,7 @@ import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.repository.UserRoleRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEObjectType;
@@ -286,6 +287,59 @@ public abstract class AbstractTest {
                 .claim("state", state);
         return builder.build();
     }
+
+    protected void stubForProvisioning(List<String> identifiers) throws JsonProcessingException {
+        List<Map<String, Object>> providers = localManage.provisioning(identifiers);
+        String body = objectMapper.writeValueAsString(providers);
+        stubFor(post(urlPathMatching("/manage/api/internal/provisioning"))
+                .willReturn(aResponse().withHeader("Content-Type", "application/json")
+                        .withBody(body)
+                        .withStatus(200)));
+
+    }
+
+    protected void stubForDeleteUser() {
+        stubFor(delete(urlPathMatching("/scim/v2/users/(.*)"))
+                .willReturn(aResponse()
+                        .withStatus(201)));
+    }
+
+    protected void stubForDeleteRole() {
+        stubFor(delete(urlPathMatching("/scim/v2/groups/(.*)"))
+                .willReturn(aResponse()
+                        .withStatus(201)));
+    }
+
+    protected String stubForCreateRole() throws JsonProcessingException {
+        String value = UUID.randomUUID().toString();
+        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        stubFor(post(urlPathMatching(String.format("/scim/v2/groups")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
+        return value;
+    }
+
+    protected String stubForCreateUser() throws JsonProcessingException {
+        String value = UUID.randomUUID().toString();
+        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        stubFor(post(urlPathMatching(String.format("/scim/v2/users")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
+        return value;
+    }
+
+    protected String stubForUpdateRole() throws JsonProcessingException {
+        String value = UUID.randomUUID().toString();
+        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        stubFor(put(urlPathMatching(String.format("/scim/v2/groups/(.*)")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
+        return value;
+    }
+
 
 
 }

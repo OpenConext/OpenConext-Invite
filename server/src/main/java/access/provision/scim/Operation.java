@@ -1,10 +1,7 @@
-package access.scim;
+package access.provision.scim;
 
-import access.model.RemoteProvisionedUser;
-import access.model.UserRole;
 import lombok.Getter;
 
-import java.util.Collections;
 import java.util.List;
 
 @Getter

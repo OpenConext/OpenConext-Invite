@@ -8,7 +8,7 @@ import access.model.Role;
 import access.model.RoleExists;
 import access.model.User;
 import access.repository.RoleRepository;
-import access.scim.GroupURN;
+import access.provision.scim.GroupURN;
 import access.secuirty.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

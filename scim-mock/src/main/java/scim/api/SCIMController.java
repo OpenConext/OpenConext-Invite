@@ -24,7 +24,7 @@ public class SCIMController {
 
     @PostMapping("/users")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody Map<String, Object> user) {
-        LOG.info("/scim/v1/users POST " + user);
+        LOG.info("/api/scim/v2/users POST " + user);
 
         String id = UUID.randomUUID().toString();
         users.put(id, user);
@@ -33,7 +33,7 @@ public class SCIMController {
 
     @PutMapping("/users/{id}")
     public ResponseEntity<Map<String, String>> updateUser(@PathVariable("id") String id, @RequestBody Map<String, Object> user) {
-        LOG.info("/scim/v1/users/" + id + " PUT " + user);
+        LOG.info("/api/scim/v2/users/" + id + " PUT " + user);
 
         users.put(id, user);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
@@ -41,21 +41,21 @@ public class SCIMController {
 
     @GetMapping("/users/{id}")
     public ResponseEntity<Map<String, Object>> getUser(@PathVariable("id") String id) {
-        LOG.info("/scim/v1/users/" + id + " GET");
+        LOG.info("/api/scim/v2/users/" + id + " GET");
 
         return ResponseEntity.ok( users.get(id));
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") String id) {
-        LOG.info("/scim/v1/users/" + id + " DELETE");
+        LOG.info("/api/scim/v2/users/" + id + " DELETE");
         users.remove(id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/groups")
     public ResponseEntity<Map<String, String>> createGroup(@RequestBody Map<String, Object> group) {
-        LOG.info("/scim/v1/groups POST " + group);
+        LOG.info("/api/scim/v2/groups POST " + group);
         String id = UUID.randomUUID().toString();
         groups.put(id, group);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
@@ -63,39 +63,39 @@ public class SCIMController {
 
     @PatchMapping("/groups/{id}")
     public ResponseEntity<Map<String, String>> patchGroup(@PathVariable("id") String id, @RequestBody Map<String, Object> group) {
-        LOG.info("/scim/v1/groups/" + id + " PATCH " + group);
+        LOG.info("/api/scim/v2/groups/" + id + " PATCH " + group);
         groups.put(id, group);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
     @PutMapping("/groups/{id}")
     public ResponseEntity<Map<String, String>> updateGroup(@PathVariable("id") String id, @RequestBody Map<String, Object> group) {
-        LOG.info("/scim/v1/groups/" + id + " PUT " + group);
+        LOG.info("/api/scim/v2/groups/" + id + " PUT " + group);
         groups.remove(id);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
     @GetMapping("/groups/{id}")
     public ResponseEntity<Map<String, Object>> getGroup(@PathVariable("id") String id) {
-        LOG.info("/scim/v1/groups/" + id + " GET");
+        LOG.info("/api/scim/v2/groups/" + id + " GET");
         return ResponseEntity.ok(groups.get(id));
     }
 
     @DeleteMapping("/groups/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable("id") String id) {
-        LOG.info("/scim/v1/groups/" + id + " DELETE");
+        LOG.info("/api/scim/v2/groups/" + id + " DELETE");
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/groups")
     public ResponseEntity<Map<String, Map<String, Object>>> allGroups() {
-        LOG.info("/scim/v1/groups GET");
+        LOG.info("/api/scim/v2/groups GET");
         return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/users")
     public ResponseEntity<Map<String, Map<String, Object>>> allUsers() {
-        LOG.info("/scim/v1/users GET");
+        LOG.info("/api/scim/v2/users GET");
         return ResponseEntity.ok(users);
     }
 }

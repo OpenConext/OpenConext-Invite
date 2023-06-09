@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @Setter
-public class User implements Serializable {
+public class User implements Serializable, Provisionable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

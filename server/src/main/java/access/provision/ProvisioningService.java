@@ -1,12 +1,9 @@
-package access.scim;
+package access.provision;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import access.model.*;
+import access.provision.scim.OperationType;
 
-import java.io.Serializable;
-import java.util.Optional;
-
-public interface SCIMService {
+public interface ProvisioningService {
 
     void newUserRequest(User user);
 

@@ -1,4 +1,4 @@
-package access.scim;
+package access.provision.scim;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

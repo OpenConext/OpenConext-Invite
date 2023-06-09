@@ -2,16 +2,11 @@ package access.model;
 
 
 import access.manage.EntityType;
-import access.scim.GroupURN;
+import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.LazyInitializationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
-import org.springframework.util.StringUtils;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +17,7 @@ import java.util.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Role implements Serializable {
+public class Role implements Serializable, Provisionable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

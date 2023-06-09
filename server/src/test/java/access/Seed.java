@@ -16,6 +16,11 @@ public record Seed(RoleRepository roleRepository,
                    UserRoleRepository userRoleRepository,
                    InvitationRepository invitationRepository) {
 
+    public static final String superSub = "super@example.com";
+    public static final String manageSub = "manager@example.com";
+    public static final String inviterSub = "inviter@example.com";
+    public static final String guestSub = "guest@example.com";
+
     public void doSeed() {
         this.userRepository.deleteAllInBatch();
         this.roleRepository.deleteAllInBatch();
@@ -24,13 +29,13 @@ public record Seed(RoleRepository roleRepository,
 
 
         User superUser =
-                new User(true, "super@example.com", "super@example.com", "David", "Doe", "super@example.com");
+                new User(true, superSub, superSub, "David", "Doe", superSub);
         User manager =
-                new User(false, "manager@example.com", "manager@example.com", "Mary", "Doe", "manager@example.com");
+                new User(false, manageSub, manageSub, "Mary", "Doe", manageSub);
         User inviter =
-                new User(false, "inviter@example.com", "inviter@example.com", "Paul", "Doe", "inviter@example.com");
+                new User(false, inviterSub, inviterSub, "Paul", "Doe", inviterSub);
         User guest =
-                new User(false, "guest@example.com", "guest@example.com", "Ann", "Doe", "guest@example.com");
+                new User(false, guestSub, guestSub, "Ann", "Doe", guestSub);
         doSave(this.userRepository, superUser, manager, inviter, guest);
 
         Role wiki =

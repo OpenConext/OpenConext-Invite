@@ -34,3 +34,5 @@ build/
 
 ### Maven ###
 dep.tree
+provisioning.local.json
+IgnoreMeTest.java

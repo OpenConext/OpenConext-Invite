@@ -1,13 +1,16 @@
-package access.scim;
+package access.provision;
 
-import access.mail.MailBox;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
 import access.model.*;
+import access.provision.eva.GuestAccount;
+import access.provision.scim.*;
 import access.repository.RemoteProvisionedGroupRepository;
 import access.repository.RemoteProvisionedUserRepository;
 import access.repository.UserRoleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.MustacheFactory;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import org.apache.commons.logging.Log;
@@ -21,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -30,19 +35,18 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class SCIMServiceDefault implements SCIMService {
+public class ProvisioningServiceDefault implements ProvisioningService {
 
     public final static String USER_API = "users";
     public final static String GROUP_API = "groups";
 
-    private static final Log LOG = LogFactory.getLog(SCIMServiceDefault.class);
+    private static final Log LOG = LogFactory.getLog(ProvisioningServiceDefault.class);
 
     private final ParameterizedTypeReference<Map<String, Object>> mapParameterizedTypeReference = new ParameterizedTypeReference<>() {
     };
 
     private final ParameterizedTypeReference<String> stringParameterizedTypeReference = new ParameterizedTypeReference<>() {
     };
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     private final UserRoleRepository userRoleRepository;
@@ -50,23 +54,20 @@ public class SCIMServiceDefault implements SCIMService {
     private final RemoteProvisionedGroupRepository remoteProvisionedGroupRepository;
     private final Manage manage;
     private final ObjectMapper objectMapper;
-    private final MailBox mailBox;
     private final String groupUrnPrefix;
 
     @Autowired
-    public SCIMServiceDefault(UserRoleRepository userRoleRepository,
-                              RemoteProvisionedUserRepository remoteProvisionedUserRepository,
-                              RemoteProvisionedGroupRepository remoteProvisionedGroupRepository,
-                              Manage manage,
-                              ObjectMapper objectMapper,
-                              MailBox mailBox,
-                              @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+    public ProvisioningServiceDefault(UserRoleRepository userRoleRepository,
+                                      RemoteProvisionedUserRepository remoteProvisionedUserRepository,
+                                      RemoteProvisionedGroupRepository remoteProvisionedGroupRepository,
+                                      Manage manage,
+                                      ObjectMapper objectMapper,
+                                      @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.userRoleRepository = userRoleRepository;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
         this.remoteProvisionedGroupRepository = remoteProvisionedGroupRepository;
         this.manage = manage;
         this.objectMapper = objectMapper;
-        this.mailBox = mailBox;
         this.groupUrnPrefix = groupUrnPrefix;
         // Otherwise, we can't use method PATCH
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -85,7 +86,7 @@ public class SCIMServiceDefault implements SCIMService {
                         .isEmpty())
                 .forEach(provisioning -> {
                     String userRequest = prettyJson(new UserRequest(user));
-                    String remoteScimIdentifier = this.newRequest(provisioning, userRequest, USER_API);
+                    String remoteScimIdentifier = this.newRequest(provisioning, userRequest, user);
                     RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier, provisioning.getId());
                     this.remoteProvisionedUserRepository.save(remoteProvisionedUser);
                 });
@@ -107,7 +108,7 @@ public class SCIMServiceDefault implements SCIMService {
                 RemoteProvisionedUser remoteProvisionedUser = provisionedUserOptional.get();
                 String remoteScimIdentifier = remoteProvisionedUser.getRemoteScimIdentifier();
                 String userRequest = prettyJson(new UserRequest(user, remoteScimIdentifier));
-                this.deleteRequest(provisioning, userRequest, USER_API, remoteScimIdentifier);
+                this.deleteRequest(provisioning, userRequest, user, remoteScimIdentifier);
                 this.remoteProvisionedUserRepository.delete(remoteProvisionedUser);
             }
         });
@@ -121,7 +122,7 @@ public class SCIMServiceDefault implements SCIMService {
                     .findByManageProvisioningIdAndRole(provisioning.getId(), role);
             if (provisionedGroupOptional.isEmpty()) {
                 String groupRequest = constructGroupRequest(role, null, Collections.emptyList());
-                String remoteScimIdentifier = this.newRequest(provisioning, groupRequest, GROUP_API);
+                String remoteScimIdentifier = this.newRequest(provisioning, groupRequest, role);
                 RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, remoteScimIdentifier, provisioning.getId());
                 this.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
             }
@@ -203,7 +204,7 @@ public class SCIMServiceDefault implements SCIMService {
                         String remoteScimIdentifier = remoteProvisionedGroup.getRemoteScimIdentifier();
                         String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
                         String groupRequest = prettyJson(new GroupRequest(externalId, remoteScimIdentifier, role.getName(), Collections.emptyList()));
-                        this.deleteRequest(provisioning, groupRequest, GROUP_API, remoteScimIdentifier);
+                        this.deleteRequest(provisioning, groupRequest, role, remoteScimIdentifier);
                         this.remoteProvisionedGroupRepository.delete(remoteProvisionedGroup);
                     });
         });
@@ -229,16 +230,22 @@ public class SCIMServiceDefault implements SCIMService {
     }
 
     @SneakyThrows
-    private String newRequest(Provisioning provisioning, String request, String apiType) {
-        if (hasEmailHook(provisioning)) {
-            mailBox.sendProvisioningMail(String.format("SCIM %s: CREATE", apiType), request, provisioning.getProvisioningMail());
-            return UUID.randomUUID().toString();
-        } else {
+    private String newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
+        String apiType = provisionable instanceof User ? USER_API : GROUP_API;
+        RequestEntity<String> requestEntity;
+        if (hasEvaHook(provisioning) && apiType.equals(USER_API)) {
+            MultiValueMap<String, String> map = new GuestAccount((User) provisionable, provisioning).getRequest();
+            String url = provisioning.getEvaUrl() + "/api/v1/guest/create";
+            requestEntity = new RequestEntity(map, httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
+        } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
-            RequestEntity<String> requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
-            Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
-            return String.valueOf(results.get("id"));
+            requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
+        } else {
+            throw new UnsupportedOperationException();
         }
+        Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
+        return String.valueOf(results.get("id"));
+
     }
 
     @SneakyThrows
@@ -247,9 +254,7 @@ public class SCIMServiceDefault implements SCIMService {
                                String apiType,
                                String remoteScimIdentifier,
                                HttpMethod httpMethod) {
-        if (hasEmailHook(provisioning)) {
-            mailBox.sendProvisioningMail(String.format("SCIM %s: UPDATE", apiType), request, provisioning.getProvisioningMail());
-        } else {
+        if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteScimIdentifier));
             RequestEntity<String> requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), httpMethod, uri);
             doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
@@ -268,16 +273,22 @@ public class SCIMServiceDefault implements SCIMService {
 
 
     @SneakyThrows
-    private void deleteRequest(Provisioning provisioning, String request, String apiType, String remoteScimIdentifier) {
-        if (hasEmailHook(provisioning)) {
-            mailBox.sendProvisioningMail(String.format("SCIM %s: DELETE", apiType), request, provisioning.getProvisioningMail());
+    private void deleteRequest(Provisioning provisioning,
+                               String request,
+                               Provisionable provisionable,
+                               String remoteScimIdentifier) {
+        String apiType = provisionable instanceof User ? USER_API : GROUP_API;
+        RequestEntity<String> requestEntity;
+        if (hasEvaHook(provisioning) && provisionable instanceof User) {
+            String url = provisioning.getEvaUrl() + "/api/v1/guest/disable/" + remoteScimIdentifier;
+            requestEntity = new RequestEntity(httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
         } else {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteScimIdentifier));
             HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(provisioning.getScimUser(), provisioning.getScimPassword());
-            RequestEntity<String> requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
-            doExchange(requestEntity, apiType, stringParameterizedTypeReference, provisioning);
+            requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
         }
+        doExchange(requestEntity, apiType, stringParameterizedTypeReference, provisioning);
     }
 
     private <T, S> T doExchange(RequestEntity<S> requestEntity,
@@ -293,22 +304,30 @@ public class SCIMServiceDefault implements SCIMService {
                     provisioning.getEntityId()));
             return restTemplate.exchange(requestEntity, typeReference).getBody();
         } catch (RestClientException e) {
-            LOG.error(String.format("Error %s SCIM request with %s httpMethod %s and body %s to %s",
+            LOG.error(String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
                     api,
+                    provisioning.getEntityId(),
                     requestEntity.getUrl(),
                     requestEntity.getMethod(),
-                    requestEntity.getBody(),
-                    provisioning.getEntityId()), e);
+                    requestEntity.getBody()), e);
             throw e;
         }
     }
 
-    private boolean hasEmailHook(Provisioning provisioning) {
-        return provisioning.getProvisioningType().equals(ProvisioningType.mail);
+    private boolean hasEvaHook(Provisioning provisioning) {
+        return provisioning.getProvisioningType().equals(ProvisioningType.eva);
+    }
+
+    private boolean hasScimHook(Provisioning provisioning) {
+        return provisioning.getProvisioningType().equals(ProvisioningType.scim);
+    }
+
+    private boolean hasGraphHook(Provisioning provisioning) {
+        return provisioning.getProvisioningType().equals(ProvisioningType.graph);
     }
 
     private URI provisioningUri(Provisioning provisioning, String objectType, Optional<String> remoteScimIdentifier) {
-        String postFix = remoteScimIdentifier.map(identifier -> "/" + remoteScimIdentifier).orElse("");
+        String postFix = remoteScimIdentifier.map(identifier -> "/" + identifier).orElse("");
         return URI.create(String.format("%s/%s%s",
                 provisioning.getScimUrl(),
                 objectType,
@@ -322,10 +341,23 @@ public class SCIMServiceDefault implements SCIMService {
 
     private HttpHeaders httpHeaders(Provisioning provisioning) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(provisioning.getScimUser(), provisioning.getScimPassword());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        switch (provisioning.getProvisioningType()) {
+            case scim -> {
+                headers.setBasicAuth(provisioning.getScimUser(), provisioning.getScimPassword());
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            }
+            case eva -> {
+                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                headers.add("X-Api-Key", provisioning.getEvaToken());
+            }
+            case graph -> {
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            }
+        }
         return headers;
     }
+
 
 }
