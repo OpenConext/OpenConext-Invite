@@ -32,7 +32,7 @@ public class Provisioning {
         this.scimUrl = (String) metaDataFields.get("scim_url");
         this.scimUser = (String) metaDataFields.get("scim_user");
         this.scimPassword = (String) metaDataFields.get("scim_password");
-        this.scimUpdateRolePutMethod = (boolean) metaDataFields.getOrDefault("scimUpdateRolePutMethod", false);
+        this.scimUpdateRolePutMethod = (boolean) metaDataFields.getOrDefault("scim_update_role_put_method", false);
         this.evaUrl = (String) metaDataFields.get("eva_url");
         this.evaToken = (String) metaDataFields.get("eva_token");
         this.evaGuestAccountDuration = (int) metaDataFields.getOrDefault("eva_guest_account_duration", 30);
