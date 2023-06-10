@@ -9,6 +9,8 @@ import access.mail.MailBox;
 import access.manage.ManageIdentifier;
 import access.manage.Manage;
 import access.model.*;
+import access.provision.ProvisioningService;
+import access.provision.scim.OperationType;
 import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
@@ -19,21 +21,16 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -51,23 +48,25 @@ public class InvitationController {
     private final MailBox mailBox;
     private final Manage manage;
     private final InvitationRepository invitationRepository;
-
     private final UserRepository userRepository;
-
     private final RoleRepository roleRepository;
+    private final ProvisioningService provisioningService;
 
     private final SuperAdmin superAdmin;
+
     public InvitationController(MailBox mailBox,
                                 Manage manage,
                                 InvitationRepository invitationRepository,
                                 UserRepository userRepository,
                                 RoleRepository roleRepository,
+                                ProvisioningService provisioningService,
                                 SuperAdmin superAdmin) {
         this.mailBox = mailBox;
         this.manage = manage;
         this.invitationRepository = invitationRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.provisioningService = provisioningService;
         this.superAdmin = superAdmin;
     }
 
@@ -93,8 +92,8 @@ public class InvitationController {
                                 .collect(toSet())))
                 .toList();
         invitationRepository.saveAll(invitations);
-        //We need to display the roles per manage application with the logo
 
+        //We need to display the roles per manage application with the logo
         List<GroupedProviders> groupedProviders = requestedRoles.stream()
                 .collect(Collectors.groupingBy(role -> new ManageIdentifier(role.getManageId(), role.getManageType())))
                 .entrySet().stream()
@@ -122,7 +121,7 @@ public class InvitationController {
 
 
     @PostMapping("accept")
-    public ResponseEntity<User> accept(@Validated @RequestBody AcceptInvitation acceptInvitation, Authentication authentication) {
+    public ResponseEntity<Map<String, Integer>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation, Authentication authentication) {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
             throw new NotFoundException();
@@ -134,21 +133,49 @@ public class InvitationController {
             throw new InvitationExpiredException();
         }
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-        OAuth2User principal = token.getPrincipal();
-        Map<String, Object> attributes = principal.getAttributes();
+        Map<String, Object> attributes = token.getPrincipal().getAttributes();
         String sub = (String) attributes.get("sub");
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         User user = optionalUser.orElseGet(() -> {
             boolean superUser = this.superAdmin.getUsers().stream().anyMatch(superSub -> superSub.equals(sub));
-            return userRepository.save(new User(superUser, attributes));
+            return new User(superUser, attributes);
         });
 
         checkEmailEquality(user, invitation);
+        user.setLastActivity(Instant.now());
 
         invitation.setStatus(Status.ACCEPTED);
-        Authority intendedAuthority = invitation.getIntendedAuthority();
-        String email = invitation.getEmail();
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        invitationRepository.save(invitation);
+
+        /*
+         * Chicken & egg problem. The user including his / hers roles must be first provisioned, and then we
+         * need to send the updateRoleRequests for each new Role of this user.
+         */
+        List<UserRole> newUserRoles = new ArrayList<>();
+        invitation.getRoles()
+                .forEach(invitationRole -> {
+                    Role role = invitationRole.getRole();
+                    if (user.getUserRoles().stream().noneMatch(userRole -> userRole.getRole().getId().equals(role.getId()))) {
+                        UserRole userRole = new UserRole(
+                                invitation.getInviter().getName(),
+                                user,
+                                role,
+                                invitation.getIntendedAuthority(),
+                                invitationRole.getEndDate());
+                        user.addUserRole(userRole);
+                        newUserRoles.add(userRole);
+                    }
+                });
+        userRepository.save(user);
+        //Already provisioned users in the remote systems are ignored / excluded
+        provisioningService.newUserRequest(user);
+        newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
+
+        LOG.info(String.format("User %s accepted invitation with role(s) %s",
+                user.getName(),
+                invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", "))));
+
+        return Results.createResult();
     }
 
     private void checkEmailEquality(User user, Invitation invitation) {

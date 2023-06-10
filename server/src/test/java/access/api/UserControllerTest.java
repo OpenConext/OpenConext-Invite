@@ -45,7 +45,7 @@ class UserControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get(accessCookieFilter.apiURL())
                 .as(User.class);
-        assertEquals("jdoe@example.com", user.getEmail());
+        assertEquals("urn:collab:person:example.com:admin", user.getEmail());
 
         Map res = given()
                 .when()
@@ -77,8 +77,8 @@ class UserControllerTest extends AbstractTest {
 
         assertEquals(roleNames, user.getUserRoles().stream().map(userRole -> userRole.getRole().getName()).sorted().toList());
         assertEquals(1, user.getProviders().size());
-        assertEquals("5",user.getProviders().get(0).get("id"));
-        assertEquals("5",user.getProviders().get(0).get("_id"));
+        assertEquals("5", user.getProviders().get(0).get("id"));
+        assertEquals("5", user.getProviders().get(0).get("_id"));
     }
 
     @Test
@@ -113,7 +113,10 @@ class UserControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .auth()
-                .oauth2(opaqueAccessToken("urn:collab:person:example.com:admin", "introspect.json"))
+                .oauth2(opaqueAccessToken(
+                        "urn:collab:person:example.com:admin",
+                        "introspect.json",
+                        "jdoe@example.com"))
                 .get("/api/external/v1/users/me")
                 .as(User.class);
         assertEquals("jdoe@example.com", user.getEmail());

@@ -78,7 +78,28 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
-    void accept() {
+    void accept() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "inviter@new.com");
+        String hash = Authority.INVITER.name();
+        Invitation invitation = invitationRepository.findByHash(hash).get();
 
+        stubForProvisioning(List.of("5"));
+        stubForCreateUser();
+        stubForCreateRole();
+        stubForUpdateRole();
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+        User user = userRepository.findBySubIgnoreCase("inviter@new.com").get();
+        assertEquals(2, user.getUserRoles().size());
     }
 }

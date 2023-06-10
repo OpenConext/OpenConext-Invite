@@ -2,19 +2,19 @@ package access;
 
 import access.manage.EntityType;
 import access.model.*;
-import access.repository.InvitationRepository;
-import access.repository.RoleRepository;
-import access.repository.UserRepository;
-import access.repository.UserRoleRepository;
+import access.repository.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Arrays;
 import java.util.Set;
 
-public record Seed(RoleRepository roleRepository,
+public record Seed(InvitationRepository invitationRepository,
+                   RemoteProvisionedGroupRepository remoteProvisionedGroupRepository,
+                   RemoteProvisionedUserRepository remoteProvisionedUserRepository,
+                   RoleRepository roleRepository,
                    UserRepository userRepository,
-                   UserRoleRepository userRoleRepository,
-                   InvitationRepository invitationRepository) {
+                   UserRoleRepository userRoleRepository
+                   ) {
 
     public static final String superSub = "super@example.com";
     public static final String manageSub = "manager@example.com";
@@ -22,10 +22,12 @@ public record Seed(RoleRepository roleRepository,
     public static final String guestSub = "guest@example.com";
 
     public void doSeed() {
-        this.userRepository.deleteAllInBatch();
-        this.roleRepository.deleteAllInBatch();
-        this.userRoleRepository.deleteAllInBatch();
         this.invitationRepository.deleteAllInBatch();
+        this.remoteProvisionedGroupRepository.deleteAllInBatch();
+        this.remoteProvisionedUserRepository.deleteAllInBatch();
+        this.roleRepository.deleteAllInBatch();
+        this.userRepository.deleteAllInBatch();
+        this.userRoleRepository.deleteAllInBatch();
 
 
         User superUser =
@@ -71,6 +73,7 @@ public record Seed(RoleRepository roleRepository,
         Invitation inviterInvitation =
                 new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false,
                         inviter, Set.of(new InvitationRole(calendar), new InvitationRole(mail)));
+        inviterInvitation.setEnforceEmailEquality(true);
         Invitation guestInvitation =
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false,
                         inviter, Set.of(new InvitationRole(mail)));

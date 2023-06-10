@@ -41,14 +41,18 @@ public class UserRole implements Serializable {
     private Authority authority = Authority.GUEST;
 
     public UserRole(Authority authority, Role role) {
-        this.role = role;
-        this.authority = authority;
+        this(null, null, role, authority);
     }
 
     public UserRole(String inviter, User user, Role role, Authority authority) {
+        this(inviter, user, role, authority, null);
+    }
+
+    public UserRole(String inviter, User user, Role role, Authority authority, Instant endDate) {
         this.inviter = inviter;
         this.user = user;
         this.role = role;
         this.authority = authority;
+        this.endDate= endDate;
     }
 }

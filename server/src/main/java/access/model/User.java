@@ -115,29 +115,5 @@ public class User implements Serializable, Provisionable {
                 .collect(Collectors.toSet());
     }
 
-    @JsonIgnore
-    public List<UserRole> guestUserRoles() {
-        return this.userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.GUEST)).toList();
-    }
-
-    @JsonIgnore
-    public boolean hasChanged(Map<String, Object> tokenAttributes) {
-        User user = new User(tokenAttributes);
-        boolean changed = !this.toScimString().equals(user.toScimString());
-        if (changed) {
-            this.familyName = user.familyName;
-            this.givenName = user.givenName;
-            this.email = user.email;
-        }
-        return changed;
-    }
-
-    private String toScimString() {
-        return String.format("%s %s <%s>",
-                this.givenName,
-                this.familyName,
-                this.email);
-
-    }
 
 }

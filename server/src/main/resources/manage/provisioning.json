@@ -31,13 +31,36 @@
     "version": 1,
     "type": "provisioning",
     "data": {
+      "entityid": "https://scim-patch",
+      "state": "prodaccepted",
+      "metaDataFields": {
+        "name:en": "Scim-Patch",
+        "provisioning_type": "scim",
+        "scim_url": "http://localhost:8081/scim/v2",
+        "scim_user": "user",
+        "scim_password": "secret",
+        "scim_update_role_put_method": false
+      },
+      "applications": [
+        {
+          "id": "4",
+          "type": "saml20_sp"
+        }
+      ]
+    }
+  },
+  {
+    "_id": "9",
+    "version": 1,
+    "type": "provisioning",
+    "data": {
       "entityid": "https://graph",
       "state": "prodaccepted",
       "metaDataFields": {
         "name:en": "graph",
         "provisioning_type": "graph",
         "graph_url": "http;//localhost:8081/graph",
-        "graph_token" : "secret"
+        "graph_token": "secret"
       },
       "applications": [
         {
@@ -52,7 +75,7 @@
     }
   },
   {
-    "_id": "9",
+    "_id": "10",
     "version": 1,
     "type": "provisioning",
     "data": {

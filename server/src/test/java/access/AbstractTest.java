@@ -1,10 +1,7 @@
 package access;
 
 import access.manage.LocalManage;
-import access.repository.InvitationRepository;
-import access.repository.RoleRepository;
-import access.repository.UserRepository;
-import access.repository.UserRoleRepository;
+import access.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -95,6 +92,13 @@ public abstract class AbstractTest {
     @Autowired
     protected InvitationRepository invitationRepository;
 
+    @Autowired
+    protected RemoteProvisionedGroupRepository remoteProvisionedGroupRepository;
+
+    @Autowired
+    protected RemoteProvisionedUserRepository remoteProvisionedUserRepository;
+
+
     protected LocalManage localManage;
 
     @RegisterExtension
@@ -114,7 +118,13 @@ public abstract class AbstractTest {
     protected void beforeEach() throws Exception {
         RestAssured.port = port;
         if (seedDatabase()) {
-            new Seed(roleRepository, userRepository, userRoleRepository, invitationRepository).doSeed();
+            new Seed(
+                    invitationRepository,
+                    remoteProvisionedGroupRepository,
+                    remoteProvisionedUserRepository,
+                    roleRepository,
+                    userRepository,
+                    userRoleRepository).doSeed();
         }
         if (this.localManage == null) {
             this.localManage = new LocalManage(objectMapper);
@@ -125,15 +135,15 @@ public abstract class AbstractTest {
         return true;
     }
 
-    protected String opaqueAccessToken(String sub, String responseJsonFileName, String... scopes) throws IOException {
+    protected String opaqueAccessToken(String sub, String responseJsonFileName, String email, String... scopes) throws IOException {
         List<String> scopeList = new ArrayList<>(Arrays.asList(scopes));
         scopeList.add("openid");
 
         Map<String, Object> introspectResult = objectMapper.readValue(new ClassPathResource(responseJsonFileName).getInputStream(), new TypeReference<>() {
         });
         introspectResult.put("sub", sub);
-        introspectResult.put("eduperson_principal_name", "jdoe@example.com");
-        introspectResult.put("email", "jdoe@example.com");
+        introspectResult.put("eduperson_principal_name", email);
+        introspectResult.put("email", email);
         introspectResult.put("given_name", "John");
         introspectResult.put("family_name", "Doe");
 
@@ -149,7 +159,8 @@ public abstract class AbstractTest {
     }
 
     protected AccessCookieFilter openIDConnectFlow(String path, String sub) throws Exception {
-        return this.openIDConnectFlow(path, sub, s -> {});
+        return this.openIDConnectFlow(path, sub, s -> {
+        });
     }
 
     protected AccessCookieFilter openIDConnectFlow(String path, String sub, Consumer<String> authorizationConsumer) throws Exception {
@@ -206,6 +217,7 @@ public abstract class AbstractTest {
         Map<String, Object> userInfo = objectMapper.readValue(new ClassPathResource("user-info.json").getInputStream(), new TypeReference<>() {
         });
         userInfo.put("sub", sub);
+        userInfo.put("email", sub);
         userInfo.put("eduperson_principal_name", sub);
         String userInfoResult = objectMapper.writeValueAsString(userInfo);
         stubFor(get(urlPathMatching("/user-info")).willReturn(aResponse()
@@ -258,8 +270,8 @@ public abstract class AbstractTest {
                 .build();
     }
 
-    protected SignedJWT getSignedJWT(String keyID, String redirectURI, RSAKey rsaKey, String subject, String nonce, String state) throws Exception {
-        JWTClaimsSet claimsSet = getJwtClaimsSet("http://localhost:8081", subject, redirectURI, nonce, state);
+    protected SignedJWT getSignedJWT(String keyID, String redirectURI, RSAKey rsaKey, String sub, String nonce, String state) throws Exception {
+        JWTClaimsSet claimsSet = getJwtClaimsSet("http://localhost:8081", sub, redirectURI, nonce, state);
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(keyID).build();
         SignedJWT signedJWT = new SignedJWT(header, claimsSet);
         JWSSigner jswsSigner = new RSASSASigner(rsaKey);
@@ -267,7 +279,7 @@ public abstract class AbstractTest {
         return signedJWT;
     }
 
-    protected JWTClaimsSet getJwtClaimsSet(String clientId, String subject, String redirectURI, String nonce, String state) {
+    protected JWTClaimsSet getJwtClaimsSet(String clientId, String sub, String redirectURI, String nonce, String state) {
         Instant instant = Clock.systemDefaultZone().instant();
 
         JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
@@ -276,11 +288,11 @@ public abstract class AbstractTest {
                 .jwtID(UUID.randomUUID().toString())
                 .issuer(clientId)
                 .issueTime(Date.from(instant))
-                .subject(subject)
+                .subject(sub)
                 .notBeforeTime(new Date(System.currentTimeMillis()))
                 .claim("redirect_uri", redirectURI)
-                .claim("eduperson_principal_name", "jdoe@example.com")
-                .claim("email", "jdoe@example.com")
+                .claim("eduperson_principal_name", sub)
+                .claim("email", sub)
                 .claim("given_name", "John")
                 .claim("family_name", "Doe")
                 .claim("nonce", nonce)
@@ -330,16 +342,12 @@ public abstract class AbstractTest {
         return value;
     }
 
-    protected String stubForUpdateRole() throws JsonProcessingException {
-        String value = UUID.randomUUID().toString();
-        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+    protected void stubForUpdateRole() throws JsonProcessingException {
         stubFor(put(urlPathMatching(String.format("/scim/v2/groups/(.*)")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBody(body)));
-        return value;
+                ));
     }
-
 
 
 }
