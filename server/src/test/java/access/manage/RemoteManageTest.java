@@ -56,4 +56,17 @@ class RemoteManageTest extends AbstractTest {
         List<Map<String, Object>> remoteProviders =  manage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
         assertEquals(providers, remoteProviders);
     }
+
+    @Test
+    void allowedEntries() throws JsonProcessingException {
+        LocalManage localManage = new LocalManage(objectMapper);
+        List<Map<String, Object>> serviceProviders = localManage.allowedEntries(EntityType.SAML20_SP, "1");
+        String body = objectMapper.writeValueAsString(serviceProviders);
+        stubFor(get(urlPathMatching("/manage/api/internal/allowedEntities/SAML20_SP/1")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+        List<Map<String, Object>> allowedEntries = manage.allowedEntries(EntityType.SAML20_SP, "1");
+        assertEquals(2, allowedEntries.size());
+    }
+
 }

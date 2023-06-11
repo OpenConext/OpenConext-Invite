@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.manage.EntityType;
 import access.model.Authority;
 import access.model.User;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.MultiValueMap;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import static access.Seed.SUPER_SUB;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
@@ -122,4 +124,60 @@ class UserControllerTest extends AbstractTest {
         assertEquals("jdoe@example.com", user.getEmail());
     }
 
+    @Test
+    void search() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        List<User> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "doe")
+                .get("/api/v1/users/search")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(4, users.size());
+    }
+
+    @Test
+    void logout() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/logout")
+                .then()
+                .statusCode(200);
+
+        String location = given()
+                .redirects()
+                .follow(false)
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/logout")
+                .header("Location");
+        assertEquals("http://localhost:" + port + "/oauth2/authorization/oidcng", location);
+    }
+
+    @Test
+    void error() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(Map.of("error", "trouble") )
+                .post("/api/v1/users/error")
+                .then()
+                .statusCode(201);
+    }
 }

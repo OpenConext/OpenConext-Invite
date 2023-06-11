@@ -9,8 +9,6 @@ import access.repository.RemoteProvisionedGroupRepository;
 import access.repository.RemoteProvisionedUserRepository;
 import access.repository.UserRoleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.MustacheFactory;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import org.apache.commons.logging.Log;
@@ -24,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
@@ -80,7 +77,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     @SneakyThrows
     public void newUserRequest(User user) {
         List<Provisioning> provisionings = getProvisionings(user);
-        //Provision the user to all provisionings in Manage where the user is unknown or the ProvisionType is mail
+        //Provision the user to all provisionings in Manage where the user is unknown
         provisionings.stream()
                 .filter(provisioning -> this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user)
                         .isEmpty())
@@ -231,17 +228,19 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @SneakyThrows
     private String newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
-        String apiType = provisionable instanceof User ? USER_API : GROUP_API;
+        boolean isUser = provisionable instanceof User;
+        String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity;
-        if (hasEvaHook(provisioning) && apiType.equals(USER_API)) {
+        if (hasEvaHook(provisioning) && isUser) {
             MultiValueMap<String, String> map = new GuestAccount((User) provisionable, provisioning).getRequest();
             String url = provisioning.getEvaUrl() + "/api/v1/guest/create";
             requestEntity = new RequestEntity(map, httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
         } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
             requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
-        } else {
-            throw new UnsupportedOperationException();
+        } else { //if (hasGraphHook(provisioning)) {
+            //TODO
+            return UUID.randomUUID().toString();
         }
         Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
         return String.valueOf(results.get("id"));
@@ -270,7 +269,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     private List<Provisioning> getProvisionings(Role role) {
         return manage.provisioning(List.of(role.getManageId())).stream().map(Provisioning::new).toList();
     }
-
 
     @SneakyThrows
     private void deleteRequest(Provisioning provisioning,
@@ -354,6 +352,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             case graph -> {
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+                headers.add("Authorization", "bearer " + provisioning.getGraphToken());
             }
         }
         return headers;

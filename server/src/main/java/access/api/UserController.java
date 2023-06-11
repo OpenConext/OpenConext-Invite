@@ -96,24 +96,26 @@ public class UserController {
     }
 
     @GetMapping("logout")
-    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request) {
         LOG.debug("/logout");
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-        return ResponseEntity.ok(Map.of("result", "ok"));
+        return Results.okResult();
     }
 
     @PostMapping("error")
-    public void error(@RequestBody Map<String, Object> payload, User user) throws
+    public ResponseEntity<Map<String, Integer>> error(@RequestBody Map<String, Object> payload,
+                                                      @Parameter(hidden = true) User user) throws
             JsonProcessingException, UnknownHostException {
-        payload.put("dateTime", new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss").format(new Date()));
+        payload.put("dateTime", new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
         payload.put("machine", InetAddress.getLocalHost().getHostName());
         payload.put("user", user);
         String msg = objectMapper.writeValueAsString(payload);
         LOG.error(msg, new IllegalArgumentException(msg));
+        return Results.createResult();
     }
 
 }

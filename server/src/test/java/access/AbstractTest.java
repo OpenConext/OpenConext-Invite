@@ -34,7 +34,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -310,19 +309,26 @@ public abstract class AbstractTest {
 
     }
 
-    protected void stubForDeleteUser() {
+    protected void stubForDeleteScimUser() {
         stubFor(delete(urlPathMatching("/scim/v2/users/(.*)"))
                 .willReturn(aResponse()
                         .withStatus(201)));
     }
 
-    protected void stubForDeleteRole() {
+    protected void stubForDeleteEvaUser() throws JsonProcessingException {
+        stubFor(post(urlPathMatching(String.format("/eva/api/v1/guest/disable/(.*)")))
+                .willReturn(aResponse()
+                        .withStatus(201)));
+    }
+
+
+    protected void stubForDeleteScimRole() {
         stubFor(delete(urlPathMatching("/scim/v2/groups/(.*)"))
                 .willReturn(aResponse()
                         .withStatus(201)));
     }
 
-    protected String stubForCreateRole() throws JsonProcessingException {
+    protected String stubForCreateScimRole() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
         String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
         stubFor(post(urlPathMatching(String.format("/scim/v2/groups")))
@@ -332,7 +338,7 @@ public abstract class AbstractTest {
         return value;
     }
 
-    protected String stubForCreateUser() throws JsonProcessingException {
+    protected String stubForCreateScimUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
         String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
         stubFor(post(urlPathMatching(String.format("/scim/v2/users")))
@@ -342,12 +348,28 @@ public abstract class AbstractTest {
         return value;
     }
 
-    protected void stubForUpdateRole() throws JsonProcessingException {
+    protected String stubForCreateEvaUser() throws JsonProcessingException {
+        String value = UUID.randomUUID().toString();
+        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        stubFor(post(urlPathMatching(String.format("/eva/api/v1/guest/create")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
+        return value;
+    }
+
+    protected void stubForUpdateScimRole() throws JsonProcessingException {
         stubFor(put(urlPathMatching(String.format("/scim/v2/groups/(.*)")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                 ));
     }
 
+    protected void stubForUpdateScimRolePatch() throws JsonProcessingException {
+        stubFor(patch(urlPathMatching(String.format("/scim/v2/groups/(.*)")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                ));
+    }
 
 }

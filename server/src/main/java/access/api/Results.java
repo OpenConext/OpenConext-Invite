@@ -14,6 +14,10 @@ public class Results {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("status", HttpStatus.CREATED.value()));
     }
 
+    public static ResponseEntity<Map<String, Integer>> okResult() {
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("status", HttpStatus.OK.value()));
+    }
+
     public static ResponseEntity<Void> deleteResult() {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

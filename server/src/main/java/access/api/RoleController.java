@@ -56,7 +56,9 @@ public class RoleController {
     @GetMapping("{id}")
     public ResponseEntity<Role> role(@PathVariable("id") Long id, User user) {
         LOG.debug("/role");
-        return ResponseEntity.ok(roleRepository.findById(id).orElseThrow(NotFoundException::new));
+        Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
+        UserPermissions.assertRoleAccess(user, role);
+        return ResponseEntity.ok(role);
     }
 
     @GetMapping("search")
@@ -74,7 +76,7 @@ public class RoleController {
         String shortName = GroupURN.sanitizeRoleShortName(roleExists.shortName());
         Optional<Role> optionalRole = roleRepository.findByManageIdAndShortNameIgnoreCase(roleExists.manageId(), shortName);
         Map<String, Boolean> result = optionalRole
-                .map(role -> Map.of("exists", roleExists.id() == null || role.getId().equals(roleExists.id())))
+                .map(role -> Map.of("exists", roleExists.id() == null || !role.getId().equals(roleExists.id())))
                 .orElse(Map.of("exists", false));
         return ResponseEntity.ok(result);
     }
@@ -82,6 +84,11 @@ public class RoleController {
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
         LOG.debug("/newRole");
+        String shortName = GroupURN.sanitizeRoleShortName( role.getShortName());
+        ResponseEntity<Map<String, Boolean>> exists = this.shortNameExists(new RoleExists(shortName, role.getManageId(), role.getId()), user);
+        if (exists.getBody().get("exists")) {
+            throw new NotAllowedException("Duplicate name: '" + shortName + "' for manage entity:'" + role.getManageId() + "'");
+        }
         return saveOrUpdate(role, user);
     }
 
@@ -92,14 +99,11 @@ public class RoleController {
     }
 
     private ResponseEntity<Role> saveOrUpdate(@RequestBody @Validated Role role, @Parameter(hidden = true) User user) {
-        String shortName = GroupURN.sanitizeRoleShortName( role.getShortName());
-        ResponseEntity<Map<String, Boolean>> exists = this.shortNameExists(new RoleExists(shortName, role.getManageId(), role.getId()), user);
-        if (exists.getBody().get("exists")) {
-            throw new NotAllowedException("Duplicate name: '" + shortName + "' for manage entity:'" + role.getManageId() + "'");
-        }
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
-        role.setShortName(shortName);
+        if (role.getId() != null) {
+            role.setShortName(roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new).getShortName());
+        }
         return ResponseEntity.ok(roleRepository.save(role));
     }
 

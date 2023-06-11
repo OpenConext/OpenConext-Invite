@@ -4,6 +4,7 @@ import access.config.UserHandlerMethodArgumentResolver;
 import access.model.Invitation;
 import access.repository.InvitationRepository;
 import access.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -96,7 +97,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/csrf",
                                 "/api/v1/users/config",
-                                "/api/v1/users/logout",
                                 "/api/v1/invitations/public",
                                 "/ui/**",
                                 "internal/**")
@@ -130,8 +130,12 @@ public class SecurityConfig {
         return customizer -> customizer
                 .additionalParameters(params -> {
                     RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-                    DefaultSavedRequest savedRequest = (DefaultSavedRequest) ((ServletRequestAttributes) requestAttributes)
-                            .getRequest().getSession(false).getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+                    HttpSession session = ((ServletRequestAttributes) requestAttributes)
+                            .getRequest().getSession(false);
+                    if (session == null) {
+                        return;
+                    }
+                    DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
                     String[] force = savedRequest.getParameterValues("force");
                     if (force != null && force.length == 1) {
                         params.put("prompt", "login");

@@ -4,8 +4,8 @@ import "./UnitHeader.scss";
 import Logo from "./Logo";
 import {isEmpty, stopEvent} from "../utils/Utils";
 
-import {ButtonType, MenuButton} from "@surfnet/sds";
-import {Link} from "react-router-dom";
+import {Button, ButtonType, MenuButton} from "@surfnet/sds";
+import {Link, useNavigate} from "react-router-dom";
 import I18n from "../locale/I18n";
 
 export const UnitHeader = ({
@@ -24,7 +24,7 @@ export const UnitHeader = ({
 
     const [showDropDown, setShowDropDown] = useState(false);
 
-
+    const navigate = useNavigate();
     const performAction = action => e => {
         stopEvent(e);
         !action.disabled && action.perform();
@@ -37,17 +37,17 @@ export const UnitHeader = ({
                     <a href={`/${action.name}`}>{action.name}</a>
                 </li>)}
                 {(history && auditLogPath) &&
-                <li onClick={() => props.history.push(`/audit-logs/${auditLogPath}?${queryParam}`)}>
-                    <Link to={`/audit-logs/${auditLogPath}?${queryParam}`}>
-                        {I18n.t("home.history")}
-                    </Link>
-                </li>}
+                    <li onClick={() => navigate(`/audit-logs/${auditLogPath}?${queryParam}`)}>
+                        <Link to={`/audit-logs/${auditLogPath}?${queryParam}`}>
+                            {I18n.t("home.history")}
+                        </Link>
+                    </li>}
                 {firstTime &&
-                <li onClick={performAction({perform: firstTime})}>
-                    <a href={"/" + I18n.t("home.firstTime")}>
-                        {I18n.t("home.firstTime")}
-                    </a>
-                </li>}
+                    <li onClick={performAction({perform: firstTime})}>
+                        <a href={"/" + I18n.t("home.firstTime")}>
+                            {I18n.t("home.firstTime")}
+                        </a>
+                    </li>}
             </ul>
         )
     }
@@ -68,27 +68,27 @@ export const UnitHeader = ({
                     {obj.name && <h1>{obj.name}</h1>}
                     {obj.organisation && <span className="name">{obj.organisation.name}</span>}
                     {(obj.description && displayDescription) &&
-                    <span className={"description"}>{obj.description}</span>}
+                        <span className={"description"}>{obj.description}</span>}
                     {children}
                 </div>
                 {!isEmpty(actions) &&
-                <div className="action-menu-container">
-                    {nonChevronActions.map((action, index) =>
-                        <Button key={index}
-                                onClick={() => !action.disabled && action.perform()}
-                                txt={action.name}
-                                cancelButton={action.buttonType === ButtonType.Secondary}/>)
-                    }
-                    {showChevronAction &&
-                    <div tabIndex={1}
-                         onBlur={() => setTimeout(() => setShowDropDown(false), 250)}>
-                        <MenuButton txt={I18n.t("home.otherOptions")}
-                                    isOpen={showDropDown}
-                                    toggle={() => setShowDropDown(!showDropDown)}
-                                    buttonType={ButtonType.Secondary}
-                                    children={otherOptions(chevronActions, firstTime, auditLogPath, history, queryParam)}/>
+                    <div className="action-menu-container">
+                        {nonChevronActions.map((action, index) =>
+                            <Button key={index}
+                                    onClick={() => !action.disabled && action.perform()}
+                                    txt={action.name}
+                                    cancelButton={action.buttonType === ButtonType.Secondary}/>)
+                        }
+                        {showChevronAction &&
+                            <div tabIndex={1}
+                                 onBlur={() => setTimeout(() => setShowDropDown(false), 250)}>
+                                <MenuButton txt={I18n.t("home.otherOptions")}
+                                            isOpen={showDropDown}
+                                            toggle={() => setShowDropDown(!showDropDown)}
+                                            buttonType={ButtonType.Secondary}
+                                            children={otherOptions(chevronActions, firstTime, auditLogPath, history, queryParam)}/>
+                            </div>}
                     </div>}
-                </div>}
                 {customAction && customAction}
             </div>
         </div>

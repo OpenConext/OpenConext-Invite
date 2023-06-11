@@ -27,6 +27,13 @@ class UserPermissionsTest {
         UserPermissions.assertSuperUser(user);
         UserPermissions.assertValidInvitation(user, Authority.SUPER_USER, List.of());
         UserPermissions.assertAuthority(user, Authority.MANAGER);
+        UserPermissions.assertRoleAccess(user, null);
+    }
+
+    @Test
+    void assertNotSuperUser() {
+        User user = new User(false, Map.of());
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertSuperUser(user));
     }
 
     @Test
@@ -81,6 +88,12 @@ class UserPermissionsTest {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.INVITER, identifier);
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(Map.of("id", identifier), user));
+    }
+
+    @Test
+    void assertManagerRoleNotProvisioning() {
+        User user = userWithRole(Authority.MANAGER, "identifier");
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(Map.of("id", "nope"), user));
     }
 
     @Test

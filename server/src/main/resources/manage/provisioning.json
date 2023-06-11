@@ -84,7 +84,7 @@
       "metaDataFields": {
         "name:en": "EVA",
         "provisioning_type": "eva",
-        "eva_url": "http;//localhost:8081/eva",
+        "eva_url": "http://localhost:8081/eva",
         "eva_token": "secret",
         "eva_guest_account_duration": 30
       },

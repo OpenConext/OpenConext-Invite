@@ -49,9 +49,9 @@ public class ManageController {
     }
 
     @GetMapping("provider/{type}/{id}")
-    public ResponseEntity<Map<String, Object>> providers(@PathVariable("type") EntityType type,
-                                                         @PathVariable("id") String id,
-                                                         @Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, Object>> providerById(@PathVariable("type") EntityType type,
+                                                            @PathVariable("id") String id,
+                                                            @Parameter(hidden = true) User user) {
         LOG.debug("/provider");
         Map<String, Object> provider = manage.providerById(type, id);
         return ResponseEntity.ok(provider);
@@ -60,14 +60,17 @@ public class ManageController {
     @GetMapping("provisioning/{id}")
     public ResponseEntity<List<Map<String, Object>>> provisioning(@PathVariable("id") String id,
                                                                   @Parameter(hidden = true) User user) {
-        LOG.debug("provider");
+        LOG.debug("provisioning");
+        UserPermissions.assertManagerRole(Map.of("id", id), user);
         List<Map<String, Object>> provisioning = manage.provisioning(List.of(id));
-        provisioning.forEach(prov -> UserPermissions.assertManagerRole(prov, user));
         if (!user.isSuperUser()) {
             provisioning.forEach(prov -> {
                 Map<String, Object> data = (Map<String, Object>) prov.get("data");
                 Map<String, Object> metaDataFields = (Map<String, Object>) data.getOrDefault("metaDataFields", Collections.emptyMap());
-                List.of("scim_url", "scim_user", "scim_password", "provisioning_mail", "eva_token").forEach(s -> metaDataFields.remove(s));
+                List.of("scim_url", "scim_user", "scim_password",
+                                "eva_url", "eva_token",
+                                "graph_url", "graph_token")
+                        .forEach(metaDataFields::remove);
             });
         }
         return ResponseEntity.ok(provisioning);

@@ -14,12 +14,12 @@ public record Seed(InvitationRepository invitationRepository,
                    RoleRepository roleRepository,
                    UserRepository userRepository,
                    UserRoleRepository userRoleRepository
-                   ) {
+) {
 
-    public static final String superSub = "super@example.com";
-    public static final String manageSub = "manager@example.com";
-    public static final String inviterSub = "inviter@example.com";
-    public static final String guestSub = "guest@example.com";
+    public static final String SUPER_SUB = "super@example.com";
+    public static final String MANAGE_SUB = "manager@example.com";
+    public static final String INVITER_SUB = "inviter@example.com";
+    public static final String GUEST_SUB = "guest@example.com";
 
     public void doSeed() {
         this.invitationRepository.deleteAllInBatch();
@@ -31,13 +31,13 @@ public record Seed(InvitationRepository invitationRepository,
 
 
         User superUser =
-                new User(true, superSub, superSub, "David", "Doe", superSub);
+                new User(true, SUPER_SUB, SUPER_SUB, "David", "Doe", SUPER_SUB);
         User manager =
-                new User(false, manageSub, manageSub, "Mary", "Doe", manageSub);
+                new User(false, MANAGE_SUB, MANAGE_SUB, "Mary", "Doe", MANAGE_SUB);
         User inviter =
-                new User(false, inviterSub, inviterSub, "Paul", "Doe", inviterSub);
+                new User(false, INVITER_SUB, INVITER_SUB, "Paul", "Doe", INVITER_SUB);
         User guest =
-                new User(false, guestSub, guestSub, "Ann", "Doe", guestSub);
+                new User(false, GUEST_SUB, GUEST_SUB, "Ann", "Doe", GUEST_SUB);
         doSave(this.userRepository, superUser, manager, inviter, guest);
 
         Role wiki =
@@ -62,7 +62,9 @@ public record Seed(InvitationRepository invitationRepository,
                 new UserRole("system", inviter, mail, Authority.INVITER);
         UserRole storageGuest =
                 new UserRole("system", guest, storage, Authority.GUEST);
-        doSave(this.userRoleRepository, wikiManager, calendarInviter, mailInviter, storageGuest);
+        UserRole researchGuest =
+                new UserRole("system", guest, research, Authority.GUEST);
+        doSave(this.userRoleRepository, wikiManager, calendarInviter, mailInviter, storageGuest, researchGuest);
 
         Invitation superUserInvitation =
                 new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false,
@@ -81,6 +83,7 @@ public record Seed(InvitationRepository invitationRepository,
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation);
     }
 
+    @SafeVarargs
     private <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
         repository.saveAll(Arrays.asList(entities));
     }

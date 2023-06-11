@@ -5,23 +5,23 @@ const nl = {
         header: {
             title: "Manage access to your applications",
             login: "Login",
-            sup: "New to SURF Access? Login and see your possibilities.",
+            sup: "The Access application is by invite only.",
         },
         works: "How does it work?",
         adminFunction: "admin function",
-        create: "Applications",
-        createInfo: "<p>Administrators create applications for service providers.</p>" +
-            "<p>They then create roles to manage the access for the applications.</p>",
-        invite: "Invite",
-        inviteInfo: "<p>Administrators invite colleagues for the configured roles.</p>" +
-            "<p>They can also ask other administrators to help manage the application and roles.</p>",
-        join: "Join",
-        joinInfo: "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>",
-        collaborate: "Groups",
-        collaborateInfo: "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>",
+        info: [
+            //Arrays of titles and info blocks and if a function is an admin function
+            ["Invites", "<p>SURF invites institution managers who can create roles for their applications.</p>" +
+            "<p>Applications are services connected to SURFconext.</p>", true],
+            ["Roles", "<p>The application managers will invite colleagues for roles who can invite guests.</p>" +
+            "<p>Invites.</p>", true],
+            ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
+            ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
+        ],
         footer: "<p>SURF Access is a service for access management of Dutch led service providers.</p>" +
-            "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/access'>https://surf.nl/en/access</a>.</p>"
+            "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/access'>https://surf.nl/en/access</a>.</p>",
     },
+
     header: {
         title: "Access",
         links: {

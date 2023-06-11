@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 
-import static access.Seed.guestSub;
+import static access.Seed.GUEST_SUB;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ResourceCleanerTest extends AbstractTest {
@@ -25,9 +25,9 @@ class ResourceCleanerTest extends AbstractTest {
 
         stubForProvisioning(List.of("1"));
         //Because there is no RemoteProvisionedGroup
-        stubForCreateRole();
-        stubForCreateUser();
-        stubForUpdateRole();
+        stubForCreateScimRole();
+        stubForCreateScimUser();
+        stubForUpdateScimRole();
 
         subject.clean();
         assertEquals(beforeUsers, userRepository.count() + 1);
@@ -40,12 +40,12 @@ class ResourceCleanerTest extends AbstractTest {
 
         stubForProvisioning(List.of("1"));
         //Because there is no RemoteProvisionedGroup
-        stubForCreateRole();
-        stubForCreateUser();
-        stubForUpdateRole();
+        stubForCreateScimRole();
+        stubForCreateScimUser();
+        stubForUpdateScimRole();
 
         subject.clean();
-        assertEquals(beforeUserRoles, userRoleRepository.count() + 1);
+        assertEquals(beforeUserRoles, userRoleRepository.count() + 2);
     }
 
     @Test
@@ -55,7 +55,7 @@ class ResourceCleanerTest extends AbstractTest {
     }
 
     private void markUser() {
-        User user = userRepository.findBySubIgnoreCase(guestSub).get();
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         Instant past = Instant.now().minus(Period.ofDays(1050));
         user.setLastActivity(past);
         user.getUserRoles().forEach(userRole -> userRole.setEndDate(past));
@@ -63,7 +63,7 @@ class ResourceCleanerTest extends AbstractTest {
     }
 
     private void markUserRole() {
-        User user = userRepository.findBySubIgnoreCase(guestSub).get();
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         Instant past = Instant.now().minus(Period.ofDays(1050));
         user.getUserRoles().forEach(userRole -> userRole.setEndDate(past));
         userRepository.save(user);
