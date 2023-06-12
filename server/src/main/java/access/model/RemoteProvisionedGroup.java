@@ -12,8 +12,6 @@ import java.io.Serializable;
 
 @Entity(name = "remote_provisioned_groups")
 @NoArgsConstructor
-@Getter
-@Setter
 public class RemoteProvisionedGroup implements Serializable, RemoteScimIdentifier {
 
     @Id
@@ -36,5 +34,10 @@ public class RemoteProvisionedGroup implements Serializable, RemoteScimIdentifie
         this.role = role;
         this.remoteScimIdentifier = remoteScimIdentifier;
         this.manageProvisioningId = manageProvisioningId;
+    }
+
+    @Override
+    public String getRemoteScimIdentifier() {
+        return this.remoteScimIdentifier;
     }
 }

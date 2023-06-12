@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class MailBox {
 
     private final JavaMailSender mailSender;
@@ -59,7 +60,8 @@ public class MailBox {
         });
     }
 
-    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders) {
+    @SneakyThrows
+    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders)  {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         String lang = preferredLanguage().toLowerCase();
         String title = String.format(subjects.get(lang).get("newInvitation"),
@@ -87,7 +89,7 @@ public class MailBox {
         return LocaleContextHolder.getLocale().getLanguage();
     }
 
-    public void sendProvisioningMail(String title, String userRequest, String email) {
+    public void sendProvisioningMail(String title, String userRequest, String email) throws MessagingException, IOException {
         LOG.info(String.format("Send email SCIM request %s %s to %s", title, userRequest, email));
 
         Map<String, Object> variables = new HashMap<>();
@@ -98,8 +100,7 @@ public class MailBox {
                 email);
     }
 
-    @SneakyThrows
-    private void sendMail(String templateName, String subject, Map<String, Object> variables, String... to) {
+    private void sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 
@@ -126,7 +127,7 @@ public class MailBox {
         doSendMail(message);
     }
 
-    protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws MessagingException {
+    protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws MessagingException, IOException {
         helper.setText(plainText, htmlText);
     }
 

@@ -23,6 +23,10 @@ public enum Authority {
         return rights >= requiredAuthority.rights;
     }
 
+    public boolean hasHigherRights(Authority requiredAuthority) {
+        return rights > requiredAuthority.rights;
+    }
+
     public String translate(String lang) {
         return translations.get(this.name()).get(lang);
     }

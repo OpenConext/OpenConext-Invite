@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
+
 @Configuration
 public class ManageConf {
 
@@ -13,7 +15,7 @@ public class ManageConf {
                          @Value("${manage.user}") String user,
                          @Value("${manage.password}") String password,
                          @Value("${manage.enabled}") boolean enabled,
-                                 ObjectMapper objectMapper) {
+                                 ObjectMapper objectMapper) throws IOException {
         return enabled ? new RemoteManage(url, user, password, objectMapper) : new LocalManage(objectMapper);
     }
 

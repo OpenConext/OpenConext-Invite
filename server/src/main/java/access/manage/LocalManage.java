@@ -28,7 +28,6 @@ public final class LocalManage implements Manage {
         });
     }
 
-    @SneakyThrows
     @Override
     public List<Map<String, Object>> providers(EntityType entityType) {
         return addIdentifierAlias(this.allProviders.get(entityType));

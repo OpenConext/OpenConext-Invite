@@ -27,15 +27,14 @@ public class MockMailBox extends MailBox {
     }
 
     @Override
-    protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws MessagingException {
+    protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws IOException {
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("mac os x") && environment.matchesProfiles("test")) {
             openInBrowser(htmlText);
         }
     }
 
-    @SneakyThrows
-    private void openInBrowser(String html) {
+    private void openInBrowser(String html) throws IOException {
         File tempFile = File.createTempFile("javamail", ".html");
         FileCopyUtils.copy(html.getBytes(), tempFile);
         String absolutePath = tempFile.getAbsolutePath();

@@ -6,7 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "config")
 @Getter
-@Setter
 public class Config {
 
     private String clientUrl;
@@ -23,5 +22,17 @@ public class Config {
     public Config withName(String name) {
         this.name = name;
         return this;
+    }
+
+    public void setClientUrl(String clientUrl) {
+        this.clientUrl = clientUrl;
+    }
+
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
+    }
+
+    public void setEduidEntityId(String eduidEntityId) {
+        this.eduidEntityId = eduidEntityId;
     }
 }

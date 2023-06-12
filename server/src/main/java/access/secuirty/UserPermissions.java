@@ -31,35 +31,31 @@ public class UserPermissions {
         if (user.isSuperUser()) {
             return;
         }
-        //For all roles verify that the user is an inviter or a manager of the application of the role
+        if (intendedAuthority.equals(Authority.SUPER_USER)) {
+            throw new UserRestrictionException();
+        }
+        //For all roles verify that the user has a higher authority then the one requested for all off the roles
         Set<UserRole> userRoles = user.getUserRoles();
         boolean allowed = roles.stream()
-                .allMatch(role -> mayInviteByApplication(userRoles, intendedAuthority, role) ||
+                .allMatch(role -> mayInviteByApplication(userRoles, role) ||
                         mayInviteByAuthority(userRoles, intendedAuthority, role));
         if (!allowed) {
             throw new UserRestrictionException();
         }
     }
 
-    //Does one the userRoles has Authority.MANAGE and has the same application as the role
-    private static boolean mayInviteByApplication(Set<UserRole> userRoles, Authority intendedAuthority, Role role) {
-        if (intendedAuthority.hasEqualOrHigherRights(Authority.MANAGER)) {
-            //only superUsers can invite manager
-            throw new UserRestrictionException();
-        }
+    //Does one off the userRoles has Authority.MANAGE and has the same application as the role
+    private static boolean mayInviteByApplication(Set<UserRole> userRoles, Role role) {
         return userRoles.stream()
                 .anyMatch(userRole -> userRole.getRole().getManageId().equals(role.getManageId()) &&
                         userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER));
     }
 
-    //Does one the userRoles has at least the Authority.INVITER for the role requested
+    //Does one the userRoles has at least the Authority higher than the intendedAuthority and NOT Guest
     private static boolean mayInviteByAuthority(Set<UserRole> userRoles, Authority intendedAuthority, Role role) {
-        if (intendedAuthority.hasEqualOrHigherRights(Authority.INVITER)) {
-            //only managers can invite inviters
-            throw new UserRestrictionException();
-        }
         return userRoles.stream()
-                .anyMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.INVITER) &&
+                .anyMatch(userRole -> userRole.getAuthority().hasHigherRights(intendedAuthority) &&
+                        userRole.getAuthority().hasEqualOrHigherRights(Authority.INVITER) &&
                         userRole.getRole().getId().equals(role.getId()));
     }
 

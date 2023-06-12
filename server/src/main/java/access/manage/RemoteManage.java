@@ -7,6 +7,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -20,8 +21,7 @@ public class RemoteManage implements Manage {
     private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, Object> queries;
 
-    @SneakyThrows
-    public RemoteManage(String url, String user, String password, ObjectMapper objectMapper) {
+    public RemoteManage(String url, String user, String password, ObjectMapper objectMapper) throws IOException {
         this.url = url;
         this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
         });

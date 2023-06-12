@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@SuppressWarnings("unchecked")
 public class ProvisioningServiceDefault implements ProvisioningService {
 
     public final static String USER_API = "users";

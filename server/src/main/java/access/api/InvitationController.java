@@ -121,7 +121,8 @@ public class InvitationController {
 
 
     @PostMapping("accept")
-    public ResponseEntity<Map<String, Integer>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation, Authentication authentication) {
+    public ResponseEntity<Map<String, Integer>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
+                                                       Authentication authentication) {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
             throw new NotFoundException();

@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public record GroupedProviders(Map<String, Object> provider, List<Role> roles, String logoName) {
 
     public String getName() {

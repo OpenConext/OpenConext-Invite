@@ -1,7 +1,7 @@
 # Openconext-Access
 # invite-server
 
-[![Build Status](https://github.com/OpenConext/OpenConext-Access/actions/workflows/maven.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Access/actions/workflows/maven.yml/badge.svg)
+[![Build Status](https://github.com/OpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)
 [![codecov](https://codecov.io/gh/OpenConext/OpenConext-Access/branch/main/graph/badge.svg?token=HZ7ES3TLQ9)](https://codecov.io/gh/OpenConext/OpenConext-Access)
 
 ## [Getting started](#getting-started)
