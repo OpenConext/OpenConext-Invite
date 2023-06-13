@@ -3,9 +3,12 @@ import "./Header.scss";
 import {Logo, LogoColor, LogoType} from "@surfnet/sds";
 import {UserMenu} from "./UserMenu";
 import {Link} from "react-router-dom";
+import {useAppStore} from "../stores/AppStore";
 
-export const Header = ({user, config}) => {
+export const Header = () => {
 
+    const {user, config} = useAppStore(state => state);
+    //TODO determine actions based on user and config
     return (
         <div className="header-container">
             <div className="header-inner">

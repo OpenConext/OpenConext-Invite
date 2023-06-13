@@ -4,16 +4,16 @@ import "./Tab.scss";
 import {BadgeNumber} from "@surfnet/sds";
 
 export default function Tab({
-                                        name,
-                                        onClick,
-                                        activeTab,
-                                        className = "",
-                                        label,
-                                        icon,
-                                        notifier,
-                                        readOnly,
-                                        busy,
-                                    }) {
+                                name,
+                                onClick,
+                                activeTab,
+                                className = "",
+                                label,
+                                Icon,
+                                notifier,
+                                readOnly,
+                                busy,
+                            }) {
 
     const onClickInner = () => {
         if (!readOnly) {
@@ -39,10 +39,11 @@ export default function Tab({
         label = label.substring(0, label.indexOf("(") - 1);
         chipCount = <BadgeNumber value={count} small={true}/>
     }
+
     return (
         <div className={className} onClick={onClickInner}>
             {notifier && <span className="notifier"><AlertIcon/></span>}
-            <button className={"tab-label"}>{icon && icon}{label}{chipCount}</button>
+            <button className={"tab-label"}>{Icon && <Icon/>}{label}{chipCount}</button>
         </div>
     );
 }

@@ -1,12 +1,10 @@
 package access.api;
 
+import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.manage.Manage;
-import access.model.Authority;
-import access.model.Role;
-import access.model.RoleExists;
-import access.model.User;
+import access.model.*;
 import access.repository.RoleRepository;
 import access.provision.scim.GroupURN;
 import access.secuirty.UserPermissions;
@@ -14,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,25 +31,43 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @RequestMapping(value = {"/api/v1/roles", "/api/external/v1/roles"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
+@EnableConfigurationProperties(Config.class)
 public class RoleController {
     private static final Log LOG = LogFactory.getLog(RoleController.class);
 
+    private final Config config;
     private final RoleRepository roleRepository;
     private final Manage manage;
 
-    public RoleController(RoleRepository roleRepository, Manage manage) {
+    public RoleController(Config config, RoleRepository roleRepository, Manage manage) {
+        this.config = config;
         this.roleRepository = roleRepository;
         this.manage = manage;
     }
 
     @GetMapping("")
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user) {
-        LOG.debug("/role");
+        LOG.debug("/roles");
+        if (user.isSuperUser() && !config.isRoleSearchRequired()) {
+            return ResponseEntity.ok(roleRepository.findAll());
+        }
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         Set<String> manageIdentifiers = user.getUserRoles().stream()
                 .map(userRole -> userRole.getRole().getManageId())
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(roleRepository.findByManageIdIn(manageIdentifiers));
+    }
+
+    @GetMapping("mine")
+    public ResponseEntity<List<Role>> myRoles(@Parameter(hidden = true) User user) {
+        LOG.debug("/roles/mine");
+        if (user.isSuperUser() && !config.isRoleSearchRequired()) {
+            return ResponseEntity.ok(roleRepository.findAll());
+        }
+        if (user.getUserRoles().stream().anyMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))) {
+            return rolesByApplication(user) ;
+        }
+        return ResponseEntity.ok(user.getUserRoles().stream().map(UserRole::getRole).toList());
     }
 
     @GetMapping("{id}")

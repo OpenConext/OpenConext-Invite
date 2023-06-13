@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-xmlns:xlink="http://www.w3.org/1999/xlink" width="416" height="457">
+xmlns:xlink="http://www.w3.org/1999/xlink">
 
   <defs>
-    <pattern id="mytri" patternUnits="userSpaceOnUse" y="14" x="10" width="21.9239" height="26.238027">
+    <pattern id="mytri" patternUnits="userSpaceOnUse" y="14" x="10">
       <path d="M 20.462031,0 10.96153,10.13708 1.4610282,0 Z M 0,13.11974 0,23.25647 9.5000456,13.11974 0,13.11974 Z m 12.421874,0 9.501983,10.13673 0,-10.13673 -9.501983,0 z"/>
     </pattern>
 

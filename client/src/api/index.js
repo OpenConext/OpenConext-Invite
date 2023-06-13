@@ -89,6 +89,12 @@ export function configuration() {
 export function me() {
     return fetchJson("/api/v1/users/me", {}, {}, false);
 }
+
+export function searchUsers(query) {
+    return fetchJson(`/api/v1/users/search?query=${query}`);
+}
+
+
 export function csrf() {
     return fetchJson("/api/v1/csrf", {}, {}, false);
 }
@@ -106,9 +112,28 @@ export function invitationByHash(hash) {
     return fetchJson(`/api/v1/invitations/public?hash=${hash}`);
 }
 
+export function newInvitation(intendedAuthority, message, enforceEmailEquality, invites, roleIdentifiers, expiryDate) {
+    const body = {intendedAuthority, message, enforceEmailEquality, invites, roleIdentifiers, expiryDate};
+    return postPutJson("/api/v1/invitations", body, "POST");
+}
+
 export function acceptInvitation(hash, invitationId) {
     const body = {hash: hash, invitationId: invitationId};
     return postPutJson("/api/v1/invitations/accept", body, "POST");
+}
+
+//Manage
+export function providers() {
+    return fetchJson("/api/v1/manage/providers");
+}
+
+export function providerById(entityType, id) {
+    return fetchJson(`/api/v1/manage/provider/${entityType.toUpperCase()}/${id}`)
+}
+
+//Roles
+export function roles() {
+    return fetchJson("/api/v1/roles")
 }
 
 

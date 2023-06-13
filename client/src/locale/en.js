@@ -21,7 +21,6 @@ const en = {
         footer: "<p>SURF Access is a service for access management of Dutch led service providers.</p>" +
             "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/access'>https://surf.nl/en/access</a>.</p>",
     },
-
     header: {
         title: "Access",
         links: {
@@ -35,11 +34,27 @@ const en = {
             helpUrl: "https://edu.nl/vw3jx"
         },
     },
-    paths: {
-        home: "Home"
+    tabs: {
+        home: "Home",
+        applications: "Applications",
+        users: "Users",
+        roles: "Roles",
     },
     home: {
         access: "SURF Access",
+    },
+    impersonate: {
+        currentImpersonationValue: "You are impersonating {{currentUser}}, but you are really {{impersonator}}",
+        flash: {
+            startedImpersonation: "You now impersonate {{name}}.",
+            clearedImpersonation: "Cleared your impersonation. You are you again."
+        },
+        exit: "Stop impersonating",
+        impersonator: "You are impersonating <strong>{{name}}</strong> | <strong>{{role}}</strong>",
+        impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>. With the stop button you can change identity or become you again."
+    },
+    tooltips: {
+      user: "User"
     },
     footer: {
         terms: "Terms of Use",

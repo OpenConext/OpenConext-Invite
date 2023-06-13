@@ -11,6 +11,7 @@ public class Config {
     private String clientUrl;
     private String serverUrl;
     private String eduidEntityId;
+    private boolean roleSearchRequired;
     private boolean authenticated;
     private String name;
 
@@ -22,6 +23,10 @@ public class Config {
     public Config withName(String name) {
         this.name = name;
         return this;
+    }
+
+    public void setRoleSearchRequired(boolean roleSearchRequired) {
+        this.roleSearchRequired = roleSearchRequired;
     }
 
     public void setClientUrl(String clientUrl) {

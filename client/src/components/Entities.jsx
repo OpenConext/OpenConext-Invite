@@ -5,7 +5,7 @@ import {isEmpty} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
 import {headerIcon} from "../utils/Forms";
 import "./Entities.scss";
-import {Loader} from "@surfnet/sds";
+import {Button, Loader} from "@surfnet/sds";
 
 import {Pagination} from "@surfnet/sds";
 import {pageCount} from "../utils/Pagination";

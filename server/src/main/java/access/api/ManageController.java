@@ -53,6 +53,7 @@ public class ManageController {
                                                             @PathVariable("id") String id,
                                                             @Parameter(hidden = true) User user) {
         LOG.debug("/provider");
+        UserPermissions.assertSuperUser(user);
         Map<String, Object> provider = manage.providerById(type, id);
         return ResponseEntity.ok(provider);
     }

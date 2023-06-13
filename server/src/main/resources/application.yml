@@ -76,6 +76,7 @@ config:
   client-url: "http://localhost:3000"
   server-url: "http://localhost:8080"
   eduid-entity-id: "https://login.test2.eduid.nl"
+  role-search-required: false
 
 voot:
   user: voot

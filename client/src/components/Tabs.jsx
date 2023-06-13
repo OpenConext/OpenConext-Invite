@@ -3,37 +3,31 @@ import React from "react";
 import Tab from "./Tab";
 import "./Tabs.scss";
 
-export default function Tabs({children, busy, currentTab, className = ""}) {
+const Tabs = ({children, className, activeTab, tabChanged}) => {
 
-    const onClickTabItem = tab => {
-        const {tabChanged} = this.props;
-        tabChanged(tab);
-    }
-
-    let activeTab = currentTab || children[0].props.name;
     const filteredChildren = children.filter(child => child);
-    if (!filteredChildren.some((child => child.props && child.props.name === activeTab))) {
-        activeTab = (filteredChildren[0] || {props: {name: activeTab}}).props.name
+    if (!children.some((child => child.props && child.props.name === activeTab))) {
+        activeTab = (children[0] || {props: {name: activeTab}}).props.name
     }
+
     return (
         <>
             <div className="tabs-container">
                 {<div className={`tabs ${className}`}>
 
                     {filteredChildren.map(child => {
-                        const {label, name, icon, notifier, readOnly} = child.props;
+                        const {label, name, Icon, notifier, readOnly} = child.props;
 
                         return (
                             <Tab
                                 activeTab={activeTab}
-                                icon={icon}
+                                Icon={Icon}
                                 readOnly={readOnly}
                                 key={name}
                                 name={name}
-                                busy={busy}
                                 notifier={notifier}
                                 label={label}
-                                onClick={onClickTabItem}
+                                onClick={tab => tabChanged(tab)}
                                 className={className}
                             />
                         );
@@ -50,3 +44,5 @@ export default function Tabs({children, busy, currentTab, className = ""}) {
         </>
     );
 }
+
+export default Tabs;

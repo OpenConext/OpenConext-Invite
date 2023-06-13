@@ -6,12 +6,15 @@ import {LandingInfo} from "../components/LandingInfo";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
 import {login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
+import {getParameterByName} from "../utils/QueryParameters";
 
 export const Login = () => {
 
     const config = useAppStore((state) => state.config);
+
     const doLogin = () => {
-        login(config);
+        const force = getParameterByName("force", window.location.search);
+        login(config, force);
     }
 
     return (

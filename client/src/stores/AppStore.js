@@ -1,8 +1,14 @@
 import { create } from 'zustand'
 
-export const useAppStore = create((set) => ({
+export const useAppStore = create(set => ({
     csrfToken: null,
     impersonator: null,
+    startImpersonation: otherUser => {
+      set(state => ({impersonator: state.user, user: otherUser}));
+    },
+    stopImpersonation: () => {
+        set(state => ({impersonator: null, user: state.impersonator}));
+    },
     config: {},
     user: {},
     objectRole: "",
@@ -16,4 +22,10 @@ export const useAppStore = create((set) => ({
     clearFlash: () => set({flash: {}}),
     //[{path: "/roles/4", value: role.name}]
     breadcrumbPath: []
+}));
+
+export const useManageStore = create(set => ({
+    providers: [],
+    provisionings: [],
+    providerById: {}
 }));

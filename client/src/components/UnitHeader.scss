@@ -31,10 +31,9 @@
             align-items: center;
 
             svg {
-                width: 50px;
-                height: 30px;
-                color: var(--sds--color--blue--300);
-                fill: var(--sds--color--blue--300);
+                width: 68px;
+                height: auto;
+                margin-bottom: auto;
 
                 &.child {
                     color: black;

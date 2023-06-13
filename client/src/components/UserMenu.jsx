@@ -13,8 +13,7 @@ export const UserMenu = ({user, config, actions}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
 
-    const clearFlash = useAppStore((state) => state.clearFlash);
-    const objectRole = useAppStore((state) => state.objectRole);
+    const {clearFlash, objectRole} = useAppStore((state) => state);
 
     const toggleUserMenu = () => {
         setDropDownActive(false);
@@ -23,7 +22,10 @@ export const UserMenu = ({user, config, actions}) => {
 
     const logoutUser = e => {
         stopEvent(e);
-        logout().then(() => navigate("/"));
+        logout().then(() => {
+            useAppStore.setState(() => ({user: null, impersonator: null}));
+            navigate("/login?force=true");
+        });
     }
 
     const renderMenu = (adminLinks) => {

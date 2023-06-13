@@ -1,4 +1,4 @@
-@import "../../stylesheets/vars";
+@import "../styles/vars";
 
 .mod-entities {
 
@@ -22,13 +22,13 @@
         min-height: 40px;
         justify-content: space-between;
 
-        @media (max-width: $compact-medium) {
+        @media (max-width: $tablet-max) {
             flex-direction: column;
             align-items: normal;
         }
 
         h2 {
-            @media (max-width: $compact-medium) {
+            @media (max-width: $tablet-max) {
                 margin-bottom: 15px
             }
 
@@ -47,17 +47,6 @@
             margin-left: auto;
         }
 
-        svg.help {
-            color: $blue;
-            font-size: 14px;
-            cursor: pointer;
-            margin: 0 8px 18px auto;
-
-            &:hover {
-                color: darken($blue, 10%);
-            }
-        }
-
         .search {
             position: relative;
             display: flex;
@@ -66,7 +55,7 @@
                 margin-left: auto;
             }
 
-            @media (max-width: $compact-medium) {
+            @media (max-width: $tablet-max) {
                 margin-left: 0;
             }
 
@@ -74,7 +63,7 @@
                 flex-grow: 2;
                 min-width: 360px;
 
-                @media (max-width: $compact-medium) {
+                @media (max-width: $tablet-max) {
                     min-width: 0;
                 }
             }
@@ -168,7 +157,7 @@
                     cursor: default;
                 }
 
-                @media (max-width: $compact-medium) {
+                @media (max-width: $tablet-max) {
                     &.status, &.requester, &.impersonate, &.logo, &.collaboration_memberships_count,
                     &.invitations_count, &.organisation_memberships_count, &.collaborations_count,
                     &.connection_requests_count, &.icon, &.user__schac_home_organisation {
@@ -198,7 +187,7 @@
                     margin: auto 0;
 
                     svg {
-                        color: $dark-grey;
+                        color: var(--sds--color--gray--200);
                         cursor: pointer;
                         margin: 0 5px;
                         width: 20px;
@@ -261,7 +250,7 @@
                     }
                 }
 
-                @media (max-width: $compact-medium) {
+                @media (max-width: $tablet-max) {
                     &.status, &.requester, &.impersonate, &.logo, &.collaboration_memberships_count,
                     &.invitations_count, &.organisation_memberships_count, &.connection_requests_count,
                     &.collaborations_count, &.icon, &.user__schac_home_organisation {
@@ -281,7 +270,7 @@
         flex-direction: column;
 
         span.email {
-            color: $dark-grey;
+            color: var(--sds--color--gray--400);
         }
     }
 

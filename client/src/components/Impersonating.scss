@@ -1,0 +1,22 @@
+@import "../styles/vars.scss";
+
+.impersonator {
+    background-color: var(--sds--color--yellow--200);
+    display: flex;
+    align-items: center;
+    padding: 5px 2px;
+
+    svg {
+        width: 40px;
+        height: auto;
+        cursor: pointer;
+        margin: 4px 15px 0 15px;
+        fill: #737373;
+        padding: 5px;
+        border-radius: 50%;
+    }
+
+    button {
+        margin: 0 25px 0 auto;
+    }
+}

@@ -7,6 +7,7 @@ import access.secuirty.SuperAdmin;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -36,6 +37,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                                 WebDataBinderFactory binderFactory) {
         Principal userPrincipal = webRequest.getUserPrincipal();
         Map<String, Object> attributes;
+
         if (userPrincipal instanceof BearerTokenAuthentication bearerTokenAuthentication) {
             attributes = bearerTokenAuthentication.getTokenAttributes();
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
@@ -43,13 +45,22 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         } else {
             return null;
         }
+
         String sub = attributes.get("sub").toString();
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
-        return optionalUser.or(() ->
-                superAdmin.getUsers().stream().filter(adminSub -> adminSub.equals(sub))
-                        .findFirst()
-                        .map(adminSub -> userRepository.save(new User(true, attributes)))
-        ).orElseThrow(UserRestrictionException::new);
+        return optionalUser
+                .or(() ->
+                        superAdmin.getUsers().stream().filter(adminSub -> adminSub.equals(sub))
+                                .findFirst()
+                                .map(adminSub -> userRepository.save(new User(true, attributes)))
+                ).map(user -> {
+                    String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
+                    if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
+                        return userRepository.findById(Long.valueOf(impersonateId))
+                                .orElseThrow(UserRestrictionException::new);
+                    }
+                    return user;
+                }).orElseThrow(UserRestrictionException::new);
 
     }
 }
