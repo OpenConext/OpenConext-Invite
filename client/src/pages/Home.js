@@ -14,31 +14,33 @@ import {Page} from "../components/Page";
 
 export const Home = () => {
 
-    const {tab = "applications"} = useParams();
-    const [currentTab, setCurrentTab] = useState(tab );
+    const {tab = "users"} = useParams();
+    const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
     const user = useAppStore((state) => state.user)
     const navigate = useNavigate();
 
     useEffect(() => {
-        useAppStore.setState({breadcrumbPath: [
-            {path: "/home", value: I18n.t("tabs.home")},
-            {path: `/home/${currentTab}`, value: I18n.t(`tabs.${currentTab}`)}
-        ]});
+        useAppStore.setState({
+            breadcrumbPath: [
+                {path: "/home", value: I18n.t("tabs.home")},
+                {path: `/home/${currentTab}`, value: I18n.t(`tabs.${currentTab}`)}
+            ]
+        });
         if (user.superUser) {
             setTabs([
                 <Page key="applications"
-                     name="applications"
-                     label={I18n.t("tabs.applications")}
-                     Icon={ApplicationLogo}>
+                      name="applications"
+                      label={I18n.t("tabs.applications")}
+                      Icon={ApplicationLogo}>
                     <Applications/>
                 </Page>,
-                <div key="users"
-                     name="users"
-                     label={I18n.t("tabs.users")}
-                     Icon={UserLogo}>
-                        <Users />
-                    </div>
+                <Page key="users"
+                      name="users"
+                      label={I18n.t("tabs.users")}
+                      Icon={UserLogo}>
+                    <Users/>
+                </Page>
             ])
         }
     }, [currentTab, user.superUser]);
@@ -53,7 +55,7 @@ export const Home = () => {
         <div className="home">
             <div className="mod-home-container">
                 <UnitHeader obj={({name: I18n.t("home.access"), svg: Logo})}
-                             svgClick={() => new Audio(owl).play()}>
+                            svgClick={() => new Audio(owl).play()}>
                     <p>{JSON.stringify(user)}</p>
                 </UnitHeader>
                 <Tabs activeTab={currentTab}
@@ -61,8 +63,6 @@ export const Home = () => {
                     {tabs}
                 </Tabs>
             </div>
-            );
-
         </div>
     );
 }

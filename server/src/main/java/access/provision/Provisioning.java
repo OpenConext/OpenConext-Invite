@@ -19,7 +19,9 @@ public class Provisioning {
     private final String evaUrl;
     private final int evaGuestAccountDuration;
     private final String graphUrl;
-    private final String graphToken;
+    private final String graphClientId;
+    private final String graphSecret;
+    private final String graphTenant;
 
     public Provisioning(Map<String, Object> provider) {
         this.id = (String) provider.get("id");
@@ -37,7 +39,9 @@ public class Provisioning {
         this.evaToken = (String) metaDataFields.get("eva_token");
         this.evaGuestAccountDuration = (int) metaDataFields.getOrDefault("eva_guest_account_duration", 30);
         this.graphUrl = (String) metaDataFields.get("graph_url");
-        this.graphToken = (String) metaDataFields.get("graph_token");
+        this.graphClientId = (String) metaDataFields.get("graph_client_id");
+        this.graphSecret = (String) metaDataFields.get("graph_secret");
+        this.graphTenant = (String) metaDataFields.getOrDefault("graph_tenant", "common");
         this.invariant();
 
     }
@@ -55,7 +59,8 @@ public class Provisioning {
             }
             case graph -> {
                 assert graphUrl != null: "graphUrl is null";
-                assert graphToken != null: "graphToken is null";
+                assert graphClientId != null: "graphClientId is null";
+                assert graphSecret != null: "graphSecret is null";
             }
         }
     }

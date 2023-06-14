@@ -1,25 +1,37 @@
 import I18n from "../locale/I18n";
-import {ChipType} from "@surfnet/sds";
 
 
-export const ROLES = {
-    SUPER_USER: "superUser",
-    MANAGER: "manager",
-    INVITER: "inviter",
-    GUEST: "guest"
+export const AUTHORITIES = {
+    SUPER_USER: "SUPER_USER",
+    MANAGER: "MANAGER",
+    INVITER: "INVITER",
+    GUEST: "GUEST"
 }
 
-const ROLES_HIERARCHY = {
-    [ROLES.SUPER_USER]: 1,
-    [ROLES.MANAGER]: 2,
-    [ROLES.INVITER]: 3,
-    [ROLES.GUEST]: 4
+const AUTHORITIES_HIERARCHY = {
+    [AUTHORITIES.SUPER_USER]: 1,
+    [AUTHORITIES.MANAGER]: 2,
+    [AUTHORITIES.INVITER]: 3,
+    [AUTHORITIES.GUEST]: 4
 }
 
-export function isUserAllowed(minimalRole, user) {
+export const highestAuthority = user => {
+    if (user.superUser) {
+        return AUTHORITIES.SUPER_USER;
+    }
+    return (user.userRoles || []).reduce((acc, u) => {
+        if (AUTHORITIES_HIERARCHY[acc] > AUTHORITIES_HIERARCHY[AUTHORITIES[u.authority]]) {
+            return u.authority
+        }
+        return acc;
+    }, AUTHORITIES.GUEST);
+}
+
+export function isUserAllowed(minimalAuthority, user) {
     if (user.superUser) {
         return true;
     }
+    highestAuthority(user);
     // if (user.guest || !user.organisation_memberships || !user.collaboration_memberships) {
     //     return false;
     // }
@@ -53,26 +65,7 @@ export function isUserAllowed(minimalRole, user) {
     return false;
 }
 
-export function rawGlobalUserRole(user) {
- debugger
-}
-
 export function globalUserRole(user) {
-    return I18n.t(`access.${rawGlobalUserRole(user)}`);
+    const authority = highestAuthority(user);
+    return I18n.t(`access.${authority}`);
 }
-
-// export function actionMenuUserRole(user, organisation, collaboration, service, membershipRequired) {
-//     const userRole = rawGlobalUserRole(user, organisation, collaboration, service, membershipRequired);
-//     return I18n.t(`actionRoles.${userRole}`);
-// }
-//
-// export function chipType(entity) {
-//     const role = entity.invite ? entity.intended_role : entity.role;
-//     return role === "admin" ? ChipType.Main_400 : role === "manager" ? ChipType.Main_300 : ChipType.Main_100;
-// }
-//
-// export function chipTypeForStatus(entity) {
-//     const status = entity.status;
-//     return status === "approved" ? ChipType.Status_success : status === "open" ? ChipType.Status_info : ChipType.Status_error;
-//     // "suspended", "expired", "active"
-// }

@@ -11,7 +11,8 @@ import {Pagination} from "@surfnet/sds";
 import {pageCount} from "../utils/Pagination";
 import {useNavigate} from "react-router-dom";
 
-export const Entities = ({            modelName,
+export const Entities = ({
+                             modelName,
                              showNew,
                              newLabel,
                              columns,
@@ -36,8 +37,11 @@ export const Entities = ({            modelName,
                              searchAttributes,
                              newEntityPath,
                              newEntityFunc,
-                             defaultSort}) => {
+                             defaultSort,
+                             busy = false
+                         }) => {
 
+    const [initial, setInitial] = useState(!isEmpty(customSearch));
     const [query, setQuery] = useState("");
     const [sorted, setSorted] = useState(defaultSort);
     const [reverse, setReverse] = useState(false);
@@ -58,6 +62,7 @@ export const Entities = ({            modelName,
         setQuery(query);
         if (customSearch) {
             customSearch(query);
+            setInitial(false);
         }
         if (searchCallback) {
             searchCallback(filterEntities(entities, query, searchAttributes));
@@ -69,28 +74,28 @@ export const Entities = ({            modelName,
         return (
             <section className="entities-search">
                 {showNew &&
-                <Button onClick={newEntity}
-                        className={`${hideTitle && !filters ? "no-title" : ""}`}
-                        txt={newLabel || I18n.t(`models.${modelName}.new`)}/>
+                    <Button onClick={newEntity}
+                            className={`${hideTitle && !filters ? "no-title" : ""}`}
+                            txt={newLabel || I18n.t(`${modelName}.new`)}/>
                 }
-                {!hideTitle && <h2>{title || `${I18n.t(`models.${modelName}.title`)} (${entities.length})`}</h2>}
+                {!hideTitle && <h2>{title || `${I18n.t(`${modelName}.title`)} (${entities.length})`}</h2>}
                 <div className={filterClassName}>{filters}</div>
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
-                    <div className={"sds--text-field sds--text-field--has-icon"}>
-                        <div className="sds--text-field--shape">
-                            <div className="sds--text-field--input-and-icon">
-                                <input className={"sds--text-field--input"}
-                                       type="search"
-                                       onChange={queryChanged}
-                                       value={query}
-                                       placeholder={I18n.t(`models.${modelName}.searchPlaceHolder`)}/>
-                                <span className="sds--text-field--icon">
+                        <div className={"sds--text-field sds--text-field--has-icon"}>
+                            <div className="sds--text-field--shape">
+                                <div className="sds--text-field--input-and-icon">
+                                    <input className={"sds--text-field--input"}
+                                           type="search"
+                                           onChange={queryChanged}
+                                           value={query}
+                                           placeholder={I18n.t(`${modelName}.searchPlaceHolder`)}/>
+                                    <span className="sds--text-field--icon">
                                     <SearchIcon/>
                                 </span>
+                                </div>
                             </div>
-                        </div>
-                    </div>}
+                        </div>}
 
                 </div>
             </section>
@@ -131,8 +136,9 @@ export const Entities = ({            modelName,
         }
     }
 
-   const renderEntities = () => {
+    const renderEntities = () => {
         const hasEntities = !isEmpty(entities);
+        const customEmptySearch = customSearch && (isEmpty(query) || query.trim().length < 3);
         const total = entities.length;
         if (pagination) {
             const minimalPage = Math.min(page, Math.ceil(entities.length / pageCount));
@@ -144,39 +150,39 @@ export const Entities = ({            modelName,
                     {actions}
                 </div>}
                 {hasEntities &&
-                <div className={"sds--table"}>
-                    <table className={tableClassName || modelName}>
-                        <thead>
-                        <tr>
-                            {columns.map((column, i) => {
-                                const showHeader = !actions || i < 2 || column.showHeader;
-                                return <th key={`th_${column.key}_${i}`}
-                                           className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
-                                           onClick={setSortedKey(column.key)}>
-                                    {column.header}
-                                    {headerIcon(column, sorted, reverse)}
-                                </th>
-                            })}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {entities.map((entity, index) =>
-                            <tr key={`tr_${entity.id}_${index}`}
-                                className={`${(typeof rowLinkMapper === "function" && rowLinkMapper(entity)) ? "clickable" : ""} ${onHover ? "hoverable" : ""}`}>
-                                {columns.map((column, i) =>
-                                    <td key={`td_${column.key}_${i}`}
-                                        onClick={(column.key !== "check" && column.key !== "role" && !column.hasLink) ?
-                                            onRowClick(rowLinkMapper, entity) : undefined}
-                                        className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
-                                        {getEntityValue(entity, column)}
-                                    </td>)}
+                    <div className={"sds--table"}>
+                        <table className={tableClassName || modelName}>
+                            <thead>
+                            <tr>
+                                {columns.map((column, i) => {
+                                    const showHeader = !actions || i < 2 || column.showHeader;
+                                    return <th key={`th_${column.key}_${i}`}
+                                               className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
+                                               onClick={setSortedKey(column.key)}>
+                                        {column.header}
+                                        {headerIcon(column, sorted, reverse)}
+                                    </th>
+                                })}
                             </tr>
-                        )}
-                        </tbody>
-                    </table>
-                </div>}
-                {(!hasEntities && !children) &&
-                <p className="no-entities">{customNoEntities || I18n.t(`models.${modelName}.noEntities`)}</p>}
+                            </thead>
+                            <tbody>
+                            {entities.map((entity, index) =>
+                                <tr key={`tr_${entity.id}_${index}`}
+                                    className={`${(typeof rowLinkMapper === "function" && rowLinkMapper(entity)) ? "clickable" : ""} ${onHover ? "hoverable" : ""}`}>
+                                    {columns.map((column, i) =>
+                                        <td key={`td_${column.key}_${i}`}
+                                            onClick={(column.key !== "check" && column.key !== "role" && !column.hasLink) ?
+                                                onRowClick(rowLinkMapper, entity) : undefined}
+                                            className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
+                                            {getEntityValue(entity, column)}
+                                        </td>)}
+                                </tr>
+                            )}
+                            </tbody>
+                        </table>
+                    </div>}
+                {(!hasEntities && !children && !initial && !customEmptySearch) &&
+                    <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
                 {pagination && <Pagination currentPage={page}
                                            onChange={nbr => setPage(nbr)}
                                            total={total}
@@ -185,15 +191,17 @@ export const Entities = ({            modelName,
         );
     };
 
-        if (loading) {
-            return <Loader/>;
-        }
-        const filteredEntities = filterEntities(entities, query, searchAttributes, customSearch);
-        const sortedEntities = sortObjects(filteredEntities, sorted, reverse);
-        return (
-            <div className={`mod-entities ${className}`}>
-                {displaySearch && renderSearch()}
-                {renderEntities(sortedEntities)}
-                <div>{children}</div>
-            </div>);
+    if (loading) {
+        return <Loader/>;
     }
+    const filteredEntities = filterEntities(entities, query, searchAttributes, customSearch);
+    const sortedEntities = sortObjects(filteredEntities, sorted, reverse);
+    console.log("busy: " + busy + "  length: " + filteredEntities.length)
+    return (
+        <div className={`mod-entities ${className}`}>
+            {displaySearch && renderSearch()}
+            {!busy && renderEntities(sortedEntities)}
+            {busy && <Loader/>}
+            <div>{children}</div>
+        </div>);
+}

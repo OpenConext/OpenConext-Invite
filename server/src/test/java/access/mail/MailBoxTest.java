@@ -22,7 +22,7 @@ class MailBoxTest extends AbstractMailTest {
 
     @Test
     void sendInviteMail() throws Exception {
-        User user = new User(false, "eppn", "sub", "John", "Doe", "jdoe@example.com");
+        User user = new User(false, "eppn", "sub", "example.com", "John", "Doe", "jdoe@example.com");
         Invitation invitation = new Invitation(Authority.GUEST,
                 "hash",
                 "nope@ex.com",

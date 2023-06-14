@@ -70,7 +70,7 @@ public class ManageController {
                 Map<String, Object> metaDataFields = (Map<String, Object>) data.getOrDefault("metaDataFields", Collections.emptyMap());
                 List.of("scim_url", "scim_user", "scim_password",
                                 "eva_url", "eva_token",
-                                "graph_url", "graph_token")
+                                "graph_url", "graph_tenant", "graph_secret", "graph_client_id")
                         .forEach(metaDataFields::remove);
             });
         }

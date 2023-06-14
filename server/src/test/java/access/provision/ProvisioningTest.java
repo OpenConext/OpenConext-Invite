@@ -31,7 +31,8 @@ class ProvisioningTest {
     void provisioningGraph() {
         this.assertInvariant(this.provisioningMap(ProvisioningType.graph));
         this.assertInvariant(this.provisioningMap(ProvisioningType.graph, "graph_url"));
-        this.provisioningMap(ProvisioningType.graph, "graph_url", "graph_token");
+        this.assertInvariant(this.provisioningMap(ProvisioningType.graph, "graph_url", "graph_client_id"));
+        this.provisioningMap(ProvisioningType.graph, "graph_url", "graph_client_id", "graph_secret");
     }
 
     private void assertInvariant(Map<String, Object> provider) {

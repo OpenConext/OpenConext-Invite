@@ -6,6 +6,7 @@ CREATE TABLE `users`
     `eduperson_principal_name` varchar(255) NOT NULL,
     `given_name`               varchar(255) DEFAULT NULL,
     `family_name`              varchar(255) DEFAULT NULL,
+    `schac_home_organization`  varchar(255) DEFAULT NULL,
     `email`                    varchar(255) DEFAULT NULL,
     `created_at`               datetime     DEFAULT CURRENT_TIMESTAMP,
     `last_activity`            datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -21,7 +22,7 @@ CREATE TABLE `roles`
 (
     `id`                     bigint       NOT NULL AUTO_INCREMENT,
     `name`                   varchar(255) NOT NULL,
-    `short_name`                   varchar(255) NOT NULL,
+    `short_name`             varchar(255) NOT NULL,
     `description`            text         DEFAULT NULL,
     `remote_scim_identifier` varchar(255) DEFAULT NULL,
     `landing_page`           varchar(255) DEFAULT NULL,

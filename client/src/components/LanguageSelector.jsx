@@ -19,9 +19,9 @@ export const LanguageSelector = () => {
     const  renderLocaleChooser = locale => {
         return (
             <a href={"locale"} className={`${I18n.locale === locale ? "is-active" : ""}`}
-               title={I18n.t("select_locale", {locale: locale})}
+               title={I18n.t("select_locale")}
                onClick={handleChooseLocale(locale)}>
-                {I18n.t("code", {locale: locale})}
+                {I18n.t("code")}
             </a>
         );
     }

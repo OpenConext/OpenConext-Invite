@@ -1,6 +1,7 @@
 const en = {
     code: "EN",
     name: "English",
+    select_locale: "Change language to English",
     landing: {
         header: {
             title: "Manage access to your applications",
@@ -53,8 +54,38 @@ const en = {
         impersonator: "You are impersonating <strong>{{name}}</strong> | <strong>{{role}}</strong>",
         impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>. With the stop button you can change identity or become you again."
     },
+    access: {
+        SUPER_USER: "Super User",
+        MANAGER: "Manager",
+        INVITER: "Inviter",
+    },
+    users: {
+        found: "{{count}} {{plural}} found",
+        moreResults: "There are more results then shown, please refine your search.",
+        name_email: "Name / email",
+        name: "Name",
+        email: "Email",
+        highestRole: "Role",
+        institute: "Institution",
+        sub: "Sub",
+        singleUser: "user",
+        multipleUsers: "users",
+        noEntities: "No users found",
+        new: "New invitation",
+        title: "Users",
+        noResults: "No users are found",
+        searchPlaceHolder: "Search for users..."
+    },
+    inviteOnly: {
+        welcome: "Welcome to SURF Access",
+        roles: "You don't have any roles.",
+        info: "The Access application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:access@surf.nl'>access@surf.nl</a>.",
+        preLogin: "Or ",
+        login: "login",
+        postLogin: " again with a different institution",
+    },
     tooltips: {
-      user: "User"
+      user: "User, last activity {{lastActivity}}"
     },
     footer: {
         terms: "Terms of Use",

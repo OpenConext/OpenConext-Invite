@@ -13,7 +13,7 @@
         flex-grow: 2;
     }
 
-    table.allUsers {
+    table.users {
 
         thead {
             th {
@@ -21,20 +21,16 @@
                     width: 25%;
                 }
 
-                &.schac_home_organisation {
-                    width: 15%;
-                }
-
-                &.affiliation {
+                &.highest_role {
                     width: 20%;
                 }
 
-                &.username {
-                    width: 15%;
+                &.schac_home_organisation {
+                    width: 20%;
                 }
 
-                &.uid {
-                    width: 25%;
+                &.sub {
+                    width: 35%;
                 }
             }
         }

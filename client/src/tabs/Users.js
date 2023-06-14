@@ -1,18 +1,18 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
 import {Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
-import {ReactComponent as InviteIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./Users.scss";
-import {UserColumn} from "../components/UserColumn";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
+import {shortDateFromEpoch} from "../utils/Date";
+import {highestAuthority} from "../utils/UserRole";
 
 
 export const Users = () => {
@@ -37,6 +37,7 @@ export const Users = () => {
 
     const search = query => {
         if (!isEmpty(query) && query.trim().length > 2) {
+            setSearching(true);
             delayedAutocomplete(query);
         }
         if (isEmpty(query)) {
@@ -48,20 +49,19 @@ export const Users = () => {
     };
 
     const delayedAutocomplete = debounce(query => {
-        setSearching(true);
         searchUsers(query)
             .then(results => {
-                setSearching(false);
+                setUsers(results);
                 setMoreToShow(results.length === 15);
                 setNoResults(results.length === 0);
-                setUsers(results);
+                setSearching(false);
             });
-    }, 750);
+    }, 500);
 
     const moreResultsAvailable = () => {
         return (
             <div className="more-results-available">
-                <span>{I18n.t("models.allUsers.moreResults")}</span>
+                <span>{I18n.t("users.moreResults")}</span>
             </div>)
     }
 
@@ -70,34 +70,44 @@ export const Users = () => {
             nonSortable: true,
             key: "icon",
             header: "",
-            mapper: () => <div className="member-icon">
-                <Tooltip standalone={true} children={<UserIcon/>}
-                         tip={I18n.t("tooltips.user")}/>
+            mapper: user => <div className="member-icon">
+                <Tooltip standalone={true}
+                         children={<UserIcon/>}
+                         tip={I18n.t("tooltips.user", {lastActivity: shortDateFromEpoch(user.lastActivity)})}/>
             </div>
         },
         {
             key: "name",
             header: I18n.t("users.name_email"),
-            mapper: user => !user.isUser ?  <UserColumn entity={user}
-                                                        currentUser={currentUser}/>:
-                <UserColumn entity={{user: user}} currentUser={currentUser}/>
+            mapper: user => (
+                <div className="user-name-email">
+                    <span className="name">{user.name}</span>
+                    <span className="email">{user.email}</span>
+                </div>)
         },
         {
             key: "schac_home_organisation",
             header: I18n.t("users.institute"),
-            mapper: user => <span>TODO</span>
+            mapper: user => <span>{user.schacHomeOrganization}</span>
+        },
+        {
+            key: "highest_role",
+            nonSortable: true,
+            header: I18n.t("users.highestRole"),
+            mapper: user => <span>{highestAuthority(user)}</span>
         },
         {
             key: "sub",
             header: I18n.t("users.sub"),
-            mapper: user => user.isUser ? user.uid : "-"
+            mapper: user => user.sub
         }];
     const showImpersonation = currentUser.superUser;
 
-    function impersonate(user) {
+    const impersonate = user => {
         startImpersonation(user);
-        setFlash(I18n.t("impersonate.flash.startedImpersonation"));
-        navigate("/home")
+        setFlash(I18n.t("impersonate.flash.startedImpersonation", {name: user.name}));
+        const path = encodeURIComponent(window.location.pathname);
+        navigate(`/refresh-route/${path}`, {replace: true});
     }
 
     if (showImpersonation) {
@@ -118,14 +128,14 @@ export const Users = () => {
     if (hasEntities) {
         title = I18n.t(`users.found`, {
             count: countUsers,
-            plural: I18n.t(`models.allUsers.${countUsers === 1 ? "singleUser" : "multipleUsers"}`)
+            plural: I18n.t(`users.${countUsers === 1 ? "singleUser" : "multipleUsers"}`)
         })
     }
     return (<div className="mod-users">
         {searching && <Loader/>}
 
         <Entities entities={users}
-                  modelName="allUsers"
+                  modelName="users"
                   defaultSort="name"
                   filters={moreToShow && moreResultsAvailable()}
                   columns={columns}
@@ -135,7 +145,9 @@ export const Users = () => {
                   loading={false}
                   inputFocus={true}
                   customSearch={search}
-                  rowLinkMapper={() => openUser}/>
+                  rowLinkMapper={() => openUser}
+                  busy={searching}>
+        </Entities>
     </div>)
 
 }

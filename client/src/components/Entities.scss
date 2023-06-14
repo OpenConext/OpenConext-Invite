@@ -124,6 +124,11 @@
 
                 &.sortable {
                     cursor: pointer;
+                    svg {
+                        width: 16px;
+                        height: auto;
+                        margin-left: 18px;
+                    }
                 }
 
                 &.icon {

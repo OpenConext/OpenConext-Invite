@@ -276,9 +276,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                String request,
                                Provisionable provisionable,
                                String remoteScimIdentifier) {
-        String apiType = provisionable instanceof User ? USER_API : GROUP_API;
+        boolean isUser = provisionable instanceof User;
+        String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity;
-        if (hasEvaHook(provisioning) && provisionable instanceof User) {
+        if (hasEvaHook(provisioning) && isUser) {
             String url = provisioning.getEvaUrl() + "/api/v1/guest/disable/" + remoteScimIdentifier;
             requestEntity = new RequestEntity(httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
         } else {
@@ -353,7 +354,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             case graph -> {
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-                headers.add("Authorization", "bearer " + provisioning.getGraphToken());
+                headers.setBasicAuth(provisioning.getGraphClientId(), provisioning.getGraphSecret());
             }
         }
         return headers;

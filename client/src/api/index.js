@@ -51,7 +51,7 @@ function validFetch(path, options, headers = {}, showErrorDialog = true) {
     };
     const impersonator = useAppStore.getState().impersonator;
     if (impersonator) {
-        contentHeaders["X-IMPERSONATE-ID"] = sanitizeHeader(impersonator.id);
+        contentHeaders["X-IMPERSONATE-ID"] = sanitizeHeader(useAppStore.getState().user.id);
     }
     const fetchOptions = Object.assign({}, {headers: contentHeaders}, options, {
         credentials: "same-origin",
@@ -82,7 +82,7 @@ export function health() {
 }
 
 export function configuration() {
-    return fetchJson("/api/v1/users/config");
+    return fetchJson("/api/v1/users/config",{},{}, false);
 }
 
 //Users
@@ -136,4 +136,7 @@ export function roles() {
     return fetchJson("/api/v1/roles")
 }
 
+export function deleteRole(role) {
+    return fetchDelete(`/api/v1/roles/${role.id}`)
+}
 

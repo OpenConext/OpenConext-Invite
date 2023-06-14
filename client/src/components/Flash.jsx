@@ -11,17 +11,17 @@ export const Flash = () => {
 
     if (!isEmpty(flash) && (flash.type === "error" || flash.type === "warning")) {
         return (
-            <Alert message={flash.message}
+            <Alert message={flash.msg}
                    action={flash.action}
                    actionLabel={flash.actionLabel}
                    alertType={flash.type === "warning" ? AlertType.Warning : AlertType.Error}
                    close={clearFlash}/>
         );
     }
-    if (!isEmpty(flash) && !isEmpty(flash.message)) {
+    if (!isEmpty(flash) && !isEmpty(flash.msg)) {
         return (
             <ToasterContainer>
-                <Toaster message={flash.message}
+                <Toaster message={flash.msg}
                          toasterType={ToasterType.Success}/>
             </ToasterContainer>);
     }

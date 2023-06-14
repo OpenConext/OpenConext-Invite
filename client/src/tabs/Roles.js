@@ -5,6 +5,7 @@ import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
+import {highestAuthority} from "../utils/UserRole";
 
 const Roles = () => {
     const user = useAppStore(state => state.user);
@@ -14,17 +15,11 @@ const Roles = () => {
     const [roles, setRoles] = useState([]);
 
     useEffect(() => {
-        useAppStore.setState({
-            breadcrumbPath:
-                [
-                    {path: "/home", value: I18n.t("paths.home")},
-                    {path: "/home/roles", value: I18n.t("paths.roles")}
-                ]
-        });
+        const authority = highestAuthority(user);
         if (!roleSearchRequired) {
 
         }
-    }, [navigate]);
+    }, []);
 
     if (loading) {
         return <Loader/>

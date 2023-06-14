@@ -31,13 +31,13 @@ public record Seed(InvitationRepository invitationRepository,
 
 
         User superUser =
-                new User(true, SUPER_SUB, SUPER_SUB, "David", "Doe", SUPER_SUB);
+                new User(true, SUPER_SUB, SUPER_SUB,"example.com", "David", "Doe", SUPER_SUB);
         User manager =
-                new User(false, MANAGE_SUB, MANAGE_SUB, "Mary", "Doe", MANAGE_SUB);
+                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com","Mary", "Doe", MANAGE_SUB);
         User inviter =
-                new User(false, INVITER_SUB, INVITER_SUB, "Paul", "Doe", INVITER_SUB);
+                new User(false, INVITER_SUB, INVITER_SUB,"example.com", "Paul", "Doe", INVITER_SUB);
         User guest =
-                new User(false, GUEST_SUB, GUEST_SUB, "Ann", "Doe", GUEST_SUB);
+                new User(false, GUEST_SUB, GUEST_SUB,"example.com", "Ann", "Doe", GUEST_SUB);
         doSave(this.userRepository, superUser, manager, inviter, guest);
 
         Role wiki =

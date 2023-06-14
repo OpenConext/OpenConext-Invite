@@ -7,6 +7,7 @@ import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
 import {login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
 import {getParameterByName} from "../utils/QueryParameters";
+import {isEmpty} from "../utils/Utils";
 
 export const Login = () => {
 
@@ -14,7 +15,7 @@ export const Login = () => {
 
     const doLogin = () => {
         const force = getParameterByName("force", window.location.search);
-        login(config, force);
+        login(config, !isEmpty(force));
     }
 
     return (

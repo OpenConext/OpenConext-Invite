@@ -45,6 +45,9 @@ public class User implements Serializable, Provisionable {
     @Column(name = "family_name")
     private String familyName;
 
+    @Column(name = "schac_home_organization")
+    private String    schacHomeOrganization;
+
     @Column
     private String email;
 
@@ -72,15 +75,17 @@ public class User implements Serializable, Provisionable {
         this(superUser,
                 (String) attributes.get("eduperson_principal_name"),
                 (String) attributes.get("sub"),
+                (String) attributes.get("schac_home_organization"),
                 (String) attributes.get("given_name"),
                 (String) attributes.get("family_name"),
                 (String) attributes.get("email"));
     }
 
-    public User(boolean superUser, String eppn, String sub, String givenName, String familyName, String email) {
+    public User(boolean superUser, String eppn, String sub, String schacHomeOrganization, String givenName, String familyName, String email) {
         this.superUser = superUser;
         this.eduPersonPrincipalName = eppn;
         this.sub = sub;
+        this.schacHomeOrganization = schacHomeOrganization;
         this.givenName = givenName;
         this.familyName = familyName;
         this.email = email;

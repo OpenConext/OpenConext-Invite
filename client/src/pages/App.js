@@ -15,6 +15,8 @@ import {isEmpty} from "../utils/Utils";
 import {login} from "../utils/Login";
 import NotFound from "./NotFound";
 import {Impersonating} from "../components/Impersonating";
+import RefreshRoute from "./RefreshRoute";
+import {InviteOnly} from "./InviteOnly";
 
 
 export const App = () => {
@@ -27,38 +29,42 @@ export const App = () => {
     useEffect(() => {
         csrf().then(token => {
             useAppStore.setState(() => ({csrfToken: token.token}));
-            configuration().then(res => {
-                useAppStore.setState(() => ({config: res}));
-                if (!res.authenticated) {
-                    if (!res.name) {
-                        const direction = window.location.pathname + window.location.search;
-                        localStorage.setItem("location", direction);
-                    }
-                    setLoading(false);
-                    setAuthenticated(false);
-                    const pathname = localStorage.getItem("location") || window.location.pathname;
-                    if (pathname === "/" || pathname === "/login") {
-                        navigate("/login");
-                    } else if (pathname.startsWith("/invitation/accept")) {
-                        //Bookmarked URL's trigger a direct login and skip the landing page
-                        navigate(pathname);
+            configuration()
+                .then(res => {
+                    useAppStore.setState(() => ({config: res}));
+                    if (!res.authenticated) {
+                        if (!res.name) {
+                            const direction = window.location.pathname + window.location.search;
+                            localStorage.setItem("location", direction);
+                        }
+                        setLoading(false);
+                        setAuthenticated(false);
+                        const pathname = localStorage.getItem("location") || window.location.pathname;
+                        if (pathname === "/" || pathname === "/login") {
+                            navigate("/login");
+                        } else if (pathname.startsWith("/invitation/accept")) {
+                            //Bookmarked URL's trigger a direct login and skip the landing page
+                            navigate(pathname);
+                        } else {
+                            login(res);
+                        }
                     } else {
-                        login(res);
+                        me()
+                            .then(res => {
+                                useAppStore.setState(() => ({user: res}));
+                                setLoading(false);
+                                setAuthenticated(true);
+                                const location = localStorage.getItem("location");
+                                const newLocation = isEmpty(location) || location.startsWith("/login") ? "/home" : location;
+                                navigate(newLocation);
+                            });
                     }
-                } else {
-                    me()
-                        .then(res => {
-                            useAppStore.setState(() => ({user: res}));
-                            setLoading(false);
-                            setAuthenticated(true);
-                            const location = localStorage.getItem("location");
-                            const newLocation = isEmpty(location) || location.startsWith("/login") ? "/home" : location;
-                            navigate(newLocation);
-                        });
-                }
+                }).catch(() => {
+                    setLoading(false);
+                    navigate("/deadend");
             })
         })
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return <Loader/>
@@ -67,8 +73,8 @@ export const App = () => {
         <div className="access">
             <div className="container">
                 <Flash/>
-                <Header />
-                {impersonator && <Impersonating />}
+                <Header/>
+                {impersonator && <Impersonating/>}
 
                 {authenticated && <BreadCrumb/>}
                 {authenticated &&
@@ -78,6 +84,7 @@ export const App = () => {
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>
+                        <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>}
                 {/*  <Route path="invitations" element={<Invitation user={user}/>}/>*/}
@@ -87,6 +94,7 @@ export const App = () => {
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={false}/>}/>
                         <Route path="login" element={<Login/>}/>
+                        <Route path="deadend" element={<InviteOnly/>}/>
                         <Route path="/*" element={<NotFound/>}/>
                     </Routes>}
             </div>
