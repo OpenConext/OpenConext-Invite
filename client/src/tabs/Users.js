@@ -11,7 +11,7 @@ import debounce from "lodash.debounce";
 import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
-import {shortDateFromEpoch} from "../utils/Date";
+import {dateFromEpoch} from "../utils/Date";
 import {highestAuthority} from "../utils/UserRole";
 
 
@@ -25,13 +25,13 @@ export const Users = () => {
     const [noResults, setNoResults] = useState(false);
     const navigate = useNavigate();
 
-    const openUser = user => e => {
-        const path = `/users/${user.id}`
+    const openUser = (e, user) => {
+        const path = `/profile/${user.id}`
         if (e.metaKey || e.ctrlKey) {
             window.open(path, '_blank');
         } else {
             stopEvent(e);
-            navigate(path)
+            navigate(path);
         }
     };
 
@@ -51,6 +51,7 @@ export const Users = () => {
     const delayedAutocomplete = debounce(query => {
         searchUsers(query)
             .then(results => {
+                results.forEach(user => user.highestAuthority = highestAuthority(user));
                 setUsers(results);
                 setMoreToShow(results.length === 15);
                 setNoResults(results.length === 0);
@@ -73,7 +74,12 @@ export const Users = () => {
             mapper: user => <div className="member-icon">
                 <Tooltip standalone={true}
                          children={<UserIcon/>}
-                         tip={I18n.t("tooltips.user", {lastActivity: shortDateFromEpoch(user.lastActivity)})}/>
+                         tip={I18n.t("tooltips.userIcon",
+                             {
+                                 name: user.name,
+                                 createdAt: dateFromEpoch(user.createdAt),
+                                 lastActivity: dateFromEpoch(user.lastActivity)
+                             })}/>
             </div>
         },
         {
@@ -87,21 +93,20 @@ export const Users = () => {
         },
         {
             key: "schac_home_organisation",
-            header: I18n.t("users.institute"),
+            header: I18n.t("users.schacHomeOrganization"),
             mapper: user => <span>{user.schacHomeOrganization}</span>
         },
         {
-            key: "highest_role",
-            nonSortable: true,
-            header: I18n.t("users.highestRole"),
-            mapper: user => <span>{highestAuthority(user)}</span>
+            key: "highestAuthority",
+            header: I18n.t("users.highestAuthority"),
+            mapper: user => <span>{user.highestAuthority}</span>
         },
         {
             key: "sub",
             header: I18n.t("users.sub"),
             mapper: user => user.sub
         }];
-    const showImpersonation = currentUser.superUser;
+    const showImpersonation = currentUser && currentUser.superUser;
 
     const impersonate = user => {
         startImpersonation(user);
@@ -117,8 +122,14 @@ export const Users = () => {
             hasLink: true,
             header: "",
             mapper: user => (currentUser.id !== user.id) ?
-                <ImpersonateIcon className="impersonate"
-                                 onClick={() => impersonate(user)}/> : null
+                <Tooltip standalone={true}
+                         children={<ImpersonateIcon className="impersonate"
+                                                    onClick={() => impersonate(user)}/>}
+                         tip={I18n.t("tooltips.impersonateIcon",
+                             {
+                                 name: user.name
+                             })}/>
+                : null
         })
     }
     const countUsers = users.length;
@@ -145,7 +156,7 @@ export const Users = () => {
                   loading={false}
                   inputFocus={true}
                   customSearch={search}
-                  rowLinkMapper={() => openUser}
+                  rowLinkMapper={openUser}
                   busy={searching}>
         </Entities>
     </div>)

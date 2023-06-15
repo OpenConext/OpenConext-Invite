@@ -1,0 +1,31 @@
+@import "../styles/vars";
+
+section.user {
+    display: grid;
+    grid-template-columns: [first] 1fr [second] 1fr;
+    column-gap: 50px;
+
+    @media (max-width: $medium) {
+        grid-template-columns: [first] 1fr;
+        padding: 0 15px;
+    }
+
+    h3.title, .user-role {
+        display: flex;
+        grid-column: 1 / -1;
+    }
+
+    h3.title {
+        margin: 20px 0 10px 0;
+    }
+
+    .user-role {
+        margin-top: 40px;
+        img {
+            height: 56px;
+            width: auto;
+            margin-right: 35px;
+            border-radius: $br;
+        }
+    }
+}

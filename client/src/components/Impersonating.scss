@@ -7,13 +7,10 @@
     padding: 5px 2px;
 
     svg {
-        width: 40px;
+        width: 32px;
         height: auto;
-        cursor: pointer;
         margin: 4px 15px 0 15px;
-        fill: #737373;
-        padding: 5px;
-        border-radius: 50%;
+        color: var(--sds--color--yellow--500);
     }
 
     button {

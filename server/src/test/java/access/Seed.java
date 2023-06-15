@@ -31,27 +31,27 @@ public record Seed(InvitationRepository invitationRepository,
 
 
         User superUser =
-                new User(true, SUPER_SUB, SUPER_SUB,"example.com", "David", "Doe", SUPER_SUB);
+                new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", SUPER_SUB);
         User manager =
-                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com","Mary", "Doe", MANAGE_SUB);
+                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", MANAGE_SUB);
         User inviter =
-                new User(false, INVITER_SUB, INVITER_SUB,"example.com", "Paul", "Doe", INVITER_SUB);
+                new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", INVITER_SUB);
         User guest =
-                new User(false, GUEST_SUB, GUEST_SUB,"example.com", "Ann", "Doe", GUEST_SUB);
+                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", GUEST_SUB);
         doSave(this.userRepository, superUser, manager, inviter, guest);
 
         Role wiki =
-                new Role("Wiki", "Wiki desc", "1", EntityType.SAML20_SP);
+                new Role("Wiki", "Wiki desc", "https://landingpage.com", "1", EntityType.SAML20_SP);
         Role network =
-                new Role("Network", "Network desc", "2", EntityType.SAML20_SP);
+                new Role("Network", "Network desc", "https://landingpage.com", "2", EntityType.SAML20_SP);
         Role storage =
-                new Role("Storage", "Storage desc", "3", EntityType.SAML20_SP);
+                new Role("Storage", "Storage desc", "https://landingpage.com", "3", EntityType.SAML20_SP);
         Role research =
-                new Role("Research", "Research desc", "4", EntityType.SAML20_SP);
+                new Role("Research", "Research desc", "https://landingpage.com", "4", EntityType.SAML20_SP);
         Role calendar =
-                new Role("Calendar", "Calendar desc", "5", EntityType.OIDC10_RP);
+                new Role("Calendar", "Calendar desc", "https://landingpage.com", "5", EntityType.OIDC10_RP);
         Role mail =
-                new Role("Mail", "Mail desc", "5", EntityType.OIDC10_RP);
+                new Role("Mail", "Mail desc", "https://landingpage.com", "5", EntityType.OIDC10_RP);
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 
         UserRole wikiManager =

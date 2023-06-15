@@ -24,6 +24,7 @@ const en = {
     },
     header: {
         title: "Access",
+        subTitle: "Everything will be Owl right",
         links: {
             login: "Login",
             system: "System",
@@ -40,24 +41,25 @@ const en = {
         applications: "Applications",
         users: "Users",
         roles: "Roles",
+        profile: "Profile"
     },
     home: {
         access: "SURF Access",
     },
     impersonate: {
-        currentImpersonationValue: "You are impersonating {{currentUser}}, but you are really {{impersonator}}",
+        exit: "Stop impersonating",
+        impersonator: "You are impersonating <strong>{{name}}</strong> | <strong>{{role}}</strong>",
+        impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>.",
         flash: {
             startedImpersonation: "You now impersonate {{name}}.",
             clearedImpersonation: "Cleared your impersonation. You are you again."
         },
-        exit: "Stop impersonating",
-        impersonator: "You are impersonating <strong>{{name}}</strong> | <strong>{{role}}</strong>",
-        impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>. With the stop button you can change identity or become you again."
     },
     access: {
         SUPER_USER: "Super User",
         MANAGER: "Manager",
         INVITER: "Inviter",
+        GUEST: "Guest",
     },
     users: {
         found: "{{count}} {{plural}} found",
@@ -65,16 +67,32 @@ const en = {
         name_email: "Name / email",
         name: "Name",
         email: "Email",
-        highestRole: "Role",
-        institute: "Institution",
+        highestAuthority: "Role",
+        schacHomeOrganization: "Institution",
+        lastActivity: "Last activity",
+        eduPersonPrincipalName: "EPPN",
         sub: "Sub",
         singleUser: "user",
         multipleUsers: "users",
         noEntities: "No users found",
         new: "New invitation",
         title: "Users",
+        roles: "Roles",
+        noRolesInfo: "You have no roles (which means you must be super-user)",
+        rolesInfo: "You have the following roles",
+        landingPage: "Website",
+        access: "Access",
+        organisation: "Organisation",
         noResults: "No users are found",
-        searchPlaceHolder: "Search for users..."
+        searchPlaceHolder: "Search for users...",
+        authority: "Authority",
+        endDate: "End date"
+    },
+    forms: {
+        none: "None"
+    },
+    profile: {
+        info: "The account of {{name}} was created on {{createdAt}}"
     },
     inviteOnly: {
         welcome: "Welcome to SURF Access",
@@ -85,7 +103,8 @@ const en = {
         postLogin: " again with a different institution",
     },
     tooltips: {
-      user: "User, last activity {{lastActivity}}"
+        userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
+        impersonateIcon: "Impersonate user {{name}}"
     },
     footer: {
         terms: "Terms of Use",

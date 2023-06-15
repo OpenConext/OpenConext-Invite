@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import static access.Seed.INVITER_SUB;
 import static access.Seed.SUPER_SUB;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -138,6 +139,22 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(4, users.size());
+    }
+
+    @Test
+    void other() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        Long id = userRepository.findBySubIgnoreCase(INVITER_SUB).get().getId();
+        stubForManageProviderById(EntityType.OIDC10_RP, "5");
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", id)
+                .get("/api/v1/users/other/{id}")
+                .as(User.class);
+        assertEquals(2, user.getUserRoles().size());
     }
 
     @Test

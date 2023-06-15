@@ -18,7 +18,9 @@ export const BreadCrumb = () => {
     return (
         <nav className="sds--breadcrumb sds--text--body--small" aria-label="breadcrumbs">
             <ol className="sds--breadcrumb--list">
-                {paths.map((p, i) =>
+                {paths
+                    .filter(p => !isEmpty(p))
+                    .map((p, i) =>
                     <li key={i}>
                         {i !== 0 && <ArrowRight/>}
                         {((i + 1) !== paths.length && p.path) &&

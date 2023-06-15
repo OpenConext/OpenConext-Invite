@@ -47,6 +47,15 @@
                 border-radius: 5px;
             }
 
+            &.small {
+                svg {
+                    width: 28px;
+                    height: auto;
+                    color: var(--sds--color--green--300);
+                    margin-top: 10px;
+                }
+            }
+
             @media (max-width: $tablet-max) {
                 display: none;
             }

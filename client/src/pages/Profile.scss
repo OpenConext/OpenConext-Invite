@@ -1,0 +1,15 @@
+@import "../styles/vars.scss";
+
+.mod-profile {
+    width: 100%;
+
+
+    @media (max-width: $medium) {
+        padding: 0 15px;
+    }
+
+    .profile-container {
+        max-width: $medium;
+        margin: 0 auto;
+    }
+}

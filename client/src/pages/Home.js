@@ -3,14 +3,14 @@ import I18n from "../locale/I18n";
 import React, {useEffect, useState} from "react";
 import owl from "../icons/owl.wav";
 import {ReactComponent as Logo} from "../icons/Owl_Emblem.svg";
-import {ReactComponent as ApplicationLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
+import {ReactComponent as RoleLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import Tabs from "../components/Tabs";
 import {UnitHeader} from "../components/UnitHeader";
 import {useNavigate, useParams} from "react-router-dom";
-import Applications from "../tabs/Applications";
 import {Users} from "../tabs/Users";
 import {Page} from "../components/Page";
+import {Roles} from "../tabs/Roles";
 
 export const Home = () => {
 
@@ -21,29 +21,33 @@ export const Home = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        useAppStore.setState({
-            breadcrumbPath: [
-                {path: "/home", value: I18n.t("tabs.home")},
-                {path: `/home/${currentTab}`, value: I18n.t(`tabs.${currentTab}`)}
-            ]
-        });
-        if (user.superUser) {
-            setTabs([
-                <Page key="applications"
-                      name="applications"
-                      label={I18n.t("tabs.applications")}
-                      Icon={ApplicationLogo}>
-                    <Applications/>
-                </Page>,
+        if (user) {
+            useAppStore.setState({
+                breadcrumbPath: [
+                    {path: "/home", value: I18n.t("tabs.home")},
+                    {path: `/home/${currentTab}`, value: I18n.t(`tabs.${currentTab}`)}
+                ]
+            });
+        }
+        const newTabs = [
+            <Page key="roles"
+                  name="roles"
+                  label={I18n.t("tabs.roles")}
+                  Icon={RoleLogo}>
+                <Roles/>
+            </Page>
+        ];
+        if (user && user.superUser) {
+            newTabs.push(
                 <Page key="users"
                       name="users"
                       label={I18n.t("tabs.users")}
                       Icon={UserLogo}>
                     <Users/>
                 </Page>
-            ])
+            );
         }
-    }, [currentTab, user.superUser]);
+    }, [currentTab, user]);
 
     const tabChanged = (name) => {
         setCurrentTab(name);
@@ -56,7 +60,7 @@ export const Home = () => {
             <div className="mod-home-container">
                 <UnitHeader obj={({name: I18n.t("home.access"), svg: Logo})}
                             svgClick={() => new Audio(owl).play()}>
-                    <p>{JSON.stringify(user)}</p>
+                    <p>{I18n.t("header.subTitle")}</p>
                 </UnitHeader>
                 <Tabs activeTab={currentTab}
                       tabChanged={tabChanged}>

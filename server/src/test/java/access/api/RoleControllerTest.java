@@ -24,7 +24,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void create() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "1", EntityType.SAML20_SP);
+        Role role = new Role("New", "New desc", "https://landingpage.com","1", EntityType.SAML20_SP);
 
         String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.SAML20_SP, "1"));
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
@@ -46,7 +46,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createWithDuplicateShortName() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("Wiki", "New desc", "1", EntityType.SAML20_SP);
+        Role role = new Role("Wiki", "New desc", "https://landingpage.com","1", EntityType.SAML20_SP);
 
         given()
                 .when()

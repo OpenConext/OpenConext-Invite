@@ -1,6 +1,7 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.NotFoundException;
 import access.manage.ManageIdentifier;
 import access.manage.Manage;
 import access.model.User;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
@@ -68,21 +70,26 @@ public class UserController {
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug("/me");
-        List<Map<String, Object>> providers = user.getUserRoles().stream()
-                .map(userRole -> new ManageIdentifier(userRole.getRole().getManageId(), userRole.getRole().getManageType()))
-                //Prevent unnecessary round-trips to Manage
-                .collect(Collectors.toSet())
-                .stream()
-                .map(identity -> manage.providerById(identity.entityType(), identity.id()))
-                .toList();
+        List<Map<String, Object>> providers = getProviders(user);
         user.setProviders(providers);
 
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("other/{id}")
+    public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
+        LOG.debug("/me");
+        UserPermissions.assertSuperUser(user);
+        User other = userRepository.findById(id).orElseThrow(NotFoundException::new);
+        List<Map<String, Object>> providers = getProviders(other);
+        other.setProviders(providers);
+
+        return ResponseEntity.ok(other);
+    }
+
     @GetMapping("search")
     public ResponseEntity<List<User>> search(@RequestParam(value = "query") String query,
-                                       @Parameter(hidden = true) User user) {
+                                             @Parameter(hidden = true) User user) {
         LOG.debug("/search");
         UserPermissions.assertSuperUser(user);
         List<User> users = userRepository.search(query + "*", 15);
@@ -116,6 +123,16 @@ public class UserController {
         String msg = objectMapper.writeValueAsString(payload);
         LOG.error(msg, new IllegalArgumentException(msg));
         return Results.createResult();
+    }
+
+    private List<Map<String, Object>> getProviders(User user) {
+        return user.getUserRoles().stream()
+                .map(userRole -> new ManageIdentifier(userRole.getRole().getManageId(), userRole.getRole().getManageType()))
+                //Prevent unnecessary round-trips to Manage
+                .collect(Collectors.toSet())
+                .stream()
+                .map(identity -> manage.providerById(identity.entityType(), identity.id()))
+                .toList();
     }
 
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import {useAppStore} from "../../stores/AppStore";
 import {sanitizeUrn} from "../../validations/regExps";
 
 test("Sanitize URN", () => {

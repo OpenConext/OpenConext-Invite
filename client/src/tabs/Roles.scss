@@ -1,12 +1,28 @@
 @import "../styles/vars.scss";
 
 div.mod-roles {
-    display: flex;
-    height: 50vh;
 
-    p {
-        margin: auto;
-        font-size: 16px;
-        color: var(--sds--color--yellow--500);
+    table.roles {
+
+        thead {
+            th {
+                &.name {
+                    width: 25%;
+                }
+
+                &.highestAuthority {
+                    width: 20%;
+                }
+
+                &.schac_home_organisation {
+                    width: 20%;
+                }
+
+                &.sub {
+                    width: 35%;
+                }
+            }
+        }
     }
+
 }

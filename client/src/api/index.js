@@ -90,6 +90,10 @@ export function me() {
     return fetchJson("/api/v1/users/me", {}, {}, false);
 }
 
+export function other(id) {
+    return fetchJson(`/api/v1/users/other/${id}`);
+}
+
 export function searchUsers(query) {
     return fetchJson(`/api/v1/users/search?query=${query}`);
 }

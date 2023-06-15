@@ -24,10 +24,7 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void getInvitation() throws JsonProcessingException {
-        String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.OIDC10_RP, "5"));
-        stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/5")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
+        stubForManageProviderById(EntityType.OIDC10_RP, "5");
 
         MetaInvitation metaInvitation = given()
                 .when()
@@ -62,10 +59,7 @@ class InvitationControllerTest extends AbstractTest {
     void newInvitation() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
 
-        String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.SAML20_SP, "1"));
-        stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
 
         List<Long> roleIdentifiers = roleRepository.findByManageIdIn(Set.of("1")).stream()
                 .map(Role::getId)

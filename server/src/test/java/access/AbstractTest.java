@@ -1,5 +1,6 @@
 package access;
 
+import access.manage.EntityType;
 import access.manage.LocalManage;
 import access.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -308,6 +309,15 @@ public abstract class AbstractTest {
                         .withStatus(200)));
 
     }
+
+    protected void stubForManageProviderById(EntityType entityType, String id) throws JsonProcessingException {
+        String path = String.format("/manage/api/internal/metadata/%s/%s",entityType.name().toLowerCase(), id);
+        String body = objectMapper.writeValueAsString(localManage.providerById(entityType, id));
+        stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+    }
+
 
     protected void stubForDeleteScimUser() {
         stubFor(delete(urlPathMatching("/scim/v2/users/(.*)"))

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
 import {isEmpty} from "../utils/Utils";
@@ -38,6 +38,7 @@ export const Entities = ({
                              newEntityPath,
                              newEntityFunc,
                              defaultSort,
+    searchAutoFocus = false,
                              busy = false
                          }) => {
 
@@ -47,7 +48,14 @@ export const Entities = ({
     const [reverse, setReverse] = useState(false);
     const [page, setPage] = useState(1);
 
+    const searchRef = useRef();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (displaySearch && searchRef && searchRef.current) {
+            searchRef.current.focus();
+        }
+    }, [displaySearch])
 
     const newEntity = () => {
         if (newEntityFunc) {
@@ -87,6 +95,7 @@ export const Entities = ({
                                 <div className="sds--text-field--input-and-icon">
                                     <input className={"sds--text-field--input"}
                                            type="search"
+                                           ref={searchRef}
                                            onChange={queryChanged}
                                            value={query}
                                            placeholder={I18n.t(`${modelName}.searchPlaceHolder`)}/>
@@ -129,20 +138,32 @@ export const Entities = ({
         return entity[column.key];
     }
 
-    const onRowClick = (entity) => e => {
-        const hasValue = typeof rowLinkMapper === "function" && rowLinkMapper(entity);
-        if (hasValue) {
-            hasValue(entity)(e);
+    const onRowClick = (e, entity) => {
+        if (typeof rowLinkMapper === "function") {
+            rowLinkMapper(e, entity);
         }
     }
 
-    const renderEntities = () => {
-        const hasEntities = !isEmpty(entities);
+    const entityRow = (entity, index) => {
+        return <tr key={`tr_${entity.id}_${index}`}
+                   className={`${typeof rowLinkMapper === "function"  ? "clickable" : ""} ${onHover ? "hoverable" : ""}`}>
+            {columns.map((column, i) =>
+                <td key={`td_${column.key}_${i}`}
+                    onClick={e => (column.key !== "check" && column.key !== "role" && !column.hasLink) ?
+                        onRowClick(e, entity) : undefined}
+                    className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
+                    {getEntityValue(entity, column)}
+                </td>)}
+        </tr>;
+    }
+
+    const renderEntities = sortedEntities => {
+        const hasEntities = !isEmpty(sortedEntities);
         const customEmptySearch = customSearch && (isEmpty(query) || query.trim().length < 3);
-        const total = entities.length;
+        const total = sortedEntities.length;
         if (pagination) {
-            const minimalPage = Math.min(page, Math.ceil(entities.length / pageCount));
-            entities = entities.slice((minimalPage - 1) * pageCount, minimalPage * pageCount);
+            const minimalPage = Math.min(page, Math.ceil(sortedEntities.length / pageCount));
+            sortedEntities = sortedEntities.slice((minimalPage - 1) * pageCount, minimalPage * pageCount);
         }
         return (
             <section className="entities-list">
@@ -166,17 +187,8 @@ export const Entities = ({
                             </tr>
                             </thead>
                             <tbody>
-                            {entities.map((entity, index) =>
-                                <tr key={`tr_${entity.id}_${index}`}
-                                    className={`${(typeof rowLinkMapper === "function" && rowLinkMapper(entity)) ? "clickable" : ""} ${onHover ? "hoverable" : ""}`}>
-                                    {columns.map((column, i) =>
-                                        <td key={`td_${column.key}_${i}`}
-                                            onClick={(column.key !== "check" && column.key !== "role" && !column.hasLink) ?
-                                                onRowClick(rowLinkMapper, entity) : undefined}
-                                            className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
-                                            {getEntityValue(entity, column)}
-                                        </td>)}
-                                </tr>
+                            {sortedEntities.map((entity, index) =>
+                                entityRow(entity, index)
                             )}
                             </tbody>
                         </table>
@@ -196,7 +208,6 @@ export const Entities = ({
     }
     const filteredEntities = filterEntities(entities, query, searchAttributes, customSearch);
     const sortedEntities = sortObjects(filteredEntities, sorted, reverse);
-    console.log("busy: " + busy + "  length: " + filteredEntities.length)
     return (
         <div className={`mod-entities ${className}`}>
             {displaySearch && renderSearch()}

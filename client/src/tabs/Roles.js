@@ -7,7 +7,7 @@ import {Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {highestAuthority} from "../utils/UserRole";
 
-const Roles = () => {
+export const Roles = () => {
     const user = useAppStore(state => state.user);
     const {roleSearchRequired} = useAppStore(state => state.config);
     const navigate = useNavigate();
@@ -16,9 +16,11 @@ const Roles = () => {
 
     useEffect(() => {
         const authority = highestAuthority(user);
+        debugger;
         if (!roleSearchRequired) {
 
         }
+        setLoading(false);
     }, []);
 
     if (loading) {
@@ -27,12 +29,11 @@ const Roles = () => {
 
     return (
         <div className={"mod-roles"}>
-            <Entities
+            TODO
+            {/*<Entities*/}
 
-            />
+            {/*/>*/}
         </div>
     );
 
 }
-
-export default Roles;

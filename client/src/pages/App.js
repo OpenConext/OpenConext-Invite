@@ -11,12 +11,12 @@ import {Header} from "../components/Header";
 import {Footer} from "../components/Footer";
 import {BreadCrumb} from "../components/BreadCrumb";
 import {Invitation} from "./Invitation";
-import {isEmpty} from "../utils/Utils";
 import {login} from "../utils/Login";
 import NotFound from "./NotFound";
 import {Impersonating} from "../components/Impersonating";
 import RefreshRoute from "./RefreshRoute";
 import {InviteOnly} from "./InviteOnly";
+import {Profile} from "./Profile";
 
 
 export const App = () => {
@@ -40,12 +40,12 @@ export const App = () => {
                         setLoading(false);
                         setAuthenticated(false);
                         const pathname = localStorage.getItem("location") || window.location.pathname;
-                        if (pathname === "/" || pathname === "/login") {
-                            navigate("/login");
+                        if (pathname === "/" || pathname.startsWith("/login")) {
+                            navigate(pathname);
                         } else if (pathname.startsWith("/invitation/accept")) {
-                            //Bookmarked URL's trigger a direct login and skip the landing page
                             navigate(pathname);
                         } else {
+                            //Bookmarked URL's trigger a direct login and skip the landing page
                             login(res);
                         }
                     } else {
@@ -54,14 +54,16 @@ export const App = () => {
                                 useAppStore.setState(() => ({user: res}));
                                 setLoading(false);
                                 setAuthenticated(true);
-                                const location = localStorage.getItem("location");
-                                const newLocation = isEmpty(location) || location.startsWith("/login") ? "/home" : location;
+                                const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
+                                ;
+                                const newLocation = location.startsWith("/login") ? "/home" : location;
+                                localStorage.removeItem("location");
                                 navigate(newLocation);
                             });
                     }
                 }).catch(() => {
-                    setLoading(false);
-                    navigate("/deadend");
+                setLoading(false);
+                navigate("/deadend");
             })
         })
     }, [impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -81,6 +83,7 @@ export const App = () => {
                     <Routes>
                         <Route path="/" element={<Navigate replace to="home"/>}/>
                         <Route path="home/:tab?" element={<Home/>}/>
+                        <Route path="profile/:id?" element={<Profile/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>
@@ -91,6 +94,7 @@ export const App = () => {
                 {/*  <Route path="institution/:institutionId" element={<InstitutionForm user={user}/>}/>*/}
                 {!authenticated &&
                     <Routes>
+                        <Route path="/" element={<Navigate replace to="login"/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={false}/>}/>
                         <Route path="login" element={<Login/>}/>

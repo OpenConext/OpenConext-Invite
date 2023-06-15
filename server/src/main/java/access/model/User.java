@@ -46,7 +46,7 @@ public class User implements Serializable, Provisionable {
     private String familyName;
 
     @Column(name = "schac_home_organization")
-    private String    schacHomeOrganization;
+    private String schacHomeOrganization;
 
     @Column
     private String email;
