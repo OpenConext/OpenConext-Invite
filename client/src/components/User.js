@@ -5,7 +5,7 @@ import {dateFromEpoch} from "../utils/Date";
 import {highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
-import {MetaDataList} from "@surfnet/sds";
+import {Card, CardType, MetaDataList} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 
 export const User = ({user}) => {
@@ -26,7 +26,7 @@ export const User = ({user}) => {
         const provider = user.providers.find(data => data.id === role.manageId) || {};
         const logo = provider.data.metaDataFields["logo:0:url"];
         const organisation = provider.data.metaDataFields["OrganizationName:en"] || "-";
-        return (
+        const children =
             <div key={index} className={"user-role"}>
                 <Logo src={logo} alt={"provider"} className={"provider"}/>
                 <section className={"user-role-info"}>
@@ -55,7 +55,10 @@ export const User = ({user}) => {
                     ]} cutOffNumber={999}/>
 
                 </section>
-            </div>)
+            </div>;
+        return (
+            <Card cardType={CardType.Big} children={children}/>
+        );
     }
 
     user.highestAuthority = highestAuthority(user);
@@ -65,11 +68,11 @@ export const User = ({user}) => {
         <section className={"user"}>
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
 
-            <h3 className={"title"}>{I18n.t("users.roles")}</h3>
-            {isEmpty(user.userRoles) && <p>{I18n.t("users.noRolesInfo")}</p>}
+            <h3 className={"title span-row "}>{I18n.t("users.roles")}</h3>
+            {isEmpty(user.userRoles) && <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {!isEmpty(user.userRoles) &&
                 <>
-                    <p>{I18n.t("users.rolesInfo")}</p>
+                    <p className={"span-row"}>{I18n.t("users.rolesInfo")}</p>
                     {user.userRoles.map((userRole, index) => renderUserRole(userRole, index))}
                 </>}
         </section>

@@ -4,6 +4,7 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
 import access.model.Authority;
+import access.model.Role;
 import access.model.User;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -17,8 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import static access.Seed.INVITER_SUB;
-import static access.Seed.SUPER_SUB;
+import static access.Seed.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
@@ -139,6 +139,22 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(4, users.size());
+    }
+
+    @Test
+    void usersByRole() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        Role role = roleRepository.findByManageIdAndShortNameIgnoreCase("1", "wiki").get();
+        List<User> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("roleId", role.getId())
+                .get("/api/v1/users/roles/{roleId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, users.size());
     }
 
     @Test

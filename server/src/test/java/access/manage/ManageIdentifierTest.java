@@ -20,6 +20,8 @@ class ManageIdentifierTest {
 
     @Test
     void testHashCode() {
-        assertEquals(new ManageIdentifier("id", EntityType.SAML20_SP).hashCode(), new ManageIdentifier("id", EntityType.SAML20_SP).hashCode());
+        assertEquals(
+                new ManageIdentifier("id", EntityType.SAML20_SP).hashCode(),
+                new ManageIdentifier("id", EntityType.SAML20_SP).hashCode());
     }
 }

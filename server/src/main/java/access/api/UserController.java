@@ -4,7 +4,10 @@ import access.config.Config;
 import access.exception.NotFoundException;
 import access.manage.ManageIdentifier;
 import access.manage.Manage;
+import access.model.Authority;
+import access.model.Role;
 import access.model.User;
+import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.secuirty.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
@@ -47,14 +49,20 @@ public class UserController {
 
     private final Config config;
     private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
+    private final RoleRepository roleRepository;
     private final Manage manage;
+    private final ObjectMapper objectMapper;
 
 
     @Autowired
-    public UserController(Config config, UserRepository userRepository, ObjectMapper objectMapper, Manage manage) {
+    public UserController(Config config,
+                          UserRepository userRepository,
+                          RoleRepository roleRepository,
+                          Manage manage,
+                          ObjectMapper objectMapper) {
         this.config = config;
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
     }
@@ -85,6 +93,15 @@ public class UserController {
         other.setProviders(providers);
 
         return ResponseEntity.ok(other);
+    }
+
+    @GetMapping("roles/{roleId}")
+    public ResponseEntity<List<User>> usersByRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
+        LOG.debug("/me");
+        Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
+        UserPermissions.assertRoleAccess(user, role);
+        List<User> roles = userRepository.findByUserRoles_role_id(roleId);
+        return ResponseEntity.ok(roles);
     }
 
     @GetMapping("search")

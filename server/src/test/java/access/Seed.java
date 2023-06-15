@@ -62,9 +62,11 @@ public record Seed(InvitationRepository invitationRepository,
                 new UserRole("system", inviter, mail, Authority.INVITER);
         UserRole storageGuest =
                 new UserRole("system", guest, storage, Authority.GUEST);
+        UserRole wikiGuest =
+                new UserRole("system", guest, wiki, Authority.GUEST);
         UserRole researchGuest =
                 new UserRole("system", guest, research, Authority.GUEST);
-        doSave(this.userRoleRepository, wikiManager, calendarInviter, mailInviter, storageGuest, researchGuest);
+        doSave(this.userRoleRepository, wikiManager, calendarInviter, mailInviter, storageGuest, wikiGuest, researchGuest);
 
         Invitation superUserInvitation =
                 new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false,

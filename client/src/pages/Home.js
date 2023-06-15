@@ -14,7 +14,7 @@ import {Roles} from "../tabs/Roles";
 
 export const Home = () => {
 
-    const {tab = "users"} = useParams();
+    const {tab = "roles"} = useParams();
     const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
     const user = useAppStore((state) => state.user)
@@ -47,6 +47,7 @@ export const Home = () => {
                 </Page>
             );
         }
+        setTabs(newTabs);
     }, [currentTab, user]);
 
     const tabChanged = (name) => {
