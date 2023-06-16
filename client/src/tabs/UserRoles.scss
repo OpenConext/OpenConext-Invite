@@ -1,0 +1,27 @@
+.mod-user-roles {
+    table.userRoles {
+
+        thead {
+            th {
+                &.name {
+                    width: 25%;
+                }
+                &.me {
+                    width: 10%;
+                }
+                &.schacHomeOrganisation {
+                    width: 20%;
+                }
+                &.authority {
+                    width: 20%;
+                }
+
+
+                &.endDate {
+                    width: 15%;
+                }
+            }
+        }
+    }
+
+}

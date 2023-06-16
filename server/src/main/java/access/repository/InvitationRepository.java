@@ -1,6 +1,7 @@
 package access.repository;
 
 import access.model.Invitation;
+import access.model.Role;
 import access.model.Status;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +19,5 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
 
     Optional<Invitation> findByIdAndStatus(Long id, Status status);
 
-    List<Invitation> findByStatusAndRoles_role_id(Status status, Long roleId);
+    List<Invitation> findByStatusAndRoles_role(Status status, Role role);
 }

@@ -40,8 +40,10 @@ const en = {
         home: "Home",
         applications: "Applications",
         users: "Users",
+        invitations: "Invitations",
         roles: "Roles",
-        profile: "Profile"
+        profile: "Profile",
+        userRoles: "User roles"
     },
     home: {
         access: "SURF Access",
@@ -88,8 +90,47 @@ const en = {
         authority: "Authority",
         endDate: "End date"
     },
+    roles: {
+        title: "Roles",
+        name: "Name",
+        shortName: "Short-name",
+        landingPage: "Website",
+        defaultExpiryDays: "Expiry days",
+        endDate: "End date",
+        authority: "Role",
+        description: "Description",
+        noResults: "No roles are found",
+        noMember: "No member",
+        searchPlaceHolder: "Search for roles...",
+        found: "{{count}} {{plural}} found",
+        singleRole: "role",
+        multipleRoles: "roles",
+        new: "Add role",
+        urn: "URN"
+    },
+    userRoles: {
+        found: "{{count}} {{plural}} found",
+        singleUserRole: "user role",
+        multipleUserRoles: "user roles",
+        searchPlaceHolder: "Search for user roles...",
+        noResults: "No user roles where found"
+    },
+    invitations: {
+        found: "{{count}} {{plural}} found",
+        singleInvitation: "invitation",
+        multipleInvitations: "invitations",
+        searchPlaceHolder: "Search for invitation...",
+        noResults: "No invitation where found",
+        enforceEmailEquality: "Email equality",
+        eduIDOnly: "eduID only",
+        new: "New invitation",
+    },
     forms: {
-        none: "None"
+        none: "None",
+        notApplicable: "N/A",
+        you: "You",
+        yes: "Yes",
+        no: "No"
     },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}"
@@ -104,7 +145,10 @@ const en = {
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
-        impersonateIcon: "Impersonate user {{name}}"
+        impersonateIcon: "Impersonate user {{name}}",
+        roleIcon: "Role {{name}} created at {{createdAt}}",
+        userRoleIcon: "User role accepted by {{name}} at {{createdAt}}",
+        invitationIcon: "Invitation for {{email}} send at {{createdAt}} with expiration date {{expiryDate}}"
     },
     footer: {
         terms: "Terms of Use",

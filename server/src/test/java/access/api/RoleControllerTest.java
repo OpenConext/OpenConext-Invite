@@ -24,7 +24,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void create() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "https://landingpage.com","1", EntityType.SAML20_SP);
+        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP);
 
         String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.SAML20_SP, "1"));
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
@@ -46,7 +46,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createWithDuplicateShortName() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("Wiki", "New desc", "https://landingpage.com","1", EntityType.SAML20_SP);
+        Role role = new Role("Wiki", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP);
 
         given()
                 .when()
@@ -151,6 +151,7 @@ class RoleControllerTest extends AbstractTest {
     void roleById() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role roleDB = roleRepository.search("wiki", 1).get(0);
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
         Role role = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -162,6 +163,7 @@ class RoleControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(roleDB.getName(), role.getName());
+        assertEquals("1", role.getApplication().get("id"));
     }
 
     @Test
@@ -184,6 +186,7 @@ class RoleControllerTest extends AbstractTest {
     void roleByIdForbidden() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role roleDB = roleRepository.search("research", 1).get(0);
+        stubForManageProviderById(EntityType.SAML20_SP, "4");
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

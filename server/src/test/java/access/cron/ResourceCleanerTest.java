@@ -11,6 +11,7 @@ import java.time.Period;
 import java.util.List;
 
 import static access.Seed.GUEST_SUB;
+import static access.Seed.MANAGE_SUB;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ResourceCleanerTest extends AbstractTest {
@@ -19,12 +20,27 @@ class ResourceCleanerTest extends AbstractTest {
     private ResourceCleaner subject;
 
     @Test
-    void cleanUsers() throws JsonProcessingException {
+    void cleanUsersWithoutActivity() throws JsonProcessingException {
         long beforeUsers = userRepository.count();
-        markUser();
+        markUser(GUEST_SUB);
 
         stubForProvisioning(List.of("1"));
-        //Because there is no RemoteProvisionedGroup
+        //Because there are RemoteProvisionedGroups
+        stubForCreateScimRole();
+        stubForCreateScimUser();
+        stubForUpdateScimRole();
+
+        subject.clean();
+        assertEquals(beforeUsers, userRepository.count() + 1);
+    }
+
+    @Test
+    void cleanUsersWithoutRoles() throws JsonProcessingException {
+        long beforeUsers = userRepository.count();
+        deleteUserRoles(GUEST_SUB);
+
+        stubForProvisioning(List.of("1"));
+        //Because there are RemoteProvisionedGroups
         stubForCreateScimRole();
         stubForCreateScimUser();
         stubForUpdateScimRole();
@@ -36,7 +52,7 @@ class ResourceCleanerTest extends AbstractTest {
     @Test
     void cleanUserRoles() throws JsonProcessingException {
         long beforeUserRoles = userRoleRepository.count();
-        markUserRole();
+        markUserRole(GUEST_SUB);
 
         stubForProvisioning(List.of("1"));
         //Because there is no RemoteProvisionedGroup
@@ -45,7 +61,7 @@ class ResourceCleanerTest extends AbstractTest {
         stubForUpdateScimRole();
 
         subject.clean();
-        assertEquals(beforeUserRoles, userRoleRepository.count() + 2);
+        assertEquals(beforeUserRoles, userRoleRepository.count() + 3);
     }
 
     @Test
@@ -54,16 +70,22 @@ class ResourceCleanerTest extends AbstractTest {
         resourceCleaner.clean();
     }
 
-    private void markUser() {
-        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+    private void markUser(String sub) {
+        User user = userRepository.findBySubIgnoreCase(sub).get();
         Instant past = Instant.now().minus(Period.ofDays(1050));
         user.setLastActivity(past);
         user.getUserRoles().forEach(userRole -> userRole.setEndDate(past));
         userRepository.save(user);
     }
 
-    private void markUserRole() {
-        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+    private void deleteUserRoles(String sub) {
+        User user = userRepository.findBySubIgnoreCase(sub).get();
+        user.getUserRoles().clear();
+        userRepository.save(user);
+    }
+
+    private void markUserRole(String sub) {
+        User user = userRepository.findBySubIgnoreCase(sub).get();
         Instant past = Instant.now().minus(Period.ofDays(1050));
         user.getUserRoles().forEach(userRole -> userRole.setEndDate(past));
         userRepository.save(user);

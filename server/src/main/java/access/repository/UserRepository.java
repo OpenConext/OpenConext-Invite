@@ -22,4 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND id > 0 LIMIT ?2",
             nativeQuery = true)
     List<User> search(String keyWord, int limit);
+
+    @Query(value = "SELECT * FROM users u WHERE super_user = 0 AND NOT EXISTS (SELECT ur.id FROM user_roles ur WHERE ur.user_id = u.id)",
+            nativeQuery = true)
+    List<User> findNonSuperUserWithoutUserRoles();
+
 }

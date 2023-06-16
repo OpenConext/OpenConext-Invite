@@ -1,3 +1,5 @@
+import {ChipType} from "@surfnet/sds";
+
 export const AUTHORITIES = {
     SUPER_USER: "SUPER_USER",
     MANAGER: "MANAGER",
@@ -24,7 +26,7 @@ export const highestAuthority = user => {
     }, AUTHORITIES.GUEST);
 }
 
-export function isUserAllowed(minimalAuthority, user) {
+export const isUserAllowed = (minimalAuthority, user) => {
     if (user.superUser) {
         return true;
     }
@@ -34,4 +36,16 @@ export function isUserAllowed(minimalAuthority, user) {
     const authority = highestAuthority(user);
     return AUTHORITIES_HIERARCHY[authority] <= AUTHORITIES_HIERARCHY[minimalAuthority];
 }
+
+export const chipTypeForUserRole = userRole => {
+    switch (userRole.authority) {
+        case AUTHORITIES.SUPER_USER: return ChipType.Support_500;
+        case AUTHORITIES.MANAGER: return ChipType.Support_400;
+        case AUTHORITIES.INVITER: return ChipType.Support_100;
+        case AUTHORITIES.GUEST: return ChipType.Status_default;
+    }
+}
+
+export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
+
 

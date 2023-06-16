@@ -61,10 +61,15 @@ public class ResourceCleaner {
         LOG.info(String.format("Deleted %s users with no activity in the last %s days: %s ",
                 users.size(),
                 lastActivityDurationDays,
-                users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.toList())));
+                users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
 
-        users.forEach(provisioningService::deleteUserRequest);
-        userRepository.deleteAll(users);
+        List<User> orphans = userRepository.findNonSuperUserWithoutUserRoles();
+        LOG.info(String.format("Deleted %s non-super users with no userRoles; %s",
+                users.size(),
+                users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
+
+        orphans.forEach(provisioningService::deleteUserRequest);
+        userRepository.deleteAll(orphans);
     }
 
     private void cleanUserRoles() {

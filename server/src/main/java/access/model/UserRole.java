@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Map;
 
 @Entity(name = "user_roles")
 @NoArgsConstructor
@@ -26,6 +27,9 @@ public class UserRole implements Serializable {
     @Column(name = "end_date")
     private Instant endDate;
 
+    @Column(name = "created_at")
+    private Instant createdAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -39,6 +43,9 @@ public class UserRole implements Serializable {
     @Column
     @NotNull
     private Authority authority = Authority.GUEST;
+
+    @Transient
+    private Map<String, Object> userInfo;
 
     public UserRole(Authority authority, Role role) {
         this(null, null, role, authority);
@@ -54,5 +61,6 @@ public class UserRole implements Serializable {
         this.role = role;
         this.authority = authority;
         this.endDate= endDate;
+        this.createdAt = Instant.now();
     }
 }

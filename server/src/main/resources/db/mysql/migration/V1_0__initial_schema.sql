@@ -46,6 +46,7 @@ CREATE TABLE `user_roles`
     `remote_scim_identifier` varchar(255) DEFAULT NULL,
     `inviter`                varchar(255) DEFAULT NULL,
     `end_date`               datetime     DEFAULT NULL,
+    `created_at`             datetime     DEFAULT CURRENT_TIMESTAMP,
     `user_id`                bigint       NOT NULL,
     `role_id`                bigint       NOT NULL,
     `authority`              varchar(255) NOT NULL,

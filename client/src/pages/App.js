@@ -17,6 +17,7 @@ import {Impersonating} from "../components/Impersonating";
 import RefreshRoute from "./RefreshRoute";
 import {InviteOnly} from "./InviteOnly";
 import {Profile} from "./Profile";
+import {Role} from "./Role";
 
 
 export const App = () => {
@@ -84,6 +85,7 @@ export const App = () => {
                         <Route path="/" element={<Navigate replace to="home"/>}/>
                         <Route path="home/:tab?" element={<Home/>}/>
                         <Route path="profile/:id?" element={<Profile/>}/>
+                        <Route path="roles/:id/:tab?" element={<Role/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>

@@ -154,6 +154,7 @@ export const Users = () => {
                   hideTitle={!hasEntities || noResults}
                   customNoEntities={I18n.t(`users.noResults`)}
                   loading={false}
+                  searchAttributes={["name","email","schacHomeOrganization"]}
                   inputFocus={true}
                   customSearch={search}
                   rowLinkMapper={openUser}

@@ -25,7 +25,7 @@ export const Home = () => {
             useAppStore.setState({
                 breadcrumbPath: [
                     {path: "/home", value: I18n.t("tabs.home")},
-                    {path: `/home/${currentTab}`, value: I18n.t(`tabs.${currentTab}`)}
+                    {value: I18n.t(`tabs.${currentTab}`)}
                 ]
             });
         }
@@ -54,7 +54,6 @@ export const Home = () => {
         setCurrentTab(name);
         navigate(`/home/${name}`);
     }
-
 
     return (
         <div className="home">

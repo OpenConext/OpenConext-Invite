@@ -6,7 +6,7 @@
     background-color: $background;
     padding-top: 10px;
 
-    @media (max-width: $tablet-max) {
+    @media (max-width: $medium) {
         padding: 10px 15px 0 15px;
     }
 
@@ -37,7 +37,7 @@
         margin-left: auto;
         font-weight: bold;
 
-        @media (max-width: $tablet-max) {
+        @media (max-width: $medium) {
             display: none;
         }
 

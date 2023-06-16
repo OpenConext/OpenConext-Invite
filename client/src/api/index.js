@@ -98,7 +98,6 @@ export function searchUsers(query) {
     return fetchJson(`/api/v1/users/search?query=${query}`);
 }
 
-
 export function csrf() {
     return fetchJson("/api/v1/csrf", {}, {}, false);
 }
@@ -126,6 +125,10 @@ export function acceptInvitation(hash, invitationId) {
     return postPutJson("/api/v1/invitations/accept", body, "POST");
 }
 
+export function invitationsByRoleId(roleId) {
+    return fetchJson(`/api/v1/invitations/roles/${roleId}`);
+}
+
 //Manage
 export function providers() {
     return fetchJson("/api/v1/manage/providers");
@@ -136,11 +139,26 @@ export function providerById(entityType, id) {
 }
 
 //Roles
-export function roles() {
+export function rolesByApplication() {
     return fetchJson("/api/v1/roles")
+}
+
+export function roleByID(roleID) {
+    return fetchJson(`/api/v1/roles/${roleID}`)
+}
+
+export function createRole(role) {
+    return postPutJson("/api/v1/roles",role,"POST")
 }
 
 export function deleteRole(role) {
     return fetchDelete(`/api/v1/roles/${role.id}`)
 }
 
+export function searchRoles(query) {
+    return fetchJson(`/api/v1/roles/search?query=${query}`);
+}
+//User roles
+export function userRoleByRoleId(roleId) {
+    return fetchJson(`/api/v1/user_roles/roles/${roleId}`);
+}

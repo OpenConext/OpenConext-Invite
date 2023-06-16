@@ -142,22 +142,6 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    void usersByRole() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = roleRepository.findByManageIdAndShortNameIgnoreCase("1", "wiki").get();
-        List<User> users = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParams("roleId", role.getId())
-                .get("/api/v1/users/roles/{roleId}")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(2, users.size());
-    }
-
-    @Test
     void other() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Long id = userRepository.findBySubIgnoreCase(INVITER_SUB).get().getId();

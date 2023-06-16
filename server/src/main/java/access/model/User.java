@@ -120,5 +120,17 @@ public class User implements Serializable, Provisionable {
                 .collect(Collectors.toSet());
     }
 
+    @JsonIgnore
+    public Map<String, Object> asMap() {
+        return Map.of(
+                "id", id,
+                "name", getName(),
+                "email", email,
+                "createdAt", createdAt,
+                "lastActivity", lastActivity,
+                "schacHomeOrganization", schacHomeOrganization,
+                "sub", sub
+        );
+    }
 
 }

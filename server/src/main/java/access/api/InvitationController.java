@@ -179,6 +179,16 @@ public class InvitationController {
         return Results.createResult();
     }
 
+    @GetMapping("roles/{roleId}")
+    public ResponseEntity<List<Invitation>> byRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
+        LOG.debug("/me");
+        Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
+        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+        List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
+        return ResponseEntity.ok(invitations);
+    }
+
+
     private void checkEmailEquality(User user, Invitation invitation) {
         if (invitation.isEnforceEmailEquality() && !invitation.getEmail().equalsIgnoreCase(user.getEmail())) {
             throw new InvitationEmailMatchingException(

@@ -10,7 +10,7 @@
         display: flex;
         gap: var(--sds--space--1);
 
-        @media (max-width: $tablet-max) {
+        @media (max-width: $medium) {
             flex-direction: column;
             padding: 0;
         }

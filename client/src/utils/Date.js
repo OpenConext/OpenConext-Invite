@@ -1,5 +1,6 @@
 import I18n from "../locale/I18n";
 import {format, register} from "timeago.js";
+import {isEmpty} from "./Utils";
 
 let timeAgoInitialized = false;
 
@@ -10,6 +11,9 @@ export const shortDateFromEpoch = epoch => {
 }
 
 export const dateFromEpoch = epoch => {
+    if (isEmpty(epoch)) {
+        return "-";
+    }
     const options = {month: "long", day: "numeric", year: "numeric"};
     const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, options)
     return dateTimeFormat.format(new Date(epoch * 1000));

@@ -9,20 +9,26 @@ section.user {
         grid-template-columns: [first] 1fr;
         padding: 0 15px;
     }
+
     .span-row {
         grid-column: 1 / -1;
 
     }
+
     p.span-row {
         margin-bottom: 25px;
     }
+
     h3.title {
         margin: 20px 0 10px 0;
     }
+
     .sds--card {
         margin-bottom: 40px;
     }
+
     .user-role {
+        display: flex;
 
         img {
             height: 56px;

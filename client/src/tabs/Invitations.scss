@@ -1,0 +1,43 @@
+.mod-invitations {
+    table.invitations {
+
+        thead {
+            th {
+                &.email {
+                    width: 25%;
+                }
+
+                &.authority {
+                    width: 20%;
+                }
+
+                &.enforceEmailEquality {
+                    width: 20%;
+                    text-align: center;
+                }
+
+                &.eduIDOnly {
+                    width: 20%;
+                    text-align: center;
+                }
+
+                &.endDate {
+                    width: 15%;
+                }
+            }
+        }
+
+        tbody {
+            td {
+                &.enforceEmailEquality {
+                    text-align: center;
+                }
+
+                &.eduIDOnly {
+                    text-align: center;
+                }
+            }
+        }
+    }
+
+}

@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,8 +60,9 @@ public class UserController {
                           UserRepository userRepository,
                           RoleRepository roleRepository,
                           Manage manage,
-                          ObjectMapper objectMapper) {
-        this.config = config;
+                          ObjectMapper objectMapper,
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+        this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.objectMapper = objectMapper;
@@ -70,9 +72,11 @@ public class UserController {
     @GetMapping("config")
     public ResponseEntity<Config> config(User user) {
         LOG.debug("/config");
-        boolean authenticated = user != null && user.getId() != null;
-        config.withName(user != null ? user.getName() : null);
-        return ResponseEntity.ok(config.withAuthenticated(authenticated));
+        Config result = new Config(this.config);
+        result
+                .withAuthenticated(user != null && user.getId() != null)
+                .withName(user != null ? user.getName() : null);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("me")
@@ -93,15 +97,6 @@ public class UserController {
         other.setProviders(providers);
 
         return ResponseEntity.ok(other);
-    }
-
-    @GetMapping("roles/{roleId}")
-    public ResponseEntity<List<User>> usersByRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
-        LOG.debug("/me");
-        Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
-        UserPermissions.assertRoleAccess(user, role);
-        List<User> roles = userRepository.findByUserRoles_role_id(roleId);
-        return ResponseEntity.ok(roles);
     }
 
     @GetMapping("search")

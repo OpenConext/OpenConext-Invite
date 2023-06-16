@@ -22,7 +22,7 @@
         margin-right: 0;
     }
 
-    @media (max-width: $tablet-max) {
+    @media (max-width: $medium) {
         margin: 0;
     }
 
@@ -106,7 +106,7 @@
             height: auto;
         }
 
-        @media (max-width: $tablet-max) {
+        @media (max-width: $medium) {
             top: 8px;
             right: 4px;
         }

@@ -7,6 +7,7 @@ import I18n from "../locale/I18n";
 import Logo from "./Logo";
 import {Card, CardType, MetaDataList} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
+import {RoleMetaData} from "./RoleMetaData";
 
 export const User = ({user}) => {
 
@@ -25,35 +26,13 @@ export const User = ({user}) => {
         const role = userRole.role;
         const provider = user.providers.find(data => data.id === role.manageId) || {};
         const logo = provider.data.metaDataFields["logo:0:url"];
-        const organisation = provider.data.metaDataFields["OrganizationName:en"] || "-";
         const children =
             <div key={index} className={"user-role"}>
                 <Logo src={logo} alt={"provider"} className={"provider"}/>
                 <section className={"user-role-info"}>
                     <h3>{role.name}</h3>
                     <p>{role.description}</p>
-                    <MetaDataList items={[
-                        {
-                            label: I18n.t("users.access"),
-                            values: [<a href={role.landingPage} rel="noreferrer"
-                                        target="_blank">{I18n.t("users.landingPage")}</a>]
-                        },
-                        {
-                            label: I18n.t("users.organisation"),
-                            values: [<span>{organisation}</span>]
-                        },
-                        {
-                            label: I18n.t("users.authority"),
-                            values: [<span>{userRole.authority}</span>]
-                        },
-                        {
-                            label: I18n.t("users.endDate"),
-                            values: [
-                                <span>{userRole.endDate ? dateFromEpoch(userRole.endDate) : I18n.t("forms.none")}</span>]
-                        }
-
-                    ]} cutOffNumber={999}/>
-
+                    <RoleMetaData role={role} user={user} provider={provider}/>
                 </section>
             </div>;
         return (
