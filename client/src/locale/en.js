@@ -62,6 +62,7 @@ const en = {
         MANAGER: "Manager",
         INVITER: "Inviter",
         GUEST: "Guest",
+        "No member": "No member"
     },
     users: {
         found: "{{count}} {{plural}} found",
@@ -93,12 +94,15 @@ const en = {
     roles: {
         title: "Roles",
         name: "Name",
-        shortName: "Short-name",
+        namePlaceHolder: "The name of the role",
+        shortName: "Short name",
         landingPage: "Website",
+        landingPagePlaceHolder: "https://landingpage.com",
         defaultExpiryDays: "Expiry days",
         endDate: "End date",
         authority: "Role",
         description: "Description",
+        descriptionPlaceHolder: "The description of the role",
         noResults: "No roles are found",
         noMember: "No member",
         searchPlaceHolder: "Search for roles...",
@@ -106,7 +110,13 @@ const en = {
         singleRole: "role",
         multipleRoles: "roles",
         new: "Add role",
-        urn: "URN"
+        edit: "Edit role {{name}}",
+        urn: "URN",
+        manage: "Service",
+        deleteFlash: "Role {{name}} has been deleted",
+        deleteConfirmation: "Are you sure  you want to delete this role",
+        createFlash: "Role {{name}} has been created",
+        updateFlash: "Role {{name}} has been updated",
     },
     userRoles: {
         found: "{{count}} {{plural}} found",
@@ -130,7 +140,12 @@ const en = {
         notApplicable: "N/A",
         you: "You",
         yes: "Yes",
-        no: "No"
+        no: "No",
+        edit: "Edit",
+        cancel: "Cancel",
+        save: "Save",
+        alreadyExists: "The {{attribute}} {{value}} already exists",
+        alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}"
     },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}"
@@ -148,7 +163,17 @@ const en = {
         impersonateIcon: "Impersonate user {{name}}",
         roleIcon: "Role {{name}} created at {{createdAt}}",
         userRoleIcon: "User role accepted by {{name}} at {{createdAt}}",
-        invitationIcon: "Invitation for {{email}} send at {{createdAt}} with expiration date {{expiryDate}}"
+        invitationIcon: "Invitation for {{email}} send at {{createdAt}} with expiration date {{expiryDate}}",
+        roleShortName: "The unique short name of the rol within a provisioning. Is used to format the urn",
+        manageService: "The required service from Manage with may have an optional provisioning",
+        defaultExpiryDays: "The default number of days the role will expiry when a use accepts a invitation for this role"
+    },
+    confirmationDialog: {
+        title: "Confirm",
+        subTitle: "This action requires a confirmation",
+        confirm: "Confirm",
+        ok: "OK",
+        cancel: "Cancel",
     },
     footer: {
         terms: "Terms of Use",

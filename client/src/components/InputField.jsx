@@ -28,7 +28,8 @@ export default function InputField({
                                        maxLength = 255,
                                        onRef = null,
                                        displayLabel = true,
-                                       button=null
+                                       button = null,
+                                       isInteger = false
                                    }) {
     const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
@@ -44,43 +45,44 @@ export default function InputField({
             </label>}
             <div className="inner-input-field">
                 {(!multiline && !noInput) &&
-                <input type="text"
-                       disabled={disabled}
-                       value={value || ""}
-                       onChange={onChange}
-                       onBlur={onBlur}
-                       maxLength={maxLength}
-                       ref={ref => onRef && onRef(ref)}
-                       placeholder={placeholder}
-                       className={`${className} sds--text-field--input`}
-                       onKeyDown={e => {
-                           if (onEnter && e.keyCode === 13) {//enter
-                               onEnter(e);
-                           }
-                       }}/>}
+                    <input type={isInteger ? "number" : "text"}
+                           disabled={disabled}
+                           value={value || ""}
+                           onChange={onChange}
+                           onBlur={onBlur}
+                           maxLength={maxLength}
+                           min={0}
+                           ref={ref => onRef && onRef(ref)}
+                           placeholder={placeholder}
+                           className={`${className} sds--text-field--input`}
+                           onKeyDown={e => {
+                               if (onEnter && e.keyCode === 13) {//enter
+                                   onEnter(e);
+                               }
+                           }}/>}
                 {(multiline && !noInput) &&
-                <textarea disabled={disabled}
-                          value={value}
-                          onChange={onChange}
-                          onBlur={onBlur}
-                          className={`${className} sds--text-area ${large ? "large" : ""}`}
-                          onKeyDown={e => {
-                              if (onEnter && e.keyCode === 13) {//enter
-                                  onEnter(e);
-                              }
-                          }}
-                          placeholder={placeholder} cols={cols}/>}
+                    <textarea disabled={disabled}
+                              value={value}
+                              onChange={onChange}
+                              onBlur={onBlur}
+                              className={`${className} sds--text-area ${large ? "large" : ""}`}
+                              onKeyDown={e => {
+                                  if (onEnter && e.keyCode === 13) {//enter
+                                      onEnter(e);
+                                  }
+                              }}
+                              placeholder={placeholder} cols={cols}/>}
                 {button && button}
-                {copyClipBoard && <ClipBoardCopy txt={value} right={true}/>}
+                {copyClipBoard && <ClipBoardCopy txt={value} right={true} input={true}/>}
                 {link && <div className="input-field-link" onClick={() => navigate(link)}>
                     <ArrowRight/>
                 </div>}
                 {validExternalLink &&
-                <div className={`input-field-link`}>
-                    <a href={value} rel="noopener noreferrer" target="_blank">
-                        <ArrowRight/>
-                    </a>
-                </div>}
+                    <div className={`input-field-link`}>
+                        <a href={value} rel="noopener noreferrer" target="_blank">
+                            <ArrowRight/>
+                        </a>
+                    </div>}
                 {noInput && <span className="no-input">{value}</span>}
             </div>
         </div>

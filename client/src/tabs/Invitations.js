@@ -1,11 +1,12 @@
 import React from "react";
 import I18n from "../locale/I18n";
 import "./Invitations.scss";
-import {Tooltip} from "@surfnet/sds";
+import {Chip, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./Users.scss";
 import {dateFromEpoch} from "../utils/Date";
+import {chipTypeForUserRole} from "../utils/UserRole";
 
 
 export const Invitations = ({invitations}) => {
@@ -29,15 +30,13 @@ export const Invitations = ({invitations}) => {
         {
             key: "email",
             header: I18n.t("users.email"),
-            mapper: invitation => (
-                <div className="user-name-email">
-                    <span className="email">{invitation.email}</span>
-                </div>)
+            mapper: invitation => <span>{invitation.email}</span>
         },
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: invitation => <span>{invitation.authority}</span>
+            mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intendedAuthority)}
+                                        label={I18n.t(`access.${invitation.intendedAuthority}`)}/>
         },
         {
             key: "enforceEmailEquality",

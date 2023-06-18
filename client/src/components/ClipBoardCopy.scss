@@ -2,13 +2,28 @@
 
 section.copy-to-clipboard {
     border-radius: 4px;
-    border: 1px solid var(--sds--color--blue--400);
-    padding: 0 6px;
-    font-size: 16px;
     color: var(--sds--color--blue--300);
-    display: flex;
     background-color: white;
     cursor: pointer;
+
+    svg {
+        margin: 0;
+        width: 18px;
+        height: auto;
+        &:hover {
+            color: var(--sds--color--blue--500);
+        }
+    }
+
+    &.input {
+        border: 1px solid var(--sds--color--blue--400);
+        padding: 0 6px;
+        svg {
+            margin: auto;
+            width: 32px;
+            height: auto;
+        }
+    }
 
     &.transparent {
         background-color: transparent;
@@ -22,17 +37,7 @@ section.copy-to-clipboard {
         margin-left: 10px;
     }
 
-    svg {
-        margin: auto;
-        width: 32px;
-        height: auto;
-
-        &:hover {
-            color: var(--sds--color--blue--500);
-        }
-    }
-
-    &.copied svg {
+    &.copied, svg.copied {
         animation: pulse .6s;
         animation-iteration-count: 1;
 

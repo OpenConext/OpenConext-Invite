@@ -9,6 +9,7 @@
 
                 &.authority {
                     width: 20%;
+                    text-align: center;
                 }
 
                 &.enforceEmailEquality {
@@ -36,6 +37,11 @@
                 &.eduIDOnly {
                     text-align: center;
                 }
+
+                &.authority {
+                    text-align: center;
+                }
+
             }
         }
     }

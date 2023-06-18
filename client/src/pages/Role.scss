@@ -1,6 +1,6 @@
 @import "../styles/vars.scss";
 
-.mod-profile {
+.mod-role {
     width: 100%;
 
 
@@ -8,8 +8,16 @@
         padding: 0 15px;
     }
 
-    .profile-container {
-        max-width: $medium;
-        margin: 0 auto;
+    .urn-container {
+        display: flex;
+        align-items: center;
+
+        span {
+            margin-right: 6px;
+        }
+
+        .copy-to-clipboard {
+            margin-top: 6px;
+        }
     }
 }

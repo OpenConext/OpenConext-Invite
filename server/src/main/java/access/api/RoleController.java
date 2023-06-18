@@ -117,6 +117,15 @@ public class RoleController {
         return saveOrUpdate(role, user);
     }
 
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
+        LOG.debug("/deleteRole");
+        Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
+        UserPermissions.assertManagerRole(provider, user);
+        roleRepository.delete(role);
+        return Results.deleteResult();
+    }
+
     private ResponseEntity<Role> saveOrUpdate(@RequestBody @Validated Role role, @Parameter(hidden = true) User user) {
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);

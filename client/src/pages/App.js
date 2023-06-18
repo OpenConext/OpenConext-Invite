@@ -18,6 +18,7 @@ import RefreshRoute from "./RefreshRoute";
 import {InviteOnly} from "./InviteOnly";
 import {Profile} from "./Profile";
 import {Role} from "./Role";
+import {RoleForm} from "./RoleForm";
 
 
 export const App = () => {
@@ -85,6 +86,7 @@ export const App = () => {
                         <Route path="/" element={<Navigate replace to="home"/>}/>
                         <Route path="home/:tab?" element={<Home/>}/>
                         <Route path="profile/:id?" element={<Profile/>}/>
+                        <Route path="role/:id" element={<RoleForm/>}/>
                         <Route path="roles/:id/:tab?" element={<Role/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>

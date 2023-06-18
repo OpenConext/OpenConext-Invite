@@ -13,6 +13,16 @@
         flex-grow: 2;
     }
 
+    .image-container {
+        display: flex;
+
+        img {
+            width: 320px;
+            height: auto;
+            margin: auto;
+        }
+    }
+
     table.users {
 
         thead {
@@ -23,6 +33,7 @@
 
                 &.highestAuthority {
                     width: 20%;
+                    text-align: center;
                 }
 
                 &.schac_home_organisation {
@@ -34,6 +45,13 @@
                 }
             }
         }
+        tbody {
+            td.highestAuthority {
+                text-align: center;
+            }
+
+        }
+
     }
 
 }

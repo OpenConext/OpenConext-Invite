@@ -1,24 +1,25 @@
 import React, {useEffect, useState} from "react";
-import {invitationsByRoleId, roleByID, userRoleByRoleId} from "../api";
+import {invitationsByRoleId, roleByID, userRolesByRoleId} from "../api";
 import I18n from "../locale/I18n";
-import "./Profile.scss";
-import {Loader} from "@surfnet/sds";
+import "./Role.scss";
+import {ButtonType, Loader} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
-import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
+import {allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import {RoleMetaData} from "../components/RoleMetaData";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
 import {UserRoles} from "../tabs/UserRoles";
 import {Invitations} from "../tabs/Invitations";
+import ClipBoardCopy from "../components/ClipBoardCopy";
 
 export const Role = () => {
     const {id, tab = "users"} = useParams();
     const navigate = useNavigate();
-    const {user} = useAppStore(state => state);
+    const {user, config, clearFlash} = useAppStore(state => state);
     const [role, setRole] = useState({});
     const [loading, setLoading] = useState(true);
     const [currentTab, setCurrentTab] = useState(tab);
@@ -41,7 +42,7 @@ export const Role = () => {
             navigate("/404");
             return;
         }
-        Promise.all([roleByID(id), userRoleByRoleId(id), invitationsByRoleId(id)])
+        Promise.all([roleByID(id), userRolesByRoleId(id), invitationsByRoleId(id)])
             .then(res => {
                 setRole(res[0]);
                 setLoading(false);
@@ -64,6 +65,21 @@ export const Role = () => {
 
     }, [id]);// eslint-disable-line react-hooks/exhaustive-deps
 
+    const getActions = () => {
+        const actions = [];
+        if (allowedToEditRole(user, role)) {
+            actions.push({
+                buttonType: ButtonType.Primary,
+                name: I18n.t("forms.edit"),
+                perform: () => {
+                    clearFlash();
+                    navigate(`/role/${role.id}`)
+                }
+            });
+        }
+        return actions;
+    }
+
     const tabChanged = (name) => {
         setCurrentTab(name);
         navigate(`/roles/${role.id}/${name}`);
@@ -74,10 +90,16 @@ export const Role = () => {
     }
 
     const logo = role.application.data.metaDataFields["logo:0:url"];
+    const urn = urnFromRole(config.groupUrnPrefix, role);
     return (
         <div className="mod-role">
             <UnitHeader obj={({name: role.name, logo: logo})}
-                        displayDescription={true}>
+                        displayDescription={true}
+                        actions={getActions()}>
+                <div className={"urn-container"}>
+                    <span>{urn}</span>
+                    <ClipBoardCopy txt={urn} transparentBackground={true}/>
+                </div>
                 <RoleMetaData role={role} user={user} provider={role.application}/>
             </UnitHeader>
             <Tabs activeTab={currentTab}

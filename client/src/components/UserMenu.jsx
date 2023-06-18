@@ -22,9 +22,11 @@ export const UserMenu = ({user, config, actions}) => {
 
     const logoutUser = e => {
         stopEvent(e);
-        useAppStore.setState(() => ({user: null, impersonator: null, breadcrumbPath:[]}));
         logout().then(() => {
-            navigate("/login?force=true");
+            useAppStore.setState(() => ({breadcrumbPath: []}));
+            navigate("/login", {state: "force"});
+            setTimeout(() =>
+                useAppStore.setState(() => ({user: null, impersonator: null, breadcrumbPath: []})), 500);
         });
     }
 

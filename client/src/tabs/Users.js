@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Loader, Tooltip} from "@surfnet/sds";
+import {Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
@@ -12,7 +12,8 @@ import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
-import {highestAuthority} from "../utils/UserRole";
+import {chipTypeForUserRole, highestAuthority} from "../utils/UserRole";
+import SearchSvg from "../icons/undraw_people_search_re_5rre.svg";
 
 
 export const Users = () => {
@@ -22,6 +23,7 @@ export const Users = () => {
     const [searching, setSearching] = useState(false);
     const [users, setUsers] = useState([]);
     const [moreToShow, setMoreToShow] = useState(false);
+    const [initial, setInitial] = useState(true);
     const [noResults, setNoResults] = useState(false);
     const navigate = useNavigate();
 
@@ -51,6 +53,7 @@ export const Users = () => {
     const delayedAutocomplete = debounce(query => {
         searchUsers(query)
             .then(results => {
+                setInitial(false);
                 results.forEach(user => user.highestAuthority = highestAuthority(user));
                 setUsers(results);
                 setMoreToShow(results.length === 15);
@@ -99,7 +102,8 @@ export const Users = () => {
         {
             key: "highestAuthority",
             header: I18n.t("users.highestAuthority"),
-            mapper: user => <span>{user.highestAuthority}</span>
+            mapper: user => <Chip type={chipTypeForUserRole(user.highestAuthority)}
+                                  label={I18n.t(`access.${user.highestAuthority}`)}/>
         },
         {
             key: "sub",
@@ -129,7 +133,7 @@ export const Users = () => {
                              {
                                  name: user.name
                              })}/>
-                : null
+                : <Chip type={ChipType.Main_400} label={I18n.t("forms.you")}/>
         })
     }
     const countUsers = users.length;
@@ -154,11 +158,14 @@ export const Users = () => {
                   hideTitle={!hasEntities || noResults}
                   customNoEntities={I18n.t(`users.noResults`)}
                   loading={false}
-                  searchAttributes={["name","email","schacHomeOrganization"]}
+                  searchAttributes={["name", "email", "schacHomeOrganization"]}
                   inputFocus={true}
                   customSearch={search}
                   rowLinkMapper={openUser}
                   busy={searching}>
+            {initial && <div className={"image-container"}>
+                <img src={SearchSvg} alt="search"/>
+            </div>}
         </Entities>
     </div>)
 

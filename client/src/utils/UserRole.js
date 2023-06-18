@@ -1,4 +1,5 @@
 import {ChipType} from "@surfnet/sds";
+import {isEmpty} from "./Utils";
 
 export const AUTHORITIES = {
     SUPER_USER: "SUPER_USER",
@@ -37,12 +38,27 @@ export const isUserAllowed = (minimalAuthority, user) => {
     return AUTHORITIES_HIERARCHY[authority] <= AUTHORITIES_HIERARCHY[minimalAuthority];
 }
 
-export const chipTypeForUserRole = userRole => {
-    switch (userRole.authority) {
+export const allowedToEditRole = (user, role) => {
+    if (user.superUser) {
+        return true;
+    }
+    if (!isUserAllowed(AUTHORITIES.MANAGER, user)) {
+        return false;
+    }
+    //One the userRoles must have the same manageId as the role
+    return user.userRoles.some(userRole => userRole.role.manageId === role.manageId);
+}
+
+export const chipTypeForUserRole = authority => {
+    if (isEmpty(authority)) {
+        return ChipType.Status_warning;
+    }
+    switch (authority) {
         case AUTHORITIES.SUPER_USER: return ChipType.Support_500;
         case AUTHORITIES.MANAGER: return ChipType.Support_400;
         case AUTHORITIES.INVITER: return ChipType.Support_100;
         case AUTHORITIES.GUEST: return ChipType.Status_default;
+        default: return ChipType.Status_default;
     }
 }
 

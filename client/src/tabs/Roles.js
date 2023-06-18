@@ -118,9 +118,9 @@ export const Roles = () => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: role => role.isUserRole ?
-                <Chip type={chipTypeForUserRole(role)} label={I18n.t(`access.${role.authority}`)}/> :
-                <span>{I18n.t("roles.noMember")}</span>
+            mapper: role =>  <Chip type={chipTypeForUserRole(role.authority)}
+                                   label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
+                                       I18n.t("roles.noMember")}/>
         },
         {
             key: "endDate",

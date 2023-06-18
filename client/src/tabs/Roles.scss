@@ -11,20 +11,30 @@ div.mod-roles {
                 }
 
                 &.description {
-                    width: 30%;
+                    width: 25%;
                 }
 
                 &.authority {
-                    width: 10%;
+                    width: 20%;
+                    text-align: center;
                 }
 
                 &.endDate {
                     width: 15%;
                 }
-                &.urn {
-                    width: 30%;
+
+                &.landingPage {
+                    width: 25%;
                 }
             }
+        }
+
+        tbody {
+            td.authority {
+                text-align: center;
+
+            }
+
         }
     }
 

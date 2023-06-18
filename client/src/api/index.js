@@ -82,7 +82,7 @@ export function health() {
 }
 
 export function configuration() {
-    return fetchJson("/api/v1/users/config",{},{}, false);
+    return fetchJson("/api/v1/users/config", {}, {}, false);
 }
 
 //Users
@@ -130,7 +130,7 @@ export function invitationsByRoleId(roleId) {
 }
 
 //Manage
-export function providers() {
+export function allProviders() {
     return fetchJson("/api/v1/manage/providers");
 }
 
@@ -148,7 +148,11 @@ export function roleByID(roleID) {
 }
 
 export function createRole(role) {
-    return postPutJson("/api/v1/roles",role,"POST")
+    return postPutJson("/api/v1/roles", role, "POST")
+}
+
+export function updateRole(role) {
+    return postPutJson("/api/v1/roles", role, "PUT")
 }
 
 export function deleteRole(role) {
@@ -158,7 +162,13 @@ export function deleteRole(role) {
 export function searchRoles(query) {
     return fetchJson(`/api/v1/roles/search?query=${query}`);
 }
+
+export function shortNameExists(shortName, role) {
+    const body = {shortName: shortName, manageId: role.manageId, id: role.id};
+    return postPutJson("/api/v1/roles/validation/short_name", body, "POST");
+}
+
 //User roles
-export function userRoleByRoleId(roleId) {
+export function userRolesByRoleId(roleId) {
     return fetchJson(`/api/v1/user_roles/roles/${roleId}`);
 }

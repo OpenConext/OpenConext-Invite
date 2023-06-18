@@ -6,15 +6,15 @@ import {LandingInfo} from "../components/LandingInfo";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
 import {login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
-import {getParameterByName} from "../utils/QueryParameters";
 import {isEmpty} from "../utils/Utils";
+import {useLocation} from "react-router-dom";
 
 export const Login = () => {
-
+    const location = useLocation();
     const config = useAppStore((state) => state.config);
 
     const doLogin = () => {
-        const force = getParameterByName("force", window.location.search);
+        const force = location.state === "force";
         login(config, !isEmpty(force));
     }
 

@@ -30,7 +30,8 @@ public final class LocalManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providers(EntityType entityType) {
-        return addIdentifierAlias(this.allProviders.get(entityType));
+        //Ensure it is immutable
+        return addIdentifierAlias(this.allProviders.get(entityType).stream().toList());
     }
 
     @Override

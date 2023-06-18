@@ -1,12 +1,13 @@
 import React, {useEffect} from "react";
 import I18n from "../locale/I18n";
-import "../components/Entities.scss";
+import "./UserRoles.scss";
 import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./Users.scss";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
+import {chipTypeForUserRole} from "../utils/UserRole";
 
 
 export const UserRoles = ({userRoles}) => {
@@ -61,7 +62,8 @@ export const UserRoles = ({userRoles}) => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: userRole => <span>{userRole.authority}</span>
+            mapper: userRole => <Chip type={chipTypeForUserRole(userRole.authority)}
+                                      label={I18n.t(`access.${userRole.authority}`)}/>
         },
         {
             key: "endDate",

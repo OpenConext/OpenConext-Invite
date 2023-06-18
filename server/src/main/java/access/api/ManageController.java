@@ -21,10 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -80,11 +77,13 @@ public class ManageController {
     @GetMapping("providers")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug("/providers");
-        UserPermissions.assertAuthority(user, Authority.MANAGER);
+        UserPermissions.assertAuthority(user, Authority.SUPER_USER);
         List<Map<String, Object>> serviceProviders = manage.providers(EntityType.SAML20_SP);
         List<Map<String, Object>> relyingParties = manage.providers(EntityType.OIDC10_RP);
-        serviceProviders.addAll(relyingParties);
-        return ResponseEntity.ok(serviceProviders);
+        List<Map<String, Object>> results = new ArrayList<>();
+        results.addAll(serviceProviders);
+        results.addAll(relyingParties);
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("applications")
