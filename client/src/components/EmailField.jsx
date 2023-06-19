@@ -12,7 +12,6 @@ export default function EmailField({
                                        emails,
                                        addEmails,
                                        removeMail,
-                                       isAdmin = false,
                                        pinnedEmails = [],
                                        error = false
                                    }) {
@@ -83,16 +82,16 @@ export default function EmailField({
         setValue("");
     };
 
-    const internalRemoveMail = mail => e => {
+    const internalRemoveMail = mail => {
         setEmailErrors([]);
-        removeMail(mail)(e);
+        removeMail(mail);
     }
 
     return (
         <div className={`email-field ${error ? "error" : ""}`}>
             <label htmlFor={name}>{name}
                 <Tooltip
-                    tip={`${I18n.t("invitation.inviteesMessagesTooltip")}${isAdmin ? I18n.t("invitation.appendAdminNote") : ""}`}/>
+                    tip={`${I18n.t("tooltips.inviteesTooltip")}`}/>
             </label>
             <div className={`inner-email-field ${error ? "error" : ""}`}>
                 {emails.map((mail, index) =>
@@ -100,7 +99,7 @@ export default function EmailField({
                         {displayEmail(mail)}
                         {pinnedEmails.includes(mail) ?
                             <span className="disabled icon"><MailIcon/></span> :
-                            <span className="icon" onClick={internalRemoveMail(mail)}>
+                            <span className="icon" onClick={() => internalRemoveMail(mail)}>
                                 <CloseIcon />
                             </span>}
 
@@ -117,14 +116,14 @@ export default function EmailField({
                               } else if (e.key === "Backspace" && isEmpty(value) && emails.length > 0) {
                                   const mail = emails[emails.length - 1];
                                   if (!pinnedEmails.includes(mail)) {
-                                      internalRemoveMail(mail)();
+                                      internalRemoveMail(mail);
                                   }
                               }
                           }}
-                          placeholder={emails.length === 0 ? I18n.t("invitation.inviteesPlaceholder") : ""} cols={3}/>
+                          placeholder={emails.length === 0 ? I18n.t("invitations.inviteesPlaceholder") : ""} cols={3}/>
             </div>
             {(!isEmpty(emailErrors) && value === "") && <p className="error">
-                {I18n.t("invitation.invalidEmails", {emails: Array.from(new Set(emailErrors)).join(", ")})}
+                {I18n.t("invitations.invalidEmails", {emails: Array.from(new Set(emailErrors)).join(", ")})}
             </p>}
         </div>
     );

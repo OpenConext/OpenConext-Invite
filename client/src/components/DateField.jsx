@@ -1,12 +1,11 @@
 import React, {useRef} from "react";
 
-import {ReactComponent as CardIcon} from "@surfnet/sds/icons/functional-icons/card-view.svg";
+import {ReactComponent as CardIcon} from "../icons/calendar-alt.svg";
 import {Tooltip} from "@surfnet/sds";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "./DateField.scss"
-import {stopEvent} from "../utils/Utils";
 import {DateTime} from "luxon";
 
 export const DateField = ({
@@ -35,7 +34,7 @@ export const DateField = ({
             minimalDate.setHours(0, 0, 0, 0);
             const value = e.target.value;
             if (value) {
-                const m = DateTime.fromFormat(value, "DD/MM/YYYY");
+                const m = DateTime.fromFormat(value, "dd/MM/yyyy");
                 const d = m.toJSDate();
                 if (!m.isValid || (!pastDatesAllowed && d < minimalDate) || (maxDate && d > maxDate)) {
                     invalidValue(onChange);

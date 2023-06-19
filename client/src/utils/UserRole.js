@@ -1,4 +1,3 @@
-import {ChipType} from "@surfnet/sds";
 import {isEmpty} from "./Utils";
 
 export const AUTHORITIES = {
@@ -49,19 +48,55 @@ export const allowedToEditRole = (user, role) => {
     return user.userRoles.some(userRole => userRole.role.manageId === role.manageId);
 }
 
-export const chipTypeForUserRole = authority => {
-    if (isEmpty(authority)) {
-        return ChipType.Status_warning;
-    }
-    switch (authority) {
-        case AUTHORITIES.SUPER_USER: return ChipType.Support_500;
-        case AUTHORITIES.MANAGER: return ChipType.Support_400;
-        case AUTHORITIES.INVITER: return ChipType.Support_100;
-        case AUTHORITIES.GUEST: return ChipType.Status_default;
-        default: return ChipType.Status_default;
-    }
-}
-
 export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
 
+//TODO this now has two usages. Showing all roles in the roles for your overview and in new invitation - refactor to two
+export const markAndFilterRoles = (user, allRoles) => {
+    const userRoles = user.userRoles;
+    userRoles.forEach(userRole => {
+        userRole.isUserRole = true;
+        userRole.name = userRole.role.name;
+        userRole.label = userRole.role.name;
+        userRole.value = userRole.role.id;
+        userRole.description = userRole.role.description;
+    })
+    allRoles.forEach(role => {
+        role.isUserRole = false;
+        role.label = role.name;
+        role.value = role.id;
+    });
+    return allRoles
+        .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
+        .concat(userRoles);
+}
+
+export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
+    if (user.superUser) {
+        return Object.keys(AUTHORITIES);
+    }
+    if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
+        return [];
+    }
+    if (isEmpty(selectedRoles)) {
+        const authority = highestAuthority(user);
+        return Object.keys(AUTHORITIES)
+            .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[authority]);
+    }
+    //Return only the AUTHORITIES where the user has the correct authority per selectedRole
+    const userRolesForSelectedRoles = selectedRoles
+        //TODO Remove this hack and require only really roles
+        .map(role => role.isUserRole ? role.role : role)
+        .map(role => user.userRoles.find(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id))
+        .filter(userRole => !isEmpty(userRole));
+    const leastImportantAuthority = userRolesForSelectedRoles
+        .reduce((acc, userRole) => {
+           if (AUTHORITIES_HIERARCHY[userRole.authority] < AUTHORITIES_HIERARCHY[acc]) {
+               return userRole.authority;
+           }
+           return acc;
+        }, AUTHORITIES.GUEST);
+    return Object.keys(AUTHORITIES)
+        .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[leastImportantAuthority]);
+
+}
 

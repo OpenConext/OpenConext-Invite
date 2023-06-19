@@ -29,7 +29,7 @@ public class MockMailBox extends MailBox {
     @Override
     protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws IOException {
         String osName = System.getProperty("os.name").toLowerCase();
-        if (osName.contains("mac os x") && environment.matchesProfiles("test")) {
+        if (osName.contains("mac os x") && !environment.matchesProfiles("test")) {
             openInBrowser(htmlText);
         }
     }

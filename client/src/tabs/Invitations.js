@@ -6,10 +6,11 @@ import {Entities} from "../components/Entities";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./Users.scss";
 import {dateFromEpoch} from "../utils/Date";
-import {chipTypeForUserRole} from "../utils/UserRole";
+
+import {chipTypeForUserRole} from "../utils/Authority";
 
 
-export const Invitations = ({invitations}) => {
+export const Invitations = ({role, invitations}) => {
 
     const columns = [
         {
@@ -72,7 +73,7 @@ export const Invitations = ({invitations}) => {
                   title={title}
                   newLabel={I18n.t("invitations.new")}
                   showNew={true}
-                  newEntityPath={`/invitation/new`}
+                  newEntityFunc={() => navigate("/invitation/new", {state:role.id})}
                   hideTitle={true}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={false}

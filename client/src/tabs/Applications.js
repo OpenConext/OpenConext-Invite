@@ -6,6 +6,10 @@ import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 
+/*
+ * TODO
+ * Show all roles with the manage information and a link to role detail for super admin
+ */
 const Applications = () => {
     const user = useAppStore((state) => state.user);
     const navigate = useNavigate();

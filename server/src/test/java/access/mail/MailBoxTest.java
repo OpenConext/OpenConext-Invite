@@ -32,11 +32,11 @@ class MailBoxTest extends AbstractMailTest {
         mailBox.sendInviteMail(user, invitation, List.of(
                 new GroupedProviders(
                         localManage.providerById(EntityType.SAML20_SP, "1"),
-                        invitation.getRoles().stream().map(role -> role.getRole()).toList(),
+                        invitation.getRoles().stream().map(InvitationRole::getRole).toList(),
                         UUID.randomUUID().toString()),
                 new GroupedProviders(
                         localManage.providerById(EntityType.SAML20_SP, "2"),
-                        invitation.getRoles().stream().map(role -> role.getRole()).toList(),
+                        invitation.getRoles().stream().map(InvitationRole::getRole).toList(),
                         UUID.randomUUID().toString())
         ));
         MimeMessageParser mimeMessageParser = super.mailMessage();

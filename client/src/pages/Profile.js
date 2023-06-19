@@ -9,6 +9,7 @@ import {User} from "../components/User";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as Logo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {dateFromEpoch} from "../utils/Date";
+import {isEmpty} from "../utils/Utils";
 
 export const Profile = () => {
     const {id} = useParams();
@@ -41,7 +42,7 @@ export const Profile = () => {
             });
         }
 
-    }, [id]);
+    }, [id, currentUser]);
 
     if (loading) {
         return <Loader/>
@@ -52,7 +53,7 @@ export const Profile = () => {
                 <p>{I18n.t("profile.info", {name: user.name, createdAt: dateFromEpoch(user.createdAt)})}</p>
             </UnitHeader>
             <div className="profile-container">
-                <User user={user}/>
+                <User user={user} other={!isEmpty(id)}/>
             </div>
         </div>);
 };

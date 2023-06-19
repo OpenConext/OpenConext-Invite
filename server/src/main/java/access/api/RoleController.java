@@ -59,6 +59,8 @@ public class RoleController {
         }
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         Set<String> manageIdentifiers = user.getUserRoles().stream()
+                //If the user has an userRole as Inviter, then we must exclude those
+                .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
                 .map(userRole -> userRole.getRole().getManageId())
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(roleRepository.findByManageIdIn(manageIdentifiers));

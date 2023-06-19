@@ -5,11 +5,11 @@ import {dateFromEpoch} from "../utils/Date";
 import {highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
-import {Card, CardType, MetaDataList} from "@surfnet/sds";
+import {Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 import {RoleMetaData} from "./RoleMetaData";
 
-export const User = ({user}) => {
+export const User = ({user, other}) => {
 
     const attribute = (index, name, isDate = false) => {
         const attr = user[name];
@@ -51,7 +51,9 @@ export const User = ({user}) => {
             {isEmpty(user.userRoles) && <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {!isEmpty(user.userRoles) &&
                 <>
-                    <p className={"span-row"}>{I18n.t("users.rolesInfo")}</p>
+                    <p className={"span-row"}>
+                        {I18n.t(`users.${other ? "rolesInfoOther" : "rolesInfo"}`, {name: user.name})}
+                    </p>
                     {user.userRoles.map((userRole, index) => renderUserRole(userRole, index))}
                 </>}
         </section>

@@ -22,7 +22,4 @@ public class EmailFormatValidator implements FormatValidator {
         return "email";
     }
 
-    public Set<String> validateEmails(List<String> emails) {
-        return emails.stream().filter(email -> pattern.matcher(email).matches()).collect(Collectors.toSet());
-    }
 }

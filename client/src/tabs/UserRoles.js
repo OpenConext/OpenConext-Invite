@@ -7,11 +7,12 @@ import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id
 import "./Users.scss";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
-import {chipTypeForUserRole} from "../utils/UserRole";
+import {useNavigate} from "react-router-dom";
+import {chipTypeForUserRole} from "../utils/Authority";
 
 
-export const UserRoles = ({userRoles}) => {
-
+export const UserRoles = ({role, userRoles}) => {
+    const navigate = useNavigate();
     const {user} = useAppStore(state => state);
 
     useEffect(() => {
@@ -78,7 +79,7 @@ export const UserRoles = ({userRoles}) => {
                   columns={columns}
                   newLabel={I18n.t("invitations.new")}
                   showNew={true}
-                  newEntityPath={`/invitation/new`}
+                  newEntityFunc={() => navigate("/invitation/new", {state:role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}
                   loading={false}
                   hideTitle={true}

@@ -12,8 +12,9 @@ import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
-import {chipTypeForUserRole, highestAuthority} from "../utils/UserRole";
+import {highestAuthority} from "../utils/UserRole";
 import SearchSvg from "../icons/undraw_people_search_re_5rre.svg";
+import {chipTypeForUserRole} from "../utils/Authority";
 
 
 export const Users = () => {

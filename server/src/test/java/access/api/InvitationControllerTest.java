@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static access.Seed.GUEST_SUB;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,6 +71,7 @@ class InvitationControllerTest extends AbstractTest {
                 true,
                 List.of("new@new.nl"),
                 roleIdentifiers,
+                null,
                 Instant.now().plus(12, ChronoUnit.DAYS));
 
         given()
@@ -112,6 +114,39 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(2, remoteProvisionedGroupRepository.count());
         //two users provisioned to 1 remote SCIM - the inviter and one existing user with the userRole
         assertEquals(2, remoteProvisionedUserRepository.count());
+    }
+
+    @Test
+    void acceptForUpgradingExistingUserRole() throws Exception {
+        User beforeAcceptUser = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        Authority authority = beforeAcceptUser.getUserRoles().stream()
+                .filter(userRole -> userRole.getRole().getName().equals("Research"))
+                .findFirst().get().getAuthority();
+        assertEquals(Authority.GUEST, authority);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
+        String hash = Authority.MANAGER.name();
+        Invitation invitation = invitationRepository.findByHash(hash).get();
+
+        stubForProvisioning(List.of("5"));
+        stubForCreateScimUser();
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        Authority upgradedAuthority = user.getUserRoles().stream()
+                .filter(userRole -> userRole.getRole().getName().equals("Research"))
+                .findFirst().get().getAuthority();
+        assertEquals(Authority.MANAGER, upgradedAuthority);
     }
 
     @Test

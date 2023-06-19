@@ -29,11 +29,11 @@
     display: grid;
     grid-template-columns: [first] 1fr [second] 1fr;
 
-    .input-field, .select-field, .date-field, .error-indication {
+    .input-field, .select-field, .date-field, .error-indication, .sds--checkbox-container  {
         grid-column-start: first;
     }
 
-    .input-field, .select-field, .date-field{
+    .input-field, .select-field, .date-field, .sds--checkbox-container{
         margin-top: 20px;
     }
     .actions {

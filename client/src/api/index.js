@@ -115,9 +115,8 @@ export function invitationByHash(hash) {
     return fetchJson(`/api/v1/invitations/public?hash=${hash}`);
 }
 
-export function newInvitation(intendedAuthority, message, enforceEmailEquality, invites, roleIdentifiers, expiryDate) {
-    const body = {intendedAuthority, message, enforceEmailEquality, invites, roleIdentifiers, expiryDate};
-    return postPutJson("/api/v1/invitations", body, "POST");
+export function newInvitation(invitationRequest) {
+    return postPutJson("/api/v1/invitations", invitationRequest, "POST");
 }
 
 export function acceptInvitation(hash, invitationId) {

@@ -5,12 +5,13 @@ import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Chip, Loader, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
-import {AUTHORITIES, chipTypeForUserRole, isUserAllowed} from "../utils/UserRole";
+import {AUTHORITIES, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication, searchRoles} from "../api";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {dateFromEpoch} from "../utils/Date";
 import {ReactComponent as RoleIcon} from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
+import {chipTypeForUserRole} from "../utils/Authority";
 
 export const Roles = () => {
     const user = useAppStore(state => state.user);
@@ -22,30 +23,15 @@ export const Roles = () => {
     const [moreToShow, setMoreToShow] = useState(false);
     const [noResults, setNoResults] = useState(false);// eslint-disable-line no-unused-vars
 
-    const markAndFilterRoles = allRoles => {
-        const userRoles = user.userRoles;
-        userRoles.forEach(userRole => {
-            userRole.isUserRole = true;
-            userRole.name = userRole.role.name;
-            userRole.description = userRole.role.description;
-        })
-        allRoles.forEach(role => {
-            role.isUserRole = false;
-        });
-        return allRoles
-            .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
-            .concat(userRoles);
-    }
-
     useEffect(() => {
         if (isUserAllowed(AUTHORITIES.MANAGER, user)) {
             if (!roleSearchRequired) {
                 rolesByApplication()
-                    .then(res => setRoles(markAndFilterRoles(res)))
+                    .then(res => setRoles(markAndFilterRoles(user, res)))
                 setLoading(false);
             }
         } else {
-            setRoles(markAndFilterRoles([]))
+            setRoles(markAndFilterRoles(user, []))
         }
         setLoading(false);
     }, [user, roleSearchRequired]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -77,7 +63,7 @@ export const Roles = () => {
     const delayedAutocomplete = debounce(query => {
         searchRoles(query)
             .then(res => {
-                setRoles(markAndFilterRoles(res));
+                setRoles(markAndFilterRoles(user, res));
                 setMoreToShow(res.length === 15);
                 setNoResults(res.length === 0);
                 setSearching(false);

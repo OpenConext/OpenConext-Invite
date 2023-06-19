@@ -4,6 +4,12 @@ import {isEmpty} from "./Utils";
 
 let timeAgoInitialized = false;
 
+export const futureDate = daysAhead => {
+    const today = new Date();
+    const time = today.getTime() + (1000 * 60 * 60 * 24 * daysAhead);
+    return new Date(time);
+}
+
 export const shortDateFromEpoch = epoch => {
     const options = {month: "short", day: "numeric"};
     const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, options)

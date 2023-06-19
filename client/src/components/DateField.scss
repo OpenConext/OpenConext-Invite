@@ -11,7 +11,7 @@
         min-width: 210px;
         color: black;
         position: relative;
-        font-weight: bold;
+        font-weight: 600;
     }
 
     span.tool-tip-section {
@@ -40,9 +40,10 @@
             position: absolute;
             right: 12px;
             top: 12px;
-            color: var(--sds--color--blue--400);
+            color: var(--sds--color--blue--500);
             cursor: pointer;
-            font-size: 20px;
+            width: 20px;
+            height: auto;
         }
     }
 

@@ -1,9 +1,11 @@
 @import "../styles/mixins";
 
-.mod-role-form {
-    .role-form {
+.mod-invitation-form {
+    .invitation-form {
         @include page;
         @include form;
     }
+
+
 
 }

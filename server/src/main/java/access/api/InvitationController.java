@@ -14,8 +14,10 @@ import access.provision.scim.OperationType;
 import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
+import access.repository.UserRoleRepository;
 import access.secuirty.SuperAdmin;
 import access.secuirty.UserPermissions;
+import access.validation.EmailFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -50,6 +52,7 @@ public class InvitationController {
     private final InvitationRepository invitationRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final EmailFormatValidator emailFormatValidator = new EmailFormatValidator();
     private final ProvisioningService provisioningService;
 
     private final SuperAdmin superAdmin;
@@ -81,6 +84,7 @@ public class InvitationController {
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
 
         List<Invitation> invitations = invitationRequest.getInvites().stream()
+                .filter(emailFormatValidator::isValid)
                 .map(invitee -> new Invitation(
                         intendedAuthority,
                         HashGenerator.generateHash(),
@@ -156,7 +160,14 @@ public class InvitationController {
         invitation.getRoles()
                 .forEach(invitationRole -> {
                     Role role = invitationRole.getRole();
-                    if (user.getUserRoles().stream().noneMatch(userRole -> userRole.getRole().getId().equals(role.getId()))) {
+                    Optional<UserRole> optionalUserRole = user.getUserRoles().stream()
+                            .filter(userRole -> userRole.getRole().getId().equals(role.getId())).findFirst();
+                    if (optionalUserRole.isPresent()) {
+                        UserRole userRole = optionalUserRole.get();
+                        if (!userRole.getAuthority().hasEqualOrHigherRights(invitation.getIntendedAuthority())) {
+                            userRole.setAuthority(invitation.getIntendedAuthority());
+                        }
+                    } else {
                         UserRole userRole = new UserRole(
                                 invitation.getInviter().getName(),
                                 user,
