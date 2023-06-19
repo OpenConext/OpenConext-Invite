@@ -1,5 +1,6 @@
 package access.provision;
 
+import access.exception.RemoteException;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
 import access.model.*;
@@ -16,10 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -28,6 +26,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -304,13 +303,13 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     provisioning.getEntityId()));
             return restTemplate.exchange(requestEntity, typeReference).getBody();
         } catch (RestClientException e) {
-            LOG.error(String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
+            String errorMessage = String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
                     api,
                     provisioning.getEntityId(),
                     requestEntity.getUrl(),
                     requestEntity.getMethod(),
-                    requestEntity.getBody()), e);
-            throw e;
+                    requestEntity.getBody());
+            throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage ,e);
         }
     }
 

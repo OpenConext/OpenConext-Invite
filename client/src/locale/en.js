@@ -141,11 +141,16 @@ const en = {
         you: "You",
         yes: "Yes",
         no: "No",
+        ok: "Ok",
         edit: "Edit",
         cancel: "Cancel",
         save: "Save",
-        alreadyExists: "The {{attribute}} {{value}} already exists",
-        alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}"
+        alreadyExists: "The {{attribute}} '{{value}}' already exists",
+        alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}",
+        required: "The {{attribute}} is required",
+        invalid: "The value '{{value}}' is invalid for {{attribute}}",
+        error: "You can <a href=\"mailto:access@surf.nl\" target=\"_blank\">contact SURF access</a> for more information.<br/><br/>" +
+            "The reference number for ths exception is {{reference}}."
     },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}"
@@ -170,7 +175,9 @@ const en = {
     },
     confirmationDialog: {
         title: "Confirm",
+        error: "Error",
         subTitle: "This action requires a confirmation",
+        subTitleError: "An error has occurred",
         confirm: "Confirm",
         ok: "OK",
         cancel: "Cancel",

@@ -1,4 +1,4 @@
-package scim.api;
+package provisioning.api;
 
 
 import org.apache.commons.logging.Log;

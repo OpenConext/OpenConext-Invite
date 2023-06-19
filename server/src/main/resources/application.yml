@@ -2,8 +2,8 @@
 logging:
   level:
     org.springframework: WARN
-    org.springframework.web: TRACE
-    org.springframework.security: TRACE
+    org.springframework.web: WARN
+    org.springframework.security: WARN
     com.zaxxer.hikari: ERROR
     access: DEBUG
 

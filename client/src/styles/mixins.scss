@@ -14,7 +14,7 @@
 @mixin page {
     max-width: $medium;
     width: 100%;
-    margin: 15px auto 0 auto;
+    margin: 0 auto;
 
     @media (max-width: $medium) {
         padding: 0 15px;
@@ -29,11 +29,13 @@
     display: grid;
     grid-template-columns: [first] 1fr [second] 1fr;
 
-    .input-field, .select-field, .date-field {
+    .input-field, .select-field, .date-field, .error-indication {
         grid-column-start: first;
-        margin-bottom: 20px;
     }
 
+    .input-field, .select-field, .date-field{
+        margin-top: 20px;
+    }
     .actions {
         grid-column-start: first;
         margin-top: 30px;

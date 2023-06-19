@@ -3,7 +3,6 @@ import {AlertType, Modal,} from "@surfnet/sds";
 import I18n from "../locale/I18n";
 
 
-
 export default function ConfirmationDialog({
                                                isOpen = false,
                                                cancel,
@@ -27,11 +26,11 @@ export default function ConfirmationDialog({
             alertType={isError ? AlertType.Error : isWarning ? AlertType.Warning : AlertType.Info}
             question={question}
             children={children}
-            title={confirmationHeader || I18n.t("confirmationDialog.title")}
+            title={confirmationHeader || isError ? I18n.t("confirmationDialog.error") : I18n.t("confirmationDialog.title")}
             cancelButtonLabel={I18n.t("confirmationDialog.cancel")}
             confirmationButtonLabel={confirmationTxt}
             confirmDisabled={disabledConfirm}
-            subTitle={  I18n.t("confirmationDialog.subTitle")}
+            subTitle={isError ? I18n.t("confirmationDialog.subTitleError") : I18n.t("confirmationDialog.subTitle")}
             full={largeWidth}/>
     );
 

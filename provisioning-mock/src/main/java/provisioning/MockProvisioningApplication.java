@@ -1,13 +1,13 @@
-package scim;
+package provisioning;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MockScimApplication {
+public class MockProvisioningApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MockScimApplication.class, args);
+		SpringApplication.run(MockProvisioningApplication.class, args);
 	}
 
 }

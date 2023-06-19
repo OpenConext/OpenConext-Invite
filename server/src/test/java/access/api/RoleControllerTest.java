@@ -26,10 +26,9 @@ class RoleControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP);
 
-        String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.SAML20_SP, "1"));
-        stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
+        stubForProvisioning(List.of("1"));
+        stubForCreateScimRole();
 
         Map result = given()
                 .when()

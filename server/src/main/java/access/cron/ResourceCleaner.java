@@ -50,11 +50,12 @@ public class ResourceCleaner {
         if (!cronJobResponsible) {
             return;
         }
-        cleanUsers();
+        cleanNonActiveUsers();
+        cleanOrphanedUser();
         cleanUserRoles();
     }
 
-    private void cleanUsers() {
+    private void cleanNonActiveUsers() {
         Instant past = Instant.now().minus(Period.ofDays(lastActivityDurationDays));
         List<User> users = userRepository.findByLastActivityBefore(past);
 
@@ -62,11 +63,15 @@ public class ResourceCleaner {
                 users.size(),
                 lastActivityDurationDays,
                 users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
+        users.forEach(provisioningService::deleteUserRequest);
+        userRepository.deleteAll(users);
+    }
 
+    private void cleanOrphanedUser() {
         List<User> orphans = userRepository.findNonSuperUserWithoutUserRoles();
         LOG.info(String.format("Deleted %s non-super users with no userRoles; %s",
-                users.size(),
-                users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
+                orphans.size(),
+                orphans.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
 
         orphans.forEach(provisioningService::deleteUserRequest);
         userRepository.deleteAll(orphans);

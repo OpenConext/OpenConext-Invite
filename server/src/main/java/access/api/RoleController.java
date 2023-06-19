@@ -5,6 +5,7 @@ import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.manage.Manage;
 import access.model.*;
+import access.provision.ProvisioningService;
 import access.repository.RoleRepository;
 import access.provision.scim.GroupURN;
 import access.secuirty.UserPermissions;
@@ -38,11 +39,16 @@ public class RoleController {
     private final Config config;
     private final RoleRepository roleRepository;
     private final Manage manage;
+    private final ProvisioningService provisioningService;
 
-    public RoleController(Config config, RoleRepository roleRepository, Manage manage) {
+    public RoleController(Config config,
+                          RoleRepository roleRepository,
+                          Manage manage,
+                          ProvisioningService provisioningService) {
         this.config = config;
         this.roleRepository = roleRepository;
         this.manage = manage;
+        this.provisioningService = provisioningService;
     }
 
     @GetMapping("")
@@ -65,7 +71,7 @@ public class RoleController {
             return ResponseEntity.ok(roleRepository.findAll());
         }
         if (user.getUserRoles().stream().anyMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))) {
-            return rolesByApplication(user) ;
+            return rolesByApplication(user);
         }
         return ResponseEntity.ok(user.getUserRoles().stream().map(UserRole::getRole).toList());
     }
@@ -103,7 +109,7 @@ public class RoleController {
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
         LOG.debug("/newRole");
-        String shortName = GroupURN.sanitizeRoleShortName( role.getShortName());
+        String shortName = GroupURN.sanitizeRoleShortName(role.getShortName());
         ResponseEntity<Map<String, Boolean>> exists = this.shortNameExists(new RoleExists(shortName, role.getManageId(), role.getId()), user);
         if (exists.getBody().get("exists")) {
             throw new NotAllowedException("Duplicate name: '" + shortName + "' for manage entity:'" + role.getManageId() + "'");
@@ -122,6 +128,7 @@ public class RoleController {
         LOG.debug("/deleteRole");
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
+        provisioningService.deleteGroupRequest(role);
         roleRepository.delete(role);
         return Results.deleteResult();
     }
@@ -129,10 +136,15 @@ public class RoleController {
     private ResponseEntity<Role> saveOrUpdate(@RequestBody @Validated Role role, @Parameter(hidden = true) User user) {
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
-        if (role.getId() != null) {
+        boolean isNew = role.getId() == null;
+        if (!isNew) {
             role.setShortName(roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new).getShortName());
         }
-        return ResponseEntity.ok(roleRepository.save(role));
+        Role saved = roleRepository.save(role);
+        if (isNew) {
+            provisioningService.newGroupRequest(saved);
+        }
+        return ResponseEntity.ok(saved);
     }
 
 }

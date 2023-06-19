@@ -1,6 +1,7 @@
 package access.secuirty;
 
 import access.config.UserHandlerMethodArgumentResolver;
+import access.exception.ExtendedErrorAttributes;
 import access.model.Invitation;
 import access.repository.InvitationRepository;
 import access.repository.UserRepository;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -92,13 +94,16 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(c -> c.ignoringRequestMatchers("/login/oauth2/code/oidcng"))
+                .csrf(c -> c
+                        .ignoringRequestMatchers("/login/oauth2/code/oidcng")
+                        .ignoringRequestMatchers("/api/v1/validations/**"))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests(c -> c
                         .requestMatchers(
                                 "/api/v1/csrf",
                                 "/api/v1/users/config",
                                 "/api/v1/invitations/public",
+                                "/api/v1/validations/**",
                                 "/ui/**",
                                 "internal/**")
                         .permitAll()
@@ -179,4 +184,10 @@ public class SecurityConfig {
         slr.setDefaultLocale(Locale.ENGLISH);
         return slr;
     }
+
+    @Bean
+    ErrorAttributes errorAttributes() {
+        return new ExtendedErrorAttributes();
+    }
+
 }

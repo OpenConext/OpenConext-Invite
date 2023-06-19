@@ -52,7 +52,7 @@ export default function InputField({
                            onBlur={onBlur}
                            maxLength={maxLength}
                            min={0}
-                           ref={ref => onRef && onRef(ref)}
+                           ref={onRef}
                            placeholder={placeholder}
                            className={`${className} sds--text-field--input`}
                            onKeyDown={e => {

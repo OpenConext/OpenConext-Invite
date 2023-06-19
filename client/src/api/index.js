@@ -140,35 +140,40 @@ export function providerById(entityType, id) {
 
 //Roles
 export function rolesByApplication() {
-    return fetchJson("/api/v1/roles")
+    return fetchJson("/api/v1/roles");
 }
 
 export function roleByID(roleID) {
-    return fetchJson(`/api/v1/roles/${roleID}`)
+    return fetchJson(`/api/v1/roles/${roleID}`);
 }
 
 export function createRole(role) {
-    return postPutJson("/api/v1/roles", role, "POST")
+    return postPutJson("/api/v1/roles", role, "POST", false);
 }
 
 export function updateRole(role) {
-    return postPutJson("/api/v1/roles", role, "PUT")
+    return postPutJson("/api/v1/roles", role, "PUT", false);
 }
 
 export function deleteRole(role) {
-    return fetchDelete(`/api/v1/roles/${role.id}`)
+    return fetchDelete(`/api/v1/roles/${role.id}`,false);
 }
 
 export function searchRoles(query) {
     return fetchJson(`/api/v1/roles/search?query=${query}`);
 }
 
-export function shortNameExists(shortName, role) {
-    const body = {shortName: shortName, manageId: role.manageId, id: role.id};
+export function shortNameExists(shortName, manageId, roleId) {
+    const body = {shortName: shortName, manageId: manageId, id: roleId};
     return postPutJson("/api/v1/roles/validation/short_name", body, "POST");
 }
 
 //User roles
 export function userRolesByRoleId(roleId) {
     return fetchJson(`/api/v1/user_roles/roles/${roleId}`);
+}
+
+//Validations
+export function validate(type, value) {
+    return postPutJson("/api/v1/validations/validate", {type, value}, "POST");
 }

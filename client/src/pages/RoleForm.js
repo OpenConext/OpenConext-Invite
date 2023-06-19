@@ -1,15 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
-import {allProviders, createRole, deleteRole, roleByID, shortNameExists, updateRole} from "../api";
+import {allProviders, createRole, deleteRole, roleByID, shortNameExists, updateRole, validate} from "../api";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as RoleIcon} from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import InputField from "../components/InputField";
-import {sanitizeShortName} from "../validations/regExps";
+import {constructShortName} from "../validations/regExps";
 import {isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
@@ -20,8 +20,9 @@ export const RoleForm = () => {
 
     const navigate = useNavigate();
     const {id} = useParams();
+    const nameRef = useRef();
 
-    const [role, setRole] = useState({});
+    const [role, setRole] = useState({defaultExpiryDays: 0});
     const [providers, setProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
     const {user, setFlash} = useAppStore(state => state);
@@ -29,6 +30,7 @@ export const RoleForm = () => {
     const [initial, setInitial] = useState(true);
     const required = ["name", "description", "manageId"];
     const [alreadyExists, setAlreadyExists] = useState({});
+    const [invalidValues, setInvalidValues] = useState({});
     const [managementOption, setManagementOption] = useState({});
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
@@ -51,7 +53,7 @@ export const RoleForm = () => {
                     setRole(res[0])
                 }
                 if (user.superUser) {
-                    setProviders(res[1]);
+                    setProviders(res[newRole ? 0 : 1]);
                 } else {
                     setProviders(user.providers);
                 }
@@ -62,7 +64,7 @@ export const RoleForm = () => {
                     {path: "/home/roles", value: I18n.t("tabs.roles")},
                 ];
                 if (newRole) {
-                    const providerOption = singleProviderToOption(user.superUser ? res[1][0] : user.providers[0]);
+                    const providerOption = singleProviderToOption(user.superUser ? res[0][0] : user.providers[0]);
                     setManagementOption(providerOption);
                     setRole({...role, manageId: providerOption.value, manageType: providerOption.type.toUpperCase()})
                 } else {
@@ -72,28 +74,57 @@ export const RoleForm = () => {
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});
                 setLoading(false);
+
+                setTimeout(() => {
+                    if (nameRef && nameRef.current) {
+                        nameRef.current.focus();
+                    }
+                }, 500);
             })
         },
         [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const validateShortName = shortName => {
-        if (!isEmpty(role.manageId) && !isEmpty(role.shortName)) {
-            shortNameExists(shortName, role)
+    const validateShortName = (shortName, manageId) => {
+        if (!isEmpty(manageId) && !isEmpty(shortName)) {
+            shortNameExists(shortName, manageId, role.id)
                 .then(json => setAlreadyExists({...alreadyExists, shortName: json.exists}));
         }
         return true;
     }
 
+    const validateValue = (type, attribute, value) => {
+        if (!isEmpty(value)) {
+            validate(type, value)
+                .then(json => setInvalidValues({...invalidValues, [attribute]: !json.valid}));
+        }
+        return true;
+    }
+
     const submit = () => {
-        //Todo management options
         setInitial(false);
         if (isValid()) {
             const promise = isNewRole ? createRole : updateRole;
-            promise(role).then(() => {
-                setFlash(I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name}));
-                navigate("/home/roles");
-            });
+            promise(role)
+                .then(() => {
+                    setFlash(I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name}));
+                    navigate("/home/roles");
+                }).catch(handleError);
         }
+    }
+
+    const handleError = e => {
+        e.response.json().then(j => {
+            const reference = j.reference;
+            setConfirmation({
+                cancel: null,
+                action: () => setConfirmationOpen(false),
+                warning: false,
+                error: true,
+                question: I18n.t("forms.error", {reference: reference}),
+                confirmationTxt: I18n.t("forms.ok")
+            });
+            setConfirmationOpen(true);
+        })
     }
 
     const doDelete = showConfirmation => {
@@ -102,37 +133,52 @@ export const RoleForm = () => {
                 cancel: () => setConfirmationOpen(false),
                 action: () => doDelete(true),
                 warning: true,
-                question: I18n.t("roles.deleteConfirmation")
+                error: false,
+                question: I18n.t("roles.deleteConfirmation"),
+                confirmationTxt: I18n.t("confirmationDialog.confirm")
             });
             setConfirmationOpen(true);
         } else {
-            deleteRole(role).then(() => {
-                setConfirmationOpen(false);
-                setFlash(I18n.t("roles.deleteFlash", {name: role.name}));
-            })
+            deleteRole(role)
+                .then(() => {
+                    setConfirmationOpen(false);
+                    setFlash(I18n.t("roles.deleteFlash", {name: role.name}));
+                }).catch(handleError)
         }
     };
     const isValid = () => {
         return required.every(attr => !isEmpty(role[attr]))
-            && Object.values(alreadyExists).every(attr => !attr);
+            && Object.values(alreadyExists).every(attr => !attr)
+            && Object.values(invalidValues).every(attr => !attr);
     }
 
     const renderForm = () => {
-        const disabledSubmit = isValid() && !initial;
+        const valid = isValid();
+        const disabledSubmit = !valid && !initial;
         return (<>
                 <InputField name={I18n.t("roles.name")}
                             value={role.name || ""}
                             placeholder={I18n.t("roles.namePlaceHolder")}
                             error={alreadyExists.name || (!initial && isEmpty(role.name))}
-                            onBlur={e => validateShortName(sanitizeShortName(e.target.value))}
-                            onChange={e => setRole(
-                                {...role, name: e.target.value, shortName: sanitizeShortName(e.target.value)})}
+                            onBlur={e => {
+                                if (isNewRole) {
+                                    validateShortName(constructShortName(e.target.value), role.manageId);
+                                }
+                            }}
+                            onRef={nameRef}
+                            onChange={e => {
+                                const shortName = isNewRole ? constructShortName(e.target.value) : role.shortName;
+                                setRole(
+                                    {...role, name: e.target.value, shortName: shortName});
+                                setAlreadyExists({...alreadyExists, shortName: false})
+                            }}
                 />
-                {alreadyExists.name && <ErrorIndicator msg={I18n.t("forms.alreadyExistsParent", {
-                    attribute: I18n.t("roles.shortName").toLowerCase(),
-                    value: role.shortName,
-                    parent: role.manageName
-                })}/>}
+                {alreadyExists.shortName &&
+                    <ErrorIndicator msg={I18n.t("forms.alreadyExistsParent", {
+                        attribute: I18n.t("roles.shortName").toLowerCase(),
+                        value: role.shortName,
+                        parent: managementOption.label
+                    })}/>}
                 {(!initial && isEmpty(role.name)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.name").toLowerCase()
@@ -158,6 +204,7 @@ export const RoleForm = () => {
                              onChange={option => {
                                  setManagementOption(option);
                                  setRole({...role, manageId: option.value, manageType: option.type.toUpperCase()});
+                                 validateShortName(constructShortName(role.name), option.value);
                              }}
                              searchable={true}
                              clearable={false}
@@ -175,10 +222,19 @@ export const RoleForm = () => {
                 <InputField name={I18n.t("roles.landingPage")}
                             value={role.landingPage || ""}
                             placeholder={I18n.t("roles.landingPagePlaceHolder")}
-                            multiline={true}
-                            onChange={e => setRole(
-                                {...role, landingPage: e.target.value})}
+                            onBlur={e => validateValue("url", "landingPage", e.target.value)}
+                            onChange={e => {
+                                setRole(
+                                    {...role, landingPage: e.target.value});
+                                setInvalidValues({...invalidValues, landingPage: false})
+                            }}
                 />
+                {invalidValues.landingPage &&
+                    <ErrorIndicator msg={I18n.t("forms.invalid", {
+                        attribute: I18n.t("roles.landingPage").toLowerCase(),
+                        value: role.landingPage
+                    })}/>}
+
 
                 <section className="actions">
                     {!isNewRole &&
@@ -204,7 +260,9 @@ export const RoleForm = () => {
             {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
+                                                     confirmationTxt ={confirmation.confirmationTxt}
                                                      isWarning={confirmation.warning}
+                                                     isError={confirmation.error}
                                                      question={confirmation.question}/>}
 
             <UnitHeader
