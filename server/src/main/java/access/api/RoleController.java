@@ -125,9 +125,10 @@ public class RoleController {
         return saveOrUpdate(role, user);
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<Void> deleteRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug("/deleteRole");
+        Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
         provisioningService.deleteGroupRequest(role);

@@ -9,7 +9,7 @@
       "metaDataFields": {
         "name:en": "Scim",
         "provisioning_type": "scim",
-        "scim_url": "http://localhost:8081/scim/v2",
+        "scim_url": "http://localhost:8081/api/scim/v2",
         "scim_user": "user",
         "scim_password": "secret",
         "scim_update_role_put_method": true
@@ -36,7 +36,7 @@
       "metaDataFields": {
         "name:en": "Scim-Patch",
         "provisioning_type": "scim",
-        "scim_url": "http://localhost:8081/scim/v2",
+        "scim_url": "http://localhost:8081/api/scim/v2",
         "scim_user": "user",
         "scim_password": "secret",
         "scim_update_role_put_method": false

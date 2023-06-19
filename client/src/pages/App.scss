@@ -5,3 +5,7 @@
     position: relative;
     width: 100%;
 }
+
+.sds--modal.sds--backdrop {
+    z-index: 99;
+}

@@ -22,7 +22,7 @@ export const RoleForm = () => {
     const {id} = useParams();
     const nameRef = useRef();
 
-    const [role, setRole] = useState({defaultExpiryDays: 0});
+    const [role, setRole] = useState({name: "", defaultExpiryDays: 0});
     const [providers, setProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
     const {user, setFlash} = useAppStore(state => state);
@@ -131,7 +131,7 @@ export const RoleForm = () => {
         if (showConfirmation) {
             setConfirmation({
                 cancel: () => setConfirmationOpen(false),
-                action: () => doDelete(true),
+                action: () => doDelete(false),
                 warning: true,
                 error: false,
                 question: I18n.t("roles.deleteConfirmation"),
@@ -142,6 +142,7 @@ export const RoleForm = () => {
             deleteRole(role)
                 .then(() => {
                     setConfirmationOpen(false);
+                    navigate("/home/roles");
                     setFlash(I18n.t("roles.deleteFlash", {name: role.name}));
                 }).catch(handleError)
         }
