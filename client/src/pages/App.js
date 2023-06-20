@@ -58,7 +58,6 @@ export const App = () => {
                                 setLoading(false);
                                 setAuthenticated(true);
                                 const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
-                                ;
                                 const newLocation = location.startsWith("/login") ? "/home" : location;
                                 localStorage.removeItem("location");
                                 navigate(newLocation);

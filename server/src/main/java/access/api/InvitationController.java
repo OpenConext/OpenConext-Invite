@@ -117,7 +117,7 @@ public class InvitationController {
             throw new InvitationStatusException();
         }
         List<Map<String, Object>> providers = invitation.getRoles().stream()
-                .map(invitationRole -> invitationRole.getRole())
+                .map(InvitationRole::getRole)
                 .map(role -> manage.providerById(role.getManageType(), role.getManageId()))
                 .toList();
         return ResponseEntity.ok(new MetaInvitation(invitation, providers));
@@ -166,6 +166,7 @@ public class InvitationController {
                         UserRole userRole = optionalUserRole.get();
                         if (!userRole.getAuthority().hasEqualOrHigherRights(invitation.getIntendedAuthority())) {
                             userRole.setAuthority(invitation.getIntendedAuthority());
+                            userRole.setEndDate(invitationRole.getEndDate());
                         }
                     } else {
                         UserRole userRole = new UserRole(

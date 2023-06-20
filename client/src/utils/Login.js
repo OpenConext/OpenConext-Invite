@@ -12,5 +12,4 @@ export function login(config, force = false, hash = null) {
             `${window.location.protocol}//${window.location.host}`
     }
     window.location.href = `${serverUrl}/api/v1/users/login${params}`;
-
 }

@@ -1,0 +1,40 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tiqr-Mock</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
+    <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="translucent-black" name="apple-mobile-web-app-status-bar-style">
+    <link href="/favicon.ico" rel="shortcut icon">
+    <link th:href="@{/styles.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/main.css}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div class="container">
+    <div class="top-header">
+        <h1 th:text="#{login(${environment})}"></h1>
+    </div>
+
+    <div class="header">
+        <h1 th:text="#{permission}"></h1>
+    </div>
+    <div class="content-container">
+        <div class="content">
+            <a class="home" th:href="@{/}">Home</a>
+            <div th:if="${!registrations.empty}">
+                <p class="info">Click to view the registration details</p>
+            </div>
+            <div th:each="registration : ${registrations}">
+                <a th:href="@{/registration/{id}(id=${registration.userId})}"><span
+                        th:text="${registration.userDisplayName}"></span></a>
+            </div>
+            <div th:if="${registrations.empty}">
+                <p class="info">There are no registrations...</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

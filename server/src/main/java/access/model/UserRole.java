@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Entity(name = "user_roles")
@@ -55,12 +56,12 @@ public class UserRole implements Serializable {
         this(inviter, user, role, authority, null);
     }
 
-    public UserRole(String inviter, User user, Role role, Authority authority, Instant endDate) {
+    public UserRole(String inviter, User user, Role role, @NotNull Authority authority, Instant endDate) {
         this.inviter = inviter;
         this.user = user;
         this.role = role;
         this.authority = authority;
-        this.endDate= endDate;
+        this.endDate = endDate == null ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
         this.createdAt = Instant.now();
     }
 }

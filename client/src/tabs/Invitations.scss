@@ -13,12 +13,16 @@
                 }
 
                 &.enforceEmailEquality {
-                    width: 20%;
+                    width: 15%;
                     text-align: center;
                 }
 
+                &.status {
+                    width: 10%;
+                }
+
                 &.eduIDOnly {
-                    width: 20%;
+                    width: 15%;
                     text-align: center;
                 }
 

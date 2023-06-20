@@ -102,6 +102,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/csrf",
                                 "/api/v1/users/config",
+                                "/api/v1/users/logout",
                                 "/api/v1/invitations/public",
                                 "/api/v1/validations/**",
                                 "/ui/**",

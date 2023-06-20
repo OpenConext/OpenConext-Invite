@@ -27,8 +27,8 @@ class MailBoxTest extends AbstractMailTest {
                 "hash",
                 "nope@ex.com",
                 false, user,
-                Set.of(new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP)),
-                        new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP))));
+                Set.of(new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365)),
+                        new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365))));
         mailBox.sendInviteMail(user, invitation, List.of(
                 new GroupedProviders(
                         localManage.providerById(EntityType.SAML20_SP, "1"),

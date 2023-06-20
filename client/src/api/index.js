@@ -121,7 +121,7 @@ export function newInvitation(invitationRequest) {
 
 export function acceptInvitation(hash, invitationId) {
     const body = {hash: hash, invitationId: invitationId};
-    return postPutJson("/api/v1/invitations/accept", body, "POST");
+    return postPutJson("/api/v1/invitations/accept", body, "POST", false);
 }
 
 export function invitationsByRoleId(roleId) {

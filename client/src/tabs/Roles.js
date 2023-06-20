@@ -34,7 +34,7 @@ export const Roles = () => {
             setRoles(markAndFilterRoles(user, []))
         }
         setLoading(false);
-    }, [user, roleSearchRequired]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const openRole = (e, role) => {
         const id = role.isUserRole ? role.role.id : role.id;
@@ -103,15 +103,15 @@ export const Roles = () => {
         },
         {
             key: "authority",
-            header: I18n.t("roles.authority"),
+            header: I18n.t("roles.yourRole"),
             mapper: role =>  <Chip type={chipTypeForUserRole(role.authority)}
                                    label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
                                        I18n.t("roles.noMember")}/>
         },
         {
-            key: "endDate",
-            header: I18n.t("roles.endDate"),
-            mapper: role => role.isUserRole ? dateFromEpoch(role.endDate) : I18n.t("forms.notApplicable")
+            key: "defaultExpiryDays",
+            header: I18n.t("users.expiryDays"),
+            mapper: role => role.isUserRole ? role.role.defaultExpiryDays : role.defaultExpiryDays
         },
         {
             key: "landingPage",

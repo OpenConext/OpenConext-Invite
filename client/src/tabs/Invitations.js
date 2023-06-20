@@ -8,10 +8,11 @@ import "./Users.scss";
 import {dateFromEpoch} from "../utils/Date";
 
 import {chipTypeForUserRole} from "../utils/Authority";
+import {useNavigate} from "react-router-dom";
 
 
 export const Invitations = ({role, invitations}) => {
-
+    const navigate = useNavigate();
     const columns = [
         {
             nonSortable: true,
@@ -38,6 +39,11 @@ export const Invitations = ({role, invitations}) => {
             header: I18n.t("roles.authority"),
             mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intendedAuthority)}
                                         label={I18n.t(`access.${invitation.intendedAuthority}`)}/>
+        },
+        {
+            key: "status",
+            header: I18n.t("invitations.status"),
+            mapper: invitation => <span>{I18n.t(`invitations.${invitation.status.toLowerCase()}`) }</span>
         },
         {
             key: "enforceEmailEquality",

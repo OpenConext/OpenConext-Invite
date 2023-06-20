@@ -12,7 +12,6 @@ import InputField from "../components/InputField";
 import {isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
-import ConfirmationDialog from "../components/ConfirmationDialog";
 import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
 import {futureDate} from "../utils/Date";
@@ -26,6 +25,7 @@ export const InvitationForm = () => {
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [invitation, setInvitation] = useState({
         expiryDate: futureDate(30),
+        roleExpiryDate: futureDate(365),
         invites: [],
         intendedAuthority: AUTHORITIES.GUEST
     });
@@ -33,8 +33,6 @@ export const InvitationForm = () => {
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
     const required = ["intendedAuthority", "invites"];
-    const [confirmation, setConfirmation] = useState({});
-    const [confirmationOpen, setConfirmationOpen] = useState(false);
 
     useEffect(() => {
         if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
@@ -65,6 +63,7 @@ export const InvitationForm = () => {
             const initialRole = roles.find(role => role.value === location.state);
             if (initialRole) {
                 setSelectedRoles([initialRole])
+                setInvitation({...invitation, roleExpiryDate: futureDate(initialRole.defaultExpiryDays)})
             }
         }
     }, [roles, location.state])// eslint-disable-line react-hooks/exhaustive-deps
@@ -77,23 +76,8 @@ export const InvitationForm = () => {
                 .then(() => {
                     setFlash(I18n.t("invitations.createFlash"));
                     navigate("/home/roles");
-                }).catch(handleError);
+                });
         }
-    }
-
-    const handleError = e => {
-        e.response.json().then(j => {
-            const reference = j.reference;
-            setConfirmation({
-                cancel: null,
-                action: () => setConfirmationOpen(false),
-                warning: false,
-                error: true,
-                question: I18n.t("forms.error", {reference: reference}),
-                confirmationTxt: I18n.t("forms.ok")
-            });
-            setConfirmationOpen(true);
-        })
     }
 
     const isValid = () => {
@@ -142,19 +126,13 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitations.requiredEmail")}/>}
 
-                <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
-                          value={invitation.enforceEmailEquality || false}
-                          info={I18n.t("invitations.enforceEmailEquality")}
-                          onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
-                          tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
-                />
-
                 <SelectField
                     value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                         || authorityOptions[authorityOptions.length - 1]}
                     options={authorityOptions}
                     name={I18n.t("invitations.intendedAuthority")}
                     searchable={false}
+                    disabled={authorityOptions.length === 1}
                     onChange={option => setInvitation({...invitation, intendedAuthority: option.value})}
                     toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
                     clearable={false}
@@ -174,10 +152,24 @@ export const InvitationForm = () => {
 
                 <DateField value={invitation.roleExpiryDate}
                            onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
-                           allowNull={true}
                            showYearDropdown={true}
+                           minDate={futureDate(1, invitation.expiryDate)}
                            name={I18n.t("invitations.expiryDateRole")}
                            toolTip={I18n.t("tooltips.expiryDateRoleTooltip")}/>
+
+                <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
+                          value={invitation.enforceEmailEquality || false}
+                          info={I18n.t("invitations.enforceEmailEquality")}
+                          onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
+                          tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
+                />
+
+                <Checkbox name={I18n.t("invitations.eduIDOnly")}
+                          value={invitation.eduIDOnly || false}
+                          info={I18n.t("invitations.eduIDOnly")}
+                          onChange={e => setInvitation({...invitation, eduIDOnly: e.target.checked})}
+                          tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
+                />
 
                 <InputField value={invitation.message}
                             onChange={e => setInvitation({...invitation, message: e.target.value})}
@@ -188,8 +180,8 @@ export const InvitationForm = () => {
 
                 <DateField value={invitation.expiryDate}
                            onChange={e => setInvitation({...invitation, expiryDate: e})}
-                           allowNull={false}
                            showYearDropdown={true}
+                           minDate={futureDate(1)}
                            maxDate={futureDate(30)}
                            name={I18n.t("invitations.expiryDate")}
                            toolTip={I18n.t("tooltips.expiryDateTooltip")}/>
@@ -213,14 +205,6 @@ export const InvitationForm = () => {
     }
     return (
         <div className={"mod-invitation-form"}>
-            {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
-                                                     cancel={confirmation.cancel}
-                                                     confirm={confirmation.action}
-                                                     confirmationTxt={confirmation.confirmationTxt}
-                                                     isWarning={confirmation.warning}
-                                                     isError={confirmation.error}
-                                                     question={confirmation.question}/>}
-
             <UnitHeader
                 obj={({
                     name: I18n.t(`invitations.new`),

@@ -1,0 +1,33 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Provisioning-Mock</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
+    <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="translucent-black" name="apple-mobile-web-app-status-bar-style">
+    <link href="/favicon.ico" rel="shortcut icon">
+    <link th:href="@{/styles.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/main.css}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div class="container">
+    <div class="top-header">
+        <h1 th:text="#{login(${environment})}"></h1>
+    </div>
+
+    <div class="header">
+        <h1 th:text="#{permission}"></h1>
+    </div>
+    <div class="content-container">
+        <div class="content">
+            <p class="info">See all open enrollments, open authentications or registrations</p>
+            <a href="/enrollments">Enrollments</a>
+            <a href="/authentications">Authentications</a>
+            <a href="/registrations">Registrations</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

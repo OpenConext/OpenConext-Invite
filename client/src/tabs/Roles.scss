@@ -19,8 +19,9 @@ div.mod-roles {
                     text-align: center;
                 }
 
-                &.endDate {
+                &.defaultExpiryDays {
                     width: 15%;
+                    text-align: center;
                 }
 
                 &.landingPage {
@@ -30,9 +31,8 @@ div.mod-roles {
         }
 
         tbody {
-            td.authority {
+            td.authority, td.defaultExpiryDays {
                 text-align: center;
-
             }
 
         }

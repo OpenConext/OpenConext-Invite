@@ -1,0 +1,171 @@
+div.container {
+    max-width: 38rem;
+    width: 38rem;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+div.top-header {
+    line-height: 5rem;
+    margin: 0;
+    padding: 0 2rem;
+}
+
+div.top-header h1 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: white;
+}
+
+div.header {
+    background-color: #fedb00;
+    margin: 0;
+    padding: 1.625rem 2rem;
+    width: 100%;
+}
+
+div.header h1 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: #0077c8;
+    line-height: 1.625rem;
+    margin: 0;
+}
+
+p.info {
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+div.content-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+div.content {
+    width: 100%;
+    margin: 0 auto 0 auto;
+    padding: 0.6rem 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    background-color: whitesmoke;
+    position: relative;
+}
+
+span.strong {
+    font-weight: bold;
+}
+
+button, .button {
+    background-color: #0077c8;
+    font-size: 1.1875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    width: 240px;
+    border: none;
+    cursor: pointer;
+}
+
+a.button {
+    margin-bottom: 0;
+}
+
+a.fail {
+    background-color: #fff;
+    color: #0077c8;
+}
+
+a.home {
+    position: absolute;
+    right: 26px;
+    top: 8px;
+}
+
+button:hover {
+    background-color: #004c97;
+    color: #94d6ff;
+    text-decoration: underline;
+}
+
+.button.cancel {
+    background-color: #f4f6f8;
+    color: #0077c8;
+    width: auto;
+    text-align: center;
+}
+
+.button.cancel:hover {
+    background-color: #ddf2fd;
+    color: #003980;
+    text-decoration: underline;
+}
+
+.footer {
+    display: flex;
+    align-content: center;
+}
+
+.inner-footer {
+    margin: auto auto 0 auto;
+}
+
+.inner-footer a {
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.inner-footer a.active {
+    color: white;
+    font-weight: bold;
+    cursor: not-allowed;
+}
+
+.inner-footer a:first-child {
+    padding-right: 25px;
+    border-right: 1px solid white;
+}
+
+.inner-footer a:last-child {
+    padding-left: 25px;
+}
+
+table {
+    width: 100%;
+    margin: 15px 0;
+}
+
+table th {
+    text-align: left;
+    border-bottom: 2px solid lightgrey;
+}
+
+table td {
+    border-bottom: 1px solid lightgrey;
+    padding: 15px 0 15px 0;
+}
+
+table th.attribute {
+    width: 35%;
+    font-weight: bold;
+}
+
+table th.value {
+    width: 65%;
+    font-weight: bold;
+}
+
+div.actions {
+    display: flex;
+    margin-top: 25px;
+}
+
+div.actions a.button {
+    margin-left: auto;
+}

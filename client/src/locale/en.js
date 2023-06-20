@@ -6,7 +6,7 @@ const en = {
         header: {
             title: "Manage access to your applications",
             login: "Login",
-            sup: "The Access application is by invite only.",
+            sup: "The SURFwelcome application is by invite only.",
         },
         works: "How does it work?",
         adminFunction: "admin function",
@@ -19,11 +19,11 @@ const en = {
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
         ],
-        footer: "<p>SURF Access is a service for access management of Dutch led service providers.</p>" +
+        footer: "<p>SURFwelcome is a service for access management of Dutch led service providers.</p>" +
             "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/access'>https://surf.nl/en/access</a>.</p>",
     },
     header: {
-        title: "Access",
+        title: "SURFwelcome",
         subTitle: "Everything will be Owl right",
         links: {
             login: "Login",
@@ -46,7 +46,7 @@ const en = {
         userRoles: "User roles"
     },
     home: {
-        access: "SURF Access",
+        access: "SURFwelcome",
     },
     impersonate: {
         exit: "Stop impersonating",
@@ -90,7 +90,8 @@ const en = {
         noResults: "No users are found",
         searchPlaceHolder: "Search for users...",
         authority: "Authority",
-        endDate: "End date"
+        endDate: "End date",
+        expiryDays: "Expiry days"
     },
     roles: {
         title: "Roles",
@@ -102,6 +103,7 @@ const en = {
         defaultExpiryDays: "Expiry days",
         endDate: "End date",
         authority: "Role",
+        yourRole: "Your role",
         description: "Description",
         descriptionPlaceHolder: "The description of the role",
         noResults: "No roles are found",
@@ -132,6 +134,9 @@ const en = {
         multipleInvitations: "invitations",
         searchPlaceHolder: "Search for invitation...",
         noResults: "No invitation where found",
+        status: "Status",
+        open: "Open",
+        accepted: "Accepted",
         enforceEmailEquality: "Email equality",
         eduIDOnly: "eduID only",
         new: "New invite",
@@ -160,23 +165,38 @@ const en = {
         edit: "Edit",
         cancel: "Cancel",
         save: "Save",
+        and: "and",
         alreadyExists: "The {{attribute}} '{{value}}' already exists",
         alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}",
         required: "The {{attribute}} is required",
         invalid: "The value '{{value}}' is invalid for {{attribute}}",
-        error: "You can <a href=\"mailto:access@surf.nl\" target=\"_blank\">contact SURF access</a> for more information.<br/><br/>" +
+        error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
             "The reference number for ths exception is {{reference}}."
     },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}"
     },
     inviteOnly: {
-        welcome: "Welcome to SURF Access",
+        welcome: "Welcome to SURFwelcome",
         roles: "You don't have any roles.",
-        info: "The Access application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:access@surf.nl'>access@surf.nl</a>.",
+        info: "The SURFwelcome application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:access@surf.nl'>welcome@surf.nl</a>.",
         preLogin: "Or ",
         login: "login",
         postLogin: " again with a different institution",
+    },
+    invitationAccept: {
+        hi: "Hi{{name}},",
+        nextStep: "Next: enjoy your new role",
+        expired: "Your invitation has expired",
+        invited: "You have been invited for the {{plural}} {{roles}} by {{inviter}}",
+        role: "role",
+        roles: "roles",
+        progress: "1",
+        info: "SURFwelcome provides access to application based on your roles.",
+        infoLogin: "You can login with your institution account or edulD.",
+        infoLoginAgain: "To accept the invitation you'll need to login again.",
+        login: "Login",
+        loginWithSub: "Login"
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
@@ -188,6 +208,7 @@ const en = {
         manageService: "The required service from Manage with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expiry when a use accepts a invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with the email where the invitation was send to",
+        eduIDOnlyTooltip: "When checked the invitees will be required to login with eduID",
         expiryDateRoleTooltip: "The end date of this role. After this date the role is removed from the user.",
         expiryDateTooltip: "The date on which this invitation expires",
         rolesTooltip: "All the roles that the invitee will be granted after accepting the invitation",

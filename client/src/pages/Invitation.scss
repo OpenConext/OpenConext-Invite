@@ -21,34 +21,10 @@
             margin: 25px 0;
         }
 
-        p.tip {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
         .expired {
             display: inline-block;
             font-size: 18px;
             margin-top: 15px;
-        }
-
-        .required {
-            color: var(--sds--color--red--400);
-        }
-
-        div.checkbox, label.policy {
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .step-container {
-            button {
-
-                &.sds--btn--primary {
-                    margin-top: 20px;
-                }
-
-            }
         }
 
         .step {
@@ -60,9 +36,6 @@
         .step-actions {
             padding-top: 5px;
 
-            h1 {
-                margin-bottom: 10px;
-            }
         }
 
 

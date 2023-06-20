@@ -41,17 +41,17 @@ public record Seed(InvitationRepository invitationRepository,
         doSave(this.userRepository, superUser, manager, inviter, guest);
 
         Role wiki =
-                new Role("Wiki", "Wiki desc", "https://landingpage.com", "1", EntityType.SAML20_SP);
+                new Role("Wiki", "Wiki desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365);
         Role network =
-                new Role("Network", "Network desc", "https://landingpage.com", "2", EntityType.SAML20_SP);
+                new Role("Network", "Network desc", "https://landingpage.com", "2", EntityType.SAML20_SP, 365);
         Role storage =
-                new Role("Storage", "Storage desc", "https://landingpage.com", "3", EntityType.SAML20_SP);
+                new Role("Storage", "Storage desc", "https://landingpage.com", "3", EntityType.SAML20_SP, 365);
         Role research =
-                new Role("Research", "Research desc", "https://landingpage.com", "4", EntityType.SAML20_SP);
+                new Role("Research", "Research desc", "https://landingpage.com", "4", EntityType.SAML20_SP, 365);
         Role calendar =
-                new Role("Calendar", "Calendar desc", "https://landingpage.com", "5", EntityType.OIDC10_RP);
+                new Role("Calendar", "Calendar desc", "https://landingpage.com", "5", EntityType.OIDC10_RP, 365);
         Role mail =
-                new Role("Mail", "Mail desc", "https://landingpage.com", "5", EntityType.OIDC10_RP);
+                new Role("Mail", "Mail desc", "https://landingpage.com", "5", EntityType.OIDC10_RP, 365);
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 
         UserRole wikiManager =

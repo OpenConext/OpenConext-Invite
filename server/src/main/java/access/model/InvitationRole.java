@@ -8,8 +8,10 @@ import lombok.Setter;
 import lombok.ToString;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Entity(name = "invitation_roles")
 @NoArgsConstructor
@@ -36,11 +38,11 @@ public class InvitationRole implements Serializable {
     private Role role;
 
     public InvitationRole(Role role) {
-        this.role = role;
+        this(role, null);
     }
 
     public InvitationRole(Role role, Instant endDate) {
         this.role = role;
-        this.endDate = endDate;
+        this.endDate = endDate == null ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
     }
 }

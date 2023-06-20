@@ -67,7 +67,6 @@ CREATE TABLE `invitations`
     `message`                text         DEFAULT NULL,
     `hash`                   varchar(255) DEFAULT NULL,
     `enforce_email_equality` bool         DEFAULT 0,
-    `scope_wayf`             bool         DEFAULT 0,
     `edu_id_only`            bool         DEFAULT 0,
     `created_at`             datetime     DEFAULT CURRENT_TIMESTAMP,
     `expiry_date`            datetime     DEFAULT NULL,

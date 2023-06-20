@@ -2,7 +2,6 @@ import React from "react";
 import "./RoleMetaData.scss";
 import {MetaDataList} from "@surfnet/sds";
 import I18n from "../locale/I18n";
-import {dateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
 
 
@@ -28,9 +27,9 @@ export const RoleMetaData = ({role, provider, user}) => {
             values: [<span>{I18n.t(`access.${userRole.authority}`)}</span>]
         },
         {
-            label: I18n.t("users.endDate"),
+            label: I18n.t("users.expiryDays"),
             values: [
-                <span>{userRole.endDate ? dateFromEpoch(userRole.endDate) : I18n.t("forms.none")}</span>]
+                <span>{role.defaultExpiryDays}</span>]
         }
 
     ]

@@ -105,9 +105,9 @@ export const RoleForm = () => {
         if (isValid()) {
             const promise = isNewRole ? createRole : updateRole;
             promise(role)
-                .then(() => {
+                .then(res => {
                     setFlash(I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name}));
-                    navigate("/home/roles");
+                    navigate(`/roles/${res.id}`);
                 }).catch(handleError);
         }
     }
@@ -150,7 +150,8 @@ export const RoleForm = () => {
     const isValid = () => {
         return required.every(attr => !isEmpty(role[attr]))
             && Object.values(alreadyExists).every(attr => !attr)
-            && Object.values(invalidValues).every(attr => !attr);
+            && Object.values(invalidValues).every(attr => !attr)
+            && role.defaultExpiryDays > 0;
     }
 
     const renderForm = () => {
@@ -215,10 +216,18 @@ export const RoleForm = () => {
                 <InputField name={I18n.t("roles.defaultExpiryDays")}
                             value={role.defaultExpiryDays || 0}
                             isInteger={true}
-                            onChange={e => setRole(
-                                {...role, defaultExpiryDays: e.target.value})}
+                            onChange={e => {
+                                const val = parseInt(e.target.value);
+                                const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
+                                setRole(
+                                    {...role, defaultExpiryDays: defaultExpiryDays})
+                            }}
                             toolTip={I18n.t("tooltips.defaultExpiryDays")}
                 />
+                {(!initial && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {
+                        attribute: I18n.t("roles.defaultExpiryDays").toLowerCase()
+                    })}/>}
 
                 <InputField name={I18n.t("roles.landingPage")}
                             value={role.landingPage || ""}

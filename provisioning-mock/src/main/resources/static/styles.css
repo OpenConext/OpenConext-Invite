@@ -1,0 +1,69 @@
+/* nunito-300 - latin */
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 300;
+    src: local('Nunito Light'), local('Nunito-Light'),
+    url('/fonts/nunito/nunito-v16-latin-300.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+    url('/fonts/nunito/nunito-v16-latin-300.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* nunito-regular - latin */
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Nunito Regular'), local('Nunito-Regular'),
+    url('/fonts/nunito/nunito-v16-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+    url('/fonts/nunito/nunito-v16-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* nunito-600 - latin */
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 600;
+    src: local('Nunito Semi Bold'), local('Nunito-Semi-Bold'),
+    url('/fonts/nunito/nunito-v16-latin-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+    url('/fonts/nunito/nunito-v16-latin-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* nunito-700 - latin */
+@font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Nunito Bold'), local('Nunito-Bold'),
+    url('/fonts/nunito/nunito-v16-latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+    url('/fonts/nunito/nunito-v16-latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    font-weight: 300;
+    src: url("/fonts/source_sans_pro/sourcesanspro-regular-webfont.woff2") format("woff2"),
+    url("/fonts/source_sans_pro/sourcesanspro-regular-webfont.woff") format("woff");
+}
+
+@font-face {
+    font-family: "Source Sans Pro";
+    font-weight: 600;
+    src: url("/fonts/source_sans_pro/sourcesanspro-semibold-webfont.woff2") format("woff2"),
+    url("/fonts/source_sans_pro/sourcesanspro-semibold-webfont.woff") format("woff");
+}
+
+body {
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    line-height: 22px;
+    background-color: #004c97;
+}
+
+body, h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+h1, h2, h3 {
+    font-family: Nunito, sans-serif;
+}

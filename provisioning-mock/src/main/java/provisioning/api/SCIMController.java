@@ -3,10 +3,13 @@ package provisioning.api;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import provisioning.config.Database;
+import provisioning.config.ProvisioningType;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,8 +22,14 @@ public class SCIMController {
 
     private static final Log LOG = LogFactory.getLog(SCIMController.class);
 
-    private final Map<String, Map<String, Object>> users = new HashMap<>();
-    private final Map<String, Map<String, Object>> groups = new HashMap<>();
+    private final Map<String, Map<String, Object>> users ;
+    private final Map<String, Map<String, Object>> groups;
+
+    @Autowired
+    public SCIMController(Database database) {
+        this.users = database.users(ProvisioningType.scim);
+        this.groups = database.users(ProvisioningType.scim);
+    }
 
     @PostMapping("/users")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody Map<String, Object> user) {
@@ -64,6 +73,8 @@ public class SCIMController {
     @PatchMapping("/groups/{id}")
     public ResponseEntity<Map<String, String>> patchGroup(@PathVariable("id") String id, @RequestBody Map<String, Object> group) {
         LOG.info("/api/scim/v2/groups/" + id + " PATCH " + group);
+        Map<String, Object> groupFromDB = groups.get(id);
+//        groupFromDB.merge("members", group.get("members"))
         groups.put(id, group);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
@@ -71,7 +82,7 @@ public class SCIMController {
     @PutMapping("/groups/{id}")
     public ResponseEntity<Map<String, String>> updateGroup(@PathVariable("id") String id, @RequestBody Map<String, Object> group) {
         LOG.info("/api/scim/v2/groups/" + id + " PUT " + group);
-        groups.remove(id);
+        groups.put(id, group);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
@@ -84,6 +95,7 @@ public class SCIMController {
     @DeleteMapping("/groups/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable("id") String id) {
         LOG.info("/api/scim/v2/groups/" + id + " DELETE");
+        groups.remove(id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

@@ -9,9 +9,15 @@ import access.provision.scim.*;
 import access.repository.RemoteProvisionedGroupRepository;
 import access.repository.RemoteProvisionedUserRepository;
 import access.repository.UserRoleRepository;
+import com.azure.identity.ClientSecretCredential;
+import com.azure.identity.ClientSecretCredentialBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
+import com.microsoft.graph.models.PasswordProfile;
+import com.microsoft.graph.requests.GraphServiceClient;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,9 +89,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                         .isEmpty())
                 .forEach(provisioning -> {
                     String userRequest = prettyJson(new UserRequest(user));
-                    String remoteScimIdentifier = this.newRequest(provisioning, userRequest, user);
-                    RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier, provisioning.getId());
-                    this.remoteProvisionedUserRepository.save(remoteProvisionedUser);
+                    Optional<String> remoteScimIdentifier = this.newRequest(provisioning, userRequest, user);
+                    remoteScimIdentifier.ifPresent(identifier -> {
+                        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, identifier, provisioning.getId());
+                        this.remoteProvisionedUserRepository.save(remoteProvisionedUser);
+                    });
                 });
     }
 
@@ -119,9 +127,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     .findByManageProvisioningIdAndRole(provisioning.getId(), role);
             if (provisionedGroupOptional.isEmpty()) {
                 String groupRequest = constructGroupRequest(role, null, Collections.emptyList());
-                String remoteScimIdentifier = this.newRequest(provisioning, groupRequest, role);
-                RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, remoteScimIdentifier, provisioning.getId());
-                this.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
+                Optional<String> remoteScimIdentifier = this.newRequest(provisioning, groupRequest, role);
+                remoteScimIdentifier.ifPresent(identifier -> {
+                    RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, identifier, provisioning.getId());
+                    this.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
+                });
             }
         });
     }
@@ -227,10 +237,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @SneakyThrows
-    private String newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
+    private Optional<String> newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
         boolean isUser = provisionable instanceof User;
         String apiType = isUser ? USER_API : GROUP_API;
-        RequestEntity<String> requestEntity;
+        RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
             MultiValueMap<String, String> map = new GuestAccount((User) provisionable, provisioning).getRequest();
             String url = provisioning.getEvaUrl() + "/api/v1/guest/create";
@@ -238,12 +248,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
             requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
-        } else { //if (hasGraphHook(provisioning)) {
+        } else if (hasGraphHook(provisioning)) {
             //TODO
-            return UUID.randomUUID().toString();
+            return Optional.of(UUID.randomUUID().toString());
         }
-        Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
-        return String.valueOf(results.get("id"));
+        if (requestEntity != null) {
+            Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
+            return Optional.of(String.valueOf(results.get("id")));
+        }
+        return Optional.empty();
 
     }
 
@@ -359,5 +372,30 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         return headers;
     }
 
+    private void graphClient(Provisioning provisioning) {
+        final List<String> scopes = List.of("https://graph.microsoft.com/.default");
+
+        ClientSecretCredential credential = new ClientSecretCredentialBuilder()
+                .clientId(provisioning.getGraphClientId())
+                .tenantId(provisioning.getGraphTenant())
+                .clientSecret(provisioning.getGraphSecret()).build();
+
+        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(
+                scopes, credential);
+
+        com.microsoft.graph.models.User user = new com.microsoft.graph.models.User();
+        user.accountEnabled = true;
+        user.displayName = "Adele Vance";
+        user.mailNickname = "AdeleV";
+        user.userPrincipalName = "AdeleV@contoso.onmicrosoft.com";
+        PasswordProfile passwordProfile = new PasswordProfile();
+        passwordProfile.forceChangePasswordNextSignIn = true;
+        passwordProfile.password = "xWwvJ]6NMw+bWH-d";
+        user.passwordProfile = passwordProfile;
+        GraphServiceClient<Request> graphClient = GraphServiceClient.builder().authenticationProvider(authProvider).buildClient();
+        graphClient.users()
+                .buildRequest()
+                .post(user);
+    }
 
 }

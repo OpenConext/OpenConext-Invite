@@ -3,6 +3,7 @@ package access.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Entity(name = "invitations")
@@ -43,9 +45,6 @@ public class Invitation implements Serializable {
     @Column(name = "enforce_email_equality")
     private boolean enforceEmailEquality;
 
-    @Column(name = "scope_wayf")
-    private boolean scopeWayf;
-
     @Column(name = "edu_id_only")
     private boolean eduIDOnly;
 
@@ -74,7 +73,7 @@ public class Invitation implements Serializable {
                       String email,
                       boolean enforceEmailEquality,
                       User inviter,
-                      Set<InvitationRole> roles) {
+                      @NotEmpty Set<InvitationRole> roles) {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
@@ -82,13 +81,22 @@ public class Invitation implements Serializable {
         this.status = Status.OPEN;
         this.roles = roles;
         this.email = email;
-        roles.forEach(role -> role.setInvitation(this));
-        this.defaults();
-    }
-
-    public void defaults() {
         this.expiryDate = Instant.now().plus(Period.ofDays(14));
         this.createdAt = Instant.now();
+        this.roleExpiryDate = this.roleExpiryDate(roles);
+        roles.forEach(role -> role.setInvitation(this));
+    }
+
+    private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles) {
+        return roles.stream()
+                .map(InvitationRole::getEndDate)
+                .filter(Objects::nonNull).min(Comparator.naturalOrder())
+                .orElse(Instant.now().plus(
+                        roles.stream()
+                                .map(invitationRole -> invitationRole.getRole().getDefaultExpiryDays())
+                                .filter(Objects::nonNull)
+                                .min(Comparator.naturalOrder()
+                                ).orElse(365), ChronoUnit.DAYS));
     }
 
     @JsonIgnore

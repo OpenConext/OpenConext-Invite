@@ -61,17 +61,30 @@ public class Role implements Serializable, Provisionable {
     @Transient
     private Map<String, Object> application;
 
-    public Role(String name, String description, String landingPage, String manageId, EntityType manageType) {
-        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, manageId, manageType, Collections.emptyMap());
+    public Role(String name,
+                String description,
+                String landingPage,
+                String manageId,
+                EntityType manageType,
+                Integer defaultExpiryDays) {
+        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, manageId, manageType, defaultExpiryDays, Collections.emptyMap());
     }
 
-    public Role(String name, String shortName, String description, String landingPage, String manageId, EntityType manageType, Map<String, Object> application) {
+    public Role(@NotNull String name,
+                @NotNull String shortName,
+                String description,
+                String landingPage,
+                String manageId,
+                EntityType manageType,
+                Integer defaultExpiryDays,
+                Map<String, Object> application) {
         this.name = name;
         this.shortName = shortName;
         this.description = description;
         this.landingPage = landingPage;
         this.manageId = manageId;
         this.manageType = manageType;
+        this.defaultExpiryDays = defaultExpiryDays == null ? 365 : defaultExpiryDays;
         this.application = application;
     }
 

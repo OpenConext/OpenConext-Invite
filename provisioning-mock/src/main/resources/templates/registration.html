@@ -1,0 +1,73 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tiqr-Mock</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
+    <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="translucent-black" name="apple-mobile-web-app-status-bar-style">
+    <link href="/favicon.ico" rel="shortcut icon">
+    <link th:href="@{/styles.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/main.css}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div class="container">
+    <div class="top-header">
+        <h1 th:text="#{login(${environment})}"></h1>
+    </div>
+
+    <div class="header">
+        <h1 th:text="#{permission}"></h1>
+    </div>
+    <div class="content-container">
+        <div class="content">
+            <a class="home" th:href="@{/}">Home</a>
+            <p th:text="${'The registration for ' + registration.userDisplayName + ' with status ' + registration.status}"
+               class="info"/>
+            <table>
+                <thead>
+                <tr>
+                    <th class="attribute">Attribute</th>
+                    <th class="value">Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Notification type</td>
+                    <td th:text="${registration.notificationType}"></td>
+                </tr>
+                <tr>
+                    <td>Notification address</td>
+                    <td th:text="${registration.notificationAddress}"></td>
+                </tr>
+                <tr>
+                    <td>User ID</td>
+                    <td th:text="${registration.userId}"></td>
+                </tr>
+                <tr>
+                    <td>User</td>
+                    <td th:text="${registration.userDisplayName}"></td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td th:text="${registration.status}"></td>
+                </tr>
+                <tr>
+                    <td>Language</td>
+                    <td th:text="${registration.language}"></td>
+                </tr>
+                <tr>
+                    <td>Created</td>
+                    <td th:text="${registration.created}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="actions">
+                <a class="button" th:href="@{/delete-registration/{id}(id=${registration.userId})}">Delete registration</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

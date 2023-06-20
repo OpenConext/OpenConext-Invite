@@ -30,7 +30,9 @@ public class InvitationRequest implements Serializable {
     @NotEmpty
     private List<Long> roleIdentifiers;
 
+    @NotNull
     private Instant roleExpiryDate;
 
+    @NotNull
     private Instant expiryDate;
 }
