@@ -320,7 +320,7 @@ public abstract class AbstractTest {
 
 
     protected void stubForDeleteScimUser() {
-        stubFor(delete(urlPathMatching("/scim/v2/users/(.*)"))
+        stubFor(delete(urlPathMatching("/api/scim/v2/users/(.*)"))
                 .willReturn(aResponse()
                         .withStatus(201)));
     }
@@ -333,7 +333,7 @@ public abstract class AbstractTest {
 
 
     protected void stubForDeleteScimRole() {
-        stubFor(delete(urlPathMatching("/scim/v2/groups/(.*)"))
+        stubFor(delete(urlPathMatching("/api/scim/v2/groups/(.*)"))
                 .willReturn(aResponse()
                         .withStatus(201)));
     }
@@ -341,7 +341,7 @@ public abstract class AbstractTest {
     protected String stubForCreateScimRole() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
         String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
-        stubFor(post(urlPathMatching(String.format("/scim/v2/groups")))
+        stubFor(post(urlPathMatching(String.format("/api/scim/v2/groups")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
@@ -351,7 +351,7 @@ public abstract class AbstractTest {
     protected String stubForCreateScimUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
         String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
-        stubFor(post(urlPathMatching(String.format("/scim/v2/users")))
+        stubFor(post(urlPathMatching(String.format("/api/scim/v2/users")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
@@ -369,14 +369,14 @@ public abstract class AbstractTest {
     }
 
     protected void stubForUpdateScimRole() throws JsonProcessingException {
-        stubFor(put(urlPathMatching(String.format("/scim/v2/groups/(.*)")))
+        stubFor(put(urlPathMatching(String.format("/api/scim/v2/groups/(.*)")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                 ));
     }
 
     protected void stubForUpdateScimRolePatch() throws JsonProcessingException {
-        stubFor(patch(urlPathMatching(String.format("/scim/v2/groups/(.*)")))
+        stubFor(patch(urlPathMatching(String.format("/api/scim/v2/groups/(.*)")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                 ));

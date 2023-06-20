@@ -35,6 +35,7 @@ import java.net.URI;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @SuppressWarnings("unchecked")
@@ -139,7 +140,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     @Override
     public void updateGroupRequest(UserRole userRole, OperationType operationType) {
         Role role = userRole.getRole();
-        List<Provisioning> provisionings = getProvisionings(role);
+        List<Provisioning> provisionings = getProvisionings(role).stream()
+                .filter(provisioning -> provisioning.isApplicableForGroupRequest())
+                .toList();
         provisionings.forEach(provisioning -> {
             Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
                     .findByManageProvisioningIdAndRole(provisioning.getId(), role);
@@ -193,6 +196,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                             });
                         }
                     }, () -> {
+                        //TODO check it the update won't lead to endloess loop
                         this.newGroupRequest(role);
                         this.updateGroupRequest(userRole, operationType);
                     }
@@ -322,7 +326,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     requestEntity.getUrl(),
                     requestEntity.getMethod(),
                     requestEntity.getBody());
-            throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage ,e);
+            throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, e);
         }
     }
 
@@ -373,15 +377,12 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     private void graphClient(Provisioning provisioning) {
-        final List<String> scopes = List.of("https://graph.microsoft.com/.default");
-
         ClientSecretCredential credential = new ClientSecretCredentialBuilder()
                 .clientId(provisioning.getGraphClientId())
                 .tenantId(provisioning.getGraphTenant())
                 .clientSecret(provisioning.getGraphSecret()).build();
 
-        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(
-                scopes, credential);
+        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
 
         com.microsoft.graph.models.User user = new com.microsoft.graph.models.User();
         user.accountEnabled = true;

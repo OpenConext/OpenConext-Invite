@@ -2,7 +2,9 @@ package access.provision;
 
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @SuppressWarnings("unchecked")
@@ -63,6 +65,11 @@ public class Provisioning {
                 assert graphSecret != null: "graphSecret is null";
             }
         }
+    }
+
+    public boolean isApplicableForGroupRequest() {
+        return ProvisioningType.scim.equals(this.provisioningType);
+
     }
 }
 

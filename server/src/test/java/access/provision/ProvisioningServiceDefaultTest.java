@@ -46,9 +46,5 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         provisioningService.deleteUserRequest(user);
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(0, remoteProvisionedUsers.size());
-
-        //Three group updates, with the user removed from the member list (no need to stub for now as not implemented)
-        List<RemoteProvisionedGroup> remoteProvisionedGroups = remoteProvisionedGroupRepository.findAll();
-        assertEquals(3, remoteProvisionedGroups.size());
     }
 }

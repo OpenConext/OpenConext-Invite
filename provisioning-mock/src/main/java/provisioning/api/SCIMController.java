@@ -28,7 +28,7 @@ public class SCIMController {
     @Autowired
     public SCIMController(Database database) {
         this.users = database.users(ProvisioningType.scim);
-        this.groups = database.users(ProvisioningType.scim);
+        this.groups = database.groups(ProvisioningType.scim);
     }
 
     @PostMapping("/users")

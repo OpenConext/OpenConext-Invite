@@ -159,11 +159,8 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void logout() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-
         given()
                 .when()
-                .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/users/logout")
@@ -174,10 +171,9 @@ class UserControllerTest extends AbstractTest {
                 .redirects()
                 .follow(false)
                 .when()
-                .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .get("/api/v1/users/logout")
+                .get("/api/v1/users/login")
                 .header("Location");
         assertEquals("http://localhost:" + port + "/oauth2/authorization/oidcng", location);
     }

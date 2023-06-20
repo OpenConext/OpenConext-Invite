@@ -3,5 +3,8 @@
   "id": "@id@",
   "name": "oharsta@zilverline.com",
   "displayName": "oharsta@zilverline.com",
-  "userPrincipalName": "oharsta@zilverline.com"
+  "userPrincipalName": "oharsta@zilverline.com",
+  "passwordProfile": {
+    "forceChangePasswordNextSignIn": true
+  }
 }
