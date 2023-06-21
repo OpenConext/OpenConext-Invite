@@ -76,6 +76,15 @@ export const Roles = () => {
                 <span>{I18n.t("users.moreResults")}</span>
             </div>)
     }
+
+    const landingPage = role => {
+        const url = role.isUserRole ? role.role.landingPage : role.landingPage;
+        if (isEmpty(url)) {
+            return "";
+        }
+        return <a href={url} rel="noreferrer" target="_blank">{url}</a>
+    }
+
     const columns = [
         {
             nonSortable: true,
@@ -116,7 +125,7 @@ export const Roles = () => {
         {
             key: "landingPage",
             header: I18n.t("roles.landingPage"),
-            mapper: role => <span>{role.isUserRole ? role.role.landingPage : role.landingPage}</span>
+            mapper: role => landingPage(role)
         }
 
     ];

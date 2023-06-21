@@ -13,8 +13,10 @@ import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
+import com.microsoft.graph.http.BaseRequest;
 import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.UserCollectionRequest;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -27,15 +29,15 @@ import org.springframework.http.*;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Field;
 import java.net.URI;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 @SuppressWarnings("unchecked")
@@ -141,7 +143,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     public void updateGroupRequest(UserRole userRole, OperationType operationType) {
         Role role = userRole.getRole();
         List<Provisioning> provisionings = getProvisionings(role).stream()
-                .filter(provisioning -> provisioning.isApplicableForGroupRequest())
+                .filter(Provisioning::isApplicableForGroupRequest)
                 .toList();
         provisionings.forEach(provisioning -> {
             Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
@@ -196,7 +198,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                             });
                         }
                     }, () -> {
-                        //TODO check it the update won't lead to endloess loop
                         this.newGroupRequest(role);
                         this.updateGroupRequest(userRole, operationType);
                     }
@@ -252,9 +253,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
             requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
-        } else if (hasGraphHook(provisioning)) {
-            //TODO
-            return Optional.of(UUID.randomUUID().toString());
+        } else if (hasGraphHook(provisioning) && isUser) {
+            return Optional.of(this.graphClient(provisioning, (User) provisionable));
         }
         if (requestEntity != null) {
             Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
@@ -376,7 +376,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         return headers;
     }
 
-    private void graphClient(Provisioning provisioning) {
+    private String graphClient(Provisioning provisioning, User user) {
         ClientSecretCredential credential = new ClientSecretCredentialBuilder()
                 .clientId(provisioning.getGraphClientId())
                 .tenantId(provisioning.getGraphTenant())
@@ -384,19 +384,31 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
         TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
 
-        com.microsoft.graph.models.User user = new com.microsoft.graph.models.User();
-        user.accountEnabled = true;
-        user.displayName = "Adele Vance";
-        user.mailNickname = "AdeleV";
-        user.userPrincipalName = "AdeleV@contoso.onmicrosoft.com";
+        com.microsoft.graph.models.User graphUser = new com.microsoft.graph.models.User();
+
+        graphUser.accountEnabled = true;
+        graphUser.displayName = user.getName();
+        graphUser.userPrincipalName = user.getEduPersonPrincipalName();
+        graphUser.mailNickname = user.getGivenName();
+        graphUser.mail = user.getEmail();
+        graphUser.companyName = user.getSchacHomeOrganization();
+        graphUser.givenName = user.getGivenName();
+        graphUser.surname = user.getFamilyName();
+
         PasswordProfile passwordProfile = new PasswordProfile();
         passwordProfile.forceChangePasswordNextSignIn = true;
         passwordProfile.password = "xWwvJ]6NMw+bWH-d";
-        user.passwordProfile = passwordProfile;
+        graphUser.passwordProfile = passwordProfile;
         GraphServiceClient<Request> graphClient = GraphServiceClient.builder().authenticationProvider(authProvider).buildClient();
-        graphClient.users()
-                .buildRequest()
-                .post(user);
+        UserCollectionRequest buildRequest = graphClient.users().buildRequest();
+        String graphUrl = provisioning.getGraphUrl();
+        if (graphUrl.startsWith("http://")) {
+            Field field = ReflectionUtils.findField(BaseRequest.class, "requestUrl");
+            ReflectionUtils.makeAccessible(field);
+            ReflectionUtils.setField(field, buildRequest.getBaseRequest(), graphUrl);
+        }
+        com.microsoft.graph.models.User createdUser = buildRequest.post(graphUser);
+        return createdUser.id;
     }
 
 }

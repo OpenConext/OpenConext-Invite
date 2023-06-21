@@ -34,7 +34,10 @@ div.header h1 {
 
 p.info {
     font-weight: bold;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
+}
+p.groups {
+    margin-top: 25px;
 }
 
 div.content-container {

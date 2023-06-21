@@ -17,14 +17,16 @@
     </div>
 
     <div class="header">
-        <h1 th:text="#{permission}"></h1>
+        <h1 th:text="#{title}"></h1>
     </div>
     <div class="content-container">
         <div class="content">
-            <p class="info">See all open enrollments, open authentications or registrations</p>
-            <a href="/enrollments">Enrollments</a>
-            <a href="/authentications">Authentications</a>
-            <a href="/registrations">Registrations</a>
+            <p class="info">See all users per provisioning</p>
+            <a href="/provisioning/scim/users">Scim</a>
+            <a href="/provisioning/eva/users">Eva</a>
+            <a href="/provisioning/graph/users">Graph</a>
+            <p class="info groups">See all groups per provisioning</p>
+            <a href="/scim/groups">Scim</a>
         </div>
     </div>
 

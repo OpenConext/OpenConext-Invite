@@ -59,8 +59,9 @@
       "metaDataFields": {
         "name:en": "graph",
         "provisioning_type": "graph",
-        "graph_url": "http;//localhost:8081/graph",
+        "graph_url": "http://localhost:8081/graph/users",
         "graph_client_id" : "client_id",
+        "graph_domain" : "hartingcollege.onmicrosoft.com",
         "graph_secret" : "secret",
         "graph_tenant": "tenant"
       },

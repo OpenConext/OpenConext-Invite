@@ -45,6 +45,7 @@ export const Invitation = ({authenticated}) => {
                                 })
                         })
                         .catch(e => {
+                            setLoading(false);
                             localStorage.removeItem(MAY_ACCEPT);
                             handleError(e);
                         })
