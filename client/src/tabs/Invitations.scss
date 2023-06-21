@@ -12,21 +12,19 @@
                     text-align: center;
                 }
 
-                &.enforceEmailEquality {
-                    width: 15%;
-                    text-align: center;
-                }
-
                 &.status {
                     width: 10%;
                 }
 
-                &.eduIDOnly {
+                &.createdAt {
                     width: 15%;
-                    text-align: center;
                 }
 
-                &.endDate {
+                &.expiryDate {
+                    width: 15%;
+                }
+
+                &.roleExpiryDate {
                     width: 15%;
                 }
             }

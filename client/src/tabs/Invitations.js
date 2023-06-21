@@ -46,19 +46,19 @@ export const Invitations = ({role, invitations}) => {
             mapper: invitation => <span>{I18n.t(`invitations.${invitation.status.toLowerCase()}`) }</span>
         },
         {
-            key: "enforceEmailEquality",
-            header: I18n.t("invitations.enforceEmailEquality"),
-            mapper: invitation => I18n.t(`forms.${invitation.enforceEmailEquality ? "yes" : "no"}`)
+            key: "createdAt",
+            header: I18n.t("invitations.createdAt"),
+            mapper: invitation => dateFromEpoch(invitation.createdAt)
         },
         {
-            key: "eduIDOnly",
-            header: I18n.t("invitations.eduIDOnly"),
-            mapper: invitation => I18n.t(`forms.${invitation.eduIDOnly ? "yes" : "no"}`)
+            key: "expiryDate",
+            header: I18n.t("invitations.expiryDate"),
+            mapper: invitation => dateFromEpoch(invitation.expiryDate)
         },
         {
-            key: "endDate",
-            header: I18n.t("roles.endDate"),
-            mapper: invitation => dateFromEpoch(invitation.endDate)
+            key: "roleExpiryDate",
+            header: I18n.t("invitations.roleExpiryDate"),
+            mapper: invitation => dateFromEpoch(invitation.roleExpiryDate)
         }];
 
     const countInvitations = invitations.length;

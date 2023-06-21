@@ -154,8 +154,8 @@ export const InvitationForm = () => {
                            onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
                            showYearDropdown={true}
                            minDate={futureDate(1, invitation.expiryDate)}
-                           name={I18n.t("invitations.expiryDateRole")}
-                           toolTip={I18n.t("tooltips.expiryDateRoleTooltip")}/>
+                           name={I18n.t("invitations.roleExpiryDate")}
+                           toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>
 
                 <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
                           value={invitation.enforceEmailEquality || false}

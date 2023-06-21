@@ -133,8 +133,8 @@ export function allProviders() {
     return fetchJson("/api/v1/manage/providers");
 }
 
-export function providerById(entityType, id) {
-    return fetchJson(`/api/v1/manage/provider/${entityType.toUpperCase()}/${id}`)
+export function applications() {
+    return fetchJson("/api/v1/manage/applications")
 }
 
 //Roles

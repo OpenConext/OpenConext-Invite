@@ -4,6 +4,7 @@ import React, {useEffect, useState} from "react";
 import owl from "../icons/owl.wav";
 import {ReactComponent as Logo} from "../icons/Owl_Emblem.svg";
 import {ReactComponent as RoleLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
+import {ReactComponent as ApplicationLogo} from "@surfnet/sds/icons/illustrative-icons/database-refresh.svg";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import Tabs from "../components/Tabs";
 import {UnitHeader} from "../components/UnitHeader";
@@ -11,6 +12,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {Users} from "../tabs/Users";
 import {Page} from "../components/Page";
 import {Roles} from "../tabs/Roles";
+import Applications from "../tabs/Applications";
 
 export const Home = () => {
 
@@ -44,6 +46,13 @@ export const Home = () => {
                       label={I18n.t("tabs.users")}
                       Icon={UserLogo}>
                     <Users/>
+                </Page>);
+            newTabs.push(
+                <Page key="applications"
+                      name="applications"
+                      label={I18n.t("tabs.applications")}
+                      Icon={ApplicationLogo}>
+                    <Applications/>
                 </Page>
             );
         }

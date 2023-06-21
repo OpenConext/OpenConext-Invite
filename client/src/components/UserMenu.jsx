@@ -52,10 +52,7 @@ export const UserMenu = ({user, config, actions}) => {
         )
     }
 
-    const adminLinks = ["system"];
-    if (config.impersonationAllowed) {
-        adminLinks.push("impersonate")
-    }
+    const adminLinks = [];
     return (
         <div className="user-menu"
              tabIndex={1}

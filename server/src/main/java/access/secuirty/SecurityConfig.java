@@ -14,13 +14,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.web.context.request.RequestAttributes;
@@ -48,6 +52,8 @@ public class SecurityConfig {
     private final String secret;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final InvitationRepository invitationRepository;
+    private final String vootUser;
+    private final String vootPassword;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
@@ -55,13 +61,17 @@ public class SecurityConfig {
                           @Value("${config.eduid-entity-id}") String eduidEntityId,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
-                          @Value("${oidcng.resource-server-secret}") String secret) {
+                          @Value("${oidcng.resource-server-secret}") String secret,
+                          @Value("${voot.user}") String vootUser,
+                          @Value("${voot.password}") String vootPassword) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
         this.eduidEntityId = eduidEntityId;
         this.introspectionUri = introspectionUri;
         this.clientId = clientId;
         this.secret = secret;
+        this.vootUser = vootUser;
+        this.vootPassword = vootPassword;
     }
 
     @Configuration
@@ -176,6 +186,32 @@ public class SecurityConfig {
                                 .introspectionUri(introspectionUri)
                                 .introspectionClientCredentials(clientId, secret)
                         ));
+        return http.build();
+    }
+
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        UserDetails user = User
+                .withUsername(vootUser)
+                .password("{noop}" + vootPassword)
+                .roles("openid")
+                .build();
+        return new InMemoryUserDetailsManager(user);
+    }
+
+    @Bean
+    @Order(3)
+    SecurityFilterChain vootSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(c -> c.disable())
+                .securityMatcher("/api/voot/**")
+                .sessionManagement(c -> c
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(c -> c
+                        .anyRequest()
+                        .authenticated()
+                )
+                .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 

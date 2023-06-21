@@ -1,12 +1,34 @@
 @import "../styles/vars.scss";
 
-div.mod-applications {
-    display: flex;
-    height: 50vh;
 
-    p {
-        margin: auto;
-        font-size: 16px;
-        color: var(--sds--color--yellow--500);
+div.mod-applications {
+
+    table.applications {
+        thead {
+            th {
+                &.logo {
+                    width: 5%;
+                }
+                &.name {
+                    width: 25%;
+                }
+                &.provider {
+                    width: 35%;
+                }
+                &.provisioning {
+                    width: 35%;
+                }
+            }
+        }
+        tbody {
+            td {
+                &.logo {
+                    img {
+                        width: 40px;
+                        height: auto;
+                    }
+                }
+            }
+        }
     }
 }

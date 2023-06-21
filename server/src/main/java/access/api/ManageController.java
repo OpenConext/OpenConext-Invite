@@ -87,7 +87,7 @@ public class ManageController {
     }
 
     @GetMapping("applications")
-    public ResponseEntity<List<Map<String, Object>>> applications(@Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         UserPermissions.assertSuperUser(user);
         List<String[]> manageIdentifiers = roleRepository.findDistinctManageIdentifiers();
         Map<String, List<String[]>> groupedByManageType = manageIdentifiers.stream().collect(Collectors.groupingBy(s -> s[0]));
@@ -97,7 +97,11 @@ public class ManageController {
                         entry.getValue().stream().map(s -> s[1]).collect(Collectors.toList())))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(providers);
+        List<Map<String, Object>> provisionings = manage.provisioning(manageIdentifiers.stream().map(s -> s[1]).toList());
+        return ResponseEntity.ok(Map.of(
+                "providers", providers,
+                "provisionings", provisionings
+        ));
     }
 
 }

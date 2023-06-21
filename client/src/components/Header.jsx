@@ -9,7 +9,6 @@ import I18n from "../locale/I18n";
 export const Header = () => {
 
     const {user, config} = useAppStore(state => state);
-    //TODO determine actions based on user and config
     return (
         <div className="header-container">
             <div className="header-inner">

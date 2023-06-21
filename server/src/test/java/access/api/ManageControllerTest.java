@@ -26,7 +26,6 @@ class ManageControllerTest extends AbstractTest {
     @Test
     void applications() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "super@example.com");
-
         String spBody = objectMapper.writeValueAsString(localManage.providersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4")));
         stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
@@ -35,8 +34,9 @@ class ManageControllerTest extends AbstractTest {
         stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/oidc10_rp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(rpBody)));
+        stubForProvisioning(List.of("1", "2", "3", "4", "5"));
 
-        List<Map<String, Object>> result = given()
+        Map<String, List<Map<String, Object>>> result = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -45,7 +45,8 @@ class ManageControllerTest extends AbstractTest {
                 .get("/api/v1/manage/applications")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(5, result.size());
+        assertEquals(5, result.get("providers").size());
+        assertEquals(4, result.get("provisionings").size());
     }
 
     @Test
