@@ -23,9 +23,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
 public class MailBox {
 
     private final JavaMailSender mailSender;
-    private final String baseUrl;
+    private final String clientUrl;
     private final String welcomeUrl;
     private final String emailFrom;
     private final String environment;
@@ -48,12 +46,12 @@ public class MailBox {
     public MailBox(ObjectMapper objectMapper,
                    JavaMailSender mailSender,
                    String emailFrom,
-                   String baseUrl,
+                   String clientUrl,
                    String welcomeUrl,
                    String environment) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
-        this.baseUrl = baseUrl;
+        this.clientUrl = clientUrl;
         this.welcomeUrl = welcomeUrl;
         this.environment = environment;
         this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
@@ -75,7 +73,7 @@ public class MailBox {
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
-        String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : baseUrl;
+        String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : clientUrl;
 
         variables.put("url", String.format("%s/invitation/accept?hash=%s", url, invitation.getHash()));
 
@@ -87,17 +85,6 @@ public class MailBox {
 
     private String preferredLanguage() {
         return LocaleContextHolder.getLocale().getLanguage();
-    }
-
-    public void sendProvisioningMail(String title, String userRequest, String email) throws MessagingException, IOException {
-        LOG.info(String.format("Send email SCIM request %s %s to %s", title, userRequest, email));
-
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("userRequest", userRequest);
-        sendMail("scim_provisioning_en",
-                title,
-                variables,
-                email);
     }
 
     private void sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {

@@ -1,0 +1,23 @@
+div.invite-only {
+    display: flex;
+    flex-direction: column;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+
+    h1 {
+        margin: 20px 0 25px;
+    }
+
+    p.roles {
+        margin-bottom: 20px;
+    }
+    p.info {
+        margin-bottom: 16px;
+    }
+
+    div.warning {
+        padding: 25px 25px 25px 0;
+    }
+
+}

@@ -1,0 +1,21 @@
+span.error-indication {
+    color: var(--sds--color--red--400);
+
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+
+    &.standalone {
+        margin-bottom: 15px;
+    }
+
+    span.error-message {
+        word-break: keep-all;
+    }
+
+    svg {
+        margin-right: 10px;
+        width: 18px;
+        height: auto;
+    }
+}

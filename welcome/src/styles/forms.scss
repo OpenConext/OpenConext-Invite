@@ -1,0 +1,13 @@
+.sds--loading {
+    position: fixed;
+    top: 35%;
+    left: 49%;
+}
+
+.cut-of-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}

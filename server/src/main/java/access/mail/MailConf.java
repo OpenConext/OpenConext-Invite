@@ -1,5 +1,6 @@
 package access.mail;
 
+import access.config.Config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
@@ -12,20 +13,19 @@ import org.springframework.mail.javamail.JavaMailSender;
 import java.io.IOException;
 
 @Configuration
-@EnableConfigurationProperties(MailProperties.class)
+@EnableConfigurationProperties(Config.class)
 public class MailConf {
 
     @Bean
-    public MailBox mailBox(@Value("${email.from}") String emailFrom,
-                           @Value("${email.base-url}") String baseUrl,
-                           @Value("${email.welcome-url}") String welcomeUrl,
+    public MailBox mailBox(Config config,
+                           @Value("${email.from}") String emailFrom,
                            @Value("${email.enabled}") boolean enabled,
                            @Value("${email.environment}") String env,
                            Environment environment,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
-        return enabled ? new MailBox(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, env) :
-                new MockMailBox(objectMapper, mailSender, emailFrom, baseUrl, welcomeUrl, environment);
+        return enabled ? new MailBox(objectMapper, mailSender, emailFrom, config.getClientUrl(), config.getWelcomeUrl(), env) :
+                new MockMailBox(objectMapper, mailSender, emailFrom, config.getClientUrl(), config.getWelcomeUrl(), environment);
     }
 
 

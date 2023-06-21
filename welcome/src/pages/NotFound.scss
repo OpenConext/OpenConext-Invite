@@ -1,0 +1,12 @@
+@import "../styles/vars.scss";
+
+div.not-found {
+    display: flex;
+    height: 50vh;
+
+    p {
+        margin: auto;
+        font-size: 164px;
+        color: var(--sds--color--red--400);
+    }
+}

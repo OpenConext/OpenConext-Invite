@@ -12,6 +12,7 @@ import access.repository.UserRepository;
 import access.secuirty.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -123,6 +127,17 @@ public class UserController {
             session.invalidate();
         }
         return Results.okResult();
+    }
+
+    @GetMapping("switch")
+    public View switchApp(@Param(value = "app") String app, @Parameter(hidden = true) User user) {
+        boolean welcome = app.equals("welcome");
+        UserPermissions.assertAuthority(user, welcome ? Authority.GUEST : Authority.INVITER);
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+        //This will force a cookie to authenticate
+        securityContext.setAuthentication(authentication);
+        return new RedirectView(welcome ? config.getWelcomeUrl() : config.getClientUrl(), false);
     }
 
     @PostMapping("error")
