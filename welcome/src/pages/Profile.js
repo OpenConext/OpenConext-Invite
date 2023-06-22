@@ -18,8 +18,7 @@ export const Profile = () => {
         setLoading(false);
         useAppStore.setState({
             breadcrumbPath: [
-                {path: "/home", value: I18n.t("tabs.home")},
-                {value: I18n.t("tabs.profile")}
+                {value: I18n.t("header.links.profile")}
             ]
         });
 

@@ -41,8 +41,7 @@ export const User = ({user}) => {
     }
 
     user.highestAuthority = highestAuthority(user);
-    const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
-        ["lastActivity", true]];
+    const attributes = [];
     return (
         <section className={"user"}>
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}

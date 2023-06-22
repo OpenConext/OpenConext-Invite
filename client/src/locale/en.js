@@ -28,8 +28,9 @@ const en = {
         links: {
             login: "Login",
             system: "System",
-            impersonate: "Impersonate",
-            createApplication: "Create application",
+            switchApp: "Go to {{app}}",
+            welcome: "Welcome",
+            access: "Access",
             help: "Help",
             profile: "Profile",
             logout: "Logout",
@@ -180,7 +181,8 @@ const en = {
             "The reference number for ths exception is {{reference}}."
     },
     profile: {
-        info: "The account of {{name}} was created on {{createdAt}}"
+        info: "The account of {{name}} was created on {{createdAt}}",
+        your: "Your account was created on {{createdAt}}"
     },
     inviteOnly: {
         welcome: "Welcome to SURFwelcome",

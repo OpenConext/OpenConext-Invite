@@ -27,9 +27,9 @@ const en = {
         subTitle: "Everything will be Owl right",
         links: {
             login: "Login",
-            system: "System",
-            impersonate: "Impersonate",
-            createApplication: "Create application",
+            switchApp: "Go to {{app}}",
+            welcome: "Welcome",
+            access: "Access",
             help: "Help",
             profile: "Profile",
             logout: "Logout",
@@ -62,9 +62,9 @@ const en = {
         noEntities: "No users found",
         new: "New invitation",
         title: "Users",
-        roles: "Roles",
-        noRolesInfo: "You have no roles (which means you must be super-user)",
-        rolesInfo: "You have the following roles",
+        roles: "Applications",
+        noRolesInfo: "You have no applications (which means you must be super-user)",
+        rolesInfo: "You have access to the following applications.",
         rolesInfoOther: "{{name}} has the following roles",
         landingPage: "Website",
         access: "Access",
@@ -134,7 +134,7 @@ const en = {
         createFlash: "Invitation was send"
     },
     profile: {
-        info: "The account of {{name}} was created on {{createdAt}}"
+        info: "Your account was created on {{createdAt}}"
     },
     inviteOnly: {
         welcome: "Welcome to SURFwelcome",

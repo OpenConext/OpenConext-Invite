@@ -5,10 +5,18 @@ import {UserMenu} from "./UserMenu";
 import {Link} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
+import {stopEvent} from "../utils/Utils";
 
 export const Header = () => {
-
     const {user, config} = useAppStore(state => state);
+
+    const actions = [{
+        href: "switch", perform: e => {
+            stopEvent(e);
+            window.location.href = `${config.serverUrl}/api/v1/users/switch?app=welcome`
+        }, name: I18n.t("header.links.switchApp", {app: I18n.t("header.links.welcome")})
+    }]
+
     return (
         <div className="header-container">
             <div className="header-inner">
@@ -18,10 +26,10 @@ export const Header = () => {
                           color={LogoColor.White}/>
                 </Link>
                 {(user && user.id) &&
-                <UserMenu user={user}
-                          config={config}
-                          actions={[]}
-                />
+                    <UserMenu user={user}
+                              config={config}
+                              actions={actions}
+                    />
                 }
             </div>
         </div>

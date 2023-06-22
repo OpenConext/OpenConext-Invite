@@ -40,7 +40,7 @@ export const UserMenu = ({user, config, actions}) => {
                         <Link onClick={toggleUserMenu} to={`/profile`}>{I18n.t(`header.links.profile`)}</Link>
                     </li>
                     {actions.map(action => <li key={action.name}>
-                        <a href={`/${action.name}`} onClick={action.perform}>{action.name}</a>
+                        <a href={`/${action.href}`} onClick={action.perform}>{action.name}</a>
                     </li>)}
                 </ul>
                 <ul>

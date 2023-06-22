@@ -50,7 +50,10 @@ export const Profile = () => {
     return (
         <div className="mod-profile">
             <UnitHeader obj={({name: user.name, svg: Logo, style: "small"})}>
-                <p>{I18n.t("profile.info", {name: user.name, createdAt: dateFromEpoch(user.createdAt)})}</p>
+                <p>{I18n.t(`profile.${id ? "info" : "your"}`, {
+                    name: user.name,
+                    createdAt: dateFromEpoch(user.createdAt)
+                })}</p>
             </UnitHeader>
             <div className="profile-container">
                 <User user={user} other={!isEmpty(id)}/>
