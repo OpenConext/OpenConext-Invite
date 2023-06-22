@@ -54,6 +54,18 @@ class ValidationControllerTest extends AbstractTest {
     }
 
     @Test
+    void emptyUrl() {
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new Validation("url", ""))
+                .post("/api/v1/validations/validate")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
     void invalidUrl() {
         given()
                 .when()

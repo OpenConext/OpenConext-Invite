@@ -368,6 +368,16 @@ public abstract class AbstractTest {
         return value;
     }
 
+    protected String stubForCreateGraphUser() throws JsonProcessingException {
+        String value = UUID.randomUUID().toString();
+        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        stubFor(post(urlPathMatching(String.format("/graph/users")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
+        return value;
+    }
+
     protected void stubForUpdateScimRole() throws JsonProcessingException {
         stubFor(put(urlPathMatching(String.format("/api/scim/v2/groups/(.*)")))
                 .willReturn(aResponse()

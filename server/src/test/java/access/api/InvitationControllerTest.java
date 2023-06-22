@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static access.Seed.GUEST_SUB;
-import static access.Seed.MANAGE_SUB;
+import static access.Seed.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -114,6 +113,33 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(2, remoteProvisionedGroupRepository.count());
         //two users provisioned to 1 remote SCIM - the inviter and one existing user with the userRole
         assertEquals(2, remoteProvisionedUserRepository.count());
+    }
+
+    @Test
+    void acceptGraph() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "graph@new.com");
+        Invitation invitation = invitationRepository.findByHash(GRAPH_INVITATION_HASH).get();
+
+        stubForManageProvisioning(List.of("2"));
+        stubForCreateGraphUser();
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(GRAPH_INVITATION_HASH, invitation.getId());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+        User user = userRepository.findBySubIgnoreCase("graph@new.com").get();
+        assertEquals(1, user.getUserRoles().size());
+        //no roles provisioned to GRAPH
+        assertEquals(0, remoteProvisionedGroupRepository.count());
+        //one user provisioned to 1 remote GRAPH
+        assertEquals(1, remoteProvisionedUserRepository.count());
     }
 
     @Test

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +37,7 @@ public class ValidationController {
     }
 
     @PostMapping("validate")
-    public ResponseEntity<Map<String, Boolean>> validate(@RequestBody Validation validation) {
+    public ResponseEntity<Map<String, Boolean>> validate(@Validated @RequestBody Validation validation) {
         boolean valid = this.validators.computeIfAbsent(validation.getType(), key -> {
             throw new IllegalArgumentException(String.format("No validation defined for %s", key));
         }).isValid(validation.getValue());

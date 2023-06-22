@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class GuestAccount {
 
     private static final String EVA_DATE_PATTERN = "yyyy-MM-dd";
-    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(EVA_DATE_PATTERN);
     private final MultiValueMap<String, String> request;
 
     public GuestAccount(User user, Provisioning provisioning) {
@@ -31,6 +30,7 @@ public class GuestAccount {
         request = new LinkedMultiValueMap<>();
         request.add("name", user.getName());
         request.add("email", user.getEmail());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(EVA_DATE_PATTERN);
         request.add("dateFrom", simpleDateFormat.format(Date.from(now)));
         request.add("dateTill", simpleDateFormat.format(Date.from(dateTill)));
         request.add("notifyByEmail", Boolean.TRUE.toString());

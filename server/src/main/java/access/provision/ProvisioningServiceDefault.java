@@ -294,17 +294,19 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                String remoteScimIdentifier) {
         boolean isUser = provisionable instanceof User;
         String apiType = isUser ? USER_API : GROUP_API;
-        RequestEntity<String> requestEntity;
+        RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
             String url = provisioning.getEvaUrl() + "/api/v1/guest/disable/" + remoteScimIdentifier;
             requestEntity = new RequestEntity(httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
-        } else {
+        } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteScimIdentifier));
             HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(provisioning.getScimUser(), provisioning.getScimPassword());
             requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
         }
-        doExchange(requestEntity, apiType, stringParameterizedTypeReference, provisioning);
+        if (requestEntity != null) {
+            doExchange(requestEntity, apiType, stringParameterizedTypeReference, provisioning);
+        }
     }
 
     private <T, S> T doExchange(RequestEntity<S> requestEntity,
@@ -366,11 +368,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             case eva -> {
                 headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
                 headers.add("X-Api-Key", provisioning.getEvaToken());
-            }
-            case graph -> {
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-                headers.setBasicAuth(provisioning.getGraphClientId(), provisioning.getGraphSecret());
             }
         }
         return headers;

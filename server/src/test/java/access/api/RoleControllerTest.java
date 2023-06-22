@@ -3,6 +3,7 @@ package access.api;
 import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
+import access.model.RemoteProvisionedGroup;
 import access.model.Role;
 import access.model.RoleExists;
 import io.restassured.common.mapper.TypeRef;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static access.Seed.MANAGE_SUB;
 import static access.Seed.SUPER_SUB;
@@ -203,8 +205,13 @@ class RoleControllerTest extends AbstractTest {
     void deleteRole() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role role = roleRepository.search("wiki", 1).get(0);
+        //Ensure delete provisioning is done
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
+
         stubForManageProviderById(role.getManageType(), role.getManageId());
         stubForManageProvisioning(List.of(role.getManageId()));
+        stubForDeleteScimRole();
+
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

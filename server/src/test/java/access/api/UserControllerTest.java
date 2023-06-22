@@ -8,6 +8,7 @@ import access.model.Role;
 import access.model.User;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import io.restassured.http.Header;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -110,6 +111,42 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void meWithImpersonation() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        User manager = userRepository.findBySubIgnoreCase(MANAGE_SUB).get();
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
+
+        User user = given()
+                .when()
+                .header("X-IMPERSONATE-ID", manager.getId().toString())
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertEquals(MANAGE_SUB, user.getSub());
+    }
+
+    @Test
+    void meWithNotAllowedImpersonation() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
+        User guest = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
+
+        User user = given()
+                .when()
+                .header("X-IMPERSONATE-ID", guest.getId().toString())
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertEquals(MANAGE_SUB, user.getSub());
+    }
+
+    @Test
     void meWithAccessToken() throws IOException {
         User user = given()
                 .when()
@@ -154,7 +191,7 @@ class UserControllerTest extends AbstractTest {
                 .queryParam("app", "welcome")
                 .get("/api/v1/users/switch")
                 .then()
-                .header("Location","http://localhost:4000");
+                .header("Location", "http://localhost:4000");
     }
 
     @Test
@@ -170,7 +207,7 @@ class UserControllerTest extends AbstractTest {
                 .queryParam("app", "client")
                 .get("/api/v1/users/switch")
                 .then()
-                .header("Location","http://localhost:3000");
+                .header("Location", "http://localhost:3000");
     }
 
     @Test

@@ -20,6 +20,7 @@ public record Seed(InvitationRepository invitationRepository,
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
     public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
+    public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
 
     public void doSeed() {
         this.invitationRepository.deleteAllInBatch();
@@ -82,7 +83,10 @@ public record Seed(InvitationRepository invitationRepository,
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false,
                         inviter, Set.of(new InvitationRole(mail)));
         guestInvitation.setEduIDOnly(true);
-        doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation);
+        Invitation graphInvitation =
+                new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com", false,
+                        inviter, Set.of(new InvitationRole(network)));
+        doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation, graphInvitation);
     }
 
     @SafeVarargs

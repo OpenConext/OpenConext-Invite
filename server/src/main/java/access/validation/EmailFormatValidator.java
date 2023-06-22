@@ -14,7 +14,7 @@ public class EmailFormatValidator implements FormatValidator {
 
     @Override
     public boolean isValid(String subject) {
-        return !StringUtils.hasText(subject) || pattern.matcher(subject).matches();
+        return pattern.matcher(subject).matches();
     }
 
     @Override

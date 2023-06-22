@@ -174,5 +174,6 @@ export function userRolesByRoleId(roleId) {
 
 //Validations
 export function validate(type, value) {
-    return postPutJson("/api/v1/validations/validate", {type, value}, "POST");
+    return isEmpty(value) ? Promise.resolve({valid: true}) :
+        postPutJson("/api/v1/validations/validate", {type, value}, "POST");
 }

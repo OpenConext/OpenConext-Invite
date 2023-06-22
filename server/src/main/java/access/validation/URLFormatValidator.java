@@ -9,7 +9,7 @@ public class URLFormatValidator implements FormatValidator {
     private final Pattern pattern = Pattern.compile("^(http|https)://(.*)$");
 
     public boolean isValid(String subject) {
-        return (!StringUtils.hasText(subject)) || pattern.matcher(subject).matches();
+        return pattern.matcher(subject).matches();
     }
 
     @Override
