@@ -113,9 +113,9 @@ public class UserController {
     }
 
     @GetMapping("login")
-    public View login() {
+    public View login(@RequestParam(value = "app", required = false, defaultValue = "client") String app) {
         LOG.debug("/login");
-        return new RedirectView(config.getClientUrl(), false);
+        return new RedirectView(app.equals("client") ? config.getClientUrl() : config.getWelcomeUrl(), false);
     }
 
     @GetMapping("logout")

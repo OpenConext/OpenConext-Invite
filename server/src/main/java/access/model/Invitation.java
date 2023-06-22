@@ -99,12 +99,6 @@ public class Invitation implements Serializable {
                                 ).orElse(365), ChronoUnit.DAYS));
     }
 
-    @JsonIgnore
-    public void addInvitationRole(InvitationRole role) {
-        this.roles.add(role);
-        role.setInvitation(this);
-    }
-
     //used in the mustache templates
     @JsonIgnore
     public List<String> anyRoles() {

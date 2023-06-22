@@ -4,7 +4,7 @@ const en = {
     select_locale: "Change language to English",
     landing: {
         header: {
-            title: "Manage access to your applications",
+            title: "Get access to your applications",
             login: "Login",
             sup: "The SURFwelcome application is by invite only.",
         },
@@ -36,26 +36,8 @@ const en = {
             helpUrl: "https://edu.nl/vw3jx"
         },
     },
-    tabs: {
-        home: "Home",
-        applications: "Applications",
-        users: "Users",
-        invitations: "Invitations",
-        roles: "Roles",
-        profile: "Profile",
-        userRoles: "User roles"
-    },
     home: {
         access: "SURFwelcome",
-    },
-    impersonate: {
-        exit: "Stop impersonating",
-        impersonator: "You are impersonating <strong>{{name}}</strong> | <strong>{{role}}</strong>",
-        impersonatorTooltip: "You are really <em>{{impersonator}}</em>, but you are impersonating <em>{{currentUser}}</em>.",
-        flash: {
-            startedImpersonation: "You now impersonate {{name}}.",
-            clearedImpersonation: "Cleared your impersonation. You are you again."
-        },
     },
     access: {
         SUPER_USER: "Super User",
@@ -123,16 +105,6 @@ const en = {
         createFlash: "Role {{name}} has been created",
         updateFlash: "Role {{name}} has been updated",
     },
-    applications: {
-        searchPlaceHolder: "Search for roles"
-    },
-    userRoles: {
-        found: "{{count}} {{plural}} found",
-        singleUserRole: "user role",
-        multipleUserRoles: "user roles",
-        searchPlaceHolder: "Search for user roles...",
-        noResults: "No user roles where found"
-    },
     invitations: {
         found: "{{count}} {{plural}} found",
         singleInvitation: "invitation",
@@ -161,24 +133,6 @@ const en = {
         invalidEmails: "Invalid email addresses removed: {{emails}}.",
         createFlash: "Invitation was send"
     },
-    forms: {
-        none: "None",
-        notApplicable: "N/A",
-        you: "You",
-        yes: "Yes",
-        no: "No",
-        ok: "Ok",
-        edit: "Edit",
-        cancel: "Cancel",
-        save: "Save",
-        and: "and",
-        alreadyExists: "The {{attribute}} '{{value}}' already exists",
-        alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}",
-        required: "The {{attribute}} is required",
-        invalid: "The value '{{value}}' is invalid for {{attribute}}",
-        error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
-            "The reference number for ths exception is {{reference}}."
-    },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}"
     },
@@ -206,7 +160,6 @@ const en = {
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
-        impersonateIcon: "Impersonate user {{name}}",
         roleIcon: "Role {{name}} created at {{createdAt}}",
         userRoleIcon: "User role accepted by {{name}} at {{createdAt}}",
         invitationIcon: "Invitation for {{email}} send at {{createdAt}} with expiration date {{expiryDate}}",

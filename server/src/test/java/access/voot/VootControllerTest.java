@@ -31,4 +31,18 @@ class VootControllerTest extends AbstractTest {
                 "urn:mace:surf.nl:test.surfaccess.nl:3:storage",
                 "urn:mace:surf.nl:test.surfaccess.nl:4:research"), urns);
     }
+
+    @Test
+    void getGroupMembershipsUnknownUser() {
+        List<Map<String, String>> groups = given()
+                .when()
+                .auth().basic("voot", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", "nope")
+                .get("/api/voot/{sub}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, groups.size());
+    }
 }

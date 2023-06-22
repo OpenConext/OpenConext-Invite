@@ -4,12 +4,18 @@ import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
 import {applications, rolesByApplication} from "../api";
-import {splitListSemantically} from "../utils/Utils";
+import {splitListSemantically, stopEvent} from "../utils/Utils";
+import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
+import {useAppStore} from "../stores/AppStore";
+import {useNavigate} from "react-router-dom";
 
 /*
  * Show all roles with the manage information and a link to role detail for super admin
  */
 const Applications = () => {
+    const user = useAppStore(state => state.user);
+    const navigate = useNavigate();
+
     const [loading, setLoading] = useState(false);
     const [providers, setProviders] = useState([]);
     const [provisionings, setProvisionings] = useState([]);
@@ -29,6 +35,17 @@ const Applications = () => {
     if (loading) {
         return <Loader/>
     }
+
+    const openRole = (e, role) => {
+        const id = role.isUserRole ? role.role.id : role.id;
+        const path = `/roles/${id}`
+        if (e.metaKey || e.ctrlKey) {
+            window.open(path, '_blank');
+        } else {
+            stopEvent(e);
+            navigate(path);
+        }
+    };
 
     const providerById = manageId => {
         const provider = providers.find(provider => provider.id === manageId);
@@ -86,6 +103,7 @@ const Applications = () => {
                       hideTitle={true}
                       customNoEntities={I18n.t(`roles.noResults`)}
                       searchAttributes={["name"]}
+                      rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                       inputFocus={true}>
             </Entities>
 

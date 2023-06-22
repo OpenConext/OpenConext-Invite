@@ -1,0 +1,65 @@
+@import "../styles/vars";
+
+section.copy-to-clipboard {
+    border-radius: 4px;
+    color: var(--sds--color--blue--300);
+    background-color: white;
+    cursor: pointer;
+
+    svg {
+        margin: 0;
+        width: 18px;
+        height: auto;
+        &:hover {
+            color: var(--sds--color--blue--500);
+        }
+    }
+
+    &.input {
+        border: 1px solid var(--sds--color--blue--400);
+        padding: 0 6px;
+        svg {
+            margin: auto;
+            width: 32px;
+            height: auto;
+        }
+    }
+
+    &.transparent {
+        background-color: transparent;
+    }
+
+    &:hover {
+        background-color: #ddf2fd;
+    }
+
+    &.right {
+        margin-left: 10px;
+    }
+
+    &.copied, svg.copied {
+        animation: pulse .6s;
+        animation-iteration-count: 1;
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 white;
+                border-radius: 50%;
+                padding: 2px;
+            }
+            35% {
+                box-shadow: 0 0 1px 1px var(--sds--color--blue--300);
+                border-radius: 50%;
+                padding: 2px;
+            }
+            100% {
+                box-shadow: 0 0 0 0 white;
+                border-radius: 50%;
+                padding: 2px;
+            }
+        }
+    }
+
+}
+
+

@@ -15,7 +15,6 @@ import java.util.Map;
 import static access.Seed.MANAGE_SUB;
 import static access.Seed.SUPER_SUB;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,7 +26,7 @@ class RoleControllerTest extends AbstractTest {
         Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365);
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
-        stubForProvisioning(List.of("1"));
+        stubForManageProvisioning(List.of("1"));
         stubForCreateScimRole();
 
         Map result = given()
@@ -40,6 +39,26 @@ class RoleControllerTest extends AbstractTest {
                 .post("/api/v1/roles")
                 .as(Map.class);
         assertNotNull(result.get("id"));
+    }
+
+    @Test
+    void createProvisionException() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365);
+
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
+        stubForManageProvisioning(List.of("1"));
+
+        Map result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/v1/roles")
+                .as(Map.class);
+        assertNotNull(result.get("reference"));
     }
 
     @Test
@@ -147,6 +166,21 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void rolesByApplicationSuperUser() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        List<Role> roles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(6, roles.size());
+    }
+
+    @Test
     void roleById() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role roleDB = roleRepository.search("wiki", 1).get(0);
@@ -163,6 +197,25 @@ class RoleControllerTest extends AbstractTest {
                 });
         assertEquals(roleDB.getName(), role.getName());
         assertEquals("1", role.getApplication().get("id"));
+    }
+
+    @Test
+    void deleteRole() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        Role role = roleRepository.search("wiki", 1).get(0);
+        stubForManageProviderById(role.getManageType(), role.getManageId());
+        stubForManageProvisioning(List.of(role.getManageId()));
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", role.getId())
+                .delete("/api/v1/roles/{id}")
+                .then()
+                .statusCode(204);
+        assertEquals(0, roleRepository.search("wiki", 1).size());
     }
 
     @Test

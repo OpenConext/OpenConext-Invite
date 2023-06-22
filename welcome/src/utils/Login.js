@@ -1,7 +1,10 @@
 import {isEmpty} from "./Utils";
 
 export function login(config, force = false, hash = null) {
-    let params = force ? `?force=true` : "";
+    let params = "?app=welcome&"
+    if (force) {
+        params += "force=true"
+    }
     if (hash) {
         params += `&hash=${hash}`
     }

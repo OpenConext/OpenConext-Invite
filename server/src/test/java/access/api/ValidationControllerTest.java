@@ -64,4 +64,21 @@ class ValidationControllerTest extends AbstractTest {
                 .then()
                 .body("valid", equalTo(false));
     }
+
+    @Test
+    void invalidType() {
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new Validation("nope", "john@doe.com"))
+                .post("/api/v1/validations/validate")
+                .then()
+                .statusCode(400);
+    }
+
+    @Override
+    protected boolean seedDatabase() {
+        return false;
+    }
 }

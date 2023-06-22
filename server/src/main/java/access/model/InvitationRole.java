@@ -17,7 +17,6 @@ import java.time.temporal.ChronoUnit;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 public class InvitationRole implements Serializable {
 
     @Id

@@ -62,7 +62,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void meWithRoles() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "inviter@example.com");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INVITER_SUB);
 
         String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.OIDC10_RP, "5"));
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/5")).willReturn(aResponse()
@@ -142,6 +142,38 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void switchApp() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        given().redirects()
+                .follow(false)
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("app", "welcome")
+                .get("/api/v1/users/switch")
+                .then()
+                .header("Location","http://localhost:4000");
+    }
+
+    @Test
+    void switchAppToClient() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        given().redirects()
+                .follow(false)
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("app", "client")
+                .get("/api/v1/users/switch")
+                .then()
+                .header("Location","http://localhost:3000");
+    }
+
+    @Test
     void other() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Long id = userRepository.findBySubIgnoreCase(INVITER_SUB).get().getId();
@@ -159,6 +191,29 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void logout() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/logout")
+                .then()
+                .statusCode(200);
+
+        String location = given()
+                .redirects()
+                .follow(false)
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/login")
+                .header("Location");
+        assertEquals("http://localhost:" + port + "/oauth2/authorization/oidcng", location);
+    }
+
+    @Test
+    void logoutUnauthenticated() {
         given()
                 .when()
                 .accept(ContentType.JSON)
@@ -188,7 +243,7 @@ class UserControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(Map.of("error", "trouble") )
+                .body(Map.of("error", "trouble"))
                 .post("/api/v1/users/error")
                 .then()
                 .statusCode(201);

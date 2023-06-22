@@ -9,10 +9,7 @@ import access.model.UserRole;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -28,6 +25,12 @@ class UserPermissionsTest {
         UserPermissions.assertValidInvitation(user, Authority.SUPER_USER, List.of());
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         UserPermissions.assertRoleAccess(user, null);
+    }
+
+    @Test
+    void assertValidInvitationSuperUser() {
+        assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidInvitation(new User(new HashMap<>()),Authority.SUPER_USER, new ArrayList<>()));
     }
 
     @Test

@@ -6,14 +6,15 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static access.Seed.MANAGE_SUB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserRepositoryTest extends AbstractTest {
 
     @Test
     void findBySubIgnoreCase() {
-        User user = userRepository.findBySubIgnoreCase("manager@example.com").get();
-        assertEquals("manager@example.com", user.getSub());
+        User user = userRepository.findBySubIgnoreCase(MANAGE_SUB.toUpperCase()).get();
+        assertEquals(MANAGE_SUB, user.getSub());
     }
 
     @Test

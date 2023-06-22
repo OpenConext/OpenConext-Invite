@@ -1,7 +1,6 @@
 package access.provision;
 
 import access.AbstractTest;
-import access.model.RemoteProvisionedGroup;
 import access.model.RemoteProvisionedUser;
 import access.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +22,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     void newUserRequest() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
 
-        this.stubForProvisioning(List.of("3"));
+        this.stubForManageProvisioning(List.of("3"));
         String remoteScimIdentifier = this.stubForCreateEvaUser();
 
         provisioningService.newUserRequest(user);
@@ -40,7 +39,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, UUID.randomUUID().toString(), "10");
         remoteProvisionedUserRepository.save(remoteProvisionedUser);
 
-        this.stubForProvisioning(List.of("3"));
+        this.stubForManageProvisioning(List.of("3"));
         this.stubForDeleteEvaUser();
 
         provisioningService.deleteUserRequest(user);

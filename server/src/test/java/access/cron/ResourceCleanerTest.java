@@ -11,7 +11,6 @@ import java.time.Period;
 import java.util.List;
 
 import static access.Seed.GUEST_SUB;
-import static access.Seed.MANAGE_SUB;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ResourceCleanerTest extends AbstractTest {
@@ -24,7 +23,7 @@ class ResourceCleanerTest extends AbstractTest {
         long beforeUsers = userRepository.count();
         markUser(GUEST_SUB);
 
-        stubForProvisioning(List.of("1"));
+        stubForManageProvisioning(List.of("1"));
         //Because there are RemoteProvisionedGroups
         stubForCreateScimRole();
         stubForCreateScimUser();
@@ -39,7 +38,7 @@ class ResourceCleanerTest extends AbstractTest {
         long beforeUsers = userRepository.count();
         deleteUserRoles(GUEST_SUB);
 
-        stubForProvisioning(List.of("1"));
+        stubForManageProvisioning(List.of("1"));
         //Because there are RemoteProvisionedGroups
         stubForCreateScimRole();
         stubForCreateScimUser();
@@ -54,7 +53,7 @@ class ResourceCleanerTest extends AbstractTest {
         long beforeUserRoles = userRoleRepository.count();
         markUserRole(GUEST_SUB);
 
-        stubForProvisioning(List.of("1"));
+        stubForManageProvisioning(List.of("1"));
         //Because there is no RemoteProvisionedGroup
         stubForCreateScimRole();
         stubForCreateScimUser();

@@ -1,15 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {other} from "../api";
 import I18n from "../locale/I18n";
 import "./Profile.scss";
 import {Loader} from "@surfnet/sds";
-import {useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as Logo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {dateFromEpoch} from "../utils/Date";
-import {isEmpty} from "../utils/Utils";
 
 export const Profile = () => {
     const {user: currentUser} = useAppStore(state => state);
@@ -26,7 +23,7 @@ export const Profile = () => {
             ]
         });
 
-    }, []);
+    }, [currentUser]);
 
     if (loading) {
         return <Loader/>
@@ -37,7 +34,7 @@ export const Profile = () => {
                 <p>{I18n.t("profile.info", {name: user.name, createdAt: dateFromEpoch(user.createdAt)})}</p>
             </UnitHeader>
             <div className="profile-container">
-                <User user={user} />
+                <User user={user}/>
             </div>
         </div>);
 };

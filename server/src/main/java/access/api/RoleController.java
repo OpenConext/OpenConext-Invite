@@ -66,18 +66,6 @@ public class RoleController {
         return ResponseEntity.ok(roleRepository.findByManageIdIn(manageIdentifiers));
     }
 
-    @GetMapping("mine")
-    public ResponseEntity<List<Role>> myRoles(@Parameter(hidden = true) User user) {
-        LOG.debug("/roles/mine");
-        if (user.isSuperUser() && !config.isRoleSearchRequired()) {
-            return ResponseEntity.ok(roleRepository.findAll());
-        }
-        if (user.getUserRoles().stream().anyMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))) {
-            return rolesByApplication(user);
-        }
-        return ResponseEntity.ok(user.getUserRoles().stream().map(UserRole::getRole).toList());
-    }
-
     @GetMapping("{id}")
     public ResponseEntity<Role> role(@PathVariable("id") Long id, User user) {
         LOG.debug("/role");

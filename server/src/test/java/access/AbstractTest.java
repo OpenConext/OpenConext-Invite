@@ -31,7 +31,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -301,7 +300,7 @@ public abstract class AbstractTest {
         return builder.build();
     }
 
-    protected void stubForProvisioning(List<String> identifiers) throws JsonProcessingException {
+    protected void stubForManageProvisioning(List<String> identifiers) throws JsonProcessingException {
         List<Map<String, Object>> providers = localManage.provisioning(identifiers);
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/provisioning"))

@@ -7,8 +7,6 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -25,7 +23,7 @@ class ManageControllerTest extends AbstractTest {
 
     @Test
     void applications() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "super@example.com");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         String spBody = objectMapper.writeValueAsString(localManage.providersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4")));
         stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
@@ -34,7 +32,7 @@ class ManageControllerTest extends AbstractTest {
         stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/oidc10_rp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(rpBody)));
-        stubForProvisioning(List.of("1", "2", "3", "4", "5"));
+        stubForManageProvisioning(List.of("1", "2", "3", "4", "5"));
 
         Map<String, List<Map<String, Object>>> result = given()
                 .when()
@@ -51,7 +49,7 @@ class ManageControllerTest extends AbstractTest {
 
     @Test
     void providers() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "super@example.com");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
         String spBody = objectMapper.writeValueAsString(localManage.providers(EntityType.SAML20_SP));
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp")).willReturn(aResponse()
@@ -76,7 +74,7 @@ class ManageControllerTest extends AbstractTest {
 
     @Test
     void providerById() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "super@example.com");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
         String spBody = objectMapper.writeValueAsString(localManage.providerById(EntityType.SAML20_SP, "1"));
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()

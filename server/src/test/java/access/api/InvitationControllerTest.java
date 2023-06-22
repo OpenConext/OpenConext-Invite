@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static access.Seed.GUEST_SUB;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static access.Seed.MANAGE_SUB;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -58,7 +58,7 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void newInvitation() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "manager@example.com");
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
 
@@ -92,7 +92,7 @@ class InvitationControllerTest extends AbstractTest {
         String hash = Authority.INVITER.name();
         Invitation invitation = invitationRepository.findByHash(hash).get();
 
-        stubForProvisioning(List.of("5"));
+        stubForManageProvisioning(List.of("5"));
         stubForCreateScimUser();
         stubForCreateScimRole();
         stubForUpdateScimRole();
@@ -128,7 +128,7 @@ class InvitationControllerTest extends AbstractTest {
         String hash = Authority.MANAGER.name();
         Invitation invitation = invitationRepository.findByHash(hash).get();
 
-        stubForProvisioning(List.of("5"));
+        stubForManageProvisioning(List.of("5"));
         stubForCreateScimUser();
 
         AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
@@ -245,7 +245,7 @@ class InvitationControllerTest extends AbstractTest {
 
         Invitation invitation = invitationRepository.findByHash(Authority.MANAGER.name()).get();
 
-        stubForProvisioning(List.of("4"));
+        stubForManageProvisioning(List.of("4"));
         stubForCreateScimUser();
         stubForCreateScimRole();
         stubForUpdateScimRolePatch();

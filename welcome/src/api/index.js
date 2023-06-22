@@ -1,4 +1,3 @@
-import {isEmpty} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
 
@@ -58,10 +57,6 @@ function fetchJson(path, options = {}, headers = {}, showErrorDialog = true) {
 function postPutJson(path, body, method, showErrorDialog = true) {
     const jsonBody = JSON.stringify(body);
     return fetchJson(path, {method: method, body: jsonBody}, {}, showErrorDialog);
-}
-
-function fetchDelete(path, showErrorDialog = true) {
-    return validFetch(path, {method: "delete"}, {}, showErrorDialog);
 }
 
 export function configuration() {

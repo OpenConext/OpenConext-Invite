@@ -16,10 +16,10 @@ public record Seed(InvitationRepository invitationRepository,
                    UserRoleRepository userRoleRepository
 ) {
 
-    public static final String SUPER_SUB = "super@example.com";
-    public static final String MANAGE_SUB = "manager@example.com";
-    public static final String INVITER_SUB = "inviter@example.com";
-    public static final String GUEST_SUB = "guest@example.com";
+    public static final String SUPER_SUB = "urn:collab:person:example.com:super";
+    public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
+    public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
+    public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
 
     public void doSeed() {
         this.invitationRepository.deleteAllInBatch();
