@@ -24,7 +24,6 @@ import static java.util.stream.Collectors.toMap;
 
 @RestController
 @RequestMapping(value = {"/api/v1/validations", "/api/external/v1/validations"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 public class ValidationController {
 
     private final Map<String, FormatValidator> validators;
@@ -41,7 +40,7 @@ public class ValidationController {
         boolean valid = this.validators.computeIfAbsent(validation.getType(), key -> {
             throw new IllegalArgumentException(String.format("No validation defined for %s", key));
         }).isValid(validation.getValue());
-        return ResponseEntity.ok(Collections.singletonMap("valid", valid));
+        return ResponseEntity.ok(Map.of("valid", valid));
     }
 
 

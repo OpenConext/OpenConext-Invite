@@ -149,7 +149,7 @@ export const Entities = ({
                    className={`${typeof rowLinkMapper === "function"  ? "clickable" : ""} ${onHover ? "hoverable" : ""}`}>
             {columns.map((column, i) =>
                 <td key={`td_${column.key}_${i}`}
-                    onClick={e => (column.key !== "check" && column.key !== "role" && !column.hasLink) ?
+                    onClick={e => (column.key !== "check" && !column.hasLink) ?
                         onRowClick(e, entity) : undefined}
                     className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
                     {getEntityValue(entity, column)}

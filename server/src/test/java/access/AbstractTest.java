@@ -340,7 +340,7 @@ public abstract class AbstractTest {
 
     protected String stubForCreateScimRole() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
-        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        String body = objectMapper.writeValueAsString(Map.of("id", value));
         stubFor(post(urlPathMatching(String.format("/api/scim/v2/groups")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -350,7 +350,7 @@ public abstract class AbstractTest {
 
     protected String stubForCreateScimUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
-        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        String body = objectMapper.writeValueAsString(Map.of("id", value));
         stubFor(post(urlPathMatching(String.format("/api/scim/v2/users")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -360,7 +360,7 @@ public abstract class AbstractTest {
 
     protected String stubForCreateEvaUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
-        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        String body = objectMapper.writeValueAsString(Map.of("id", value));
         stubFor(post(urlPathMatching(String.format("/eva/api/v1/guest/create")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -370,7 +370,7 @@ public abstract class AbstractTest {
 
     protected String stubForCreateGraphUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
-        String body = objectMapper.writeValueAsString(Collections.singletonMap("id", value));
+        String body = objectMapper.writeValueAsString(Map.of("id", value));
         stubFor(post(urlPathMatching(String.format("/graph/users")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")

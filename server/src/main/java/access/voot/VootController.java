@@ -3,6 +3,7 @@ package access.voot;
 import access.model.*;
 import access.provision.scim.GroupURN;
 import access.repository.UserRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,12 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.VOOT_SCHEME_NAME;
+
 @RestController
-@RequestMapping(value = "/api/voot", produces = MediaType.APPLICATION_JSON_VALUE)
-@Transactional
+@RequestMapping(value = {"/api/voot", "/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@SecurityRequirement(name = VOOT_SCHEME_NAME)
 public class VootController {
 
     private final UserRepository userRepository;

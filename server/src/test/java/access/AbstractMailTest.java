@@ -64,7 +64,7 @@ public class AbstractMailTest extends AbstractTest {
         await().until(() -> greenMail.getReceivedMessages().length == expectedLength);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
         return Stream.of(receivedMessages)
-                .map(mimeMessage -> this.mimeMessageParser(mimeMessage))
+                .map(this::mimeMessageParser)
                 .collect(Collectors.toList());
     }
 

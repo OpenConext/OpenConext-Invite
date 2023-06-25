@@ -14,7 +14,6 @@ import access.provision.scim.OperationType;
 import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
-import access.repository.UserRoleRepository;
 import access.secuirty.SuperAdmin;
 import access.secuirty.UserPermissions;
 import access.validation.EmailFormatValidator;
@@ -97,16 +96,39 @@ public class InvitationController {
                 .toList();
         invitationRepository.saveAll(invitations);
 
-        //We need to display the roles per manage application with the logo
-        List<GroupedProviders> groupedProviders = requestedRoles.stream()
-                .collect(Collectors.groupingBy(role -> new ManageIdentifier(role.getManageId(), role.getManageType())))
-                .entrySet().stream()
-                .map(entry -> new GroupedProviders(
-                        manage.providerById(entry.getKey().entityType(), entry.getKey().id()),
-                        entry.getValue(),
-                        UUID.randomUUID().toString())
-                ).toList();
+        List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
         invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders));
+        return Results.createResult();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteInvitation(@PathVariable("id") Long id,
+                                                 @Parameter(hidden = true) User user) {
+        LOG.debug("/deleteInvitation");
+        //We need to assert validations on the roles soo we need to load them
+        Invitation invitation = invitationRepository.findById(id).orElseThrow(NotFoundException::new);
+        List<Role> requestedRoles = invitation.getRoles().stream()
+                .map(InvitationRole::getRole).toList();
+        Authority intendedAuthority = invitation.getIntendedAuthority();
+        UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+
+        invitationRepository.delete(invitation);
+        return Results.deleteResult();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
+                                                                 @Parameter(hidden = true) User user) {
+        LOG.debug("/resendInvitation");
+        //We need to assert validations on the roles soo we need to load them
+        Invitation invitation = invitationRepository.findById(id).orElseThrow(NotFoundException::new);
+        List<Role> requestedRoles = invitation.getRoles().stream()
+                .map(InvitationRole::getRole).toList();
+        Authority intendedAuthority = invitation.getIntendedAuthority();
+        UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+        List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
+
+        mailBox.sendInviteMail(user,invitation, groupedProviders );
         return Results.createResult();
     }
 
@@ -200,6 +222,19 @@ public class InvitationController {
         return ResponseEntity.ok(invitations);
     }
 
+
+    private List<GroupedProviders> getGroupedProviders(List<Role> requestedRoles) {
+        //We need to display the roles per manage application with the logo
+        List<GroupedProviders> groupedProviders = requestedRoles.stream()
+                .collect(Collectors.groupingBy(role -> new ManageIdentifier(role.getManageId(), role.getManageType())))
+                .entrySet().stream()
+                .map(entry -> new GroupedProviders(
+                        manage.providerById(entry.getKey().entityType(), entry.getKey().id()),
+                        entry.getValue(),
+                        UUID.randomUUID().toString())
+                ).toList();
+        return groupedProviders;
+    }
 
     private void checkEmailEquality(User user, Invitation invitation) {
         if (invitation.isEnforceEmailEquality() && !invitation.getEmail().equalsIgnoreCase(user.getEmail())) {

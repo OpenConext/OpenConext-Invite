@@ -47,6 +47,7 @@ CREATE TABLE `user_roles`
     `inviter`                varchar(255) DEFAULT NULL,
     `end_date`               datetime     DEFAULT NULL,
     `created_at`             datetime     DEFAULT CURRENT_TIMESTAMP,
+    `expiry_notifications`   int          DEFAULT 0,
     `user_id`                bigint       NOT NULL,
     `role_id`                bigint       NOT NULL,
     `authority`              varchar(255) NOT NULL,
@@ -73,7 +74,7 @@ CREATE TABLE `invitations`
     `role_expiry_date`       datetime     DEFAULT NULL,
     `inviter_id`             bigint       NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `index_invitation_hash` (`hash`),
+    INDEX                    `index_invitation_hash` (`hash`),
     CONSTRAINT `fk_invitations_user` FOREIGN KEY (`inviter_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1

@@ -31,6 +31,9 @@ public class UserRole implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Column(name = "expiry_notifications")
+    private int expiryNotifications;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

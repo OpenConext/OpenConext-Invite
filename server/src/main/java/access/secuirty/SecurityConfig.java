@@ -171,10 +171,28 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
+    SecurityFilterChain vootSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(c -> c.disable())
+                .securityMatcher("/api/voot/**", "/api/external/v1/voot/**")
+                .sessionManagement(c -> c
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(c -> c
+                        .anyRequest()
+                        .authenticated()
+                )
+                .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
     SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> c.disable())
                 .securityMatcher("/api/external/v1/**")
                 .authorizeHttpRequests(c -> c
+                        .requestMatchers("/api/external/v1/validations/**")
+                        .permitAll()
                         .anyRequest()
                         .authenticated()
                 )
@@ -197,22 +215,6 @@ public class SecurityConfig {
                 .roles("openid")
                 .build();
         return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
-    @Order(3)
-    SecurityFilterChain vootSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(c -> c.disable())
-                .securityMatcher("/api/voot/**")
-                .sessionManagement(c -> c
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authorizeHttpRequests(c -> c
-                        .anyRequest()
-                        .authenticated()
-                )
-                .httpBasic(Customizer.withDefaults());
-        return http.build();
     }
 
     @Bean

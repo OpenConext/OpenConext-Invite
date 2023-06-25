@@ -4,10 +4,11 @@ import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
 import {applications, rolesByApplication} from "../api";
-import {splitListSemantically, stopEvent} from "../utils/Utils";
+import {isEmpty, splitListSemantically, stopEvent} from "../utils/Utils";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {useAppStore} from "../stores/AppStore";
 import {useNavigate} from "react-router-dom";
+import {providerInfo} from "../utils/Manage";
 
 /*
  * Show all roles with the manage information and a link to role detail for super admin
@@ -17,15 +18,18 @@ const Applications = () => {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
-    const [providers, setProviders] = useState([]);
-    const [provisionings, setProvisionings] = useState([]);
     const [roles, setRoles] = useState([]);
 
     useEffect(() => {
             Promise.all([applications(), rolesByApplication()])
                 .then(res => {
-                    setProviders(res[0].providers);
-                    setProvisionings(res[0].provisionings);
+                    const providers = res[0].providers;
+                    const provisionings = res[0].provisionings;
+                    res[1].forEach(role => {
+                        role.logo = providerLogoById(role.manageId, providers);
+                        role.provider = providerById(role.manageId, providers);
+                        role.provisioning = provisioningsByProviderId(role.manageId, provisionings);
+                    })
                     setRoles(res[1]);
                     setLoading(false);
                 })
@@ -47,19 +51,22 @@ const Applications = () => {
         }
     };
 
-    const providerById = manageId => {
-        const provider = providers.find(provider => provider.id === manageId);
+    const providerById = (manageId, allProviders) => {
+        const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
         const metaData = provider.data.metaDataFields;
-        return `${metaData["name:en"]} (${metaData["OrganizationName:en"]})`;
+        const organisation = metaData["OrganizationName:en"];
+        const organisationValue = isEmpty(organisation) ? "" : ` (${organisation})`;
+        return `${metaData["name:en"]}${organisationValue}`;
     }
 
-    const providerLogoById = manageId => {
-        const provider = providers.find(provider => provider.id === manageId);
+    const providerLogoById = (manageId, allProviders) => {
+        const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
         return provider.data.metaDataFields["logo:0:url"];
     }
 
-    const provisioningsByProviderId = manageId => {
-        const provs = provisionings.filter(provisioning => provisioning.data.applications.some(app => app.id === manageId))
+    const provisioningsByProviderId = (manageId, allProvisionings) => {
+        const provs = allProvisionings
+            .filter(provisioning => provisioning.data.applications.some(app => app.id === manageId))
             .map(prov => {
                 const metaData = prov.data.metaDataFields;
                 return `${metaData["name:en"]} (${metaData.provisioning_type})`
@@ -71,25 +78,23 @@ const Applications = () => {
         {
             key: "logo",
             header: "",
-            sortable: false,
-            mapper: role => <img src={providerLogoById(role.manageId)} alt="logo"/>
+            nonSortable: true,
+            mapper: role => <img src={role.logo} alt="logo"/>
         },
         {
             key: "name",
             header: I18n.t("roles.name"),
-            mapper: role => <span>{role.name}</span>
+            mapper: role => role.name
         },
         {
             key: "provider",
-            sortable: false,
             header: I18n.t("roles.manageMetaData"),
-            mapper: role => <span>{providerById(role.manageId)}</span>
+            mapper: role => role.provider
         },
         {
             key: "provisioning",
-            sortable: false,
             header: I18n.t("roles.provisioning"),
-            mapper: role => <span>{provisioningsByProviderId(role.manageId)}</span>
+            mapper: role => role.provisioning
         },
 
     ]
@@ -102,7 +107,7 @@ const Applications = () => {
                       columns={columns}
                       hideTitle={true}
                       customNoEntities={I18n.t(`roles.noResults`)}
-                      searchAttributes={["name"]}
+                      searchAttributes={["name", "provider", "provisioning"]}
                       rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                       inputFocus={true}>
             </Entities>

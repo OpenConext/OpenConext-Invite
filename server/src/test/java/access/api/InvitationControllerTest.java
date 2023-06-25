@@ -213,6 +213,24 @@ class InvitationControllerTest extends AbstractTest {
                 .statusCode(409);
     }
 
+    @Test
+    void deleteInvitation() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("id", invitation.getId())
+                .delete("/api/v1/invitations/{id}")
+                .then()
+                .statusCode(204);
+
+        assertFalse(invitationRepository.findByHash(Authority.GUEST.name()).isPresent());
+    }
+
     private Invitation updateInvitationStatus(String hash, Status status) {
         Invitation invitation = invitationRepository.findByHash(hash).get();
         invitation.setStatus(status);

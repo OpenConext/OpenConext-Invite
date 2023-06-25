@@ -3,13 +3,14 @@ import "./RoleMetaData.scss";
 import {MetaDataList} from "@surfnet/sds";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils";
+import {providerInfo} from "../utils/Manage";
 
 
 export const RoleMetaData = ({role, provider, user}) => {
     if (isEmpty((user))) {
         return null;
     }
-    const organisation = provider.data.metaDataFields["OrganizationName:en"] || "-";
+    const organisation = providerInfo(provider).data.metaDataFields["OrganizationName:en"] || "-";
     const userRole = user.userRoles.find(userRole => userRole.role.id === role.id) ||
         {authority: I18n.t("roles.noMember")};
     const items = [

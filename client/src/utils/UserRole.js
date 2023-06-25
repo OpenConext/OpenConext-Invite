@@ -58,6 +58,7 @@ export const markAndFilterRoles = (user, allRoles) => {
         userRole.name = userRole.role.name;
         userRole.label = userRole.role.name;
         userRole.value = userRole.role.id;
+        userRole.landingPage = userRole.role.landingPage;
         userRole.description = userRole.role.description;
     })
     allRoles.forEach(role => {

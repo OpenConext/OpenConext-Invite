@@ -125,6 +125,7 @@ export const Roles = () => {
         {
             key: "landingPage",
             header: I18n.t("roles.landingPage"),
+            hasLink: true,
             mapper: role => landingPage(role)
         }
 
@@ -146,7 +147,7 @@ export const Roles = () => {
                       newEntityPath={"/role/new"}
                       defaultSort="name"
                       columns={columns}
-                      searchAttributes={["name", "description"]}
+                      searchAttributes={["name", "description", "landingPage"]}
                       customNoEntities={I18n.t(`roles.noResults`)}
                       loading={false}
                       inputFocus={true}
