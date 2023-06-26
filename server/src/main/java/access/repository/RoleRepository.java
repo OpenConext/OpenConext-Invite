@@ -23,4 +23,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     List<String[]> findDistinctManageIdentifiers();
 
     Optional<Role> findByManageIdAndShortNameIgnoreCase(String managerId, String name);
+
+    List<Role> findByName(String name);
+
 }

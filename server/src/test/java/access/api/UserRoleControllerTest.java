@@ -65,4 +65,25 @@ class UserRoleControllerTest extends AbstractTest {
         Instant newEndDate = updatedRole.getEndDate();
         assertEquals(365L, endDate.until(newEndDate, ChronoUnit.DAYS));
     }
+
+    @Test
+    void updateEndDateInThePast() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        UserRole userRole = userRoleRepository.findByRoleName("Wiki").stream()
+                .filter(userRole1 -> userRole1.getAuthority().equals(Authority.GUEST))
+                .findFirst()
+                .get();
+        Instant endDate = userRole.getEndDate();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new UpdateUserRole(userRole.getId(), endDate.minus(365, ChronoUnit.DAYS)))
+                .put("/api/v1/user_roles")
+                .then()
+                .statusCode(409);
+    }
 }

@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.manage.EntityType;
 import access.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
@@ -312,4 +313,21 @@ class InvitationControllerTest extends AbstractTest {
         //two users provisioned to 1 remote SCIM - the inviter and one existing user with the userRole
         assertEquals(1, remoteProvisionedUserRepository.count());
     }
+
+    @Test
+    void byRole() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Role mail = roleRepository.findByName("Mail").get(0);
+        List<Invitation> invitations = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("roleId", mail.getId())
+                .get("/api/v1/invitations/roles/{roleId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, invitations.size());
+    }
+
 }

@@ -19,13 +19,14 @@ public class MailConf {
     @Bean
     public MailBox mailBox(Config config,
                            @Value("${email.from}") String emailFrom,
+                           @Value("${email.contactEmail}") String contactEmail,
                            @Value("${email.enabled}") boolean enabled,
                            @Value("${email.environment}") String env,
                            Environment environment,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
-        return enabled ? new MailBox(objectMapper, mailSender, emailFrom, config.getClientUrl(), config.getWelcomeUrl(), env) :
-                new MockMailBox(objectMapper, mailSender, emailFrom, config.getClientUrl(), config.getWelcomeUrl(), environment);
+        return enabled ? new MailBox(objectMapper, mailSender, emailFrom, contactEmail, config.getClientUrl(), config.getWelcomeUrl(), env) :
+                new MockMailBox(objectMapper, mailSender, emailFrom, contactEmail, config.getClientUrl(), config.getWelcomeUrl(), environment);
     }
 
 

@@ -61,6 +61,9 @@ cron:
   node-cron-job-responsible: true
   user-cleaner-expression: "0 0/30 * * * *"
   last-activity-duration-days: 1000
+  role-expiration-notifier-expression: "0 0/30 * * * *"
+  # Set to -1 to suppress role expiry notifications
+  role-expiration-notifier-duration-days: 5
 
 oidcng:
   discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
@@ -87,6 +90,7 @@ voot:
 
 email:
   from: "no-reply@surf.nl"
+  contactEmail: "access@surf.nl"
   environment: "local"
   enabled: false
 

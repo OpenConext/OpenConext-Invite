@@ -11,31 +11,29 @@
             This mail is from the {{environment}} environment
         </p>
         {{/environment}}
-        <p class="title" style="font-weight: 600;font-size: 38px;line-height: 38px; margin: 0;margin-bottom: 10px;">Your {{userRole.role.name}} role will expire in {{nbrOfDays}} days.</p>
+        <p class="title" style="font-weight: 600;font-size: 38px;line-height: 38px; margin: 0;margin-bottom: 10px;">Your {{role.name}} will expire in {{nbrOfDays}} days.</p>
     </div>
     <div class="middle" style="padding: 20px 0 40px 60px;max-width: 600px;">
-        <p>Hi, {{userRole.user.name}}</p>
-        <p>Your {{authority}} role {{userRole.role.name}} at the application {{groupedProvider.organisation}} will expire in
+        <p>Hi, {{user.name}}</p>
+        <p>Your {{authority}} role {{role.name}} at the application {{organisationName}} will expire in
             {{nbrOfDays}} days. If you think this is a mistake you can contact <a href="mailto:{{contactEmail}}">{{contactEmail}}</a> to request
             a renewal of your {{authority}} role.
-            {{#groupedProvider}}
             <table>
                 <thead/>
                 <tbody>
                 <tr>
-                    <td>{{#groupedProvider.logo}}
-                        <img src="cid:{{groupedProvider.logoName}}" alt="logo"/>
-                        {{/groupedProvider.logo}}
-                        {{^groupedProvider.logo}}
+                    <td>{{#groupedProviders.logo}}
+                        <img src="cid:{{groupedProviders.logoName}}" alt="logo"/>
+                        {{/logo}}
+                        {{^logo}}
                         <img src="cid:not_found" alt="logo"/>
-                        {{/groupedProvider.logo}}
+                        {{/logo}}
                     </td>
-                    <td>{{groupedProvider.name}} ({{groupedProvider.organisation}})</td>
-                    <td>{{groupedProvider.rolesDisplay}}</td>
+                    <td>{{groupedProviders.name}} ({{groupedProviders.organisation}})</td>
+                    <td>{{groupedProviders.rolesDisplay}}</td>
                 </tr>
                 </tbody>
             </table>
-            {{/groupedProvider}}
         </p>
         <p>If you don't want to renew your role , just ignore or delete this message.</p>
     </div>

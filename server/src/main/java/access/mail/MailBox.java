@@ -1,13 +1,10 @@
 package access.mail;
 
-import access.model.Authority;
-import access.model.GroupedProviders;
+import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
-import access.model.Invitation;
-import access.model.User;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,21 +33,23 @@ public class MailBox {
     private final String clientUrl;
     private final String welcomeUrl;
     private final String emailFrom;
+    private final String contactEmail;
     private final String environment;
-    private final Map<String, Map<String, String>> subjects;
 
-    private static final Log LOG = LogFactory.getLog(MailBox.class);
+    private final Map<String, Map<String, String>> subjects;
 
     private final MustacheFactory mustacheFactory = new DefaultMustacheFactory("templates");
 
     public MailBox(ObjectMapper objectMapper,
                    JavaMailSender mailSender,
                    String emailFrom,
+                   String contactEmail,
                    String clientUrl,
                    String welcomeUrl,
                    String environment) throws IOException {
         this.mailSender = mailSender;
         this.emailFrom = emailFrom;
+        this.contactEmail = contactEmail;
         this.clientUrl = clientUrl;
         this.welcomeUrl = welcomeUrl;
         this.environment = environment;
@@ -59,7 +58,7 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders)  {
+    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         String lang = preferredLanguage().toLowerCase();
         String title = String.format(subjects.get(lang).get("newInvitation"),
@@ -81,6 +80,30 @@ public class MailBox {
                 title,
                 variables,
                 invitation.getEmail());
+    }
+
+    @SneakyThrows
+    public void sendUserRoleExpirationNotificationMail(UserRole userRole,
+                                                       GroupedProviders groupedProvider,
+                                                       int nbrOfDays) {
+        String lang = preferredLanguage().toLowerCase();
+        String title = String.format(subjects.get(lang).get("roleExpirationNotification"),
+                userRole.getAuthority().translate(lang),
+                userRole.getRole().getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("title", title);
+        variables.put("userRole", userRole);
+        variables.put("groupedProvider", groupedProvider);
+        variables.put("nbrOfDays", nbrOfDays);
+        variables.put("contactEmail", contactEmail);
+        variables.put("authority", userRole.getAuthority().translate(lang));
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        sendMail(String.format("role_expiration_%s", lang),
+                title,
+                variables,
+                userRole.getUser().getEmail());
     }
 
     private String preferredLanguage() {

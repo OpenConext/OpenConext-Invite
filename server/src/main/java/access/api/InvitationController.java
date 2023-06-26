@@ -42,7 +42,7 @@ import static java.util.stream.Collectors.toSet;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @EnableConfigurationProperties(SuperAdmin.class)
-public class InvitationController {
+public class InvitationController implements HasManage {
 
     private static final Log LOG = LogFactory.getLog(InvitationController.class);
 
@@ -128,7 +128,7 @@ public class InvitationController {
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
         List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
 
-        mailBox.sendInviteMail(user,invitation, groupedProviders );
+        mailBox.sendInviteMail(user, invitation, groupedProviders);
         return Results.createResult();
     }
 
@@ -222,18 +222,8 @@ public class InvitationController {
         return ResponseEntity.ok(invitations);
     }
 
-
-    private List<GroupedProviders> getGroupedProviders(List<Role> requestedRoles) {
-        //We need to display the roles per manage application with the logo
-        List<GroupedProviders> groupedProviders = requestedRoles.stream()
-                .collect(Collectors.groupingBy(role -> new ManageIdentifier(role.getManageId(), role.getManageType())))
-                .entrySet().stream()
-                .map(entry -> new GroupedProviders(
-                        manage.providerById(entry.getKey().entityType(), entry.getKey().id()),
-                        entry.getValue(),
-                        UUID.randomUUID().toString())
-                ).toList();
-        return groupedProviders;
+    public Manage getManage() {
+        return manage;
     }
 
     private void checkEmailEquality(User user, Invitation invitation) {
@@ -242,5 +232,6 @@ public class InvitationController {
                     String.format("Invitation email %s does not match user email %s", invitation.getEmail(), user.getEmail()));
         }
     }
+
 
 }
