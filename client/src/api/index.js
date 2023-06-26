@@ -128,6 +128,14 @@ export function invitationsByRoleId(roleId) {
     return fetchJson(`/api/v1/invitations/roles/${roleId}`);
 }
 
+export function resendInvitation(invitationId) {
+    return postPutJson(`/api/v1/invitations/${invitationId}`, {}, "PUT");
+}
+
+export function deleteInvitation(invitationId) {
+    return fetchDelete(`/api/v1/invitations/${invitationId}`);
+}
+
 //Manage
 export function allProviders() {
     return fetchJson("/api/v1/manage/providers");
@@ -155,7 +163,7 @@ export function updateRole(role) {
 }
 
 export function deleteRole(role) {
-    return fetchDelete(`/api/v1/roles/${role.id}`,false);
+    return fetchDelete(`/api/v1/roles/${role.id}`, false);
 }
 
 export function searchRoles(query) {
@@ -170,6 +178,10 @@ export function shortNameExists(shortName, manageId, roleId) {
 //User roles
 export function userRolesByRoleId(roleId) {
     return fetchJson(`/api/v1/user_roles/roles/${roleId}`);
+}
+
+export function updateUserRoleEndData(userRoleId, endDate) {
+    return postPutJson("/api/v1/user_roles", {userRoleId, endDate}, "PUT");
 }
 
 //Validations

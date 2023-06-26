@@ -1,5 +1,10 @@
 import React from "react";
-import {AUTHORITIES, isUserAllowed, allowedAuthoritiesForInvitation} from "../../utils/UserRole";
+import {
+    AUTHORITIES,
+    isUserAllowed,
+    allowedAuthoritiesForInvitation,
+    allowedToRenewUserRole
+} from "../../utils/UserRole";
 
 test("Test isUserAllowed", () => {
     let user = {userRoles: [{authority: AUTHORITIES.GUEST}]}
@@ -38,3 +43,29 @@ test("Allowed authorities for invitation - manager", () => {
     expect(authorities).toEqual([AUTHORITIES.GUEST]);
 
 });
+
+test("Allowed to renew UserRole", () => {
+    const research = {authority: AUTHORITIES.MANAGER, role: {id: "1", manageId: "2"}};
+    const mail = {authority: AUTHORITIES.INVITER, role: {id: "3", manageId: "9"}};
+    const calendar = {authority: AUTHORITIES.GUEST, role: {id: "3", manageId: "9"}};
+    let user = { superUser: true}
+    expect( allowedToRenewUserRole(user, null)).toBeTruthy();
+
+    user = { userRoles: [calendar]}
+    expect( allowedToRenewUserRole(user,calendar)).toBeFalsy();
+
+    user = { userRoles: [research]}
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.SUPER_USER})).toBeFalsy();
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.MANAGER})).toBeFalsy();
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.INVITER, role: {id: "9", manageId: "9"}})).toBeFalsy();
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.INVITER, role: {id: "1", manageId: "9"}})).toBeTruthy();
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.INVITER, role: {id: "9", manageId: "2"}})).toBeTruthy();
+
+    user = { userRoles: [mail]}
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.INVITER, role: {id: "3", manageId: "9"}})).toBeFalsy();
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.GUEST, role: {id: "1", manageId: "11"}})).toBeFalsy();
+    expect( allowedToRenewUserRole(user,{authority: AUTHORITIES.GUEST, role: {id: "3", manageId: "11"}})).toBeTruthy();
+
+    user = { userRoles: [mail]}
+
+})

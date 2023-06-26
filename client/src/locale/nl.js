@@ -132,7 +132,10 @@ const nl = {
         singleUserRole: "user role",
         multipleUserRoles: "user roles",
         searchPlaceHolder: "Search for user roles...",
-        noResults: "No user roles where found"
+        noResults: "No user roles where found",
+        updateConfirmation: "Are you sure  you want to change the end date of role {{roleName}} for {{userName}}",
+        updateFlash: "The end date for role {{roleName}} has been updated",
+
     },
     invitations: {
         found: "{{count}} {{plural}} found",

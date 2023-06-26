@@ -5,7 +5,7 @@ import {isEmpty} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
 import {headerIcon} from "../utils/Forms";
 import "./Entities.scss";
-import {Button, Loader} from "@surfnet/sds";
+import {Button, Loader, Tooltip} from "@surfnet/sds";
 
 import {Pagination} from "@surfnet/sds";
 import {pageCount} from "../utils/Pagination";
@@ -181,6 +181,7 @@ export const Entities = ({
                                                className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
                                                onClick={setSortedKey(column.key)}>
                                         {column.header}
+                                        {column.toolTip && <Tooltip tip={column.toolTip}/> }
                                         {headerIcon(column, sorted, reverse)}
                                     </th>
                                 })}

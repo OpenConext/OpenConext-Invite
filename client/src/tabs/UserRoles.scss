@@ -1,10 +1,19 @@
 .mod-user-roles {
+
+    .date-field-container {
+        display: flex;
+
+        .date-field {
+            margin-left: auto;
+        }
+    }
+
     table.userRoles {
 
         thead {
             th {
                 &.name {
-                    width: 25%;
+                    width: 20%;
                 }
 
                 &.me {
@@ -12,24 +21,32 @@
                 }
 
                 &.schacHomeOrganisation {
-                    width: 25%;
+                    width: 15%;
                 }
 
                 &.authority {
-                    width: 25%;
+                    width: 20%;
                     text-align: center;
                 }
 
                 &.endDate {
-                    width: 15%;
+                    width: 30%;
+                    text-align: right;
                 }
             }
         }
 
         tbody {
-            td.authority {
-                text-align: center;
+            td {
+                &.authority {
+                    text-align: center;
+                }
+
+                &.endDate {
+                    text-align: right;
+                }
             }
+
 
         }
     }

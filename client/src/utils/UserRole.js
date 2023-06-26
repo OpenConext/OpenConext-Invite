@@ -45,7 +45,29 @@ export const allowedToEditRole = (user, role) => {
         return false;
     }
     //One the userRoles must have the same manageId as the role
-    return user.userRoles.some(userRole => userRole.role.manageId === role.manageId);
+    return user.userRoles.some(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id);
+}
+
+export const allowedToRenewUserRole = (user, userRole) => {
+    if (user.superUser) {
+        return true;
+    }
+    if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
+        return false;
+    }
+    switch (userRole.authority) {
+        case AUTHORITIES.SUPER_USER:
+        case AUTHORITIES.MANAGER:
+            return false;
+        case AUTHORITIES.INVITER :
+            return isUserAllowed(AUTHORITIES.MANAGER, user) &&
+                user.userRoles.some(ur => userRole.role.manageId === ur.role.manageId || userRole.role.id === ur.role.id);
+        case  AUTHORITIES.GUEST:
+            return isUserAllowed(AUTHORITIES.INVITER, user) &&
+                user.userRoles.some(ur => userRole.role.id === ur.role.id);
+        default:
+            return false
+    }
 }
 
 export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
@@ -91,10 +113,10 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
         .filter(userRole => !isEmpty(userRole));
     const leastImportantAuthority = userRolesForSelectedRoles
         .reduce((acc, userRole) => {
-           if (AUTHORITIES_HIERARCHY[userRole.authority] < AUTHORITIES_HIERARCHY[acc]) {
-               return userRole.authority;
-           }
-           return acc;
+            if (AUTHORITIES_HIERARCHY[userRole.authority] < AUTHORITIES_HIERARCHY[acc]) {
+                return userRole.authority;
+            }
+            return acc;
         }, AUTHORITIES.GUEST);
     return Object.keys(AUTHORITIES)
         .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[leastImportantAuthority]);
