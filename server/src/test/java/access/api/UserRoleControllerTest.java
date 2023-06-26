@@ -73,15 +73,13 @@ class UserRoleControllerTest extends AbstractTest {
                 .filter(userRole1 -> userRole1.getAuthority().equals(Authority.GUEST))
                 .findFirst()
                 .get();
-        Instant endDate = userRole.getEndDate();
-
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(new UpdateUserRole(userRole.getId(), endDate.minus(365, ChronoUnit.DAYS)))
+                .body(new UpdateUserRole(userRole.getId(), Instant.now().minus(365, ChronoUnit.DAYS)))
                 .put("/api/v1/user_roles")
                 .then()
                 .statusCode(409);
