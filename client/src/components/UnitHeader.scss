@@ -15,6 +15,19 @@
         margin-top: auto;
     }
 
+    .urn-container {
+        display: flex;
+        align-items: center;
+
+        span {
+            margin-right: 6px;
+        }
+
+        .copy-to-clipboard {
+            margin-top: 6px;
+        }
+    }
+
     .unit-header {
         max-width: $medium;
         margin: 0 auto;
