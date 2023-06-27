@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Tooltip} from "@surfnet/sds";
 import "./EmailField.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
@@ -13,11 +13,20 @@ export default function EmailField({
                                        addEmails,
                                        removeMail,
                                        pinnedEmails = [],
-                                       error = false
+                                       error = false,
+                                       grabFocus = true
                                    }) {
 
     const [emailErrors, setEmailErrors] = useState([]);
     const [value, setValue] = useState("");
+
+    const refContainer = useRef(null);
+
+    useEffect(() => {
+        if (grabFocus && refContainer.current) {
+            refContainer.current.focus();
+        }
+    }, [grabFocus]);
 
     const internalOnChange = e => {
         if (!["Enter", "Spacebar", "Backspace", "Tab"].includes(e.key)) {
@@ -100,12 +109,13 @@ export default function EmailField({
                         {pinnedEmails.includes(mail) ?
                             <span className="disabled icon"><MailIcon/></span> :
                             <span className="icon" onClick={() => internalRemoveMail(mail)}>
-                                <CloseIcon />
+                                <CloseIcon/>
                             </span>}
 
                     </div>)}
                 <textarea id="email-field"
                           value={value}
+                          ref={refContainer}
                           onChange={internalOnChange}
                           onBlur={internalAddEmail}
                           onKeyDown={e => {

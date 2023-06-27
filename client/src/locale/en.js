@@ -152,7 +152,7 @@ const en = {
         invitees: "Invitees",
         inviteesPlaceholder: "Invitee email addresses",
         requiredEmail: "At least one email is required",
-        requiredRole: "At least one role is required for a guest invitation",
+        requiredRole: "At least one role is required for an invitation",
         intendedAuthority: "Authority",
         roles: "Roles",
         rolesPlaceHolder: "Choose one or more roles",
@@ -163,7 +163,13 @@ const en = {
         messagePlaceholder: "Personal message for the invitee included in the invitation",
         invite: "Send invite",
         invalidEmails: "Invalid email addresses removed: {{emails}}.",
-        createFlash: "Invitation was send"
+        createFlash: "Invitation was send",
+        delete: "Delete",
+        resend: "Resend",
+        deleteFlash: "Invitation(s) have been deleted",
+        deleteConfirmation: "Are you sure you want to delete this invitation(s)?",
+        resendConfirmation: "Are you sure you want to resend this invitation(s)?",
+        resendFlash: "Invitation(s) have been resend"
     },
     forms: {
         none: "None",
@@ -225,6 +231,8 @@ const en = {
         rolesTooltip: "All the roles that the invitee will be granted after accepting the invitation",
         intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted after accepting the invitation",
         inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or one-by-one using the enter key. You can also copy & paste a csv file with line-separated email addresses.",
+        removeInvitation: "Delete all selected invitations",
+        resendInvitation: "Resend all selected invitations",
     },
     confirmationDialog: {
         title: "Confirm",

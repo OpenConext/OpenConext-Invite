@@ -1,0 +1,33 @@
+@import "../styles/vars";
+
+table {
+
+  @media (max-width: $medium) {
+
+    thead {
+      display: none;
+    }
+
+    tr {
+      margin-bottom: 15px;
+      display: block;
+      border-bottom: 3px solid var(--sds--color--gray--300);
+    }
+
+    td {
+      display: flex;
+      text-align: right;
+      border-bottom: 1px dotted var(--sds--color--blue--100);
+
+      padding: 8px 0;
+
+      &:before {
+        content: attr(data-label);
+        margin-right: auto;
+        font-weight: bold;
+        font-size: 14px;
+        color: black;
+      }
+    }
+  }
+}

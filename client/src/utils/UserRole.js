@@ -48,12 +48,14 @@ export const allowedToEditRole = (user, role) => {
     return user.userRoles.some(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id);
 }
 
+export const allowedToDeleteInvitation = (user, invitation) => {
+    return invitation.roles
+        .every(invitationRole => allowedToRenewUserRole(user, {...invitationRole, authority: invitation.intendedAuthority}))
+}
+
 export const allowedToRenewUserRole = (user, userRole) => {
     if (user.superUser) {
         return true;
-    }
-    if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
-        return false;
     }
     switch (userRole.authority) {
         case AUTHORITIES.SUPER_USER:

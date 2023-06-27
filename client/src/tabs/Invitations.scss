@@ -3,6 +3,11 @@
 
         thead {
             th {
+                &.check {
+                    width: 80px;
+                    text-align: center;
+                }
+
                 &.email {
                     width: 25%;
                 }
@@ -32,6 +37,10 @@
 
         tbody {
             td {
+                &.check {
+                    text-align: center;
+                }
+
                 &.enforceEmailEquality {
                     text-align: center;
                 }

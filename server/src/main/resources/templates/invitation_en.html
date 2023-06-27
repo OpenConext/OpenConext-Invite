@@ -21,18 +21,18 @@
     </div>
     {{#invitation.message}}
     <div class="mail-middle"
-         style="padding: 40px 0 40px 60px;max-width: 800px;">
+         style="padding: 20px 0 20px 60px;max-width: 800px;">
         <p style="white-space: pre-line;margin: 0;">
-            {{ invitation.message }}
+            {{invitation.message}}
         </p>
     </div>
     {{/invitation.message}}
     <div class="middle" style="padding: 20px 0 40px 60px;max-width: 600px;">
         <p>Hi,</p>
         <p>You have been invited by <a href="mailto:{{user.email}}">{{user.givenName}} {{user.familyName}}</a> to become
-            a <strong>{{intendedAuthority}}</strong> at the provisioning <strong>{{provisioning.name}}</strong>.</p>
+            a <strong>{{intendedAuthority}}</strong> at the application(s) <strong>{{roles}}</strong>.</p>
         {{#invitation.anyRoles}}
-        <p>You will be granted access to the following provisionings:</p>
+        <p>You will be granted access to the following applications:</p>
             {{#groupedProviders}}
             <table>
                 <thead/>
@@ -45,8 +45,8 @@
                         <img src="cid:not_found" alt="logo"/>
                         {{/logo}}
                     </td>
-                    <td>{{name}} ({{organisation}})</td>
-                    <td>{{rolesDisplay}}</td>
+                    <td>Organisation: {{name}} ({{organisation}}).</td>
+                    <td> Applications: {{rolesDisplay}}</td>
                 </tr>
                 </tbody>
             </table>

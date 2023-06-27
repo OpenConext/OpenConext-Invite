@@ -81,11 +81,12 @@ export const InvitationForm = () => {
     }
 
     const isValid = () => {
-        return required.every(attr => !isEmpty(invitation[attr])) && !isEmpty(selectedRoles);
+        return required.every(attr => !isEmpty(invitation[attr])) && (!isEmpty(selectedRoles) || invitation.intendedAuthority === AUTHORITIES.SUPER_USER);
     }
 
     const addEmails = emails => {
-        setInvitation({...invitation, invites: emails});
+        const newEmails = invitation.invites.concat(emails)
+        setInvitation({...invitation, invites: newEmails});
     }
 
     const removeMail = mail => {
@@ -102,7 +103,7 @@ export const InvitationForm = () => {
                 .filter(option => option.defaultExpiryDays)
                 .map(option => option.defaultExpiryDays)
                 .sort();
-            if (!isEmpty(allDefaultExpiryDays) && !invitation.roleExpiryDate) {
+            if (!isEmpty(allDefaultExpiryDays) && !invitation.roleExpiryDate && invitation.intendedAuthority === AUTHORITIES.GUEST) {
                 setInvitation({...invitation, roleExpiryDate: futureDate(allDefaultExpiryDays[0])});
             }
         }
@@ -153,6 +154,7 @@ export const InvitationForm = () => {
                 <DateField value={invitation.roleExpiryDate}
                            onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
                            showYearDropdown={true}
+                           allowNull={invitation.intendedAuthority !== AUTHORITIES.GUEST}
                            minDate={futureDate(1, invitation.expiryDate)}
                            name={I18n.t("invitations.roleExpiryDate")}
                            toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>

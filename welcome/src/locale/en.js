@@ -105,6 +105,13 @@ const en = {
         createFlash: "Role {{name}} has been created",
         updateFlash: "Role {{name}} has been updated",
     },
+    forms: {
+        ok: "Ok",
+        and: "and",
+        error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
+            "The reference number for ths exception is {{reference}}."
+    },
+
     invitations: {
         found: "{{count}} {{plural}} found",
         singleInvitation: "invitation",

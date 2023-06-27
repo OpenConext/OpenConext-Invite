@@ -64,7 +64,7 @@ public class UserRole implements Serializable {
         this.user = user;
         this.role = role;
         this.authority = authority;
-        this.endDate = endDate == null ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
+        this.endDate = endDate == null && authority.equals(Authority.GUEST) ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
         this.createdAt = Instant.now();
     }
 }

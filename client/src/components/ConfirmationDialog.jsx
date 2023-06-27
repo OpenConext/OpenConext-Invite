@@ -26,7 +26,7 @@ export default function ConfirmationDialog({
             alertType={isError ? AlertType.Error : isWarning ? AlertType.Warning : AlertType.Info}
             question={question}
             children={children}
-            title={confirmationHeader || isError ? I18n.t("confirmationDialog.error") : I18n.t("confirmationDialog.title")}
+            title={confirmationHeader}
             cancelButtonLabel={I18n.t("confirmationDialog.cancel")}
             confirmationButtonLabel={confirmationTxt}
             confirmDisabled={disabledConfirm}

@@ -121,7 +121,8 @@ export const RoleForm = () => {
                 warning: false,
                 error: true,
                 question: I18n.t("forms.error", {reference: reference}),
-                confirmationTxt: I18n.t("forms.ok")
+                confirmationTxt: I18n.t("forms.ok"),
+                confirmationHeader: I18n.t("confirmationDialog.error")
             });
             setConfirmationOpen(true);
         })
@@ -135,7 +136,8 @@ export const RoleForm = () => {
                 warning: true,
                 error: false,
                 question: I18n.t("roles.deleteConfirmation"),
-                confirmationTxt: I18n.t("confirmationDialog.confirm")
+                confirmationTxt: I18n.t("confirmationDialog.confirm"),
+                confirmationHeader: I18n.t("confirmationDialog.title")
             });
             setConfirmationOpen(true);
         } else {
@@ -271,6 +273,7 @@ export const RoleForm = () => {
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
                                                      confirmationTxt ={confirmation.confirmationTxt}
+                                                     confirmationHeader={confirmation.confirmationHeader}
                                                      isWarning={confirmation.warning}
                                                      isError={confirmation.error}
                                                      question={confirmation.question}/>}

@@ -37,11 +37,11 @@ public class InvitationRole implements Serializable {
     private Role role;
 
     public InvitationRole(Role role) {
-        this(role, null);
+        this(role, null, Authority.GUEST);
     }
 
-    public InvitationRole(Role role, Instant endDate) {
+    public InvitationRole(Role role, Instant endDate, Authority intentedAuthority) {
         this.role = role;
-        this.endDate = endDate == null ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
+        this.endDate = endDate == null && intentedAuthority.equals(Authority.GUEST) ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
     }
 }

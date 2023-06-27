@@ -84,7 +84,7 @@ public class Role implements Serializable, Provisionable {
         this.landingPage = landingPage;
         this.manageId = manageId;
         this.manageType = manageType;
-        this.defaultExpiryDays = defaultExpiryDays == null ? 365 : defaultExpiryDays;
+        this.defaultExpiryDays = defaultExpiryDays;
         this.application = application;
     }
 

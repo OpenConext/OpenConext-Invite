@@ -57,6 +57,11 @@
 
             @media (max-width: $medium) {
                 margin-left: 0;
+                margin-top: 20px;
+
+                .sds--text-field, .sds--text-field--shape {
+                    width: 100%;
+                }
             }
 
             input[type=search] {
@@ -85,15 +90,9 @@
             left: 76px;
             top: 2px;
 
-            &.collaboration-services {
-                left: 32px;
-            }
-
-            &.collaboration-groups {
-                width: 100%;
-                left: 0;
-                top: -2px;
-                position: relative;
+            div.admin-actions {
+                display: flex;
+                gap: 25px;
             }
 
             &.adjust-top {
@@ -124,6 +123,7 @@
 
                 &.sortable {
                     cursor: pointer;
+
                     svg {
                         width: 16px;
                         height: auto;

@@ -16,6 +16,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -66,6 +67,7 @@ public class MailBox {
         Map<String, Object> variables = new HashMap<>();
         variables.put("groupedProviders", groupedProviders);
         variables.put("title", title);
+        variables.put("roles", splitListSemantically(invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole().getName()).toList()));
         variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(lang));
         variables.put("user", user);
@@ -94,6 +96,7 @@ public class MailBox {
         variables.put("title", title);
         variables.put("userRole", userRole);
         variables.put("groupedProvider", groupedProvider);
+        variables.put("groupedProviders", List.of(groupedProvider));
         variables.put("nbrOfDays", nbrOfDays);
         variables.put("contactEmail", contactEmail);
         variables.put("authority", userRole.getAuthority().translate(lang));
@@ -147,6 +150,20 @@ public class MailBox {
 
     private String mailTemplate(String templateName, Map<String, Object> context) {
         return mustacheFactory.compile(templateName).execute(new StringWriter(), context).toString();
+    }
+
+    private String splitListSemantically(List<String> values) {
+        if (CollectionUtils.isEmpty(values)) {
+            return "";
+        }
+        if (values.size() == 1) {
+            return values.get(0);
+        }
+        String separator = preferredLanguage().toLowerCase().equals("en") ? " and " : " en ";
+        return values.subList(0, values.size() - 1).stream()
+                .collect(Collectors.joining(", ")) + separator +
+                values.get(values.size() - 1);
+
     }
 
 }

@@ -72,25 +72,31 @@ public class Invitation implements Serializable {
                       String hash,
                       String email,
                       boolean enforceEmailEquality,
+                      String message,
                       User inviter,
                       @NotEmpty Set<InvitationRole> roles) {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
+        this.message = message;
         this.inviter = inviter;
         this.status = Status.OPEN;
         this.roles = roles;
         this.email = email;
         this.expiryDate = Instant.now().plus(Period.ofDays(14));
         this.createdAt = Instant.now();
-        this.roleExpiryDate = this.roleExpiryDate(roles);
+        this.roleExpiryDate = this.roleExpiryDate(roles, intendedAuthority);
         roles.forEach(role -> role.setInvitation(this));
     }
 
-    private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles) {
+    private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles, Authority intendedAuthority) {
+        if (!intendedAuthority.equals(Authority.GUEST)) {
+            return null;
+        }
         return roles.stream()
                 .map(InvitationRole::getEndDate)
-                .filter(Objects::nonNull).min(Comparator.naturalOrder())
+                .filter(Objects::nonNull)
+                .min(Comparator.naturalOrder())
                 .orElse(Instant.now().plus(
                         roles.stream()
                                 .map(invitationRole -> invitationRole.getRole().getDefaultExpiryDays())

@@ -89,9 +89,10 @@ public class InvitationController implements HasManage {
                         HashGenerator.generateHash(),
                         invitee,
                         invitationRequest.isEnforceEmailEquality(),
+                        invitationRequest.getMessage(),
                         user,
                         requestedRoles.stream()
-                                .map(role -> new InvitationRole(role, invitationRequest.getExpiryDate()))
+                                .map(role -> new InvitationRole(role, invitationRequest.getExpiryDate(), intendedAuthority))
                                 .collect(toSet())))
                 .toList();
         invitationRepository.saveAll(invitations);

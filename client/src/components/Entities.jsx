@@ -66,14 +66,15 @@ export const Entities = ({
     };
 
     const queryChanged = e => {
-        const query = e.target.value;
-        setQuery(query);
+        const newQuery = e.target.value;
+        setQuery(newQuery);
         if (customSearch) {
-            customSearch(query);
+            customSearch(newQuery);
             setInitial(false);
         }
         if (searchCallback) {
-            searchCallback(filterEntities(entities, query, searchAttributes));
+            const searchResult = filterEntities(newQuery);
+            searchCallback(searchResult);
         }
     }
 
@@ -111,11 +112,11 @@ export const Entities = ({
         );
     };
 
-    const filterEntities = () => {
-        if (isEmpty(query) || customSearch) {
+    const filterEntities = newQuery => {
+        if (isEmpty(newQuery) || customSearch) {
             return entities;
         }
-        const queryLower = query.toLowerCase();
+        const queryLower = newQuery.toLowerCase();
         return entities.filter(entity => {
             return searchAttributes.some(attr => {
                 const val = valueForSort(attr, entity);
@@ -151,6 +152,7 @@ export const Entities = ({
                 <td key={`td_${column.key}_${i}`}
                     onClick={e => (column.key !== "check" && !column.hasLink) ?
                         onRowClick(e, entity) : undefined}
+                    data-label={column.header}
                     className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
                     {getEntityValue(entity, column)}
                 </td>)}
@@ -176,7 +178,7 @@ export const Entities = ({
                             <thead>
                             <tr>
                                 {columns.map((column, i) => {
-                                    const showHeader = !actions || i < 2 || column.showHeader;
+                                    const showHeader = !actions || i < 1 || column.showHeader;
                                     return <th key={`th_${column.key}_${i}`}
                                                className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
                                                onClick={setSortedKey(column.key)}>
@@ -207,7 +209,7 @@ export const Entities = ({
     if (loading) {
         return <Loader/>;
     }
-    const filteredEntities = filterEntities(entities, query, searchAttributes, customSearch);
+    const filteredEntities = filterEntities(query);
     const sortedEntities = sortObjects(filteredEntities, sorted, reverse);
     return (
         <div className={`mod-entities ${className}`}>
