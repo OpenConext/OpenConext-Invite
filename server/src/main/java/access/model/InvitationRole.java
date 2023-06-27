@@ -23,9 +23,6 @@ public class InvitationRole implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "end_date")
-    private Instant endDate;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invitation_id")
     @JsonIgnore
@@ -37,11 +34,6 @@ public class InvitationRole implements Serializable {
     private Role role;
 
     public InvitationRole(Role role) {
-        this(role, null, Authority.GUEST);
-    }
-
-    public InvitationRole(Role role, Instant endDate, Authority intentedAuthority) {
         this.role = role;
-        this.endDate = endDate == null && intentedAuthority.equals(Authority.GUEST) ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
     }
 }

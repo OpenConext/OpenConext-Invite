@@ -162,14 +162,6 @@
                     cursor: default;
                 }
 
-                @media (max-width: $medium) {
-                    &.status, &.requester, &.impersonate, &.logo, &.collaboration_memberships_count,
-                    &.invitations_count, &.organisation_memberships_count, &.collaborations_count,
-                    &.connection_requests_count, &.icon, &.user__schac_home_organisation {
-                        display: none;
-                    }
-                }
-
             }
 
 
@@ -252,14 +244,6 @@
                         width: 80px;
                         height: auto;
                         margin-right: 5px;
-                    }
-                }
-
-                @media (max-width: $medium) {
-                    &.status, &.requester, &.impersonate, &.logo, &.collaboration_memberships_count,
-                    &.invitations_count, &.organisation_memberships_count, &.connection_requests_count,
-                    &.collaborations_count, &.icon, &.user__schac_home_organisation {
-                        display: none;
                     }
                 }
 

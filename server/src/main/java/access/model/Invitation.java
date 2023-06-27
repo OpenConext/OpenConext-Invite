@@ -74,6 +74,7 @@ public class Invitation implements Serializable {
                       boolean enforceEmailEquality,
                       String message,
                       User inviter,
+                      Instant roleExpiryDate,
                       @NotEmpty Set<InvitationRole> roles) {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
@@ -85,24 +86,20 @@ public class Invitation implements Serializable {
         this.email = email;
         this.expiryDate = Instant.now().plus(Period.ofDays(14));
         this.createdAt = Instant.now();
-        this.roleExpiryDate = this.roleExpiryDate(roles, intendedAuthority);
+        this.roleExpiryDate = this.roleExpiryDate(roles, roleExpiryDate, intendedAuthority);
         roles.forEach(role -> role.setInvitation(this));
     }
 
-    private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles, Authority intendedAuthority) {
-        if (!intendedAuthority.equals(Authority.GUEST)) {
-            return null;
+    private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles, Instant roleExpiryDate, Authority intendedAuthority) {
+        if (roleExpiryDate != null || !intendedAuthority.equals(Authority.GUEST)) {
+            return roleExpiryDate;
         }
-        return roles.stream()
-                .map(InvitationRole::getEndDate)
+        Integer days = roles.stream()
+                .map(invitationRole -> invitationRole.getRole().getDefaultExpiryDays())
                 .filter(Objects::nonNull)
                 .min(Comparator.naturalOrder())
-                .orElse(Instant.now().plus(
-                        roles.stream()
-                                .map(invitationRole -> invitationRole.getRole().getDefaultExpiryDays())
-                                .filter(Objects::nonNull)
-                                .min(Comparator.naturalOrder()
-                                ).orElse(365), ChronoUnit.DAYS));
+                .orElse(365);
+        return Instant.now().plus(days, ChronoUnit.DAYS);
     }
 
     //used in the mustache templates

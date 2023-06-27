@@ -52,7 +52,7 @@ export const UserRoles = ({role, userRoles}) => {
     };
 
     const displayEndDate = userRole => {
-        if (allowedToRenewUserRole(user, userRole)) {
+        if (allowedToRenewUserRole(user, userRole) && userRole.endDate) {
             return (
                 <div className={"date-field-container"}>
                     <DateField

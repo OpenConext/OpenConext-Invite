@@ -51,7 +51,7 @@ export const Role = () => {
                           name="users"
                           label={I18n.t("tabs.userRoles")}
                           Icon={UserLogo}>
-                        <UserRoles role={res[0]} userRoles={res[1]} />
+                        <UserRoles role={res[0]} userRoles={res[1]}/>
                     </Page>,
                     <Page key="invitations"
                           name="invitations"
@@ -91,20 +91,21 @@ export const Role = () => {
 
     const logo = role.application.data.metaDataFields["logo:0:url"];
     const urn = urnFromRole(config.groupUrnPrefix, role);
-    return (
+    return (<>
+        <UnitHeader obj={({name: role.name, logo: logo})}
+                    displayDescription={true}
+                    actions={getActions()}>
+            <div className={"urn-container"}>
+                <span>{urn}</span>
+                <ClipBoardCopy txt={urn} transparentBackground={true}/>
+            </div>
+            <RoleMetaData role={role} user={user} provider={role.application}/>
+        </UnitHeader>
         <div className="mod-role">
-            <UnitHeader obj={({name: role.name, logo: logo})}
-                        displayDescription={true}
-                        actions={getActions()}>
-                <div className={"urn-container"}>
-                    <span>{urn}</span>
-                    <ClipBoardCopy txt={urn} transparentBackground={true}/>
-                </div>
-                <RoleMetaData role={role} user={user} provider={role.application}/>
-            </UnitHeader>
             <Tabs activeTab={currentTab}
                   tabChanged={tabChanged}>
                 {tabs}
             </Tabs>
-        </div>);
+        </div>
+    </>);
 };

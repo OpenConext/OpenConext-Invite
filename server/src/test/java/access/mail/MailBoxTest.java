@@ -9,6 +9,8 @@ import jakarta.mail.internet.MimeMultipart;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +28,10 @@ class MailBoxTest extends AbstractMailTest {
         Invitation invitation = new Invitation(Authority.GUEST,
                 "hash",
                 "nope@ex.com",
-                false, user,
+                false,
+                "Please join..",
+                user,
+                Instant.now().plus(365, ChronoUnit.DAYS),
                 Set.of(new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365)),
                         new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365))));
         mailBox.sendInviteMail(user, invitation, List.of(

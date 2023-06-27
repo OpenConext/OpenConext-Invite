@@ -75,7 +75,7 @@ export const InvitationForm = () => {
             newInvitation(invitationRequest)
                 .then(() => {
                     setFlash(I18n.t("invitations.createFlash"));
-                    navigate("/home/roles");
+                    navigate(-1);
                 });
         }
     }
@@ -85,12 +85,25 @@ export const InvitationForm = () => {
     }
 
     const addEmails = emails => {
-        const newEmails = invitation.invites.concat(emails)
+        const newEmails = [...new Set(invitation.invites.concat(emails))]
         setInvitation({...invitation, invites: newEmails});
     }
 
     const removeMail = mail => {
         setInvitation({...invitation, invites: invitation.invites.filter(email => mail !== email)});
+    }
+
+    const defaultRoleExpiryDate = newRoles => {
+        if (!invitation.roleExpiryDate) {
+            const allDefaultExpiryDays = newRoles
+                .filter(role => role.defaultExpiryDays)
+                .map(role => role.defaultExpiryDays)
+                .sort();
+            if (invitation.intendedAuthority === AUTHORITIES.GUEST) {
+                return futureDate(isEmpty(allDefaultExpiryDays) ? 365 : allDefaultExpiryDays[0]);
+            }
+        }
+        return invitation.roleExpiryDate;
     }
 
     const rolesChanged = selectedOptions => {
@@ -99,14 +112,17 @@ export const InvitationForm = () => {
         } else {
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
-            const allDefaultExpiryDays = newSelectedOptions
-                .filter(option => option.defaultExpiryDays)
-                .map(option => option.defaultExpiryDays)
-                .sort();
-            if (!isEmpty(allDefaultExpiryDays) && !invitation.roleExpiryDate && invitation.intendedAuthority === AUTHORITIES.GUEST) {
-                setInvitation({...invitation, roleExpiryDate: futureDate(allDefaultExpiryDays[0])});
-            }
+            setInvitation({...invitation, roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)});
         }
+    }
+
+    const authorityChanged = option => {
+        setInvitation({
+            ...invitation,
+            intendedAuthority: option.value,
+            roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
+        });
+
     }
 
     const renderForm = () => {
@@ -134,7 +150,7 @@ export const InvitationForm = () => {
                     name={I18n.t("invitations.intendedAuthority")}
                     searchable={false}
                     disabled={authorityOptions.length === 1}
-                    onChange={option => setInvitation({...invitation, intendedAuthority: option.value})}
+                    onChange={authorityChanged}
                     toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
                     clearable={false}
                 />

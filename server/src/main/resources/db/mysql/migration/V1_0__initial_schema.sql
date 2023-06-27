@@ -83,7 +83,6 @@ CREATE TABLE `invitations`
 CREATE TABLE `invitation_roles`
 (
     `id`            bigint NOT NULL AUTO_INCREMENT,
-    `end_date`      datetime DEFAULT NULL,
     `invitation_id` bigint NOT NULL,
     `role_id`       bigint NOT NULL,
     PRIMARY KEY (`id`),
