@@ -32,8 +32,10 @@ export const Invitation = ({authenticated}) => {
         invitationByHash(hashParam)
             .then(res => {
                 setInvitationMeta(res);
+                const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
-                if (mayAccept && config.name) {
+                debugger;
+                if (mayAccept && config.name && !reloaded) {
                     const {invitation} = res;
                     acceptInvitation(hashParam, invitation.id)
                         .then(() => {
@@ -47,7 +49,12 @@ export const Invitation = ({authenticated}) => {
                         .catch(e => {
                             setLoading(false);
                             localStorage.removeItem(MAY_ACCEPT);
-                            handleError(e);
+                            if (e.response && e.response.status === 412) {
+
+                            } else {
+                                handleError(e);
+                            }
+
                         })
                 } else {
                     localStorage.setItem(MAY_ACCEPT, "true");

@@ -135,7 +135,8 @@ public class InvitationController implements HasManage {
     }
 
     @GetMapping("public")
-    public ResponseEntity<MetaInvitation> getInvitation(@RequestParam("hash") String hash) {
+    public ResponseEntity<MetaInvitation> getInvitation(@RequestParam("hash") String hash,
+                                                        Authentication authentication) {
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
         if (!invitation.getStatus().equals(Status.OPEN)) {
             throw new InvitationStatusException();

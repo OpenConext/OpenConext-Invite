@@ -12,8 +12,7 @@ public class ExtendedErrorAttributes extends DefaultErrorAttributes {
     public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
         Map<String, Object> errorAttributes = super.getErrorAttributes(webRequest, options);
         Throwable error = super.getError(webRequest);
-        if (error instanceof RemoteException) {
-            RemoteException remoteException = (RemoteException) error;
+        if (error instanceof RemoteException remoteException) {
             errorAttributes.put("reference", remoteException.getReference());
         }
         return errorAttributes;
