@@ -29,7 +29,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Deploy with Maven
-      run: mvn --batch-mode deploy -DskipTests
+      run: mvn --batch-mode deploy -DskipTests -Dmaven.resolver.transport=wagon
       env:
         MAVEN_USERNAME: ${{ secrets.BUILD_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.BUILD_PASSWORD }}
