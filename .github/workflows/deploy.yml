@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "*"
+  workflow_dispatch:
 
 jobs:
   deployment:
@@ -32,8 +33,10 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - name: Check settings.xml
+      run: cat $HOME/.m2/settings.xml
     - name: Deploy with Maven
-      run: mvn --batch-mode deploy -DskipTests -Dmaven.resolver.transport=wagon
+      run: mvn --batch-mode deploy -DskipTests
       env:
         MAVEN_USERNAME: ${{ secrets.BUILD_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.BUILD_PASSWORD }}
