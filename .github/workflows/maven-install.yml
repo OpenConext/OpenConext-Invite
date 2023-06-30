@@ -2,6 +2,9 @@ name: Maven install
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "feature/fix_deploy"
     
 jobs:
   deployment:
