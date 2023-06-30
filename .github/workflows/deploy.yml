@@ -40,3 +40,7 @@ jobs:
       env:
         MAVEN_USERNAME: ${{ secrets.BUILD_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.BUILD_PASSWORD }}
+  build-push-docker-image:       
+      needs: deployment
+      uses: ./.github/workflows/build-push-docker-image.yml
+
