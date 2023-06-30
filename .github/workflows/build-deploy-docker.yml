@@ -1,0 +1,14 @@
+name: Build all apps and then create a docker container
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "feature/fix_deploy"
+
+jobs:
+  maven_build:
+    uses: ./.github/workflows/maven-install.yml
+
+  docker_install:
+    needs: maven_build
+    uses: ./.github/workflows/build-push-docker-image.yml
