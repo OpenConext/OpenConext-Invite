@@ -1,9 +1,6 @@
 name: Build all apps and then create a docker container
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "feature/fix_deploy"
 
 jobs:
   maven_build:
