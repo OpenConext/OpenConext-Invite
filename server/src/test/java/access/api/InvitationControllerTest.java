@@ -69,6 +69,7 @@ class InvitationControllerTest extends AbstractTest {
                 Authority.INVITER,
                 "Message",
                 true,
+                false,
                 List.of("new@new.nl"),
                 roleIdentifiers,
                 Instant.now().plus(365, ChronoUnit.DAYS),

@@ -1,0 +1,36 @@
+@import "../styles/vars.scss";
+
+.mod-proceed {
+    max-width: 570px;
+    margin: 25px auto 40px auto;
+    width: 100%;
+
+    @media (max-width: 680px) {
+        padding: 0 15px;
+    }
+
+    .proceed-container {
+        margin: 0 auto;
+
+        .sds--toaster {
+            max-width: initial;
+            margin: 25px 0;
+        }
+
+        p.info {
+            margin: 25px 0;
+        }
+
+        .step {
+            display: flex;
+            align-content: center;
+            margin-bottom: 25px;
+        }
+
+        .step-actions {
+            padding-top: 5px;
+        }
+
+
+    }
+}

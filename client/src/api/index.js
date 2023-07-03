@@ -112,7 +112,7 @@ export function reportError(error) {
 
 //Invitations
 export function invitationByHash(hash) {
-    return fetchJson(`/api/v1/invitations/public?hash=${hash}`);
+    return fetchJson(`/api/v1/invitations/public?hash=${hash}`, {}, {}, false);
 }
 
 export function newInvitation(invitationRequest) {

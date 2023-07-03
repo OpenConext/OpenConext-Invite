@@ -24,6 +24,8 @@ public class InvitationRequest implements Serializable {
 
     private boolean enforceEmailEquality;
 
+    private boolean eduIDOnly;
+
     @NotEmpty
     private List<String> invites;
 

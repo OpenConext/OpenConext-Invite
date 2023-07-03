@@ -15,6 +15,7 @@ import NotFound from "./NotFound";
 import RefreshRoute from "./RefreshRoute";
 import {InviteOnly} from "./InviteOnly";
 import {Profile} from "./Profile";
+import {Proceed} from "./Proceed";
 
 
 export const App = () => {
@@ -77,6 +78,7 @@ export const App = () => {
                     <Routes>
                         <Route path="/" element={<Navigate replace to="profile"/>}/>
                         <Route path="profile" element={<Profile/>}/>
+                        <Route path="proceed" element={<Proceed/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>
@@ -86,11 +88,12 @@ export const App = () => {
                 {!authenticated &&
                     <Routes>
                         <Route path="/" element={<Navigate replace to="login"/>}/>
+                        <Route path="proceed" element={<Proceed/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={false}/>}/>
                         <Route path="login" element={<Login/>}/>
                         <Route path="deadend" element={<InviteOnly/>}/>
-                        <Route path="/*" element={<NotFound/>}/>
+                        <Route path="*" element={<NotFound/>}/>
                     </Routes>}
             </div>
             {<Footer/>}

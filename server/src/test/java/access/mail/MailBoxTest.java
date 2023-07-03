@@ -29,6 +29,7 @@ class MailBoxTest extends AbstractMailTest {
                 "hash",
                 "nope@ex.com",
                 false,
+                false,
                 "Please join..",
                 user,
                 Instant.now().plus(365, ChronoUnit.DAYS),

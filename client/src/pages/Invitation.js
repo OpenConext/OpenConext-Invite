@@ -34,7 +34,6 @@ export const Invitation = ({authenticated}) => {
                 setInvitationMeta(res);
                 const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
-                debugger;
                 if (mayAccept && config.name && !reloaded) {
                     const {invitation} = res;
                     acceptInvitation(hashParam, invitation.id)
@@ -64,7 +63,7 @@ export const Invitation = ({authenticated}) => {
             })
             .catch(e => {
                 localStorage.removeItem(MAY_ACCEPT);
-                navigate(e.response?.status === 404 ? "/404" : "/expired-invitation");
+                navigate(e.response?.status === 404 ? "/404" : "/profile");
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);

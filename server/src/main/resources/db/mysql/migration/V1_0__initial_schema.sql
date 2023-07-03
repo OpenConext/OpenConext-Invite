@@ -11,7 +11,6 @@ CREATE TABLE `users`
     `created_at`               datetime     DEFAULT CURRENT_TIMESTAMP,
     `last_activity`            datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `users_unique_eppn` (`eduperson_principal_name`),
     UNIQUE INDEX `users_unique_sub` (`sub`),
     FULLTEXT KEY `full_text_index` (`given_name`, `family_name`, `email`)
 ) ENGINE = InnoDB

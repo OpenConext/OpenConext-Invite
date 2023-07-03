@@ -165,6 +165,12 @@ const en = {
         login: "Login",
         loginWithSub: "Login"
     },
+    proceed: {
+        info: "Congrats! You have accepted the {{plural}} {{roles}} and you now can go to the application",
+        progress: "2",
+        goto: "Visit application",
+        nextStep: "Next: go to the application",
+    },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
         roleIcon: "Role {{name}} created at {{createdAt}}",

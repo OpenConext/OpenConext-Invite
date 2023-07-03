@@ -13,6 +13,7 @@ import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
+import {organisationName} from "../utils/Manage";
 
 const MAY_ACCEPT = "mayAccept";
 
@@ -40,8 +41,11 @@ export const Invitation = ({authenticated}) => {
                             localStorage.removeItem(MAY_ACCEPT);
                             me()
                                 .then(userWithRoles => {
-                                    useAppStore.setState(() => ({user: userWithRoles}));
-                                    navigate("/home");
+                                    useAppStore.setState(() => ({
+                                        invitationMeta: invitationMeta,
+                                        user: userWithRoles
+                                    }));
+                                    navigate("/proceed");
                                 })
                         })
                         .catch(e => {
@@ -57,7 +61,12 @@ export const Invitation = ({authenticated}) => {
             })
             .catch(e => {
                 localStorage.removeItem(MAY_ACCEPT);
-                navigate(e.response?.status === 404 ? "/404" : "/expired-invitation");
+                let path = "/404";
+                const status = e.response?.status;
+                if (status === 409) {
+                    path = "/profile";
+                }
+                navigate(path);
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
@@ -86,11 +95,6 @@ export const Invitation = ({authenticated}) => {
         logout().then(() => {
             login(config, true, hashParam)
         });
-    }
-
-    const organisationName = (role, providers) => {
-        const provider = providers.find(prov => prov.id === role.role.manageId);
-        return provider ? ` (${provider.data.metaDataFields["OrganizationName:en"]})` : "";
     }
 
     const renderLoginStep = () => {
