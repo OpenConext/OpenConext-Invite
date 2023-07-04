@@ -32,33 +32,58 @@ export const Invitation = ({authenticated}) => {
         const hashParam = getParameterByName("hash", window.location.search);
         invitationByHash(hashParam)
             .then(res => {
-                setInvitationMeta(res);
-                const mayAccept = localStorage.getItem(MAY_ACCEPT);
-                if (mayAccept && config.name) {
-                    const {invitation} = res;
-                    acceptInvitation(hashParam, invitation.id)
-                        .then(() => {
-                            localStorage.removeItem(MAY_ACCEPT);
-                            me()
-                                .then(userWithRoles => {
-                                    useAppStore.setState(() => ({
-                                        invitationMeta: invitationMeta,
-                                        user: userWithRoles
-                                    }));
-                                    navigate("/proceed");
+                    setInvitationMeta(res);
+                    useAppStore.setState(() => ({
+                        invitationMeta: res
+                    }));
+                    if (res.invitation.status !== "OPEN") {
+                        navigate(`/proceed?hash=${hashParam}`);
+                    } else {
+                        const mayAccept = localStorage.getItem(MAY_ACCEPT);
+                        if (mayAccept && config.name) {
+                            const {invitation} = res;
+                            acceptInvitation(hashParam, invitation.id)
+                                .then(() => {
+                                    localStorage.removeItem(MAY_ACCEPT);
+                                    me()
+                                        .then(userWithRoles => {
+                                            useAppStore.setState(() => ({
+                                                user: userWithRoles
+                                            }));
+                                            navigate(`/proceed?hash=${hashParam}`);
+                                        })
                                 })
-                        })
-                        .catch(e => {
+                                .catch(e => {
+                                        setLoading(false);
+                                        localStorage.removeItem(MAY_ACCEPT);
+                                        if (e.response && e.response.status === 412) {
+                                            setConfirmation({
+                                                cancel: null,
+                                                action: () => logout().then(() => login(config, true, hashParam)),
+                                                warning: false,
+                                                error: true,
+                                                question: I18n.t("invitationAccept.emailMismatch", {
+                                                    email: res.invitation.email,
+                                                    userEmail: user.email
+                                                }),
+                                                confirmationHeader: I18n.t("confirmationDialog.error"),
+                                                confirmationTxt: I18n.t("invitationAccept.login")
+                                            });
+                                            setConfirmationOpen(true);
+                                        } else {
+                                            handleError(e);
+                                        }
+
+                                    }
+                                )
+                        } else {
+                            localStorage.setItem(MAY_ACCEPT, "true");
+                            setExpired(DateTime.now().toJSDate() > new Date(res["invitation"].expiryDate * 1000));
                             setLoading(false);
-                            localStorage.removeItem(MAY_ACCEPT);
-                            handleError(e);
-                        })
-                } else {
-                    localStorage.setItem(MAY_ACCEPT, "true");
-                    setExpired(DateTime.now().toJSDate() > new Date(res["invitation"].expiryDate * 1000));
-                    setLoading(false);
+                        }
+                    }
                 }
-            })
+            )
             .catch(e => {
                 localStorage.removeItem(MAY_ACCEPT);
                 let path = "/404";
@@ -70,7 +95,7 @@ export const Invitation = ({authenticated}) => {
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
-    }, [navigate, config.name]);
+    }, [navigate, config, user]);
 
     const handleError = e => {
         e.response.json().then(j => {
@@ -80,6 +105,7 @@ export const Invitation = ({authenticated}) => {
                 action: () => setConfirmationOpen(false),
                 warning: false,
                 error: true,
+                confirmationHeader: I18n.t("confirmationDialog.title"),
                 question: I18n.t("forms.error", {reference: reference}),
                 confirmationTxt: I18n.t("forms.ok")
             });

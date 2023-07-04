@@ -138,9 +138,6 @@ public class InvitationController implements HasManage {
     @GetMapping("public")
     public ResponseEntity<MetaInvitation> getInvitation(@RequestParam("hash") String hash) {
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
-        if (!invitation.getStatus().equals(Status.OPEN)) {
-            throw new InvitationStatusException();
-        }
         List<Map<String, Object>> providers = invitation.getRoles().stream()
                 .map(InvitationRole::getRole)
                 .map(role -> manage.providerById(role.getManageType(), role.getManageId()))

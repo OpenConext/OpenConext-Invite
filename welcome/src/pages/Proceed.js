@@ -1,18 +1,39 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./Proceed.scss";
 import "../styles/circle.scss";
 import DOMPurify from "dompurify";
-import {Card, CardType, Toaster, ToasterType} from "@surfnet/sds";
+import {Card, CardType, Loader, Toaster, ToasterType} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
-import {splitListSemantically} from "../utils/Utils";
+import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {organisationName} from "../utils/Manage";
 import Logo from "../components/Logo";
+import {getParameterByName} from "../utils/QueryParameters";
+import {invitationByHash} from "../api";
+import {login} from "../utils/Login";
 
 
 export const Proceed = () => {
 
     const {user, invitationMeta, config} = useAppStore(state => state);
+    const [loading, setLoading] = useState(true);
+    const [reloadedInvitationMeta, setReloadedInvitationMeta] = useState(null);
+
+    useEffect(() => {
+        if (isEmpty(user)) {
+          login(config);
+        } else if (isEmpty(invitationMeta)) {
+            const hashParam = getParameterByName("hash", window.location.search);
+            invitationByHash(hashParam)
+                .then(res => {
+                    setReloadedInvitationMeta(res);
+                    setLoading(false);
+                })
+        } else {
+            setReloadedInvitationMeta(invitationMeta);
+            setLoading(false);
+        }
+    }, [invitationMeta, user, config]);
 
     const renderInvitationRole = (invitationRole, index) => {
         const role = invitationRole.role;
@@ -33,7 +54,7 @@ export const Proceed = () => {
     }
 
     const renderProceedStep = () => {
-        const {invitation, providers} = invitationMeta;
+        const {invitation, providers} = reloadedInvitationMeta;
         const html = DOMPurify.sanitize(I18n.t("proceed.info", {
             plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
             roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role, providers)}`), I18n.t("forms.and"))
@@ -59,6 +80,11 @@ export const Proceed = () => {
             </>
         )
     }
+
+    if (loading || isEmpty(reloadedInvitationMeta)) {
+        return <Loader/>
+    }
+
     return (
         <div className="mod-proceed">
             <div className="proceed-container">

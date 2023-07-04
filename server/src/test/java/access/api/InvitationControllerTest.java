@@ -42,21 +42,6 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
-    void getInvitationWrongStatus() {
-        updateInvitationStatus(Authority.GUEST.name(), Status.ACCEPTED);
-
-        given()
-                .when()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .queryParam("hash", Authority.GUEST.name())
-                .get("/api/v1/invitations/public")
-                .then()
-                .statusCode(409);
-
-    }
-
-    @Test
     void newInvitation() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 

@@ -32,6 +32,10 @@ export const Invitation = ({authenticated}) => {
         invitationByHash(hashParam)
             .then(res => {
                 setInvitationMeta(res);
+                if (res.invitation.status !== "OPEN") {
+                    navigate("/home");
+                    return;
+                }
                 const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
                 if (mayAccept && config.name && !reloaded) {
@@ -49,7 +53,19 @@ export const Invitation = ({authenticated}) => {
                             setLoading(false);
                             localStorage.removeItem(MAY_ACCEPT);
                             if (e.response && e.response.status === 412) {
-
+                                setConfirmation({
+                                    cancel: null,
+                                    action: () => logout().then(() => login(config, true, hashParam)) ,
+                                    warning: false,
+                                    error: true,
+                                    question: I18n.t("invitationAccept.emailMismatch", {
+                                        email: res.invitation.email,
+                                        userEmail: user.email
+                                    }),
+                                    confirmationHeader: I18n.t("confirmationDialog.error"),
+                                    confirmationTxt: I18n.t("invitationAccept.login")
+                                });
+                                setConfirmationOpen(true);
                             } else {
                                 handleError(e);
                             }
@@ -67,7 +83,7 @@ export const Invitation = ({authenticated}) => {
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
-    }, [navigate, config.name]);
+    }, [navigate, config, user]);
 
     const handleError = e => {
         e.response.json().then(j => {
@@ -77,6 +93,7 @@ export const Invitation = ({authenticated}) => {
                 action: () => setConfirmationOpen(false),
                 warning: false,
                 error: true,
+                confirmationHeader: I18n.t("confirmationDialog.title"),
                 question: I18n.t("forms.error", {reference: reference}),
                 confirmationTxt: I18n.t("forms.ok")
             });
@@ -149,6 +166,7 @@ export const Invitation = ({authenticated}) => {
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
                                                      confirmationTxt={confirmation.confirmationTxt}
+                                                     confirmationHeader={confirmation.confirmationHeader}
                                                      isWarning={confirmation.warning}
                                                      isError={confirmation.error}
                                                      question={confirmation.question}/>}

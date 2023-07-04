@@ -213,7 +213,10 @@ const en = {
         infoLogin: "You can login with your institution account or edulD.",
         infoLoginAgain: "To accept the invitation you'll need to login again.",
         login: "Login",
-        loginWithSub: "Login"
+        loginWithSub: "Login",
+        emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
+            "but you have logged in with an account with an email {{userEmail}}. Please login in with a different account."
+
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",

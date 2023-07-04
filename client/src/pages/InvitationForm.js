@@ -94,14 +94,12 @@ export const InvitationForm = () => {
     }
 
     const defaultRoleExpiryDate = newRoles => {
-        if (!invitation.roleExpiryDate) {
-            const allDefaultExpiryDays = newRoles
-                .filter(role => role.defaultExpiryDays)
-                .map(role => role.defaultExpiryDays)
-                .sort();
-            if (invitation.intendedAuthority === AUTHORITIES.GUEST) {
-                return futureDate(isEmpty(allDefaultExpiryDays) ? 365 : allDefaultExpiryDays[0]);
-            }
+        const allDefaultExpiryDays = (newRoles || [])
+            .filter(role => role.defaultExpiryDays)
+            .map(role => role.defaultExpiryDays)
+            .sort();
+        if (invitation.intendedAuthority === AUTHORITIES.GUEST) {
+            return futureDate(isEmpty(allDefaultExpiryDays) ? 365 : allDefaultExpiryDays[0]);
         }
         return invitation.roleExpiryDate;
     }
