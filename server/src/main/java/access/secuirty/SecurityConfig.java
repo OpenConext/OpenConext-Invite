@@ -54,6 +54,8 @@ public class SecurityConfig {
     private final InvitationRepository invitationRepository;
     private final String vootUser;
     private final String vootPassword;
+    private final String attributeAggregationUser;
+    private final String attributeAggregationPassword;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
@@ -63,7 +65,9 @@ public class SecurityConfig {
                           @Value("${oidcng.resource-server-id}") String clientId,
                           @Value("${oidcng.resource-server-secret}") String secret,
                           @Value("${voot.user}") String vootUser,
-                          @Value("${voot.password}") String vootPassword) {
+                          @Value("${voot.password}") String vootPassword,
+                          @Value("${attribute-aggregation.user}") String attributeAggregationUser,
+                          @Value("${attribute-aggregation.password}") String attributeAggregationPassword) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
         this.eduidEntityId = eduidEntityId;
@@ -72,6 +76,8 @@ public class SecurityConfig {
         this.secret = secret;
         this.vootUser = vootUser;
         this.vootPassword = vootPassword;
+        this.attributeAggregationUser = attributeAggregationUser;
+                this.attributeAggregationPassword = attributeAggregationPassword;
     }
 
     @Configuration
@@ -171,9 +177,12 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    SecurityFilterChain vootSecurityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> c.disable())
-                .securityMatcher("/api/voot/**", "/api/external/v1/voot/**")
+                .securityMatcher("/api/voot/**",
+                        "/api/external/v1/voot/**",
+                        "/api/aa/**",
+                        "/api/external/v1/aa/**")
                 .sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -209,12 +218,17 @@ public class SecurityConfig {
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User
+        UserDetails vootUserDetails = User
                 .withUsername(vootUser)
                 .password("{noop}" + vootPassword)
                 .roles("openid")
                 .build();
-        return new InMemoryUserDetailsManager(user);
+        UserDetails attributeAggregationUserDetails = User
+                .withUsername(attributeAggregationUser)
+                .password("{noop}" + attributeAggregationPassword)
+                .roles("aa")
+                .build();
+        return new InMemoryUserDetailsManager(vootUserDetails, attributeAggregationUserDetails);
     }
 
     @Bean

@@ -88,6 +88,10 @@ voot:
   password: secret
   group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
 
+attribute-aggregation:
+  user: aa
+  password: secret
+
 email:
   from: "no-reply@surf.nl"
   contactEmail: "access@surf.nl"

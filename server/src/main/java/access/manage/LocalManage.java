@@ -8,6 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,6 +40,14 @@ public final class LocalManage implements Manage {
         return addIdentifierAlias(this.allProviders.get(entityType).stream()
                 .filter(provider -> identifiers.contains(provider.get("_id")))
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
+        return this.allProviders.get(entityType).stream()
+                .filter(provider -> entityID.equals(((Map<String, Object>) provider.get("data")).get("entityid")))
+                .findFirst();
+
     }
 
     @Override
