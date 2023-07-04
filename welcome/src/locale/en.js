@@ -154,7 +154,8 @@ const en = {
     invitationAccept: {
         hi: "Hi{{name}},",
         nextStep: "Next: enjoy your new role",
-        expired: "Your invitation has expired",
+        expired: "This invitation has expired at {{expiryDate}}",
+        expiredInfo: "Please contact <a href='mailto:{{email}}'>{{email}}</a> and ask this person to send you a new invite.",
         invited: "You have been invited for the {{plural}} {{roles}} by {{inviter}}",
         role: "role",
         roles: "roles",

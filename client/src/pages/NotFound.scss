@@ -4,9 +4,10 @@ div.not-found {
     display: flex;
     height: 50vh;
 
-    p {
-        margin: auto;
-        font-size: 164px;
-        color: var(--sds--color--red--400);
+    img {
+        margin: 25px auto 25px auto;
+        width: 460px;
+        height: auto;
+
     }
 }

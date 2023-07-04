@@ -139,10 +139,12 @@ export const Invitation = ({authenticated}) => {
                 {!expired && <h1>{I18n.t("invitationAccept.hi", {name: authenticated ? ` ${user.name}` : ""})}</h1>}
                 {expired &&
                     <p className="expired"><ErrorIndicator msg={expiredMessage}/></p>}
+                {expired &&
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.expiredInfo", {email: invitation.email}))}}/>}
                 {!expired && <>
                     <Toaster toasterType={ToasterType.Info} message={html}/>
                 </>}
-                <section className="step-container">
+                {!expired && <section className="step-container">
                     <div className="step">
                         <div className="circle two-quarters">
                             <span>{I18n.t("invitationAccept.progress")}</span>
@@ -159,7 +161,7 @@ export const Invitation = ({authenticated}) => {
                     <Button onClick={proceed}
                             txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
                             centralize={true}/>
-                </section>
+                </section>}
             </>
         )
     }
