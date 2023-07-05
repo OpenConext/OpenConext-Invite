@@ -47,7 +47,6 @@ public final class LocalManage implements Manage {
         return this.allProviders.get(entityType).stream()
                 .filter(provider -> entityID.equals(((Map<String, Object>) provider.get("data")).get("entityid")))
                 .findFirst();
-
     }
 
     @Override

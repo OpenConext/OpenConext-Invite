@@ -318,6 +318,14 @@ public abstract class AbstractTest {
                 .withBody(body)));
     }
 
+    protected void stubForManageProviderByEntityID(EntityType entityType, String entityId) throws JsonProcessingException {
+        String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*",entityType.name().toLowerCase());
+        Optional<Map<String, Object>> provider = localManage.providerByEntityID(entityType, entityId);
+        String body = objectMapper.writeValueAsString(List.of(provider.get()));
+        stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+    }
 
     protected void stubForDeleteScimUser() {
         stubFor(delete(urlPathMatching("/api/scim/v2/users/(.*)"))

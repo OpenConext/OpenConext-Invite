@@ -52,7 +52,12 @@ public class AttributeAggregatorController {
         User user = optionalUser.get();
         user.setLastActivity(Instant.now());
         userRepository.save(user);
-        List<Map<String, String>> roles = user.getUserRoles().stream().map(this::parseUserRole).toList();
+
+        Map<String, Object> provider = optionalProvider.get();
+        List<Map<String, String>> roles = user.getUserRoles().stream()
+                .filter(role -> role.getRole().getManageId().equals(provider.get("id")))
+                .map(this::parseUserRole)
+                .toList();
         return ResponseEntity.ok(roles);
     }
 
