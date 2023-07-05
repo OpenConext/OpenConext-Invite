@@ -1,6 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Tiqr-Mock</title>
+    <title>Provisionings</title>
     <meta name="robots" content="noindex, nofollow">
     <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
     <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
@@ -22,15 +22,18 @@
     <div class="content-container">
         <div class="content">
             <a class="home" th:href="@{/}">Home</a>
-            <div th:if="${!enrollments.empty}">
-                <p class="info">Click to fetch the enrollment metadata</p>
+            <div th:if="${!provisionings.empty}">
+                <p class="info">Click to fetch the provisioning details</p>
             </div>
-            <div th:each="enrollment : ${enrollments}">
-                <a th:href="@{/enrollment/{id}(id=${enrollment.key})}"><span
-                        th:text="${enrollment.userDisplayName}"></span></a>
+            <div th:each="provisioning : ${provisionings}">
+                <a th:href="@{/provisioning/{id}(id=${provisioning.id})}">
+                    <span th:text="${provisioning.method}"></span>
+                    <span>: </span>
+                    <span th:text="${provisioning.url}"></span>
+                </a>
             </div>
-            <div th:if="${enrollments.empty}">
-                <p class="info">There are no open enrollments...</p>
+            <div th:if="${provisionings.empty}">
+                <p class="info" th:text="|There are no ${provisioningType} provisionings...|"></p>
             </div>
         </div>
     </div>
