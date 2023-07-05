@@ -311,7 +311,7 @@ public abstract class AbstractTest {
     }
 
     protected void stubForManageProviderById(EntityType entityType, String id) throws JsonProcessingException {
-        String path = String.format("/manage/api/internal/metadata/%s/%s",entityType.name().toLowerCase(), id);
+        String path = String.format("/manage/api/internal/metadata/%s/%s", entityType.name().toLowerCase(), id);
         String body = objectMapper.writeValueAsString(localManage.providerById(entityType, id));
         stubFor(get(urlPathMatching(path)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
@@ -319,9 +319,9 @@ public abstract class AbstractTest {
     }
 
     protected void stubForManageProviderByEntityID(EntityType entityType, String entityId) throws JsonProcessingException {
-        String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*",entityType.name().toLowerCase());
+        String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*", entityType.name().toLowerCase());
         Optional<Map<String, Object>> provider = localManage.providerByEntityID(entityType, entityId);
-        String body = objectMapper.writeValueAsString(List.of(provider.get()));
+        String body = objectMapper.writeValueAsString(provider.isPresent() ? List.of(provider.get()) : Collections.emptyList());
         stubFor(get(urlPathMatching(path)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));

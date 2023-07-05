@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static access.Seed.GUEST_SUB;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AttributeAggregatorControllerTest extends AbstractTest {
 
@@ -25,11 +25,44 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .queryParam("SPentityID","")
+                .queryParam("SPentityID", "")
                 .get("/api/aa/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, roles.size());
         assertEquals("urn:mace:surf.nl:test.surfaccess.nl:4:research", roles.get(0).get("id"));
+    }
+
+    @Test
+    void getGroupMembershipsNonExistingUser() throws JsonProcessingException {
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
+        List<Map<String, String>> roles = given()
+                .when()
+                .auth().basic("aa", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", "nope")
+                .queryParam("SPentityID", "")
+                .get("/api/aa/{sub}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, roles.size());
+    }
+
+    @Test
+    void getGroupMembershipsNonExistingProvider() throws JsonProcessingException {
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "nope");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "nope");
+        List<Map<String, String>> roles = given()
+                .when()
+                .auth().basic("aa", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", GUEST_SUB)
+                .queryParam("SPentityID", "")
+                .get("/api/aa/{sub}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, roles.size());
     }
 }

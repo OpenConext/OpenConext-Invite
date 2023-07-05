@@ -55,7 +55,6 @@ public class UserController {
 
     private final Config config;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final Manage manage;
     private final ObjectMapper objectMapper;
 
@@ -63,13 +62,11 @@ public class UserController {
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          RoleRepository roleRepository,
                           Manage manage,
                           ObjectMapper objectMapper,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
     }
