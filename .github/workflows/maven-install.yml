@@ -55,3 +55,23 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessserver:latest
+    
+    - name: Build and push the client image
+      uses: docker/build-push-action@v4
+      with:
+        context: client
+        file: client/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessclient:latest
+    
+    - name: Build and push the welcome image
+      uses: docker/build-push-action@v4
+      with:
+        context: welcome
+        file: welcome/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessswelcome:latest
