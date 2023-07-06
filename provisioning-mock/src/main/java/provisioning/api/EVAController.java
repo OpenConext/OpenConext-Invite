@@ -1,7 +1,7 @@
 package provisioning.api;
 
 
-import access.provision.ProvisioningType;
+import provisioning.model.ProvisioningType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +47,7 @@ public class EVAController {
         Map<String, Object> user = objectMapper.convertValue(guestAccount, new TypeReference<>() {
         });
         provisioningRepository.save(new Provisioning(
-                ProvisioningType.scim,
+                ProvisioningType.eva,
                 objectMapper.valueToTree(user),
                 HttpMethod.DELETE,
                 ResourceType.USERS,
@@ -60,7 +60,7 @@ public class EVAController {
     public ResponseEntity<Void> disableUser(@PathVariable("id") String id) {
         LOG.info("eva/api/v1/guest/disable POST " + id);
         provisioningRepository.save(new Provisioning(
-                ProvisioningType.graph,
+                ProvisioningType.eva,
                 objectMapper.valueToTree(Map.of("id", id)),
                 HttpMethod.POST,
                 ResourceType.USERS,

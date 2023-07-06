@@ -1,7 +1,7 @@
 package provisioning.model;
 
 
-import access.provision.ProvisioningType;
+import provisioning.model.ProvisioningType;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Getter;

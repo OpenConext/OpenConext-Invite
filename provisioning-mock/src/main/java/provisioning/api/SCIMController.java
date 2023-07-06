@@ -1,7 +1,7 @@
 package provisioning.api;
 
 
-import access.provision.ProvisioningType;
+import provisioning.model.ProvisioningType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
