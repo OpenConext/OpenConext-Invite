@@ -25,9 +25,8 @@ import {InvitationForm} from "./InvitationForm";
 export const App = () => {
 
     const [loading, setLoading] = useState(true);
-    const [authenticated, setAuthenticated] = useState(false);
     const navigate = useNavigate();
-    const {impersonator} = useAppStore(state => state);
+    const {impersonator, authenticated, reload} = useAppStore(state => state);
 
     useEffect(() => {
         csrf().then(token => {
@@ -36,12 +35,12 @@ export const App = () => {
                 .then(res => {
                     useAppStore.setState(() => ({config: res}));
                     if (!res.authenticated) {
+
                         if (!res.name) {
                             const direction = window.location.pathname + window.location.search;
                             localStorage.setItem("location", direction);
                         }
                         setLoading(false);
-                        setAuthenticated(false);
                         const pathname = localStorage.getItem("location") || window.location.pathname;
                         if (pathname === "/" || pathname.startsWith("/login")) {
                             navigate(pathname);
@@ -54,9 +53,8 @@ export const App = () => {
                     } else {
                         me()
                             .then(res => {
-                                useAppStore.setState(() => ({user: res}));
+                                useAppStore.setState(() => ({user: res, authenticated: true}));
                                 setLoading(false);
-                                setAuthenticated(true);
                                 const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
                                 const newLocation = location.startsWith("/login") ? "/home" : location;
                                 localStorage.removeItem("location");
@@ -68,7 +66,7 @@ export const App = () => {
                 navigate("/deadend");
             })
         })
-    }, [impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [reload, impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return <Loader/>

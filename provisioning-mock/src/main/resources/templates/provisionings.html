@@ -32,6 +32,11 @@
                     <span th:text="${provisioning.url}"></span>
                 </a>
             </div>
+            <div th:if="${!provisionings.empty}">
+                <div class="actions">
+                    <a class="button" th:href="${'/delete/provisionings/ ' + provisioningType}">Delete all</a>
+                </div>
+            </div>
             <div th:if="${provisionings.empty}">
                 <p class="info" th:text="|There are no ${provisioningType} provisionings...|"></p>
             </div>

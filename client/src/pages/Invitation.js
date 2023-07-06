@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {acceptInvitation, invitationByHash, logout, me} from "../api";
+import {acceptInvitation, invitationByHash, logout} from "../api";
 import I18n from "../locale/I18n";
 import "./Invitation.scss";
 import "../styles/circle.scss";
@@ -43,11 +43,9 @@ export const Invitation = ({authenticated}) => {
                     acceptInvitation(hashParam, invitation.id)
                         .then(() => {
                             localStorage.removeItem(MAY_ACCEPT);
-                            me()
-                                .then(userWithRoles => {
-                                    useAppStore.setState(() => ({user: userWithRoles}));
-                                    navigate("/home");
-                                })
+                            localStorage.removeItem("location");
+                            useAppStore.setState(() => ({reload: true}));
+                            navigate("/home");
                         })
                         .catch(e => {
                             setLoading(false);
@@ -83,7 +81,7 @@ export const Invitation = ({authenticated}) => {
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
-    }, [navigate, config, user]);
+    }, [config]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const handleError = e => {
         e.response.json().then(j => {
@@ -139,23 +137,23 @@ export const Invitation = ({authenticated}) => {
                 </>}
                 {!expired &&
                     <section className="step-container">
-                    <div className="step">
-                        <div className="circle two-quarters">
-                            <span>{I18n.t("invitationAccept.progress")}</span>
+                        <div className="step">
+                            <div className="circle two-quarters">
+                                <span>{I18n.t("invitationAccept.progress")}</span>
+                            </div>
+                            <div className="step-actions">
+                                <h4>{I18n.t("invitationAccept.login")}</h4>
+                                <span>{I18n.t("invitationAccept.nextStep")}</span>
+                            </div>
                         </div>
-                        <div className="step-actions">
-                            <h4>{I18n.t("invitationAccept.login")}</h4>
-                            <span>{I18n.t("invitationAccept.nextStep")}</span>
-                        </div>
-                    </div>
-                    {!authenticated && <p className="info"
-                                          dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
-                    <p className="info"
-                       dangerouslySetInnerHTML={{__html: I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}}/>
-                    <Button onClick={proceed}
-                            txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
-                            centralize={true}/>
-                </section>}
+                        {!authenticated && <p className="info"
+                                              dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
+                        <p className="info"
+                           dangerouslySetInnerHTML={{__html: I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}}/>
+                        <Button onClick={proceed}
+                                txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
+                                centralize={true}/>
+                    </section>}
             </>
         )
     }

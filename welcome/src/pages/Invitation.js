@@ -50,6 +50,7 @@ export const Invitation = ({authenticated}) => {
                                             useAppStore.setState(() => ({
                                                 user: userWithRoles
                                             }));
+                                            localStorage.removeItem("location");
                                             navigate(`/proceed?hash=${hashParam}`);
                                         })
                                 })

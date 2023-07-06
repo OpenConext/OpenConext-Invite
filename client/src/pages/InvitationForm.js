@@ -62,8 +62,9 @@ export const InvitationForm = () => {
             // See markAndFilterRoles - we are mixing up userRoles and roles
             const initialRole = roles.find(role => role.value === location.state);
             if (initialRole) {
+                const defaultExpiryDays = initialRole.isUserRole ? initialRole.role.defaultExpiryDays : initialRole.defaultExpiryDays;
                 setSelectedRoles([initialRole])
-                setInvitation({...invitation, roleExpiryDate: futureDate(initialRole.defaultExpiryDays)})
+                setInvitation({...invitation, roleExpiryDate: futureDate(defaultExpiryDays)})
             }
         }
     }, [roles, location.state])// eslint-disable-line react-hooks/exhaustive-deps

@@ -174,11 +174,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                     .map(Optional::get)
                                     .map(RemoteProvisionedUser::getRemoteScimIdentifier)
                                     .toList();
-                            String groupRequest = constructGroupRequest(
-                                    role,
-                                    provisionedGroup.getRemoteScimIdentifier(),
-                                    userScimIdentifiers);
-                            this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteScimIdentifier(), HttpMethod.PUT);
+                            //We only provision GUEST users
+                            if (!userScimIdentifiers.isEmpty()) {
+                                String groupRequest = constructGroupRequest(
+                                        role,
+                                        provisionedGroup.getRemoteScimIdentifier(),
+                                        userScimIdentifiers);
+                                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteScimIdentifier(), HttpMethod.PUT);
+
+                            }
                         } else {
                             Optional<RemoteProvisionedUser> provisionedUserOptional = this.remoteProvisionedUserRepository
                                     .findByManageProvisioningIdAndUser(provisioning.getId(), userRole.getUser())

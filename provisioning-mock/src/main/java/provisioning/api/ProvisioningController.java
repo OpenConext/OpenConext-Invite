@@ -1,17 +1,14 @@
 package provisioning.api;
 
-import provisioning.model.ProvisioningType;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
-import provisioning.model.Provisioning;
+import provisioning.model.ProvisioningType;
 import provisioning.repository.ProvisioningRepository;
 
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -39,9 +36,22 @@ public class ProvisioningController {
                         "environment", environment));
     }
 
-    @DeleteMapping("/provisionings")
-    public ResponseEntity<Void> deleteProvisionings() {
-        provisioningRepository.deleteAllInBatch();
-        return ResponseEntity.status(204).build();
+    @GetMapping("/provisioning/{id}")
+    public ModelAndView provisioning(@PathVariable("id") Long id) {
+        return new ModelAndView("provisioning",
+                Map.of("provisioning", provisioningRepository.findById(id).get(),
+                        "environment", environment));
+    }
+
+    @GetMapping("/delete/provisionings/{type}")
+    public ModelAndView deleteProvisionings(@PathVariable("type") ProvisioningType provisioningType) {
+        provisioningRepository.deleteAll(provisioningRepository.findProvisioningByProvisioningType(provisioningType));
+        return this.allProvisionings(provisioningType);
+    }
+
+    @GetMapping("/delete/provisioning/{type}/{id}")
+    public ModelAndView deleteProvisioning(@PathVariable("type") ProvisioningType provisioningType, @PathVariable("id") Long id) {
+        provisioningRepository.deleteById(id);
+        return this.allProvisionings(provisioningType);
     }
 }

@@ -12,7 +12,7 @@ export const Header = () => {
 
     const {user, config} = useAppStore(state => state);
     const actions = [];
-    if (isUserAllowed(AUTHORITIES.INVITER, user)) {
+    if (user && user.id && isUserAllowed(AUTHORITIES.INVITER, user)) {
         actions.push({
             href: "switch", perform: e => {
                 stopEvent(e);
