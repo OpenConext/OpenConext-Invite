@@ -75,3 +75,13 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessswelcome:latest
+
+    - name: Build and push the provisioning mock image
+      uses: docker/build-push-action@v4
+      with:
+        context: provisioning-mock
+        file: provisioning-mock/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accesssprovisioningmock:latest
