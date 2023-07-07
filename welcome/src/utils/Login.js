@@ -8,11 +8,11 @@ export function login(config, force = false, hash = null) {
     if (hash) {
         params += `&hash=${hash}`
     }
-    let serverUrl = config.serverUrl;
-    if (isEmpty(serverUrl)) {
+    let serverWelcomeUrl = config.serverWelcomeUrl;
+    if (isEmpty(serverWelcomeUrl)) {
         const local = window.location.hostname === "localhost";
-        serverUrl = local ? "http://localhost:8080" :
+        serverWelcomeUrl = local ? "http://localhost:8080" :
             `${window.location.protocol}//${window.location.host}`
     }
-    window.location.href = `${serverUrl}/api/v1/users/login${params}`;
+    window.location.href = `${serverWelcomeUrl}/api/v1/users/login${params}`;
 }

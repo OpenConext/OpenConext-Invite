@@ -16,7 +16,7 @@ export const Header = () => {
         actions.push({
             href: "switch", perform: e => {
                 stopEvent(e);
-                window.location.href = `${config.serverUrl}/api/v1/users/switch?app=access`
+                window.location.href = `${config.serverWelcomeUrl}/api/v1/users/switch?app=access`
             }, name: I18n.t("header.links.switchApp", {app: I18n.t("header.links.access")})
         })
     }

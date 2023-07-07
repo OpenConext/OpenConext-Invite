@@ -80,6 +80,7 @@ config:
   client-url: "http://localhost:3000"
   welcome-url: "http://localhost:4000"
   server-url: "http://localhost:8080"
+  server-welcome-url: "http://localhost:8080"
   eduid-entity-id: "https://login.test2.eduid.nl"
   role-search-required: false
 
