@@ -187,7 +187,7 @@ const en = {
         required: "The {{attribute}} is required",
         invalid: "The value '{{value}}' is invalid for {{attribute}}",
         error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
-            "The reference number for ths exception is {{reference}}."
+            "The reference number for this exception is {{reference}}."
     },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}",
