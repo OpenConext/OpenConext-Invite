@@ -57,6 +57,10 @@ public class Config {
         this.serverUrl = serverUrl;
     }
 
+    public void setServerWelcomeUrl(String serverWelcomeUrl) {
+        this.serverWelcomeUrl = serverWelcomeUrl;
+    }
+
     public void setEduidEntityId(String eduidEntityId) {
         this.eduidEntityId = eduidEntityId;
     }
