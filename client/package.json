@@ -22,13 +22,17 @@
     "zustand": "^4.3.8"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@testing-library/jest-dom": "^5.16.5",
-    "@babel/plugin-proposal-private-property-in-object" : "^7.21.11",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "http-proxy-middleware": "^2.0.6",
+    "nth-check": "^2.1.1",
     "react-scripts": "5.0.1",
     "sass": "^1.62.1"
+  },
+  "resolutions": {
+    "nth-check": "^2.1.1"
   },
   "scripts": {
     "start": "react-scripts start",
