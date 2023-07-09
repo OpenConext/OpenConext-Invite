@@ -1,8 +1,11 @@
 package access.provision;
 
 import access.AbstractTest;
+import access.model.Authority;
 import access.model.RemoteProvisionedUser;
 import access.model.User;
+import access.model.UserRole;
+import access.provision.scim.OperationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,5 +48,11 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         provisioningService.deleteUserRequest(user);
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(0, remoteProvisionedUsers.size());
+    }
+
+    @Test
+    void updateGroupRequest() {
+        //We only provision GUEST users
+        provisioningService.updateGroupRequest(new UserRole(Authority.INVITER, null), OperationType.Add);
     }
 }

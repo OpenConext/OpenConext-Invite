@@ -141,6 +141,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public void updateGroupRequest(UserRole userRole, OperationType operationType) {
+        if (!userRole.getAuthority().equals(Authority.GUEST)) {
+            //We only provision GUEST users
+            return;
+        }
         Role role = userRole.getRole();
         List<Provisioning> provisionings = getProvisionings(role).stream()
                 .filter(Provisioning::isApplicableForGroupRequest)

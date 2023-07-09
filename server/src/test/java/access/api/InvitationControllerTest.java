@@ -74,8 +74,8 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void accept() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "inviter@new.com");
-        String hash = Authority.INVITER.name();
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "user@new.com");
+        String hash = Authority.GUEST.name();
         Invitation invitation = invitationRepository.findByHash(hash).get();
 
         stubForManageProvisioning(List.of("5"));
@@ -94,10 +94,10 @@ class InvitationControllerTest extends AbstractTest {
                 .post("/api/v1/invitations/accept")
                 .then()
                 .statusCode(201);
-        User user = userRepository.findBySubIgnoreCase("inviter@new.com").get();
-        assertEquals(2, user.getUserRoles().size());
-        //two roles provisioned to 1 remote SCIM
-        assertEquals(2, remoteProvisionedGroupRepository.count());
+        User user = userRepository.findBySubIgnoreCase("user@new.com").get();
+        assertEquals(1, user.getUserRoles().size());
+        //one roles provisioned to 1 remote SCIM
+        assertEquals(1, remoteProvisionedGroupRepository.count());
         //two users provisioned to 1 remote SCIM - the inviter and one existing user with the userRole
         assertEquals(2, remoteProvisionedUserRepository.count());
     }
@@ -274,14 +274,14 @@ class InvitationControllerTest extends AbstractTest {
                 .as(Map.class);
         assertFalse((Boolean) res.get("authenticated"));
 
-        Invitation invitation = invitationRepository.findByHash(Authority.MANAGER.name()).get();
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
 
         stubForManageProvisioning(List.of("4"));
         stubForCreateScimUser();
         stubForCreateScimRole();
         stubForUpdateScimRolePatch();
 
-        AcceptInvitation acceptInvitation = new AcceptInvitation(Authority.MANAGER.name(), invitation.getId());
+        AcceptInvitation acceptInvitation = new AcceptInvitation(Authority.GUEST.name(), invitation.getId());
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -294,9 +294,9 @@ class InvitationControllerTest extends AbstractTest {
                 .statusCode(201);
         User user = userRepository.findBySubIgnoreCase("new@prov.com").get();
         assertEquals(1, user.getUserRoles().size());
-        //two roles provisioned to 1 remote SCIM
+        //One role provisioned to 1 remote SCIM
         assertEquals(1, remoteProvisionedGroupRepository.count());
-        //two users provisioned to 1 remote SCIM - the inviter and one existing user with the userRole
+        //One user provisioned to 1 remote SCIM
         assertEquals(1, remoteProvisionedUserRepository.count());
     }
 
