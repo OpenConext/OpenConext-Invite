@@ -62,8 +62,9 @@ export const InvitationForm = () => {
             // See markAndFilterRoles - we are mixing up userRoles and roles
             const initialRole = roles.find(role => role.value === location.state);
             if (initialRole) {
+                const defaultExpiryDays = initialRole.isUserRole ? initialRole.role.defaultExpiryDays : initialRole.defaultExpiryDays;
                 setSelectedRoles([initialRole])
-                setInvitation({...invitation, roleExpiryDate: futureDate(initialRole.defaultExpiryDays)})
+                setInvitation({...invitation, roleExpiryDate: futureDate(defaultExpiryDays)})
             }
         }
     }, [roles, location.state])// eslint-disable-line react-hooks/exhaustive-deps
@@ -94,14 +95,12 @@ export const InvitationForm = () => {
     }
 
     const defaultRoleExpiryDate = newRoles => {
-        if (!invitation.roleExpiryDate) {
-            const allDefaultExpiryDays = newRoles
-                .filter(role => role.defaultExpiryDays)
-                .map(role => role.defaultExpiryDays)
-                .sort();
-            if (invitation.intendedAuthority === AUTHORITIES.GUEST) {
-                return futureDate(isEmpty(allDefaultExpiryDays) ? 365 : allDefaultExpiryDays[0]);
-            }
+        const allDefaultExpiryDays = (newRoles || [])
+            .filter(role => role.defaultExpiryDays)
+            .map(role => role.defaultExpiryDays)
+            .sort();
+        if (invitation.intendedAuthority === AUTHORITIES.GUEST) {
+            return futureDate(isEmpty(allDefaultExpiryDays) ? 365 : allDefaultExpiryDays[0]);
         }
         return invitation.roleExpiryDate;
     }

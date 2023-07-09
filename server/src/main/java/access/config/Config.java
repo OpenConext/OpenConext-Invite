@@ -13,6 +13,7 @@ public class Config {
     private String clientUrl;
     private String welcomeUrl;
     private String serverUrl;
+    private String serverWelcomeUrl;
     private String eduidEntityId;
     private boolean roleSearchRequired;
     private String groupUrnPrefix;
@@ -23,6 +24,7 @@ public class Config {
         this.clientUrl = base.clientUrl;
         this.welcomeUrl = base.welcomeUrl;
         this.serverUrl = base.serverUrl;
+        this.serverWelcomeUrl = base.serverWelcomeUrl;
         this.eduidEntityId = base.eduidEntityId;
         this.roleSearchRequired = base.roleSearchRequired;
         this.groupUrnPrefix = base.groupUrnPrefix;
@@ -53,6 +55,10 @@ public class Config {
 
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
+    }
+
+    public void setServerWelcomeUrl(String serverWelcomeUrl) {
+        this.serverWelcomeUrl = serverWelcomeUrl;
     }
 
     public void setEduidEntityId(String eduidEntityId) {

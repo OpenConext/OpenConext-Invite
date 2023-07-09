@@ -5,6 +5,19 @@ logging:
 
 environment: local
 
+spring:
+  jpa:
+    properties:
+      hibernate:
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost/access
+    username: access
+    password: secret
+
 server:
   port: 8081
   error:

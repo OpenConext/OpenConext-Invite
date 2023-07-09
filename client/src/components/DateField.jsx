@@ -7,6 +7,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./DateField.scss"
 import {DateTime} from "luxon";
+import {futureDate} from "../utils/Date";
 
 export const DateField = ({
                               onChange,
@@ -21,7 +22,6 @@ export const DateField = ({
                               pastDatesAllowed = false
                           }) => {
     const inputRef = useRef(null);
-
     const toggle = () => inputRef.current.setOpen(true);
 
     const invalidValue = (onChange) => {
@@ -45,8 +45,8 @@ export const DateField = ({
         }
     }
 
-    const minimalDate = minDate || DateTime.now().plus({days: 1}).toJSDate();
-    const selectedDate = value || (allowNull ? null : DateTime.now().plus({days: 16}).toJSDate());
+    const minimalDate = minDate || futureDate(1);
+    const selectedDate = value || (allowNull ? null : futureDate(16));
     return (
         <div className="date-field">
             {name && <label className="date-field-label" htmlFor={name}>{name}

@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -42,10 +43,20 @@ public class RemoteManage implements Manage {
     }
 
     @Override
+    public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
+        String query = URLEncoder.encode(String.format("{\"data.entityid\":\"%s\"}", entityID), Charset.defaultCharset());
+        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.collectionName(), query);
+        List<Map<String, Object>>  providers = addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
+        return providers.isEmpty() ? Optional.empty() : Optional.of(providers.get(0));
+    }
+
+    @Override
     public Map<String, Object> providerById(EntityType entityType, String id) {
         String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.collectionName(), id);
         return addIdentifierAlias(restTemplate.getForEntity(queryUrl, Map.class).getBody());
     }
+
+
 
     @Override
     public List<Map<String, Object>> provisioning(List<String> ids) {

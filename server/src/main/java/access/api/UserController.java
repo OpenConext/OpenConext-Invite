@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
@@ -54,7 +55,6 @@ public class UserController {
 
     private final Config config;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final Manage manage;
     private final ObjectMapper objectMapper;
 
@@ -62,13 +62,11 @@ public class UserController {
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          RoleRepository roleRepository,
                           Manage manage,
                           ObjectMapper objectMapper,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
     }

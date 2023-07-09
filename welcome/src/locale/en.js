@@ -154,7 +154,8 @@ const en = {
     invitationAccept: {
         hi: "Hi{{name}},",
         nextStep: "Next: enjoy your new role",
-        expired: "Your invitation has expired",
+        expired: "This invitation has expired at {{expiryDate}}",
+        expiredInfo: "Please contact <a href='mailto:{{email}}'>{{email}}</a> and ask this person to send you a new invite.",
         invited: "You have been invited for the {{plural}} {{roles}} by {{inviter}}",
         role: "role",
         roles: "roles",
@@ -163,7 +164,15 @@ const en = {
         infoLogin: "You can login with your institution account or edulD.",
         infoLoginAgain: "To accept the invitation you'll need to login again.",
         login: "Login",
-        loginWithSub: "Login"
+        loginWithSub: "Login",
+        emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
+            "but you have logged in with an account with an email {{userEmail}}. Please login in with a different account."
+    },
+    proceed: {
+        info: "Congrats! You have accepted the {{plural}} {{roles}} and you now can go to the application",
+        progress: "2",
+        goto: "Visit application",
+        nextStep: "Next: go to the application",
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",

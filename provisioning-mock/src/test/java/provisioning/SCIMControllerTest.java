@@ -5,9 +5,11 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import provisioning.repository.ProvisioningRepository;
 
 import java.util.Map;
 
@@ -22,9 +24,13 @@ class SCIMControllerTest {
     @LocalServerPort
     protected int port;
 
+    @Autowired
+    protected ProvisioningRepository provisioningRepository;
+
     @BeforeEach
     protected void beforeEach() throws Exception {
         RestAssured.port = port;
+        provisioningRepository.deleteAllInBatch();
     }
 
     @Test
@@ -38,16 +44,6 @@ class SCIMControllerTest {
                 .as(Map.class);
         String id = (String) result.get("id");
         assertNotNull(id);
-
-        result = given()
-                .when()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .pathParams("id", id)
-                .get("/api/scim/v2/users/{id}")
-                .as(Map.class);
-        String user = (String) result.get("user");
-        assertEquals("test", user);
 
         result = given()
                 .when()
@@ -68,5 +64,6 @@ class SCIMControllerTest {
                 .then()
                 .statusCode(201);
 
+        assertEquals(3, provisioningRepository.count());
     }
 }

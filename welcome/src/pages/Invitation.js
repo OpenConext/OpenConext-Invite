@@ -13,6 +13,7 @@ import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
+import {organisationName} from "../utils/Manage";
 
 const MAY_ACCEPT = "mayAccept";
 
@@ -31,37 +32,71 @@ export const Invitation = ({authenticated}) => {
         const hashParam = getParameterByName("hash", window.location.search);
         invitationByHash(hashParam)
             .then(res => {
-                setInvitationMeta(res);
-                const mayAccept = localStorage.getItem(MAY_ACCEPT);
-                if (mayAccept && config.name) {
-                    const {invitation} = res;
-                    acceptInvitation(hashParam, invitation.id)
-                        .then(() => {
-                            localStorage.removeItem(MAY_ACCEPT);
-                            me()
-                                .then(userWithRoles => {
-                                    useAppStore.setState(() => ({user: userWithRoles}));
-                                    navigate("/home");
+                    setInvitationMeta(res);
+                    useAppStore.setState(() => ({
+                        invitationMeta: res
+                    }));
+                    if (res.invitation.status !== "OPEN") {
+                        navigate(`/proceed?hash=${hashParam}`);
+                    } else {
+                        const mayAccept = localStorage.getItem(MAY_ACCEPT);
+                        if (mayAccept && config.name) {
+                            const {invitation} = res;
+                            acceptInvitation(hashParam, invitation.id)
+                                .then(() => {
+                                    localStorage.removeItem(MAY_ACCEPT);
+                                    me()
+                                        .then(userWithRoles => {
+                                            useAppStore.setState(() => ({
+                                                user: userWithRoles
+                                            }));
+                                            localStorage.removeItem("location");
+                                            navigate(`/proceed?hash=${hashParam}`);
+                                        })
                                 })
-                        })
-                        .catch(e => {
+                                .catch(e => {
+                                        setLoading(false);
+                                        localStorage.removeItem(MAY_ACCEPT);
+                                        if (e.response && e.response.status === 412) {
+                                            setConfirmation({
+                                                cancel: null,
+                                                action: () => logout().then(() => login(config, true, hashParam)),
+                                                warning: false,
+                                                error: true,
+                                                question: I18n.t("invitationAccept.emailMismatch", {
+                                                    email: res.invitation.email,
+                                                    userEmail: user.email
+                                                }),
+                                                confirmationHeader: I18n.t("confirmationDialog.error"),
+                                                confirmationTxt: I18n.t("invitationAccept.login")
+                                            });
+                                            setConfirmationOpen(true);
+                                        } else {
+                                            handleError(e);
+                                        }
+
+                                    }
+                                )
+                        } else {
+                            localStorage.setItem(MAY_ACCEPT, "true");
+                            setExpired(DateTime.now().toJSDate() > new Date(res["invitation"].expiryDate * 1000));
                             setLoading(false);
-                            localStorage.removeItem(MAY_ACCEPT);
-                            handleError(e);
-                        })
-                } else {
-                    localStorage.setItem(MAY_ACCEPT, "true");
-                    setExpired(DateTime.now().toJSDate() > new Date(res["invitation"].expiryDate * 1000));
-                    setLoading(false);
+                        }
+                    }
                 }
-            })
+            )
             .catch(e => {
                 localStorage.removeItem(MAY_ACCEPT);
-                navigate(e.response?.status === 404 ? "/404" : "/expired-invitation");
+                let path = "/404";
+                const status = e.response?.status;
+                if (status === 409) {
+                    path = "/profile";
+                }
+                navigate(path);
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
-    }, [navigate, config.name]);
+    }, [navigate, config, user]);
 
     const handleError = e => {
         e.response.json().then(j => {
@@ -71,6 +106,7 @@ export const Invitation = ({authenticated}) => {
                 action: () => setConfirmationOpen(false),
                 warning: false,
                 error: true,
+                confirmationHeader: I18n.t("confirmationDialog.title"),
                 question: I18n.t("forms.error", {reference: reference}),
                 confirmationTxt: I18n.t("forms.ok")
             });
@@ -86,11 +122,6 @@ export const Invitation = ({authenticated}) => {
         logout().then(() => {
             login(config, true, hashParam)
         });
-    }
-
-    const organisationName = (role, providers) => {
-        const provider = providers.find(prov => prov.id === role.role.manageId);
-        return provider ? ` (${provider.data.metaDataFields["OrganizationName:en"]})` : "";
     }
 
     const renderLoginStep = () => {
@@ -109,10 +140,12 @@ export const Invitation = ({authenticated}) => {
                 {!expired && <h1>{I18n.t("invitationAccept.hi", {name: authenticated ? ` ${user.name}` : ""})}</h1>}
                 {expired &&
                     <p className="expired"><ErrorIndicator msg={expiredMessage}/></p>}
+                {expired &&
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.expiredInfo", {email: invitation.email}))}}/>}
                 {!expired && <>
                     <Toaster toasterType={ToasterType.Info} message={html}/>
                 </>}
-                <section className="step-container">
+                {!expired && <section className="step-container">
                     <div className="step">
                         <div className="circle two-quarters">
                             <span>{I18n.t("invitationAccept.progress")}</span>
@@ -129,7 +162,7 @@ export const Invitation = ({authenticated}) => {
                     <Button onClick={proceed}
                             txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
                             centralize={true}/>
-                </section>
+                </section>}
             </>
         )
     }

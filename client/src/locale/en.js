@@ -187,7 +187,7 @@ const en = {
         required: "The {{attribute}} is required",
         invalid: "The value '{{value}}' is invalid for {{attribute}}",
         error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
-            "The reference number for ths exception is {{reference}}."
+            "The reference number for this exception is {{reference}}."
     },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}",
@@ -204,7 +204,8 @@ const en = {
     invitationAccept: {
         hi: "Hi{{name}},",
         nextStep: "Next: enjoy your new role",
-        expired: "Your invitation has expired",
+        expired: "This invitation has expired at {{expiryDate}}",
+        expiredInfo: "Please contact <a href='mailto:{{email}}'>{{email}}</a> and ask this person to send you a new invite.",
         invited: "You have been invited for the {{plural}} {{roles}} by {{inviter}}",
         role: "role",
         roles: "roles",
@@ -213,7 +214,10 @@ const en = {
         infoLogin: "You can login with your institution account or edulD.",
         infoLoginAgain: "To accept the invitation you'll need to login again.",
         login: "Login",
-        loginWithSub: "Login"
+        loginWithSub: "Login",
+        emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
+            "but you have logged in with an account with an email {{userEmail}}. Please login in with a different account."
+
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {acceptInvitation, invitationByHash, logout, me} from "../api";
+import {acceptInvitation, invitationByHash, logout} from "../api";
 import I18n from "../locale/I18n";
 import "./Invitation.scss";
 import "../styles/circle.scss";
@@ -32,25 +32,38 @@ export const Invitation = ({authenticated}) => {
         invitationByHash(hashParam)
             .then(res => {
                 setInvitationMeta(res);
+                if (res.invitation.status !== "OPEN") {
+                    navigate("/home");
+                    return;
+                }
                 const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
-                debugger;
                 if (mayAccept && config.name && !reloaded) {
                     const {invitation} = res;
                     acceptInvitation(hashParam, invitation.id)
                         .then(() => {
                             localStorage.removeItem(MAY_ACCEPT);
-                            me()
-                                .then(userWithRoles => {
-                                    useAppStore.setState(() => ({user: userWithRoles}));
-                                    navigate("/home");
-                                })
+                            localStorage.removeItem("location");
+                            useAppStore.setState(() => ({reload: true}));
+                            navigate("/home");
                         })
                         .catch(e => {
                             setLoading(false);
                             localStorage.removeItem(MAY_ACCEPT);
                             if (e.response && e.response.status === 412) {
-
+                                setConfirmation({
+                                    cancel: null,
+                                    action: () => logout().then(() => login(config, true, hashParam)),
+                                    warning: false,
+                                    error: true,
+                                    question: I18n.t("invitationAccept.emailMismatch", {
+                                        email: res.invitation.email,
+                                        userEmail: user.email
+                                    }),
+                                    confirmationHeader: I18n.t("confirmationDialog.error"),
+                                    confirmationTxt: I18n.t("invitationAccept.login")
+                                });
+                                setConfirmationOpen(true);
                             } else {
                                 handleError(e);
                             }
@@ -64,11 +77,11 @@ export const Invitation = ({authenticated}) => {
             })
             .catch(e => {
                 localStorage.removeItem(MAY_ACCEPT);
-                navigate(e.response?.status === 404 ? "/404" : "/expired-invitation");
+                navigate(e.response?.status === 404 ? "/404" : "/profile");
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
-    }, [navigate, config.name]);
+    }, [config]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const handleError = e => {
         e.response.json().then(j => {
@@ -78,6 +91,7 @@ export const Invitation = ({authenticated}) => {
                 action: () => setConfirmationOpen(false),
                 warning: false,
                 error: true,
+                confirmationHeader: I18n.t("confirmationDialog.title"),
                 question: I18n.t("forms.error", {reference: reference}),
                 confirmationTxt: I18n.t("forms.ok")
             });
@@ -116,27 +130,30 @@ export const Invitation = ({authenticated}) => {
                 {!expired && <h1>{I18n.t("invitationAccept.hi", {name: authenticated ? ` ${user.name}` : ""})}</h1>}
                 {expired &&
                     <p className="expired"><ErrorIndicator msg={expiredMessage}/></p>}
+                {expired &&
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.expiredInfo", {email: invitation.email}))}}/>}
                 {!expired && <>
                     <Toaster toasterType={ToasterType.Info} message={html}/>
                 </>}
-                <section className="step-container">
-                    <div className="step">
-                        <div className="circle two-quarters">
-                            <span>{I18n.t("invitationAccept.progress")}</span>
+                {!expired &&
+                    <section className="step-container">
+                        <div className="step">
+                            <div className="circle two-quarters">
+                                <span>{I18n.t("invitationAccept.progress")}</span>
+                            </div>
+                            <div className="step-actions">
+                                <h4>{I18n.t("invitationAccept.login")}</h4>
+                                <span>{I18n.t("invitationAccept.nextStep")}</span>
+                            </div>
                         </div>
-                        <div className="step-actions">
-                            <h4>{I18n.t("invitationAccept.login")}</h4>
-                            <span>{I18n.t("invitationAccept.nextStep")}</span>
-                        </div>
-                    </div>
-                    {!authenticated && <p className="info"
-                                          dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
-                    <p className="info"
-                       dangerouslySetInnerHTML={{__html: I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}}/>
-                    <Button onClick={proceed}
-                            txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
-                            centralize={true}/>
-                </section>
+                        {!authenticated && <p className="info"
+                                              dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
+                        <p className="info"
+                           dangerouslySetInnerHTML={{__html: I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}}/>
+                        <Button onClick={proceed}
+                                txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
+                                centralize={true}/>
+                    </section>}
             </>
         )
     }
@@ -150,6 +167,7 @@ export const Invitation = ({authenticated}) => {
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
                                                      confirmationTxt={confirmation.confirmationTxt}
+                                                     confirmationHeader={confirmation.confirmationHeader}
                                                      isWarning={confirmation.warning}
                                                      isError={confirmation.error}
                                                      question={confirmation.question}/>}

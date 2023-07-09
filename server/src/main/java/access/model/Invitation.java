@@ -72,6 +72,7 @@ public class Invitation implements Serializable {
                       String hash,
                       String email,
                       boolean enforceEmailEquality,
+                      boolean eduIDOnly,
                       String message,
                       User inviter,
                       Instant roleExpiryDate,
@@ -79,6 +80,7 @@ public class Invitation implements Serializable {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
+        this.eduIDOnly  = eduIDOnly;
         this.message = message;
         this.inviter = inviter;
         this.status = Status.OPEN;

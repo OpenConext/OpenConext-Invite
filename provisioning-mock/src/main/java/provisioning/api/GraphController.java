@@ -1,13 +1,20 @@
 package provisioning.api;
 
+import provisioning.model.ProvisioningType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import provisioning.config.Database;
-import provisioning.config.ProvisioningType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import provisioning.model.HttpMethod;
+import provisioning.model.Provisioning;
+import provisioning.model.ResourceType;
+import provisioning.repository.ProvisioningRepository;
 
 import java.util.Collections;
 import java.util.Map;
@@ -19,11 +26,13 @@ public class GraphController {
 
     private static final Log LOG = LogFactory.getLog(GraphController.class);
 
-    private final Map<String, Map<String, Object>> users;
+    private final ProvisioningRepository provisioningRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public GraphController(Database database) {
-        this.users = database.users(ProvisioningType.scim);
+    public GraphController(ProvisioningRepository provisioningRepository, ObjectMapper objectMapper) {
+        this.provisioningRepository = provisioningRepository;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping("/users")
@@ -31,13 +40,15 @@ public class GraphController {
         LOG.info("/graph/users POST " + user);
 
         String id = UUID.randomUUID().toString();
-        users.put(id, user);
-        return ResponseEntity.ok(Collections.singletonMap("id", id));
-    }
+        provisioningRepository.save(new Provisioning(
+                ProvisioningType.graph,
+                objectMapper.valueToTree(user),
+                HttpMethod.POST,
+                ResourceType.USERS,
+                "/graph/users"
+        ));
 
-    @GetMapping(value = "/users")
-    public ResponseEntity<Map<String, Map<String, Object>>> users() {
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
 }

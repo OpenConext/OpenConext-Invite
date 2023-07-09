@@ -23,3 +23,8 @@ Add oauthlogin succes handler
 
 
 http://locahost:8080/api/v1/users/me
+
+t09.ams.surfconext.nl.
+/opt/openconext/access/
+docker logs -f openconextaccessserver
+docker restart openconextaccessserver

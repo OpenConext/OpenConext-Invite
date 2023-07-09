@@ -15,7 +15,6 @@ import {Roles} from "../tabs/Roles";
 import Applications from "../tabs/Applications";
 
 export const Home = () => {
-
     const {tab = "roles"} = useParams();
     const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);

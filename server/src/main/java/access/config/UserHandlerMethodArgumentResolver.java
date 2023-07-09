@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
@@ -47,8 +48,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         }
 
         String sub = attributes.get("sub").toString();
-        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
-        return optionalUser
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub)
                 .or(() ->
                         superAdmin.getUsers().stream().filter(adminSub -> adminSub.equals(sub))
                                 .findFirst()
@@ -60,7 +60,12 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                                 .orElseThrow(UserRestrictionException::new);
                     }
                     return user;
-                }).orElseThrow(UserRestrictionException::new);
+                });
+        String requestURI = ((ServletWebRequest) webRequest).getRequest().getRequestURI();
+        if (optionalUser.isEmpty() && requestURI.equals("/api/v1/users/config")) {
+            return new User(attributes);
+        }
+        return optionalUser.orElseThrow(UserRestrictionException::new);
 
     }
 }

@@ -84,6 +84,7 @@ export const markAndFilterRoles = (user, allRoles) => {
         userRole.value = userRole.role.id;
         userRole.landingPage = userRole.role.landingPage;
         userRole.description = userRole.role.description;
+        userRole.defaultExpiryDays = userRole.role.defaultExpiryDays;
     })
     allRoles.forEach(role => {
         role.isUserRole = false;

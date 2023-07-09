@@ -1,6 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Tiqr-Mock</title>
+    <title>Provisioning-Mock</title>
     <meta name="robots" content="noindex, nofollow">
     <meta content="ie=edge,chrome=1" http-equiv="x-ua-compatible">
     <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
@@ -11,6 +11,12 @@
     <link th:href="@{/main.css}" rel="stylesheet" type="text/css"/>
 </head>
 <body>
+<script  th:inline="javascript">
+    function format(s) {
+        debugger;
+        return JSON.stringify(s);
+    }
+</script>
 <div class="container">
     <div class="top-header">
         <h1 th:text="#{login(${environment})}"></h1>
@@ -22,7 +28,7 @@
     <div class="content-container">
         <div class="content">
             <a class="home" th:href="@{/}">Home</a>
-            <p th:text="${'The enrollment for ' + enrollment.userDisplayName + ' with status ' + enrollment.status}"
+            <p th:text="${'The ' + provisioning.provisioningType + ' provisioning for ' + provisioning.resourceType}"
                class="info"/>
             <table>
                 <thead>
@@ -33,25 +39,21 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>OCRA suite</td>
-                    <td th:text="${metadata.service.ocraSuite}"></td>
+                    <td>Message</td>
+                    <td> <code th:text="${provisioning.message}"></code></td>
                 </tr>
                 <tr>
-                    <td>Display name</td>
-                    <td th:text="${metadata.service.displayName}"></td>
+                    <td>URL</td>
+                    <td th:text="${provisioning.url}"></td>
                 </tr>
                 <tr>
-                    <td>Identifier</td>
-                    <td th:text="${metadata.service.identifier}"></td>
-                </tr>
-                <tr>
-                    <td>User ID</td>
-                    <td th:text="${metadata.identity.identifier}"></td>
+                    <td>Method</td>
+                    <td th:text="${provisioning.method}"></td>
                 </tr>
                 </tbody>
             </table>
             <div class="actions">
-                <a class="button" th:href="@{/enrolled/{id}(id=${enrollment.key})}">Finish enrollment</a>
+                <a class="button" th:href="${'/delete/provisioning/ ' + provisioning.provisioningType + '/' + provisioning.id}">Delete</a>
             </div>
         </div>
     </div>

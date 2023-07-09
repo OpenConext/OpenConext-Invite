@@ -11,7 +11,6 @@ CREATE TABLE `users`
     `created_at`               datetime     DEFAULT CURRENT_TIMESTAMP,
     `last_activity`            datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `users_unique_eppn` (`eduperson_principal_name`),
     UNIQUE INDEX `users_unique_sub` (`sub`),
     FULLTEXT KEY `full_text_index` (`given_name`, `family_name`, `email`)
 ) ENGINE = InnoDB
@@ -74,7 +73,7 @@ CREATE TABLE `invitations`
     `role_expiry_date`       datetime     DEFAULT NULL,
     `inviter_id`             bigint       NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX                    `index_invitation_hash` (`hash`),
+    INDEX `index_invitation_hash` (`hash`),
     CONSTRAINT `fk_invitations_user` FOREIGN KEY (`inviter_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
@@ -119,3 +118,15 @@ CREATE TABLE `remote_provisioned_groups`
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE `provisionings`
+(
+    `id`                bigint       NOT NULL AUTO_INCREMENT,
+    `provisioning_type` varchar(255) NOT NULL,
+    `resource_type`     varchar(255) NOT NULL,
+    `message`           json DEFAULT NULL,
+    `method`            varchar(255) NOT NULL,
+    `url`               varchar(255) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
