@@ -11,12 +11,6 @@
     <link th:href="@{/main.css}" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-<script  th:inline="javascript">
-    function format(s) {
-        debugger;
-        return JSON.stringify(s);
-    }
-</script>
 <div class="container">
     <div class="top-header">
         <h1 th:text="#{login(${environment})}"></h1>
@@ -40,7 +34,7 @@
                 <tbody>
                 <tr>
                     <td>Message</td>
-                    <td> <code th:text="${provisioning.message}"></code></td>
+                    <td><code th:utext="${provisioning.prettyMessage}"></code></td>
                 </tr>
                 <tr>
                     <td>URL</td>

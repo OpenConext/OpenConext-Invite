@@ -39,6 +39,9 @@ public class Provisioning implements Serializable {
     @Column
     private String url;
 
+    @Transient
+    private String prettyMessage;
+
     public Provisioning(ProvisioningType provisioningType, JsonNode message, HttpMethod method, ResourceType resourceType, String url) {
         this.provisioningType = provisioningType;
         this.message = message;

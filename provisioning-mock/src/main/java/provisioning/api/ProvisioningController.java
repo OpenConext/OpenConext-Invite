@@ -1,11 +1,13 @@
 package provisioning.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
+import provisioning.model.Provisioning;
 import provisioning.model.ProvisioningType;
 import provisioning.repository.ProvisioningRepository;
 
@@ -16,10 +18,14 @@ public class ProvisioningController {
 
     private final String environment;
     private final ProvisioningRepository provisioningRepository;
+    private final ObjectMapper objectMapper;
 
-    public ProvisioningController(@Value("${environment}") String environment, ProvisioningRepository provisioningRepository) {
+    public ProvisioningController(@Value("${environment}") String environment,
+                                  ProvisioningRepository provisioningRepository,
+                                  ObjectMapper objectMapper) {
         this.environment = environment;
         this.provisioningRepository = provisioningRepository;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/")
@@ -37,9 +43,13 @@ public class ProvisioningController {
     }
 
     @GetMapping("/provisioning/{id}")
-    public ModelAndView provisioning(@PathVariable("id") Long id) {
+    public ModelAndView provisioning(@PathVariable("id") Long id) throws JsonProcessingException {
+        Provisioning provisioning = provisioningRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        String s = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(provisioning.getMessage())
+                .replaceAll("\n", "<br/>");
+        provisioning.setPrettyMessage(s);
         return new ModelAndView("provisioning",
-                Map.of("provisioning", provisioningRepository.findById(id).get(),
+                Map.of("provisioning", provisioning,
                         "environment", environment));
     }
 
