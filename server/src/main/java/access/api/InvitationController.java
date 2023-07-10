@@ -1,10 +1,7 @@
 package access.api;
 
 import access.config.HashGenerator;
-import access.exception.InvitationEmailMatchingException;
-import access.exception.InvitationExpiredException;
-import access.exception.InvitationStatusException;
-import access.exception.NotFoundException;
+import access.exception.*;
 import access.mail.MailBox;
 import access.manage.ManageIdentifier;
 import access.manage.Manage;
@@ -27,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,6 +74,9 @@ public class InvitationController implements HasManage {
     public ResponseEntity<Map<String, Integer>> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                               @Parameter(hidden = true) User user) {
         LOG.debug("/newInvitation");
+        if (!invitationRequest.getIntendedAuthority().equals(Authority.SUPER_USER) && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
+            throw new NotAllowedException("Invitation for non-super-user must contain at least one role");
+        }
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
                 .map(id -> roleRepository.findById(id).orElseThrow(NotFoundException::new)).toList();
@@ -164,7 +165,8 @@ public class InvitationController implements HasManage {
         String sub = (String) attributes.get("sub");
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         User user = optionalUser.orElseGet(() -> {
-            boolean superUser = this.superAdmin.getUsers().stream().anyMatch(superSub -> superSub.equals(sub));
+            boolean superUser = this.superAdmin.getUsers().stream().anyMatch(superSub -> superSub.equals(sub))
+                    || invitation.getIntendedAuthority().equals(Authority.SUPER_USER);
             return new User(superUser, attributes);
         });
 

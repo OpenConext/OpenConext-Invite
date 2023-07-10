@@ -29,7 +29,6 @@ public class InvitationRequest implements Serializable {
     @NotEmpty
     private List<String> invites;
 
-    @NotEmpty
     private List<Long> roleIdentifiers;
 
     private Instant roleExpiryDate;
