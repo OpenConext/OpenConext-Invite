@@ -177,12 +177,6 @@ export const RoleForm = () => {
                                 setAlreadyExists({...alreadyExists, shortName: false})
                             }}
                 />
-                {alreadyExists.shortName &&
-                    <ErrorIndicator msg={I18n.t("forms.alreadyExistsParent", {
-                        attribute: I18n.t("roles.shortName").toLowerCase(),
-                        value: role.shortName,
-                        parent: managementOption.label
-                    })}/>}
                 {(!initial && isEmpty(role.name)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.name").toLowerCase()
@@ -193,6 +187,12 @@ export const RoleForm = () => {
                             disabled={true}
                             toolTip={I18n.t("tooltips.roleShortName")}
                 />
+                {alreadyExists.shortName &&
+                    <ErrorIndicator msg={I18n.t("forms.alreadyExistsParent", {
+                        attribute: I18n.t("roles.shortName").toLowerCase(),
+                        value: role.shortName,
+                        parent: managementOption.label
+                    })}/>}
 
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}
@@ -233,6 +233,7 @@ export const RoleForm = () => {
 
                 <InputField name={I18n.t("roles.landingPage")}
                             value={role.landingPage || ""}
+                            isUrl={true}
                             placeholder={I18n.t("roles.landingPagePlaceHolder")}
                             onBlur={e => validateValue("url", "landingPage", e.target.value)}
                             onChange={e => {

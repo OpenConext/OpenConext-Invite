@@ -143,7 +143,7 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitations.requiredEmail")}/>}
 
-                <SelectField
+                {authorityOptions.length > 1 && <SelectField
                     value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                         || authorityOptions[authorityOptions.length - 1]}
                     options={authorityOptions}
@@ -153,7 +153,7 @@ export const InvitationForm = () => {
                     onChange={authorityChanged}
                     toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
                     clearable={false}
-                />
+                />}
 
                 <SelectField value={selectedRoles}
                              options={roles.filter(role => !selectedRoles.find(r => r.value === role.value))}

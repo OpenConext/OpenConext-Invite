@@ -25,6 +25,7 @@ export const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        console.log("useEffect "+ new Date().toString());
         csrf().then(token => {
             useAppStore.setState(() => ({csrfToken: token.token}));
             configuration()
@@ -38,9 +39,9 @@ export const App = () => {
                         setLoading(false);
                         setAuthenticated(false);
                         const pathname = localStorage.getItem("location") || window.location.pathname;
-                        if (pathname === "/" || pathname.startsWith("/login")) {
-                            navigate(pathname);
-                        } else if (pathname.startsWith("/invitation/accept")) {
+                        if (res.name && !pathname.startsWith("/invitation/accept")) {
+                            navigate("/deadend");
+                        } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept")) {
                             navigate(pathname);
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page

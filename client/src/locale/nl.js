@@ -217,7 +217,7 @@ const nl = {
         login: "Login",
         loginWithSub: "Login",
         emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
-            "but you have logged in with an account with an email {{userEmail}}. Please login in with a different account."
+            "but you have logged in with an account with a different email. Please login in with a different account."
 
     },
     tooltips: {
@@ -307,6 +307,9 @@ const nl = {
             year: "in 1 year",
             years: "in %s years"
         }
+    },
+    notFound: {
+        alt: "404 Page not found"
     }
 }
 

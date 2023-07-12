@@ -49,7 +49,7 @@ export const Proceed = () => {
                 </section>
             </div>;
         return (
-            <Card cardType={CardType.Big} children={children}/>
+            <Card key={index} cardType={CardType.Big} children={children}/>
         );
     }
 

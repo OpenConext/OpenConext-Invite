@@ -217,7 +217,7 @@ const en = {
         login: "Login",
         loginWithSub: "Login",
         emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
-            "but you have logged in with an account with an email {{userEmail}}. Please login in with a different account."
+            "but you have logged in with an account with a different email. Please login in with a different account."
 
     },
     tooltips: {
@@ -226,7 +226,7 @@ const en = {
         roleIcon: "Role {{name}} created at {{createdAt}}",
         userRoleIcon: "User role accepted by {{name}} at {{createdAt}}",
         invitationIcon: "Invitation for {{email}} send at {{createdAt}} with expiration date {{expiryDate}}",
-        roleShortName: "The unique short name of the rol within a provisioning. Is used to format the urn",
+        roleShortName: "The unique short name of the role within a provisioning. It is used to format the urn and therefore not all characters are allowed.",
         manageService: "The required service from Manage with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expiry when a use accepts a invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with the email where the invitation was send to",
@@ -307,6 +307,9 @@ const en = {
             year: "in 1 year",
             years: "in %s years"
         }
+    },
+    notFound: {
+        alt: "404 Page not found"
     }
 }
 

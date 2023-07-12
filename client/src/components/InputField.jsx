@@ -29,7 +29,8 @@ export default function InputField({
                                        onRef = null,
                                        displayLabel = true,
                                        button = null,
-                                       isInteger = false
+                                       isInteger = false,
+                                       isUrl = false
                                    }) {
     const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
@@ -45,11 +46,12 @@ export default function InputField({
             </label>}
             <div className="inner-input-field">
                 {(!multiline && !noInput) &&
-                    <input type={isInteger ? "number" : "text"}
+                    <input type={isInteger ? "number" : isUrl ? "url" : "text"}
                            disabled={disabled}
                            value={value || ""}
                            onChange={onChange}
                            onBlur={onBlur}
+                           id={name}
                            maxLength={maxLength}
                            min={0}
                            ref={onRef}
@@ -65,6 +67,7 @@ export default function InputField({
                               value={value}
                               onChange={onChange}
                               onBlur={onBlur}
+                              id={name}
                               className={`${className} sds--text-area ${large ? "large" : ""}`}
                               onKeyDown={e => {
                                   if (onEnter && e.keyCode === 13) {//enter
