@@ -33,7 +33,7 @@ const en = {
             help: "Help",
             profile: "Profile",
             logout: "Logout",
-            helpUrl: "https://edu.nl/vw3jx"
+            helpUrl: "https://support.surfconext.nl/help-welcome-en"
         },
     },
     home: {
@@ -201,9 +201,9 @@ const en = {
     },
     footer: {
         terms: "Terms of Use",
-        termsLink: "https://edu.nl/6wb63",
+        termsLink: "https://support.surfconext.nl/terms-en",
         privacy: "Privacy policy",
-        privacyLink: "https://edu.nl/fcgbd",
+        privacyLink: "https://support.surfconext.nl/privacy-en",
         surfLink: "https://surf.nl",
     },
     expirations: {

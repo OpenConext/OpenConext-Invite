@@ -24,7 +24,7 @@ const nl = {
     },
     header: {
         title: "SURFwelcome",
-        subTitle: "Everything will be Owl right",
+        subTitle: "Alles gaat uilstekend",
         links: {
             login: "Login",
             system: "System",
@@ -34,7 +34,7 @@ const nl = {
             help: "Help",
             profile: "Profile",
             logout: "Logout",
-            helpUrl: "https://edu.nl/vw3jx"
+            helpUrl: "https://support.surfconext.nl/help-access-nl"
         },
     },
     tabs: {
@@ -250,9 +250,9 @@ const nl = {
     },
     footer: {
         terms: "Terms of Use",
-        termsLink: "https://edu.nl/6wb63",
+        termsLink: "https://support.surfconext.nl/terms-nl",
         privacy: "Privacy policy",
-        privacyLink: "https://edu.nl/fcgbd",
+        privacyLink: "https://support.surfconext.nl/privacy-nl",
         surfLink: "https://surf.nl",
     },
     expirations: {
