@@ -35,16 +35,15 @@ export const App = () => {
                 .then(res => {
                     useAppStore.setState(() => ({config: res}));
                     if (!res.authenticated) {
-
                         if (!res.name) {
                             const direction = window.location.pathname + window.location.search;
                             localStorage.setItem("location", direction);
                         }
                         setLoading(false);
                         const pathname = localStorage.getItem("location") || window.location.pathname;
-                        if (pathname === "/" || pathname.startsWith("/login")) {
-                            navigate(pathname);
-                        } else if (pathname.startsWith("/invitation/accept")) {
+                        if (res.name && !pathname.startsWith("/invitation/accept")) {
+                            navigate("/deadend");
+                        } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept")) {
                             navigate(pathname);
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page
@@ -61,10 +60,11 @@ export const App = () => {
                                 navigate(newLocation);
                             });
                     }
-                }).catch(() => {
-                setLoading(false);
-                navigate("/deadend");
-            })
+                })
+                .catch(() => {
+                    setLoading(false);
+                    navigate("/deadend");
+                })
         })
     }, [reload, impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
 
