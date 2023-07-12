@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import provisioning.repository.ProvisioningRepository;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +29,7 @@ class SCIMControllerTest {
     protected ProvisioningRepository provisioningRepository;
 
     @BeforeEach
-    protected void beforeEach() throws Exception {
+    protected void beforeEach() {
         RestAssured.port = port;
         provisioningRepository.deleteAllInBatch();
     }
@@ -65,5 +66,33 @@ class SCIMControllerTest {
                 .statusCode(201);
 
         assertEquals(3, provisioningRepository.count());
+    }
+
+    @Test
+    void patchGroup() {
+        Map result = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("user", "test"))
+                .pathParams("id", UUID.randomUUID().toString())
+                .patch("api/scim/v2/groups/{id}")
+                .as(Map.class);
+        assertNotNull(result.get("id"));
+        assertEquals(1, provisioningRepository.count());
+    }
+
+    @Test
+    void putGroup() {
+        Map result = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(Map.of("user", "test"))
+                .pathParams("id", UUID.randomUUID().toString())
+                .put("api/scim/v2/groups/{id}")
+                .as(Map.class);
+        assertNotNull(result.get("id"));
+        assertEquals(1, provisioningRepository.count());
     }
 }
