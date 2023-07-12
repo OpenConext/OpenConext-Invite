@@ -24,7 +24,7 @@ const nl = {
     },
     header: {
         title: "SURFwelcome",
-        subTitle: "Everything will be Owl right",
+        subTitle: "Alles zal Uil goed zijn",
         links: {
             login: "Login",
             system: "System",

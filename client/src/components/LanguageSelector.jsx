@@ -21,7 +21,7 @@ export const LanguageSelector = () => {
             <a href={"locale"} className={`${I18n.locale === locale ? "is-active" : ""}`}
                title={I18n.t("select_locale")}
                onClick={handleChooseLocale(locale)}>
-                {I18n.t("code")}
+                {I18n.translations[locale].code}
             </a>
         );
     }
