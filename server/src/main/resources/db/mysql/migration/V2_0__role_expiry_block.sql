@@ -1,0 +1,1 @@
+ALTER TABLE `roles` ADD block_expiry_date bool NOT NULL DEFAULT 0;

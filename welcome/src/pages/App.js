@@ -25,6 +25,7 @@ export const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        console.log("useEffect "+ new Date().toString());
         csrf().then(token => {
             useAppStore.setState(() => ({csrfToken: token.token}));
             configuration()

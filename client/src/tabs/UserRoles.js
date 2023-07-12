@@ -36,7 +36,7 @@ export const UserRoles = ({role, userRoles}) => {
             setConfirmation({
                 cancel: () => setConfirmationOpen(false),
                 action: () => doUpdateEndDate(userRole, newEndDate, false),
-                question: I18n.t("userRoles.updateConfirmation", {roleName: userRole.role.name, userName: user.name}),
+                question: I18n.t("userRoles.updateConfirmation", {roleName: userRole.role.name, userName: userRole.userInfo.name}),
                 confirmationTxt: I18n.t("confirmationDialog.confirm")
             });
             setConfirmationOpen(true);

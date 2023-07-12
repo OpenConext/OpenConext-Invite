@@ -29,6 +29,7 @@ export const App = () => {
     const {impersonator, authenticated, reload} = useAppStore(state => state);
 
     useEffect(() => {
+        setLoading(true);
         csrf().then(token => {
             useAppStore.setState(() => ({csrfToken: token.token}));
             configuration()
@@ -98,6 +99,7 @@ export const App = () => {
                 {!authenticated &&
                     <Routes>
                         <Route path="/" element={<Navigate replace to="login"/>}/>
+                        <Route path="/home" element={<Navigate replace to="login"/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={false}/>}/>
                         <Route path="login" element={<Login/>}/>

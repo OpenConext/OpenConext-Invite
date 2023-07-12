@@ -48,6 +48,10 @@ public class Role implements Serializable, Provisionable {
     @Enumerated(EnumType.STRING)
     private EntityType manageType;
 
+    @Column(name = "block_expiry_date")
+    private boolean blockExpiryDate;
+
+
     @OneToMany(mappedBy = "role",
             orphanRemoval = true,
             fetch = FetchType.LAZY,

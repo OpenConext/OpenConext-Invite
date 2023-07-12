@@ -5,6 +5,7 @@ import {LanguageSelector} from "./LanguageSelector";
 import {Logo, LogoType} from "@surfnet/sds";
 
 export const Footer = () => {
+
     return (
         <footer className="sds--footer sds--footer--single-bar">
             <div className="sds--page-container">
