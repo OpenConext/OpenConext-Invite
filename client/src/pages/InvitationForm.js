@@ -72,7 +72,8 @@ export const InvitationForm = () => {
     const submit = () => {
         setInitial(false);
         if (isValid()) {
-            const invitationRequest = {...invitation, roleIdentifiers: selectedRoles.map(role => role.value)}
+            const invitationRequest = {...invitation, roleIdentifiers: selectedRoles.map(role => role.value)};
+            setLoading(true);
             newInvitation(invitationRequest)
                 .then(() => {
                     setFlash(I18n.t("invitations.createFlash"));
