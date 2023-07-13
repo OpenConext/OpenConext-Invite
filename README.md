@@ -41,8 +41,35 @@ To build and deploy (the latter requires credentials in your maven settings):
 mvn clean deploy
 ```
 
-### [Swagger](#swagger)
+### [Endpoints](#endpoint)
 
-http://localhost:8080/ui/api-ui.html
+https://access.test2.surfconext.nl/ui/swagger-ui/index.html
+https://mock.test2.surfconext.nl/
+https://welcome.test2.surfconext.nl/
+https://access.test2.surfconext.nl/
 
-http://localhost:8080/ui/api-docs
+If you want to use the mock-provisioning, add the following metadata in Manage.
+SCIM:
+```
+"provisioning_type": "scim",
+"scim_url": "https://mock.test2.surfconext.nl/api/scim/v2",
+"scim_user": "user",
+"scim_password": "secret",
+"scim_update_role_put_method": true
+```
+eVA
+```
+"provisioning_type": "eva",
+"eva_token": "secret",
+"eva_guest_account_duration": 30
+"eva_url": "https://mock.test2.surfconext.nl/eva",
+```
+Graph
+```
+"provisioning_type": "graph",
+"graph_url": "https://mock.test2.surfconext.nl/graph/users",
+"graph_client_id" : "client_id",
+"graph_domain" : "hartingcollege.onmicrosoft.com",
+"graph_secret" : "secret",
+"graph_tenant": "tenant"
+```
