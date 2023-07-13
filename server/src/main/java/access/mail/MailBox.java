@@ -135,7 +135,6 @@ public class MailBox {
                             //Can't be helped
                         }
                     });
-            helper.addInline("not_found", new ClassPathResource("templates/image-not-found.svg"));
         }
         doSendMail(message);
     }

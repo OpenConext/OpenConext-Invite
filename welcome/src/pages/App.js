@@ -12,7 +12,6 @@ import {BreadCrumb} from "../components/BreadCrumb";
 import {Invitation} from "./Invitation";
 import {login} from "../utils/Login";
 import NotFound from "./NotFound";
-import RefreshRoute from "./RefreshRoute";
 import {InviteOnly} from "./InviteOnly";
 import {Profile} from "./Profile";
 import {Proceed} from "./Proceed";
@@ -21,11 +20,11 @@ import {Proceed} from "./Proceed";
 export const App = () => {
 
     const [loading, setLoading] = useState(true);
-    const [authenticated, setAuthenticated] = useState(false);
+    const {authenticated} = useAppStore(state => state);
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log("useEffect "+ new Date().toString());
+        console.log("useEffect " + new Date().toString());
         csrf().then(token => {
             useAppStore.setState(() => ({csrfToken: token.token}));
             configuration()
@@ -37,7 +36,6 @@ export const App = () => {
                             localStorage.setItem("location", direction);
                         }
                         setLoading(false);
-                        setAuthenticated(false);
                         const pathname = localStorage.getItem("location") || window.location.pathname;
                         if (res.name && !pathname.startsWith("/invitation/accept")) {
                             navigate("/deadend");
@@ -50,12 +48,11 @@ export const App = () => {
                     } else {
                         me()
                             .then(res => {
-                                useAppStore.setState(() => ({user: res}));
-                                setLoading(false);
-                                setAuthenticated(true);
+                                useAppStore.setState(() => ({user: res, authenticated: true}));
                                 const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
                                 const newLocation = location.startsWith("/login") ? "/home" : location;
                                 localStorage.removeItem("location");
+                                setLoading(false);
                                 navigate(newLocation);
                             });
                     }
@@ -83,7 +80,6 @@ export const App = () => {
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>
-                        <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>}
                 {!authenticated &&

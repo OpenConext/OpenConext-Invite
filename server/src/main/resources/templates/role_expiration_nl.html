@@ -24,10 +24,7 @@
                 <tr>
                     <td>{{#groupedProviders.logo}}
                         <img src="cid:{{groupedProviders.logoName}}" alt="logo"/>
-                        {{/logo}}
-                        {{^logo}}
-                        <img src="cid:not_found" alt="logo"/>
-                        {{/logo}}
+                        {{/groupedProviders.logo}}
                     </td>
                     <td>{{groupedProviders.name}} ({{groupedProviders.organisation}})</td>
                     <td>{{groupedProviders.rolesDisplay}}</td>
