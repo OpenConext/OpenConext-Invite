@@ -1,12 +1,4 @@
 ---
-logging:
-  level:
-    org.springframework: WARN
-    org.springframework.web: WARN
-    org.springframework.security: WARN
-    com.zaxxer.hikari: ERROR
-    access: DEBUG
-
 server:
   error:
     path: "/error"
@@ -14,6 +6,8 @@ server:
   forward-headers-strategy: framework
 
 spring:
+  main:
+    banner-mode: "off"
   session:
     jdbc:
       initialize-schema: always

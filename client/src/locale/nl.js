@@ -227,6 +227,7 @@ const nl = {
         userRoleIcon: "User role accepted by {{name}} at {{createdAt}}",
         invitationIcon: "Invitation for {{email}} send at {{createdAt}} with expiration date {{expiryDate}}",
         roleShortName: "The unique short name of the rol within a provisioning. Is used to format the urn",
+        roleUrn: "The urn of the role. It is based on the sanitized name and the application identifier. It is used as the unique global identifier of this role and therefore not all characters are allowed.",
         manageService: "The required service from Manage with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expiry when a use accepts a invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with the email where the invitation was send to",

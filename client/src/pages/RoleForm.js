@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
+import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import {allProviders, createRole, deleteRole, roleByID, shortNameExists, updateRole, validate} from "../api";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
@@ -22,10 +22,11 @@ export const RoleForm = () => {
     const {id} = useParams();
     const nameRef = useRef();
 
-    const [role, setRole] = useState({name: "", defaultExpiryDays: 0});
+    const {user, setFlash, config} = useAppStore(state => state);
+
+    const [role, setRole] = useState({name: "", shortName: "", defaultExpiryDays: 0});
     const [providers, setProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
-    const {user, setFlash} = useAppStore(state => state);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
     const required = ["name", "description", "manageId"];
@@ -182,10 +183,10 @@ export const RoleForm = () => {
                         attribute: I18n.t("roles.name").toLowerCase()
                     })}/>}
 
-                <InputField name={I18n.t("roles.shortName")}
-                            value={role.shortName || ""}
+                <InputField name={I18n.t("roles.urn")}
+                            value={urnFromRole(config.groupUrnPrefix, role)}
                             disabled={true}
-                            toolTip={I18n.t("tooltips.roleShortName")}
+                            toolTip={I18n.t("tooltips.roleUrn")}
                 />
                 {alreadyExists.shortName &&
                     <ErrorIndicator msg={I18n.t("forms.alreadyExistsParent", {
