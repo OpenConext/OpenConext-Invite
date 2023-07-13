@@ -407,7 +407,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         GraphServiceClient<Request> graphClient = GraphServiceClient.builder().authenticationProvider(authProvider).buildClient();
         UserCollectionRequest buildRequest = graphClient.users().buildRequest();
         String graphUrl = provisioning.getGraphUrl();
-        if (graphUrl.startsWith("http://")) {
+        if (graphUrl.startsWith("http://") || graphUrl.contains("mock")) {
             Field field = ReflectionUtils.findField(BaseRequest.class, "requestUrl");
             ReflectionUtils.makeAccessible(field);
             ReflectionUtils.setField(field, buildRequest.getBaseRequest(), graphUrl);
