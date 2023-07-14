@@ -2,8 +2,9 @@ package access.api;
 
 import access.config.HashGenerator;
 import access.exception.*;
+import access.logging.AccessLogger;
+import access.logging.Event;
 import access.mail.MailBox;
-import access.manage.ManageIdentifier;
 import access.manage.Manage;
 import access.model.*;
 import access.provision.ProvisioningService;
@@ -29,7 +30,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -73,7 +77,6 @@ public class InvitationController implements HasManage {
     @PostMapping("")
     public ResponseEntity<Map<String, Integer>> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                               @Parameter(hidden = true) User user) {
-        LOG.debug("/newInvitation");
         if (!invitationRequest.getIntendedAuthority().equals(Authority.SUPER_USER) && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
             throw new NotAllowedException("Invitation for non-super-user must contain at least one role");
         }
@@ -102,6 +105,7 @@ public class InvitationController implements HasManage {
 
         List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
         invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders));
+        invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
         return Results.createResult();
     }
 
@@ -116,7 +120,9 @@ public class InvitationController implements HasManage {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
 
+        AccessLogger.invitation(LOG,Event.Deleted, invitation);
         invitationRepository.delete(invitation);
+
         return Results.deleteResult();
     }
 
@@ -133,6 +139,8 @@ public class InvitationController implements HasManage {
         List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
 
         mailBox.sendInviteMail(user, invitation, groupedProviders);
+        AccessLogger.invitation(LOG,Event.Resend, invitation);
+
         return Results.createResult();
     }
 
@@ -175,6 +183,7 @@ public class InvitationController implements HasManage {
 
         invitation.setStatus(Status.ACCEPTED);
         invitationRepository.save(invitation);
+        AccessLogger.invitation(LOG,Event.Accepted, invitation);
 
         /*
          * Chicken & egg problem. The user including his / hers roles must be first provisioned, and then we
@@ -204,6 +213,8 @@ public class InvitationController implements HasManage {
                     }
                 });
         userRepository.save(user);
+        AccessLogger.user(LOG,Event.Created, user);
+
         //Already provisioned users in the remote systems are ignored / excluded
         provisioningService.newUserRequest(user);
         newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));

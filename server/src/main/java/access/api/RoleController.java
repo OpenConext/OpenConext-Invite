@@ -3,6 +3,8 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
+import access.logging.AccessLogger;
+import access.logging.Event;
 import access.manage.Manage;
 import access.model.*;
 import access.provision.ProvisioningService;
@@ -121,10 +123,11 @@ public class RoleController {
         UserPermissions.assertManagerRole(provider, user);
         provisioningService.deleteGroupRequest(role);
         roleRepository.delete(role);
+        AccessLogger.role(LOG, Event.Deleted, user, role);
         return Results.deleteResult();
     }
 
-    private ResponseEntity<Role> saveOrUpdate(@RequestBody @Validated Role role, @Parameter(hidden = true) User user) {
+    private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
         boolean isNew = role.getId() == null;
@@ -135,6 +138,8 @@ public class RoleController {
         if (isNew) {
             provisioningService.newGroupRequest(saved);
         }
+        AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
+
         return ResponseEntity.ok(saved);
     }
 

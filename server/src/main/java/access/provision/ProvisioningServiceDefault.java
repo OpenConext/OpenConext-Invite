@@ -322,10 +322,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                 ParameterizedTypeReference<T> typeReference,
                                 Provisioning provisioning) {
         try {
-            LOG.info(String.format("Send %s SCIM request with %s httpMethod %s and body %s to %s",
+            LOG.info(String.format("Send %s Provisioning request (protocol %s) with %s httpMethod %s and body %s to %s",
                     api,
-                    requestEntity.getUrl(),
+                    provisioning.getProvisioningType(),
                     requestEntity.getMethod(),
+                    requestEntity.getUrl(),
                     requestEntity.getBody(),
                     provisioning.getEntityId()));
             return restTemplate.exchange(requestEntity, typeReference).getBody();
@@ -407,11 +408,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         GraphServiceClient<Request> graphClient = GraphServiceClient.builder().authenticationProvider(authProvider).buildClient();
         UserCollectionRequest buildRequest = graphClient.users().buildRequest();
         String graphUrl = provisioning.getGraphUrl();
-        if (graphUrl.startsWith("http://")) {
+        if (graphUrl.startsWith("http://") || graphUrl.contains("mock")) {
             Field field = ReflectionUtils.findField(BaseRequest.class, "requestUrl");
             ReflectionUtils.makeAccessible(field);
             ReflectionUtils.setField(field, buildRequest.getBaseRequest(), graphUrl);
         }
+        LOG.info(String.format("Send CreateUser Graph request to %s for provisioning %s for user %s",
+                buildRequest.getBaseRequest().getRequestUrl(),
+                provisioning.getGraphClientId(),
+                user.getEduPersonPrincipalName()));
         com.microsoft.graph.models.User createdUser = buildRequest.post(graphUser);
         return createdUser.id;
     }

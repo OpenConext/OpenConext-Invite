@@ -63,12 +63,14 @@ public class ResourceCleaner {
                 users.size(),
                 lastActivityDurationDays,
                 users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
+
         users.forEach(provisioningService::deleteUserRequest);
         userRepository.deleteAll(users);
     }
 
     private void cleanOrphanedUser() {
         List<User> orphans = userRepository.findNonSuperUserWithoutUserRoles();
+
         LOG.info(String.format("Deleted %s non-super users with no userRoles; %s",
                 orphans.size(),
                 orphans.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));

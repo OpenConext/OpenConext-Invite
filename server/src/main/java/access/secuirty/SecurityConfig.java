@@ -77,7 +77,7 @@ public class SecurityConfig {
         this.vootUser = vootUser;
         this.vootPassword = vootPassword;
         this.attributeAggregationUser = attributeAggregationUser;
-                this.attributeAggregationPassword = attributeAggregationPassword;
+        this.attributeAggregationPassword = attributeAggregationPassword;
     }
 
     @Configuration
