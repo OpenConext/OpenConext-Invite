@@ -10,6 +10,7 @@ import {isEmpty} from "../utils/Utils";
 import {RoleMetaData} from "./RoleMetaData";
 import {providerInfo} from "../utils/Manage";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
+import {MoreLessText} from "./MoreLessText";
 
 export const User = ({user, other}) => {
     const searchRef = useRef();
@@ -74,7 +75,7 @@ export const User = ({user, other}) => {
                 <Logo src={logo} alt={"provider"} className={"provider"}/>
                 <section className={"user-role-info"}>
                     <h3>{role.name}</h3>
-                    <p>{role.description}</p>
+                    <MoreLessText txt={role.description}/>
                     <RoleMetaData role={role} user={user} provider={provider}/>
                 </section>
             </div>;

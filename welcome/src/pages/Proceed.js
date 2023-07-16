@@ -11,6 +11,7 @@ import Logo from "../components/Logo";
 import {getParameterByName} from "../utils/QueryParameters";
 import {invitationByHash} from "../api";
 import {login} from "../utils/Login";
+import {MoreLessText} from "../components/MoreLessText";
 
 
 export const Proceed = () => {
@@ -44,7 +45,7 @@ export const Proceed = () => {
                 <Logo src={logo} alt={"provider"} className={"provider"}/>
                 <section className={"user-role-info"}>
                     <h3>{role.name}</h3>
-                    <p>{role.description}</p>
+                    <MoreLessText txt={role.description}/>
                     <a href={role.landingPage}>{role.landingPage}</a>
                 </section>
             </div>;

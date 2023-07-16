@@ -8,6 +8,7 @@ import {Button, ButtonType, MenuButton} from "@surfnet/sds";
 import {Link, useNavigate} from "react-router-dom";
 import I18n from "../locale/I18n";
 import {providerInfo} from "../utils/Manage";
+import {MoreLessText} from "./MoreLessText";
 
 export const UnitHeader = ({
                                obj,
@@ -70,7 +71,8 @@ export const UnitHeader = ({
                     {obj.application &&
                         <span className="name">{providerInfo(obj.application.data.metaDataFields["name:en"])}</span>}
                     {(obj.description && displayDescription) &&
-                        <span className={"description"}>{obj.description}</span>}
+                        <MoreLessText txt={obj.description}/>
+                    }
                     {children}
                 </div>
                 {!isEmpty(actions) &&

@@ -184,6 +184,8 @@ const nl = {
         cancel: "Cancel",
         save: "Save",
         and: "and",
+        more: "More",
+        less: "Less",
         alreadyExists: "The {{attribute}} '{{value}}' already exists",
         alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}",
         required: "The {{attribute}} is required",

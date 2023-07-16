@@ -110,6 +110,8 @@ const en = {
     forms: {
         ok: "Ok",
         and: "and",
+        more: "More",
+        less: "Less",
         error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
             "The reference number for ths exception is {{reference}}."
     },
