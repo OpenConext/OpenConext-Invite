@@ -160,6 +160,7 @@ export const RoleForm = () => {
     const renderForm = () => {
         const valid = isValid();
         const disabledSubmit = !valid && !initial;
+        const options = providersToOptions(providers);
         return (<>
                 <InputField name={I18n.t("roles.name")}
                             value={role.name || ""}
@@ -205,7 +206,7 @@ export const RoleForm = () => {
 
                 <SelectField name={I18n.t("roles.manage")}
                              value={managementOption}
-                             options={providersToOptions(providers).filter(provider => provider.value !== managementOption.value)}
+                             options={options.filter(provider => provider.value !== managementOption.value)}
                              onChange={option => {
                                  setManagementOption(option);
                                  setRole({...role, manageId: option.value, manageType: option.type.toUpperCase()});
@@ -213,6 +214,7 @@ export const RoleForm = () => {
                              }}
                              searchable={true}
                              clearable={false}
+                             disabled={options.length === 1}
                              toolTip={I18n.t("tooltips.manageService")}
                 />
 
