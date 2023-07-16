@@ -41,7 +41,7 @@ export const User = ({user, other}) => {
         );
     }
 
-    user.highestAuthority = highestAuthority(user);
+    user.highestAuthority = I18n.t(`access.${highestAuthority(user)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
         ["lastActivity", true]];
     return (

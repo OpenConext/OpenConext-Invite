@@ -7,6 +7,7 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 import {Button, ButtonType, MenuButton} from "@surfnet/sds";
 import {Link, useNavigate} from "react-router-dom";
 import I18n from "../locale/I18n";
+import {providerInfo} from "../utils/Manage";
 
 export const UnitHeader = ({
                                obj,
@@ -66,7 +67,8 @@ export const UnitHeader = ({
                 </div>
                 <div className="obj-name">
                     {obj.name && <h1>{obj.name}</h1>}
-                    {obj.organisation && <span className="name">{obj.organisation.name}</span>}
+                    {obj.application &&
+                        <span className="name">{providerInfo(obj.application.data.metaDataFields["name:en"])}</span>}
                     {(obj.description && displayDescription) &&
                         <span className={"description"}>{obj.description}</span>}
                     {children}

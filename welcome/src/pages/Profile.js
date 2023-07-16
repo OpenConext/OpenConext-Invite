@@ -10,11 +10,9 @@ import {dateFromEpoch} from "../utils/Date";
 
 export const Profile = () => {
     const {user: currentUser} = useAppStore(state => state);
-    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setUser(currentUser);
         setLoading(false);
         useAppStore.setState({
             breadcrumbPath: [
@@ -29,11 +27,11 @@ export const Profile = () => {
     }
     return (
         <div className="mod-profile">
-            <UnitHeader obj={({name: user.name, svg: Logo, style: "small"})}>
-                <p>{I18n.t("profile.info", {name: user.name, createdAt: dateFromEpoch(user.createdAt)})}</p>
+            <UnitHeader obj={({name: currentUser.name, svg: Logo, style: "small"})}>
+                <p>{I18n.t("profile.info", {name: currentUser.name, createdAt: dateFromEpoch(currentUser.createdAt)})}</p>
             </UnitHeader>
             <div className="profile-container">
-                <User user={user}/>
+                <User user={currentUser}/>
             </div>
         </div>);
 };

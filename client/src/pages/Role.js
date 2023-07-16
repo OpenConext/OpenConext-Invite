@@ -92,7 +92,7 @@ export const Role = () => {
     const logo = role.application.data.metaDataFields["logo:0:url"];
     const urn = urnFromRole(config.groupUrnPrefix, role);
     return (<>
-        <UnitHeader obj={({name: role.name, logo: logo})}
+        <UnitHeader obj={({...role, logo: logo})}
                     displayDescription={true}
                     actions={getActions()}>
             <div className={"urn-container"}>
