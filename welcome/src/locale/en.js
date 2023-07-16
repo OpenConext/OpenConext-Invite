@@ -49,6 +49,7 @@ const en = {
     users: {
         found: "{{count}} {{plural}} found",
         moreResults: "There are more results then shown, please refine your search.",
+        applicationsSearchPlaceHolder: "Search for applications...",
         name_email: "Name / email",
         name: "Name",
         email: "Email",
@@ -65,6 +66,7 @@ const en = {
         roles: "Applications",
         noRolesInfo: "You have no applications (which means you must be super-user)",
         rolesInfo: "You have access to the following applications.",
+        noRolesFound: "No applications are found.",
         rolesInfoOther: "{{name}} has the following roles",
         landingPage: "Website",
         access: "Access",

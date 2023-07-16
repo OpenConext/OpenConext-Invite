@@ -68,6 +68,7 @@ const nl = {
     users: {
         found: "{{count}} {{plural}} found",
         moreResults: "There are more results then shown, please refine your search.",
+        applicationsSearchPlaceHolder: "Search for roles...",
         name_email: "Name / email",
         name: "Name",
         email: "Email",
@@ -85,6 +86,7 @@ const nl = {
         noRolesInfo: "You have no roles (which means you must be super-user)",
         rolesInfo: "You have the following roles",
         rolesInfoOther: "{{name}} has the following roles",
+        noRolesFound: "No roles are found.",
         landingPage: "Website",
         access: "Access",
         organisation: "Organisation",
