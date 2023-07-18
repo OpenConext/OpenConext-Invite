@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
 import {Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
@@ -28,6 +28,12 @@ export const Users = () => {
     const [noResults, setNoResults] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        return () => {
+            delayedAutocomplete.cancel();
+        };
+    });
+
     const openUser = (e, user) => {
         const path = `/profile/${user.id}`
         if (e.metaKey || e.ctrlKey) {
@@ -40,7 +46,6 @@ export const Users = () => {
 
     const search = query => {
         if (!isEmpty(query) && query.trim().length > 2) {
-            setSearching(true);
             delayedAutocomplete(query);
         }
         if (isEmpty(query)) {
@@ -51,7 +56,8 @@ export const Users = () => {
         }
     };
 
-    const delayedAutocomplete = debounce(query => {
+    const delayedAutocomplete = useMemo(() => debounce(query => {
+        setSearching(true);
         searchUsers(query)
             .then(results => {
                 setInitial(false);
@@ -61,7 +67,7 @@ export const Users = () => {
                 setNoResults(results.length === 0);
                 setSearching(false);
             });
-    }, 500);
+    }, 500), []);
 
     const moreResultsAvailable = () => {
         return (
