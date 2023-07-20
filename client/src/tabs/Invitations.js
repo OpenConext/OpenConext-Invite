@@ -12,7 +12,6 @@ import {deleteInvitation, resendInvitation} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
-import {allowedToDeleteInvitation} from "../utils/UserRole";
 
 
 export const Invitations = ({role, invitations}) => {
@@ -27,14 +26,19 @@ export const Invitations = ({role, invitations}) => {
     const [confirmationOpen, setConfirmationOpen] = useState(false);
 
     useEffect(() => {
-            setSelectedInvitations(invitations.reduce((acc, invitation) => {
-                acc[invitation.id] = {
-                    selected: false,
-                    ref: invitation,
-                    allowed: allowedToDeleteInvitation(user, invitation)
-                };
-                return acc;
-            }, {}));
+            console.log("useEffect ")
+            invitations.forEach(invitation => invitation.intendedRoles = invitation.roles
+                .sort((r1, r2) => r1.role.name.localeCompare(r2.role.name))
+                .map(role => role.role.name).join(", "));
+            setSelectedInvitations(invitations
+                .reduce((acc, invitation) => {
+                    acc[invitation.id] = {
+                        selected: false,
+                        ref: invitation,
+                        allowed: true // allowedToDeleteInvitation(user, invitation)
+                    };
+                    return acc;
+                }, {}));
             setLoading(false);
         },
         [invitations, user])
@@ -165,9 +169,14 @@ export const Invitations = ({role, invitations}) => {
         },
         {
             key: "authority",
-            header: I18n.t("roles.authority"),
+            header: I18n.t("users.authority"),
             mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intendedAuthority)}
                                         label={I18n.t(`access.${invitation.intendedAuthority}`)}/>
+        },
+        {
+            key: "intendedRoles",
+            header: I18n.t("roles.title"),
+            mapper: invitation => invitation.intendedRoles
         },
         {
             key: "status",

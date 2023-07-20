@@ -15,9 +15,9 @@ class RoleTest {
     @Test
     void groupBy() {
         List<Role> roles = List.of(
-          new Role("cloud", "cloud","https://landingpage.com","1", EntityType.OIDC10_RP, 365),
-                new Role("mail", "mail","https://landingpage.com","1", EntityType.OIDC10_RP, 365),
-                new Role("wiki", "wiki","https://landingpage.com","2", EntityType.SAML20_SP, 365)
+          new Role("cloud", "cloud","https://landingpage.com","1", EntityType.OIDC10_RP, 365, false, false),
+                new Role("mail", "mail","https://landingpage.com","1", EntityType.OIDC10_RP, 365, false, false),
+                new Role("wiki", "wiki","https://landingpage.com","2", EntityType.SAML20_SP, 365, false, false)
         );
         Map<ManageIdentifier, List<Role>> rolesByApplication = roles.stream()
                 .collect(Collectors.groupingBy(role -> new ManageIdentifier(role.getManageId(), role.getManageType())));

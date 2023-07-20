@@ -35,6 +35,7 @@ export const InvitationForm = () => {
     const required = ["intendedAuthority", "invites"];
 
     useEffect(() => {
+        console.log("useEffect")
         if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
             navigate("/404");
             return;
@@ -43,11 +44,14 @@ export const InvitationForm = () => {
             rolesByApplication()
                 .then(res => {
                     const markedRoles = markAndFilterRoles(user, res);
-                    return setRoles(markedRoles);
+                    setInitialRole(markedRoles);
+                    setRoles(markedRoles);
                 })
             setLoading(false);
         } else {
-            setRoles(markAndFilterRoles(user, []))
+            const markedRoles = markAndFilterRoles(user, []);
+            setInitialRole(markedRoles);
+            setRoles(markedRoles)
         }
         const breadcrumbPath = [
             {path: "/home", value: I18n.t("tabs.home")},
@@ -57,18 +61,23 @@ export const InvitationForm = () => {
         setLoading(false);
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
+
+    const setInitialRole = markedRoles => {
         if (location.state) {
             // See markAndFilterRoles - we are mixing up userRoles and roles
-            const initialRole = roles.find(role => role.value === location.state);
+            const initialRole = markedRoles.find(role => role.value === location.state);
             if (initialRole) {
                 const defaultExpiryDays = initialRole.isUserRole ? initialRole.role.defaultExpiryDays : initialRole.defaultExpiryDays;
                 setSelectedRoles([initialRole])
-                setInvitation({...invitation, roleExpiryDate: futureDate(defaultExpiryDays)})
+                setInvitation({
+                    ...invitation,
+                    enforceEmailEquality: initialRole.enforceEmailEquality,
+                    eduIDOnly: initialRole.eduIDOnly,
+                    roleExpiryDate: futureDate(defaultExpiryDays)
+                })
             }
         }
-    }, [roles, location.state])// eslint-disable-line react-hooks/exhaustive-deps
-
+    }
     const submit = () => {
         setInitial(false);
         if (isValid()) {
@@ -109,10 +118,18 @@ export const InvitationForm = () => {
     const rolesChanged = selectedOptions => {
         if (selectedOptions === null) {
             setSelectedRoles([])
+            setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false})
         } else {
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
-            setInvitation({...invitation, roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)});
+            const enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality);
+            const eduIDOnly = newSelectedOptions.some(role => role.eduIDOnly);
+            setInvitation({
+                ...invitation,
+                enforceEmailEquality: enforceEmailEquality,
+                eduIDOnly: eduIDOnly,
+                roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)
+            })
         }
     }
 
@@ -178,14 +195,14 @@ export const InvitationForm = () => {
                 <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
                           value={invitation.enforceEmailEquality || false}
                           info={I18n.t("invitations.enforceEmailEquality")}
-                          onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
+                          readOnly={true}
                           tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                 />
 
                 <Checkbox name={I18n.t("invitations.eduIDOnly")}
                           value={invitation.eduIDOnly || false}
                           info={I18n.t("invitations.eduIDOnly")}
-                          onChange={e => setInvitation({...invitation, eduIDOnly: e.target.checked})}
+                          readOnly={true}
                           tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
                 />
 

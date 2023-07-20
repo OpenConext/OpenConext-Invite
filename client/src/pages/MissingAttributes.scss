@@ -1,0 +1,36 @@
+div.missing-attributes {
+    display: flex;
+    flex-direction: column;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+
+    h1 {
+        margin: 20px 0 25px;
+    }
+
+    p {
+        &.attributes {
+            margin-bottom: 20px;
+        }
+
+        &.info {
+            margin-bottom: 16px;
+        }
+    }
+
+    ul.missing-attributes-list {
+        margin: 10px 0 25px 0;
+        list-style: circle;
+
+        li {
+            margin-left: 20px;
+        }
+
+    }
+
+    div.warning {
+        padding: 25px 25px 25px 0;
+    }
+
+}

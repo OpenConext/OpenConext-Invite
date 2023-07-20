@@ -8,7 +8,7 @@ import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
-import {allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
+import {allowedToDeleteInvitation, allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import {RoleMetaData} from "../components/RoleMetaData";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
@@ -42,7 +42,7 @@ export const Role = () => {
             navigate("/404");
             return;
         }
-        Promise.all([roleByID(id), userRolesByRoleId(id), invitationsByRoleId(id)])
+        Promise.all([roleByID(id, false), userRolesByRoleId(id), invitationsByRoleId(id)])
             .then(res => {
                 setRole(res[0]);
                 setLoading(false);
@@ -57,11 +57,12 @@ export const Role = () => {
                           name="invitations"
                           label={I18n.t("tabs.invitations")}
                           Icon={InvitationLogo}>
-                        <Invitations role={res[0]} invitations={res[2]}/>
+                        <Invitations role={res[0]} invitations={res[2].filter(invitation => allowedToDeleteInvitation(user, invitation))}/>
                     </Page>
                 ];
                 setTabs(newTabs);
             })
+            .catch(() => navigate("/"))
 
     }, [id]);// eslint-disable-line react-hooks/exhaustive-deps
 

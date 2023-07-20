@@ -33,7 +33,8 @@ export const Invitation = ({authenticated}) => {
             .then(res => {
                 setInvitationMeta(res);
                 if (res.invitation.status !== "OPEN") {
-                    navigate("/home");
+                    localStorage.removeItem("location");
+                    navigate("/");
                     return;
                 }
                 const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
@@ -49,7 +50,6 @@ export const Invitation = ({authenticated}) => {
                         })
                         .catch(e => {
                             setLoading(false);
-                            localStorage.removeItem(MAY_ACCEPT);
                             if (e.response && e.response.status === 412) {
                                 setConfirmation({
                                     cancel: null,
@@ -63,8 +63,10 @@ export const Invitation = ({authenticated}) => {
                                     confirmationHeader: I18n.t("confirmationDialog.error"),
                                     confirmationTxt: I18n.t("invitationAccept.login")
                                 });
+                                localStorage.setItem(MAY_ACCEPT, "true");
                                 setConfirmationOpen(true);
                             } else {
+                                localStorage.removeItem(MAY_ACCEPT);
                                 handleError(e);
                             }
 
@@ -117,13 +119,16 @@ export const Invitation = ({authenticated}) => {
     const renderLoginStep = () => {
         const {invitation, providers} = invitationMeta;
         const translation = invitation.roles.length === 0 ? "invitedNoRoles" : "invited";
-        const html = DOMPurify.sanitize(I18n.t(`invitationAccept.${translation}`, {
+        let html = DOMPurify.sanitize(I18n.t(`invitationAccept.${translation}`, {
             authority: I18n.t(`access.${invitation.intendedAuthority}`),
             plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
             roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role, providers)}`), I18n.t("forms.and")),
             inviter: invitation.inviter.name,
             email: invitation.inviter.email
         }));
+        if (invitation.enforceEmailEquality) {
+            html += DOMPurify.sanitize(I18n.t("invitationAccept.enforceEmailEquality", {email: invitation.email}));
+        }
         const expiryDate = DateTime.fromMillis(invitation.expiryDate * 1000).toLocaleString(DateTime.DATETIME_MED);
         const expiredMessage = I18n.t("invitationAccept.expired", {expiryDate: expiryDate});
         return (

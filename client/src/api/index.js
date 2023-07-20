@@ -125,7 +125,7 @@ export function acceptInvitation(hash, invitationId) {
 }
 
 export function invitationsByRoleId(roleId) {
-    return fetchJson(`/api/v1/invitations/roles/${roleId}`);
+    return fetchJson(`/api/v1/invitations/roles/${roleId}`, {}, {}, false);
 }
 
 export function resendInvitation(invitationId) {
@@ -150,8 +150,8 @@ export function rolesByApplication() {
     return fetchJson("/api/v1/roles");
 }
 
-export function roleByID(roleID) {
-    return fetchJson(`/api/v1/roles/${roleID}`);
+export function roleByID(roleID, showErrorDialog=true) {
+    return fetchJson(`/api/v1/roles/${roleID}`,{},{},showErrorDialog);
 }
 
 export function createRole(role) {
@@ -177,7 +177,7 @@ export function shortNameExists(shortName, manageId, roleId) {
 
 //User roles
 export function userRolesByRoleId(roleId) {
-    return fetchJson(`/api/v1/user_roles/roles/${roleId}`);
+    return fetchJson(`/api/v1/user_roles/roles/${roleId}`, {}, {}, false);
 }
 
 export function updateUserRoleEndData(userRoleId, endDate) {

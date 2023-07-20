@@ -5,22 +5,25 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 
 export const MoreLessText = ({txt}) => {
 
-    const [showMore, setShowMore] = useState(txt && txt.length > 190
-        && txt.substring(190).indexOf(" ") > 0);
+    const [showMore, setShowMore] = useState(!isEmpty(txt) && txt.length > 190
+        && txt.substring(190).indexOf(" ") > -1);
+    const [showLess, setShowLess] = useState(false);
 
     const toggleShowMore = e => {
         stopEvent(e);
-        setShowMore(!showMore);
+        const isShowingMore = showMore;
+        setShowMore(!isShowingMore);
+        setShowLess(isShowingMore);
     }
 
-    const txtToDisplay = isEmpty(txt) ? null : txt.substring(0, 190 + txt.substring(190).indexOf(" "));
+    const txtToDisplay = isEmpty(txt) ? txt : txt.substring(0, 190 + txt.substring(190).indexOf(" "));
     return (
         <span className={"more-less-txt description"}>
             {showMore ? txtToDisplay : txt}
             {showMore && <a className={"show-more"} href="/more" onClick={toggleShowMore}>
                 {I18n.t("forms.more")}
             </a>}
-            {(!showMore && txt !== txtToDisplay) &&
+            {showLess &&
                 <a className={"show-more"} href="/less" onClick={toggleShowMore}>
                     {I18n.t("forms.less")}
                 </a>}

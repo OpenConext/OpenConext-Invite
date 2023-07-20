@@ -44,6 +44,12 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "manage_id")
     private String manageId;
 
+    @Column(name = "enforce_email_equality")
+    private boolean enforceEmailEquality;
+
+    @Column(name = "edu_id_only")
+    private boolean eduIDOnly;
+
     @Column(name = "manage_type")
     @Enumerated(EnumType.STRING)
     private EntityType manageType;
@@ -70,8 +76,12 @@ public class Role implements Serializable, Provisionable {
                 String landingPage,
                 String manageId,
                 EntityType manageType,
-                Integer defaultExpiryDays) {
-        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, manageId, manageType, defaultExpiryDays, Collections.emptyMap());
+                Integer defaultExpiryDays,
+                boolean enforceEmailEquality,
+                boolean eduIDOnly) {
+        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, manageId, manageType, defaultExpiryDays,
+                enforceEmailEquality, eduIDOnly,
+                Collections.emptyMap());
     }
 
     public Role(@NotNull String name,
@@ -81,6 +91,8 @@ public class Role implements Serializable, Provisionable {
                 String manageId,
                 EntityType manageType,
                 Integer defaultExpiryDays,
+                boolean enforceEmailEquality,
+                boolean eduIDOnly,
                 Map<String, Object> application) {
         this.name = name;
         this.shortName = shortName;
@@ -89,6 +101,8 @@ public class Role implements Serializable, Provisionable {
         this.manageId = manageId;
         this.manageType = manageType;
         this.defaultExpiryDays = defaultExpiryDays;
+        this.enforceEmailEquality = enforceEmailEquality;
+        this.eduIDOnly = eduIDOnly;
         this.application = application;
     }
 

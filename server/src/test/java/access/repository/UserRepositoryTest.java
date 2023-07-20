@@ -5,9 +5,11 @@ import access.model.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static access.Seed.MANAGE_SUB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserRepositoryTest extends AbstractTest {
 
@@ -15,6 +17,12 @@ class UserRepositoryTest extends AbstractTest {
     void findBySubIgnoreCase() {
         User user = userRepository.findBySubIgnoreCase(MANAGE_SUB.toUpperCase()).get();
         assertEquals(MANAGE_SUB, user.getSub());
+    }
+
+    @Test
+    void findBySubNull() {
+        Optional<User> user = userRepository.findBySubIgnoreCase(null);
+        assertTrue(user.isEmpty());
     }
 
     @Test

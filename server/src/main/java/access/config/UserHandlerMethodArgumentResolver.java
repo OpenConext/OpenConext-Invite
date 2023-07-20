@@ -15,6 +15,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
@@ -65,7 +66,13 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         if (optionalUser.isEmpty() && requestURI.equals("/api/v1/users/config")) {
             return new User(attributes);
         }
-        return optionalUser.orElseThrow(UserRestrictionException::new);
+        return optionalUser.map(user -> {
+            if (user.getId() != null) {
+                user.setLastActivity(Instant.now());
+                userRepository.save(user);
+            }
+            return user;
+        }).orElseThrow(UserRestrictionException::new);
 
     }
 }
