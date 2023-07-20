@@ -25,7 +25,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void create() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365);
+        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
         stubForManageProvisioning(List.of("1"));
@@ -46,7 +46,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createProvisionException() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365);
+        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
         stubForManageProvisioning(List.of("1"));
@@ -66,7 +66,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createWithDuplicateShortName() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("Wiki", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365);
+        Role role = new Role("Wiki", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
 
         given()
                 .when()

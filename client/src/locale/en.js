@@ -205,6 +205,14 @@ const en = {
         login: "login",
         postLogin: " again with a different institution",
     },
+    missingAttributes: {
+        welcome: "Welcome to SURFwelcome",
+        attributes: "Your institution has not provided all required attributes. The following attributes are missing:",
+        info: "If you want more information, please contact <a href='mailto:access@surf.nl'>welcome@surf.nl</a>.",
+        preLogin: "Or ",
+        login: "login",
+        postLogin: " again with a different institution.",
+    },
     invitationAccept: {
         hi: "Hi{{name}},",
         nextStep: "Next: enjoy your new role",

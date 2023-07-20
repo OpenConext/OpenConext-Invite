@@ -75,6 +75,7 @@ public class Invitation implements Serializable {
                       boolean eduIDOnly,
                       String message,
                       User inviter,
+                      Instant expiryDate,
                       Instant roleExpiryDate,
                       @NotEmpty Set<InvitationRole> roles) {
         this.intendedAuthority = intendedAuthority;
@@ -86,9 +87,9 @@ public class Invitation implements Serializable {
         this.status = Status.OPEN;
         this.roles = roles;
         this.email = email;
-        this.expiryDate = Instant.now().plus(Period.ofDays(14));
-        this.createdAt = Instant.now();
+        this.expiryDate = expiryDate == null ? Instant.now().plus(Period.ofDays(14)) : expiryDate;
         this.roleExpiryDate = this.roleExpiryDate(roles, roleExpiryDate, intendedAuthority);
+        this.createdAt = Instant.now();
         roles.forEach(role -> role.setInvitation(this));
     }
 

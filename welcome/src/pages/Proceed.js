@@ -46,7 +46,8 @@ export const Proceed = () => {
                 <section className={"user-role-info"}>
                     <h3>{role.name}</h3>
                     <MoreLessText txt={role.description}/>
-                    <a href={role.landingPage}>{role.landingPage}</a>
+                    <p><a href={role.landingPage}>{role.landingPage}</a></p>
+
                 </section>
             </div>;
         return (

@@ -5,14 +5,11 @@ import access.exception.NotFoundException;
 import access.manage.ManageIdentifier;
 import access.manage.Manage;
 import access.model.Authority;
-import access.model.Role;
 import access.model.User;
-import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.secuirty.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
@@ -37,6 +34,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +76,9 @@ public class UserController {
         result
                 .withAuthenticated(user != null && user.getId() != null)
                 .withName(user != null ? user.getName() : null);
+        if (user != null && user.getId() == null) {
+            verifyMissingAttributes(user, result);
+        }
         return ResponseEntity.ok(result);
     }
 
@@ -159,5 +160,31 @@ public class UserController {
                 .map(identity -> manage.providerById(identity.entityType(), identity.id()))
                 .toList();
     }
+
+    private void verifyMissingAttributes(User user, Config result) {
+        List<String> missingAttributes = new ArrayList<>();
+        if (!StringUtils.hasText(user.getSub())) {
+            missingAttributes.add("sub");
+        }
+        if (!StringUtils.hasText(user.getEduPersonPrincipalName())) {
+            missingAttributes.add("eduPersonPrincipalName");
+        }
+        if (!StringUtils.hasText(user.getEmail())) {
+            missingAttributes.add("email");
+        }
+        if (!StringUtils.hasText(user.getFamilyName())) {
+            missingAttributes.add("familyName");
+        }
+        if (!StringUtils.hasText(user.getGivenName())) {
+            missingAttributes.add("givenName");
+        }
+        if (!StringUtils.hasText(user.getSchacHomeOrganization())) {
+            missingAttributes.add("schacHomeOrganization");
+        }
+        if (!missingAttributes.isEmpty()) {
+            result.withMissingAttributes(missingAttributes);
+        }
+    }
+
 
 }

@@ -55,7 +55,7 @@ public class User implements Serializable, Provisionable {
     private Instant createdAt;
 
     @Column(name = "last_activity")
-    private Instant lastActivity = Instant.now();
+    private Instant lastActivity;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
@@ -90,6 +90,7 @@ public class User implements Serializable, Provisionable {
         this.familyName = familyName;
         this.email = email;
         this.createdAt = Instant.now();
+        this.lastActivity = Instant.now();
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import {allProviders, createRole, deleteRole, roleByID, shortNameExists, updateRole, validate} from "../api";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
+import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as RoleIcon} from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
@@ -199,10 +199,15 @@ export const RoleForm = () => {
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}
                             placeholder={I18n.t("roles.descriptionPlaceHolder")}
+                            error={!initial && isEmpty(role.description)}
                             multiline={true}
                             onChange={e => setRole(
                                 {...role, description: e.target.value})}
                 />
+                {(!initial && isEmpty(role.description)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {
+                        attribute: I18n.t("roles.description").toLowerCase()
+                    })}/>}
 
                 <SelectField name={I18n.t("roles.manage")}
                              value={managementOption}
@@ -216,6 +221,20 @@ export const RoleForm = () => {
                              clearable={false}
                              disabled={options.length === 1}
                              toolTip={I18n.t("tooltips.manageService")}
+                />
+
+                <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
+                          value={role.enforceEmailEquality || false}
+                          info={I18n.t("invitations.enforceEmailEquality")}
+                          onChange={e => setRole({...role, enforceEmailEquality: e.target.checked})}
+                          tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
+                />
+
+                <Checkbox name={I18n.t("invitations.eduIDOnly")}
+                          value={role.eduIDOnly || false}
+                          info={I18n.t("invitations.eduIDOnly")}
+                          onChange={e => setRole({...role, eduIDOnly: e.target.checked})}
+                          tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
                 />
 
                 <InputField name={I18n.t("roles.defaultExpiryDays")}

@@ -3,9 +3,6 @@ package access.mail;
 import access.AbstractMailTest;
 import access.manage.EntityType;
 import access.model.*;
-import jakarta.mail.BodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimeMultipart;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,9 +29,10 @@ class MailBoxTest extends AbstractMailTest {
                 false,
                 "Please join..",
                 user,
+                Instant.now().plus(30, ChronoUnit.DAYS),
                 Instant.now().plus(365, ChronoUnit.DAYS),
-                Set.of(new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365)),
-                        new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365))));
+                Set.of(new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365, false, false)),
+                        new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365, false, false))));
         mailBox.sendInviteMail(user, invitation, List.of(
                 new GroupedProviders(
                         localManage.providerById(EntityType.SAML20_SP, "1"),

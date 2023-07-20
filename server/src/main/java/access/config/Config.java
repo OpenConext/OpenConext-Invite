@@ -1,9 +1,13 @@
 package access.config;
 
+import access.model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
+import java.util.Map;
 
 @ConfigurationProperties(prefix = "config")
 @Getter
@@ -19,6 +23,7 @@ public class Config {
     private String groupUrnPrefix;
     private boolean authenticated;
     private String name;
+    private List<String> missingAttributes;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -37,6 +42,11 @@ public class Config {
 
     public Config withName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public Config withMissingAttributes(List<String> missingAttributes) {
+        this.missingAttributes = missingAttributes;
         return this;
     }
 

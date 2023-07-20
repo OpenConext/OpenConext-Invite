@@ -47,7 +47,8 @@ export const InvitationForm = () => {
                 })
             setLoading(false);
         } else {
-            setRoles(markAndFilterRoles(user, []))
+            const markedRoles = markAndFilterRoles(user, []);
+            setRoles(markedRoles)
         }
         const breadcrumbPath = [
             {path: "/home", value: I18n.t("tabs.home")},
@@ -64,7 +65,12 @@ export const InvitationForm = () => {
             if (initialRole) {
                 const defaultExpiryDays = initialRole.isUserRole ? initialRole.role.defaultExpiryDays : initialRole.defaultExpiryDays;
                 setSelectedRoles([initialRole])
-                setInvitation({...invitation, roleExpiryDate: futureDate(defaultExpiryDays)})
+                setInvitation({
+                    ...invitation,
+                    enforceEmailEquality: initialRole.enforceEmailEquality,
+                    eduIDOnly: initialRole.eduIDOnly,
+                    roleExpiryDate: futureDate(defaultExpiryDays)
+                })
             }
         }
     }, [roles, location.state])// eslint-disable-line react-hooks/exhaustive-deps
@@ -109,9 +115,16 @@ export const InvitationForm = () => {
     const rolesChanged = selectedOptions => {
         if (selectedOptions === null) {
             setSelectedRoles([])
+            setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false})
         } else {
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
+            setInvitation({
+                ...invitation,
+                enforceEmailEquality: newSelectedOptions.some(role => role.enforceEmailEquality),
+                eduIDOnly: newSelectedOptions.some(role => role.eduIDOnly),
+                roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)
+            })
             setInvitation({...invitation, roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)});
         }
     }
@@ -178,14 +191,16 @@ export const InvitationForm = () => {
                 <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
                           value={invitation.enforceEmailEquality || false}
                           info={I18n.t("invitations.enforceEmailEquality")}
-                          onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
+                          readOnly={true}
+                          onChange={() => true}
                           tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                 />
 
                 <Checkbox name={I18n.t("invitations.eduIDOnly")}
                           value={invitation.eduIDOnly || false}
+                          onChange={() => true}
                           info={I18n.t("invitations.eduIDOnly")}
-                          onChange={e => setInvitation({...invitation, eduIDOnly: e.target.checked})}
+                          readOnly={true}
                           tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
                 />
 

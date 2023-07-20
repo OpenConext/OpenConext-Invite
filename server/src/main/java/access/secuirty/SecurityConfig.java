@@ -1,5 +1,5 @@
 package access.secuirty;
-
+import org.springframework.security.oauth2.client.oidc.userinfo.*;
 import access.config.UserHandlerMethodArgumentResolver;
 import access.exception.ExtendedErrorAttributes;
 import access.model.Invitation;
@@ -21,9 +21,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
@@ -40,6 +43,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 
 @EnableWebSecurity
 @EnableScheduling
@@ -132,12 +137,20 @@ public class SecurityConfig {
                                 .authorizationRequestResolver(
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
-                        )
+                        ).userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService()))
                 );
 
         return http.build();
     }
 
+    private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+        final OidcUserService delegate = new OidcUserService();
+
+        return (userRequest) -> {
+            // Delegate to the default implementation for loading a user
+            return delegate.loadUser(userRequest);
+        };
+    }
     private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
             ClientRegistrationRepository clientRegistrationRepository) {
         DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =

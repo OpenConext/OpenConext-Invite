@@ -77,7 +77,8 @@ public class InvitationController implements HasManage {
     @PostMapping("")
     public ResponseEntity<Map<String, Integer>> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                               @Parameter(hidden = true) User user) {
-        if (!invitationRequest.getIntendedAuthority().equals(Authority.SUPER_USER) && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
+        if (!invitationRequest.getIntendedAuthority().equals(Authority.SUPER_USER)
+                && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
             throw new NotAllowedException("Invitation for non-super-user must contain at least one role");
         }
         //We need to assert validations on the roles soo we need to load them
@@ -96,6 +97,7 @@ public class InvitationController implements HasManage {
                         invitationRequest.isEduIDOnly(),
                         invitationRequest.getMessage(),
                         user,
+                        invitationRequest.getExpiryDate(),
                         invitationRequest.getRoleExpiryDate(),
                         requestedRoles.stream()
                                 .map(InvitationRole::new)

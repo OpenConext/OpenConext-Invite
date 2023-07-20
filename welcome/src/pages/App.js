@@ -15,6 +15,8 @@ import NotFound from "./NotFound";
 import {InviteOnly} from "./InviteOnly";
 import {Profile} from "./Profile";
 import {Proceed} from "./Proceed";
+import {isEmpty} from "../utils/Utils";
+import {MissingAttributes} from "./MissingAttributes";
 
 
 export const App = () => {
@@ -34,6 +36,10 @@ export const App = () => {
                         if (!res.name) {
                             const direction = window.location.pathname + window.location.search;
                             localStorage.setItem("location", direction);
+                        } else if (!isEmpty(res.missingAttributes)) {
+                            setLoading(false);
+                            navigate("/missingAttributes");
+                            return;
                         }
                         setLoading(false);
                         const pathname = localStorage.getItem("location") || window.location.pathname;
@@ -90,6 +96,7 @@ export const App = () => {
                                element={<Invitation authenticated={false}/>}/>
                         <Route path="login" element={<Login/>}/>
                         <Route path="deadend" element={<InviteOnly/>}/>
+                        <Route path="missingAttributes" element={<MissingAttributes/>}/>
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>}
             </div>

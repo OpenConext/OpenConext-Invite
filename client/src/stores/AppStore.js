@@ -12,6 +12,7 @@ export const useAppStore = create(set => ({
         set(state => ({impersonator: null, user: state.impersonator}));
     },
     config: {},
+    missingAttributes: [],
     user: {},
     objectRole: "",
     flash: {msg: "", className: "hide", type: "info"},
