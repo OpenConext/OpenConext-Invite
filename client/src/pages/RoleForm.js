@@ -3,7 +3,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
-import {allProviders, createRole, deleteRole, roleByID, shortNameExists, updateRole, validate} from "../api";
+import {allProviders, createRole, deleteRole, me, roleByID, shortNameExists, updateRole, validate} from "../api";
 import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
@@ -104,11 +104,12 @@ export const RoleForm = () => {
     const submit = () => {
         setInitial(false);
         if (isValid()) {
+            setLoading(true);
             const promise = isNewRole ? createRole : updateRole;
             promise(role)
                 .then(res => {
-                    setFlash(I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name}));
-                    navigate(`/roles/${res.id}`);
+                    const flashMessage = I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name});
+                    updateUserIfNecessary(`/roles/${res.id}`, flashMessage);
                 }).catch(handleError);
         }
     }
@@ -129,6 +130,21 @@ export const RoleForm = () => {
         })
     }
 
+    const updateUserIfNecessary = (path, flashMessage) => {
+        if (user.userRoles.some(userRole => userRole.role.id === role.id)) {
+            //We need to refresh the roles of the User to ensure 100% consistency
+            me()
+                .then(res => {
+                    useAppStore.setState(() => ({user: res, authenticated: true}));
+                    navigate(path);
+                    setFlash(flashMessage);
+                });
+        } else {
+            navigate(path);
+            setFlash(flashMessage);
+        }
+    }
+
     const doDelete = showConfirmation => {
         if (showConfirmation) {
             setConfirmation({
@@ -142,11 +158,11 @@ export const RoleForm = () => {
             });
             setConfirmationOpen(true);
         } else {
+            setLoading(true);
             deleteRole(role)
                 .then(() => {
                     setConfirmationOpen(false);
-                    navigate("/home/roles");
-                    setFlash(I18n.t("roles.deleteFlash", {name: role.name}));
+                    updateUserIfNecessary("/home/roles", I18n.t("roles.deleteFlash", {name: role.name}));
                 }).catch(handleError)
         }
     };
@@ -295,7 +311,7 @@ export const RoleForm = () => {
             {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
-                                                     confirmationTxt ={confirmation.confirmationTxt}
+                                                     confirmationTxt={confirmation.confirmationTxt}
                                                      confirmationHeader={confirmation.confirmationHeader}
                                                      isWarning={confirmation.warning}
                                                      isError={confirmation.error}

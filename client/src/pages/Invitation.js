@@ -33,7 +33,8 @@ export const Invitation = ({authenticated}) => {
             .then(res => {
                 setInvitationMeta(res);
                 if (res.invitation.status !== "OPEN") {
-                    navigate("/home");
+                    localStorage.removeItem("location");
+                    navigate("/");
                     return;
                 }
                 const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
@@ -49,7 +50,6 @@ export const Invitation = ({authenticated}) => {
                         })
                         .catch(e => {
                             setLoading(false);
-                            localStorage.removeItem(MAY_ACCEPT);
                             if (e.response && e.response.status === 412) {
                                 setConfirmation({
                                     cancel: null,
@@ -63,8 +63,10 @@ export const Invitation = ({authenticated}) => {
                                     confirmationHeader: I18n.t("confirmationDialog.error"),
                                     confirmationTxt: I18n.t("invitationAccept.login")
                                 });
+                                localStorage.setItem(MAY_ACCEPT, "true");
                                 setConfirmationOpen(true);
                             } else {
+                                localStorage.removeItem(MAY_ACCEPT);
                                 handleError(e);
                             }
 

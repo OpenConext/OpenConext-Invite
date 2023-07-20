@@ -27,6 +27,7 @@ export const Proceed = () => {
             const hashParam = getParameterByName("hash", window.location.search);
             invitationByHash(hashParam)
                 .then(res => {
+
                     setReloadedInvitationMeta(res);
                     setLoading(false);
                 })
