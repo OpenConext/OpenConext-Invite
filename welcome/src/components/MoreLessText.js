@@ -6,7 +6,7 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 export const MoreLessText = ({txt}) => {
 
     const [showMore, setShowMore] = useState(!isEmpty(txt) && txt.length > 190
-        && txt.substring(190).indexOf(" ") > 0);
+        && txt.substring(190).indexOf(" ") > -1);
     const [showLess, setShowLess] = useState(false);
 
     const toggleShowMore = e => {

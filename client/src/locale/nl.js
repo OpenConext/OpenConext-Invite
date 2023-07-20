@@ -220,6 +220,7 @@ const nl = {
         expiredInfo: "Please contact <a href='mailto:{{email}}'>{{email}}</a> and ask this person to send you a new invite.",
         invited: "You have been invited to become {{authority}} for the {{plural}} {{roles}} by {{inviter}}",
         invitedNoRoles: "You have been invited to become {{authority}} by {{inviter}}",
+        enforceEmailEquality: " This invite can only be accepted by <strong>{{email}}</strong>.",
         role: "role",
         roles: "roles",
         progress: "1",
