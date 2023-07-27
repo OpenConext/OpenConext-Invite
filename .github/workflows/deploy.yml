@@ -21,6 +21,22 @@ jobs:
       with:
         maven-version: 3.8.7
 
+    - name: Determine the version
+      run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+      id: versioncheck
+
+    - name: Exit when workflow_dispatch is triggered, and the version does not contain SNAPSHOT in it's name
+      run: |
+        echo "Only SNAPSHOT releases can be triggered with the workflow_dispatch"
+        exit 1
+      if: github.event_name == 'workflow_dispatch' && ( !endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
+
+    - name: Exit when a production build is triggered, and the github tag is not the same as the version in pom.xml
+      run: |
+        echo echo "Project version ${{ steps.versioncheck.outputs.version }} does not match git tag ${{ github.ref_name }}"
+        exit 1
+      if: github.event_name != 'workflow_dispatch' && steps.versioncheck.outputs.version != github.ref_name  
+    
     - name: Set up JDK 17 for snapshots
       uses: actions/setup-java@v3
       with:
@@ -28,7 +44,9 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
         server-id: openconext-snapshots
-      if: ${{ github.ref_name == '*-SNAPSHOT' }}
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+      if: ( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
     
     - name: Set up JDK 17 for releases
       uses: actions/setup-java@v3
@@ -37,7 +55,9 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
         server-id: openconext-releases
-      if: ${{ github.ref_name != '*-SNAPSHOT' }}
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+      if: ${{!( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
 
     - name: Set up cache
       uses: actions/cache@v1
@@ -48,7 +68,10 @@ jobs:
           ${{ runner.os }}-maven-
    
     - name: Deploy with Maven
-      run: mvn --batch-mode install -DskipTests
+      run: mvn --batch-mode deploy -DskipTests
+      env:
+        MAVEN_USERNAME: ${{ secrets.BUILD_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.BUILD_PASSWORD }}
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -69,6 +92,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessserver:latest
+          ghcr.io/openconext/openconext-access/accessserver:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the client image
       uses: docker/build-push-action@v4
@@ -79,6 +103,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessclient:latest
+          ghcr.io/openconext/openconext-access/accessclient:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the welcome image
       uses: docker/build-push-action@v4
@@ -89,6 +114,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessswelcome:latest
+          ghcr.io/openconext/openconext-access/accessswelcome:${{ steps.versioncheck.outputs.version }}
 
     - name: Build and push the provisioning mock image
       uses: docker/build-push-action@v4
@@ -99,3 +125,4 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accesssprovisioningmock:latest
+          ghcr.io/openconext/openconext-access/accesssprovisioningmock:${{ steps.versioncheck.outputs.version }}
