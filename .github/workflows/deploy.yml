@@ -21,6 +21,10 @@ jobs:
       with:
         maven-version: 3.8.7
 
+    - name: Determine the version
+      run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+      id: versioncheck
+
     - name: Set up JDK 17 for snapshots
       uses: actions/setup-java@v3
       with:
@@ -28,7 +32,7 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
         server-id: openconext-snapshots
-      if: ${{ github.ref_name == '*-SNAPSHOT' }}
+      if: ${{ steps.versioncheck.outputs.version == '*-SNAPSHOT' }}
     
     - name: Set up JDK 17 for releases
       uses: actions/setup-java@v3
@@ -37,7 +41,7 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
         server-id: openconext-releases
-      if: ${{ github.ref_name != '*-SNAPSHOT' }}
+      if: ${{ steps.versioncheck.outputs.version != '*-SNAPSHOT' }}
 
     - name: Set up cache
       uses: actions/cache@v1
@@ -69,6 +73,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessserver:latest
+          ghcr.io/openconext/openconext-access/accessserver:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the client image
       uses: docker/build-push-action@v4
@@ -79,6 +84,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessclient:latest
+          ghcr.io/openconext/openconext-access/accessclient:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the welcome image
       uses: docker/build-push-action@v4
@@ -89,6 +95,7 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accessswelcome:latest
+          ghcr.io/openconext/openconext-access/accessswelcome:${{ steps.versioncheck.outputs.version }}
 
     - name: Build and push the provisioning mock image
       uses: docker/build-push-action@v4
@@ -99,3 +106,4 @@ jobs:
         push: true
         tags: |
           ghcr.io/openconext/openconext-access/accesssprovisioningmock:latest
+          ghcr.io/openconext/openconext-access/accesssprovisioningmock:${{ steps.versioncheck.outputs.version }}
