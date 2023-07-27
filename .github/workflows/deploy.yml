@@ -41,7 +41,7 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
         server-id: openconext-releases
-      if: ${{( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
+      if: ${{!( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
 
     - name: Set up cache
       uses: actions/cache@v1
