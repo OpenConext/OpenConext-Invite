@@ -29,7 +29,6 @@ jobs:
       run: |
         echo "Only SNAPSHOT releases can be triggered with the workflow_dispatch"
         exit 1
-           
       if: github.event_name == 'workflow_dispatch' && ( !endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
 
     - name: Set up JDK 17 for snapshots
@@ -58,59 +57,59 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
    
-#    - name: Deploy with Maven
-#      run: mvn --batch-mode deploy -DskipTests
-#    
-#    - name: Set up Docker Buildx
-#      uses: docker/setup-buildx-action@v2
-#
-#    - name: Login to GitHub Container Registry
-#      uses: docker/login-action@v2
-#      with:
-#        registry: ghcr.io
-#        username: ${{ github.repository_owner }}
-#        password: ${{ secrets.GITHUB_TOKEN }}
-#      
-#    - name: Build and push the server image
-#      uses: docker/build-push-action@v4
-#      with:
-#        context: server
-#        file: server/docker/Dockerfile
-#        platforms: linux/amd64
-#        push: true
-#        tags: |
-#          ghcr.io/openconext/openconext-access/accessserver:latest
-#          ghcr.io/openconext/openconext-access/accessserver:${{ steps.versioncheck.outputs.version }}
-#    
-#    - name: Build and push the client image
-#      uses: docker/build-push-action@v4
-#      with:
-#        context: client
-#        file: client/docker/Dockerfile
-#        platforms: linux/amd64
-#        push: true
-#        tags: |
-#          ghcr.io/openconext/openconext-access/accessclient:latest
-#          ghcr.io/openconext/openconext-access/accessclient:${{ steps.versioncheck.outputs.version }}
-#    
-#    - name: Build and push the welcome image
-#      uses: docker/build-push-action@v4
-#      with:
-#        context: welcome
-#        file: welcome/docker/Dockerfile
-#        platforms: linux/amd64
-#        push: true
-#        tags: |
-#          ghcr.io/openconext/openconext-access/accessswelcome:latest
-#          ghcr.io/openconext/openconext-access/accessswelcome:${{ steps.versioncheck.outputs.version }}
-#
-#    - name: Build and push the provisioning mock image
-#      uses: docker/build-push-action@v4
-#      with:
-#        context: provisioning-mock
-#        file: provisioning-mock/docker/Dockerfile
-#        platforms: linux/amd64
-#        push: true
-#        tags: |
-#          ghcr.io/openconext/openconext-access/accesssprovisioningmock:latest
-#          ghcr.io/openconext/openconext-access/accesssprovisioningmock:${{ steps.versioncheck.outputs.version }}
+    - name: Deploy with Maven
+      run: mvn --batch-mode deploy -DskipTests
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: Build and push the server image
+      uses: docker/build-push-action@v4
+      with:
+        context: server
+        file: server/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessserver:latest
+          ghcr.io/openconext/openconext-access/accessserver:${{ steps.versioncheck.outputs.version }}
+    
+    - name: Build and push the client image
+      uses: docker/build-push-action@v4
+      with:
+        context: client
+        file: client/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessclient:latest
+          ghcr.io/openconext/openconext-access/accessclient:${{ steps.versioncheck.outputs.version }}
+    
+    - name: Build and push the welcome image
+      uses: docker/build-push-action@v4
+      with:
+        context: welcome
+        file: welcome/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessswelcome:latest
+          ghcr.io/openconext/openconext-access/accessswelcome:${{ steps.versioncheck.outputs.version }}
+
+    - name: Build and push the provisioning mock image
+      uses: docker/build-push-action@v4
+      with:
+        context: provisioning-mock
+        file: provisioning-mock/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accesssprovisioningmock:latest
+          ghcr.io/openconext/openconext-access/accesssprovisioningmock:${{ steps.versioncheck.outputs.version }}
