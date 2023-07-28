@@ -37,7 +37,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: 'maven'
-        server-id: openconext-snapshots
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD    
       if: ( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
     
     - name: Set up JDK 17 for releases
@@ -47,6 +48,8 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
         server-id: openconext-releases
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD    
       if: ${{!( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
 
     - name: Set up cache
