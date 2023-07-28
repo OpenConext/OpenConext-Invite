@@ -91,7 +91,6 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accessserver:latest
           ghcr.io/openconext/openconext-access/accessserver:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the client image
@@ -102,7 +101,6 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accessclient:latest
           ghcr.io/openconext/openconext-access/accessclient:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the welcome image
@@ -113,7 +111,6 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accessswelcome:latest
           ghcr.io/openconext/openconext-access/accessswelcome:${{ steps.versioncheck.outputs.version }}
 
     - name: Build and push the provisioning mock image
@@ -124,5 +121,4 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accesssprovisioningmock:latest
           ghcr.io/openconext/openconext-access/accesssprovisioningmock:${{ steps.versioncheck.outputs.version }}
