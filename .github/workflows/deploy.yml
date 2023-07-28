@@ -25,6 +25,10 @@ jobs:
       run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
       id: versioncheck
 
+    - name: Exit when workflow_dispatch is triggered, and the version does not contain SNAPSHOT in it's name
+      run: echo "Only SNAPSHOT releases can be triggered with the workflow_dispatch"
+      if: github.event_name == 'workflow_dispatch' && ( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
+
     - name: Set up JDK 17 for snapshots
       uses: actions/setup-java@v3
       with:
