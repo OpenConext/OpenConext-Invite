@@ -26,7 +26,10 @@ jobs:
       id: versioncheck
 
     - name: Exit when workflow_dispatch is triggered, and the version does not contain SNAPSHOT in it's name
-      run: echo "Only SNAPSHOT releases can be triggered with the workflow_dispatch"
+      run: |
+        echo "Only SNAPSHOT releases can be triggered with the workflow_dispatch"
+        exit 1
+           
       if: github.event_name == 'workflow_dispatch' && ( !endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
 
     - name: Set up JDK 17 for snapshots
