@@ -20,6 +20,14 @@ jobs:
       uses: stCarolas/setup-maven@v.4.5
       with:
         maven-version: 3.8.7
+    
+    - name: Set up cache
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
 
     - name: Determine the version
       run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
@@ -59,14 +67,6 @@ jobs:
         server-password: MAVEN_PASSWORD
       if: ${{!( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
 
-    - name: Set up cache
-      uses: actions/cache@v1
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
-   
     - name: Deploy with Maven
       run: mvn --batch-mode deploy -DskipTests
       env:
