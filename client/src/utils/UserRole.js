@@ -1,5 +1,12 @@
 import {isEmpty} from "./Utils";
 
+export const INVITATION_STATUS = {
+    OPEN: "OPEN",
+    ACCEPTED: "ACCEPTED",
+    EXPIRED: "EXPIRED"
+}
+
+
 export const AUTHORITIES = {
     SUPER_USER: "SUPER_USER",
     MANAGER: "MANAGER",

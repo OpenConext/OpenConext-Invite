@@ -148,6 +148,7 @@ const en = {
         status: "Status",
         open: "Open",
         accepted: "Accepted",
+        expired: "Expired",
         enforceEmailEquality: "Email equality",
         eduIDOnly: "eduID only",
         new: "New invite",

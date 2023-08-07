@@ -26,10 +26,10 @@ public class ResourceCleaner {
     private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
 
     private final UserRepository userRepository;
-    private final boolean cronJobResponsible;
-    private final int lastActivityDurationDays;
     private final ProvisioningService provisioningService;
     private final UserRoleRepository userRoleRepository;
+    private final boolean cronJobResponsible;
+    private final int lastActivityDurationDays;
 
     @Autowired
     public ResourceCleaner(UserRepository userRepository,

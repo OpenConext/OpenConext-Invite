@@ -47,7 +47,7 @@ export const User = ({user}) => {
                 </section>
             </div>;
         return (
-            <Card cardType={CardType.Big} children={children}/>
+            <Card cardType={CardType.Big} children={children} key={index}/>
         );
     }
 

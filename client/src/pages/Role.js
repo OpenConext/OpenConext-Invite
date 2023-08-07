@@ -57,7 +57,8 @@ export const Role = () => {
                           name="invitations"
                           label={I18n.t("tabs.invitations")}
                           Icon={InvitationLogo}>
-                        <Invitations role={res[0]} invitations={res[2].filter(invitation => allowedToDeleteInvitation(user, invitation))}/>
+                        <Invitations role={res[0]}
+                                     invitations={res[2].filter(invitation => allowedToDeleteInvitation(user, invitation))}/>
                     </Page>
                 ];
                 setTabs(newTabs);

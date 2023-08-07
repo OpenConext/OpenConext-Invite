@@ -1,9 +1,6 @@
 package access.logging;
 
-import access.model.Invitation;
-import access.model.InvitationRole;
-import access.model.Role;
-import access.model.User;
+import access.model.*;
 import org.apache.commons.logging.Log;
 import org.slf4j.MDC;
 
@@ -24,6 +21,18 @@ public class AccessLogger {
                 "roleId", role.getId().toString()
         ));
         log.info(String.format("%s role %s", event, role.getName()));
+    }
+
+    public static void userRole(Log log, Event event, User user, UserRole userRole) {
+        Role role = userRole.getRole();
+        MDC.setContextMap(Map.of(
+                "type", String.format("%s UserRole", event),
+                "userId", user.getSub(),
+                "applicationId", role.getManageId(),
+                "applicationType", role.getManageType().collectionName(),
+                "roleId", role.getId().toString()
+        ));
+        log.info(String.format("%s userRole %s", event, role.getName()));
     }
 
     public static void invitation(Log log, Event event, Invitation invitation) {

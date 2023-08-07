@@ -1,6 +1,6 @@
 import {isEmpty} from "./Utils";
 import {ChipType} from "@surfnet/sds";
-import {AUTHORITIES} from "./UserRole";
+import {AUTHORITIES, INVITATION_STATUS} from "./UserRole";
 
 export const chipTypeForUserRole = authority => {
     if (isEmpty(authority)) {
@@ -15,6 +15,20 @@ export const chipTypeForUserRole = authority => {
             return ChipType.Support_100;
         case AUTHORITIES.GUEST:
             return ChipType.Status_default;
+        default:
+            return ChipType.Status_default;
+    }
+}
+
+export const chipTypeForInvitationStatus = invitation => {
+    const status = invitation.status;
+    switch (status) {
+        case INVITATION_STATUS.OPEN:
+            return ChipType.Status_info;
+        case INVITATION_STATUS.ACCEPTED:
+            return ChipType.Status_success;
+        case INVITATION_STATUS.EXPIRED:
+            return ChipType.Status_error;
         default:
             return ChipType.Status_default;
     }

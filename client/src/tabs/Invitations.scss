@@ -23,6 +23,7 @@
 
                 &.status {
                     width: 8%;
+                    text-align: center;
                 }
 
                 &.createdAt {
@@ -54,6 +55,10 @@
                 }
 
                 &.authority {
+                    text-align: center;
+                }
+
+                &.status {
                     text-align: center;
                 }
 

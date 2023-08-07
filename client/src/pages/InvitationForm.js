@@ -29,13 +29,12 @@ export const InvitationForm = () => {
         invites: [],
         intendedAuthority: AUTHORITIES.GUEST
     });
-    const {user, setFlash} = useAppStore(state => state);
+    const {user, setFlash, config} = useAppStore(state => state);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
     const required = ["intendedAuthority", "invites"];
 
     useEffect(() => {
-        console.log("useEffect")
         if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
             navigate("/404");
             return;
@@ -187,6 +186,7 @@ export const InvitationForm = () => {
                 <DateField value={invitation.roleExpiryDate}
                            onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
                            showYearDropdown={true}
+                           pastDatesAllowed={config.pastDateAllowed}
                            allowNull={invitation.intendedAuthority !== AUTHORITIES.GUEST}
                            minDate={futureDate(1, invitation.expiryDate)}
                            name={I18n.t("invitations.roleExpiryDate")}
@@ -216,6 +216,7 @@ export const InvitationForm = () => {
                 <DateField value={invitation.expiryDate}
                            onChange={e => setInvitation({...invitation, expiryDate: e})}
                            showYearDropdown={true}
+                           pastDatesAllowed={config.pastDateAllowed}
                            minDate={futureDate(1)}
                            maxDate={futureDate(30)}
                            name={I18n.t("invitations.expiryDate")}
