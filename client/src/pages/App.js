@@ -22,6 +22,7 @@ import {RoleForm} from "./RoleForm";
 import {InvitationForm} from "./InvitationForm";
 import {isEmpty} from "../utils/Utils";
 import {MissingAttributes} from "./MissingAttributes";
+import {System} from "./System";
 
 
 export const App = () => {
@@ -98,6 +99,7 @@ export const App = () => {
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>
                         <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
+                        <Route path="system/:tab?" element={<System/>}/>
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>}
                 {/*  <Route path="invitations" element={<Invitation user={user}/>}/>*/}

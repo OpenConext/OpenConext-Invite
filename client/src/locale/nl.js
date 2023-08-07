@@ -44,7 +44,8 @@ const nl = {
         invitations: "Invitations",
         roles: "Roles",
         profile: "Profile",
-        userRoles: "User roles"
+        userRoles: "User roles",
+        cron: "Cron"
     },
     home: {
         access: "SURFwelcome",
