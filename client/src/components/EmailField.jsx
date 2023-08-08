@@ -114,6 +114,7 @@ export default function EmailField({
 
                     </div>)}
                 <textarea id="email-field"
+                          inputMode="email"
                           value={value}
                           ref={refContainer}
                           onChange={internalOnChange}
