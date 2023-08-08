@@ -15,9 +15,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.Period;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,10 +28,10 @@ public class ResourceCleaner {
     private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
 
     private final UserRepository userRepository;
-    private final boolean cronJobResponsible;
-    private final int lastActivityDurationDays;
     private final ProvisioningService provisioningService;
     private final UserRoleRepository userRoleRepository;
+    private final boolean cronJobResponsible;
+    private final int lastActivityDurationDays;
 
     @Autowired
     public ResourceCleaner(UserRepository userRepository,
@@ -50,12 +52,17 @@ public class ResourceCleaner {
         if (!cronJobResponsible) {
             return;
         }
-        cleanNonActiveUsers();
-        cleanOrphanedUser();
-        cleanUserRoles();
+        doClean();
     }
 
-    private void cleanNonActiveUsers() {
+    public Map<String, List<? extends Serializable>> doClean() {
+        List<User> users = cleanNonActiveUsers();
+        List<User> orphans = cleanOrphanedUser();
+        List<UserRole> userRoles = cleanUserRoles();
+        return Map.of("users", users, "orphans", orphans, "userRoles", userRoles)
+    }
+
+    private List<User> cleanNonActiveUsers() {
         Instant past = Instant.now().minus(Period.ofDays(lastActivityDurationDays));
         List<User> users = userRepository.findByLastActivityBefore(past);
 
@@ -66,9 +73,11 @@ public class ResourceCleaner {
 
         users.forEach(provisioningService::deleteUserRequest);
         userRepository.deleteAll(users);
+
+        return users;
     }
 
-    private void cleanOrphanedUser() {
+    private List<User> cleanOrphanedUser() {
         List<User> orphans = userRepository.findNonSuperUserWithoutUserRoles();
 
         LOG.info(String.format("Deleted %s non-super users with no userRoles; %s",
@@ -77,9 +86,11 @@ public class ResourceCleaner {
 
         orphans.forEach(provisioningService::deleteUserRequest);
         userRepository.deleteAll(orphans);
+
+        return orphans;
     }
 
-    private void cleanUserRoles() {
+    private List<UserRole> cleanUserRoles() {
         List<UserRole> userRoles = userRoleRepository.findByEndDateBefore(Instant.now());
 
         LOG.info(String.format("Deleted %s userRoles with an endDate in the past: %s",
@@ -95,7 +106,7 @@ public class ResourceCleaner {
             user.removeUserRole(userRole);
             userRepository.save(user);
         });
-
+        return userRoles;
 
     }
 

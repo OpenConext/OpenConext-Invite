@@ -30,6 +30,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -122,7 +123,7 @@ public class InvitationController implements HasManage {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
 
-        AccessLogger.invitation(LOG,Event.Deleted, invitation);
+        AccessLogger.invitation(LOG, Event.Deleted, invitation);
         invitationRepository.delete(invitation);
 
         return Results.deleteResult();
@@ -141,7 +142,12 @@ public class InvitationController implements HasManage {
         List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
 
         mailBox.sendInviteMail(user, invitation, groupedProviders);
-        AccessLogger.invitation(LOG,Event.Resend, invitation);
+        if (invitation.getExpiryDate().isBefore(Instant.now())) {
+            invitation.setExpiryDate(Instant.now().plus(Period.ofDays(14)));
+            invitationRepository.save(invitation);
+        }
+
+        AccessLogger.invitation(LOG, Event.Resend, invitation);
 
         return Results.createResult();
     }
@@ -185,7 +191,7 @@ public class InvitationController implements HasManage {
 
         invitation.setStatus(Status.ACCEPTED);
         invitationRepository.save(invitation);
-        AccessLogger.invitation(LOG,Event.Accepted, invitation);
+        AccessLogger.invitation(LOG, Event.Accepted, invitation);
 
         /*
          * Chicken & egg problem. The user including his / hers roles must be first provisioned, and then we
@@ -215,7 +221,7 @@ public class InvitationController implements HasManage {
                     }
                 });
         userRepository.save(user);
-        AccessLogger.user(LOG,Event.Created, user);
+        AccessLogger.user(LOG, Event.Created, user);
 
         //Already provisioned users in the remote systems are ignored / excluded
         provisioningService.newUserRequest(user);

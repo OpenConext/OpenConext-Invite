@@ -108,7 +108,7 @@ public class UserController {
         LOG.debug("/search");
         UserPermissions.assertSuperUser(user);
         List<User> users = query.equals("owl") ? userRepository.findAll() :
-                userRepository.search(query.replaceAll("@", "") + "*", 15);
+                userRepository.search(query.replaceAll("@", " ") + "*", 15);
         return ResponseEntity.ok(users);
     }
 

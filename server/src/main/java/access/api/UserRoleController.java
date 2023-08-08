@@ -3,6 +3,9 @@ package access.api;
 import access.config.Config;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
+import access.logging.AccessLogger;
+import access.logging.Event;
+import access.manage.Manage;
 import access.model.*;
 import access.repository.RoleRepository;
 import access.repository.UserRoleRepository;
@@ -64,5 +67,17 @@ public class UserRoleController {
         userRoleRepository.save(userRole);
         return Results.createResult();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUserRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
+        LOG.debug("/deleteUserRole");
+        UserRole userRole = userRoleRepository.findById(id).orElseThrow(NotFoundException::new);
+        Authority requiredAuthority = userRole.getAuthority().nextAuthorityInHierarchy();
+        UserPermissions.assertValidInvitation(user, requiredAuthority, List.of(userRole.getRole()));
+        userRoleRepository.delete(userRole);
+        AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
+        return Results.deleteResult();
+    }
+
 
 }

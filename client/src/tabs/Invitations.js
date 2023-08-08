@@ -6,12 +6,13 @@ import {Entities} from "../components/Entities";
 import "./Users.scss";
 import {dateFromEpoch} from "../utils/Date";
 
-import {chipTypeForUserRole} from "../utils/Authority";
+import {chipTypeForInvitationStatus, chipTypeForUserRole} from "../utils/Authority";
 import {useNavigate} from "react-router-dom";
 import {deleteInvitation, resendInvitation} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
+import {INVITATION_STATUS} from "../utils/UserRole";
 
 
 export const Invitations = ({role, invitations}) => {
@@ -26,10 +27,13 @@ export const Invitations = ({role, invitations}) => {
     const [confirmationOpen, setConfirmationOpen] = useState(false);
 
     useEffect(() => {
-            console.log("useEffect ")
-            invitations.forEach(invitation => invitation.intendedRoles = invitation.roles
-                .sort((r1, r2) => r1.role.name.localeCompare(r2.role.name))
-                .map(role => role.role.name).join(", "));
+            invitations.forEach(invitation => {
+                invitation.intendedRoles = invitation.roles
+                    .sort((r1, r2) => r1.role.name.localeCompare(r2.role.name))
+                    .map(role => role.role.name).join(", ");
+                const now = new Date();
+                invitation.status = new Date(invitation.expiryDate * 1000) < now ? INVITATION_STATUS.EXPIRED : invitation.status;
+            });
             setSelectedInvitations(invitations
                 .reduce((acc, invitation) => {
                     acc[invitation.id] = {
@@ -181,7 +185,8 @@ export const Invitations = ({role, invitations}) => {
         {
             key: "status",
             header: I18n.t("invitations.status"),
-            mapper: invitation => <span>{I18n.t(`invitations.${invitation.status.toLowerCase()}`)}</span>
+            mapper: invitation => <Chip type={chipTypeForInvitationStatus(invitation)}
+                                        label={I18n.t(`invitations.${invitation.status.toLowerCase()}`)}/>
         },
         {
             key: "createdAt",

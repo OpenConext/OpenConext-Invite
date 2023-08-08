@@ -17,6 +17,8 @@ import {organisationName} from "../utils/Manage";
 
 const MAY_ACCEPT = "mayAccept";
 
+let runOnce = false;
+
 export const Invitation = ({authenticated}) => {
 
     const navigate = useNavigate();
@@ -30,13 +32,18 @@ export const Invitation = ({authenticated}) => {
 
     useEffect(() => {
         const hashParam = getParameterByName("hash", window.location.search);
+        if (runOnce) {
+            return;
+        }
+        runOnce = true;
         invitationByHash(hashParam)
             .then(res => {
                     setInvitationMeta(res);
                     useAppStore.setState(() => ({
                         invitationMeta: res
                     }));
-                    if (res.invitation.status !== "OPEN") {
+                    const status = res.invitation.status;
+                    if (status !== "OPEN") {
                         navigate(`/profile`);
                     } else {
                         const mayAccept = localStorage.getItem(MAY_ACCEPT);
@@ -81,7 +88,7 @@ export const Invitation = ({authenticated}) => {
                                 )
                         } else {
                             localStorage.setItem(MAY_ACCEPT, "true");
-                            setExpired(DateTime.now().toJSDate() > new Date(res["invitation"].expiryDate * 1000));
+                            setExpired(new Date() > new Date(res["invitation"].expiryDate * 1000));
                             setLoading(false);
                         }
                     }
@@ -98,7 +105,7 @@ export const Invitation = ({authenticated}) => {
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
-    }, [navigate, config, user]);
+    }, [config]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleError = e => {
         e.response.json().then(j => {
@@ -163,8 +170,8 @@ export const Invitation = ({authenticated}) => {
                     </div>
                     {!authenticated && <p className="info"
                                           dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
-                    <p className="info"
-                       dangerouslySetInnerHTML={{__html: I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}}/>
+                    {invitation.eduIDOnly && <p className="info">{I18n.t("invitationAccept.infoLoginEduIDOnly")}</p>}
+                    {!invitation.eduIDOnly && <p className="info">{I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}</p>}
                     <Button onClick={proceed}
                             txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
                             centralize={true}/>

@@ -19,7 +19,6 @@ export const Profile = () => {
                 {value: I18n.t("header.links.profile")}
             ]
         });
-
     }, [currentUser]);
 
     if (loading) {

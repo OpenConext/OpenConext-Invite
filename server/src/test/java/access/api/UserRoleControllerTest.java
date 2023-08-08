@@ -84,4 +84,41 @@ class UserRoleControllerTest extends AbstractTest {
                 .then()
                 .statusCode(409);
     }
+
+    @Test
+    void deleteUserRole() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
+        UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.GUEST)).findFirst().get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("userRoleId", guestUserRole.getId())
+                .delete("/api/v1/user_roles/{userRoleId}")
+                .then()
+                .statusCode(204);
+
+        List<UserRole> newUserRoles = userRoleRepository.findByRoleName("Wiki");
+        assertEquals(userRoles.size(), newUserRoles.size() + 1);
+    }
+
+    @Test
+    void deleteUserRoleNotAllowed() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
+        UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.MANAGER)).findFirst().get();
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("userRoleId", guestUserRole.getId())
+                .delete("/api/v1/user_roles/{userRoleId}")
+                .then()
+                .statusCode(403);
+    }
 }

@@ -77,6 +77,7 @@ config:
   server-welcome-url: "http://localhost:8080"
   eduid-entity-id: "https://login.test2.eduid.nl"
   role-search-required: false
+  past-date-allowed: false
 
 voot:
   user: voot

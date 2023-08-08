@@ -1,0 +1,9 @@
+@import "../styles/mixins";
+
+.mod-cron-container {
+    background-color: white;
+
+    .mod-cron {
+        @include page;
+    }
+}

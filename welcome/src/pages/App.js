@@ -41,7 +41,8 @@ export const App = () => {
                             return;
                         }
                         setLoading(false);
-                        const pathname = localStorage.getItem("location") || window.location.pathname;
+                        const locationStored = localStorage.getItem("location");
+                        const pathname = locationStored || window.location.pathname;
                         if (res.name && !pathname.startsWith("/invitation/accept")) {
                             navigate("/deadend");
                         } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept")) {
@@ -61,10 +62,11 @@ export const App = () => {
                                 navigate(newLocation);
                             });
                     }
-                }).catch(() => {
-                setLoading(false);
-                navigate("/deadend");
-            })
+                })
+                .catch(() => {
+                    setLoading(false);
+                    navigate("/deadend");
+                })
         })
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

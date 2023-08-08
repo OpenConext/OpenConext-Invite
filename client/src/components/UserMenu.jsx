@@ -52,7 +52,7 @@ export const UserMenu = ({user, config, actions}) => {
         )
     }
 
-    const adminLinks = [];
+    const adminLinks = ["system"];
     return (
         <div className="user-menu"
              tabIndex={1}
