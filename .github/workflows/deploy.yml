@@ -1,23 +1,51 @@
-name: Deploy
+name: Maven install
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "*"
-  workflow_dispatch:
 
 jobs:
   deployment:
+    permissions:
+      packages: write
     environment: deploy
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup Maven
       uses: stCarolas/setup-maven@v.4.5
       with:
         maven-version: 3.8.7
-    - name: Set up JDK 17
+    
+    - name: Set up cache
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Determine the version
+      run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+      id: versioncheck
+
+    - name: Exit when workflow_dispatch is triggered, and the version does not contain SNAPSHOT in it's name
+      run: |
+        echo "Only SNAPSHOT releases can be triggered with the workflow_dispatch"
+        exit 1
+      if: github.event_name == 'workflow_dispatch' && ( !endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
+
+    - name: Exit when a production build is triggered, and the github tag is not the same as the version in pom.xml
+      run: |
+        echo echo "Project version ${{ steps.versioncheck.outputs.version }} does not match git tag ${{ github.ref_name }}"
+        exit 1
+      if: github.event_name != 'workflow_dispatch' && steps.versioncheck.outputs.version != github.ref_name  
+    
+    - name: Set up JDK 17 for snapshots
       uses: actions/setup-java@v3
       with:
         java-version: '17'
@@ -26,21 +54,71 @@ jobs:
         server-id: openconext-snapshots
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
-    - name: Set up cache
-      uses: actions/cache@v1
+      if: ( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) 
+    
+    - name: Set up JDK 17 for releases
+      uses: actions/setup-java@v3
       with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
-    - name: Check settings.xml
-      run: cat $HOME/.m2/settings.xml
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+        server-id: openconext-releases
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+      if: ${{!( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
+
     - name: Deploy with Maven
       run: mvn --batch-mode deploy -DskipTests
       env:
         MAVEN_USERNAME: ${{ secrets.BUILD_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.BUILD_PASSWORD }}
-  build-push-docker-image:       
-      needs: deployment
-      uses: ./.github/workflows/build-push-docker-image.yml
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: Build and push the server image
+      uses: docker/build-push-action@v4
+      with:
+        context: server
+        file: server/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessserver:${{ steps.versioncheck.outputs.version }}
+    
+    - name: Build and push the client image
+      uses: docker/build-push-action@v4
+      with:
+        context: client
+        file: client/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessclient:${{ steps.versioncheck.outputs.version }}
+    
+    - name: Build and push the welcome image
+      uses: docker/build-push-action@v4
+      with:
+        context: welcome
+        file: welcome/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accessswelcome:${{ steps.versioncheck.outputs.version }}
+
+    - name: Build and push the provisioning mock image
+      uses: docker/build-push-action@v4
+      with:
+        context: provisioning-mock
+        file: provisioning-mock/docker/Dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ghcr.io/openconext/openconext-access/accesssprovisioningmock:${{ steps.versioncheck.outputs.version }}
