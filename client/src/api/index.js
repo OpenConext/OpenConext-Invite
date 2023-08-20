@@ -189,3 +189,8 @@ export function validate(type, value) {
     return isEmpty(value) ? Promise.resolve({valid: true}) :
         postPutJson("/api/v1/validations/validate", {type, value}, "POST");
 }
+
+//System
+export function cron() {
+    return fetchJson("/api/v1/system/cron")
+}

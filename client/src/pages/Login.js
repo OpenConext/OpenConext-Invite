@@ -8,14 +8,22 @@ import {login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty} from "../utils/Utils";
 import {useLocation} from "react-router-dom";
+import {useState} from "react";
 
 export const Login = () => {
     const location = useLocation();
+    const [spin, setSpin] = useState(false);
+
     const config = useAppStore((state) => state.config);
 
     const doLogin = () => {
         const force = location.state === "force";
         login(config, !isEmpty(force));
+    }
+
+    const toggleSpin = () => {
+        setSpin(true);
+        setTimeout(() => setSpin(false), 725);
     }
 
     return (
@@ -33,7 +41,7 @@ export const Login = () => {
                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.header.sup"))}}/>
                     </div>
                     <div className="header-right">
-                        <img src={HappyLogo} alt="logo"/>
+                        <img className={spin ? "spin" : ""} onClick={() => toggleSpin()} src={HappyLogo} alt="logo"/>
                     </div>
                 </div>
             </div>

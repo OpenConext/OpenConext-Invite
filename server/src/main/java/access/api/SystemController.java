@@ -38,6 +38,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @EnableConfigurationProperties(Config.class)
 public class SystemController {
+
     private static final Log LOG = LogFactory.getLog(SystemController.class);
 
     private final ResourceCleaner resourceCleaner;
@@ -50,7 +51,8 @@ public class SystemController {
     public ResponseEntity<Map<String, List<? extends Serializable>>> cron(@Parameter(hidden = true) User user) {
         LOG.debug("/cron");
         UserPermissions.assertSuperUser(user);
-        return ResponseEntity.ok(resourceCleaner.doClean());
+        Map<String, List<? extends Serializable>> body = resourceCleaner.doClean();
+        return ResponseEntity.ok(body);
     }
 
 }

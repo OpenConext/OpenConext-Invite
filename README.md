@@ -79,3 +79,15 @@ Graph
 "graph_secret" : "secret",
 "graph_tenant": "tenant"
 ```
+
+### [Local endpoints](#local-endpoint)
+
+Login with Mujina IdP and user `admin` to become super-user in the local environment
+
+http://localhost:8080/ui/swagger-ui/index.html#/system-controller/cron
+
+http://localhost:8081/
+
+http://localhost:4000/profile
+
+http://localhost:3000

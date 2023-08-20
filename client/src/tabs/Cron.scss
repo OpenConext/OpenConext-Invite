@@ -5,5 +5,19 @@
 
     .mod-cron {
         @include page;
+        padding: 20px 0;
+
+        .actions {
+            display: flex;
+            align-items: center;
+
+            button {
+                margin-left: auto;
+            }
+
+        }
+        .cron-results ._2IvMF {
+            background: white;
+        }
     }
 }

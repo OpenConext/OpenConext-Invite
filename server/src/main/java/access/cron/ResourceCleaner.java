@@ -59,7 +59,7 @@ public class ResourceCleaner {
         List<User> users = cleanNonActiveUsers();
         List<User> orphans = cleanOrphanedUser();
         List<UserRole> userRoles = cleanUserRoles();
-        return Map.of("users", users, "orphans", orphans, "userRoles", userRoles)
+        return Map.of("users", users, "orphans", orphans, "userRoles", userRoles);
     }
 
     private List<User> cleanNonActiveUsers() {

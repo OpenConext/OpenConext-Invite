@@ -326,6 +326,11 @@ const nl = {
     },
     notFound: {
         alt: "404 Page not found"
+    },
+    system: {
+        trigger: "Trigger",
+        clear: "Clear",
+        cronInfo: "Trigger the cron job to cleanup resources like expired user-roles, orphaned users and in-active users"
     }
 }
 

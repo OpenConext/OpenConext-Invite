@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 public class RoleExpirationNotifier implements HasManage {
 
-    private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
+    private static final Log LOG = LogFactory.getLog(RoleExpirationNotifier.class);
 
     private final UserRoleRepository userRoleRepository;
     private final Manage manage;

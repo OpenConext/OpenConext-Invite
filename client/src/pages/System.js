@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./System.scss";
 import {Loader} from "@surfnet/sds";
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {ReactComponent as CronLogo} from "@surfnet/sds/icons/illustrative-icons/database-check.svg";
 import Tabs from "../components/Tabs";
@@ -11,7 +11,6 @@ import {Cron} from "../tabs/Cron";
 
 export const System = () => {
     const {tab = "cron"} = useParams();
-    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
@@ -33,7 +32,7 @@ export const System = () => {
                 </Page>
             ];
             setTabs(newTabs);
-
+            setLoading(false);
         },
         [currentTab])
 
