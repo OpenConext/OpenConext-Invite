@@ -184,6 +184,10 @@ export function updateUserRoleEndData(userRoleId, endDate) {
     return postPutJson("/api/v1/user_roles", {userRoleId, endDate}, "PUT");
 }
 
+export function deleteUserRole(userRoleId) {
+    return fetchDelete(`/api/v1/user_roles/${userRoleId}`);
+}
+
 //Validations
 export function validate(type, value) {
     return isEmpty(value) ? Promise.resolve({valid: true}) :

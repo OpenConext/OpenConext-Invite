@@ -23,7 +23,7 @@ export default function ConfirmationDialog({
         <Modal
             confirm={confirm}
             cancel={cancel}
-            alertType={isError ? AlertType.Error : isWarning ? AlertType.Warning : AlertType.Info}
+            alertType={isError ? AlertType.Error : isWarning ? AlertType.Warning : null}
             question={question}
             children={children}
             title={confirmationHeader}

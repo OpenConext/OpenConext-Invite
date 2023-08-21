@@ -134,4 +134,14 @@ public class User implements Serializable, Provisionable {
         );
     }
 
+    @JsonIgnore
+    public void updateAttributes(Map<String, Object> attributes) {
+        this.eduPersonPrincipalName = (String) attributes.get("eduperson_principal_name");
+        this.schacHomeOrganization = (String) attributes.get("schac_home_organization");
+        this.givenName = (String) attributes.get("given_name");
+        this.familyName = (String) attributes.get("family_name");
+        this.email = (String) attributes.get("email");
+        this.lastActivity = Instant.now();
+    }
+
 }

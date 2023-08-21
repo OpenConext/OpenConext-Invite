@@ -126,7 +126,7 @@ export const Entities = ({
 
     };
 
-    const setSortedKey = key => () => {
+    const setSortedKey = key => {
         const reversed = (sorted === key ? !reverse : false);
         setSorted(key);
         setReverse(reversed)
@@ -181,7 +181,7 @@ export const Entities = ({
                                     const showHeader = !actions || i < 1 || column.showHeader;
                                     return <th key={`th_${column.key}_${i}`}
                                                className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
-                                               onClick={setSortedKey(column.key)}>
+                                               onClick={() => !column.nonSortable && setSortedKey(column.key)}>
                                         {column.header}
                                         {column.toolTip && <Tooltip tip={column.toolTip}/> }
                                         {headerIcon(column, sorted, reverse)}

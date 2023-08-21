@@ -4,7 +4,7 @@ import "./Invitations.scss";
 import {Button, ButtonSize, ButtonType, Checkbox, Chip, Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import "./Users.scss";
-import {dateFromEpoch} from "../utils/Date";
+import {shortDateFromEpoch} from "../utils/Date";
 
 import {chipTypeForInvitationStatus, chipTypeForUserRole} from "../utils/Authority";
 import {useNavigate} from "react-router-dom";
@@ -12,7 +12,7 @@ import {deleteInvitation, resendInvitation} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
-import {INVITATION_STATUS} from "../utils/UserRole";
+import {allowedToDeleteInvitation, INVITATION_STATUS} from "../utils/UserRole";
 
 
 export const Invitations = ({role, invitations}) => {
@@ -39,7 +39,7 @@ export const Invitations = ({role, invitations}) => {
                     acc[invitation.id] = {
                         selected: false,
                         ref: invitation,
-                        allowed: true // allowedToDeleteInvitation(user, invitation)
+                        allowed: allowedToDeleteInvitation(user, invitation)
                     };
                     return acc;
                 }, {}));
@@ -70,6 +70,12 @@ export const Invitations = ({role, invitations}) => {
             .filter(entry => (entry[1].selected) && entry[1].allowed)
             .map(entry => parseInt(entry[0]))
             .filter(id => resultAfterSearch.some(res => res.id === id));
+    }
+
+    const showCheckAllHeader = () => {
+        return Object.entries(selectedInvitations)
+            .filter(entry => entry[1].allowed)
+            .length > 0;
     }
 
     const doResendInvitations = showConfirmation => {
@@ -157,13 +163,14 @@ export const Invitations = ({role, invitations}) => {
         {
             nonSortable: true,
             key: "check",
-            header: <Checkbox value={allSelected}
-                              name={"allSelected"}
-                              onChange={selectAll}/>,
+            header: showCheckAllHeader() ? <Checkbox value={allSelected}
+                                                     name={"allSelected"}
+                                                     onChange={selectAll}/> : null,
             mapper: invitation => <div className="check">
                 {selectedInvitations[invitation.id].allowed ? <Checkbox name={pseudoGuid()}
                                                                         onChange={onCheck(invitation)}
-                                                                        value={selectedInvitations[invitation.id].selected}/> : null}
+                                                                        value={selectedInvitations[invitation.id].selected}/> :
+                    <Tooltip tip={I18n.t("invitations.notAllowed")}/>}
             </div>
         },
         {
@@ -183,6 +190,14 @@ export const Invitations = ({role, invitations}) => {
             mapper: invitation => invitation.intendedRoles
         },
         {
+            key: "inviter__name",
+            header: I18n.t("invitations.inviter"),
+            mapper: invitation => <div className="user-name-email">
+                <span className="name">{invitation.inviter.name}</span>
+                <span className="email">{invitation.inviter.email}</span>
+            </div>
+        },
+        {
             key: "status",
             header: I18n.t("invitations.status"),
             mapper: invitation => <Chip type={chipTypeForInvitationStatus(invitation)}
@@ -191,17 +206,17 @@ export const Invitations = ({role, invitations}) => {
         {
             key: "createdAt",
             header: I18n.t("invitations.createdAt"),
-            mapper: invitation => dateFromEpoch(invitation.createdAt)
+            mapper: invitation => shortDateFromEpoch(invitation.createdAt)
         },
         {
             key: "expiryDate",
             header: I18n.t("invitations.expiryDate"),
-            mapper: invitation => dateFromEpoch(invitation.expiryDate)
+            mapper: invitation => shortDateFromEpoch(invitation.expiryDate)
         },
         {
             key: "roleExpiryDate",
             header: I18n.t("invitations.roleExpiryDate"),
-            mapper: invitation => dateFromEpoch(invitation.roleExpiryDate)
+            mapper: invitation => shortDateFromEpoch(invitation.roleExpiryDate)
         }];
 
     const countInvitations = invitations.length;
@@ -235,7 +250,7 @@ export const Invitations = ({role, invitations}) => {
                   loading={false}
                   actions={actionButtons()}
                   searchCallback={searchCallback}
-                  searchAttributes={["name", "email", "schacHomeOrganization"]}
+                  searchAttributes={["name", "email", "schacHomeOrganization", "inviter__email", "inviter__name"]}
                   inputFocus={true}>
         </Entities>
     </div>)

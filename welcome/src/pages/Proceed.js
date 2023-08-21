@@ -3,7 +3,7 @@ import I18n from "../locale/I18n";
 import "./Proceed.scss";
 import "../styles/circle.scss";
 import DOMPurify from "dompurify";
-import {Card, CardType, Loader, Toaster, ToasterType} from "@surfnet/sds";
+import {Button, Card, CardType, Loader, Toaster, ToasterType} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {organisationName} from "../utils/Manage";
@@ -76,6 +76,9 @@ export const Proceed = () => {
                             <h4>{I18n.t("proceed.goto")}</h4>
                             <span>{I18n.t("proceed.nextStep")}</span>
                         </div>
+                        <Button txt={I18n.t("proceed.launch")} onClick={() => {
+                            window.href = invitation.roles[0].role.landingPage;
+                        }}/>
                     </div>
                     {invitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index))}
                 </section>

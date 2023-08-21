@@ -24,7 +24,7 @@ const nl = {
     },
     header: {
         title: "SURFwelcome",
-        subTitle: "Alles gaat uilstekend",
+        subTitle: "Everything will be Owl right",
         links: {
             login: "Login",
             system: "System",
@@ -34,7 +34,7 @@ const nl = {
             help: "Help",
             profile: "Profile",
             logout: "Logout",
-            helpUrl: "https://support.surfconext.nl/help-access-nl"
+            helpUrl: "https://support.surfconext.nl/help-access-en"
         },
     },
     tabs: {
@@ -86,8 +86,8 @@ const nl = {
         roles: "Roles",
         noRolesInfo: "You have no roles (which means you must be super-user)",
         rolesInfo: "You have the following roles",
-        rolesInfoOther: "{{name}} has the following roles",
         noRolesFound: "No roles are found.",
+        rolesInfoOther: "{{name}} has the following roles",
         landingPage: "Website",
         access: "Access",
         organisation: "Organisation",
@@ -123,7 +123,7 @@ const nl = {
         manageMetaData: "Manage entity",
         provisioning: "Provisioning",
         deleteFlash: "Role {{name}} has been deleted",
-        deleteConfirmation: "Are you sure  you want to delete this role",
+        deleteConfirmation: "Are you sure  you want to delete this role?",
         createFlash: "Role {{name}} has been created",
         updateFlash: "Role {{name}} has been updated",
     },
@@ -136,9 +136,12 @@ const nl = {
         multipleUserRoles: "user roles",
         searchPlaceHolder: "Search for user roles...",
         noResults: "No user roles where found",
+        notAllowed: "You're not allowed to delete this user role because of missing roles",
         updateConfirmation: "Are you sure  you want to change the end date of role {{roleName}} for {{userName}}",
         updateFlash: "The end date for role {{roleName}} has been updated",
-
+        deleteConfirmation: "Are you sure  you want to remove this role from this user(s)?",
+        deleteFlash: "User role(s) have been removed",
+        createdAt: "Accepted at",
     },
     invitations: {
         found: "{{count}} {{plural}} found",
@@ -146,6 +149,7 @@ const nl = {
         multipleInvitations: "invitations",
         searchPlaceHolder: "Search for invitation...",
         noResults: "No invitation where found",
+        inviter: "Inviter",
         status: "Status",
         open: "Open",
         accepted: "Accepted",
@@ -170,6 +174,7 @@ const nl = {
         createFlash: "Invitation was send",
         delete: "Delete",
         resend: "Resend",
+        notAllowed: "You're not allowed to delete or resend this invitation because of missing roles",
         deleteFlash: "Invitation(s) have been deleted",
         deleteConfirmation: "Are you sure you want to delete this invitation(s)?",
         resendConfirmation: "Are you sure you want to resend this invitation(s)?",
@@ -193,7 +198,7 @@ const nl = {
         required: "The {{attribute}} is required",
         invalid: "The value '{{value}}' is invalid for {{attribute}}",
         error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
-            "The reference number for ths exception is {{reference}}."
+            "The reference number for this exception is {{reference}}."
     },
     profile: {
         info: "The account of {{name}} was created on {{createdAt}}",
@@ -220,7 +225,7 @@ const nl = {
         nextStep: "Next: enjoy your new role",
         expired: "This invitation has expired at {{expiryDate}}",
         expiredInfo: "Please contact <a href='mailto:{{email}}'>{{email}}</a> and ask this person to send you a new invite.",
-        invited: "You have been invited to become {{authority}} for the {{plural}} {{roles}} by {{inviter}}",
+        invited: "You have been invited to become {{authority}} for the {{plural}} {{roles}} by {{inviter}}.",
         invitedNoRoles: "You have been invited to become {{authority}} by {{inviter}}",
         enforceEmailEquality: " This invite can only be accepted by <strong>{{email}}</strong>.",
         role: "role",
@@ -241,7 +246,7 @@ const nl = {
         roleIcon: "Role {{name}} created at {{createdAt}}",
         userRoleIcon: "User role accepted by {{name}} at {{createdAt}}",
         invitationIcon: "Invitation for {{email}} send at {{createdAt}} with expiration date {{expiryDate}}",
-        roleShortName: "The unique short name of the rol within a provisioning. Is used to format the urn",
+        roleShortName: "The unique short name of the role within a provisioning. It is used to format the urn and therefore not all characters are allowed.",
         roleUrn: "The urn of the role. It is based on the sanitized name and the application identifier. It is used as the unique global identifier of this role and therefore not all characters are allowed.",
         manageService: "The required service from Manage with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expiry when a use accepts a invitation for this role",
@@ -266,9 +271,9 @@ const nl = {
     },
     footer: {
         terms: "Terms of Use",
-        termsLink: "https://support.surfconext.nl/terms-nl",
+        termsLink: "https://support.surfconext.nl/terms-en",
         privacy: "Privacy policy",
-        privacyLink: "https://support.surfconext.nl/privacy-nl",
+        privacyLink: "https://support.surfconext.nl/privacy-en",
         surfLink: "https://surf.nl",
     },
     expirations: {

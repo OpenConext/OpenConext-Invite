@@ -12,8 +12,13 @@
 
         thead {
             th {
+                &.check {
+                    width: 40px;
+                    text-align: center;
+                }
+
                 &.name {
-                    width: 20%;
+                    width: 18%;
                 }
 
                 &.me {
@@ -21,12 +26,16 @@
                 }
 
                 &.schacHomeOrganisation {
-                    width: 15%;
+                    width: 12%;
                 }
 
                 &.authority {
-                    width: 20%;
+                    width: 18%;
                     text-align: center;
+                }
+
+                &.createdAt {
+                    width: 12%;
                 }
 
                 &.endDate {

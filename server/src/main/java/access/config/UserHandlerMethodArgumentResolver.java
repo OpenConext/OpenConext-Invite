@@ -68,7 +68,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         }
         return optionalUser.map(user -> {
             if (user.getId() != null) {
-                user.setLastActivity(Instant.now());
+                user.updateAttributes(attributes);
                 userRepository.save(user);
             }
             return user;

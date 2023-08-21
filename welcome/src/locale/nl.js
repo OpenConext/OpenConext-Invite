@@ -124,6 +124,7 @@ const nl = {
         noResults: "No invitation where found",
         status: "Status",
         open: "Open",
+        inviter: "Inviter",
         accepted: "Accepted",
         enforceEmailEquality: "Email equality",
         eduIDOnly: "eduID only",
@@ -187,6 +188,7 @@ const nl = {
         progress: "2",
         goto: "Visit application",
         nextStep: "Next: go to the application",
+        launch: "Launch application"
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
