@@ -43,7 +43,7 @@ export const UserRoles = ({role, userRoles}) => {
                 }, {}));
             setLoading(false);
         },
-        [userRoles])
+        [userRoles, user])
 
     if (loading) {
         return <Loader/>

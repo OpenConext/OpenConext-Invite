@@ -8,7 +8,7 @@ import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
-import {allowedToDeleteInvitation, allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
+import {allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import {RoleMetaData} from "../components/RoleMetaData";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
