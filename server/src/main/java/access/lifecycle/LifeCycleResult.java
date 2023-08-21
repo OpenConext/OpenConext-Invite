@@ -10,12 +10,10 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
-@EqualsAndHashCode
-@ToString
 public class LifeCycleResult {
 
-  private String status = "OK";
-  private String name = "OpenConext-access-server";
+  private final String status = "OK";
+  private final String name = "OpenConext-access-server";
   private List<Attribute> data = new ArrayList<>();
 
   public void setData(List<Attribute> data) {
