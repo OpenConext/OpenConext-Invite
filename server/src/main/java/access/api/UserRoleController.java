@@ -5,11 +5,10 @@ import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
-import access.manage.Manage;
 import access.model.*;
 import access.repository.RoleRepository;
 import access.repository.UserRoleRepository;
-import access.secuirty.UserPermissions;
+import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -38,10 +37,13 @@ public class UserRoleController {
 
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
+    private final Config config;
 
-    public UserRoleController(UserRoleRepository userRoleRepository, RoleRepository roleRepository) {
+
+    public UserRoleController(UserRoleRepository userRoleRepository, RoleRepository roleRepository, Config config) {
         this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
+        this.config = config;
     }
 
     @GetMapping("roles/{roleId}")
@@ -59,7 +61,7 @@ public class UserRoleController {
     public ResponseEntity<Map<String, Integer>> updateUserRoleExpirationDate(@Validated @RequestBody UpdateUserRole updateUserRole,
                                                                              @Parameter(hidden = true) User user) {
         UserRole userRole = userRoleRepository.findById(updateUserRole.getUserRoleId()).orElseThrow(NotFoundException::new);
-        if (Instant.now().isAfter(updateUserRole.getEndDate())) {
+        if (!config.isPastDateAllowed() && Instant.now().isAfter(updateUserRole.getEndDate())) {
             throw new NotAllowedException("End date must be after now");
         }
         UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));

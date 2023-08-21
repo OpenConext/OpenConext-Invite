@@ -1,13 +1,15 @@
 package access.voot;
 
-import access.model.*;
+import access.model.Role;
+import access.model.User;
+import access.model.UserRole;
 import access.provision.scim.GroupURN;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +19,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.VOOT_SCHEME_NAME;
 
 @RestController
@@ -34,6 +35,7 @@ public class VootController {
     }
 
     @GetMapping("/{unspecified_id}")
+    @PreAuthorize("hasRole('VOOT')")
     public ResponseEntity<List<Map<String, String>>> getGroupMemberships(@PathVariable("unspecified_id") String unspecifiedId) {
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(unspecifiedId);
         if (optionalUser.isPresent()) {

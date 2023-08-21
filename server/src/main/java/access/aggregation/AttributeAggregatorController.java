@@ -2,7 +2,6 @@ package access.aggregation;
 
 import access.manage.EntityType;
 import access.manage.Manage;
-import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
 import access.provision.scim.GroupURN;
@@ -11,17 +10,20 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import static access.SwaggerOpenIdConfig.VOOT_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.ATTRIBUTE_AGGREGATION_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/aa", "/api/external/v1/aa"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@SecurityRequirement(name = VOOT_SCHEME_NAME)
+@SecurityRequirement(name = ATTRIBUTE_AGGREGATION_SCHEME_NAME)
 public class AttributeAggregatorController {
 
     private final UserRepository userRepository;
@@ -37,6 +39,7 @@ public class AttributeAggregatorController {
     }
 
     @GetMapping("/{unspecified_id}")
+    @PreAuthorize("hasRole('ATTRIBUTE_AGGREGATION')")
     public ResponseEntity<List<Map<String, String>>> getGroupMemberships(@PathVariable("unspecified_id") String unspecifiedId,
                                                                          @RequestParam("SPentityID") String spEntityId) {
         Optional<Map<String, Object>> optionalProvider = manage

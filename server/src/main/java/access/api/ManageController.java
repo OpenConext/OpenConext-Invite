@@ -6,7 +6,7 @@ import access.manage.Manage;
 import access.model.Authority;
 import access.model.User;
 import access.repository.RoleRepository;
-import access.secuirty.UserPermissions;
+import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;

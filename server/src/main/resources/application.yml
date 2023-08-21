@@ -1,4 +1,12 @@
 ---
+logging:
+  level:
+    root: WARN
+    com.zaxxer.hikari: ERROR
+    access: DEBUG
+  threshold:
+    console: WARN
+
 server:
   error:
     path: "/error"
@@ -86,6 +94,10 @@ voot:
 
 attribute-aggregation:
   user: aa
+  password: secret
+
+lifecyle:
+  user: lifecyle
   password: secret
 
 email:

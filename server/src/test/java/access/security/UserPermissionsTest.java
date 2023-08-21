@@ -1,4 +1,4 @@
-package access.secuirty;
+package access.security;
 
 import access.exception.UserRestrictionException;
 import access.manage.EntityType;

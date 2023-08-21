@@ -7,7 +7,7 @@ import access.manage.Manage;
 import access.model.Authority;
 import access.model.User;
 import access.repository.UserRepository;
-import access.secuirty.UserPermissions;
+import access.security.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;

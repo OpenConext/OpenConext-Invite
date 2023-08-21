@@ -2,16 +2,8 @@ package access.api;
 
 import access.config.Config;
 import access.cron.ResourceCleaner;
-import access.exception.NotAllowedException;
-import access.exception.NotFoundException;
-import access.logging.AccessLogger;
-import access.logging.Event;
-import access.model.Authority;
-import access.model.Role;
-import access.model.RoleExists;
 import access.model.User;
-import access.provision.scim.GroupURN;
-import access.secuirty.UserPermissions;
+import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -20,15 +12,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 

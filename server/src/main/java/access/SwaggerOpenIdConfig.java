@@ -17,6 +17,7 @@ public class SwaggerOpenIdConfig {
 
     public static final String OPEN_ID_SCHEME_NAME = "openId";
     public static final String VOOT_SCHEME_NAME = "voot";
+    public static final String LIFE_CYCLE_SCHEME_NAME = "lifeCycle";
     public static final String ATTRIBUTE_AGGREGATION_SCHEME_NAME = "attributeAggregation";
 
     @Bean
@@ -38,6 +39,7 @@ public class SwaggerOpenIdConfig {
         Components components = new Components()
                 .addSecuritySchemes(OPEN_ID_SCHEME_NAME, openIdSecuritySchema)
                 .addSecuritySchemes(VOOT_SCHEME_NAME, basicAuthentication)
+                .addSecuritySchemes(LIFE_CYCLE_SCHEME_NAME, basicAuthentication)
                 .addSecuritySchemes(ATTRIBUTE_AGGREGATION_SCHEME_NAME, basicAuthentication);
 
         OpenAPI openAPI = new OpenAPI()

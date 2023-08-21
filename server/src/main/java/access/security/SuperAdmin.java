@@ -1,4 +1,4 @@
-package access.secuirty;
+package access.security;
 
 import lombok.Getter;
 import lombok.Setter;

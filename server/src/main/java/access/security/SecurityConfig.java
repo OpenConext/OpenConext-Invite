@@ -1,5 +1,5 @@
-package access.secuirty;
-import org.springframework.security.oauth2.client.oidc.userinfo.*;
+package access.security;
+
 import access.config.UserHandlerMethodArgumentResolver;
 import access.exception.ExtendedErrorAttributes;
 import access.model.Invitation;
@@ -15,16 +15,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -44,11 +46,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.Map;
-
 @EnableWebSecurity
 @EnableScheduling
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final String eduidEntityId;
@@ -61,6 +62,8 @@ public class SecurityConfig {
     private final String vootPassword;
     private final String attributeAggregationUser;
     private final String attributeAggregationPassword;
+    private final String lifeCycleUser;
+    private final String lifeCyclePassword;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
@@ -71,6 +74,8 @@ public class SecurityConfig {
                           @Value("${oidcng.resource-server-secret}") String secret,
                           @Value("${voot.user}") String vootUser,
                           @Value("${voot.password}") String vootPassword,
+                          @Value("${lifecyle.user}") String lifeCycleUser,
+                          @Value("${lifecyle.password}") String lifeCyclePassword,
                           @Value("${attribute-aggregation.user}") String attributeAggregationUser,
                           @Value("${attribute-aggregation.password}") String attributeAggregationPassword) {
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -81,6 +86,8 @@ public class SecurityConfig {
         this.secret = secret;
         this.vootUser = vootUser;
         this.vootPassword = vootPassword;
+        this.lifeCycleUser = lifeCycleUser;
+        this.lifeCyclePassword = lifeCyclePassword;
         this.attributeAggregationUser = attributeAggregationUser;
         this.attributeAggregationPassword = attributeAggregationPassword;
     }
@@ -151,6 +158,7 @@ public class SecurityConfig {
             return delegate.loadUser(userRequest);
         };
     }
+
     private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
             ClientRegistrationRepository clientRegistrationRepository) {
         DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =
@@ -195,7 +203,9 @@ public class SecurityConfig {
                 .securityMatcher("/api/voot/**",
                         "/api/external/v1/voot/**",
                         "/api/aa/**",
-                        "/api/external/v1/aa/**")
+                        "/api/external/v1/aa/**",
+                        "/api/deprovisioning/**",
+                        "/api/external/v1/deprovisioning/**")
                 .sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -234,14 +244,19 @@ public class SecurityConfig {
         UserDetails vootUserDetails = User
                 .withUsername(vootUser)
                 .password("{noop}" + vootPassword)
-                .roles("openid")
+                .roles("VOOT")
                 .build();
         UserDetails attributeAggregationUserDetails = User
                 .withUsername(attributeAggregationUser)
                 .password("{noop}" + attributeAggregationPassword)
-                .roles("aa")
+                .roles("ATTRIBUTE_AGGREGATION")
                 .build();
-        return new InMemoryUserDetailsManager(vootUserDetails, attributeAggregationUserDetails);
+        UserDetails lifeCyleUserDetails = User
+                .withUsername(lifeCycleUser)
+                .password("{noop}" + lifeCyclePassword)
+                .roles("LIFECYCLE")
+                .build();
+        return new InMemoryUserDetailsManager(vootUserDetails, attributeAggregationUserDetails, lifeCyleUserDetails);
     }
 
     @Bean

@@ -3,7 +3,7 @@ package access.config;
 import access.exception.UserRestrictionException;
 import access.model.User;
 import access.repository.UserRepository;
-import access.secuirty.SuperAdmin;
+import access.security.SuperAdmin;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
