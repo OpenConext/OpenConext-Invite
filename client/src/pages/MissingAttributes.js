@@ -35,7 +35,6 @@ export const MissingAttributes = () => {
                              <div className="warning">
                                  <p className={"info"}
                                     dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("missingAttributes.info"))}}/>
-
                                  <span>{I18n.t("missingAttributes.preLogin")}</span>
                                  <a href="/login" onClick={doLogin}>{I18n.t("missingAttributes.login")}</a>
                                  <span>{I18n.t("missingAttributes.postLogin")}</span>

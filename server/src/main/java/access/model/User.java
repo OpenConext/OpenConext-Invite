@@ -2,12 +2,12 @@ package access.model;
 
 import access.manage.ManageIdentifier;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity(name = "users")
 @NoArgsConstructor
@@ -45,6 +46,9 @@ public class User implements Serializable, Provisionable {
     @Column(name = "family_name")
     private String familyName;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
@@ -72,13 +76,26 @@ public class User implements Serializable, Provisionable {
     }
 
     public User(boolean superUser, Map<String, Object> attributes) {
-        this(superUser,
-                (String) attributes.get("eduperson_principal_name"),
-                (String) attributes.get("sub"),
-                (String) attributes.get("schac_home_organization"),
-                (String) attributes.get("given_name"),
-                (String) attributes.get("family_name"),
-                (String) attributes.get("email"));
+        this.superUser = superUser;
+        this.sub = (String) attributes.get("sub");
+        this.eduPersonPrincipalName = (String) attributes.get("eduperson_principal_name");
+        this.schacHomeOrganization = (String) attributes.get("schac_home_organization");
+        this.email = (String) attributes.get("email");
+        this.givenName = (String) attributes.get("given_name");
+        this.familyName = (String) attributes.get("family_name");
+        String name = (String) attributes.get("name");
+        String preferredUsername = (String) attributes.get("preferred_username");
+        if (StringUtils.hasText(name)) {
+            this.name = name;
+        } else if (StringUtils.hasText(preferredUsername)) {
+            this.name = preferredUsername;
+        } else if (StringUtils.hasText(givenName) && StringUtils.hasText(familyName)) {
+            this.name = givenName + " " + familyName;
+        } else {
+            this.name = Stream.of(email.substring(0, email.indexOf("@")).toLowerCase().split("\\."))
+                    .map(StringUtils::capitalize)
+                    .collect(Collectors.joining(" "));
+        }
     }
 
     public User(boolean superUser, String eppn, String sub, String schacHomeOrganization, String givenName, String familyName, String email) {
@@ -88,16 +105,11 @@ public class User implements Serializable, Provisionable {
         this.schacHomeOrganization = schacHomeOrganization;
         this.givenName = givenName;
         this.familyName = familyName;
+        this.name = String.format("%s %s", givenName, familyName);
         this.email = email;
         this.createdAt = Instant.now();
         this.lastActivity = Instant.now();
     }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public String getName() {
-        return String.format("%s %s", givenName, familyName);
-    }
-
 
     @JsonIgnore
     public void addUserRole(UserRole userRole) {
@@ -125,7 +137,7 @@ public class User implements Serializable, Provisionable {
     public Map<String, Object> asMap() {
         return Map.of(
                 "id", id,
-                "name", getName(),
+                "name", name,
                 "email", email,
                 "createdAt", createdAt,
                 "lastActivity", lastActivity,

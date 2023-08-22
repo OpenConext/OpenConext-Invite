@@ -173,12 +173,6 @@ public class UserController {
         if (!StringUtils.hasText(user.getEmail())) {
             missingAttributes.add("email");
         }
-        if (!StringUtils.hasText(user.getFamilyName())) {
-            missingAttributes.add("familyName");
-        }
-        if (!StringUtils.hasText(user.getGivenName())) {
-            missingAttributes.add("givenName");
-        }
         if (!StringUtils.hasText(user.getSchacHomeOrganization())) {
             missingAttributes.add("schacHomeOrganization");
         }
