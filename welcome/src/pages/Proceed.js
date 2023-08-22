@@ -47,8 +47,13 @@ export const Proceed = () => {
                     <h3>{role.name}</h3>
                     <MoreLessText txt={role.description}/>
                     <p><a href={role.landingPage}>{role.landingPage}</a></p>
-
                 </section>
+                <div className={"launch"}>
+                    <Button txt={I18n.t("proceed.launch")} onClick={() => {
+                        window.href = invitationRole.landingPage;
+                    }}/>
+                </div>
+
             </div>;
         return (
             <Card key={index} cardType={CardType.Big} children={children}/>
@@ -76,9 +81,6 @@ export const Proceed = () => {
                             <h4>{I18n.t("proceed.goto")}</h4>
                             <span>{I18n.t("proceed.nextStep")}</span>
                         </div>
-                        <Button txt={I18n.t("proceed.launch")} onClick={() => {
-                            window.href = invitation.roles[0].role.landingPage;
-                        }}/>
                     </div>
                     {invitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index))}
                 </section>
