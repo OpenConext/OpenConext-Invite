@@ -89,12 +89,14 @@ public class User implements Serializable, Provisionable {
             this.name = name;
         } else if (StringUtils.hasText(preferredUsername)) {
             this.name = preferredUsername;
-        } else if (StringUtils.hasText(givenName) && StringUtils.hasText(familyName)) {
-            this.name = givenName + " " + familyName;
-        } else {
-            this.name = Stream.of(email.substring(0, email.indexOf("@")).toLowerCase().split("\\."))
+        } else if (StringUtils.hasText(this.givenName) && StringUtils.hasText(this.familyName)) {
+            this.name = this.givenName + " " + this.familyName;
+        } else if (StringUtils.hasText(this.email)) {
+            this.name = Stream.of(this.email.substring(0, this.email.indexOf("@")).toLowerCase().split("\\."))
                     .map(StringUtils::capitalize)
                     .collect(Collectors.joining(" "));
+        } else if (StringUtils.hasText(this.sub)) {
+            this.name = StringUtils.capitalize(this.sub.substring(this.sub.lastIndexOf(":") + 1));
         }
     }
 

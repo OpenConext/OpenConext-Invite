@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UserTest {
 
@@ -30,5 +31,18 @@ class UserTest {
                 "family_name", "Doe"
         ));
         assertEquals("John Doe", user.getName());
+
+        user = new User(false, Map.of(
+                "sub", "urn:collab:person:example.com:manager"
+        ));
+        assertEquals("Manager", user.getName());
+
+        user = new User(false, Map.of(
+                "sub", "manager"
+        ));
+        assertEquals("Manager", user.getName());
+
+        user = new User(false, Map.of());
+        assertNull(user.getName());
     }
 }
