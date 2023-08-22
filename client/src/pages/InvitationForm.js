@@ -19,10 +19,10 @@ import {futureDate} from "../utils/Date";
 export const InvitationForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    // const nameRef = useRef();
 
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
+    const [originalRoleId, setOriginalRoleId] = useState(-1);
     const [invitation, setInvitation] = useState({
         expiryDate: futureDate(30),
         roleExpiryDate: futureDate(365),
@@ -74,6 +74,7 @@ export const InvitationForm = () => {
                     eduIDOnly: initialRole.eduIDOnly,
                     roleExpiryDate: futureDate(defaultExpiryDays)
                 })
+                setOriginalRoleId(initialRole.id);
             }
         }
     }
@@ -85,7 +86,13 @@ export const InvitationForm = () => {
             newInvitation(invitationRequest)
                 .then(() => {
                     setFlash(I18n.t("invitations.createFlash"));
-                    navigate(-1);
+                    if (originalRoleId) {
+                        navigate(`/roles/${originalRoleId}/invitations`);
+                    } else if (!isEmpty(invitationRequest.roleIdentifiers)) {
+                        navigate(`/roles/${invitationRequest.roleIdentifiers[0]}/invitations`);
+                    } else {
+                        navigate(-1);
+                    }
                 });
         }
     }
