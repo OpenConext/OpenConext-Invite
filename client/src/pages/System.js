@@ -2,14 +2,18 @@ import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./System.scss";
 import {Loader} from "@surfnet/sds";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {ReactComponent as CronLogo} from "@surfnet/sds/icons/illustrative-icons/database-check.svg";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
 import {Cron} from "../tabs/Cron";
+import {Invitations} from "../tabs/Invitations";
+import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
+
 
 export const System = () => {
+    const navigate = useNavigate();
     const {tab = "cron"} = useParams();
     const [loading, setLoading] = useState(false);
     const [currentTab, setCurrentTab] = useState(tab);
@@ -29,7 +33,14 @@ export const System = () => {
                       label={I18n.t("tabs.cron")}
                       Icon={CronLogo}>
                     <Cron/>
+                </Page>,
+                <Page key="invitations"
+                      name="invitations"
+                      label={I18n.t("tabs.invitations")}
+                      Icon={InvitationLogo}>
+                    <Invitations standAlone={true}/>
                 </Page>
+
             ];
             setTabs(newTabs);
             setLoading(false);
@@ -38,6 +49,7 @@ export const System = () => {
 
     const tabChanged = (name) => {
         setCurrentTab(name);
+        navigate(`/system/${name}`);
     }
 
     if (loading) {

@@ -316,4 +316,17 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(2, invitations.size());
     }
 
+    @Test
+    void all() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        List<Invitation> invitations = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/all")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(5, invitations.size());
+    }
 }

@@ -136,6 +136,10 @@ export function deleteInvitation(invitationId) {
     return fetchDelete(`/api/v1/invitations/${invitationId}`);
 }
 
+export function allInvitations() {
+    return fetchJson(`/api/v1/invitations/all`, {}, {}, false);
+}
+
 //Manage
 export function allProviders() {
     return fetchJson("/api/v1/manage/providers");

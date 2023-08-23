@@ -58,7 +58,7 @@ export const Role = () => {
                           label={I18n.t("tabs.invitations")}
                           Icon={InvitationLogo}>
                         <Invitations role={res[0]}
-                                     invitations={res[2]}/>
+                                     preloadedInvitations={res[2]}/>
                     </Page>
                 ];
                 setTabs(newTabs);

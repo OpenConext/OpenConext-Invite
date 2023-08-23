@@ -162,6 +162,13 @@ public class InvitationController implements HasManage {
         return ResponseEntity.ok(new MetaInvitation(invitation, providers));
     }
 
+    @GetMapping("all")
+    public ResponseEntity<List<Invitation>> all(@Parameter(hidden = true) User user) {
+        LOG.debug("/all invitations");
+        UserPermissions.assertSuperUser(user);
+        return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN));
+    }
+
 
     @PostMapping("accept")
     public ResponseEntity<Map<String, Integer>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,

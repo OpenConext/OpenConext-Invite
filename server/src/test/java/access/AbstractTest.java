@@ -37,6 +37,7 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -216,7 +217,7 @@ public abstract class AbstractTest {
 
         Map<String, Object> userInfo = objectMapper.readValue(new ClassPathResource("user-info.json").getInputStream(), new TypeReference<>() {
         });
-        userInfo.put("sub", sub);
+        userInfo.put("sub", StringUtils.hasText(sub) ? sub : "sub");
         userInfo.put("email", sub);
         userInfo.put("eduperson_principal_name", sub);
         String userInfoResult = objectMapper.writeValueAsString(userInfo);
@@ -288,7 +289,7 @@ public abstract class AbstractTest {
                 .jwtID(UUID.randomUUID().toString())
                 .issuer(clientId)
                 .issueTime(Date.from(instant))
-                .subject(sub)
+                .subject(StringUtils.hasText(sub) ? sub : "sub")
                 .notBeforeTime(new Date(System.currentTimeMillis()))
                 .claim("redirect_uri", redirectURI)
                 .claim("eduperson_principal_name", sub)

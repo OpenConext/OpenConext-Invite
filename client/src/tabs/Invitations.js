@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
 import "./Invitations.scss";
 import {Button, ButtonSize, ButtonType, Checkbox, Chip, Loader, Tooltip} from "@surfnet/sds";
@@ -8,44 +8,49 @@ import {shortDateFromEpoch} from "../utils/Date";
 
 import {chipTypeForInvitationStatus, chipTypeForUserRole} from "../utils/Authority";
 import {useNavigate} from "react-router-dom";
-import {deleteInvitation, resendInvitation} from "../api";
+import {allInvitations, deleteInvitation, resendInvitation} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {allowedToDeleteInvitation, INVITATION_STATUS} from "../utils/UserRole";
 
 
-export const Invitations = ({role, invitations}) => {
+export const Invitations = ({role, preloadedInvitations, standAlone = false}) => {
     const navigate = useNavigate();
     const {user, setFlash} = useAppStore(state => state);
-
+    const invitations = useRef();
     const [selectedInvitations, setSelectedInvitations] = useState({});
     const [allSelected, setAllSelected] = useState(false);
-    const [resultAfterSearch, setResultAfterSearch] = useState(invitations)
+    const [resultAfterSearch, setResultAfterSearch] = useState([])
     const [loading, setLoading] = useState(true);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
 
     useEffect(() => {
-            invitations.forEach(invitation => {
-                invitation.intendedRoles = invitation.roles
-                    .sort((r1, r2) => r1.role.name.localeCompare(r2.role.name))
-                    .map(role => role.role.name).join(", ");
-                const now = new Date();
-                invitation.status = new Date(invitation.expiryDate * 1000) < now ? INVITATION_STATUS.EXPIRED : invitation.status;
-            });
-            setSelectedInvitations(invitations
-                .reduce((acc, invitation) => {
-                    acc[invitation.id] = {
-                        selected: false,
-                        ref: invitation,
-                        allowed: allowedToDeleteInvitation(user, invitation)
-                    };
-                    return acc;
-                }, {}));
-            setLoading(false);
+            const promise = standAlone ? allInvitations() : Promise.resolve(preloadedInvitations);
+            promise.then(res => {
+                res.forEach(invitation => {
+                    invitation.intendedRoles = invitation.roles
+                        .sort((r1, r2) => r1.role.name.localeCompare(r2.role.name))
+                        .map(role => role.role.name).join(", ");
+                    const now = new Date();
+                    invitation.status = new Date(invitation.expiryDate * 1000) < now ? INVITATION_STATUS.EXPIRED : invitation.status;
+                });
+                setSelectedInvitations(res
+                    .reduce((acc, invitation) => {
+                        acc[invitation.id] = {
+                            selected: false,
+                            ref: invitation,
+                            allowed: allowedToDeleteInvitation(user, invitation)
+                        };
+                        return acc;
+                    }, {}));
+                invitations.current = res;
+                setResultAfterSearch(res);
+                setLoading(false);
+            })
         },
-        [invitations, user])
+        [invitations, user]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onCheck = invitation => e => {
         const checked = e.target.checked;
@@ -219,7 +224,7 @@ export const Invitations = ({role, invitations}) => {
             mapper: invitation => shortDateFromEpoch(invitation.roleExpiryDate)
         }];
 
-    const countInvitations = invitations.length;
+    const countInvitations = invitations.current.length;
     const hasEntities = countInvitations > 0;
     let title = "";
 
@@ -237,14 +242,14 @@ export const Invitations = ({role, invitations}) => {
                                                  confirmationTxt={confirmation.confirmationTxt}
                                                  question={confirmation.question}/>}
 
-        <Entities entities={invitations}
+        <Entities entities={invitations.current}
                   modelName="invitations"
                   defaultSort="name"
                   columns={columns}
                   title={title}
                   newLabel={I18n.t("invitations.new")}
-                  showNew={true}
-                  newEntityFunc={() => navigate("/invitation/new", {state: role.id})}
+                  showNew={!!role}
+                  newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   hideTitle={true}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={false}

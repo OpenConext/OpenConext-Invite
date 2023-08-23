@@ -54,6 +54,21 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void configMissingAttributes() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "");
+
+        Map res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(Map.class);
+        assertFalse((Boolean) res.get("authenticated"));
+        assertEquals(2, ((List)res.get("missingAttributes")).size());
+    }
+
+    @Test
     void meWithOauth2Login() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "urn:collab:person:example.com:admin");
 
