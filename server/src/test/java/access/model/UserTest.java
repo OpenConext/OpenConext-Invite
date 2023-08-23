@@ -42,6 +42,13 @@ class UserTest {
         ));
         assertEquals("Manager", user.getName());
 
+        user = new User(false, Map.of(
+                "name", "John Doe"
+        ));
+        assertEquals("John Doe", user.getName());
+        assertEquals("John", user.getGivenName());
+        assertEquals("Doe", user.getFamilyName());
+
         user = new User(false, Map.of());
         assertNull(user.getName());
     }

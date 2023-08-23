@@ -22,8 +22,8 @@ public class UserRequest implements Serializable {
     public UserRequest(User user) {
         this.externalId = user.getEduPersonPrincipalName();
         this.userName = user.getEduPersonPrincipalName();
-        this.name = new Name(user.getFamilyName(), user.getGivenName());
-        this.displayName = String.format("%s %s", user.getGivenName(), user.getFamilyName());
+        this.name = new Name(user.getName(), user.getFamilyName(), user.getGivenName());
+        this.displayName = user.getName();
         this.emails = Collections.singletonList(new Email(user.getEmail()));
     }
 

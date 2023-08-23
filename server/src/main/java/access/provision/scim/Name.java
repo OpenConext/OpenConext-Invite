@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Getter
 public class Name implements Serializable {
 
+    private String formatted;
     private String familyName;
     private String givenName;
 

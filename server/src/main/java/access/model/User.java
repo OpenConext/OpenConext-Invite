@@ -98,6 +98,14 @@ public class User implements Serializable, Provisionable {
         } else if (StringUtils.hasText(this.sub)) {
             this.name = StringUtils.capitalize(this.sub.substring(this.sub.lastIndexOf(":") + 1));
         }
+        if (!StringUtils.hasText(this.givenName) &&
+                !StringUtils.hasText(this.familyName) &&
+                StringUtils.hasText(this.name) &&
+                this.name.contains(" ")) {
+            String[] splittedName = this.name.split(" ", 2);
+            this.givenName = splittedName[0];
+            this.familyName = splittedName[1];
+        }
     }
 
     public User(boolean superUser, String eppn, String sub, String schacHomeOrganization, String givenName, String familyName, String email) {
