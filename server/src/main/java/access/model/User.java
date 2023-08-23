@@ -147,7 +147,7 @@ public class User implements Serializable, Provisionable {
     public Map<String, Object> asMap() {
         return Map.of(
                 "id", id,
-                "name", name,
+                "name", StringUtils.hasText(name) ? name : email,
                 "email", email,
                 "createdAt", createdAt,
                 "lastActivity", lastActivity,

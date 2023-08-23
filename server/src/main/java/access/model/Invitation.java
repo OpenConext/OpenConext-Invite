@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -81,7 +82,7 @@ public class Invitation implements Serializable {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
-        this.eduIDOnly  = eduIDOnly;
+        this.eduIDOnly = eduIDOnly;
         this.message = message;
         this.inviter = inviter;
         this.status = Status.OPEN;
@@ -114,7 +115,10 @@ public class Invitation implements Serializable {
     @JsonProperty(value = "inviter", access = JsonProperty.Access.READ_ONLY)
     public Map<String, String> getInviterEmail() {
         User inviter = this.getInviter();
-        return inviter != null ? Map.of("email", inviter.getEmail(), "name", inviter.getName()) : Collections.emptyMap();
+        return inviter != null ? Map.of(
+                "email", inviter.getEmail(),
+                "name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail())
+                : Collections.emptyMap();
     }
 
 }
