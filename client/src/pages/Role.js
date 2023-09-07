@@ -48,8 +48,8 @@ export const Role = () => {
                 setRole(res[0]);
                 setLoading(false);
                 const newTabs = [
-                    <Page key="users"
-                          name="users"
+                    <Page key="maintainers"
+                          name="maintainers"
                           label={I18n.t("tabs.userRoles")}
                           Icon={UserLogo}>
                         <UserRoles role={res[0]}

@@ -247,7 +247,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false}) =>
                   defaultSort="name"
                   columns={columns}
                   title={title}
-                  newLabel={I18n.t("invitations.new")}
+                  newLabel={I18n.t("invitations.newInvite")}
                   showNew={!!role}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   hideTitle={true}
