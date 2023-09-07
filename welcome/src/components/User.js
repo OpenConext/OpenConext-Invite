@@ -5,7 +5,7 @@ import {dateFromEpoch} from "../utils/Date";
 import {highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
-import {Card, CardType} from "@surfnet/sds";
+import {Button, Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 import {RoleMetaData} from "./RoleMetaData";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
@@ -45,6 +45,11 @@ export const User = ({user}) => {
                     <MoreLessText txt={role.description}/>
                     <RoleMetaData role={role} user={user} provider={provider}/>
                 </section>
+                <div className={"launch"}>
+                    <Button txt={I18n.t("proceed.launch")} onClick={() => {
+                        window.href = role.landingPage;
+                    }}/>
+                </div>
             </div>;
         return (
             <Card cardType={CardType.Big} children={children} key={index}/>
@@ -86,7 +91,7 @@ export const User = ({user}) => {
     user.highestAuthority = highestAuthority(user);
     const attributes = [];
     const filteredUserRoles = user.userRoles
-        .filter(filterUserRole);
+        .filter(filterUserRole).filter(userRole => user.superUser || userRole.authority === "GUEST");
     return (
         <section className={"user"}>
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}

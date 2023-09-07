@@ -25,6 +25,16 @@ section.user {
 
     .sds--card {
         margin-bottom: 40px;
+
+        .launch {
+            margin-left: auto;
+
+            @media (max-width: 680px) {
+                margin: 20px auto 0 0;
+            }
+
+        }
+
     }
 
     .roles-search {

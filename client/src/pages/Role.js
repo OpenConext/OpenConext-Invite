@@ -7,6 +7,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import {ReactComponent as GuestLogo} from "@surfnet/sds/icons/illustrative-icons/hr.svg";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import {RoleMetaData} from "../components/RoleMetaData";
@@ -51,7 +52,17 @@ export const Role = () => {
                           name="users"
                           label={I18n.t("tabs.userRoles")}
                           Icon={UserLogo}>
-                        <UserRoles role={res[0]} userRoles={res[1]}/>
+                        <UserRoles role={res[0]}
+                                   guests={false}
+                                   userRoles={res[1].filter(userRole => userRole.authority !== "GUEST")}/>
+                    </Page>,
+                    <Page key="guests"
+                          name="guests"
+                          label={I18n.t("tabs.guestRoles")}
+                          Icon={GuestLogo}>
+                        <UserRoles role={res[0]}
+                                   guests={true}
+                                   userRoles={res[1].filter(userRole => userRole.authority === "GUEST")}/>
                     </Page>,
                     <Page key="invitations"
                           name="invitations"

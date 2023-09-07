@@ -86,7 +86,7 @@ const en = {
         landingPagePlaceHolder: "https://landingpage.com",
         defaultExpiryDays: "Expiry days",
         endDate: "End date",
-        authority: "Role",
+        authority: "Authority",
         yourRole: "Your role",
         description: "Description",
         descriptionPlaceHolder: "The description of the role",

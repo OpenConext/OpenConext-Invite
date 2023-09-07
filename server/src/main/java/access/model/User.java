@@ -83,6 +83,8 @@ public class User implements Serializable, Provisionable {
         this.email = (String) attributes.get("email");
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
+        this.createdAt = Instant.now();
+        this.lastActivity = this.createdAt;
         String name = (String) attributes.get("name");
         String preferredUsername = (String) attributes.get("preferred_username");
         if (StringUtils.hasText(name)) {

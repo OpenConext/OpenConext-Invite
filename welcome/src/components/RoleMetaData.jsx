@@ -10,21 +10,10 @@ export const RoleMetaData = ({role, provider, user}) => {
         return null;
     }
     const organisation = provider.data.metaDataFields["OrganizationName:en"] || "-";
-    const userRole = user.userRoles.find(userRole => userRole.role.id === role.id) ||
-        {authority: I18n.t("roles.noMember")};
     const items = [
-        {
-            label: I18n.t("users.access"),
-            values: [<a href={role.landingPage} rel="noreferrer"
-                        target="_blank">{I18n.t("users.landingPage")}</a>]
-        },
         {
             label: I18n.t("users.organisation"),
             values: [<span>{organisation}</span>]
-        },
-        {
-            label: I18n.t("users.authority"),
-            values: [<span>{I18n.t(`access.${userRole.authority}`)}</span>]
         },
         {
             label: I18n.t("users.expiryDays"),

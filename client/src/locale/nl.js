@@ -44,7 +44,8 @@ const nl = {
         invitations: "Invitations",
         roles: "Roles",
         profile: "Profile",
-        userRoles: "User roles",
+        userRoles: "Maintainers",
+        guestRoles: "Guests",
         cron: "Cron"
     },
     home: {
@@ -106,7 +107,7 @@ const nl = {
         landingPagePlaceHolder: "https://landingpage.com",
         defaultExpiryDays: "Expiry days",
         endDate: "End date",
-        authority: "Role",
+        authority: "Authority",
         yourRole: "Your role",
         description: "Description",
         descriptionPlaceHolder: "The description of the role",
@@ -156,7 +157,8 @@ const nl = {
         expired: "Expired",
         enforceEmailEquality: "Email equality",
         eduIDOnly: "eduID only",
-        new: "New invite",
+        new: "Invite maintainer",
+        newGuest: "Invite guest",
         invitees: "Invitees",
         inviteesPlaceholder: "Invitee email addresses",
         requiredEmail: "At least one email is required",

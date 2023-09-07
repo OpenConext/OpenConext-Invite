@@ -15,7 +15,7 @@ import {deleteUserRole, updateUserRoleEndData} from "../api";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 
 
-export const UserRoles = ({role, userRoles}) => {
+export const UserRoles = ({role, guest, userRoles}) => {
     const navigate = useNavigate();
     const {user, setFlash} = useAppStore(state => state);
 
@@ -231,7 +231,7 @@ export const UserRoles = ({role, userRoles}) => {
                   modelName="userRoles"
                   defaultSort="name"
                   columns={columns}
-                  newLabel={I18n.t("invitations.new")}
+                  newLabel={I18n.t(guest ? "invitations.newGuest": "invitations.new")}
                   showNew={true}
                   newEntityFunc={() => navigate("/invitation/new", {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}

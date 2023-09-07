@@ -112,7 +112,7 @@ export const Roles = () => {
         },
         {
             key: "authority",
-            header: I18n.t("roles.yourRole"),
+            header: I18n.t("roles.authority"),
             mapper: role =>  <Chip type={chipTypeForUserRole(role.authority)}
                                    label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
                                        I18n.t("roles.noMember")}/>
@@ -140,7 +140,7 @@ export const Roles = () => {
 
     return (
         <div className={"mod-roles"}>
-            <Entities entities={roles}
+            <Entities entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
                       modelName="roles"
                       showNew={isManager}
                       newLabel={I18n.t("roles.new")}

@@ -15,7 +15,7 @@
     </div>
     <div class="middle" style="padding: 20px 0 40px 60px;max-width: 600px;">
         <p>Hi, {{user.name}}</p>
-        <p>Your {{authority}} role {{role.name}} at the application {{organisationName}} will expire in
+        <p>Your {{authority}} role {{role.name}} at the application {{groupedProviders.name}} will expire in
             {{nbrOfDays}} days. If you think this is a mistake you can contact <a href="mailto:{{contactEmail}}">{{contactEmail}}</a> to request
             a renewal of your {{authority}} role.
             <table>
@@ -32,7 +32,7 @@
                 </tbody>
             </table>
         </p>
-        <p>If you don't want to renew your role , just ignore or delete this message.</p>
+        <p>If you don't want to renew your role, just ignore or delete this message.</p>
     </div>
     {{> footer_en.html}}
 </div>
