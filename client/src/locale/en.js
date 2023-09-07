@@ -41,6 +41,7 @@ const en = {
         home: "Home",
         applications: "Applications",
         users: "Users",
+        guest: "Guests",
         invitations: "Invitations",
         roles: "Roles",
         profile: "Profile",
