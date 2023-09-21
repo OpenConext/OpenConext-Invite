@@ -8,7 +8,6 @@ import {Login} from "./Login";
 import {Flash} from "../components/Flash";
 import {Header} from "../components/Header";
 import {Footer} from "../components/Footer";
-import {BreadCrumb} from "../components/BreadCrumb";
 import {Invitation} from "./Invitation";
 import {login} from "../utils/Login";
 import NotFound from "./NotFound";
@@ -78,7 +77,6 @@ export const App = () => {
             <div className="container">
                 <Flash/>
                 <Header/>
-                {authenticated && <BreadCrumb/>}
                 {authenticated &&
                     <Routes>
                         <Route path="/" element={<Navigate replace to="profile"/>}/>

@@ -11,3 +11,11 @@
     overflow: hidden;
     word-break: break-word;
 }
+
+.sds--card {
+    margin-bottom: 25px;
+    background-color: var(--sds--color--white);
+    border-radius: 0.175rem;
+    box-shadow: 0 0.1rem 0.1rem 0 var(--sds--color--pitch-black--dimmed--25);
+}
+

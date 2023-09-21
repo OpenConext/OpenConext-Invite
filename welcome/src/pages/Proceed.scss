@@ -31,40 +31,5 @@
         .step-actions {
             padding-top: 5px;
         }
-
-        .user-role {
-            display: flex;
-
-            @media (max-width: 680px) {
-                flex-direction: column;
-            }
-
-            img, svg {
-                height: 56px;
-                width: auto;
-                margin-right: 35px;
-                border-radius: $br;
-
-                @media (max-width: 680px) {
-                    margin: 0 auto 20px 0;
-                }
-            }
-
-            .launch {
-                margin-left: auto;
-
-                @media (max-width: 680px) {
-                    margin: 20px auto 0 0;
-                }
-
-            }
-        }
-
-        .sds--card {
-            margin-bottom: 25px;
-            background-color: var(--sds--color--white);
-            border-radius: 0.175rem;
-            box-shadow: 0 0.1rem 0.1rem 0 var(--sds--color--pitch-black--dimmed--25);
-        }
     }
 }

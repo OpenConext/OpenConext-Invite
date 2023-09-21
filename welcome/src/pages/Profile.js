@@ -1,35 +1,43 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import "./Profile.scss";
-import {Loader} from "@surfnet/sds";
+import {Toaster, ToasterType, Tooltip} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
-import {UnitHeader} from "../components/UnitHeader";
-import {ReactComponent as Logo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
-import {dateFromEpoch} from "../utils/Date";
+import HighFive from "../icons/high-five.svg";
+import {login} from "../utils/Login";
+import {stopEvent} from "../utils/Utils";
+import DOMPurify from "dompurify";
 
 export const Profile = () => {
-    const {user: currentUser} = useAppStore(state => state);
-    const [loading, setLoading] = useState(true);
+    const {user: currentUser, config} = useAppStore(state => state);
 
-    useEffect(() => {
-        setLoading(false);
-        useAppStore.setState({
-            breadcrumbPath: [
-                {value: I18n.t("header.links.profile")}
-            ]
-        });
-    }, [currentUser]);
-
-    if (loading) {
-        return <Loader/>
+    const doLogin = e => {
+        stopEvent(e);
+        login(config, true);
     }
+
+    const toasterChildren = <div>
+        <span>{I18n.t("profile.toaster", {institution: currentUser.schacHomeOrganization})}</span>
+        <a href="/logout" onClick={doLogin}>{I18n.t("profile.changeThis")}</a>
+        <span>)</span>
+    </div>
     return (
         <div className="mod-profile">
-            <UnitHeader obj={({name: currentUser.name, svg: Logo, style: "small"})}>
-                <p>{I18n.t("profile.info", {name: currentUser.name, createdAt: dateFromEpoch(currentUser.createdAt)})}</p>
-            </UnitHeader>
             <div className="profile-container">
+                <div className="welcome-logo">
+                    <img src={HighFive} alt={I18n.t("notFound.alt")}/>
+                </div>
+                <h2>{I18n.t("profile.welcome", {name: currentUser.name})}</h2>
+                <div>
+                    <span className={"info"}
+                          dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("profile.info"))}}/>
+                    <Tooltip tip={ I18n.t("profile.tooltipApps")}/>
+                </div>
+
+                <Toaster toasterType={ToasterType.Info}
+                         large={true}
+                         children={toasterChildren}/>
                 <User user={currentUser}/>
             </div>
         </div>);

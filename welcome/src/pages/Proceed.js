@@ -12,6 +12,8 @@ import {getParameterByName} from "../utils/QueryParameters";
 import {invitationByHash} from "../api";
 import {login} from "../utils/Login";
 import {MoreLessText} from "../components/MoreLessText";
+import {RoleCard} from "../components/RoleCard";
+import {User} from "../components/User";
 
 
 export const Proceed = () => {
@@ -36,27 +38,11 @@ export const Proceed = () => {
         }
     }, [invitationMeta, user, config]);
 
-    const renderInvitationRole = (invitationRole, index) => {
+    const renderInvitationRole = (invitationRole, index, isNew) => {
         const role = invitationRole.role;
         const provider = user.providers.find(data => data.id === role.manageId) || {};
-        const logo = provider.data.metaDataFields["logo:0:url"];
-        const children =
-            <div key={index} className={"user-role"}>
-                <Logo src={logo} alt={"provider"} className={"provider"}/>
-                <section className={"user-role-info"}>
-                    <h3>{role.name}</h3>
-                    <MoreLessText txt={role.description}/>
-                    <p><a href={role.landingPage}>{role.landingPage}</a></p>
-                </section>
-                <div className={"launch"}>
-                    <Button txt={I18n.t("proceed.launch")} onClick={() => {
-                        window.href = invitationRole.landingPage;
-                    }}/>
-                </div>
-
-            </div>;
         return (
-            <Card key={index} cardType={CardType.Big} children={children}/>
+            <RoleCard role={role} provider={provider} index={index} isNew={isNew}/>
         );
     }
 
@@ -82,7 +68,8 @@ export const Proceed = () => {
                             <span>{I18n.t("proceed.nextStep")}</span>
                         </div>
                     </div>
-                    {invitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index))}
+                    {invitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, true))}
+                    <User user={user} invitationRoles={invitation.roles}/>
                 </section>
             </>
         )

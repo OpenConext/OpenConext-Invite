@@ -1,0 +1,57 @@
+@import "../styles/vars";
+
+.card-container {
+
+    &.is-new {
+        position: relative;
+
+        .sds--chips {
+            position: absolute;
+            top: -16px;
+            left: -22px;
+        }
+
+        .sds--card {
+            box-shadow: 0 0.2rem 0.2rem 0 var(--sds--color--blue--400);
+            background-color: var(--sds--color--gray--100);
+            border: 0.0625rem solid var(--sds--color--blue--500);
+        }
+
+    }
+
+    .user-role {
+        display: flex;
+        align-items: center;
+
+        @media (max-width: 680px) {
+            flex-direction: column;
+        }
+
+        img, svg {
+            height: 56px;
+            width: auto;
+            margin-right: 35px;
+            border-radius: $br;
+
+            @media (max-width: 680px) {
+                margin: 0 auto 20px 0;
+            }
+        }
+
+        .launch {
+            margin-left: auto;
+
+            @media (max-width: 680px) {
+                margin: 20px auto 0 0;
+            }
+
+        }
+
+
+        .user-role-info {
+            h3 {
+                margin: 10px 0;
+            }
+        }
+    }
+}

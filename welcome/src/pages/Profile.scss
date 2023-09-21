@@ -6,9 +6,23 @@
 
     .profile-container {
         max-width: $medium;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         margin: 0 auto;
         @media (max-width: $medium) {
             padding: 0 15px;
+        }
+
+        .welcome-logo img {
+            margin: 25px 0;
+            border: 4px solid var(--sds--color--blue--400);
+            padding: 10px 20px;
+            border-radius: 50%;
+        }
+
+        h2 {
+            margin: 0 0 25px 0;
         }
 
     }

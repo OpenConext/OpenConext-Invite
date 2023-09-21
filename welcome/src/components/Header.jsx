@@ -5,22 +5,11 @@ import {UserMenu} from "./UserMenu";
 import {Link} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
-import {stopEvent} from "../utils/Utils";
 
 export const Header = () => {
 
     const {user, config} = useAppStore(state => state);
     const actions = [];
-    if (user && user.id && isUserAllowed(AUTHORITIES.INVITER, user)) {
-        actions.push({
-            href: "switch", perform: e => {
-                stopEvent(e);
-                window.location.href = `${config.serverWelcomeUrl}/api/v1/users/switch?app=access`
-            }, name: I18n.t("header.links.switchApp", {app: I18n.t("header.links.access")})
-        })
-    }
-
     return (
         <div className="header-container">
             <div className="header-inner">
