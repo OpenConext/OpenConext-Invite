@@ -18,7 +18,6 @@ public class UpdateUserRole {
     @NotNull
     private Long userRoleId;
 
-    @NotNull
     private Instant endDate;
 
 }

@@ -1,4 +1,5 @@
 import {isEmpty} from "./Utils";
+import I18n from "../locale/I18n";
 
 export const singleProviderToOption = provider => {
 
@@ -13,6 +14,16 @@ export const singleProviderToOption = provider => {
 
 export const providersToOptions = providers => {
     return providers.map(provider => singleProviderToOption(provider));
+}
+
+export const deriveApplicationAttributes = role => {
+    const application = role.application;
+    if (!isEmpty(application)) {
+        const metaData = application.data.metaDataFields;
+        role.applicationName = metaData[`name:${I18n.locale}`] || metaData["name:en"]
+        role.applicationOrganizationName = metaData[`OrganizationName:${I18n.locale}`] || metaData["OrganizationName:en"];
+        role.logo = metaData["logo:0:url"] ;
+    }
 }
 
 

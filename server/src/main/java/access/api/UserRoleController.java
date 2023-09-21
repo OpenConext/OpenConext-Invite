@@ -61,7 +61,7 @@ public class UserRoleController {
     public ResponseEntity<Map<String, Integer>> updateUserRoleExpirationDate(@Validated @RequestBody UpdateUserRole updateUserRole,
                                                                              @Parameter(hidden = true) User user) {
         UserRole userRole = userRoleRepository.findById(updateUserRole.getUserRoleId()).orElseThrow(NotFoundException::new);
-        if (!config.isPastDateAllowed() && Instant.now().isAfter(updateUserRole.getEndDate())) {
+        if (updateUserRole.getEndDate() != null && !config.isPastDateAllowed() && Instant.now().isAfter(updateUserRole.getEndDate())) {
             throw new NotAllowedException("End date must be after now");
         }
         UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));

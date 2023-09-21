@@ -11,10 +11,23 @@
             left: -22px;
         }
 
+        @keyframes glow {
+            0% {
+                box-shadow: 1px 0.13rem 0.13rem 0 #FFD700;
+                border: 0.0625rem solid #FFD700;
+            }
+            50% {
+                box-shadow: 1px 0.16rem 0.16rem 0 #eac602;
+                border: 0.0625rem solid #eac602;
+            }
+            100% {
+                box-shadow: 1px 0.13rem 0.13rem 0 #FFD700;
+                border: 0.0625rem solid #FFD700;
+            }
+        }
+
         .sds--card {
-            box-shadow: 0 0.2rem 0.2rem 0 var(--sds--color--blue--400);
-            background-color: var(--sds--color--gray--100);
-            border: 0.0625rem solid var(--sds--color--blue--500);
+            animation: glow 2.5s infinite;
         }
 
     }

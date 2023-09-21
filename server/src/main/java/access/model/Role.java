@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Formula;
 
 import java.io.Serializable;
 import java.util.*;
@@ -57,6 +58,8 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "block_expiry_date")
     private boolean blockExpiryDate;
 
+    @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
+    private Long userRoleCount;
 
     @OneToMany(mappedBy = "role",
             orphanRemoval = true,

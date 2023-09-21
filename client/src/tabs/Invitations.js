@@ -191,7 +191,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false}) =>
         },
         {
             key: "intendedRoles",
-            header: I18n.t("roles.title"),
+            header: I18n.t("invitations.intendedRoles"),
             mapper: invitation => invitation.intendedRoles
         },
         {

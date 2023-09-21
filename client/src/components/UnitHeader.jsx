@@ -68,8 +68,8 @@ export const UnitHeader = ({
                 </div>
                 <div className="obj-name">
                     {obj.name && <h1>{obj.name}</h1>}
-                    {obj.application &&
-                        <span className="name">{providerInfo(obj.application.data.metaDataFields["name:en"])}</span>}
+                    {obj.applicationName &&
+                        <span className="name">{obj.applicationName}</span>}
                     {(obj.description && displayDescription) &&
                         <MoreLessText txt={obj.description}/>
                     }

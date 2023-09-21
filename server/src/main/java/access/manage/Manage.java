@@ -1,8 +1,9 @@
 package access.manage;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import access.model.Role;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public interface Manage {
 
@@ -32,6 +33,23 @@ public interface Manage {
             provider.put("id", provider.get("_id"));
         }
         return provider;
+    }
+
+    default List<Role> deriveRemoteApplications(List<Role> roles) {
+        //First get all unique remote manage entities and group them by entityType
+        Map<EntityType, List<ManageIdentifier>> groupedManageIdentifiers = roles.stream()
+                .map(role -> new ManageIdentifier(role.getManageId(), role.getManageType()))
+                .collect(Collectors.toSet())
+                .stream()
+                .collect(Collectors.groupingBy(ManageIdentifier::entityType));
+        //Now for each entityType (hopefully one, maximum two) we call manage and create a map with as key
+        Map<String, Map<String, Object>> remoteApplications = groupedManageIdentifiers.entrySet().stream()
+                .map(entry -> this.providersByIdIn(entry.getKey(), entry.getValue().stream().map(ManageIdentifier::id).toList()))
+                .flatMap(List::stream)
+                .collect(Collectors.toMap(map -> (String) map.get("id"), map -> map));
+        //Add the metadata to the role
+        roles.forEach(role -> role.setApplication(addIdentifierAlias(remoteApplications.get(role.getManageId()))));
+        return roles;
     }
 
 }

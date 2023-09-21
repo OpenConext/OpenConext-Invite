@@ -3,14 +3,12 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Chip, Loader, Tooltip} from "@surfnet/sds";
+import {Chip, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication, searchRoles} from "../api";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
-import {dateFromEpoch} from "../utils/Date";
-import {ReactComponent as RoleIcon} from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import {chipTypeForUserRole} from "../utils/Authority";
 
 export const Roles = () => {
@@ -77,32 +75,25 @@ export const Roles = () => {
             </div>)
     }
 
-    const landingPage = role => {
-        const url = role.isUserRole ? role.role.landingPage : role.landingPage;
-        if (isEmpty(url)) {
-            return "";
-        }
-        return <a href={url} rel="noreferrer" target="_blank">{url}</a>
-    }
-
     const columns = [
         {
             nonSortable: true,
-            key: "icon",
+            key: "logo",
             header: "",
-            mapper: role => <div className="role-icon">
-                <Tooltip standalone={true}
-                         children={<RoleIcon/>}
-                         tip={I18n.t("tooltips.roleIcon",
-                             {
-                                 name: role.name,
-                                 createdAt: dateFromEpoch(role.isUserRole ? role.createdAt : role.auditable.createdAt)
-                             })}/>
-            </div>
+            mapper: role => {
+                return <div className="role-icon">
+                    <img src={role.application.data.metaDataFields["logo:0:url"]} alt="logo"/>
+                </div>
+            }
+        },
+        {
+            key: "applicationName",
+            header: I18n.t("roles.applicationName"),
+            mapper: role => <span>{role.applicationName}</span>
         },
         {
             key: "name",
-            header: I18n.t("roles.name"),
+            header: I18n.t("roles.accessRole"),
             mapper: role => <span>{role.name}</span>
         },
         {
@@ -113,20 +104,14 @@ export const Roles = () => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: role =>  <Chip type={chipTypeForUserRole(role.authority)}
-                                   label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
-                                       I18n.t("roles.noMember")}/>
+            mapper: role => <Chip type={chipTypeForUserRole(role.authority)}
+                                  label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
+                                      I18n.t("roles.noMember")}/>
         },
         {
-            key: "defaultExpiryDays",
-            header: I18n.t("users.expiryDays"),
-            mapper: role => role.isUserRole ? role.role.defaultExpiryDays : role.defaultExpiryDays
-        },
-        {
-            key: "landingPage",
-            header: I18n.t("roles.landingPage"),
-            hasLink: true,
-            mapper: role => landingPage(role)
+            key: "userRoleCount",
+            header: I18n.t("roles.userRoleCount"),
+            mapper: role => role.userRoleCount
         }
 
     ];
@@ -140,22 +125,23 @@ export const Roles = () => {
 
     return (
         <div className={"mod-roles"}>
-            <Entities entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
-                      modelName="roles"
-                      showNew={isManager}
-                      newLabel={I18n.t("roles.new")}
-                      newEntityPath={"/role/new"}
-                      defaultSort="name"
-                      columns={columns}
-                      searchAttributes={["name", "description", "landingPage"]}
-                      customNoEntities={I18n.t(`roles.noResults`)}
-                      loading={false}
-                      inputFocus={true}
-                      hideTitle={true}
-                      filters={moreToShow && moreResultsAvailable()}
-                      customSearch={roleSearchRequired && isSuperUser ? search : null}
-                      rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
-                      busy={searching}/>
+            <Entities
+                entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
+                modelName="roles"
+                showNew={isManager}
+                newLabel={I18n.t("roles.new")}
+                newEntityPath={"/role/new"}
+                defaultSort="name"
+                columns={columns}
+                searchAttributes={["name", "description", "applicationName"]}
+                customNoEntities={I18n.t(`roles.noResults`)}
+                loading={false}
+                inputFocus={true}
+                hideTitle={false}
+                filters={moreToShow && moreResultsAvailable()}
+                customSearch={roleSearchRequired && isSuperUser ? search : null}
+                rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
+                busy={searching}/>
         </div>
     );
 

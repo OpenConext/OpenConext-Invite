@@ -82,11 +82,6 @@ export const Entities = ({
         const filterClassName = !hideTitle && filters ? "filters-with-title" : `${modelName}-search-filters`;
         return (
             <section className="entities-search">
-                {showNew &&
-                    <Button onClick={newEntity}
-                            className={`${hideTitle && !filters ? "no-title" : ""}`}
-                            txt={newLabel || I18n.t(`${modelName}.new`)}/>
-                }
                 {!hideTitle && <h2>{title || `${I18n.t(`${modelName}.title`)} (${entities.length})`}</h2>}
                 <div className={filterClassName}>{filters}</div>
                 <div className={`search ${showNew ? "" : "standalone"}`}>
@@ -106,8 +101,12 @@ export const Entities = ({
                                 </div>
                             </div>
                         </div>}
-
                 </div>
+                {showNew &&
+                    <Button onClick={newEntity}
+                            className={`${hideTitle && !filters ? "no-title" : ""}`}
+                            txt={newLabel || I18n.t(`${modelName}.new`)}/>
+                }
             </section>
         );
     };

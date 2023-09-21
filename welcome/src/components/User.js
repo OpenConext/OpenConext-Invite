@@ -20,12 +20,12 @@ export const User = ({user, invitationRoles = []}) => {
         .filter(userRole => !rolesToExclude.includes(userRole.role.id));
     return (
         <>
-            {isEmpty(user.userRoles) && <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
+            {(isEmpty(user.userRoles) && isEmpty(invitationRoles))&& <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {!isEmpty(user.userRoles) &&
                 <>
                     {filteredUserRoles
                         .map((userRole, index) => renderUserRole(userRole, index))}
-                    {filteredUserRoles.length === 0 &&
+                    {(isEmpty(user.userRoles) && isEmpty(invitationRoles)) &&
                         <p>{I18n.t(`users.noRolesFound`)}</p>}
                 </>}
         </>

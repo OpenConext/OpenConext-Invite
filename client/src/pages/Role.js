@@ -48,14 +48,14 @@ export const Role = () => {
                 setRole(res[0]);
                 setLoading(false);
                 const newTabs = [
-                    <Page key="maintainers"
+                    isUserAllowed(AUTHORITIES.MANAGER, user) ? <Page key="maintainers"
                           name="maintainers"
                           label={I18n.t("tabs.userRoles")}
                           Icon={UserLogo}>
                         <UserRoles role={res[0]}
                                    guests={false}
                                    userRoles={res[1].filter(userRole => userRole.authority !== "GUEST")}/>
-                    </Page>,
+                    </Page> : null,
                     <Page key="guests"
                           name="guests"
                           label={I18n.t("tabs.guestRoles")}
@@ -72,7 +72,7 @@ export const Role = () => {
                                      preloadedInvitations={res[2]}/>
                     </Page>
                 ];
-                setTabs(newTabs);
+                setTabs(newTabs.filter(tab => tab !== null));
             })
             .catch(() => navigate("/"))
 

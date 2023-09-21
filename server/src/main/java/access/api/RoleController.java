@@ -57,7 +57,7 @@ public class RoleController {
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user) {
         LOG.debug("/roles");
         if (user.isSuperUser() && !config.isRoleSearchRequired()) {
-            return ResponseEntity.ok(roleRepository.findAll());
+            return ResponseEntity.ok(manage.deriveRemoteApplications(roleRepository.findAll()));
         }
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         Set<String> manageIdentifiers = user.getUserRoles().stream()
@@ -65,7 +65,7 @@ public class RoleController {
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
                 .map(userRole -> userRole.getRole().getManageId())
                 .collect(Collectors.toSet());
-        return ResponseEntity.ok(roleRepository.findByManageIdIn(manageIdentifiers));
+        return ResponseEntity.ok(manage.deriveRemoteApplications(roleRepository.findByManageIdIn(manageIdentifiers)));
     }
 
     @GetMapping("{id}")
@@ -84,7 +84,7 @@ public class RoleController {
         LOG.debug("/search");
         UserPermissions.assertSuperUser(user);
         List<Role> roles = roleRepository.search(query + "*", 15);
-        return ResponseEntity.ok(roles);
+        return ResponseEntity.ok(manage.deriveRemoteApplications(roles));
     }
 
     @PostMapping("validation/short_name")

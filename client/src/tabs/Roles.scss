@@ -6,6 +6,10 @@ div.mod-roles {
 
         thead {
             th {
+                &.applicationName {
+                    width: 15%;
+                }
+
                 &.name {
                     width: 15%;
                 }
@@ -19,19 +23,16 @@ div.mod-roles {
                     text-align: center;
                 }
 
-                &.defaultExpiryDays {
+                &.userRoleCount {
                     width: 15%;
                     text-align: center;
                 }
 
-                &.landingPage {
-                    width: 25%;
-                }
             }
         }
 
         tbody {
-            td.authority, td.defaultExpiryDays {
+            td.authority, td.defaultExpiryDays, td.userRoleCount {
                 text-align: center;
             }
 

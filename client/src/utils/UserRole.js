@@ -1,4 +1,6 @@
 import {isEmpty} from "./Utils";
+import {deriveApplicationAttributes} from "./Manage";
+import I18n from "../locale/I18n";
 
 export const INVITATION_STATUS = {
     OPEN: "OPEN",
@@ -81,8 +83,13 @@ export const allowedToRenewUserRole = (user, userRole) => {
 
 export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
 
-//TODO this now has two usages. Showing all roles in the roles for your overview and in new invitation - refactor to two
 export const markAndFilterRoles = (user, allRoles) => {
+    allRoles.forEach(role => {
+        role.isUserRole = false;
+        role.label = role.name;
+        role.value = role.id;
+        deriveApplicationAttributes(role);
+    });
     const userRoles = user.userRoles;
     userRoles.forEach(userRole => {
         userRole.isUserRole = true;
@@ -94,12 +101,11 @@ export const markAndFilterRoles = (user, allRoles) => {
         userRole.defaultExpiryDays = userRole.role.defaultExpiryDays;
         userRole.eduIDOnly = userRole.role.eduIDOnly;
         userRole.enforceEmailEquality = userRole.role.enforceEmailEquality;
+        userRole.applicationName = userRole.role.applicationName;
+        userRole.applicationOrganizationName = userRole.role.applicationOrganizationName;
+        userRole.logo = userRole.role.logo;
     })
-    allRoles.forEach(role => {
-        role.isUserRole = false;
-        role.label = role.name;
-        role.value = role.id;
-    });
+
     return allRoles
         .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
         .concat(userRoles);

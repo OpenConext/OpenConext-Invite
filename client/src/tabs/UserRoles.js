@@ -60,7 +60,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
             setConfirmation({
                 cancel: () => setConfirmationOpen(false),
                 action: () => doUpdateEndDate(userRole, newEndDate, false),
-                question: I18n.t("userRoles.updateConfirmation", {
+                question: I18n.t(`userRoles.${isEmpty(newEndDate) ? "updateConfirmationRemoveEndDate":"updateConfirmation"}`, {
                     roleName: userRole.role.name,
                     userName: userRole.userInfo.name
                 }),
@@ -125,14 +125,18 @@ export const UserRoles = ({role, guests, userRoles}) => {
     };
 
     const displayEndDate = userRole => {
-        if (allowedToRenewUserRole(user, userRole) && userRole.endDate) {
+        if (allowedToRenewUserRole(user, userRole)) {
             return (
                 <div className={"date-field-container"}>
+                    {!userRole.endDate &&
+                        <span className="no-end-date">
+                        {I18n.t("roles.noEndDate")}
+                    </span>}
                     <DateField
                         minDate={futureDate(1)}
-                        value={new Date(userRole.endDate * 1000)}
+                        value={userRole.endDate ? new Date(userRole.endDate * 1000) : null}
                         onChange={date => doUpdateEndDate(userRole, date, true)}
-                        allowNull={false}
+                        allowNull={true}
                         showYearDropdown={true}
                     />
                 </div>
@@ -231,7 +235,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                   modelName="userRoles"
                   defaultSort="name"
                   columns={columns}
-                  newLabel={I18n.t(guests ? "invitations.newGuest": "invitations.new")}
+                  newLabel={I18n.t(guests ? "invitations.newGuest" : "invitations.new")}
                   showNew={true}
                   newEntityFunc={() => navigate("/invitation/new", {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}

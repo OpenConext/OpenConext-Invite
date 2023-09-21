@@ -55,7 +55,7 @@ export const App = () => {
                             .then(res => {
                                 useAppStore.setState(() => ({user: res, authenticated: true}));
                                 const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
-                                const newLocation = location.startsWith("/login") ? "/home" : location;
+                                const newLocation = location.startsWith("/login") ? "/profile" : location;
                                 localStorage.removeItem("location");
                                 setLoading(false);
                                 navigate(newLocation);
