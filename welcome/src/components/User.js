@@ -1,8 +1,6 @@
 import React from "react";
 import "./User.scss";
-import {highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
-import {Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 import {providerInfo} from "../utils/Manage";
 import {RoleCard} from "./RoleCard";

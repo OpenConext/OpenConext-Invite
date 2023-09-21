@@ -3,15 +3,13 @@ import I18n from "../locale/I18n";
 import "./Proceed.scss";
 import "../styles/circle.scss";
 import DOMPurify from "dompurify";
-import {Button, Card, CardType, Loader, Toaster, ToasterType} from "@surfnet/sds";
+import {Loader, Toaster, ToasterType} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {organisationName} from "../utils/Manage";
-import Logo from "../components/Logo";
 import {getParameterByName} from "../utils/QueryParameters";
 import {invitationByHash} from "../api";
 import {login} from "../utils/Login";
-import {MoreLessText} from "../components/MoreLessText";
 import {RoleCard} from "../components/RoleCard";
 import {User} from "../components/User";
 
@@ -24,7 +22,7 @@ export const Proceed = () => {
 
     useEffect(() => {
         if (isEmpty(user)) {
-          login(config);
+            login(config);
         } else if (isEmpty(invitationMeta)) {
             const hashParam = getParameterByName("hash", window.location.search);
             invitationByHash(hashParam)

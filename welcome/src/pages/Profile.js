@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import I18n from "../locale/I18n";
 import "./Profile.scss";
 import {Toaster, ToasterType, Tooltip} from "@surfnet/sds";
@@ -32,7 +32,7 @@ export const Profile = () => {
                 <div>
                     <span className={"info"}
                           dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("profile.info"))}}/>
-                    <Tooltip tip={ I18n.t("profile.tooltipApps")}/>
+                    <Tooltip tip={I18n.t("profile.tooltipApps")}/>
                 </div>
 
                 <Toaster toasterType={ToasterType.Info}
