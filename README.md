@@ -1,4 +1,4 @@
-# Openconext-Access
+# Openconext-Invite
 # invite-server
 
 [![Build Status](https://github.com/OpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)
