@@ -1,6 +1,5 @@
 import {isEmpty} from "./Utils";
 import {deriveApplicationAttributes} from "./Manage";
-import I18n from "../locale/I18n";
 
 export const INVITATION_STATUS = {
     OPEN: "OPEN",
@@ -59,7 +58,10 @@ export const allowedToEditRole = (user, role) => {
 
 export const allowedToDeleteInvitation = (user, invitation) => {
     return invitation.roles
-        .every(invitationRole => allowedToRenewUserRole(user, {...invitationRole, authority: invitation.intendedAuthority}))
+        .every(invitationRole => allowedToRenewUserRole(user, {
+            ...invitationRole,
+            authority: invitation.intendedAuthority
+        }))
 }
 
 export const allowedToRenewUserRole = (user, userRole) => {
@@ -83,27 +85,30 @@ export const allowedToRenewUserRole = (user, userRole) => {
 
 export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
 
-export const markAndFilterRoles = (user, allRoles) => {
+export const markAndFilterRoles = (user, allRoles, locale) => {
     allRoles.forEach(role => {
         role.isUserRole = false;
         role.label = role.name;
         role.value = role.id;
-        deriveApplicationAttributes(role);
+        deriveApplicationAttributes(role, locale);
     });
     const userRoles = user.userRoles;
     userRoles.forEach(userRole => {
         userRole.isUserRole = true;
-        userRole.name = userRole.role.name;
-        userRole.label = userRole.role.name;
-        userRole.value = userRole.role.id;
-        userRole.landingPage = userRole.role.landingPage;
-        userRole.description = userRole.role.description;
-        userRole.defaultExpiryDays = userRole.role.defaultExpiryDays;
-        userRole.eduIDOnly = userRole.role.eduIDOnly;
-        userRole.enforceEmailEquality = userRole.role.enforceEmailEquality;
-        userRole.applicationName = userRole.role.applicationName;
-        userRole.applicationOrganizationName = userRole.role.applicationOrganizationName;
-        userRole.logo = userRole.role.logo;
+        const role = userRole.role;
+        deriveApplicationAttributes(role, locale);
+        userRole.name = role.name;
+        userRole.label = role.name;
+        userRole.value = role.id;
+        userRole.landingPage = role.landingPage;
+        userRole.description = role.description;
+        userRole.defaultExpiryDays = role.defaultExpiryDays;
+        userRole.eduIDOnly = role.eduIDOnly;
+        userRole.enforceEmailEquality = role.enforceEmailEquality;
+        userRole.applicationName = role.applicationName;
+        userRole.applicationOrganizationName = role.applicationOrganizationName;
+        userRole.logo = role.logo;
+        userRole.userRoleCount = role.userRoleCount;
     })
 
     return allRoles

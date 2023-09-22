@@ -1,6 +1,7 @@
 package access.manage;
 
 import access.model.Role;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,10 @@ public interface Manage {
     }
 
     default Map<String, Object> addIdentifierAlias(Map<String, Object> provider) {
+        //Defensive mostly because of tests
+        if (CollectionUtils.isEmpty(provider)) {
+            return provider;
+        }
         Object id = provider.get("id");
         if (id != null) {
             provider.put("_id", id);

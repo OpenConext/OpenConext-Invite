@@ -25,11 +25,11 @@ export const Roles = () => {
         if (isUserAllowed(AUTHORITIES.MANAGER, user)) {
             if (!roleSearchRequired) {
                 rolesByApplication()
-                    .then(res => setRoles(markAndFilterRoles(user, res)))
+                    .then(res => setRoles(markAndFilterRoles(user, res, I18n.locale)))
                 setLoading(false);
             }
         } else {
-            setRoles(markAndFilterRoles(user, []))
+            setRoles(markAndFilterRoles(user, [], I18n.locale))
         }
         setLoading(false);
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -61,7 +61,7 @@ export const Roles = () => {
     const delayedAutocomplete = debounce(query => {
         searchRoles(query)
             .then(res => {
-                setRoles(markAndFilterRoles(user, res));
+                setRoles(markAndFilterRoles(user, res, I18n.locale));
                 setMoreToShow(res.length === 15);
                 setNoResults(res.length === 0);
                 setSearching(false);
@@ -82,7 +82,7 @@ export const Roles = () => {
             header: "",
             mapper: role => {
                 return <div className="role-icon">
-                    <img src={role.application.data.metaDataFields["logo:0:url"]} alt="logo"/>
+                    <img src={role.logo} alt="logo"/>
                 </div>
             }
         },

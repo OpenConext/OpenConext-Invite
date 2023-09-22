@@ -12,8 +12,8 @@ import java.util.Set;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    @Query(value = "SELECT * FROM roles WHERE MATCH (name, description) against (?1  IN BOOLEAN MODE) " +
-            "AND id > 0 LIMIT ?2",
+    @Query(value = "SELECT *, (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount " +
+            "FROM roles r WHERE MATCH (name, description) against (?1  IN BOOLEAN MODE) AND id > 0 LIMIT ?2",
             nativeQuery = true)
     List<Role> search(String keyWord, int limit);
 

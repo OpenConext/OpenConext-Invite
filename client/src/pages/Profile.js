@@ -21,6 +21,7 @@ export const Profile = () => {
         if (id) {
             other(id)
                 .then(res => {
+                    debugger;
                     setUser(res);
                     setLoading(false);
                     useAppStore.setState({

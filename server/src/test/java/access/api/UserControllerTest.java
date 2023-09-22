@@ -95,8 +95,8 @@ class UserControllerTest extends AbstractTest {
     void meWithRoles() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INVITER_SUB);
 
-        String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.OIDC10_RP, "5"));
-        stubFor(get(urlPathMatching("/manage/api/internal/metadata/oidc10_rp/5")).willReturn(aResponse()
+        String body = objectMapper.writeValueAsString(List.of(localManage.providerById(EntityType.OIDC10_RP, "5")));
+        stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/oidc10_rp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
 
@@ -110,9 +110,9 @@ class UserControllerTest extends AbstractTest {
         List<String> roleNames = List.of("Mail", "Calendar").stream().sorted().toList();
 
         assertEquals(roleNames, user.getUserRoles().stream().map(userRole -> userRole.getRole().getName()).sorted().toList());
-        assertEquals(1, user.getProviders().size());
-        assertEquals("5", user.getProviders().get(0).get("id"));
-        assertEquals("5", user.getProviders().get(0).get("_id"));
+        List<Object> applicationIdentifiers = user.getUserRoles().stream()
+                .map(userRole -> userRole.getRole().getApplication().get("id")).sorted().toList();
+        assertEquals(List.of("5", "5"), applicationIdentifiers);
     }
 
     @Test
@@ -146,6 +146,9 @@ class UserControllerTest extends AbstractTest {
 
         User manager = userRepository.findBySubIgnoreCase(MANAGE_SUB).get();
         stubForManageProviderById(EntityType.SAML20_SP, "1");
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+
 
         User user = given()
                 .when()
@@ -163,7 +166,8 @@ class UserControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
         User guest = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
-        stubForManageProviderById(EntityType.SAML20_SP, "1");
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
 
         User user = given()
                 .when()

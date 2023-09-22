@@ -5,7 +5,9 @@ import access.exception.NotFoundException;
 import access.manage.ManageIdentifier;
 import access.manage.Manage;
 import access.model.Authority;
+import access.model.Role;
 import access.model.User;
+import access.model.UserRole;
 import access.repository.UserRepository;
 import access.security.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -85,9 +87,8 @@ public class UserController {
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug("/me");
-        List<Map<String, Object>> providers = getProviders(user);
-        user.setProviders(providers);
-
+        List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
+        manage.deriveRemoteApplications(roles);
         return ResponseEntity.ok(user);
     }
 
@@ -96,9 +97,9 @@ public class UserController {
         LOG.debug("/me");
         UserPermissions.assertSuperUser(user);
         User other = userRepository.findById(id).orElseThrow(NotFoundException::new);
-        List<Map<String, Object>> providers = getProviders(other);
-        other.setProviders(providers);
 
+        List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
+        manage.deriveRemoteApplications(roles);
         return ResponseEntity.ok(other);
     }
 
@@ -150,16 +151,6 @@ public class UserController {
         String msg = objectMapper.writeValueAsString(payload);
         LOG.error(msg, new IllegalArgumentException(msg));
         return Results.createResult();
-    }
-
-    private List<Map<String, Object>> getProviders(User user) {
-        return user.getUserRoles().stream()
-                .map(userRole -> new ManageIdentifier(userRole.getRole().getManageId(), userRole.getRole().getManageType()))
-                //Prevent unnecessary round-trips to Manage
-                .collect(Collectors.toSet())
-                .stream()
-                .map(identity -> manage.providerById(identity.entityType(), identity.id()))
-                .toList();
     }
 
     private void verifyMissingAttributes(User user, Config result) {

@@ -1,6 +1,6 @@
 const nl = {
     code: "NL",
-    name: "Nederlands",
+    name: "English",
     select_locale: "Change language to English",
     landing: {
         header: {

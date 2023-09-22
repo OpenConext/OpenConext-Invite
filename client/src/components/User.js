@@ -68,7 +68,7 @@ export const User = ({user, other}) => {
 
     const renderUserRole = (userRole, index) => {
         const role = userRole.role;
-        const provider = user.providers.find(data => data.id === role.manageId) || providerInfo(null);
+        const provider = role.application || providerInfo(null);
         const logo = provider.data.metaDataFields["logo:0:url"];
         const children =
             <div key={index} className={"user-role"}>

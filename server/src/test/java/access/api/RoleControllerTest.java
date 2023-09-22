@@ -154,6 +154,8 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void rolesByApplication() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+
         List<Role> roles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -170,6 +172,9 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void rolesByApplicationSuperUser() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+
         List<Role> roles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -228,6 +233,9 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void search() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+
         List<Role> roles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

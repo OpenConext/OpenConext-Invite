@@ -43,7 +43,7 @@
         img, svg {
             height: 56px;
             width: auto;
-            margin-right: 35px;
+            margin: 0 35px auto 0;
             border-radius: $br;
 
             @media (max-width: 680px) {

@@ -68,9 +68,6 @@ public class User implements Serializable, Provisionable {
     @JsonIgnore
     private Set<RemoteProvisionedUser> remoteProvisionedUsers = new HashSet<>();
 
-    @Transient
-    private List<Map<String, Object>> providers;
-
     public User(Map<String, Object> attributes) {
         this(false, attributes);
     }

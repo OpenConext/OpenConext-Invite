@@ -7,7 +7,6 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 import {Button, ButtonType, MenuButton} from "@surfnet/sds";
 import {Link, useNavigate} from "react-router-dom";
 import I18n from "../locale/I18n";
-import {providerInfo} from "../utils/Manage";
 import {MoreLessText} from "./MoreLessText";
 
 export const UnitHeader = ({

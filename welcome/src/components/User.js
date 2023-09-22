@@ -9,7 +9,7 @@ export const User = ({user, invitationRoles = []}) => {
 
     const renderUserRole = (userRole, index) => {
         const role = userRole.role;
-        const provider = providerInfo(user.providers.find(data => data.id === role.manageId));
+        const provider = providerInfo(role.application);
         return (
             <RoleCard role={role} provider={provider} index={index}/>
         );

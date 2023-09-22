@@ -42,13 +42,13 @@ export const InvitationForm = () => {
         if (isUserAllowed(AUTHORITIES.MANAGER, user)) {
             rolesByApplication()
                 .then(res => {
-                    const markedRoles = markAndFilterRoles(user, res);
+                    const markedRoles = markAndFilterRoles(user, res, I18n.locale);
                     setInitialRole(markedRoles);
                     setRoles(markedRoles);
                 })
             setLoading(false);
         } else {
-            const markedRoles = markAndFilterRoles(user, []);
+            const markedRoles = markAndFilterRoles(user, [], I18n.locale);
             setInitialRole(markedRoles);
             setRoles(markedRoles)
         }

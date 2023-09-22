@@ -56,7 +56,7 @@ export const RoleForm = () => {
                 if (user.superUser) {
                     setProviders(res[newRole ? 0 : 1]);
                 } else {
-                    setProviders(user.providers);
+                    setProviders(user.userRoles.map(userRole => userRole.role.application));
                 }
                 setNewRole(newRole);
                 const name = newRole ? "" : res[0].name;
@@ -65,7 +65,7 @@ export const RoleForm = () => {
                     {path: "/home/roles", value: I18n.t("tabs.roles")},
                 ];
                 if (newRole) {
-                    const providerOption = singleProviderToOption(user.superUser ? res[0][0] : user.providers[0]);
+                    const providerOption = singleProviderToOption(user.superUser ? res[0][0] : user.userRoles[0].role.application);
                     setManagementOption(providerOption);
                     setRole({...role, manageId: providerOption.value, manageType: providerOption.type.toUpperCase()})
                 } else {

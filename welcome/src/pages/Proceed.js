@@ -38,7 +38,7 @@ export const Proceed = () => {
 
     const renderInvitationRole = (invitationRole, index, isNew) => {
         const role = invitationRole.role;
-        const provider = user.providers.find(data => data.id === role.manageId) || {};
+        const provider = role.application || {};
         return (
             <RoleCard role={role} provider={provider} index={index} isNew={isNew}/>
         );
