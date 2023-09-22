@@ -1,19 +1,12 @@
 package access.api;
 
 import access.AbstractTest;
-import access.model.Authority;
-import access.model.MetaInvitation;
 import access.model.Validation;
-import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ValidationControllerTest extends AbstractTest {
 

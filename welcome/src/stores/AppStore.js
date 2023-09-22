@@ -4,7 +4,7 @@ export const useAppStore = create(set => ({
     csrfToken: null,
     config: {},
     user: {},
-    invitationMeta: {},
+    invitation: {},
     authenticated: false,
     objectRole: "",
     flash: {msg: "", className: "hide", type: "info"},

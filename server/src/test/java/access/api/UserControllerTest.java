@@ -6,6 +6,7 @@ import access.manage.EntityType;
 import access.model.Authority;
 import access.model.Role;
 import access.model.User;
+import access.model.UserRole;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -18,6 +19,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static access.Seed.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -264,7 +266,9 @@ class UserControllerTest extends AbstractTest {
     void other() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Long id = userRepository.findBySubIgnoreCase(INVITER_SUB).get().getId();
-        stubForManageProviderById(EntityType.OIDC10_RP, "5");
+
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+
         User user = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -273,7 +277,9 @@ class UserControllerTest extends AbstractTest {
                 .pathParams("id", id)
                 .get("/api/v1/users/other/{id}")
                 .as(User.class);
-        assertEquals(2, user.getUserRoles().size());
+        Set<UserRole> userRoles = user.getUserRoles();
+        assertEquals(2, userRoles.size());
+        assertEquals(List.of("5", "5"), userRoles.stream().map(userRole -> userRole.getRole().getApplication().get("id")).toList());
     }
 
     @Test

@@ -24,7 +24,7 @@ export const Invitation = ({authenticated}) => {
     const navigate = useNavigate();
     const {user, config} = useAppStore(state => state);
 
-    const [invitationMeta, setInvitationMeta] = useState({});
+    const [invitation, setInvitation] = useState({});
     const [loading, setLoading] = useState(true);
     const [expired, setExpired] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -38,18 +38,17 @@ export const Invitation = ({authenticated}) => {
         runOnce = true;
         invitationByHash(hashParam)
             .then(res => {
-                    setInvitationMeta(res);
+                    setInvitation(res);
                     useAppStore.setState(() => ({
-                        invitationMeta: res
+                        invitation: res
                     }));
-                    const status = res.invitation.status;
+                    const status = res.status;
                     if (status !== "OPEN") {
                         navigate(`/profile`);
                     } else {
                         const mayAccept = localStorage.getItem(MAY_ACCEPT);
                         if (mayAccept && config.name) {
-                            const {invitation} = res;
-                            acceptInvitation(hashParam, invitation.id)
+                            acceptInvitation(hashParam, res.id)
                                 .then(() => {
                                     localStorage.removeItem(MAY_ACCEPT);
                                     me()
@@ -71,7 +70,7 @@ export const Invitation = ({authenticated}) => {
                                                 warning: false,
                                                 error: true,
                                                 question: I18n.t("invitationAccept.emailMismatch", {
-                                                    email: res.invitation.email,
+                                                    email: res.email,
                                                     userEmail: user.email
                                                 }),
                                                 confirmationHeader: I18n.t("confirmationDialog.error"),
@@ -88,7 +87,7 @@ export const Invitation = ({authenticated}) => {
                                 )
                         } else {
                             localStorage.setItem(MAY_ACCEPT, "true");
-                            setExpired(new Date() > new Date(res["invitation"].expiryDate * 1000));
+                            setExpired(new Date() > new Date(res.expiryDate * 1000));
                             setLoading(false);
                         }
                     }
@@ -134,10 +133,9 @@ export const Invitation = ({authenticated}) => {
     }
 
     const renderLoginStep = () => {
-        const {invitation, providers} = invitationMeta;
         let html = DOMPurify.sanitize(I18n.t("invitationAccept.invited", {
             type: I18n.t("invitationAccept.role"),
-            roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role, providers)}`), I18n.t("forms.and")),
+            roles: splitListSemantically(invitation.roles.map(invitationRole => `<strong>${invitationRole.role.name}</strong>${organisationName(invitationRole)}`), I18n.t("forms.and")),
             inviter: invitation.inviter.name,
             plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
             email: invitation.inviter.email

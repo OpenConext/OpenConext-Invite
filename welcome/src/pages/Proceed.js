@@ -16,39 +16,37 @@ import {User} from "../components/User";
 
 export const Proceed = () => {
 
-    const {user, invitationMeta, config} = useAppStore(state => state);
+    const {user, invitation, config} = useAppStore(state => state);
     const [loading, setLoading] = useState(true);
-    const [reloadedInvitationMeta, setReloadedInvitationMeta] = useState(null);
+    const [reloadedInvitation, setReloadedInvitation] = useState(null);
 
     useEffect(() => {
         if (isEmpty(user)) {
             login(config);
-        } else if (isEmpty(invitationMeta)) {
+        } else if (isEmpty(invitation)) {
             const hashParam = getParameterByName("hash", window.location.search);
             invitationByHash(hashParam)
                 .then(res => {
-                    setReloadedInvitationMeta(res);
+                    setReloadedInvitation(res);
                     setLoading(false);
                 })
         } else {
-            setReloadedInvitationMeta(invitationMeta);
+            setReloadedInvitation(invitation);
             setLoading(false);
         }
-    }, [invitationMeta, user, config]);
+    }, [invitation, user, config]);
 
     const renderInvitationRole = (invitationRole, index, isNew) => {
         const role = invitationRole.role;
-        const provider = role.application || {};
         return (
-            <RoleCard role={role} provider={provider} index={index} isNew={isNew}/>
+            <RoleCard role={role} index={index} isNew={isNew}/>
         );
     }
 
     const renderProceedStep = () => {
-        const {invitation, providers} = reloadedInvitationMeta;
         const html = DOMPurify.sanitize(I18n.t("proceed.info", {
-            plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
-            roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role, providers)}`), I18n.t("forms.and"))
+            plural: reloadedInvitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
+            roles: splitListSemantically(reloadedInvitation.roles.map(invitationRole => `<strong>${invitationRole.role.name}</strong>${organisationName(invitationRole)}`), I18n.t("forms.and"))
         }));
         return (
             <>
@@ -66,14 +64,14 @@ export const Proceed = () => {
                             <span>{I18n.t("proceed.nextStep")}</span>
                         </div>
                     </div>
-                    {invitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, true))}
+                    {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, true))}
                     <User user={user} invitationRoles={invitation.roles}/>
                 </section>
             </>
         )
     }
 
-    if (loading || isEmpty(reloadedInvitationMeta)) {
+    if (loading || isEmpty(reloadedInvitation)) {
         return <Loader/>
     }
 

@@ -66,12 +66,14 @@ div.email-field {
             &.icon {
                 padding: 8px 14px;
                 cursor: pointer;
-                font-size: 14px;
                 color: var(--sds--color--gray--400);
                 position: absolute;
                 right: -8px;
-                top: -2px;
-
+                top: -8px;
+                svg {
+                    width: 10px;
+                    height: auto;
+                }
                 &:hover {
                     color: var(--sds--color--red--400);
                 }

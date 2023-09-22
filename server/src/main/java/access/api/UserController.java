@@ -98,7 +98,7 @@ public class UserController {
         UserPermissions.assertSuperUser(user);
         User other = userRepository.findById(id).orElseThrow(NotFoundException::new);
 
-        List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
+        List<Role> roles = other.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.deriveRemoteApplications(roles);
         return ResponseEntity.ok(other);
     }

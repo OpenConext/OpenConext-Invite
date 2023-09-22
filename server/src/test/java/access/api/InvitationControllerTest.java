@@ -25,20 +25,21 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void getInvitation() throws JsonProcessingException {
-        stubForManageProviderById(EntityType.OIDC10_RP, "5");
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
 
-        MetaInvitation metaInvitation = given()
+        Invitation invitation = given()
                 .when()
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("hash", Authority.GUEST.name())
                 .get("/api/v1/invitations/public")
-                .as(MetaInvitation.class);
+                .as(Invitation.class);
 
-        assertEquals("Mail", metaInvitation.invitation().getRoles().iterator().next().getRole().getName());
-        assertEquals(1, metaInvitation.providers().size());
-        assertEquals("Calendar EN", ((Map<String, Object>) ((Map<String, Object>) metaInvitation.providers()
-                .get(0).get("data")).get("metaDataFields")).get("name:en"));
+        Role role = invitation.getRoles().iterator().next().getRole();
+        assertEquals("Mail", role.getName());
+        Map<String, Object> application = role.getApplication();
+        assertEquals("Calendar EN", ((Map<String, Object>) ((Map<String, Object>) application.get("data"))
+                .get("metaDataFields")).get("name:en"));
     }
 
     @Test

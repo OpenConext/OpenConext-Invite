@@ -7,6 +7,8 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import {ReactComponent as WebsiteIcon} from "../icons/network-information.svg";
+import {ReactComponent as PersonIcon} from "../icons/persons.svg";
 import {ReactComponent as GuestLogo} from "@surfnet/sds/icons/illustrative-icons/hr.svg";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
