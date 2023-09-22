@@ -91,7 +91,7 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accessserver:${{ steps.versioncheck.outputs.version }}
+          ghcr.io/openconext/openconext-invite/inviteserver:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the client image
       uses: docker/build-push-action@v4
@@ -101,7 +101,7 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accessclient:${{ steps.versioncheck.outputs.version }}
+          ghcr.io/openconext/openconext-invite/inviteclient:${{ steps.versioncheck.outputs.version }}
     
     - name: Build and push the welcome image
       uses: docker/build-push-action@v4
@@ -111,7 +111,7 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accessswelcome:${{ steps.versioncheck.outputs.version }}
+          ghcr.io/openconext/openconext-invite/invitewelcome:${{ steps.versioncheck.outputs.version }}
 
     - name: Build and push the provisioning mock image
       uses: docker/build-push-action@v4
@@ -121,4 +121,4 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-access/accesssprovisioningmock:${{ steps.versioncheck.outputs.version }}
+          ghcr.io/openconext/openconext-invite/invitesprovisioningmock:${{ steps.versioncheck.outputs.version }}
