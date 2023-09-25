@@ -263,7 +263,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, users.size());
+        assertEquals(5, users.size());
     }
 
     @Test

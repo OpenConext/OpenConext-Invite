@@ -62,7 +62,7 @@ class RemoteManageTest extends AbstractTest {
         LocalManage localManage = new LocalManage(objectMapper);
         List<Map<String, Object>> serviceProviders = localManage.allowedEntries(EntityType.SAML20_SP, "1");
         String body = objectMapper.writeValueAsString(serviceProviders);
-        stubFor(get(urlPathMatching("/manage/api/internal/allowedEntities/SAML20_SP/1")).willReturn(aResponse()
+        stubFor(get(urlPathMatching("/manage/api/internal/allowedEntities/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
         List<Map<String, Object>> allowedEntries = manage.allowedEntries(EntityType.SAML20_SP, "1");
