@@ -6,18 +6,18 @@ const nl = {
         header: {
             title: "Toegang tot je applicaties",
             login: "Login",
-            sup: "SURFconext Invite is by invite only.",
+            sup: "SURFconext Invite is alleen op uitnodiging.",
         },
         works: "Hoe werkt het?",
         adminFunction: "adminfunctie",
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
-            ["Invites", "<p>SURF invites institution managers who can create roles for their applications.</p>" +
-            "<p>Applications are services connected to SURFconext.</p>", true],
-            ["Roles", "<p>The application managers will invite colleagues for roles who can invite guests.</p>" +
-            "<p>Invites.</p>", true],
-            ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
-            ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
+            ["Uitnodigen", "<p>Instellingsbeheerders kunnen rollen aanmaken voor hun applicaties.</p>" +
+            "<p>Applicaties zijn diensten gekoppeld aan SURFconext.</p>", true],
+            ["Rollen", "<p>De applicatiebeheerders nodigen collega's die weer gasten kunnen uitnodigen.</p>" +
+            "<p>Uitnodigingen.</p>", true],
+            ["Word lid", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
+            ["Groepen", "<p>De rollen zijn feitelijk groepslidmaatschappen die gebruikt kunnen worden in SURFconext autorisatieregels, doorgegeven als attributen of via externe SCIM API's.</p>", false]
         ],
         footer: "<p>SURFconext Invite biedt toegangsbeheer voor het Nederlandse onderwijs en onderzoek.</p>" +
             "<p>Meer weten? <a href='https://support.surfconext.nl/invite'>Lees verder</a>.</p>",
@@ -28,7 +28,7 @@ const nl = {
         links: {
             login: "Login",
             switchApp: "Ga naar {{app}}",
-            welcome: "Welkom",
+            welcome: "Welcome",
             access: "Invite",
             help: "Help",
             profile: "Profiel",
@@ -41,10 +41,10 @@ const nl = {
     },
     users: {
         roles: "Applicaties",
-        noRolesInfo: "You have no applications (which means you must be super-user)",
-        noRolesFound: "You have not been invited for any guest roles for educational applications",
-        rolesInfo: "You have access to the following applications.",
-        expiryDays: "Expiry days"
+        noRolesInfo: "Je hebt geen applicaties (je bent dus een super-user)",
+        noRolesFound: "Je bent nog niet als gast uitgenodigd voor een rol.",
+        rolesInfo: "Je bezit de volgende rollen.",
+        expiryDays: "Verloopdagen"
     },
     forms: {
         ok: "Ok",
