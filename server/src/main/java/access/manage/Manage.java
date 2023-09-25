@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public interface Manage {
 
-    List<Map<String, Object>> providers(EntityType entityType);
+    List<Map<String, Object>> providers(EntityType... entityTypes);
 
     Map<String, Object> providerById(EntityType entityType, String id);
 
@@ -19,6 +19,8 @@ public interface Manage {
     List<Map<String, Object>> provisioning(List<String> ids);
 
     List<Map<String, Object>> allowedEntries(EntityType entityType, String id);
+
+    List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID);
 
     //Due to the different API's we are using, the result sometimes contains an "_id" and sometimes an "id"
     default List<Map<String, Object>> addIdentifierAlias(List<Map<String, Object>> providers) {

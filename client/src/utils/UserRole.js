@@ -10,6 +10,7 @@ export const INVITATION_STATUS = {
 
 export const AUTHORITIES = {
     SUPER_USER: "SUPER_USER",
+    INSTITUTION_ADMIN: "INSTITUTION_ADMIN",
     MANAGER: "MANAGER",
     INVITER: "INVITER",
     GUEST: "GUEST"
@@ -17,14 +18,18 @@ export const AUTHORITIES = {
 
 const AUTHORITIES_HIERARCHY = {
     [AUTHORITIES.SUPER_USER]: 1,
-    [AUTHORITIES.MANAGER]: 2,
-    [AUTHORITIES.INVITER]: 3,
-    [AUTHORITIES.GUEST]: 4
+    [AUTHORITIES.INSTITUTION_ADMIN]: 2,
+    [AUTHORITIES.MANAGER]: 3,
+    [AUTHORITIES.INVITER]: 4,
+    [AUTHORITIES.GUEST]: 5
 }
 
 export const highestAuthority = user => {
     if (user.superUser) {
         return AUTHORITIES.SUPER_USER;
+    }
+    if (user.institutionAdmin) {
+        return AUTHORITIES.INSTITUTION_ADMIN;
     }
     return (user.userRoles || []).reduce((acc, u) => {
         if (AUTHORITIES_HIERARCHY[acc] > AUTHORITIES_HIERARCHY[AUTHORITIES[u.authority]]) {
@@ -130,7 +135,6 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     }
     //Return only the AUTHORITIES where the user has the correct authority per selectedRole
     const userRolesForSelectedRoles = selectedRoles
-        //TODO Remove this hack and require only really roles
         .map(role => role.isUserRole ? role.role : role)
         .map(role => user.userRoles.find(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id))
         .filter(userRole => !isEmpty(userRole));

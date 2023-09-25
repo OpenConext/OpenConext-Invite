@@ -20,9 +20,11 @@ public record Seed(InvitationRepository invitationRepository,
 
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
+    public static final String INSTITUTION_ADMIN = "urn:collab:person:example.com:institution_admin";
     public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
     public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
+    public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
 
     public void doSeed() {
         this.invitationRepository.deleteAllInBatch();
@@ -35,13 +37,18 @@ public record Seed(InvitationRepository invitationRepository,
 
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@examole.com");
+        User institutionAdmin =
+                new User(false, INSTITUTION_ADMIN, INSTITUTION_ADMIN, "example.com", "Carl", "Doe", "carl.doe@examole.com");
+        institutionAdmin.setInstitutionAdmin(true);
+        institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
+
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@examole.com");
         User inviter =
                 new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@examole.com");
         User guest =
                 new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@examole.com");
-        doSave(this.userRepository, superUser, manager, inviter, guest);
+        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, guest);
 
         Role wiki =
                 new Role("Wiki", "Wiki desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);

@@ -2,7 +2,6 @@ package access.manage;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
@@ -30,8 +30,10 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providers(EntityType entityType) {
-        return getRemoteMetaData(entityType.collectionName());
+    public List<Map<String, Object>> providers(EntityType... entityTypes) {
+        return addIdentifierAlias(Stream.of(entityTypes).map(entityType -> this.getRemoteMetaData(entityType.collectionName()))
+                .flatMap(List::stream)
+                .toList());
     }
 
     @Override
@@ -46,7 +48,7 @@ public class RemoteManage implements Manage {
     public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
         String query = URLEncoder.encode(String.format("{\"data.entityid\":\"%s\"}", entityID), Charset.defaultCharset());
         String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.collectionName(), query);
-        List<Map<String, Object>>  providers = addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
+        List<Map<String, Object>> providers = addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
         return providers.isEmpty() ? Optional.empty() : Optional.of(providers.get(0));
     }
 
@@ -57,7 +59,6 @@ public class RemoteManage implements Manage {
     }
 
 
-
     @Override
     public List<Map<String, Object>> provisioning(List<String> ids) {
         String queryUrl = String.format("%s/manage/api/internal/provisioning", url);
@@ -66,14 +67,28 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> allowedEntries(EntityType entityType, String id) {
-        String queryUrl = String.format("%s/manage/api/internal/allowedEntities/%s/%s", url, entityType, id);
+        String queryUrl = String.format("%s/manage/api/internal/allowedEntities/%s/%s", url, entityType.collectionName(), id);
         return addIdentifierAlias(restTemplate.getForEntity(queryUrl, List.class).getBody());
+    }
+
+    @Override
+    public List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID) {
+        Map<String, Object> baseQuery = (Map<String, Object>) this.queries.get("base_query");
+        baseQuery.put("coin:institution_guid", organisationGUID);
+        List serviceProviders = restTemplate.postForObject(
+                String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_SP.collectionName()),
+                baseQuery, List.class);
+        List relyingParties = restTemplate.postForObject(
+                String.format("%s/manage/api/internal/search/%s", this.url, EntityType.OIDC10_RP.collectionName()),
+                baseQuery, List.class);
+        serviceProviders.addAll(relyingParties);
+        return addIdentifierAlias(serviceProviders);
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type) {
         Object baseQuery = this.queries.get("base_query");
         String url = String.format("%s/manage/api/internal/search/%s", this.url, type);
         return addIdentifierAlias(restTemplate.postForObject(url, baseQuery, List.class));
-
     }
+
 }

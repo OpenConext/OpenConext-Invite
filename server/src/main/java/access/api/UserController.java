@@ -89,6 +89,10 @@ public class UserController {
         LOG.debug("/me");
         List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.deriveRemoteApplications(roles);
+        if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
+            List<Map<String, Object>> applications = manage.providersByInstitutionalGUID(user.getOrganizationGUID());
+            user.setApplications(applications);
+        }
         return ResponseEntity.ok(user);
     }
 

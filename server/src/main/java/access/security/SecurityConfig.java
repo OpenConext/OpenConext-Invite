@@ -93,21 +93,23 @@ public class SecurityConfig {
     }
 
     @Configuration
-    @EnableConfigurationProperties(SuperAdmin.class)
+    @EnableConfigurationProperties({SuperAdmin.class, InstitutionAdmin.class})
     public static class MvcConfig implements WebMvcConfigurer {
 
         private final UserRepository userRepository;
         private final SuperAdmin superAdmin;
+        private final InstitutionAdmin institutionAdmin;
 
         @Autowired
-        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin) {
+        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin, InstitutionAdmin institutionAdmin) {
             this.userRepository = userRepository;
             this.superAdmin = superAdmin;
+            this.institutionAdmin = institutionAdmin;
         }
 
         @Override
         public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin));
+            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin, institutionAdmin));
         }
 
         @Override

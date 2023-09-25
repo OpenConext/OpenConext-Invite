@@ -52,6 +52,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -160,11 +162,11 @@ public abstract class AbstractTest {
     }
 
     protected AccessCookieFilter openIDConnectFlow(String path, String sub) throws Exception {
-        return this.openIDConnectFlow(path, sub, s -> {
-        });
+        return this.openIDConnectFlow(path, sub, s -> {}, m -> m);
     }
 
-    protected AccessCookieFilter openIDConnectFlow(String path, String sub, Consumer<String> authorizationConsumer) throws Exception {
+    protected AccessCookieFilter openIDConnectFlow(String path, String sub, Consumer<String> authorizationConsumer,
+                                                   UnaryOperator<Map<String, Object>> userInfoEnhancer) throws Exception {
         CookieFilter cookieFilter = new CookieFilter();
         Headers headers = given()
                 .redirects()
@@ -220,6 +222,7 @@ public abstract class AbstractTest {
         userInfo.put("sub", StringUtils.hasText(sub) ? sub : "sub");
         userInfo.put("email", sub);
         userInfo.put("eduperson_principal_name", sub);
+        userInfo = userInfoEnhancer.apply(userInfo);
         String userInfoResult = objectMapper.writeValueAsString(userInfo);
         stubFor(get(urlPathMatching("/user-info")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
@@ -308,6 +311,26 @@ public abstract class AbstractTest {
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
                         .withBody(body)
                         .withStatus(200)));
+
+    }
+
+    protected void stubForManageProviderByOrganisationGUID(String organisationGUID) throws JsonProcessingException {
+        String path = "/manage/api/internal/search/%s";
+        List<Map<String, Object>> providers = localManage.providersByInstitutionalGUID(organisationGUID);
+        Map<EntityType, List<Map<String, Object>>> providersMap = Map.of(
+                EntityType.SAML20_SP,
+                providers.stream().filter(m -> m.get("type").equals(EntityType.SAML20_SP.collectionName())).toList(),
+                EntityType.OIDC10_RP,
+                providers.stream().filter(m -> m.get("type").equals(EntityType.OIDC10_RP.collectionName())).toList()
+        );
+        //Lambda can't do exception handling
+        for (Map.Entry<EntityType, List<Map<String, Object>>> entry : providersMap.entrySet()) {
+            EntityType entityType = entry.getKey();
+            List<Map<String, Object>> providerList = entry.getValue();
+            stubFor(post(urlPathMatching(String.format(path, entityType.collectionName()))).willReturn(aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(objectMapper.writeValueAsString(providerList))));
+        }
 
     }
 

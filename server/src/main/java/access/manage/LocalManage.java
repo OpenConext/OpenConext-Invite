@@ -8,6 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,9 +31,11 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providers(EntityType entityType) {
+    public List<Map<String, Object>> providers(EntityType... entityTypes) {
         //Ensure it is immutable
-        return addIdentifierAlias(this.allProviders.get(entityType).stream().toList());
+        return addIdentifierAlias(Stream.of(entityTypes).map(entityType -> this.allProviders.get(entityType).stream().toList())
+                .flatMap(List::stream)
+                .toList());
     }
 
     @Override
@@ -81,5 +84,16 @@ public final class LocalManage implements Manage {
                             ((List<Map<String, String>>) data.get("allowedEntities")).stream().anyMatch(entity -> entity.get("name").equals(entityId));
                 })
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID) {
+        List<Map<String, Object>> providers = providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
+        return providers
+                .stream()
+                .filter(provider -> Objects.equals(((Map<String, Object>) ((Map<String, Object>) provider.get("data"))
+                        .get("metaDataFields"))
+                        .get("coin:institution_guid"), organisationGUID))
+                .toList();
     }
 }

@@ -11,10 +11,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +49,13 @@ public class User implements Serializable, Provisionable {
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
+    @Column(name = "organization_guid")
+    private String organizationGUID;
+
+    @Column(name = "institution_admin")
+    @NotNull
+    private boolean institutionAdmin;
+
     @Column
     private String email;
 
@@ -67,6 +71,9 @@ public class User implements Serializable, Provisionable {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<RemoteProvisionedUser> remoteProvisionedUsers = new HashSet<>();
+
+    @Transient
+    private List<Map<String, Object>> applications = Collections.emptyList();
 
     public User(Map<String, Object> attributes) {
         this(false, attributes);

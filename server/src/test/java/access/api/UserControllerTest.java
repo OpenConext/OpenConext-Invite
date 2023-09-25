@@ -4,12 +4,10 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
 import access.model.Authority;
-import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import io.restassured.http.Header;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,7 +21,6 @@ import java.util.Set;
 
 import static access.Seed.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,7 +64,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/config")
                 .as(Map.class);
         assertFalse((Boolean) res.get("authenticated"));
-        assertEquals(2, ((List)res.get("missingAttributes")).size());
+        assertEquals(2, ((List) res.get("missingAttributes")).size());
     }
 
     @Test
@@ -82,6 +79,44 @@ class UserControllerTest extends AbstractTest {
                 .get(accessCookieFilter.apiURL())
                 .as(User.class);
         assertEquals("urn:collab:person:example.com:admin", user.getEmail());
+
+        Map res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(Map.class);
+        assertTrue((Boolean) res.get("authenticated"));
+    }
+
+    @Test
+    void institutionAdminProvision() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
+                s -> {
+                }, m -> {
+                    m.put("eduperson_entitlement",
+                            List.of(
+                                    "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
+                                    "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + ORGANISATION_GUID
+                            ));
+                    return m;
+                });
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(User.class);
+        assertNotNull(user.getId());
+        assertTrue(user.isInstitutionAdmin());
+        assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
+        assertEquals(3, user.getApplications().size());
+        user.getApplications().stream().forEach(application -> assertEquals(ORGANISATION_GUID,
+                ((Map)((Map)application.get("data")).get("metaDataFields")).get("coin:institution_guid")));
 
         Map res = given()
                 .when()
@@ -128,7 +163,8 @@ class UserControllerTest extends AbstractTest {
                     assertEquals("login", prompt);
                     String loginHint = URLDecoder.decode(queryParams.getFirst("login_hint"), StandardCharsets.UTF_8);
                     assertEquals("https://login.test2.eduid.nl", loginHint);
-                });
+                },
+                m -> m);
 
         String location = given()
                 .redirects()
