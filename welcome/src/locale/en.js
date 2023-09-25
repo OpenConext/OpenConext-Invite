@@ -6,7 +6,7 @@ const en = {
         header: {
             title: "Get access to your applications",
             login: "Login",
-            sup: "SURFwelcome is by invite only.",
+            sup: "SURFconext Invite is by invite only.",
         },
         works: "How does it work?",
         adminFunction: "admin function",
@@ -19,11 +19,11 @@ const en = {
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
         ],
-        footer: "<p>SURFwelcome is a service for access management of Dutch led service providers.</p>" +
+        footer: "<p>SURFconext Invite is a service for access management of Dutch led service providers.</p>" +
             "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/access'>https://surf.nl/en/access</a>.</p>",
     },
     header: {
-        title: "SURFwelcome",
+        title: "SURFconext Invite",
         subTitle: "Everything will be Owl right",
         links: {
             login: "Login",
@@ -33,11 +33,11 @@ const en = {
             help: "Help",
             profile: "Profile",
             logout: "Logout",
-            helpUrl: "https://support.surfconext.nl/help-welcome-en"
+            helpUrl: "https://support.surfconext.nl/help-invite-en"
         },
     },
     home: {
-        access: "SURFwelcome",
+        access: "SURFconext Invite",
     },
     users: {
         roles: "Applications",
@@ -51,28 +51,28 @@ const en = {
         and: "and",
         more: "More",
         less: "Less",
-        error: "You can <a href=\"mailto:welcome@surf.nl\" target=\"_blank\">contact SURFwelcome</a> for more information.<br/><br/>" +
+        error: "You can <a href=\"mailto:support@surfconext.nl\">contact SURFconext Invite</a> for more information.<br/><br/>" +
             "The reference number for ths exception is {{reference}}."
     },
     profile: {
         welcome: "Welcome, {{name}}",
-        info: "Here are the <a class='' href='https://wiki.surfnet.nl/#all-updates' target='_blank'>educational applications</a> you can access through SURFWelcome",
+        info: "Here are the educational applications you can access through SURFconext Invite",
         toaster: "You are logged in with the institution {{institution}} (",
         changeThis: "change this",
         tooltipApps: "You have been granted access to applications as a guest user by your institution"
     },
     inviteOnly: {
-        welcome: "Welcome to SURFwelcome",
+        welcome: "Welcome to SURFconext Invite",
         roles: "You don't have any roles.",
-        info: "The SURFwelcome application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:access@surf.nl'>welcome@surf.nl</a>.",
+        info: "The SURFconext Invite application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Or ",
         login: "login",
         postLogin: " again with a different institution",
     },
     missingAttributes: {
-        welcome: "Welcome to SURFwelcome",
+        welcome: "Welcome to SURFconext Invite",
         attributes: "Your institution has not provided all required attributes. The following attributes are missing:",
-        info: "If you want more information, please contact <a href='mailto:access@surf.nl'>welcome@surf.nl</a>.",
+        info: "If you want more information, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Or ",
         login: "login",
         postLogin: " again with a different institution.",
@@ -87,7 +87,7 @@ const en = {
         role: "role",
         roles: "roles",
         progress: "1",
-        info: "SURFwelcome provides access to application based on your roles.",
+        info: "SURFconext Invite provides access to application based on your roles.",
         infoLogin: "You can login with your institution account or eduID.",
         infoLoginEduIDOnly: "You must login with eduID.",
         infoLoginAgain: "To accept the invitation you'll need to login again.",
