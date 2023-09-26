@@ -135,6 +135,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(c -> c
                         .requestMatchers(
                                 "/api/v1/csrf",
+                                "/api/v1/disclaimer",
                                 "/api/v1/users/config",
                                 "/api/v1/users/logout",
                                 "/api/v1/invitations/public",

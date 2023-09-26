@@ -82,6 +82,11 @@ institution-admin:
   entitlement: "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke"
   organization-guid-prefix: "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:"
 
+gui:
+  disclaimer:
+    background-color: red
+    content: LOCAL
+
 config:
   client-url: "http://localhost:3000"
   welcome-url: "http://localhost:4000"

@@ -1,3 +1,21 @@
 @import "styles/tooltip";
 @import "styles/forms";
 @import "styles/responsive";
+
+body:after {
+    position: fixed;
+    width: 109px;
+    height: 28px;
+    top: 15px;
+    right: -25px;
+    text-align: center;
+    font-size: 16px;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: white;
+    line-height: 30px;
+    transform: rotate(45deg);
+}
+
+
