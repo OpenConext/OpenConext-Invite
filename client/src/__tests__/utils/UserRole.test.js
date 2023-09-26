@@ -25,7 +25,7 @@ test("Allowed authorities for invitation - superUser", () => {
     const user = {superUser: true}
 
     const authorities = allowedAuthoritiesForInvitation(user, []);
-    expect(authorities).toEqual([AUTHORITIES.SUPER_USER, AUTHORITIES.MANAGER, AUTHORITIES.INVITER, AUTHORITIES.GUEST]);
+    expect(authorities).toEqual([AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN, AUTHORITIES.MANAGER, AUTHORITIES.INVITER, AUTHORITIES.GUEST]);
 });
 
 test("Allowed authorities for invitation - manager", () => {

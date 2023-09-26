@@ -22,8 +22,8 @@ public class UserPermissions {
     }
 
     public static void assertAuthority(User user, Authority authority) {
-        if (user.isInstitutionAdmin() && !Authority.INSTITUTION_ADMIN.hasEqualOrHigherRights(authority)) {
-            throw new UserRestrictionException();
+        if (user.isInstitutionAdmin() && Authority.INSTITUTION_ADMIN.hasEqualOrHigherRights(authority)) {
+            return;
         }
         if (!user.isSuperUser() && user.getUserRoles().stream()
                 .noneMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(authority)))
