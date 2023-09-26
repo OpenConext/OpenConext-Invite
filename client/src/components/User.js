@@ -18,12 +18,13 @@ export const User = ({user, other}) => {
     const [query, setQuery] = useState("");
     const [queryApplication, setQueryApplication] = useState("");
 
+    if (user.institutionAdmin) {
+        (user.applications || []).forEach(application => deriveRemoteApplicationAttributes(application, I18n.locale));
+    }
+
     useEffect(() => {
         if (searchRef && searchRef.current) {
             searchRef.current.focus();
-        }
-        if (user.institutionAdmin) {
-            (user.applications || []).forEach(application => deriveRemoteApplicationAttributes(application, I18n.locale));
         }
     }, [searchRef, user])
 

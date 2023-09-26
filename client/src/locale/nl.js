@@ -137,6 +137,7 @@ const nl = {
         edit: "Bewerk rol {{name}}",
         urn: "URN",
         advanced: "Advanced settings",
+        override: "Kunnen de instellingen worden veranderd bij een uitnodiging?",
         manage: "Dienst",
         manageMetaData: "Entity",
         provisioning: "Provisioning",

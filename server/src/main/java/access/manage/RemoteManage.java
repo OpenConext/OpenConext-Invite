@@ -74,7 +74,7 @@ public class RemoteManage implements Manage {
     @Override
     public List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID) {
         Map<String, Object> baseQuery = (Map<String, Object>) this.queries.get("base_query");
-        baseQuery.put("coin:institution_guid", organisationGUID);
+        baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
         List serviceProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_SP.collectionName()),
                 baseQuery, List.class);
