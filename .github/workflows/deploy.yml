@@ -121,4 +121,4 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ghcr.io/openconext/openconext-invite/invitesprovisioningmock:${{ steps.versioncheck.outputs.version }}
+          ghcr.io/openconext/openconext-invite/inviteprovisioningmock:${{ steps.versioncheck.outputs.version }}
