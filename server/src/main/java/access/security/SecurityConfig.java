@@ -1,6 +1,5 @@
 package access.security;
 
-import access.config.UserHandlerMethodArgumentResolver;
 import access.exception.ExtendedErrorAttributes;
 import access.manage.Manage;
 import access.model.Invitation;
@@ -29,10 +28,13 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -42,10 +44,10 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
+
+import static access.security.InstitutionAdmin.*;
 
 @EnableWebSecurity
 @EnableScheduling
@@ -94,25 +96,21 @@ public class SecurityConfig {
     }
 
     @Configuration
-    @EnableConfigurationProperties({SuperAdmin.class, InstitutionAdmin.class})
+    @EnableConfigurationProperties({SuperAdmin.class})
     public static class MvcConfig implements WebMvcConfigurer {
 
         private final UserRepository userRepository;
         private final SuperAdmin superAdmin;
-        private final InstitutionAdmin institutionAdmin;
-        private final Manage manage;
 
         @Autowired
-        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin, InstitutionAdmin institutionAdmin, Manage manage) {
+        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin) {
             this.userRepository = userRepository;
             this.superAdmin = superAdmin;
-            this.institutionAdmin = institutionAdmin;
-            this.manage = manage;
         }
 
         @Override
         public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin, institutionAdmin, manage));
+            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin));
         }
 
         @Override
@@ -125,7 +123,10 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http,
+                                                   Manage manage,
+                                                   @Value("${institution-admin.entitlement}") String entitlement,
+                                                   @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
         http
                 .csrf(c -> c
                         .ignoringRequestMatchers("/login/oauth2/code/oidcng")
@@ -149,19 +150,11 @@ public class SecurityConfig {
                                 .authorizationRequestResolver(
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
-                        ).userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService()))
+                        ).userInfoEndpoint(userInfo -> userInfo.oidcUserService(
+                                new CustomOidcUserService(manage, entitlement, organizationGuidPrefix)))
                 );
 
         return http.build();
-    }
-
-    private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-        final OidcUserService delegate = new OidcUserService();
-
-        return (userRequest) -> {
-            // Delegate to the default implementation for loading a user
-            return delegate.loadUser(userRequest);
-        };
     }
 
     private OAuth2AuthorizationRequestResolver authorizationRequestResolver(

@@ -15,6 +15,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static access.security.InstitutionAdmin.*;
+
 @Entity(name = "users")
 @NoArgsConstructor
 @Getter
@@ -87,8 +89,12 @@ public class User implements Serializable, Provisionable {
         this.email = (String) attributes.get("email");
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
+        this.institutionAdmin = (boolean) attributes.get(INSTITUTION_ADMIN);
+        this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
+        this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
+
         String name = (String) attributes.get("name");
         String preferredUsername = (String) attributes.get("preferred_username");
         if (StringUtils.hasText(name)) {
@@ -169,6 +175,9 @@ public class User implements Serializable, Provisionable {
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
         this.email = (String) attributes.get("email");
+        this.institutionAdmin = (boolean) attributes.get(INSTITUTION_ADMIN);
+        this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
+        this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.lastActivity = Instant.now();
     }
 

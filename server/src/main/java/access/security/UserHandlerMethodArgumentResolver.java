@@ -1,11 +1,8 @@
-package access.config;
+package access.security;
 
 import access.exception.UserRestrictionException;
-import access.manage.Manage;
 import access.model.User;
 import access.repository.UserRepository;
-import access.security.InstitutionAdmin;
-import access.security.SuperAdmin;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -17,22 +14,20 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final UserRepository userRepository;
     private final SuperAdmin superAdmin;
-    private final InstitutionAdmin institutionAdmin;
-    private final Manage manage;
 
-    public UserHandlerMethodArgumentResolver(UserRepository userRepository, SuperAdmin superAdmin, InstitutionAdmin institutionAdmin, Manage manage) {
+
+    public UserHandlerMethodArgumentResolver(UserRepository userRepository, SuperAdmin superAdmin) {
         this.userRepository = userRepository;
         this.superAdmin = superAdmin;
-        this.institutionAdmin = institutionAdmin;
-        this.manage = manage;
     }
 
     public boolean supportsParameter(MethodParameter methodParameter) {
@@ -62,7 +57,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                                 .map(adminSub -> userRepository.save(new User(true, attributes)))
                 )
                 .or(() -> {
-                    if (this.isInstitutionAdmin(attributes)) {
+                    if ((boolean) attributes.get(INSTITUTION_ADMIN)) {
                         User user = new User(attributes);
                         userRepository.save(user);
                         return Optional.of(user);
@@ -85,50 +80,11 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         return optionalUser.map(user -> {
             if (user.getId() != null) {
                 user.updateAttributes(attributes);
-                this.updateUser(user, attributes);
                 userRepository.save(user);
-            }
-            if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
-                user.setApplications(manage.providersByInstitutionalGUID(user.getOrganizationGUID()));
             }
             return user;
         }).orElseThrow(UserRestrictionException::new);
 
     }
 
-    private boolean isInstitutionAdmin(Map<String, Object> attributes) {
-        if (attributes.containsKey("eduperson_entitlement")) {
-            List<String> entitlements = ((List<String>) attributes.get("eduperson_entitlement"))
-                    .stream().map(String::toLowerCase).toList();
-            if (entitlements.contains(this.institutionAdmin.getEntitlement().toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private User updateUser(User user, Map<String, Object> attributes) {
-        if (attributes.containsKey("eduperson_entitlement")) {
-            List<String> entitlements = ((List<String>) attributes.get("eduperson_entitlement"))
-                    .stream().map(String::toLowerCase).toList();
-            user.setInstitutionAdmin(entitlements.contains(this.institutionAdmin.getEntitlement().toLowerCase()));
-            String organizationGUIPrefix = this.institutionAdmin.getOrganizationGuidPrefix().toLowerCase();
-            boolean hasOrganizationPrefix = false;
-            //lambda requires final variables
-            for (String entitlement : entitlements) {
-                if (entitlement.startsWith(organizationGUIPrefix)) {
-                    user.setOrganizationGUID(entitlement.substring(this.institutionAdmin.getOrganizationGuidPrefix().length()));
-                    hasOrganizationPrefix = true;
-                    break;
-                }
-            }
-            if (!hasOrganizationPrefix) {
-                user.setOrganizationGUID(null);
-            }
-        } else {
-            user.setInstitutionAdmin(false);
-            user.setOrganizationGUID(null);
-        }
-        return user;
-    }
 }

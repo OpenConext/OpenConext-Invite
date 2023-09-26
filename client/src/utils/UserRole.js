@@ -76,16 +76,21 @@ export const allowedToRenewUserRole = (user, userRole) => {
     if (user.superUser) {
         return true;
     }
+    const allowedByApplication = user.institutionAdmin && (user.applications || [])
+        .some(application => application.id === userRole.role.manageId);
     switch (userRole.authority) {
         case AUTHORITIES.SUPER_USER:
-        case AUTHORITIES.MANAGER:
             return false;
+        case AUTHORITIES.INSTITUTION_ADMIN:
+            return false;
+        case AUTHORITIES.MANAGER:
+            return allowedByApplication;
         case AUTHORITIES.INVITER :
             return isUserAllowed(AUTHORITIES.MANAGER, user) &&
-                user.userRoles.some(ur => userRole.role.manageId === ur.role.manageId || userRole.role.id === ur.role.id);
+                (user.userRoles.some(ur => userRole.role.manageId === ur.role.manageId || userRole.role.id === ur.role.id) || allowedByApplication) ;
         case  AUTHORITIES.GUEST:
             return isUserAllowed(AUTHORITIES.INVITER, user) &&
-                user.userRoles.some(ur => userRole.role.id === ur.role.id);
+                (user.userRoles.some(ur => userRole.role.id === ur.role.id) || allowedByApplication);
         default:
             return false
     }
