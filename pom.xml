@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <name>access</name>
-    <description>SURF Access</description>
+    <description>SURFconext Invite</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

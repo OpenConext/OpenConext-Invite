@@ -1,10 +1,10 @@
 {
   "en": {
-    "newInvitation": "Invitation for %s at SURF access",
+    "newInvitation": "Invitation for %s at SURFconext Invite",
     "roleExpirationNotification": "%s role %s expiration notification"
   },
   "nl": {
-    "newInvitation": "Uitnodiging voor %s bij SURF access",
-    "roleExpirationNotification": "%s rol %s verloop kennisgeving"
+    "newInvitation": "Uitnodiging voor %s bij SURFconext Invite",
+    "roleExpirationNotification": "%s rol %s verloopt"
   }
 }
