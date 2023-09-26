@@ -57,6 +57,9 @@ export const allowedToEditRole = (user, role) => {
     if (!isUserAllowed(AUTHORITIES.MANAGER, user)) {
         return false;
     }
+    if (user.institutionAdmin && (user.applications || []).some(app => app.id === role.manageId)) {
+        return true;
+    }
     //One the userRoles must have the same manageId as the role
     return user.userRoles.some(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id);
 }
@@ -124,6 +127,10 @@ export const markAndFilterRoles = (user, allRoles, locale) => {
 export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     if (user.superUser) {
         return Object.keys(AUTHORITIES);
+    }
+    if (user.institutionAdmin && !isEmpty(user.applications)) {
+        return Object.keys(AUTHORITIES)
+            .filter(authority => authority !== AUTHORITIES.SUPER_USER && authority !== AUTHORITIES.INSTITUTION_ADMIN);
     }
     if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
         return [];

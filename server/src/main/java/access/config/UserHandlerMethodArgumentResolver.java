@@ -1,6 +1,7 @@
 package access.config;
 
 import access.exception.UserRestrictionException;
+import access.manage.Manage;
 import access.model.User;
 import access.repository.UserRepository;
 import access.security.InstitutionAdmin;
@@ -25,11 +26,13 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
     private final UserRepository userRepository;
     private final SuperAdmin superAdmin;
     private final InstitutionAdmin institutionAdmin;
+    private final Manage manage;
 
-    public UserHandlerMethodArgumentResolver(UserRepository userRepository, SuperAdmin superAdmin, InstitutionAdmin institutionAdmin) {
+    public UserHandlerMethodArgumentResolver(UserRepository userRepository, SuperAdmin superAdmin, InstitutionAdmin institutionAdmin, Manage manage) {
         this.userRepository = userRepository;
         this.superAdmin = superAdmin;
         this.institutionAdmin = institutionAdmin;
+        this.manage = manage;
     }
 
     public boolean supportsParameter(MethodParameter methodParameter) {
@@ -84,6 +87,9 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 user.updateAttributes(attributes);
                 this.updateUser(user, attributes);
                 userRepository.save(user);
+            }
+            if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
+                user.setApplications(manage.providersByInstitutionalGUID(user.getOrganizationGUID()));
             }
             return user;
         }).orElseThrow(UserRestrictionException::new);

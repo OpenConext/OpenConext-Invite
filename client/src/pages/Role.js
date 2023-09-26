@@ -12,12 +12,13 @@ import {ReactComponent as PersonIcon} from "../icons/persons.svg";
 import {ReactComponent as GuestLogo} from "@surfnet/sds/icons/illustrative-icons/hr.svg";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
-import {RoleMetaData} from "../components/RoleMetaData";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
 import {UserRoles} from "../tabs/UserRoles";
 import {Invitations} from "../tabs/Invitations";
 import ClipBoardCopy from "../components/ClipBoardCopy";
+import {deriveApplicationAttributes} from "../utils/Manage";
+import DOMPurify from "dompurify";
 
 export const Role = () => {
     const {id, tab = "users"} = useParams();
@@ -47,13 +48,14 @@ export const Role = () => {
         }
         Promise.all([roleByID(id, false), userRolesByRoleId(id), invitationsByRoleId(id)])
             .then(res => {
+                deriveApplicationAttributes(res[0])
                 setRole(res[0]);
                 setLoading(false);
                 const newTabs = [
                     isUserAllowed(AUTHORITIES.MANAGER, user) ? <Page key="maintainers"
-                          name="maintainers"
-                          label={I18n.t("tabs.userRoles")}
-                          Icon={UserLogo}>
+                                                                     name="maintainers"
+                                                                     label={I18n.t("tabs.userRoles")}
+                                                                     Icon={UserLogo}>
                         <UserRoles role={res[0]}
                                    guests={false}
                                    userRoles={res[1].filter(userRole => userRole.authority !== "GUEST")}/>
@@ -104,17 +106,36 @@ export const Role = () => {
         return <Loader/>
     }
 
-    const logo = role.application.data.metaDataFields["logo:0:url"];
+    const logo = role.logo;
     const urn = urnFromRole(config.groupUrnPrefix, role);
-    return (<>
+    return (<div class="mod-role">
         <UnitHeader obj={({...role, logo: logo})}
                     displayDescription={true}
                     actions={getActions()}>
             <div className={"urn-container"}>
-                <span>{urn}</span>
+                <span>{I18n.t("role.copyUrn")}</span>
                 <ClipBoardCopy txt={urn} transparentBackground={true}/>
             </div>
-            <RoleMetaData role={role} user={user} provider={role.application}/>
+            <div className={"meta-data"}>
+                <div className={"meta-data-row"}>
+                    <PersonIcon/>
+                    <span dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(I18n.t("role.userInfo", {
+                            nbr: role.userRoleCount,
+                            valid: role.defaultExpiryDays
+                        }))
+                    }}/>
+                </div>
+                <div className={"meta-data-row"}>
+                    <WebsiteIcon/>
+                    <a href={role.landingPage}
+                       rel="noreferrer"
+                       target="_blank">
+                        <span className={"application-name"}>{`${role.applicationName}`}</span>
+                    </a><span>{` (${role.applicationOrganizationName})`}</span>
+                </div>
+
+            </div>
         </UnitHeader>
         <div className="mod-role">
             <Tabs activeTab={currentTab}
@@ -122,5 +143,5 @@ export const Role = () => {
                 {tabs}
             </Tabs>
         </div>
-    </>);
+    </div>);
 };

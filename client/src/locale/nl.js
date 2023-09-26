@@ -64,6 +64,7 @@ const nl = {
     },
     access: {
         SUPER_USER: "Super User",
+        INSTITUTION_ADMIN: "Instellings beheerder",
         MANAGER: "Manager",
         INVITER: "Uitnodiger",
         GUEST: "Gast",
@@ -87,10 +88,15 @@ const nl = {
         new: "Nieuwe uitnodiging",
         title: "Gebruikers",
         roles: "Rollen",
+        applications: "Applicaties",
         noRolesInfo: "Je hebt geen rollen (je bent een super-user)",
+        noRolesInstitutionAdmin: "Als een instellingsbeheerder heb je geen rollen (maar je hebt wel toegang tot je applicaties)",
         rolesInfo: "Je hebt de volgende rollen",
+        applicationsInfo: "Je hebt toegang tot de volgende applicaties",
         noRolesFound: "Geen rollen gevonden.",
+        noApplicationsFound: "geen applicaties gevonden.",
         rolesInfoOther: "{{name}} heeft de volgende rollen",
+        applicationsInfoOther: "{{name}} heeft toegang tot de volgende applicaties",
         landingPage: "Website",
         access: "Access",
         organisation: "Aanbieder",
@@ -99,6 +105,10 @@ const nl = {
         authority: "Autoriteit",
         endDate: "Einddatum",
         expiryDays: "Verloopdagen"
+    },
+    role: {
+        copyUrn: "Copy urn",
+        userInfo: "{{nbr}} leden  &  Valide voor {{valid}} dagen",
     },
     roles: {
         title: "Toegangsrollen",

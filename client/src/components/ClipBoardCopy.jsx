@@ -3,7 +3,7 @@ import "./ClipBoardCopy.scss";
 import {ReactComponent as Duplicate} from "@surfnet/sds//icons/functional-icons/duplicate.svg";
 import {CopyToClipboard} from "react-copy-to-clipboard";
 
-export default function ClipBoardCopy({txt, right = false, transparentBackground = false, input = false}) {
+export default function ClipBoardCopy({txt,  right = false, transparentBackground = false, input = false}) {
     return (
         <CopyToClipboard text={txt}>
             <section

@@ -2,6 +2,7 @@ package access.security;
 
 import access.config.UserHandlerMethodArgumentResolver;
 import access.exception.ExtendedErrorAttributes;
+import access.manage.Manage;
 import access.model.Invitation;
 import access.repository.InvitationRepository;
 import access.repository.UserRepository;
@@ -99,17 +100,19 @@ public class SecurityConfig {
         private final UserRepository userRepository;
         private final SuperAdmin superAdmin;
         private final InstitutionAdmin institutionAdmin;
+        private final Manage manage;
 
         @Autowired
-        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin, InstitutionAdmin institutionAdmin) {
+        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin, InstitutionAdmin institutionAdmin, Manage manage) {
             this.userRepository = userRepository;
             this.superAdmin = superAdmin;
             this.institutionAdmin = institutionAdmin;
+            this.manage = manage;
         }
 
         @Override
         public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin, institutionAdmin));
+            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin, institutionAdmin, manage));
         }
 
         @Override

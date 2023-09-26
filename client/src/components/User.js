@@ -8,7 +8,7 @@ import Logo from "./Logo";
 import {Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 import {RoleMetaData} from "./RoleMetaData";
-import {providerInfo} from "../utils/Manage";
+import {deriveRemoteApplicationAttributes, providerInfo} from "../utils/Manage";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
 
@@ -16,12 +16,16 @@ export const User = ({user, other}) => {
     const searchRef = useRef();
 
     const [query, setQuery] = useState("");
+    const [queryApplication, setQueryApplication] = useState("");
 
     useEffect(() => {
         if (searchRef && searchRef.current) {
             searchRef.current.focus();
         }
-    }, [searchRef])
+        if (user.institutionAdmin) {
+            (user.applications || []).forEach(application => deriveRemoteApplicationAttributes(application, I18n.locale));
+        }
+    }, [searchRef, user])
 
     const attribute = (index, name, isDate = false) => {
         const attr = user[name];
@@ -34,7 +38,7 @@ export const User = ({user, other}) => {
         )
     }
 
-    const renderSearch = () => {
+    const renderSearch = (value, valueSetter, valueReference) => {
         return (
             <div className={`search standalone`}>
                 <div className={"sds--text-field sds--text-field--has-icon"}>
@@ -42,9 +46,9 @@ export const User = ({user, other}) => {
                         <div className="sds--text-field--input-and-icon">
                             <input className={"sds--text-field--input"}
                                    type="search"
-                                   onChange={e => setQuery(e.target.value)}
-                                   value={query}
-                                   ref={searchRef}
+                                   onChange={e => valueSetter(e.target.value)}
+                                   value={value}
+                                   ref={valueReference}
                                    placeholder={I18n.t(`users.applicationsSearchPlaceHolder`)}/>
                             <span className="sds--text-field--icon">
                                     <SearchIcon/>
@@ -84,29 +88,70 @@ export const User = ({user, other}) => {
         );
     }
 
+    const filterApplication = application => {
+        if (isEmpty(queryApplication)) {
+            return true;
+        }
+        const queryApplicationLower = queryApplication.toLowerCase();
+
+        return application.organizationName.toLowerCase().indexOf(queryApplicationLower) > -1 ||
+            application.name.toLowerCase().indexOf(queryApplicationLower) > -1
+    };
+
+    const renderApplication = (application, index) => {
+        const logo = application.logo;
+        const children =
+            <div key={index} className={"user-role"}>
+                <Logo src={logo} alt={"provider"} className={"provider"}/>
+                <section className={"user-role-info"}>
+                    <h3>{application.name}</h3>
+                    <MoreLessText txt={application.organizationName}/>
+                </section>
+            </div>;
+        return (
+            <Card cardType={CardType.Big} children={children}/>
+        );
+    }
+
     user.highestAuthority = I18n.t(`access.${highestAuthority(user)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
         ["lastActivity", true]];
-    const filteredUserRoles = user.userRoles
-        .filter(filterUserRole);
+    const filteredUserRoles = user.userRoles.filter(filterUserRole);
+    const filteredApplications = (user.applications || []).filter(filterApplication);
     return (
         <section className={"user"}>
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
 
             <h3 className={"title span-row "}>{I18n.t("users.roles")}</h3>
-            {isEmpty(user.userRoles) && <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
+            {(isEmpty(user.userRoles) && user.superUser) &&
+                <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
+            {(isEmpty(user.userRoles) && user.institutionAdmin) &&
+                <p className={"span-row "}>{I18n.t("users.noRolesInstitutionAdmin")}</p>}
             {!isEmpty(user.userRoles) &&
                 <>
                     <div className="roles-search span-row">
-                        <p  >
+                        <p>
                             {I18n.t(`users.${other ? "rolesInfoOther" : "rolesInfo"}`, {name: user.name})}
                         </p>
-                        {renderSearch()}
+                        {renderSearch(query, setQuery, searchRef)}
                     </div>
                     {filteredUserRoles
                         .map((userRole, index) => renderUserRole(userRole, index))}
                     {filteredUserRoles.length === 0 &&
                         <p>{I18n.t(`users.noRolesFound`)}</p>}
+                </>}
+            {(!isEmpty(user.applications) && user.institutionAdmin) &&
+                <>
+                    <div className="roles-search span-row">
+                        <p>
+                            {I18n.t(`users.${other ? "applicationsInfoOther" : "applicationsInfo"}`, {name: user.name})}
+                        </p>
+                        {renderSearch(queryApplication, setQueryApplication)}
+                    </div>
+                    {filteredApplications
+                        .map((application, index) => renderApplication(application, index))}
+                    {filteredApplications.length === 0 &&
+                        <p>{I18n.t(`users.noApplicationsFound`)}</p>}
                 </>}
         </section>
     );

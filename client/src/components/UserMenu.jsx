@@ -6,6 +6,7 @@ import {stopEvent} from "../utils/Utils";
 import {UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
+import {highestAuthority} from "../utils/UserRole";
 
 
 export const UserMenu = ({user, config, actions}) => {
@@ -13,7 +14,7 @@ export const UserMenu = ({user, config, actions}) => {
 
     const [dropDownActive, setDropDownActive] = useState(false);
 
-    const {clearFlash, objectRole} = useAppStore((state) => state);
+    const {clearFlash} = useAppStore((state) => state);
 
     const toggleUserMenu = () => {
         setDropDownActive(false);
@@ -59,7 +60,7 @@ export const UserMenu = ({user, config, actions}) => {
              onBlur={() => setTimeout(() => setDropDownActive(false), 250)}>
             <UserInfo isOpen={dropDownActive}
                       children={renderMenu(adminLinks)}
-                      organisationName={objectRole || ""}
+                      organisationName={I18n.t(`access.${highestAuthority(user)}`)}
                       userName={user.name}
                       toggle={() => setDropDownActive(!dropDownActive)}
             />

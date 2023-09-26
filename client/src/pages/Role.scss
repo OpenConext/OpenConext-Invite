@@ -1,0 +1,25 @@
+.mod-role {
+    .urn-container {
+        background-color: var(--sds--color--gray--100);
+        border-radius: 8px;
+        padding: 0 4px;
+        max-width: 100px;
+        margin-bottom: 10px;
+    }
+    .meta-data {
+        .meta-data-row {
+            display: flex;
+            margin-top: 10px;
+            align-items: center;
+
+            svg {
+                width: 24px;
+                height: auto;
+                margin-right: 15px;
+            }
+        }
+    }
+    .application-name {
+        margin-right: 5px;
+    }
+}

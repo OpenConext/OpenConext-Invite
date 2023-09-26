@@ -25,6 +25,14 @@ export const deriveApplicationAttributes = (role, locale) => {
     }
 }
 
+export const deriveRemoteApplicationAttributes = (application, locale) => {
+    if (!isEmpty(application)) {
+        const metaData = application.data.metaDataFields;
+        application.name = metaData[`name:${locale}`] || metaData["name:en"]
+        application.organizationName = metaData[`OrganizationName:${locale}`] || metaData["OrganizationName:en"];
+        application.logo = metaData["logo:0:url"];
+    }
+}
 
 export const providerInfo = provider => {
     if (isEmpty(provider)) {

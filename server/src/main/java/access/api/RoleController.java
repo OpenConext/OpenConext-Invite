@@ -23,10 +23,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -61,12 +58,17 @@ public class RoleController {
             return ResponseEntity.ok(manage.deriveRemoteApplications(roleRepository.findAll()));
         }
         UserPermissions.assertAuthority(user, Authority.MANAGER);
+        List<Role> roles = new ArrayList<>();
+        if (user.isInstitutionAdmin()) {
+            roles.addAll(roleRepository.findByManageIdIn(user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet())));
+        }
         Set<String> manageIdentifiers = user.getUserRoles().stream()
                 //If the user has an userRole as Inviter, then we must exclude those
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
                 .map(userRole -> userRole.getRole().getManageId())
                 .collect(Collectors.toSet());
-        return ResponseEntity.ok(manage.deriveRemoteApplications(roleRepository.findByManageIdIn(manageIdentifiers)));
+        roles.addAll(roleRepository.findByManageIdIn(manageIdentifiers)) ;
+        return ResponseEntity.ok(manage.deriveRemoteApplications(roles));
     }
 
     @GetMapping("{id}")

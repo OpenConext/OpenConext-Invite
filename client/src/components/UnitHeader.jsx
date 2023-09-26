@@ -67,10 +67,8 @@ export const UnitHeader = ({
                 </div>
                 <div className="obj-name">
                     {obj.name && <h1>{obj.name}</h1>}
-                    {obj.applicationName &&
-                        <span className="name">{obj.applicationName}</span>}
                     {(obj.description && displayDescription) &&
-                        <MoreLessText txt={obj.description}/>
+                        <MoreLessText txt={obj.description} type={"compact"}/>
                     }
                     {children}
                 </div>
