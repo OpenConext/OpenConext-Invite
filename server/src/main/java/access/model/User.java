@@ -21,6 +21,7 @@ import static access.security.InstitutionAdmin.*;
 @NoArgsConstructor
 @Getter
 @Setter
+@SuppressWarnings("unchecked")
 public class User implements Serializable, Provisionable {
 
     @Id
@@ -89,7 +90,7 @@ public class User implements Serializable, Provisionable {
         this.email = (String) attributes.get("email");
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
-        this.institutionAdmin = (boolean) attributes.get(INSTITUTION_ADMIN);
+        this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.createdAt = Instant.now();
@@ -175,7 +176,7 @@ public class User implements Serializable, Provisionable {
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
         this.email = (String) attributes.get("email");
-        this.institutionAdmin = (boolean) attributes.get(INSTITUTION_ADMIN);
+        this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.lastActivity = Instant.now();
