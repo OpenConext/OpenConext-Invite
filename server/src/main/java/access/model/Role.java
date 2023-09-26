@@ -58,6 +58,9 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "block_expiry_date")
     private boolean blockExpiryDate;
 
+    @Column(name = "override_settings_allowed")
+    private boolean overrideSettingsAllowed;
+
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;
 

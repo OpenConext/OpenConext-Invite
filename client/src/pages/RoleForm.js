@@ -15,6 +15,7 @@ import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {providersToOptions, singleProviderToOption} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
+import RadioButtonGroup from "../components/RadioButtonGroup";
 
 export const RoleForm = () => {
 
@@ -241,6 +242,24 @@ export const RoleForm = () => {
                              disabled={options.length === 1}
                              toolTip={I18n.t("tooltips.manageService")}
                 />
+                <InputField name={I18n.t("roles.landingPage")}
+                            value={role.landingPage || ""}
+                            isUrl={true}
+                            placeholder={I18n.t("roles.landingPagePlaceHolder")}
+                            onBlur={e => validateValue("url", "landingPage", e.target.value)}
+                            onChange={e => {
+                                setRole(
+                                    {...role, landingPage: e.target.value});
+                                setInvalidValues({...invalidValues, landingPage: false})
+                            }}
+                />
+                {invalidValues.landingPage &&
+                    <ErrorIndicator msg={I18n.t("forms.invalid", {
+                        attribute: I18n.t("roles.landingPage").toLowerCase(),
+                        value: role.landingPage
+                    })}/>}
+
+                <span className={"label"}>{I18n.t("roles.advanced")}</span>
 
                 <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
                           value={role.enforceEmailEquality || false}
@@ -272,23 +291,14 @@ export const RoleForm = () => {
                         attribute: I18n.t("roles.defaultExpiryDays").toLowerCase()
                     })}/>}
 
-                <InputField name={I18n.t("roles.landingPage")}
-                            value={role.landingPage || ""}
-                            isUrl={true}
-                            placeholder={I18n.t("roles.landingPagePlaceHolder")}
-                            onBlur={e => validateValue("url", "landingPage", e.target.value)}
-                            onChange={e => {
-                                setRole(
-                                    {...role, landingPage: e.target.value});
-                                setInvalidValues({...invalidValues, landingPage: false})
-                            }}
-                />
-                {invalidValues.landingPage &&
-                    <ErrorIndicator msg={I18n.t("forms.invalid", {
-                        attribute: I18n.t("roles.landingPage").toLowerCase(),
-                        value: role.landingPage
-                    })}/>}
-
+                <div className={"radio-button-group"}>
+                    <RadioButtonGroup name={"overrideSettingsAllowed"}
+                                      label={I18n.t("roles.override")}
+                                      value={role.overrideSettingsAllowed ? "yes" : "no"}
+                                      values={["yes", "no"]}
+                                      onChange={value => setRole({...role, overrideSettingsAllowed: value === "yes"})}
+                                      labelResolver={label => I18n.t(`forms.${label}`)}/>
+                </div>
 
                 <section className="actions">
                     {!isNewRole &&

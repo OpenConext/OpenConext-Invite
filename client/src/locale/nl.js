@@ -136,6 +136,7 @@ const nl = {
         new: "Rol toevoegen",
         edit: "Bewerk rol {{name}}",
         urn: "URN",
+        advanced: "Advanced settings",
         manage: "Dienst",
         manageMetaData: "Entity",
         provisioning: "Provisioning",

@@ -136,6 +136,8 @@ const en = {
         new: "Add role",
         edit: "Edit role {{name}}",
         urn: "URN",
+        advanced: "Advanced settings",
+        override: "Override of settings allowed?",
         manage: "Service",
         manageMetaData: "SURFconext entity",
         provisioning: "Provisioning",

@@ -4,6 +4,16 @@
     .role-form {
         @include page;
         @include form;
+
+        .radio-button-group {
+            grid-column-start: first;
+        }
+
+        span.label {
+            grid-column-start: first;
+            font-weight: 600;
+            margin-top: 32px;
+        }
     }
 
 }
