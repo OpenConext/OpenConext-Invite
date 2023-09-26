@@ -20,7 +20,7 @@ const en = {
             ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
         ],
         footer: "<p>SURFconext Invite is a service for access management of Dutch led service providers.</p>" +
-            "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/access'>https://surf.nl/en/access</a>.</p>",
+            "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/invite'>https://surf.nl/en/invite</a>.</p>",
     },
     header: {
         title: "SURFconext Invite",
