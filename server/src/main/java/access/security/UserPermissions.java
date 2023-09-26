@@ -44,7 +44,7 @@ public class UserPermissions {
             return;
         }
         boolean allowed = roles.stream()
-                .allMatch(role -> mayInviteByApplication(userRoles, role) ||
+                .allMatch(role -> mayInviteByApplication(userRoles, intendedAuthority, role) ||
                         mayInviteByAuthority(userRoles, intendedAuthority, role));
         if (!allowed) {
             throw new UserRestrictionException();
@@ -52,10 +52,11 @@ public class UserPermissions {
     }
 
     //Does one off the userRoles has Authority.MANAGE and has the same application as the role
-    private static boolean mayInviteByApplication(Set<UserRole> userRoles, Role role) {
+    private static boolean mayInviteByApplication(Set<UserRole> userRoles, Authority intendedAuthority, Role role) {
         return userRoles.stream()
                 .anyMatch(userRole -> userRole.getRole().getManageId().equals(role.getManageId()) &&
-                        userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER));
+                        userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER) &&
+                        userRole.getAuthority().hasEqualOrHigherRights(intendedAuthority));
     }
 
     //Does the one off the applications has the same application as the role
