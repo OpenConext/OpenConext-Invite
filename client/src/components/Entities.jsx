@@ -79,11 +79,11 @@ export const Entities = ({
     }
 
     const renderSearch = () => {
-        const filterClassName = !hideTitle && filters ? "filters-with-title" : `${modelName}-search-filters`;
+        const filterClassName = (!hideTitle && filters) ? "filters-with-title" : `${modelName}-search-filters`;
         return (
             <section className="entities-search">
                 {!hideTitle && <h2>{title || `${I18n.t(`${modelName}.title`)} (${entities.length})`}</h2>}
-                <div className={filterClassName}>{filters}</div>
+                <div className={`${filterClassName} search-filter`}>{filters}</div>
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
                         <div className={"sds--text-field sds--text-field--has-icon"}>

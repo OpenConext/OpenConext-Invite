@@ -1,0 +1,56 @@
+@import "../styles/vars.scss";
+
+.mod-inviter {
+    width: 100%;
+
+
+    .inviter-container {
+        max-width: $medium;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 auto;
+        @media (max-width: $medium) {
+            padding: 0 15px;
+        }
+
+        .welcome-logo img {
+            margin: 25px 0;
+            width: 185px;
+            height: auto;
+            border: 4px solid var(--sds--color--blue--400);
+            padding: 24px 6px;
+            border-radius: 50%;
+        }
+
+        h2 {
+            margin: 0 0 20px 0;
+        }
+
+        div.info {
+            margin: 0 0 25px 0;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns:  repeat(3, 1fr);
+            margin-bottom: 40px;
+            button {
+                grid-column-start: 2;
+            }
+            .history {
+                grid-column-start: 3;
+                display: flex;
+
+                span {
+                    margin: auto 0 auto auto;
+                }
+
+            }
+        }
+        .sub-info {
+            margin-bottom: 15px;
+        }
+
+    }
+}

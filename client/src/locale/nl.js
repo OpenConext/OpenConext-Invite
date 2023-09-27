@@ -48,7 +48,8 @@ const nl = {
         profile: "Profiel",
         userRoles: "Beheerders",
         guestRoles: "Gasten",
-        cron: "Cron"
+        cron: "Cron",
+        invite: "Uitnodiging"
     },
     home: {
         access: "SURFconext Invite",
@@ -112,8 +113,8 @@ const nl = {
     },
     roles: {
         title: "Toegangsrollen",
-        applicationName:"Applicatie",
-        accessRole:"Naam",
+        applicationName: "Applicatie",
+        accessRole: "Naam",
         name: "Naam",
         namePlaceHolder: "Naam van de rol",
         shortName: "Korte naam",
@@ -203,7 +204,12 @@ const nl = {
         deleteFlash: "Uitnodiging(en) verwijderd",
         deleteConfirmation: "Weet je zeker dat je deze uitnodiging(en) wilt verwijderen?",
         resendConfirmation: "Weet je zeker dat je deze uitnodigingen opnieuw wilt versturen?",
-        resendFlash: "Uitnodiging(en) opnieuw verstuurd."
+        resendFlash: "Uitnodiging(en) opnieuw verstuurd.",
+        statuses: {
+            all: "All ({{nbr}})",
+            open: "Open",
+            accepted: "Accepted"
+        }
     },
     forms: {
         none: "Geen",
@@ -212,6 +218,7 @@ const nl = {
         yes: "Ja",
         no: "Nee",
         ok: "Ok",
+        or: "of ",
         edit: "Bewerken",
         cancel: "Annuleren",
         save: "Opslaan",
@@ -265,6 +272,15 @@ const nl = {
         emailMismatch: "De uitnodiger heeft aangegeven dat je de uitnodiging dient te accepteren met e-mailadres {{email}}, " +
             "maar je bent ingelogd met een account met een ander mailadres. Log opnieuw in met een ander account."
     },
+    inviter: {
+        welcome: "Welcome, {{name}}",
+        info: "Manage who gets access to the <strong>educational applications</strong> at <strong>your institution</strong>.",
+        sendInvite: "Send new invite",
+        viewHistory: "view history",
+        manage: "You can manage guests and send inviter for",
+        details: "Show details",
+        history: "Uitnodigingen"
+    },
     tooltips: {
         userIcon: "Gebruiker {{name}} geprovisioned op {{createdAt}} laatst actief op {{lastActivity}}",
         impersonateIcon: "Doe gebruiker {{name}} na",
@@ -283,7 +299,8 @@ const nl = {
         intendedAuthorityTooltip: "De autoriteit geeft de rechten aan die de genodigde verwerft na het accepteren van de uitnodiging",
         inviteesTooltip: "Geef e-mailadressen op, gescheiden door komma, spaties of puntkomma, of een voor een met gebruik van de enter-toets. Je kunt ook een csv-bestand plakken met daarin op elke regel een e-mailadres.",
         removeInvitation: "Verwijder al de geselecteerde uitnodigingen",
-        resendInvitation: "Stuur al de geselecteerde uitnodigingen opnieuw"
+        resendInvitation: "Stuur al de geselecteerde uitnodigingen opnieuw",
+        inviter: "Send invitations to persons who will - once accepted - become guest users for the application"
     },
     confirmationDialog: {
         title: "Bevestig",

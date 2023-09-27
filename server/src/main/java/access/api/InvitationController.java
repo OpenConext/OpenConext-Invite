@@ -170,8 +170,12 @@ public class InvitationController implements HasManage {
     @GetMapping("all")
     public ResponseEntity<List<Invitation>> all(@Parameter(hidden = true) User user) {
         LOG.debug("/all invitations");
-        UserPermissions.assertSuperUser(user);
-        return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN));
+        UserPermissions.assertAuthority(user, Authority.INVITER);
+        if (user.isSuperUser()) {
+            return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN));
+        }
+        List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
+        return ResponseEntity.ok(invitationRepository.findByRoles_roleIsIn(roles));
     }
 
 

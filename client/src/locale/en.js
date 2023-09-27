@@ -48,7 +48,8 @@ const en = {
         profile: "Profile",
         userRoles: "Maintainers",
         guestRoles: "Guests",
-        cron: "Cron"
+        cron: "Cron",
+        invite: "Invite"
     },
     home: {
         access: "SURFconext Invite",
@@ -203,7 +204,12 @@ const en = {
         deleteFlash: "Invitation(s) have been deleted",
         deleteConfirmation: "Are you sure you want to delete this invitation(s)?",
         resendConfirmation: "Are you sure you want to resend this invitation(s)?",
-        resendFlash: "Invitation(s) have been resent"
+        resendFlash: "Invitation(s) have been resent",
+        statuses: {
+            all: "All ({{nbr}})",
+            open: "Open",
+            accepted: "Accepted"
+        }
     },
     forms: {
         none: "None",
@@ -212,6 +218,7 @@ const en = {
         yes: "Yes",
         no: "No",
         ok: "Ok",
+        or: "or ",
         edit: "Edit",
         cancel: "Cancel",
         save: "Save",
@@ -264,7 +271,15 @@ const en = {
         loginWithSub: "Login",
         emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
             "but you have logged in with an account with a different email. Please login in with a different account."
-
+    },
+    inviter: {
+        welcome: "Welcome, {{name}}",
+        info: "Manage who gets access to the <strong>educational applications</strong> at <strong>your institution</strong>.",
+        sendInvite: "Send new invite",
+        viewHistory: "view history",
+        manage: "You can manage guests and send invites for",
+        details: "Show details",
+        history: "Invitation History"
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
@@ -285,6 +300,7 @@ const en = {
         inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or one-by-one using the enter key. You can also copy & paste a csv file with line-separated email addresses.",
         removeInvitation: "Delete all selected invitations",
         resendInvitation: "Resend all selected invitations",
+        inviter: "Send invitations to persons who will - once accepted - become guest users for the application"
     },
     confirmationDialog: {
         title: "Confirm",

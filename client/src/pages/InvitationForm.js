@@ -21,7 +21,7 @@ import {futureDate} from "../utils/Date";
 export const InvitationForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
-
+    const [guest, setGuest] = useState(false);
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [originalRoleId, setOriginalRoleId] = useState(-1);
@@ -65,20 +65,27 @@ export const InvitationForm = () => {
 
 
     const setInitialRole = markedRoles => {
-        if (location.state) {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const isGuest = urlSearchParams.get("maintainer") !== "true";
+        setGuest(isGuest)
+        const initialRole = markedRoles.find(role => role.value === location.state);
+        if (initialRole) {
             // See markAndFilterRoles - we are mixing up userRoles and roles
-            const initialRole = markedRoles.find(role => role.value === location.state);
-            if (initialRole) {
-                const defaultExpiryDays = initialRole.isUserRole ? initialRole.role.defaultExpiryDays : initialRole.defaultExpiryDays;
-                setSelectedRoles([initialRole])
-                setInvitation({
-                    ...invitation,
-                    enforceEmailEquality: initialRole.enforceEmailEquality,
-                    eduIDOnly: initialRole.eduIDOnly,
-                    roleExpiryDate: futureDate(defaultExpiryDays)
-                })
-                setOriginalRoleId(initialRole.id);
-            }
+            const defaultExpiryDays = initialRole.isUserRole ? initialRole.role.defaultExpiryDays : initialRole.defaultExpiryDays;
+            setSelectedRoles([initialRole])
+            setInvitation({
+                ...invitation,
+                intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
+                enforceEmailEquality: initialRole.enforceEmailEquality,
+                eduIDOnly: initialRole.eduIDOnly,
+                roleExpiryDate: futureDate(defaultExpiryDays)
+            })
+            setOriginalRoleId(initialRole.id);
+        } else {
+            setInvitation({
+                ...invitation,
+                intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER
+            })
         }
     }
 
@@ -135,7 +142,6 @@ export const InvitationForm = () => {
             setSelectedRoles([])
             setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false})
         } else {
-            debugger;
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
             const enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality);
@@ -161,7 +167,8 @@ export const InvitationForm = () => {
     const renderForm = () => {
         const disabledSubmit = !initial && !isValid();
         const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
-            .map(authorityOption => ({value: authorityOption, label: I18n.t(`access.${authorityOption}`)}));
+            .filter(authority => authority !== AUTHORITIES.INSTITUTION_ADMIN)
+            .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
         return (
             <>
                 <EmailField
@@ -215,10 +222,10 @@ export const InvitationForm = () => {
                 }
 
                 {displayAdvancedSettings &&
-                    <div className="advanced-settings-container" >
+                    <div className="advanced-settings-container">
                         <a className="advanced-settings" href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
                             {I18n.t("roles.hideAdvancedSettings")}
-                        <UpIcon/>
+                            <UpIcon/>
                         </a>
                         <DateField value={invitation.expiryDate}
                                    onChange={e => setInvitation({...invitation, expiryDate: e})}
@@ -275,7 +282,7 @@ export const InvitationForm = () => {
         <div className={"mod-invitation-form"}>
             <UnitHeader
                 obj={({
-                    name: I18n.t(`invitations.new`),
+                    name: I18n.t(`invitations.${guest ? "newGuest" : "new"}`),
                     svg: UserIcon,
                     style: "small"
                 })}/>

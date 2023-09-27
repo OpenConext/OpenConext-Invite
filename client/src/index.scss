@@ -18,4 +18,15 @@ body:after {
     transform: rotate(45deg);
 }
 
+$min-width-pixels: 620px;
+
+.sds--card--big {
+    min-width: $min-width-pixels;
+    @media (max-width: 680px) {
+        min-width: initial;
+    }
+}
+
+
+
 

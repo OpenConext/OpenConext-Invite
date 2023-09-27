@@ -20,4 +20,6 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
     List<Invitation> findByStatus(Status status);
 
     List<Invitation> findByStatusAndRoles_role(Status status, Role role);
+
+    List<Invitation> findByRoles_roleIsIn(List<Role> roles);
 }

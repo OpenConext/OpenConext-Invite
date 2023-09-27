@@ -13,16 +13,24 @@ import {Users} from "../tabs/Users";
 import {Page} from "../components/Page";
 import {Roles} from "../tabs/Roles";
 import Applications from "../tabs/Applications";
+import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
+import {Loader} from "@surfnet/sds";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
     const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const user = useAppStore((state) => state.user)
     const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
+            if (highestAuthority(user) === AUTHORITIES.INVITER) {
+                navigate("/inviter");
+                return;
+            }
             useAppStore.setState({
                 breadcrumbPath: [
                     {path: "/home", value: I18n.t("tabs.home")},
@@ -56,13 +64,17 @@ export const Home = () => {
             );
         }
         setTabs(newTabs);
-    }, [currentTab, user]);
+        setLoading(false);
+    }, [currentTab, user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const tabChanged = (name) => {
         setCurrentTab(name);
         navigate(`/home/${name}`);
     }
 
+    if (loading) {
+        return <Loader/>
+    }
     return (
         <div className="home">
             <div className="mod-home-container">

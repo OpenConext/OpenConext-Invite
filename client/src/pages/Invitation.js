@@ -21,7 +21,7 @@ export const Invitation = ({authenticated}) => {
     const navigate = useNavigate();
     const {user, config} = useAppStore(state => state);
 
-    const [invitationMeta, setInvitationMeta] = useState({});
+    const [invitation, setInvitation] = useState({});
     const [loading, setLoading] = useState(true);
     const [expired, setExpired] = useState(false);
     const [confirmation, setConfirmation] = useState({});
@@ -31,8 +31,8 @@ export const Invitation = ({authenticated}) => {
         const hashParam = getParameterByName("hash", window.location.search);
         invitationByHash(hashParam)
             .then(res => {
-                setInvitationMeta(res);
-                if (res.invitation.status !== "OPEN") {
+                setInvitation(res);
+                if (res.status !== "OPEN") {
                     localStorage.removeItem("location");
                     navigate("/");
                     return;
@@ -40,8 +40,7 @@ export const Invitation = ({authenticated}) => {
                 const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
                 if (mayAccept && config.name && !reloaded) {
-                    const {invitation} = res;
-                    acceptInvitation(hashParam, invitation.id)
+                    acceptInvitation(hashParam, res.id)
                         .then(() => {
                             localStorage.removeItem(MAY_ACCEPT);
                             localStorage.removeItem("location");
@@ -73,7 +72,7 @@ export const Invitation = ({authenticated}) => {
                         })
                 } else {
                     localStorage.setItem(MAY_ACCEPT, "true");
-                    setExpired(DateTime.now().toJSDate() > new Date(res["invitation"].expiryDate * 1000));
+                    setExpired(DateTime.now().toJSDate() > new Date(res.expiryDate * 1000));
                     setLoading(false);
                 }
             })
@@ -111,18 +110,16 @@ export const Invitation = ({authenticated}) => {
         });
     }
 
-    const organisationName = (role, providers) => {
-        const provider = providers.find(prov => prov.id === role.role.manageId);
-        return provider ? ` (${provider.data.metaDataFields["OrganizationName:en"]})` : "";
+    const organisationName = role=> {
+        return ` (${role.application.data.metaDataFields["OrganizationName:en"]})`;
     }
 
     const renderLoginStep = () => {
-        const {invitation, providers} = invitationMeta;
         const translation = invitation.roles.length === 0 ? "invitedNoRoles" : "invited";
         let html = DOMPurify.sanitize(I18n.t(`invitationAccept.${translation}`, {
             authority: I18n.t(`access.${invitation.intendedAuthority}`),
             plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
-            roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role, providers)}`), I18n.t("forms.and")),
+            roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role.role)}`), I18n.t("forms.and")),
             inviter: invitation.inviter.name,
             email: invitation.inviter.email
         }));

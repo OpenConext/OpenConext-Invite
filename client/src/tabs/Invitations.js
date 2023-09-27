@@ -13,9 +13,12 @@ import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {allowedToDeleteInvitation, INVITATION_STATUS} from "../utils/UserRole";
+import {UnitHeader} from "../components/UnitHeader";
+import Select from "react-select";
 
+const allValue = "all";
 
-export const Invitations = ({role, preloadedInvitations, standAlone = false}) => {
+export const Invitations = ({role, preloadedInvitations, standAlone = false, history = false}) => {
     const navigate = useNavigate();
     const {user, setFlash} = useAppStore(state => state);
     const invitations = useRef();
@@ -25,9 +28,19 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false}) =>
     const [loading, setLoading] = useState(true);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
+    const [filterOptions, setFilterOptions] = useState([]);
+    const [filterValue, setFilterValue] = useState(null);
 
     useEffect(() => {
             const promise = standAlone ? allInvitations() : Promise.resolve(preloadedInvitations);
+            if (history) {
+                useAppStore.setState({
+                    breadcrumbPath: [
+                        {path: "/inviter", value: I18n.t("tabs.home")},
+                        {value: I18n.t("tabs.invitations")}
+                    ]
+                });
+            }
             promise.then(res => {
                 res.forEach(invitation => {
                     invitation.intendedRoles = invitation.roles
@@ -46,6 +59,26 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false}) =>
                         return acc;
                     }, {}));
                 invitations.current = res;
+                const newFilterOptions = [{
+                    label: I18n.t("invitations.statuses.all", {nbr: res.length}),
+                    value: allValue
+                }];
+                const statusOptions = res.reduce((acc, invitation) => {
+                    const option = acc.find(opt => opt.status === invitation.status);
+                    if (option) {
+                        ++option.nbr;
+                    } else {
+                        acc.push({status: invitation.status, nbr: 1})
+                    }
+                    return acc;
+                }, []).map(option => ({
+                    label: `${I18n.t("invitations.statuses." + option.status.toLowerCase())} (${option.nbr})`,
+                    value: option.status
+                })).sort((o1, o2) => o1.label.localeCompare(o2.label));
+
+                setFilterOptions(newFilterOptions.concat(statusOptions));
+                setFilterValue(newFilterOptions[0]);
+
                 setResultAfterSearch(res);
                 setLoading(false);
             })
@@ -223,10 +256,9 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false}) =>
             header: I18n.t("invitations.roleExpiryDate"),
             mapper: invitation => shortDateFromEpoch(invitation.roleExpiryDate)
         }];
-
     const countInvitations = invitations.current.length;
     const hasEntities = countInvitations > 0;
-    let title = "";
+    let title = " ";
 
     if (hasEntities) {
         title = I18n.t(`invitations.found`, {
@@ -235,13 +267,42 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false}) =>
         })
     }
 
+    const filter = () => {
+        return (
+            <div className="invitations-filter">
+                <Select
+                    className={"invitations-filter-select"}
+                    value={filterValue}
+                    classNamePrefix={"filter-select"}
+                    onChange={option => setFilterValue(option)}
+                    options={filterOptions}
+                    isSearchable={false}
+                    isClearable={false}
+                />
+            </div>
+        );
+    }
+
+    const getActions = () => {
+        const actions = [];
+        actions.push({
+            buttonType: ButtonType.Primary,
+            name: I18n.t("inviter.sendInvite"),
+            perform: () => {
+                navigate(`/invitation/new`)
+            }
+        });
+        return actions;
+    }
+
+
     return (<div className="mod-invitations">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
                                                  cancel={confirmation.cancel}
                                                  confirm={confirmation.action}
                                                  confirmationTxt={confirmation.confirmationTxt}
                                                  question={confirmation.question}/>}
-
+        {history && <UnitHeader obj={{name: I18n.t("inviter.history")}} actions={getActions()}/>}
         <Entities entities={invitations.current}
                   modelName="invitations"
                   defaultSort="name"
@@ -250,9 +311,9 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false}) =>
                   newLabel={I18n.t("invitations.newInvite")}
                   showNew={!!role}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
-                  hideTitle={true}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={false}
+                  filters={filter(filterOptions, filterValue)}
                   actions={actionButtons()}
                   searchCallback={searchCallback}
                   searchAttributes={["name", "email", "schacHomeOrganization", "inviter__email", "inviter__name"]}

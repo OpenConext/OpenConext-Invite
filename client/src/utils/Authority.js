@@ -8,6 +8,8 @@ export const chipTypeForUserRole = authority => {
     }
     switch (authority) {
         case AUTHORITIES.SUPER_USER:
+            return ChipType.Status_success;
+        case AUTHORITIES.INSTITUTION_ADMIN:
             return ChipType.Support_500;
         case AUTHORITIES.MANAGER:
             return ChipType.Support_400;

@@ -11,7 +11,7 @@ import {ReactComponent as WebsiteIcon} from "../icons/network-information.svg";
 import {ReactComponent as PersonIcon} from "../icons/persons.svg";
 import {ReactComponent as GuestLogo} from "@surfnet/sds/icons/illustrative-icons/hr.svg";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
-import {allowedToEditRole, AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
+import {allowedToEditRole, AUTHORITIES, highestAuthority, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
 import {UserRoles} from "../tabs/UserRoles";
@@ -30,16 +30,22 @@ export const Role = () => {
     const [tabs, setTabs] = useState([]);
 
     useEffect(() => {
+            const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
+            const paths = isInviter ? [
+                {path: "/inviter", value: I18n.t("tabs.home")},
+                {path: `/roles/${role.id}`, value: role.name},
+                {value: I18n.t(`tabs.${currentTab}`)}
+            ] : [
+                {path: "/home", value: I18n.t("tabs.home")},
+                {path: "/home/roles", value: I18n.t("tabs.roles")},
+                {path: `/roles/${role.id}`, value: role.name},
+                {value: I18n.t(`tabs.${currentTab}`)}
+            ]
             useAppStore.setState({
-                breadcrumbPath: [
-                    {path: "/home", value: I18n.t("tabs.home")},
-                    {path: "/home/roles", value: I18n.t("tabs.roles")},
-                    {path: `/roles/${role.id}`, value: role.name},
-                    {value: I18n.t(`tabs.${currentTab}`)}
-                ]
+                breadcrumbPath: paths
             });
         },
-        [currentTab, role])
+        [user, currentTab, role])
 
     useEffect(() => {
         if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
@@ -52,14 +58,6 @@ export const Role = () => {
                 setRole(res[0]);
                 setLoading(false);
                 const newTabs = [
-                    isUserAllowed(AUTHORITIES.MANAGER, user) ? <Page key="maintainers"
-                                                                     name="maintainers"
-                                                                     label={I18n.t("tabs.userRoles")}
-                                                                     Icon={UserLogo}>
-                        <UserRoles role={res[0]}
-                                   guests={false}
-                                   userRoles={res[1].filter(userRole => userRole.authority !== "GUEST")}/>
-                    </Page> : null,
                     <Page key="guests"
                           name="guests"
                           label={I18n.t("tabs.guestRoles")}
@@ -67,6 +65,14 @@ export const Role = () => {
                         <UserRoles role={res[0]}
                                    guests={true}
                                    userRoles={res[1].filter(userRole => userRole.authority === "GUEST")}/>
+                    </Page>,
+                    <Page key="maintainers"
+                          name="maintainers"
+                          label={I18n.t("tabs.userRoles")}
+                          Icon={UserLogo}>
+                        <UserRoles role={res[0]}
+                                   guests={false}
+                                   userRoles={res[1].filter(userRole => userRole.authority !== "GUEST")}/>
                     </Page>,
                     <Page key="invitations"
                           name="invitations"
@@ -108,7 +114,7 @@ export const Role = () => {
 
     const logo = role.logo;
     const urn = urnFromRole(config.groupUrnPrefix, role);
-    return (<div class="mod-role">
+    return (<div className="mod-role">
         <UnitHeader obj={({...role, logo: logo})}
                     displayDescription={true}
                     actions={getActions()}>
