@@ -1,9 +1,9 @@
-You have been invited to the access website.
+You have been invited to SURFconext Invite.
 Click the link below to accept the invitation.
 
 {{url}}
 
-You have been invited to become a {{role}} in the access website. If you don't want to accept this
+You have been invited to become a {{role}} in SURFconext Invite. If you don't want to accept this
             invitation, just ignore or delete this message.
 
 {{> footer_en.txt}}
