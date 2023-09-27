@@ -4,12 +4,14 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {allowedAuthoritiesForInvitation, AUTHORITIES, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
+import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {newInvitation, rolesByApplication} from "../api";
 import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, stopEvent} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
@@ -29,6 +31,7 @@ export const InvitationForm = () => {
         invites: [],
         intendedAuthority: AUTHORITIES.GUEST
     });
+    const [displayAdvancedSettings, setDisplayAdvancedSettings] = useState(false);
     const {user, setFlash, config} = useAppStore(state => state);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
@@ -78,6 +81,12 @@ export const InvitationForm = () => {
             }
         }
     }
+
+    const toggleDisplayAdvancedSettings = e => {
+        stopEvent(e);
+        setDisplayAdvancedSettings(!displayAdvancedSettings);
+    }
+
     const submit = () => {
         setInitial(false);
         if (isValid()) {
@@ -126,6 +135,7 @@ export const InvitationForm = () => {
             setSelectedRoles([])
             setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false})
         } else {
+            debugger;
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
             const enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality);
@@ -190,29 +200,6 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(selectedRoles)) &&
                     <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
 
-                <DateField value={invitation.roleExpiryDate}
-                           onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
-                           showYearDropdown={true}
-                           pastDatesAllowed={config.pastDateAllowed}
-                           allowNull={invitation.intendedAuthority !== AUTHORITIES.GUEST}
-                           minDate={futureDate(1, invitation.expiryDate)}
-                           name={I18n.t("invitations.roleExpiryDate")}
-                           toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>
-
-                <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
-                          value={invitation.enforceEmailEquality || false}
-                          info={I18n.t("invitations.enforceEmailEquality")}
-                          readOnly={true}
-                          tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
-                />
-
-                <Checkbox name={I18n.t("invitations.eduIDOnly")}
-                          value={invitation.eduIDOnly || false}
-                          info={I18n.t("invitations.eduIDOnly")}
-                          readOnly={true}
-                          tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
-                />
-
                 <InputField value={invitation.message}
                             onChange={e => setInvitation({...invitation, message: e.target.value})}
                             placeholder={I18n.t("invitations.messagePlaceholder")}
@@ -220,15 +207,53 @@ export const InvitationForm = () => {
                             large={true}
                             multiline={true}/>
 
-                <DateField value={invitation.expiryDate}
-                           onChange={e => setInvitation({...invitation, expiryDate: e})}
-                           showYearDropdown={true}
-                           pastDatesAllowed={config.pastDateAllowed}
-                           minDate={futureDate(1)}
-                           maxDate={futureDate(30)}
-                           name={I18n.t("invitations.expiryDate")}
-                           toolTip={I18n.t("tooltips.expiryDateTooltip")}/>
+                {!displayAdvancedSettings &&
+                    <a className="advanced-settings" href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
+                        {I18n.t("roles.showAdvancedSettings")}
+                        <DownIcon/>
+                    </a>
+                }
 
+                {displayAdvancedSettings &&
+                    <div className="advanced-settings-container" >
+                        <a className="advanced-settings" href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
+                            {I18n.t("roles.hideAdvancedSettings")}
+                        <UpIcon/>
+                        </a>
+                        <DateField value={invitation.expiryDate}
+                                   onChange={e => setInvitation({...invitation, expiryDate: e})}
+                                   showYearDropdown={true}
+                                   pastDatesAllowed={config.pastDateAllowed}
+                                   minDate={futureDate(1)}
+                                   maxDate={futureDate(30)}
+                                   name={I18n.t("invitations.expiryDate")}
+                                   toolTip={I18n.t("tooltips.expiryDateTooltip")}/>
+
+                        <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
+                                  value={invitation.enforceEmailEquality || false}
+                                  info={I18n.t("invitations.enforceEmailEquality")}
+                                  readOnly={true}
+                                  tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
+                        />
+
+                        <Checkbox name={I18n.t("invitations.eduIDOnly")}
+                                  value={invitation.eduIDOnly || false}
+                                  info={I18n.t("invitations.eduIDOnly")}
+                                  readOnly={true}
+                                  tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
+                        />
+
+                        <DateField value={invitation.roleExpiryDate}
+                                   onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
+                                   showYearDropdown={true}
+                                   disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
+                                   pastDatesAllowed={config.pastDateAllowed}
+                                   allowNull={invitation.intendedAuthority !== AUTHORITIES.GUEST}
+                                   minDate={futureDate(1, invitation.expiryDate)}
+                                   name={I18n.t("invitations.roleExpiryDate")}
+                                   toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>
+
+                    </div>}
                 <section className="actions">
                     <Button type={ButtonType.Secondary}
                             txt={I18n.t("forms.cancel")}

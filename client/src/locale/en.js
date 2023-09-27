@@ -137,6 +137,8 @@ const en = {
         edit: "Edit role {{name}}",
         urn: "URN",
         advanced: "Advanced settings",
+        showAdvancedSettings: "Show advanced invite settings",
+        hideAdvancedSettings: "Hide advanced invite settings",
         override: "Override of settings allowed?",
         manage: "Service",
         manageMetaData: "SURFconext entity",

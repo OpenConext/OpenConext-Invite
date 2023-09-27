@@ -31,10 +31,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -87,6 +85,16 @@ public class InvitationController implements HasManage {
                 .map(id -> roleRepository.findById(id).orElseThrow(NotFoundException::new)).toList();
         Authority intendedAuthority = invitationRequest.getIntendedAuthority();
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+
+        boolean isOverrideSettingsAllowed = requestedRoles.stream().allMatch(Role::isOverrideSettingsAllowed);
+        if (!isOverrideSettingsAllowed) {
+            invitationRequest.setEduIDOnly(requestedRoles.stream().anyMatch(Role::isEduIDOnly));
+            invitationRequest.setEnforceEmailEquality(requestedRoles.stream().anyMatch(Role::isEnforceEmailEquality));
+            if (intendedAuthority.equals(Authority.GUEST)) {
+                Integer defaultExpiryDays = requestedRoles.stream().max(Comparator.comparingInt(Role::getDefaultExpiryDays)).get().getDefaultExpiryDays();
+                invitationRequest.setRoleExpiryDate(Instant.now().plus(defaultExpiryDays, ChronoUnit.DAYS));
+            }
+        }
 
         List<Invitation> invitations = invitationRequest.getInvites().stream()
                 .filter(emailFormatValidator::isValid)

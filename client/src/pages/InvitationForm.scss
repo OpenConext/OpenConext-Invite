@@ -4,6 +4,21 @@
     .invitation-form {
         @include page;
         @include form;
+
+        .advanced-settings, .advanced-settings-container {
+            grid-column-start: first;
+        }
+
+        a.advanced-settings {
+            margin-top: 32px;
+            display: flex;
+            align-items: center;
+            svg {
+                width: 24px;
+                height: auto;
+                margin-left: 15px;
+            }
+        }
     }
 
 
