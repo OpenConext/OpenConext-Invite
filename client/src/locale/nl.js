@@ -16,7 +16,7 @@ const nl = {
             "<p>Applicaties zijn diensten gekoppeld aan SURFconext.</p>", true],
             ["Rollen", "<p>De applicatiebeheerders nodigen collega's die weer gasten kunnen uitnodigen.</p>" +
             "<p>Uitnodigingen.</p>", true],
-            ["Word lid", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
+            ["Word lid", "<p>Uitgenodigde collega's die op de uitnodiging zijn ingegaan krijgen toegang tot applicaties.</p><br/>", false],
             ["Groepen", "<p>De rollen zijn feitelijk groepslidmaatschappen die gebruikt kunnen worden in SURFconext autorisatieregels, doorgegeven als attributen of via externe SCIM API's.</p>", false]
         ],
         footer: "<p>SURFconext Invite is een dienst voor toegangsbeheer voor onderwijs en onderzoek.</p>" +
