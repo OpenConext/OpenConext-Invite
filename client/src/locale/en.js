@@ -300,7 +300,8 @@ const en = {
         inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or one-by-one using the enter key. You can also copy & paste a csv file with line-separated email addresses.",
         removeInvitation: "Delete all selected invitations",
         resendInvitation: "Resend all selected invitations",
-        inviter: "Send invitations to persons who will - once accepted - become guest users for the application"
+        inviter: "Send invitations to persons who will - once accepted - become guest users for the application",
+        overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced setting (e.g. Email equality, eduID only and the role expiry end date)"
     },
     confirmationDialog: {
         title: "Confirm",

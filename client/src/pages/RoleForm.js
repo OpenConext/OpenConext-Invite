@@ -296,6 +296,7 @@ export const RoleForm = () => {
                                       label={I18n.t("roles.override")}
                                       value={role.overrideSettingsAllowed ? "yes" : "no"}
                                       values={["yes", "no"]}
+                                      tooltip={I18n.t("tooltips.overrideSettingsAllowed")}
                                       onChange={value => setRole({...role, overrideSettingsAllowed: value === "yes"})}
                                       labelResolver={label => I18n.t(`forms.${label}`)}/>
                 </div>
