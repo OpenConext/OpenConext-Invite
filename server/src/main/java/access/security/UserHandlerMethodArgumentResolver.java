@@ -1,8 +1,10 @@
 package access.security;
 
 import access.exception.UserRestrictionException;
+import access.manage.Manage;
 import access.model.User;
 import access.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -14,20 +16,24 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
+import static access.security.InstitutionAdmin.*;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final UserRepository userRepository;
     private final SuperAdmin superAdmin;
+    private final Manage manage;
 
-
-    public UserHandlerMethodArgumentResolver(UserRepository userRepository, SuperAdmin superAdmin) {
+    public UserHandlerMethodArgumentResolver(UserRepository userRepository, SuperAdmin superAdmin, Manage manage) {
         this.userRepository = userRepository;
         this.superAdmin = superAdmin;
+        this.manage = manage;
     }
 
     public boolean supportsParameter(MethodParameter methodParameter) {
@@ -50,6 +56,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         }
 
         String sub = attributes.get("sub").toString();
+        AtomicBoolean validImpersonation = new AtomicBoolean(false);
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub)
                 .or(() ->
                         superAdmin.getUsers().stream().filter(adminSub -> adminSub.equals(sub))
@@ -68,6 +75,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 .map(user -> {
                     String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
                     if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
+                        validImpersonation.set(true);
                         return userRepository.findById(Long.valueOf(impersonateId))
                                 .orElseThrow(UserRestrictionException::new);
                     }
@@ -78,9 +86,10 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             return new User(attributes);
         }
         return optionalUser.map(user -> {
-            if (user.getId() != null) {
-                user.updateAttributes(attributes);
-                userRepository.save(user);
+            if (validImpersonation.get() && user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
+                String organizationGUID = user.getOrganizationGUID();
+                user.setApplications(manage.providersByInstitutionalGUID(organizationGUID));
+                user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGUID).orElse(Collections.emptyMap()));
             }
             return user;
         }).orElseThrow(UserRestrictionException::new);

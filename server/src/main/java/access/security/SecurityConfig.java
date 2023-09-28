@@ -21,20 +21,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -46,8 +39,6 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.*;
 import java.util.function.Consumer;
-
-import static access.security.InstitutionAdmin.*;
 
 @EnableWebSecurity
 @EnableScheduling
@@ -101,16 +92,18 @@ public class SecurityConfig {
 
         private final UserRepository userRepository;
         private final SuperAdmin superAdmin;
+        private final Manage manage;
 
         @Autowired
-        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin) {
+        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin, Manage manage) {
             this.userRepository = userRepository;
             this.superAdmin = superAdmin;
+            this.manage = manage;
         }
 
         @Override
         public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin));
+            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin, manage));
         }
 
         @Override
@@ -125,6 +118,7 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain sessionSecurityFilterChain(HttpSecurity http,
                                                    Manage manage,
+                                                   UserRepository userRepository,
                                                    @Value("${institution-admin.entitlement}") String entitlement,
                                                    @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
         http
@@ -152,7 +146,7 @@ public class SecurityConfig {
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
                         ).userInfoEndpoint(userInfo -> userInfo.oidcUserService(
-                                new CustomOidcUserService(manage, entitlement, organizationGuidPrefix)))
+                                new CustomOidcUserService(manage, userRepository, entitlement, organizationGuidPrefix)))
                 );
 
         return http.build();

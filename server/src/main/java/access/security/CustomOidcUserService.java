@@ -1,6 +1,8 @@
 package access.security;
 
 import access.manage.Manage;
+import access.model.User;
+import access.repository.UserRepository;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -18,13 +20,16 @@ import java.util.Optional;
 import static access.security.InstitutionAdmin.*;
 
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
+
     private final Manage manage;
+    private final UserRepository userRepository;
     private final String entitlement;
     private final String organizationGuidPrefix;
     private final OidcUserService delegate;
 
-    public CustomOidcUserService(Manage manage, String entitlement, String organizationGuidPrefix) {
+    public CustomOidcUserService(Manage manage, UserRepository userRepository, String entitlement, String organizationGuidPrefix) {
         this.manage = manage;
+        this.userRepository = userRepository;
         this.entitlement = entitlement;
         this.organizationGuidPrefix = organizationGuidPrefix;
         delegate = new OidcUserService();
@@ -51,6 +56,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         }
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
         oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
+        String sub = (String) newClaims.get("sub");
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+        optionalUser.ifPresent(user -> {
+            user.updateAttributes(newClaims);
+            userRepository.save(user);
+
+        });
         return oidcUser;
 
     }

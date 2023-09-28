@@ -58,8 +58,15 @@
         .launch {
             margin-left: auto;
 
+            button {
+                margin-left: 15px;
+            }
+
             @media (max-width: 680px) {
                 margin: 20px auto 0 0;
+                button {
+                    margin-left: 0;
+                }
             }
 
         }

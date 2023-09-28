@@ -201,6 +201,26 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void meWithImpersonationInstitutionAdmin() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        User institutionAdmin = userRepository.findBySubIgnoreCase(INSTITUTION_ADMIN).get();
+        stubForManageProviderByOrganisationGUID(institutionAdmin.getOrganizationGUID());
+
+        User user = given()
+                .when()
+                .header("X-IMPERSONATE-ID", institutionAdmin.getId().toString())
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertEquals(INSTITUTION_ADMIN, user.getEduPersonPrincipalName());
+        assertEquals(3, user.getApplications().size());
+        assertEquals(EntityType.SAML20_IDP.collectionName(), user.getInstitution().get("type"));
+    }
+
+    @Test
     void meWithNotAllowedImpersonation() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
@@ -248,7 +268,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, users.size());
+        assertEquals(2, users.size());
     }
 
     @Test
