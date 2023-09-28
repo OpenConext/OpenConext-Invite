@@ -78,6 +78,9 @@ public class User implements Serializable, Provisionable {
     @Transient
     private List<Map<String, Object>> applications = Collections.emptyList();
 
+    @Transient
+    private Map<String, Object> institution = Collections.emptyMap();
+
     public User(Map<String, Object> attributes) {
         this(false, attributes);
     }
@@ -93,6 +96,7 @@ public class User implements Serializable, Provisionable {
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
+        this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
 
@@ -179,6 +183,7 @@ public class User implements Serializable, Provisionable {
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
+        this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
         this.lastActivity = Instant.now();
     }
 

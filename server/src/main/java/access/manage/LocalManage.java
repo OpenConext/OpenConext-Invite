@@ -96,4 +96,15 @@ public final class LocalManage implements Manage {
                         .get("coin:institution_guid"), organisationGUID))
                 .toList();
     }
+
+    @Override
+    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
+        List<Map<String, Object>> providers = providers(EntityType.SAML20_IDP);
+        return providers
+                .stream()
+                .filter(provider -> Objects.equals(((Map<String, Object>) ((Map<String, Object>) provider.get("data"))
+                        .get("metaDataFields"))
+                        .get("coin:institution_guid"), organisationGUID))
+                .findAny();
+    }
 }

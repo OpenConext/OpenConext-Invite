@@ -22,6 +22,8 @@ public interface Manage {
 
     List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID);
 
+    Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID);
+
     //Due to the different API's we are using, the result sometimes contains an "_id" and sometimes an "id"
     default List<Map<String, Object>> addIdentifierAlias(List<Map<String, Object>> providers) {
         providers.forEach(this::addIdentifierAlias);

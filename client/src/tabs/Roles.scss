@@ -2,6 +2,27 @@
 
 div.mod-roles {
 
+    .institution-admin-welcome {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        margin-top: 25px;
+        svg {
+            width: 240px;
+            height: auto
+        }
+
+        img {
+            width: 200px;
+            height: auto
+        }
+
+        p {
+            margin: 25px 0;
+            font-size: 18px;
+        }
+    }
+
     table.roles {
 
         thead {

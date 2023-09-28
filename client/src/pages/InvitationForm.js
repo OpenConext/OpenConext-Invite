@@ -2,12 +2,18 @@ import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {allowedAuthoritiesForInvitation, AUTHORITIES, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
+import {
+    allowedAuthoritiesForInvitation,
+    AUTHORITIES,
+    highestAuthority,
+    isUserAllowed,
+    markAndFilterRoles
+} from "../utils/UserRole";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {newInvitation, rolesByApplication} from "../api";
-import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
+import {Button, ButtonType, Checkbox, Loader, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -17,6 +23,7 @@ import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
 import {futureDate} from "../utils/Date";
+import {RoleCard} from "../components/RoleCard";
 
 export const InvitationForm = () => {
     const location = useLocation();
@@ -48,19 +55,19 @@ export const InvitationForm = () => {
                     const markedRoles = markAndFilterRoles(user, res, I18n.locale);
                     setInitialRole(markedRoles);
                     setRoles(markedRoles);
+                    setLoading(false);
                 })
-            setLoading(false);
         } else {
             const markedRoles = markAndFilterRoles(user, [], I18n.locale);
             setInitialRole(markedRoles);
             setRoles(markedRoles)
+            setLoading(false);
         }
         const breadcrumbPath = [
             {path: "/home", value: I18n.t("tabs.home")},
             {path: "/home/roles", value: I18n.t("tabs.roles")},
         ];
         useAppStore.setState({breadcrumbPath: breadcrumbPath});
-        setLoading(false);
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -164,13 +171,31 @@ export const InvitationForm = () => {
 
     }
 
-    const renderForm = () => {
+    const renderForm = isInviter => {
         const disabledSubmit = !initial && !isValid();
         const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
             .filter(authority => authority !== AUTHORITIES.INSTITUTION_ADMIN)
             .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
         return (
             <>
+                {isInviter && <div className="card-containers">
+                    <span className={"label"}>
+                        {I18n.t("invitations.inviterRoles")}
+                        <Tooltip tip={I18n.t("tooltips.rolesTooltip")}/>
+                    </span>
+                    {roles.map((role, index) =>
+                        <RoleCard role={role}
+                                  index={index}
+                                  key={index}
+                                  invitationSelected={selectedRoles.some(r => r.value === role.value)}
+                                  invitationSelectCallback={(e, value) => {
+                                      const checked = e.target.checked;
+                                      const roleSelected = roles.find(r => r.value === value);
+                                      const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
+                                      rolesChanged(newSelectedRoles);
+                                  }}/>)
+                    }
+                </div>}
                 <EmailField
                     name={I18n.t("invitations.invitees")}
                     addEmails={addEmails}
@@ -194,18 +219,20 @@ export const InvitationForm = () => {
                     toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
                     clearable={false}
                 />}
+                {!isInviter && <>
+                    <SelectField value={selectedRoles}
+                                 options={roles.filter(role => !selectedRoles.find(r => r.value === role.value))}
+                                 name={I18n.t("invitations.roles")}
+                                 toolTip={I18n.t("tooltips.rolesTooltip")}
+                                 isMulti={true}
+                                 error={!initial && isEmpty(selectedRoles)}
+                                 searchable={true}
+                                 placeholder={I18n.t("invitations.rolesPlaceHolder")}
+                                 onChange={rolesChanged}/>
+                    {(!initial && isEmpty(selectedRoles)) &&
+                        <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
+                </>}
 
-                <SelectField value={selectedRoles}
-                             options={roles.filter(role => !selectedRoles.find(r => r.value === role.value))}
-                             name={I18n.t("invitations.roles")}
-                             toolTip={I18n.t("tooltips.rolesTooltip")}
-                             isMulti={true}
-                             error={!initial && isEmpty(selectedRoles)}
-                             searchable={true}
-                             placeholder={I18n.t("invitations.rolesPlaceHolder")}
-                             onChange={rolesChanged}/>
-                {(!initial && isEmpty(selectedRoles)) &&
-                    <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
 
                 <InputField value={invitation.message}
                             onChange={e => setInvitation({...invitation, message: e.target.value})}
@@ -278,6 +305,7 @@ export const InvitationForm = () => {
     if (loading) {
         return <Loader/>
     }
+    const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
     return (
         <div className={"mod-invitation-form"}>
             <UnitHeader
@@ -287,7 +315,7 @@ export const InvitationForm = () => {
                     style: "small"
                 })}/>
             <div className={"invitation-form"}>
-                {renderForm()}
+                {renderForm(isInviter)}
             </div>
         </div>
     );

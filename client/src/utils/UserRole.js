@@ -123,7 +123,6 @@ export const markAndFilterRoles = (user, allRoles, locale) => {
         userRole.logo = role.logo;
         userRole.userRoleCount = role.userRoleCount;
     })
-
     return allRoles
         .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
         .concat(userRoles);

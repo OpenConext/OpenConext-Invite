@@ -189,6 +189,7 @@ const en = {
         requiredRole: "At least one role is required for an invitation",
         intendedAuthority: "Authority",
         roles: "Roles",
+        inviterRoles: "Send new invitation for the following roles",
         rolesPlaceHolder: "Choose one or more roles",
         expiryDate: "Invitation expiry date",
         roleExpiryDate: "Role expiry date",
@@ -281,6 +282,10 @@ const en = {
         details: "Show details",
         history: "Invitation History"
     },
+    institutionAdmin: {
+        welcome: "Welcome Institution administrator of {{name}}! You can start with creating your first role and invite managers.",
+        create: "Create access role"
+    },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",
         impersonateIcon: "Impersonate user {{name}}",
@@ -295,7 +300,7 @@ const en = {
         eduIDOnlyTooltip: "When checked the invitees will be required to login with eduID",
         roleExpiryDateTooltip: "The end date of this role. After this date the role is removed from the user.",
         expiryDateTooltip: "The date on which this invitation expires",
-        rolesTooltip: "All the roles that the invitee will be granted after accepting the invitation",
+        rolesTooltip: "Select all the roles that the invitee will be granted after accepting the invitation",
         intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted after accepting the invitation",
         inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or one-by-one using the enter key. You can also copy & paste a csv file with line-separated email addresses.",
         removeInvitation: "Delete all selected invitations",

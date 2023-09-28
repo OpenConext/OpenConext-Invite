@@ -9,14 +9,16 @@ import {isEmpty} from "../utils/Utils";
 
 export const RoleCard = ({role, index, invitationSelected, invitationSelectCallback, isNew = false }) => {
     const navigate = useNavigate();
-
-    const application = role.application;
-    const logo = role.application.data.metaDataFields["logo:0:url"];
+    const application = role.isUserRole ? role.role.application : role.application;
+    const logo = application.data.metaDataFields["logo:0:url"];
 
     const children =
         <div key={index} className="user-role">
             {!isEmpty(invitationSelected) &&
-                <Checkbox name={"invitationSelected"} value={invitationSelected} onChange={invitationSelectCallback}/>}
+                <Checkbox name={`invitationSelected-${index}-${role.value}`}
+                          value={invitationSelected}
+                          onChange={e => invitationSelectCallback(e, role.value)}/>
+            }
             <Logo src={logo} alt={"provider"} className={"provider"}/>
             <section className={"user-role-info"}>
                 <p>{application.data.metaDataFields[`name:${I18n.locale}`]} ({application.data.metaDataFields[`OrganizationName:${I18n.locale}`]})</p>
@@ -28,8 +30,10 @@ export const RoleCard = ({role, index, invitationSelected, invitationSelectCallb
             </div>}
 
         </div>;
+    const inviterCard = isEmpty(invitationSelected) ? "" : (invitationSelected ? "inviter-selected" : "inviter")
+    const className = `card-container ${isNew ? "is-new" : ""} ${inviterCard}`;
     return (
-        <div className={`card-container  ${isNew ? "is-new" : ""}`}>
+        <div className={className}>
             {isNew &&
                 <Chip label={I18n.t("proceed.new")} type={ChipType.Status_error}/>
             }

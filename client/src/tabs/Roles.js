@@ -3,13 +3,14 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Chip, Loader} from "@surfnet/sds";
+import {Button, Chip, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
-import {AUTHORITIES, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
+import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication, searchRoles} from "../api";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {chipTypeForUserRole} from "../utils/Authority";
+import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
 
 export const Roles = () => {
     const user = useAppStore(state => state.user);
@@ -75,6 +76,19 @@ export const Roles = () => {
             </div>)
     }
 
+    const noRolesInstitutionAdmin = () => {
+        const metaDataFields = user.institution.data.metaDataFields;
+        const name = metaDataFields[`name:${I18n.locale}`] || metaDataFields["name:en"];
+        const logo = metaDataFields["logo:0:url"]
+        return (
+            <div className="institution-admin-welcome">
+                {logo ? <img src={logo} alt="logo"/> : <VoidImage/>}
+                <p>{I18n.t("institutionAdmin.welcome", {name: name})}</p>
+                <Button txt={I18n.t("institutionAdmin.create")} onClick={() => navigate("/role/new")}/>
+            </div>
+        );
+    }
+
     const columns = [
         {
             nonSortable: true,
@@ -122,6 +136,14 @@ export const Roles = () => {
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
     const isManager = isUserAllowed(AUTHORITIES.MANAGER, user);
+    const isInstitutionAdmin = highestAuthority(user) === AUTHORITIES.INSTITUTION_ADMIN;
+    if (isInstitutionAdmin && !isEmpty(user.institution)) {
+        return (
+            <div className={"mod-roles"}>
+                {noRolesInstitutionAdmin()}
+            </div>
+        )
+    }
 
     return (
         <div className={"mod-roles"}>

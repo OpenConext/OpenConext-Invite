@@ -189,6 +189,7 @@ const nl = {
         requiredRole: "Minimaal 1 rol is benodigd voor een uitnodiging",
         intendedAuthority: "Autoriteit",
         roles: "Rollen",
+        inviterRoles: "Verstuur een nieuwe uitnodiging voor de volgende rollen",
         rolesPlaceHolder: "Kies een of meer rollen",
         expiryDate: "Verloopdatum uitnodiging",
         roleExpiryDate: "Verloopdatum rol",
@@ -280,6 +281,10 @@ const nl = {
         manage: "You can manage guests and send inviter for",
         details: "Show details",
         history: "Uitnodigingen"
+    },
+    institutionAdmin: {
+        welcome: "Welkom Instellings beheerder van {{name}}! Je kan nu je eerste rol aanmaken en managers daarvoor uitnodigen.",
+        create: "Create access role"
     },
     tooltips: {
         userIcon: "Gebruiker {{name}} geprovisioned op {{createdAt}} laatst actief op {{lastActivity}}",

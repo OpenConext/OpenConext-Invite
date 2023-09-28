@@ -85,6 +85,16 @@ public class RemoteManage implements Manage {
         return addIdentifierAlias(serviceProviders);
     }
 
+    @Override
+    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
+        Map<String, Object> baseQuery = (Map<String, Object>) this.queries.get("base_query");
+        baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
+        List<Map<String, Object> > identityProviders = restTemplate.postForObject(
+                String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_IDP.collectionName()),
+                baseQuery, List.class);
+        return identityProviders.isEmpty() ? Optional.empty() : Optional.of(addIdentifierAlias(identityProviders.get(0)));
+    }
+
     private List<Map<String, Object>> getRemoteMetaData(String type) {
         Object baseQuery = this.queries.get("base_query");
         String url = String.format("%s/manage/api/internal/search/%s", this.url, type);

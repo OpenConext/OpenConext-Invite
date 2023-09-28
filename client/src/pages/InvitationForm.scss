@@ -5,8 +5,17 @@
         @include page;
         @include form;
 
-        .advanced-settings, .advanced-settings-container {
+        .email-field , .advanced-settings, .advanced-settings-container, .card-containers {
             grid-column-start: first;
+        }
+
+        .card-containers {
+            margin-top: 25px;
+            span.label {
+                font-weight: 600;
+                display: block;
+                margin-bottom: 6px;
+            }
         }
 
         a.advanced-settings {

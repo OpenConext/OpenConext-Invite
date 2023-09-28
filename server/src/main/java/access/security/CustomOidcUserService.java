@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static access.security.InstitutionAdmin.*;
 
@@ -45,6 +46,8 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
             List<Map<String, Object>> applications = manage.providersByInstitutionalGUID(organizationGuid);
             newClaims.put(APPLICATIONS, applications);
+            Optional<Map<String, Object>> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGuid);
+            newClaims.put(INSTITUTION, identityProvider.orElse(null));;
         }
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
         oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);

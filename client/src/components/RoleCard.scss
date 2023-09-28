@@ -6,6 +6,15 @@
         background-color: #FFD700;
     }
 
+    &.inviter-selected .sds--card {
+        border-color: var(--sds--color--green--300);
+        background-color: var(--sds--color--green--100);
+    }
+
+    &.inviter .sds--card {
+        background-color: var(--sds--color--gray--100);
+    }
+
     &.is-new {
         position: relative;
 
@@ -44,7 +53,11 @@
             flex-direction: column;
         }
 
-        img, svg {
+        .sds--checkbox-container {
+            margin-right: 25px;
+        }
+
+        img.provider, svg.provider {
             height: 56px;
             width: auto;
             margin: 0 35px auto 0;
