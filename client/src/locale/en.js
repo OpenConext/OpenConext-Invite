@@ -283,7 +283,7 @@ const en = {
         history: "Invitation History"
     },
     institutionAdmin: {
-        welcome: "Welcome Institution administrator of {{name}}! You can start with creating your first role and invite managers.",
+        welcome: "Welcome Institution administrator of {{name}}! You can start with creating your first role and subsequently invite managers.",
         create: "Create access role"
     },
     tooltips: {

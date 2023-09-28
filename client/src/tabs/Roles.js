@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, Chip, Loader} from "@surfnet/sds";
+import {Button, ButtonSize, Chip, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication, searchRoles} from "../api";
@@ -26,13 +26,16 @@ export const Roles = () => {
         if (isUserAllowed(AUTHORITIES.MANAGER, user)) {
             if (!roleSearchRequired) {
                 rolesByApplication()
-                    .then(res => setRoles(markAndFilterRoles(user, res, I18n.locale)))
-                setLoading(false);
+                    .then(res => {
+                        setRoles(markAndFilterRoles(user, res, I18n.locale));
+                        setLoading(false);
+                    })
+
             }
         } else {
             setRoles(markAndFilterRoles(user, [], I18n.locale))
+            setLoading(false);
         }
-        setLoading(false);
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const openRole = (e, role) => {
@@ -84,7 +87,9 @@ export const Roles = () => {
             <div className="institution-admin-welcome">
                 {logo ? <img src={logo} alt="logo"/> : <VoidImage/>}
                 <p>{I18n.t("institutionAdmin.welcome", {name: name})}</p>
-                <Button txt={I18n.t("institutionAdmin.create")} onClick={() => navigate("/role/new")}/>
+                <Button txt={I18n.t("institutionAdmin.create")}
+                        size={ButtonSize.Full}
+                        onClick={() => navigate("/role/new")}/>
             </div>
         );
     }
@@ -137,7 +142,7 @@ export const Roles = () => {
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
     const isManager = isUserAllowed(AUTHORITIES.MANAGER, user);
     const isInstitutionAdmin = highestAuthority(user) === AUTHORITIES.INSTITUTION_ADMIN;
-    if (isInstitutionAdmin && !isEmpty(user.institution)) {
+    if (isInstitutionAdmin && !isEmpty(user.institution) && roles.length === 0) {
         return (
             <div className={"mod-roles"}>
                 {noRolesInstitutionAdmin()}
