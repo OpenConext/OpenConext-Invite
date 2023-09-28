@@ -158,35 +158,8 @@ public class SecurityConfig {
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, "/oauth2/authorization");
         authorizationRequestResolver.setAuthorizationRequestCustomizer(
-                authorizationRequestCustomizer());
-
+                new AuthorizationRequestCustomizer(invitationRepository, eduidEntityId));
         return authorizationRequestResolver;
-    }
-
-    private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
-        return customizer -> customizer
-                .additionalParameters(params -> {
-                    RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-                    HttpSession session = ((ServletRequestAttributes) requestAttributes)
-                            .getRequest().getSession(false);
-                    if (session == null) {
-                        return;
-                    }
-                    DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
-                    String[] force = savedRequest.getParameterValues("force");
-                    if (force != null && force.length == 1) {
-                        params.put("prompt", "login");
-                    }
-                    String[] hash = savedRequest.getParameterValues("hash");
-                    if (hash != null && hash.length == 1) {
-                        Optional<Invitation> optionalInvitation = invitationRepository.findByHash(hash[0]);
-                        optionalInvitation.ifPresent(invitation -> {
-                            if (invitation.isEduIDOnly()) {
-                                params.put("login_hint", eduidEntityId);
-                            }
-                        });
-                    }
-                });
     }
 
     @Bean

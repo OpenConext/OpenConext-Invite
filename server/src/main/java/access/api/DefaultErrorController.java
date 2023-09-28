@@ -39,7 +39,7 @@ public class DefaultErrorController implements ErrorController {
     }
 
     @RequestMapping("/error")
-    public ResponseEntity error(HttpServletRequest request) throws URISyntaxException {
+    public ResponseEntity error(HttpServletRequest request) {
         WebRequest webRequest = new ServletWebRequest(request);
         Map<String, Object> result = this.errorAttributes.getErrorAttributes(
                 webRequest,
