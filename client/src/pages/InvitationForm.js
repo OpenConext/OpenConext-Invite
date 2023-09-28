@@ -265,15 +265,17 @@ export const InvitationForm = () => {
 
                         <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
                                   value={invitation.enforceEmailEquality || false}
+                                  onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
                                   info={I18n.t("invitations.enforceEmailEquality")}
-                                  readOnly={true}
+                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed )}
                                   tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                         />
 
                         <Checkbox name={I18n.t("invitations.eduIDOnly")}
                                   value={invitation.eduIDOnly || false}
+                                  onChange={e => setInvitation({...invitation, eduIDOnly: e.target.checked})}
                                   info={I18n.t("invitations.eduIDOnly")}
-                                  readOnly={true}
+                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed )}
                                   tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
                         />
 

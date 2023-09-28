@@ -7,6 +7,11 @@ div.mod-roles {
         align-items: center;
         flex-direction: column;
         margin-top: 25px;
+
+        @media (max-width: $medium) {
+            padding: 0 15px;
+        }
+
         svg {
             width: 240px;
             height: auto
