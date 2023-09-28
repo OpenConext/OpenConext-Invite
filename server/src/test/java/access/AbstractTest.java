@@ -317,19 +317,21 @@ public abstract class AbstractTest {
     protected void stubForManageProviderByOrganisationGUID(String organisationGUID) throws JsonProcessingException {
         String path = "/manage/api/internal/search/%s";
         List<Map<String, Object>> providers = localManage.providersByInstitutionalGUID(organisationGUID);
-        Map<EntityType, List<Map<String, Object>>> providersMap = Map.of(
+        Optional<Map<String, Object>> identityProvider = localManage.identityProviderByInstitutionalGUID(organisationGUID);
+        Map<EntityType, Object> providersMap = Map.of(
                 EntityType.SAML20_SP,
                 providers.stream().filter(m -> m.get("type").equals(EntityType.SAML20_SP.collectionName())).toList(),
+                EntityType.SAML20_IDP,
+                List.of(identityProvider.get()),
                 EntityType.OIDC10_RP,
                 providers.stream().filter(m -> m.get("type").equals(EntityType.OIDC10_RP.collectionName())).toList()
         );
         //Lambda can't do exception handling
-        for (Map.Entry<EntityType, List<Map<String, Object>>> entry : providersMap.entrySet()) {
+        for (Map.Entry<EntityType, Object> entry : providersMap.entrySet()) {
             EntityType entityType = entry.getKey();
-            List<Map<String, Object>> providerList = entry.getValue();
             stubFor(post(urlPathMatching(String.format(path, entityType.collectionName()))).willReturn(aResponse()
                     .withHeader("Content-Type", "application/json")
-                    .withBody(objectMapper.writeValueAsString(providerList))));
+                    .withBody(objectMapper.writeValueAsString(entry.getValue()))));
         }
 
     }
