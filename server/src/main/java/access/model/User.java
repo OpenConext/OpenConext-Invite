@@ -180,11 +180,15 @@ public class User implements Serializable, Provisionable {
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
         this.email = (String) attributes.get("email");
+        this.lastActivity = Instant.now();
+        this.updateRemoteAttributes(attributes);
+    }
+
+    @JsonIgnore
+    public void updateRemoteAttributes(Map<String, Object> attributes) {
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
-        this.lastActivity = Instant.now();
     }
-
 }

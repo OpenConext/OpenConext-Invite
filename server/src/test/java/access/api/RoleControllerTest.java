@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static access.Seed.MANAGE_SUB;
-import static access.Seed.SUPER_SUB;
+import static access.Seed.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -167,6 +166,33 @@ class RoleControllerTest extends AbstractTest {
                 });
         assertEquals(1, roles.size());
         assertEquals("Wiki", roles.get(0).getName());
+    }
+
+    @Test
+    void rolesByApplicationInstitutionAdmin() throws Exception {
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://wiki");
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+                 m -> {
+                    m.put("eduperson_entitlement",
+                            List.of(
+                                    "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
+                                    "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + ORGANISATION_GUID
+                            ));
+                    return m;
+                });
+        List<Role> roles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(4, roles.size());
     }
 
     @Test

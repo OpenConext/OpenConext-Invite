@@ -4,7 +4,6 @@ import access.exception.UserRestrictionException;
 import access.manage.Manage;
 import access.model.User;
 import access.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -40,6 +39,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         return methodParameter.getParameterType().equals(User.class);
     }
 
+    @SuppressWarnings("unchecked")
     public User resolveArgument(MethodParameter methodParameter,
                                 ModelAndViewContainer mavContainer,
                                 NativeWebRequest webRequest,
@@ -86,10 +86,15 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             return new User(attributes);
         }
         return optionalUser.map(user -> {
-            if (validImpersonation.get() && user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
+            if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
                 String organizationGUID = user.getOrganizationGUID();
-                user.setApplications(manage.providersByInstitutionalGUID(organizationGUID));
-                user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGUID).orElse(Collections.emptyMap()));
+                if (validImpersonation.get()) {
+                    //The overhead is justified when super_user is impersonating institutionAdmin
+                    user.setApplications(manage.providersByInstitutionalGUID(organizationGUID));
+                    user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGUID).orElse(Collections.emptyMap()));
+                } else {
+                    user.updateRemoteAttributes(attributes);
+                }
             }
             return user;
         }).orElseThrow(UserRestrictionException::new);

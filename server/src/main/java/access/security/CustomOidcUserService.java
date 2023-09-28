@@ -61,7 +61,6 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         optionalUser.ifPresent(user -> {
             user.updateAttributes(newClaims);
             userRepository.save(user);
-
         });
         return oidcUser;
 

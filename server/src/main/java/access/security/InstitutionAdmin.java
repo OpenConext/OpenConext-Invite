@@ -17,6 +17,9 @@ public class InstitutionAdmin {
     public static final String APPLICATIONS = "APPLICATIONS";
     public static final String INSTITUTION = "INSTITUTION";
 
+    private InstitutionAdmin() {
+    }
+
     public static boolean isInstitutionAdmin(Map<String, Object> attributes, String requiredEntitlement) {
         if (attributes.containsKey("eduperson_entitlement")) {
             List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");

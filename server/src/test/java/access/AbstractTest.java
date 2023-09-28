@@ -53,7 +53,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -162,10 +161,19 @@ public abstract class AbstractTest {
     }
 
     protected AccessCookieFilter openIDConnectFlow(String path, String sub) throws Exception {
-        return this.openIDConnectFlow(path, sub, s -> {}, m -> m);
+        return this.openIDConnectFlow(path, sub, s -> {
+        }, m -> m);
     }
 
-    protected AccessCookieFilter openIDConnectFlow(String path, String sub, Consumer<String> authorizationConsumer,
+    protected AccessCookieFilter openIDConnectFlow(String path,
+                                                   String sub,
+                                                   UnaryOperator<Map<String, Object>> userInfoEnhancer) throws Exception {
+        return this.openIDConnectFlow(path, sub, s -> {
+        }, userInfoEnhancer);
+    }
+
+    protected AccessCookieFilter openIDConnectFlow(String path, String sub,
+                                                   Consumer<String> authorizationConsumer,
                                                    UnaryOperator<Map<String, Object>> userInfoEnhancer) throws Exception {
         CookieFilter cookieFilter = new CookieFilter();
         Headers headers = given()
