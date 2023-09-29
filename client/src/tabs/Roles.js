@@ -11,6 +11,9 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
+import Select from "react-select";
+
+const allValue = "all";
 
 export const Roles = () => {
     const user = useAppStore(state => state.user);
@@ -21,22 +24,53 @@ export const Roles = () => {
     const [roles, setRoles] = useState([]);
     const [moreToShow, setMoreToShow] = useState(false);
     const [noResults, setNoResults] = useState(false);// eslint-disable-line no-unused-vars
+    const [filterOptions, setFilterOptions] = useState([]);
+    const [filterValue, setFilterValue] = useState(null);
 
     useEffect(() => {
         if (isUserAllowed(AUTHORITIES.MANAGER, user)) {
-            if (!roleSearchRequired) {
+            if (roleSearchRequired) {
+                setLoading(false);
+            } else {
                 rolesByApplication()
                     .then(res => {
-                        setRoles(markAndFilterRoles(user, res, I18n.locale));
+                        const newRoles = markAndFilterRoles(user, res, I18n.locale);
+                        setRoles(newRoles);
+                        initFilterValues(newRoles);
                         setLoading(false);
                     })
-
             }
         } else {
-            setRoles(markAndFilterRoles(user, [], I18n.locale))
+            const newRoles = markAndFilterRoles(user, [], I18n.locale);
+            setRoles(newRoles);
+            initFilterValues(newRoles);
             setLoading(false);
         }
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    const initFilterValues = res => {
+        const newFilterOptions = [{
+            label: I18n.t("invitations.statuses.all", {nbr: res.length}),
+            value: allValue
+        }];
+        const reducedRoles = res.reduce((acc, role) => {
+            const option = acc.find(opt => opt.manageId === role.manageId);
+            if (option) {
+                ++option.nbr;
+            } else {
+                acc.push({manageId: role.manageId, nbr: 1, name: role.applicationName})
+            }
+            return acc;
+        }, []);
+        const appOptions = reducedRoles.map(option => ({
+            label: `${option.name} (${option.nbr})`,
+            value: option.manageId
+        })).sort((o1, o2) => o1.label.localeCompare(o2.label));
+
+        setFilterOptions(newFilterOptions.concat(appOptions));
+        setFilterValue(newFilterOptions[0]);
+
+    }
 
     const openRole = (e, role) => {
         const id = role.isUserRole ? role.role.id : role.id;
@@ -90,6 +124,21 @@ export const Roles = () => {
                 <Button txt={I18n.t("institutionAdmin.create")}
                         size={ButtonSize.Full}
                         onClick={() => navigate("/role/new")}/>
+            </div>
+        );
+    }
+    const filter = () => {
+        return (
+            <div className="roles-filter">
+                <Select
+                    className={"roles-filter-select"}
+                    value={filterValue}
+                    classNamePrefix={"filter-select"}
+                    onChange={option => setFilterValue(option)}
+                    options={filterOptions}
+                    isSearchable={false}
+                    isClearable={false}
+                />
             </div>
         );
     }
@@ -149,11 +198,14 @@ export const Roles = () => {
             </div>
         )
     }
+    const filteredRoles = filterValue.value === allValue ? roles :
+        roles.filter(role => role.manageId=== filterValue.value);
 
     return (
         <div className={"mod-roles"}>
+            {moreToShow && moreResultsAvailable()}
             <Entities
-                entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
+                entities={isSuperUser ? filteredRoles : filteredRoles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
                 modelName="roles"
                 showNew={isManager}
                 newLabel={I18n.t("roles.new")}
@@ -165,7 +217,7 @@ export const Roles = () => {
                 loading={false}
                 inputFocus={true}
                 hideTitle={false}
-                filters={moreToShow && moreResultsAvailable()}
+                filters={filter(filterOptions, filterValue)}
                 customSearch={roleSearchRequired && isSuperUser ? search : null}
                 rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                 busy={searching}/>

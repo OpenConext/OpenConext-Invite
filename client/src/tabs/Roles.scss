@@ -2,6 +2,12 @@
 
 div.mod-roles {
 
+    .more-results-available {
+        max-width: $medium;
+        width: 100%;
+        margin: 20px auto 0 auto;
+    }
+
     .institution-admin-welcome {
         display: flex;
         align-items: center;

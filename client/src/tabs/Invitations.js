@@ -197,6 +197,34 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
             </div>);
     }
 
+    const filter = () => {
+        return (
+            <div className="invitations-filter">
+                <Select
+                    className={"invitations-filter-select"}
+                    value={filterValue}
+                    classNamePrefix={"filter-select"}
+                    onChange={option => setFilterValue(option)}
+                    options={filterOptions}
+                    isSearchable={false}
+                    isClearable={false}
+                />
+            </div>
+        );
+    }
+
+    const getActions = () => {
+        const actions = [];
+        actions.push({
+            buttonType: ButtonType.Primary,
+            name: I18n.t("inviter.sendInvite"),
+            perform: () => {
+                navigate(`/invitation/new`)
+            }
+        });
+        return actions;
+    }
+
     const columns = [
         {
             nonSortable: true,
@@ -256,7 +284,9 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
             header: I18n.t("invitations.roleExpiryDate"),
             mapper: invitation => shortDateFromEpoch(invitation.roleExpiryDate)
         }];
-    const countInvitations = invitations.current.length;
+    const filteredInvitations = filterValue.value === allValue ? invitations.current :
+        invitations.current.filter(invitation => invitation.status === filterValue.value);
+    const countInvitations = filteredInvitations.length;
     const hasEntities = countInvitations > 0;
     let title = " ";
 
@@ -267,35 +297,6 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
         })
     }
 
-    const filter = () => {
-        return (
-            <div className="invitations-filter">
-                <Select
-                    className={"invitations-filter-select"}
-                    value={filterValue}
-                    classNamePrefix={"filter-select"}
-                    onChange={option => setFilterValue(option)}
-                    options={filterOptions}
-                    isSearchable={false}
-                    isClearable={false}
-                />
-            </div>
-        );
-    }
-
-    const getActions = () => {
-        const actions = [];
-        actions.push({
-            buttonType: ButtonType.Primary,
-            name: I18n.t("inviter.sendInvite"),
-            perform: () => {
-                navigate(`/invitation/new`)
-            }
-        });
-        return actions;
-    }
-
-
     return (<div className="mod-invitations">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
                                                  cancel={confirmation.cancel}
@@ -303,7 +304,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                                                  confirmationTxt={confirmation.confirmationTxt}
                                                  question={confirmation.question}/>}
         {history && <UnitHeader obj={{name: I18n.t("inviter.history")}} actions={getActions()}/>}
-        <Entities entities={invitations.current}
+        <Entities entities={filteredInvitations}
                   modelName="invitations"
                   defaultSort="name"
                   columns={columns}

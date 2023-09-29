@@ -182,6 +182,9 @@ export const RoleForm = () => {
         const disabledSubmit = !valid && !initial;
         const options = providersToOptions(providers);
         return (<>
+                <h2 className="section-separator">
+                    {I18n.t("roles.roleDetails")}
+                </h2>
                 <InputField name={I18n.t("roles.name")}
                             value={role.name || ""}
                             placeholder={I18n.t("roles.namePlaceHolder")}
@@ -258,6 +261,10 @@ export const RoleForm = () => {
                         attribute: I18n.t("roles.landingPage").toLowerCase(),
                         value: role.landingPage
                     })}/>}
+
+                <h2 className="section-separator">
+                    {I18n.t("roles.invitationDetails")}
+                </h2>
 
                 <span className={"label"}>{I18n.t("roles.advanced")}</span>
 

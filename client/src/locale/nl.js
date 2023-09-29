@@ -114,6 +114,8 @@ const nl = {
     roles: {
         title: "Toegangsrollen",
         applicationName: "Applicatie",
+        roleDetails: "Rol details",
+        invitationDetails: "Uitnodiging details",
         accessRole: "Naam",
         name: "Naam",
         namePlaceHolder: "Naam van de rol",

@@ -284,7 +284,7 @@ export const InvitationForm = () => {
                                    showYearDropdown={true}
                                    disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
                                    pastDatesAllowed={config.pastDateAllowed}
-                                   allowNull={invitation.intendedAuthority !== AUTHORITIES.GUEST}
+                                   allowNull={selectedRoles.every(role => role.overrideSettingsAllowed) && invitation.intendedAuthority !== AUTHORITIES.GUEST}
                                    minDate={futureDate(1, invitation.expiryDate)}
                                    name={I18n.t("invitations.roleExpiryDate")}
                                    toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>

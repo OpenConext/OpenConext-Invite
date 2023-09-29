@@ -21,7 +21,6 @@ const Tabs = ({children, className, activeTab, tabChanged}) => {
                         return (
                             <Tab
                                 activeTab={activeTab}
-                                Icon={Icon}
                                 readOnly={readOnly}
                                 key={name}
                                 name={name}

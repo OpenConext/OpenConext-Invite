@@ -5,6 +5,11 @@
         @include page;
         @include form;
 
+        .section-separator {
+            grid-column-start: first;
+            margin-top: 30px;
+        }
+
         .radio-button-group {
             grid-column-start: first;
         }
