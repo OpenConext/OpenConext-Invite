@@ -76,10 +76,13 @@ section.user {
         display: flex;
 
         img, svg {
-            height: 56px;
+            height: 90px;
             width: auto;
-            margin-right: 35px;
+            margin: 0 35px auto 0;
             border-radius: $br;
+            border: 1px solid var(--sds--color--gray--300);
+            padding: 16px;
+
         }
     }
 }

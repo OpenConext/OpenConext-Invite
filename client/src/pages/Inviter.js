@@ -40,7 +40,8 @@ export const Inviter = () => {
                     <Tooltip tip={I18n.t("tooltips.inviter")} standalone={true}/>
                 </div>
                 <div className={"actions"}>
-                    <Button txt={I18n.t("inviter.sendInvite")} onClick={() => navigate("/invitation/new")} />
+                    <Button txt={I18n.t("inviter.sendInvite")}
+                            onClick={() => navigate("/invitation/new")} />
                     <div className={"history"}>
                         <span>{I18n.t("forms.or")}
                             <a href="/#" onClick={gotoHistory}>{I18n.t("inviter.viewHistory")}</a>

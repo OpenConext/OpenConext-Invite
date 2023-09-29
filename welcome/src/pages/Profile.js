@@ -8,13 +8,15 @@ import HighFive from "../icons/high-five.svg";
 import {login} from "../utils/Login";
 import {stopEvent} from "../utils/Utils";
 import DOMPurify from "dompurify";
+import {logout} from "../api";
 
 export const Profile = () => {
     const {user: currentUser, config} = useAppStore(state => state);
 
     const doLogin = e => {
         stopEvent(e);
-        login(config, true);
+        logout().then(() => login(config, true));
+
     }
 
     const toasterChildren = <div>

@@ -12,7 +12,7 @@ import {allInvitations, deleteInvitation, resendInvitation} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
-import {allowedToDeleteInvitation, INVITATION_STATUS} from "../utils/UserRole";
+import {allowedToDeleteInvitation, AUTHORITIES, INVITATION_STATUS, isUserAllowed} from "../utils/UserRole";
 import {UnitHeader} from "../components/UnitHeader";
 import Select from "react-select";
 
@@ -310,7 +310,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                   columns={columns}
                   title={title}
                   newLabel={I18n.t("invitations.newInvite")}
-                  showNew={!!role}
+                  showNew={!!role && (isUserAllowed(AUTHORITIES.MANAGER, user) || standAlone)}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={false}

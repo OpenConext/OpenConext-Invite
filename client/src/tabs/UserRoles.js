@@ -8,7 +8,7 @@ import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, futureDate, shortDateFromEpoch} from "../utils/Date";
 import {useNavigate} from "react-router-dom";
 import {chipTypeForUserRole} from "../utils/Authority";
-import {allowedToRenewUserRole} from "../utils/UserRole";
+import {allowedToRenewUserRole, AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
 import {DateField} from "../components/DateField";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {deleteUserRole, updateUserRoleEndData} from "../api";
@@ -60,7 +60,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
             setConfirmation({
                 cancel: () => setConfirmationOpen(false),
                 action: () => doUpdateEndDate(userRole, newEndDate, false),
-                question: I18n.t(`userRoles.${isEmpty(newEndDate) ? "updateConfirmationRemoveEndDate":"updateConfirmation"}`, {
+                question: I18n.t(`userRoles.${isEmpty(newEndDate) ? "updateConfirmationRemoveEndDate" : "updateConfirmation"}`, {
                     roleName: userRole.role.name,
                     userName: userRole.userInfo.name
                 }),
@@ -168,19 +168,20 @@ export const UserRoles = ({role, guests, userRoles}) => {
                 </div>
             </div>);
     }
-
+    const hideCheckbox = highestAuthority(user) === AUTHORITIES.INVITER && !guests;
     const columns = [
         {
             nonSortable: true,
             key: "check",
-            header: showCheckAllHeader() ? <Checkbox value={allSelected}
-                                                     name={"allSelected"}
-                                                     onChange={selectAll}/> : null,
+            header: (!hideCheckbox && showCheckAllHeader()) ?
+                <Checkbox value={allSelected}
+                          name={"allSelected"}
+                          onChange={selectAll}/> : null,
             mapper: userRole => <div className="check">
                 {selectedUserRoles[userRole.id].allowed ? <Checkbox name={pseudoGuid()}
                                                                     onChange={onCheck(userRole)}
                                                                     value={selectedUserRoles[userRole.id].selected}/> :
-                    <Tooltip tip={I18n.t("userRoles.notAllowed")}/>}
+                    (hideCheckbox ? null : <Tooltip tip={I18n.t("userRoles.notAllowed")}/>)}
             </div>
         },
         {
@@ -236,7 +237,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                   defaultSort="name"
                   columns={columns}
                   newLabel={I18n.t(guests ? "invitations.newGuest" : "invitations.new")}
-                  showNew={true}
+                  showNew={isUserAllowed(AUTHORITIES.MANAGER, user)}
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=${guests === false}`, {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}
                   loading={false}

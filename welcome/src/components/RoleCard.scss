@@ -45,11 +45,12 @@
         }
 
         img, svg {
-            height: 56px;
+            height: 90px;
             width: auto;
             margin: 0 35px auto 0;
             border-radius: $br;
-
+            border: 1px solid var(--sds--color--gray--300);
+            padding: 16px;
             @media (max-width: 680px) {
                 margin: 0 auto 20px 0;
             }

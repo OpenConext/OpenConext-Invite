@@ -19,15 +19,19 @@ import {Invitations} from "../tabs/Invitations";
 import ClipBoardCopy from "../components/ClipBoardCopy";
 import {deriveApplicationAttributes} from "../utils/Manage";
 import DOMPurify from "dompurify";
+import {isEmpty} from "../utils/Utils";
+import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
 
 export const Role = () => {
     const {id, tab = "users"} = useParams();
     const navigate = useNavigate();
     const {user, config, clearFlash} = useAppStore(state => state);
     const [role, setRole] = useState({});
+    const [userRole, setUserRole] = useState({});
     const [loading, setLoading] = useState(true);
     const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
+    const [managerEmails, setManagerEmails] = useState([]);
 
     useEffect(() => {
             const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
@@ -56,7 +60,7 @@ export const Role = () => {
             .then(res => {
                 deriveApplicationAttributes(res[0])
                 setRole(res[0]);
-                setLoading(false);
+                setUserRole(res[1].find(userRole => userRole.role.id === res[0].id && userRole.userInfo.id === user.id));
                 const newTabs = [
                     <Page key="guests"
                           name="guests"
@@ -64,7 +68,7 @@ export const Role = () => {
                           Icon={GuestLogo}>
                         <UserRoles role={res[0]}
                                    guests={true}
-                                   userRoles={res[1].filter(userRole => userRole.authority === "GUEST")}/>
+                                   userRoles={res[1].filter(userRole => userRole.authority === AUTHORITIES.GUEST)}/>
                     </Page>,
                     <Page key="invitations"
                           name="invitations"
@@ -79,10 +83,19 @@ export const Role = () => {
                           Icon={UserLogo}>
                         <UserRoles role={res[0]}
                                    guests={false}
-                                   userRoles={res[1].filter(userRole => userRole.authority !== "GUEST")}/>
+                                   userRoles={res[1].filter(userRole => userRole.authority !== AUTHORITIES.GUEST)}/>
                     </Page>
                 ];
                 setTabs(newTabs.filter(tab => tab !== null));
+                let managers = res[1].filter(userRole => userRole.authority === AUTHORITIES.MANAGER)
+                    .map(userRole => userRole.userInfo.email);
+                if (isEmpty((managers))) {
+                    managers = res[1].filter(userRole => userRole.authority === AUTHORITIES.INSTITUTION_ADMIN)
+                        .map(userRole => userRole.userInfo.email);
+                }
+                setManagerEmails(managers)
+                setLoading(false);
+
             })
             .catch(() => navigate("/"))
 
@@ -100,6 +113,13 @@ export const Role = () => {
                 }
             });
         }
+        if (highestAuthority(user) === AUTHORITIES.INVITER) {
+            actions.push({
+                buttonType: ButtonType.Primary,
+                name: I18n.t("invitations.newGuest"),
+                perform: () => navigate(`/invitation/new?maintainer=false`, {state: role.id})
+            });
+        }
         return actions;
     }
 
@@ -114,8 +134,14 @@ export const Role = () => {
 
     const logo = role.logo;
     const urn = urnFromRole(config.groupUrnPrefix, role);
-    return (<div className="mod-role">
-        <UnitHeader obj={({...role, logo: logo})}
+    const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
+
+    return (
+        <div className="mod-role">
+            {isInviter &&
+                <UnitHeaderInviter role={role} userRole={userRole} managerEmails={managerEmails}/> }
+            {!isInviter &&
+                <UnitHeader obj={({...role, logo: logo})}
                     displayDescription={true}
                     actions={getActions()}>
             <div className={"urn-container"}>
@@ -142,7 +168,7 @@ export const Role = () => {
                 </div>
 
             </div>
-        </UnitHeader>
+        </UnitHeader>}
         <div className="mod-role">
             <Tabs activeTab={currentTab}
                   tabChanged={tabChanged}>

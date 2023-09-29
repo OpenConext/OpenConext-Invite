@@ -87,7 +87,7 @@ export const InvitationForm = () => {
                 eduIDOnly: initialRole.eduIDOnly,
                 roleExpiryDate: futureDate(defaultExpiryDays)
             })
-            setOriginalRoleId(initialRole.id);
+            setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
         } else {
             setInvitation({
                 ...invitation,

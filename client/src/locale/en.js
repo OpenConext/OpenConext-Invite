@@ -47,7 +47,7 @@ const en = {
         roles: "Access roles",
         profile: "Profile",
         userRoles: "Role managers & inviters",
-        guestRoles: "Guests",
+        guestRoles: "Guests with this role",
         cron: "Cron",
         invite: "Invite"
     },
@@ -110,6 +110,9 @@ const en = {
     role: {
         copyUrn: "Copy urn",
         userInfo: "{{nbr}} member(s)  &  Valid for {{valid}} days",
+        roleInfo: "Role valid for <strong>{{days}} days</strong>",
+        roleInfoNoEndDate: "Role has <strong>no end date</strong>",
+        contactAdmin: "Contact manager(s)"
     },
     roles: {
         title: "Access Roles",
@@ -183,7 +186,7 @@ const en = {
         eduIDOnly: "eduID only",
         new: "Invite manager or inviter",
         newInvite: "New invite",
-        newGuest: "Invite guest",
+        newGuest: "Invite new guest",
         invitees: "Invitees",
         intendedRoles: "Roles",
         inviteesPlaceholder: "Invitee email addresses",
