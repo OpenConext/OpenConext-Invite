@@ -1,20 +1,27 @@
 @import "styles/tooltip";
 @import "styles/forms";
+@import "styles/vars";
 
 $min-width-pixels: 620px;
 
-.sds--toaster{
-    min-width: $min-width-pixels;
+.sds--toaster {
+    width: $min-width-pixels;
     margin: 25px 0;
-    @media (max-width: 680px) {
-        min-width: initial;
+    @media (max-width: $medium) {
+        width: 90vw;
     }
 }
 
 .sds--card--big {
-    min-width: $min-width-pixels;
-    @media (max-width: 680px) {
-        min-width: initial;
+    width: $min-width-pixels;
+    @media (max-width: $medium) {
+        width: 90vw;
     }
 }
 
+.sds--modal--container.full {
+    @media (max-width: $medium) {
+        width: 90vw;
+    }
+
+}

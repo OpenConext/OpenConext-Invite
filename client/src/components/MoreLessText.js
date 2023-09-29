@@ -3,10 +3,10 @@ import "./MoreLessText.scss";
 import I18n from "../locale/I18n";
 import {isEmpty, stopEvent} from "../utils/Utils";
 
-export const MoreLessText = ({txt, type = "full"}) => {
+export const MoreLessText = ({txt, cutOffNumber = 190, type = "full"}) => {
 
-    const [showMore, setShowMore] = useState(!isEmpty(txt) && txt.length > 190
-        && txt.substring(190).indexOf(" ") > -1);
+    const [showMore, setShowMore] = useState(!isEmpty(txt) && txt.length > cutOffNumber
+        && txt.substring(cutOffNumber).indexOf(" ") > -1);
     const [showLess, setShowLess] = useState(false);
 
     const toggleShowMore = e => {
@@ -16,7 +16,7 @@ export const MoreLessText = ({txt, type = "full"}) => {
         setShowLess(isShowingMore);
     }
 
-    const txtToDisplay = isEmpty(txt) ? txt : txt.substring(0, 190 + txt.substring(190).indexOf(" "));
+    const txtToDisplay = isEmpty(txt) ? txt : txt.substring(0, cutOffNumber + txt.substring(cutOffNumber).indexOf(" "));
 
     return (
         <span className={`more-less-txt description ${type}`}>

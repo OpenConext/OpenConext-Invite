@@ -23,7 +23,7 @@ export const RoleCard = ({role, index, invitationSelected, invitationSelectCallb
             <section className={"user-role-info"}>
                 <p>{application.data.metaDataFields[`name:${I18n.locale}`]} ({application.data.metaDataFields[`OrganizationName:${I18n.locale}`]})</p>
                 <h3>{role.name}</h3>
-                <MoreLessText txt={role.description}/>
+                <MoreLessText txt={role.description} cutOffNumber={80}/>
             </section>
             {isEmpty(invitationSelected) && <div className={"launch"}>
                     <Button txt={I18n.t("inviter.details")} onClick={() => navigate(`/roles/${role.id}`)}/>

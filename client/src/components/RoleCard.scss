@@ -49,8 +49,9 @@
         display: flex;
         align-items: center;
 
-        @media (max-width: 680px) {
+        @media (max-width: $medium) {
             flex-direction: column;
+            align-items: flex-start;
         }
 
         .sds--checkbox-container {
@@ -72,6 +73,11 @@
 
         .launch {
             margin-left: auto;
+
+            button {
+                min-width: 140px;
+                margin-left: 15px;
+            }
 
             @media (max-width: 680px) {
                 margin: 20px auto 0 0;

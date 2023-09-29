@@ -23,6 +23,7 @@ export const Proceed = () => {
     const [showModal, setShowModal] = useState(true);
 
     useEffect(() => {
+
         if (isEmpty(user)) {
             login(config);
         } else if (isEmpty(invitation)) {
@@ -46,7 +47,7 @@ export const Proceed = () => {
     const renderInvitationRole = (invitationRole, index, isNew, skipLaunch=false) => {
         const role = invitationRole.role;
         return (
-            <RoleCard role={role} index={index} isNew={isNew} skipLaunch={skipLaunch}/>
+            <RoleCard role={role} key={index} index={index} isNew={isNew} skipLaunch={skipLaunch}/>
         );
     }
 
@@ -73,7 +74,7 @@ export const Proceed = () => {
                              large={true}
                              children={toasterChildren}/>
                     {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, true))}
-                    <User user={user} invitationRoles={invitation.roles}/>
+                    <User user={user} invitationRoles={reloadedInvitation.roles}/>
                 </div>
 
             </>

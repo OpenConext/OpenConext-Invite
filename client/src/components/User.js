@@ -7,10 +7,10 @@ import I18n from "../locale/I18n";
 import Logo from "./Logo";
 import {Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
-import {RoleMetaData} from "./RoleMetaData";
 import {deriveRemoteApplicationAttributes, providerInfo} from "../utils/Manage";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
+import {RoleCard} from "./RoleCard";
 
 export const User = ({user, other}) => {
     const searchRef = useRef();
@@ -78,11 +78,7 @@ export const User = ({user, other}) => {
         const children =
             <div key={index} className={"user-role"}>
                 <Logo src={logo} alt={"provider"} className={"provider"}/>
-                <section className={"user-role-info"}>
-                    <h3>{role.name}</h3>
-                    <MoreLessText txt={role.description}/>
-                    <RoleMetaData role={role} user={user} provider={provider}/>
-                </section>
+                <RoleCard role={role} index={index} key={index}/>
             </div>;
         return (
             <Card cardType={CardType.Big} children={children}/>

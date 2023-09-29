@@ -88,6 +88,12 @@ http://localhost:8080/ui/swagger-ui/index.html
 
 http://localhost:8081/
 
-http://localhost:4000/profile
+http://localhost:4000
 
 http://localhost:3000
+
+### [Institution Admin](#institution-admin)
+
+To become an institution admin in invite, add the following values as `eduPersonEntitlements` using Mujina:
+* urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:ad93daef-0911-e511-80d0-005056956c1a
+* urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke

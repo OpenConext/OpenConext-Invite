@@ -15,7 +15,7 @@ export const RoleCard = ({role, index, isNew = false, skipLaunch= false}) => {
             <section className={"user-role-info"}>
                 <p>{application.data.metaDataFields[`name:${I18n.locale}`]} ({application.data.metaDataFields[`OrganizationName:${I18n.locale}`]})</p>
                 <h3>{role.name}</h3>
-                <MoreLessText txt={role.description}/>
+                <MoreLessText txt={role.description} cutOffNumber={120}/>
             </section>
             {!skipLaunch && <div className={"launch"}>
                 <Button txt={I18n.t("proceed.launch")} onClick={() => {

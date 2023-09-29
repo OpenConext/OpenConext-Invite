@@ -35,9 +35,18 @@
             display: grid;
             grid-template-columns:  repeat(3, 1fr);
             margin-bottom: 40px;
+            @media (max-width: $medium) {
+                gap: 20px;
+            }
+
             button {
                 grid-column-start: 2;
+                @media (max-width: $medium) {
+                    grid-column-start: 1;
+                    grid-column: span 2;
+                }
             }
+
             .history {
                 grid-column-start: 3;
                 display: flex;
@@ -48,6 +57,7 @@
 
             }
         }
+
         .sub-info {
             margin-bottom: 15px;
         }

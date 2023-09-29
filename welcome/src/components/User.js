@@ -9,7 +9,7 @@ export const User = ({user, invitationRoles = []}) => {
     const renderUserRole = (userRole, index) => {
         const role = userRole.role;
         return (
-            <RoleCard role={role} index={index}/>
+            <RoleCard role={role} key={index} index={index}/>
         );
     }
     const rolesToExclude = invitationRoles.map(invitationRole => invitationRole.role.id);
