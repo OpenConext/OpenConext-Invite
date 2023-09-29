@@ -33,4 +33,27 @@ class InvitationTest {
         assertNull(invitation.getRoleExpiryDate());
     }
 
+    @Test
+    void roleExpiryDate() {
+        Role role = new Role("mail", "description", "https://landingpage.com", "1", EntityType.SAML20_SP, 30, false, false);
+
+        Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, "Please join..", new User(),
+                null, null,
+                Set.of(new InvitationRole(role)));
+
+        assertEquals(29, Instant.now().until(invitation.getRoleExpiryDate(), ChronoUnit.DAYS));
+    }
+
+    @Test
+    void inviterEmail() {
+        Invitation invitation = new Invitation();
+        assertEquals(0, invitation.getInviterEmail().size());
+        User inviter = new User();
+        inviter.setEmail("jdoe@example.com");
+        invitation.setInviter(inviter);
+        assertEquals(inviter.getEmail(), invitation.getInviterEmail().get("name"));
+        inviter.setName("John Doe");
+        assertEquals(inviter.getName(), invitation.getInviterEmail().get("name"));
+    }
+
 }

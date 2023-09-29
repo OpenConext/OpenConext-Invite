@@ -34,7 +34,7 @@ public class UserPermissions {
         if (user.isSuperUser()) {
             return;
         }
-        if (intendedAuthority.equals(Authority.SUPER_USER)) {
+        if (intendedAuthority.equals(Authority.SUPER_USER) || intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
             throw new UserRestrictionException();
         }
         //For all roles verify that the user has a higher authority then the one requested for all off the roles

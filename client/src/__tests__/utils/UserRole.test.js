@@ -2,6 +2,7 @@ import React from "react";
 import {
     allowedAuthoritiesForInvitation,
     allowedToDeleteInvitation,
+    allowedToEditRole,
     allowedToRenewUserRole,
     AUTHORITIES,
     isUserAllowed
@@ -81,3 +82,13 @@ test("Allowed to delete Invitation", () => {
     invitation.intendedAuthority = AUTHORITIES.INVITER;
     expect(allowedToDeleteInvitation(user, invitation)).toBeFalsy();
 });
+
+test("Allowed to edit", () => {
+    const role = {id: 1, manageId: 5};
+    const user = {
+        institutionAdmin: true,
+        applications: [{id: 1}],
+        userRoles: [{authority: AUTHORITIES.INVITER, role: role}]
+    }
+    expect(allowedToEditRole(user, role)).toBeFalsy();
+})

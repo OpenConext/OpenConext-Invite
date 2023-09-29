@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +53,7 @@ class InvitationControllerTest extends AbstractTest {
                 .map(Role::getId)
                 .toList();
         InvitationRequest invitationRequest = new InvitationRequest(
-                Authority.INVITER,
+                Authority.GUEST,
                 "Message",
                 true,
                 false,
@@ -71,6 +72,32 @@ class InvitationControllerTest extends AbstractTest {
                 .post("/api/v1/invitations")
                 .then()
                 .statusCode(201);
+    }
+
+    @Test
+    void newInvitationEmptyRoles() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.INVITER,
+                "Message",
+                true,
+                false,
+                List.of("new@new.nl"),
+                Collections.emptyList(),
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/v1/invitations")
+                .then()
+                .statusCode(409);
     }
 
     @Test

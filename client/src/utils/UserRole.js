@@ -28,7 +28,7 @@ export const highestAuthority = user => {
     if (user.superUser) {
         return AUTHORITIES.SUPER_USER;
     }
-    if (user.institutionAdmin) {
+    if (user.institutionAdmin && !isEmpty(user.applications)) {
         return AUTHORITIES.INSTITUTION_ADMIN;
     }
     return (user.userRoles || []).reduce((acc, u) => {
@@ -61,7 +61,8 @@ export const allowedToEditRole = (user, role) => {
         return true;
     }
     //One the userRoles must have the same manageId as the role
-    return user.userRoles.some(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id);
+    const userRole = user.userRoles.find(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id);
+    return !isEmpty(userRole) && AUTHORITIES_HIERARCHY[userRole.authority] <= AUTHORITIES_HIERARCHY[AUTHORITIES.MANAGER];
 }
 
 export const allowedToDeleteInvitation = (user, invitation) => {

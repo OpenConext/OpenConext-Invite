@@ -31,6 +31,16 @@ class UserPermissionsTest {
     void assertValidInvitationSuperUser() {
         assertThrows(UserRestrictionException.class, () ->
                 UserPermissions.assertValidInvitation(new User(new HashMap<>()),Authority.SUPER_USER, new ArrayList<>()));
+        assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidInvitation(new User(new HashMap<>()),Authority.INSTITUTION_ADMIN, new ArrayList<>()));
+
+        User user = new User();
+        user.setInstitutionAdmin(true);
+        user.setApplications(List.of(Map.of("id", "1")));
+
+        Role role = new Role();
+        role.setManageId("1");
+        UserPermissions.assertValidInvitation(user, Authority.MANAGER, List.of(role));
     }
 
     @Test
@@ -99,6 +109,26 @@ class UserPermissionsTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(Map.of("id", "nope"), user));
     }
 
+    @Test
+    void assertManagerRoleInstitutionAdmin() {
+        User user = new User();
+        user.setInstitutionAdmin(true);
+        user.setApplications(List.of(Map.of("id", "1")));
+
+        UserPermissions.assertManagerRole(Map.of("id", "1"), user);
+    }
+
+    @Test
+    void assertRoleAccessInstitutionAdmin() {
+        User user = new User();
+        user.setInstitutionAdmin(true);
+        user.setApplications(List.of(Map.of("id", "1")));
+
+        Role role = new Role();
+        role.setManageId("1");
+
+        UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
+    }
     @Test
     void assertRoleAccess() {
         String identifier = UUID.randomUUID().toString();

@@ -39,7 +39,6 @@ public class UserRoleController {
     private final RoleRepository roleRepository;
     private final Config config;
 
-
     public UserRoleController(UserRoleRepository userRoleRepository, RoleRepository roleRepository, Config config) {
         this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
