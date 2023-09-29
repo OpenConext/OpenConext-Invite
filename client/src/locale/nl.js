@@ -41,12 +41,12 @@ const nl = {
         home: "Home",
         applications: "Applicaties",
         users: "Gebruikers",
-        maintainers: "Beheerders",
-        guests: "Gasten",
+        maintainers: "Rol managers en uitnodigers",
+        guests: "Gasten met deze rol",
         invitations: "Uitnodigingen",
-        roles: "Rollen",
+        roles: "Toegangsrollen",
         profile: "Profiel",
-        userRoles: "Beheerders",
+        userRoles: "Rol managers en uitnodigers",
         guestRoles: "Gasten",
         cron: "Cron",
         invite: "Uitnodiging"
@@ -65,7 +65,7 @@ const nl = {
     },
     access: {
         SUPER_USER: "Super User",
-        INSTITUTION_ADMIN: "Instellings beheerder",
+        INSTITUTION_ADMIN: "Instellings manager",
         MANAGER: "Manager",
         INVITER: "Uitnodiger",
         GUEST: "Gast",
@@ -91,7 +91,7 @@ const nl = {
         roles: "Rollen",
         applications: "Applicaties",
         noRolesInfo: "Je hebt geen rollen (je bent een super-user)",
-        noRolesInstitutionAdmin: "Als een instellingsbeheerder heb je geen rollen (maar je hebt wel toegang tot je applicaties)",
+        noRolesInstitutionAdmin: "Als een instellingsmanager heb je geen rollen (maar je hebt wel toegang tot je applicaties)",
         rolesInfo: "Je hebt de volgende rollen",
         applicationsInfo: "Je hebt toegang tot de volgende applicaties",
         noRolesFound: "Geen rollen gevonden.",
@@ -179,7 +179,7 @@ const nl = {
         expired: "Verlopen",
         enforceEmailEquality: "E-mailadres moet overeenkomen",
         eduIDOnly: "Uitsluitend voor eduID",
-        new: "Nodig beheerder uit",
+        new: "Nodig manager of uitnodiger uit",
         newInvite: "Nieuwe uitnodiging",
         newGuest: "Gast uitnodigen",
         invitees: "Genodigden",
@@ -283,7 +283,7 @@ const nl = {
         history: "Uitnodigingen"
     },
     institutionAdmin: {
-        welcome: "Welkom Instellings beheerder van {{name}}! Je kan nu je eerste rol aanmaken en managers daarvoor uitnodigen.",
+        welcome: "Welkom Instellings admin van {{name}}! Je kan nu je eerste rol aanmaken en managers daarvoor uitnodigen.",
         create: "Create access role"
     },
     tooltips: {

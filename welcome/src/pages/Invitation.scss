@@ -2,7 +2,7 @@
 
 .mod-user-invitation {
     max-width: 570px;
-    margin: 25px auto 40px auto;
+    margin: 0 auto 40px auto;
     width: 100%;
 
     @media (max-width: 680px) {
@@ -11,14 +11,39 @@
 
     .invitation-container {
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .welcome-logo img {
+            margin: 25px 0;
+            width: 185px;
+            height: auto;
+            border: 4px solid var(--sds--color--blue--400);
+            padding: 10px 20px;
+            border-radius: 50%;
+        }
 
         .sds--toaster {
             max-width: initial;
-            margin: 25px 0;
+            margin: 25px 0 40px 0;
         }
 
-        p.info {
-            margin: 25px 0;
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            button {
+                min-width: 160px;
+            }
+        }
+
+        div.info-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0 40px 0;
         }
 
         .expired {

@@ -93,6 +93,10 @@ const en = {
         infoLoginAgain: "To accept the invitation you'll need to login again.",
         login: "Login",
         loginWithSub: "Login",
+        access: "Access granted",
+        applicationInfo: "This application is added to your SURF-invite homepage.",
+        applicationInfoMultiple: "These applicationa added added to your SURF-invite homepage.",
+        continue: "Continue",
         emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
             "but you have logged in with an account with a different email. Please login in with a different account."
     },

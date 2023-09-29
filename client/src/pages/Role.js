@@ -66,6 +66,13 @@ export const Role = () => {
                                    guests={true}
                                    userRoles={res[1].filter(userRole => userRole.authority === "GUEST")}/>
                     </Page>,
+                    <Page key="invitations"
+                          name="invitations"
+                          label={I18n.t("tabs.invitations")}
+                          Icon={InvitationLogo}>
+                        <Invitations role={res[0]}
+                                     preloadedInvitations={res[2]}/>
+                    </Page>,
                     <Page key="maintainers"
                           name="maintainers"
                           label={I18n.t("tabs.userRoles")}
@@ -73,13 +80,6 @@ export const Role = () => {
                         <UserRoles role={res[0]}
                                    guests={false}
                                    userRoles={res[1].filter(userRole => userRole.authority !== "GUEST")}/>
-                    </Page>,
-                    <Page key="invitations"
-                          name="invitations"
-                          label={I18n.t("tabs.invitations")}
-                          Icon={InvitationLogo}>
-                        <Invitations role={res[0]}
-                                     preloadedInvitations={res[2]}/>
                     </Page>
                 ];
                 setTabs(newTabs.filter(tab => tab !== null));

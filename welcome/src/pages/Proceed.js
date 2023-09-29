@@ -1,17 +1,18 @@
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./Proceed.scss";
+import "./Profile.scss";
 import "../styles/circle.scss";
 import DOMPurify from "dompurify";
-import {Loader, Toaster, ToasterType} from "@surfnet/sds";
+import {Loader, Modal, Toaster, ToasterType, Tooltip} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
-import {isEmpty, splitListSemantically} from "../utils/Utils";
-import {organisationName} from "../utils/Manage";
+import {isEmpty, stopEvent} from "../utils/Utils";
 import {getParameterByName} from "../utils/QueryParameters";
 import {invitationByHash} from "../api";
 import {login} from "../utils/Login";
 import {RoleCard} from "../components/RoleCard";
 import {User} from "../components/User";
+import HighFive from "../icons/high-five.svg";
 
 
 export const Proceed = () => {
@@ -19,6 +20,7 @@ export const Proceed = () => {
     const {user, invitation, config} = useAppStore(state => state);
     const [loading, setLoading] = useState(true);
     const [reloadedInvitation, setReloadedInvitation] = useState(null);
+    const [showModal, setShowModal] = useState(true);
 
     useEffect(() => {
         if (isEmpty(user)) {
@@ -36,37 +38,44 @@ export const Proceed = () => {
         }
     }, [invitation, user, config]);
 
-    const renderInvitationRole = (invitationRole, index, isNew) => {
+    const doLogin = e => {
+        stopEvent(e);
+        login(config, true);
+    }
+
+    const renderInvitationRole = (invitationRole, index, isNew, skipLaunch=false) => {
         const role = invitationRole.role;
         return (
-            <RoleCard role={role} index={index} isNew={isNew}/>
+            <RoleCard role={role} index={index} isNew={isNew} skipLaunch={skipLaunch}/>
         );
     }
 
     const renderProceedStep = () => {
-        const html = DOMPurify.sanitize(I18n.t("proceed.info", {
-            plural: reloadedInvitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
-            roles: splitListSemantically(reloadedInvitation.roles.map(invitationRole => `<strong>${invitationRole.role.name}</strong>${organisationName(invitationRole)}`), I18n.t("forms.and"))
-        }));
+        const toasterChildren = <div>
+            <span>{I18n.t("profile.toaster", {institution: user.schacHomeOrganization})}</span>
+            <a href="/logout" onClick={doLogin}>{I18n.t("profile.changeThis")}</a>
+            <span>)</span>
+        </div>
         return (
             <>
-                <h1>{I18n.t("invitationAccept.hi", {name: ` ${user.name}`})}</h1>
-                <>
-                    <Toaster toasterType={ToasterType.Info} message={html}/>
-                </>
-                <section className="step-container">
-                    <div className="step">
-                        <div className="circle full">
-                            <span>{I18n.t("proceed.progress")}</span>
-                        </div>
-                        <div className="step-actions">
-                            <h4>{I18n.t("proceed.goto")}</h4>
-                            <span>{I18n.t("proceed.nextStep")}</span>
-                        </div>
+                <div className="profile-container">
+                    <div className="welcome-logo">
+                        <img src={HighFive} alt={I18n.t("notFound.alt")}/>
                     </div>
+                    <h2>{I18n.t("profile.welcome", {name: user.name})}</h2>
+                    <div>
+                    <span className={"info"}
+                          dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("profile.info"))}}/>
+                        <Tooltip tip={I18n.t("profile.tooltipApps")}/>
+                    </div>
+
+                    <Toaster toasterType={ToasterType.Info}
+                             large={true}
+                             children={toasterChildren}/>
                     {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, true))}
                     <User user={user} invitationRoles={invitation.roles}/>
-                </section>
+                </div>
+
             </>
         )
     }
@@ -76,7 +85,15 @@ export const Proceed = () => {
     }
 
     return (
-        <div className="mod-proceed">
+        <div className="mod-proceed mod-profile">
+            {showModal &&
+                <Modal confirm={() => setShowModal(false)}
+                       confirmationButtonLabel={I18n.t("invitationAccept.continue")}
+                       full={true}
+                       title={I18n.t("invitationAccept.access")}>
+                    {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, false, true))}
+                    <p>{I18n.t(`invitationAccept.applicationInfo${reloadedInvitation.roles.length > 1 ? "Multiple" : ""}`)}</p>
+                </Modal>}
             <div className="proceed-container">
                 {renderProceedStep()}
             </div>

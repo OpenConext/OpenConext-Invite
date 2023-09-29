@@ -14,6 +14,7 @@ import {useAppStore} from "../stores/AppStore";
 import {splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {organisationName} from "../utils/Manage";
+import HighFive from "../icons/high-five.svg";
 
 const MAY_ACCEPT = "mayAccept";
 
@@ -148,6 +149,9 @@ export const Invitation = ({authenticated}) => {
         const expiredMessage = I18n.t("invitationAccept.expired", {expiryDate: expiryDate});
         return (
             <>
+                <div className="welcome-logo">
+                    <img src={HighFive} alt={I18n.t("notFound.alt")}/>
+                </div>
                 {!expired && <h1>{I18n.t("invitationAccept.hi", {name: authenticated ? ` ${user.name}` : ""})}</h1>}
                 {expired &&
                     <p className="expired"><ErrorIndicator msg={expiredMessage}/></p>}
@@ -156,24 +160,28 @@ export const Invitation = ({authenticated}) => {
                 {!expired && <>
                     <Toaster toasterType={ToasterType.Info} message={html}/>
                 </>}
-                {!expired && <section className="step-container">
-                    <div className="step">
-                        <div className="circle two-quarters">
-                            <span>{I18n.t("invitationAccept.progress")}</span>
+                {!expired &&
+                    <section className="step-container">
+                        <div className="step">
+                            <div className="circle two-quarters">
+                                <span>{I18n.t("invitationAccept.progress")}</span>
+                            </div>
+                            <div className="step-actions">
+                                <h4>{I18n.t("invitationAccept.login")}</h4>
+                                <span>{I18n.t("invitationAccept.nextStep")}</span>
+                            </div>
                         </div>
-                        <div className="step-actions">
-                            <h4>{I18n.t("invitationAccept.login")}</h4>
-                            <span>{I18n.t("invitationAccept.nextStep")}</span>
+                        <div className={"info-block"}>
+                            {!authenticated &&
+                                <span dangerouslySetInnerHTML={{__html: `${I18n.t("invitationAccept.info")} `}}/>}
+                            {invitation.eduIDOnly && <span>{I18n.t("invitationAccept.infoLoginEduIDOnly")}</span>}
+                            {!invitation.eduIDOnly &&
+                                <span>{I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}</span>}
                         </div>
-                    </div>
-                    {!authenticated && <p className="info"
-                                          dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
-                    {invitation.eduIDOnly && <p className="info">{I18n.t("invitationAccept.infoLoginEduIDOnly")}</p>}
-                    {!invitation.eduIDOnly && <p className="info">{I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}</p>}
-                    <Button onClick={proceed}
-                            txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
-                            centralize={true}/>
-                </section>}
+                        <Button onClick={proceed}
+                                txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
+                                centralize={true}/>
+                    </section>}
             </>
         )
     }

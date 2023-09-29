@@ -5,7 +5,7 @@ import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
 
-export const RoleCard = ({role, index, isNew = false}) => {
+export const RoleCard = ({role, index, isNew = false, skipLaunch= false}) => {
 
     const application = role.application;
     const logo = role.application.data.metaDataFields["logo:0:url"];
@@ -17,11 +17,11 @@ export const RoleCard = ({role, index, isNew = false}) => {
                 <h3>{role.name}</h3>
                 <MoreLessText txt={role.description}/>
             </section>
-            <div className={"launch"}>
+            {!skipLaunch && <div className={"launch"}>
                 <Button txt={I18n.t("proceed.launch")} onClick={() => {
                     window.location.href = role.landingPage;
                 }}/>
-            </div>
+            </div>}
 
         </div>;
     return (
