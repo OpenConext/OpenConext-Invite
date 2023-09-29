@@ -16,7 +16,7 @@ const Tabs = ({children, className, activeTab, tabChanged}) => {
                 {<div className={`tabs ${className}`}>
 
                     {filteredChildren.map(child => {
-                        const {label, name, Icon, notifier, readOnly} = child.props;
+                        const {label, name, notifier, readOnly} = child.props;
 
                         return (
                             <Tab
