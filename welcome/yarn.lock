@@ -1792,10 +1792,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@surfnet/sds@^0.0.72":
-  version "0.0.72"
-  resolved "https://registry.yarnpkg.com/@surfnet/sds/-/sds-0.0.72.tgz#22d7149354f19b1fe826580f877c7316a59e0376"
-  integrity sha512-7y7dJ4C0+bnHdnvTlfCRYEAODynEF0PW7NliOrcHFRDt0eCo7iPellQr70ievJod/kYS8g9IAokU7EQQvV/A/A==
+"@surfnet/sds@^0.0.84":
+  version "0.0.84"
+  resolved "https://registry.yarnpkg.com/@surfnet/sds/-/sds-0.0.84.tgz#da50ae732ac7b6f9bcff1a0bb3ca04dbe315cc4a"
+  integrity sha512-+Oo24TgDWU/bWqYsT3OoSK2uwkJ7cUuOSjlsuPmMqY1Qh9gfGNziKX6v2Zvd4zAazR/HLtrvrK+TkcrRjSwVEQ==
 
 "@surma/rollup-plugin-off-main-thread@^2.2.3":
   version "2.2.3"
