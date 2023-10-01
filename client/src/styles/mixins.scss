@@ -36,6 +36,13 @@
     .input-field, .select-field, .date-field, .sds--checkbox-container{
         margin-top: 20px;
     }
+
+    .sds--checkbox-container {
+        @media (max-width: $medium) {
+            margin-top: 0;
+        }
+
+    }
     .actions {
         grid-column-start: first;
         margin-top: 30px;
