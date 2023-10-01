@@ -13,7 +13,7 @@ import {isEmpty} from "../utils/Utils";
 
 export const Profile = () => {
     const {id} = useParams();
-    const {user: currentUser} = useAppStore(state => state);
+    const {user: currentUser, config} = useAppStore(state => state);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -56,7 +56,7 @@ export const Profile = () => {
                 })}</p>
             </UnitHeader>
             <div className="profile-container">
-                <User user={user} other={!isEmpty(id)}/>
+                <User user={user} other={!isEmpty(id)} config={config}/>
             </div>
         </div>);
 };

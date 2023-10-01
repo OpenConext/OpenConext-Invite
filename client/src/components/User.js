@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import "./User.scss";
 import InputField from "./InputField";
 import {dateFromEpoch} from "../utils/Date";
-import {highestAuthority} from "../utils/UserRole";
+import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
 import {Card, CardType} from "@surfnet/sds";
@@ -11,8 +11,9 @@ import {deriveRemoteApplicationAttributes} from "../utils/Manage";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
+import DOMPurify from "dompurify";
 
-export const User = ({user, other}) => {
+export const User = ({user, other, config}) => {
     const searchRef = useRef();
 
     const [query, setQuery] = useState("");
@@ -104,18 +105,22 @@ export const User = ({user, other}) => {
     user.highestAuthority = I18n.t(`access.${highestAuthority(user)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
         ["lastActivity", true]];
-    const filteredUserRoles = user.userRoles.filter(filterUserRole);
+    const filteredUserRoles = user.userRoles.filter(filterUserRole).filter(role => role.authority !== AUTHORITIES.GUEST);
     const filteredApplications = (user.applications || []).filter(filterApplication);
+    const hasRoles = !isEmpty(user.userRoles.filter(role => role.authority !== AUTHORITIES.GUEST))
     return (
         <section className={"user"}>
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
 
             <h3 className={"title span-row "}>{I18n.t("users.roles")}</h3>
-            {(isEmpty(user.userRoles) && user.superUser) &&
+            {highestAuthority(user) === AUTHORITIES.GUEST &&
+                <p className={"span-row"}
+                   dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
+            {(!hasRoles && user.superUser) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
-            {(isEmpty(user.userRoles) && user.institutionAdmin) &&
+            {(!hasRoles && user.institutionAdmin) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInstitutionAdmin")}</p>}
-            {!isEmpty(user.userRoles) &&
+            {hasRoles &&
                 <>
                     <div className="roles-search span-row">
                         <p>

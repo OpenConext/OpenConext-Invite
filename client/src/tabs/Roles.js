@@ -49,11 +49,12 @@ export const Roles = () => {
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const initFilterValues = res => {
+        const userRoles = res.filter(role => !(role.isUserRole && role.authority === "GUEST"));
         const newFilterOptions = [{
-            label: I18n.t("invitations.statuses.all", {nbr: res.length}),
+            label: I18n.t("invitations.statuses.all", {nbr: userRoles.length}),
             value: allValue
         }];
-        const reducedRoles = res.reduce((acc, role) => {
+        const reducedRoles = userRoles.reduce((acc, role) => {
             const option = acc.find(opt => opt.manageId === role.manageId);
             if (option) {
                 ++option.nbr;

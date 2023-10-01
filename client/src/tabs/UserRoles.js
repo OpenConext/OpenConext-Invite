@@ -241,7 +241,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=${guests === false}`, {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}
                   loading={false}
-                  hideTitle={true}
+                  title={I18n.t(guests ? "userRoles.guestRoles" : "userRoles.managerRoles", {count: userRoles.length})}
                   actions={actionButtons()}
                   searchCallback={searchCallback}
                   searchAttributes={["name", "email", "schacHomeOrganization"]}
