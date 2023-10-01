@@ -74,7 +74,7 @@ const en = {
     users: {
         found: "{{count}} {{plural}} found",
         moreResults: "There are more results than shown, please refine your search.",
-        applicationsSearchPlaceHolder: "Search for roles...",
+        applicationsSearchPlaceHolder: "Search for application...",
         name_email: "Name / email",
         name: "Name",
         email: "Email",

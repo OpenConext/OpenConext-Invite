@@ -74,7 +74,7 @@ const nl = {
     users: {
         found: "{{count}} {{plural}} gevonden",
         moreResults: "Er zijn meer resultaten dan getoond kunnen worden, vereng je zoekopdracht.",
-        applicationsSearchPlaceHolder: "Zoek rollen...",
+        applicationsSearchPlaceHolder: "Zoek applicaties...",
         name_email: "Naam / e-mail",
         name: "Naam",
         email: "E-mail",

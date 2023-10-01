@@ -7,7 +7,7 @@ import I18n from "../locale/I18n";
 import Logo from "./Logo";
 import {Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
-import {deriveRemoteApplicationAttributes, providerInfo} from "../utils/Manage";
+import {deriveRemoteApplicationAttributes} from "../utils/Manage";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
@@ -39,7 +39,7 @@ export const User = ({user, other}) => {
         )
     }
 
-    const renderSearch = (value, valueSetter, valueReference) => {
+    const renderSearch = (value, valueSetter, placeholder, valueReference) => {
         return (
             <div className={`search standalone`}>
                 <div className={"sds--text-field sds--text-field--has-icon"}>
@@ -50,7 +50,7 @@ export const User = ({user, other}) => {
                                    onChange={e => valueSetter(e.target.value)}
                                    value={value}
                                    ref={valueReference}
-                                   placeholder={I18n.t(`users.applicationsSearchPlaceHolder`)}/>
+                                   placeholder={placeholder}/>
                             <span className="sds--text-field--icon">
                                     <SearchIcon/>
                                 </span>
@@ -73,16 +73,7 @@ export const User = ({user, other}) => {
 
     const renderUserRole = (userRole, index) => {
         const role = userRole.role;
-        const provider = role.application || providerInfo(null);
-        const logo = provider.data.metaDataFields["logo:0:url"];
-        const children =
-            <div key={index} className={"user-role"}>
-                <Logo src={logo} alt={"provider"} className={"provider"}/>
-                <RoleCard role={role} index={index} key={index}/>
-            </div>;
-        return (
-            <Card cardType={CardType.Big} children={children}/>
-        );
+        return <RoleCard role={role} index={index} key={index}/>
     }
 
     const filterApplication = application => {
@@ -130,7 +121,7 @@ export const User = ({user, other}) => {
                         <p>
                             {I18n.t(`users.${other ? "rolesInfoOther" : "rolesInfo"}`, {name: user.name})}
                         </p>
-                        {renderSearch(query, setQuery, searchRef)}
+                        {renderSearch(query, setQuery, I18n.t(`roles.searchPlaceHolder`, searchRef))}
                     </div>
                     {filteredUserRoles
                         .map((userRole, index) => renderUserRole(userRole, index))}
@@ -143,7 +134,7 @@ export const User = ({user, other}) => {
                         <p>
                             {I18n.t(`users.${other ? "applicationsInfoOther" : "applicationsInfo"}`, {name: user.name})}
                         </p>
-                        {renderSearch(queryApplication, setQueryApplication)}
+                        {renderSearch(queryApplication, setQueryApplication, I18n.t(`users.applicationsSearchPlaceHolder`))}
                     </div>
                     {filteredApplications
                         .map((application, index) => renderApplication(application, index))}
