@@ -1,0 +1,70 @@
+---
+name: make-doc
+
+# Triggers the workflow on push or pull request events
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-redoc:
+    runs-on: ubuntu-latest
+    name: Test documentation and generate openapi html documentation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: lint markdown files
+        uses: nosborn/github-action-markdown-cli@v2.0.0
+        with:
+          files: .
+
+      - name: lint yaml files
+        uses: ibiqlik/action-yamllint@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: 'maven'
+      - name: Set up MySQL
+        uses: shogo82148/actions-setup-mysql@v1
+        with:
+          mysql-version: '8.0'
+      - name: Prepare database
+        run: |
+          mysql -uroot -h127.0.0.1 -e \
+          "CREATE DATABASE access CHARACTER SET utf8mb4 \
+          COLLATE utf8mb4_0900_ai_ci;"
+          mysql -uroot -h127.0.0.1 -e \
+          "CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';";
+          mysql -uroot -h127.0.0.1 -e \
+          "GRANT ALL privileges ON access.* TO 'access'@'localhost';"
+
+      - name: Generate openapi.json
+        run: mvn verify -DskipTests=true
+
+      - name: Test api-specs with redoc-cli
+        uses: seeebiii/redoc-cli-github-action@v10
+        with:
+          args: 'bundle server/target/openapi.json -t template.hbs -o docs/api/index.html'
+
+      - name: check result
+        run: |
+          ls -al docs/api/
+          test -f docs/api/index.html || (echo "Missing docs/api/index.html from previous step." && exit 1)
+
+      - name: Commit files if the html has changed
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git pull
+          git add docs/api/index.html
+          git diff-index --quiet HEAD || git commit -m "Update github page"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
