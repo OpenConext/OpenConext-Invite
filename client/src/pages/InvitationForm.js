@@ -31,7 +31,7 @@ export const InvitationForm = () => {
     const [guest, setGuest] = useState(false);
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
-    const [originalRoleId, setOriginalRoleId] = useState(-1);
+    const [originalRoleId, setOriginalRoleId] = useState(null);
     const [invitation, setInvitation] = useState({
         expiryDate: futureDate(30),
         roleExpiryDate: futureDate(365),
@@ -196,6 +196,10 @@ export const InvitationForm = () => {
                                   }}/>)
                     }
                 </div>}
+                {(!initial && isEmpty(selectedRoles)) &&
+                    <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
+                }
+
                 <EmailField
                     name={I18n.t("invitations.invitees")}
                     addEmails={addEmails}
@@ -267,7 +271,7 @@ export const InvitationForm = () => {
                                   value={invitation.enforceEmailEquality || false}
                                   onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
                                   info={I18n.t("invitations.enforceEmailEquality")}
-                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed )}
+                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed)}
                                   tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                         />
 
@@ -275,7 +279,7 @@ export const InvitationForm = () => {
                                   value={invitation.eduIDOnly || false}
                                   onChange={e => setInvitation({...invitation, eduIDOnly: e.target.checked})}
                                   info={I18n.t("invitations.eduIDOnly")}
-                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed )}
+                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed)}
                                   tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
                         />
 

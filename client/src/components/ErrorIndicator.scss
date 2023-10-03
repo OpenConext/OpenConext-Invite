@@ -9,6 +9,10 @@ span.error-indication {
         margin-bottom: 15px;
     }
 
+    &.adjust-margin {
+        margin-top: -15px;
+    }
+
     span.error-message {
         word-break: keep-all;
     }
