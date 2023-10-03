@@ -1,5 +1,4 @@
 # Openconext-Invite
-# invite-server
 
 [![Build Status](https://github.com/OpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)
 [![codecov](https://codecov.io/gh/OpenConext/OpenConext-Access/branch/main/graph/badge.svg?token=HZ7ES3TLQ9)](https://codecov.io/gh/OpenConext/OpenConext-Access)
@@ -41,37 +40,42 @@ To build and deploy (the latter requires credentials in your maven settings):
 mvn clean deploy
 ```
 
-### [Endpoints](#endpoint)
+### [Endpoints](#endpoints)
 
-https://access.test2.surfconext.nl/ui/swagger-ui/index.html
+<https://access.test2.surfconext.nl/ui/swagger-ui/index.html>
 
-https://mock.test2.surfconext.nl/
+<https://mock.test2.surfconext.nl/>
 
-https://welcome.test2.surfconext.nl/
+<https://welcome.test2.surfconext.nl/>
 
-https://access.test2.surfconext.nl/
+<https://access.test2.surfconext.nl/>
 
 ### [Mock](#mock)
 
 If you want to use the mock-provisioning, add the following metadata in Manage.
 
 SCIM:
-```
+
+```json
 "provisioning_type": "scim",
 "scim_url": "https://mock.test2.surfconext.nl/api/scim/v2",
 "scim_user": "user",
 "scim_password": "secret",
 "scim_update_role_put_method": true
 ```
+
 eVA
-```
+
+```json
 "provisioning_type": "eva",
 "eva_token": "secret",
 "eva_guest_account_duration": 30
 "eva_url": "https://mock.test2.surfconext.nl/eva",
 ```
+
 Graph
-```
+
+```json
 "provisioning_type": "graph",
 "graph_url": "https://mock.test2.surfconext.nl/graph/users",
 "graph_client_id" : "client_id",
@@ -80,20 +84,25 @@ Graph
 "graph_tenant": "tenant"
 ```
 
-### [Local endpoints](#local-endpoint)
+### [Local endpoints](#local-endpoints)
 
 Login with Mujina IdP and user `admin` to become super-user in the local environment
 
-http://localhost:8080/ui/swagger-ui/index.html
+<http://localhost:8080/ui/swagger-ui/index.html>
 
-http://localhost:8081/
+<http://localhost:8081/>
 
-http://localhost:4000
+<http://localhost:4000>
 
-http://localhost:3000
+<http://localhost:3000>
 
 ### [Institution Admin](#institution-admin)
 
 To become an institution admin in invite, add the following values as `eduPersonEntitlements` using Mujina:
-* urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:ad93daef-0911-e511-80d0-005056956c1a
-* urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke
+
+- urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:ad93daef-0911-e511-80d0-005056956c1a
+- urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke
+
+### [Technical documentation](#technical-documentation)
+
+<https://openconext.github.io/OpenConext-Invite/>
