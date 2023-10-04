@@ -89,6 +89,9 @@ export const InvitationForm = () => {
             })
             setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
         } else {
+            if (markedRoles.length === 1) {
+                setSelectedRoles(markedRoles);
+            }
             setInvitation({
                 ...invitation,
                 intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER

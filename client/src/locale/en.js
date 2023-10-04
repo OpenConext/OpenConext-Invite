@@ -197,7 +197,7 @@ const en = {
         requiredRole: "At least one role is required for an invitation",
         intendedAuthority: "Authority",
         roles: "Roles",
-        inviterRoles: "Send new invitation for the following roles",
+        inviterRoles: "Select the roles for the new invitation",
         rolesPlaceHolder: "Choose one or more roles",
         expiryDate: "Invitation expiry date",
         roleExpiryDate: "Role expiry date",

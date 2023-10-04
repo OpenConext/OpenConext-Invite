@@ -197,7 +197,7 @@ const nl = {
         requiredRole: "Minimaal 1 rol is benodigd voor een uitnodiging",
         intendedAuthority: "Autoriteit",
         roles: "Rollen",
-        inviterRoles: "Verstuur een nieuwe uitnodiging voor de volgende rollen",
+        inviterRoles: "Selecteer de rollen voor de nieuwe uitnodiging",
         rolesPlaceHolder: "Kies een of meer rollen",
         expiryDate: "Verloopdatum uitnodiging",
         roleExpiryDate: "Verloopdatum rol",

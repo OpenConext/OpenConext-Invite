@@ -61,6 +61,9 @@
                 margin: 0 0 20px 0;
             }
 
+            input[type=checkbox]:not(:checked) + label {
+                background-color: white;
+            }
         }
 
         img.provider, svg.provider {
