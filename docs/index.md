@@ -24,5 +24,6 @@ or Selfservice Portal.
 - [API documentation](./api/)
 - [SCIM description](./SCIM/)
 - [Archimate Model](./Archi/?view=id-942fd1b8aeda45388631ddde7877a745)
+- [Swagger](https://invite.test2.surfconext.nl/ui/swagger-ui/index.html)
 - [Code](https://github.com/OpenConext/OpenConext-Invite/)
 - [Backlog](https://www.pivotaltracker.com/n/projects/2641889)
