@@ -23,6 +23,7 @@
     <element xsi:type="archimate:BusinessActor" name="Super admin" id="id-4d3bf3bb0aef4610a3f26bbb59405f81"/>
     <element xsi:type="archimate:BusinessProcess" name="Beheren rolbeheerders" id="id-4e9b64fb4dee43819a6d8ea4b6a0e098"/>
     <element xsi:type="archimate:BusinessProcess" name="Stuur Uitnodiging" id="id-11c28e2e5a2449e8b31e48393af8e2fc"/>
+    <element xsi:type="archimate:BusinessActor" name="manager" id="id-a837ff2e4d0d4834ae41dc99952439b3"/>
   </folder>
   <folder name="Application" id="id-9255fd6e67f54edc9f08fbfb0a4ff4b9" type="application">
     <element xsi:type="archimate:ApplicationComponent" name="SURFconext Invite" id="id-e04e48a1cbad493db720919400c9519d"/>
@@ -130,6 +131,9 @@ SCIM is an emerging open standard that defines a comprehensive REST API, along w
     <element xsi:type="archimate:TriggeringRelationship" name="eVa API" id="id-39525b584daa4e738a588e0f2e40fc9c" source="id-c1c4221479a44fe5b6814fbede8e1475" target="id-4d5679315af44f7b9892b74e10727d5f"/>
     <element xsi:type="archimate:AssociationRelationship" id="id-e271bb73139d452db6aa609cb5b5a27b" source="id-11c28e2e5a2449e8b31e48393af8e2fc" target="id-a20ea067ce4c42c2933ac0cc5ebc7561"/>
     <element xsi:type="archimate:ServingRelationship" id="id-c83cad7e6334420d93890c476b9edc8c" source="id-975cea307c084542a9172b02e62fcbea" target="id-11c28e2e5a2449e8b31e48393af8e2fc"/>
+    <element xsi:type="archimate:AssociationRelationship" id="id-bca79e00f4ec45f8b9680ef67f1e787f" source="id-a837ff2e4d0d4834ae41dc99952439b3" target="id-6a022ff79b4e4f569c1441a341ec18d0"/>
+    <element xsi:type="archimate:AssociationRelationship" id="id-3e7fc537a4914617ac3c74f225a48365" source="id-a837ff2e4d0d4834ae41dc99952439b3" target="id-2861f925c98945d093c6d9316c7a24ad"/>
+    <element xsi:type="archimate:AssociationRelationship" id="id-5eccbedf09ad4779a8b088cab0f79949" source="id-a837ff2e4d0d4834ae41dc99952439b3" target="id-11c28e2e5a2449e8b31e48393af8e2fc"/>
   </folder>
   <folder name="Views" id="id-fcd654b42293408bb5974e97f201f488" type="diagrams">
     <element xsi:type="archimate:ArchimateDiagramModel" name="Overzicht" id="id-942fd1b8aeda45388631ddde7877a745">
@@ -218,33 +222,33 @@ SCIM is an emerging open standard that defines a comprehensive REST API, along w
           <bounds x="24" y="204" width="120" height="55"/>
         </child>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="id-0df580f965d544a3a64b83d4436c4d4c" archimateElement="id-01eb508fe37f4ffabeb55c6e6a9f401c" type="1">
+      <child xsi:type="archimate:DiagramObject" id="id-0df580f965d544a3a64b83d4436c4d4c" textPosition="2" archimateElement="id-01eb508fe37f4ffabeb55c6e6a9f401c" type="1">
         <bounds x="640" y="263" width="210" height="55"/>
         <sourceConnection xsi:type="archimate:Connection" id="id-27f5d1d84f7c455490be136df425d33b" source="id-0df580f965d544a3a64b83d4436c4d4c" target="id-09652f87e87042dd948fb3fcffb2c37f" archimateRelationship="id-f4f88bbce9b44a4a8ed9cf3534a9aa54"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="id-7dcc835a75b44da4b535dc65969c2f00" archimateElement="id-1f9d0e5975de429bbf62ff21b2ba355f" type="1">
-        <bounds x="1263" y="263" width="82" height="55"/>
+      <child xsi:type="archimate:DiagramObject" id="id-7dcc835a75b44da4b535dc65969c2f00" textPosition="2" archimateElement="id-1f9d0e5975de429bbf62ff21b2ba355f" type="1">
+        <bounds x="1419" y="263" width="82" height="55"/>
         <sourceConnection xsi:type="archimate:Connection" id="id-6286ce71b4534819bd05b61eba3a72a8" source="id-7dcc835a75b44da4b535dc65969c2f00" target="id-f4023ceacba14b78bdba53570ecca98a" archimateRelationship="id-868accbb8e7e45558af130ecd5a9a89b"/>
         <sourceConnection xsi:type="archimate:Connection" id="id-5946592b311e4a22ab9c294056a29951" source="id-7dcc835a75b44da4b535dc65969c2f00" target="id-bfb9ebc3bb2947ec944fc9820f279a79" archimateRelationship="id-cc217d660eb64e2787d01be3b62a8b06"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="id-5d93e3d70dee40f9a2418ccd065e7cac" targetConnections="id-6a0feb1715d144c89f76d6cd119cde5a" archimateElement="id-a20ea067ce4c42c2933ac0cc5ebc7561" type="1">
-        <bounds x="900" y="263" width="120" height="55"/>
+      <child xsi:type="archimate:DiagramObject" id="id-5d93e3d70dee40f9a2418ccd065e7cac" targetConnections="id-6a0feb1715d144c89f76d6cd119cde5a" textPosition="2" archimateElement="id-a20ea067ce4c42c2933ac0cc5ebc7561" type="1">
+        <bounds x="1056" y="263" width="120" height="55"/>
         <sourceConnection xsi:type="archimate:Connection" id="id-1d9bc260805f46b08bb3bcd24ff6cb86" source="id-5d93e3d70dee40f9a2418ccd065e7cac" target="id-66977edec12e4153a3f548906124934d" archimateRelationship="id-6f1d7437a2114b9bbceb6dda3fe85c6d"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="id-09652f87e87042dd948fb3fcffb2c37f" targetConnections="id-0321f8b772f94055ba8f733a31f657aa id-27f5d1d84f7c455490be136df425d33b" archimateElement="id-2861f925c98945d093c6d9316c7a24ad" type="1">
+      <child xsi:type="archimate:DiagramObject" id="id-09652f87e87042dd948fb3fcffb2c37f" targetConnections="id-0321f8b772f94055ba8f733a31f657aa id-27f5d1d84f7c455490be136df425d33b id-1321b473632f4c6da503097df18868fa" archimateElement="id-2861f925c98945d093c6d9316c7a24ad" type="1">
         <bounds x="685" y="360" width="120" height="55"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="id-66977edec12e4153a3f548906124934d" targetConnections="id-4d935ef4621742b9b268ed6a9f63ec5e id-1d9bc260805f46b08bb3bcd24ff6cb86" archimateElement="id-6a022ff79b4e4f569c1441a341ec18d0" type="1">
-        <bounds x="849" y="360" width="120" height="55"/>
+      <child xsi:type="archimate:DiagramObject" id="id-66977edec12e4153a3f548906124934d" targetConnections="id-4d935ef4621742b9b268ed6a9f63ec5e id-1d9bc260805f46b08bb3bcd24ff6cb86 id-d1c42d94deed445e87daefd4e4a732b8" archimateElement="id-6a022ff79b4e4f569c1441a341ec18d0" type="1">
+        <bounds x="912" y="360" width="120" height="55"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="id-f4023ceacba14b78bdba53570ecca98a" targetConnections="id-6286ce71b4534819bd05b61eba3a72a8 id-af7a12dce5174cd9ad1fb3d771e2b6b6" archimateElement="id-7d17b44e14174b829c55dcc32ec3324b" type="1">
-        <bounds x="1152" y="360" width="120" height="55"/>
+        <bounds x="1308" y="360" width="120" height="55"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="id-bfb9ebc3bb2947ec944fc9820f279a79" targetConnections="id-5946592b311e4a22ab9c294056a29951" archimateElement="id-34817e09ea1e46039ca61afbb5c97b7c" type="1">
-        <bounds x="1344" y="360" width="120" height="55"/>
+        <bounds x="1500" y="360" width="120" height="55"/>
         <sourceConnection xsi:type="archimate:Connection" id="id-0b43fc1ec27b426ab2f1b272d98bdb3d" source="id-bfb9ebc3bb2947ec944fc9820f279a79" target="id-fbfcdd33cc5f44c48a5d1577dcd1d86d" archimateRelationship="id-367bd0209d494554af01eabe4de0179e"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="id-f28c02ff9f094d58a832ca91e6bf0966" archimateElement="id-4d3bf3bb0aef4610a3f26bbb59405f81" type="1">
+      <child xsi:type="archimate:DiagramObject" id="id-f28c02ff9f094d58a832ca91e6bf0966" textPosition="2" archimateElement="id-4d3bf3bb0aef4610a3f26bbb59405f81" type="1">
         <bounds x="483" y="263" width="120" height="55"/>
         <sourceConnection xsi:type="archimate:Connection" id="id-cbf862404d7c492d8f20de061892a948" source="id-f28c02ff9f094d58a832ca91e6bf0966" target="id-2e281bc213c64862bc0dc608b03b9b34" archimateRelationship="id-96126c55c0e24cdcab1362290228a240"/>
       </child>
@@ -278,9 +282,15 @@ SCIM is an emerging open standard that defines a comprehensive REST API, along w
       <child xsi:type="archimate:DiagramObject" id="id-a3fc639036904da9b1ffe8a3df042973" targetConnections="id-8539c6a8c6064f0aa698bcecf30c26a2" textPosition="2" archimateElement="id-4d5679315af44f7b9892b74e10727d5f">
         <bounds x="1344" y="948" width="120" height="55"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="id-9fc2db22e9304bd39431b8e79e34f076" targetConnections="id-9b2be496ade842deb3f6a3a59171bac8" textPosition="1" archimateElement="id-11c28e2e5a2449e8b31e48393af8e2fc" type="1">
-        <bounds x="984" y="360" width="120" height="55"/>
+      <child xsi:type="archimate:DiagramObject" id="id-9fc2db22e9304bd39431b8e79e34f076" targetConnections="id-9b2be496ade842deb3f6a3a59171bac8 id-66cbda9c5756415a89993a526d4afcc9" textPosition="1" archimateElement="id-11c28e2e5a2449e8b31e48393af8e2fc" type="1">
+        <bounds x="1116" y="360" width="120" height="55"/>
         <sourceConnection xsi:type="archimate:Connection" id="id-6a0feb1715d144c89f76d6cd119cde5a" source="id-9fc2db22e9304bd39431b8e79e34f076" target="id-5d93e3d70dee40f9a2418ccd065e7cac" archimateRelationship="id-e271bb73139d452db6aa609cb5b5a27b"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-6978fac1c3b94831a88039a9bd26fd33" textPosition="2" archimateElement="id-a837ff2e4d0d4834ae41dc99952439b3" type="1">
+        <bounds x="863" y="263" width="120" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-d1c42d94deed445e87daefd4e4a732b8" source="id-6978fac1c3b94831a88039a9bd26fd33" target="id-66977edec12e4153a3f548906124934d" archimateRelationship="id-bca79e00f4ec45f8b9680ef67f1e787f"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-1321b473632f4c6da503097df18868fa" source="id-6978fac1c3b94831a88039a9bd26fd33" target="id-09652f87e87042dd948fb3fcffb2c37f" archimateRelationship="id-3e7fc537a4914617ac3c74f225a48365"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-66cbda9c5756415a89993a526d4afcc9" source="id-6978fac1c3b94831a88039a9bd26fd33" target="id-9fc2db22e9304bd39431b8e79e34f076" archimateRelationship="id-5eccbedf09ad4779a8b088cab0f79949"/>
       </child>
     </element>
   </folder>
