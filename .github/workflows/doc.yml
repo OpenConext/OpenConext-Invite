@@ -53,7 +53,7 @@ jobs:
         uses: shogo82148/actions-setup-mysql@v1
         with:
           mysql-version: '8.0'
-        if: steps.changes.outputs.archi == 'true'
+        if: steps.changes.outputs.server == 'true'
       - name: Prepare database
         run: |
           mysql -uroot -h127.0.0.1 -e \
