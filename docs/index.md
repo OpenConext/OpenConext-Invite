@@ -15,5 +15,6 @@ To test and demonstrate the application, an example client application is availa
 
 - [API documentation](./api/)
 - [SCIM description](./SCIM/)
+- [Archimate Model](./Archi/?view=id-942fd1b8aeda45388631ddde7877a745)
 - [Code](https://github.com/OpenConext/OpenConext-Invite/)
 - [Backlog](https://www.pivotaltracker.com/n/projects/2641889)
