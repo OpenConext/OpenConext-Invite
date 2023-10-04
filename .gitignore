@@ -3,6 +3,8 @@ node_modules/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+docs/invite.archimate.bak
+/yamllint-*
 
 ### STS ###
 .apt_generated
