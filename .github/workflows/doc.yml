@@ -47,7 +47,7 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
           cache: 'maven'
-        if: steps.changes.outputs.archi == 'true'
+        if: steps.changes.outputs.server == 'true'
 
       - name: Set up MySQL
         uses: shogo82148/actions-setup-mysql@v1
@@ -63,23 +63,23 @@ jobs:
           "CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';";
           mysql -uroot -h127.0.0.1 -e \
           "GRANT ALL privileges ON access.* TO 'access'@'localhost';"
-        if: steps.changes.outputs.archi == 'true'
+        if: steps.changes.outputs.server == 'true'
 
       - name: Generate openapi.json
         run: mvn verify -DskipTests=true
-        if: steps.changes.outputs.archi == 'true'
+        if: steps.changes.outputs.server == 'true'
 
       - name: Test api-specs with redoc-cli
         uses: seeebiii/redoc-cli-github-action@v10
         with:
           args: 'bundle server/target/openapi.json -t template.hbs -o docs/api/index.html'
-        if: steps.changes.outputs.archi == 'true'
+        if: steps.changes.outputs.server == 'true'
 
       - name: check result
         run: |
           ls -al docs/api/
           test -f docs/api/index.html || (echo "Missing docs/api/index.html from previous step." && exit 1)
-        if: steps.changes.outputs.archi == 'true'
+        if: steps.changes.outputs.server == 'true'
 
       - name: Commit files if the OpenAPI html has changed
         run: |
@@ -87,7 +87,7 @@ jobs:
           git config user.email github-actions@github.com
           git add docs/api/index.html
           git diff-index --quiet HEAD || git commit -m "Update github page"
-        if: steps.changes.outputs.archi == 'true'
+        if: steps.changes.outputs.server == 'true'
         continue-on-error: true
 
       # Generate a HTML page for the archmate model, only if the moder has changed
