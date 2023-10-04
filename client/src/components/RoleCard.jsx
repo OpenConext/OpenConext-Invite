@@ -13,7 +13,7 @@ export const RoleCard = ({role, index, invitationSelected, invitationSelectCallb
     const logo = application.data.metaDataFields["logo:0:url"];
 
     const children =
-        <div key={index} className="user-role">
+        <div key={index} className="user-role" >
             {!isEmpty(invitationSelected) &&
                 <Checkbox name={`invitationSelected-${index}-${role.value}`}
                           value={invitationSelected}
@@ -33,12 +33,12 @@ export const RoleCard = ({role, index, invitationSelected, invitationSelectCallb
     const inviterCard = isEmpty(invitationSelected) ? "" : (invitationSelected ? "inviter-selected" : "inviter")
     const className = `card-container ${isNew ? "is-new" : ""} ${inviterCard}`;
     return (
-        <div className={className}
-             onClick={() => !isEmpty(invitationSelected) && invitationSelectCallback({target: {checked: !invitationSelected}}, role.value)}>
+        <div className={className}>
             {isNew &&
                 <Chip label={I18n.t("proceed.new")} type={ChipType.Status_error}/>
             }
-            <Card key={index} cardType={CardType.Big} children={children}/>
+            {isEmpty(inviterCard) && <Card key={index} cardType={CardType.Big} children={children}/>}
+            {!isEmpty(inviterCard) && <label htmlFor={`invitationSelected-${index}-${role.value}`}> <Card key={index} cardType={CardType.Big} children={children}/></label>}
         </div>
     );
 }

@@ -9,10 +9,12 @@
     &.inviter-selected .sds--card {
         border-color: var(--sds--color--green--300);
         background-color: var(--sds--color--green--100);
+        cursor: pointer;
     }
 
     &.inviter .sds--card {
         background-color: var(--sds--color--gray--100);
+        cursor: pointer;
     }
 
     &.is-new {
@@ -56,12 +58,14 @@
 
         .sds--checkbox-container {
             margin-right: 25px;
+            cursor: pointer;
 
             @media (max-width: $medium) {
                 margin: 0 0 20px 0;
             }
 
             input[type=checkbox]:not(:checked) + label {
+                cursor: pointer;
                 background-color: white;
             }
         }
