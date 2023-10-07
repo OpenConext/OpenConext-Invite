@@ -11,7 +11,7 @@ or email (ticketing system). Also a
 available for publishing the users' memberships, for usage in SURFconext PDP
 rules or managing access in the application.
 
-The application uses two different frontends. The first (inviet) is for
+The application uses two different frontends. The first (inviter) is for
 managing roles and invites. The other web interface is for the guests, used
 for accepting invites and providing a overview of roles and links to the
 applications.
