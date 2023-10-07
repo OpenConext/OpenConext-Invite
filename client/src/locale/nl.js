@@ -217,7 +217,8 @@ const nl = {
         statuses: {
             all: "All ({{nbr}})",
             open: "Open",
-            accepted: "Accepted"
+            accepted: "Geaccepteerd",
+            expired: "Verlopen"
         }
     },
     forms: {

@@ -60,10 +60,6 @@
             margin-right: 25px;
             cursor: pointer;
 
-            @media (max-width: $medium) {
-                margin: 0 0 20px 0;
-            }
-
             input[type=checkbox]:not(:checked) + label {
                 cursor: pointer;
                 background-color: white;

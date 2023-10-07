@@ -217,7 +217,8 @@ const en = {
         statuses: {
             all: "All ({{nbr}})",
             open: "Open",
-            accepted: "Accepted"
+            accepted: "Accepted",
+            expired: "Expired"
         }
     },
     forms: {

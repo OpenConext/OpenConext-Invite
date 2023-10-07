@@ -29,20 +29,21 @@
     display: grid;
     grid-template-columns: [first] 1fr [second] 1fr;
 
-    .input-field, .select-field, .date-field, .error-indication, .sds--checkbox-container  {
+    .input-field, .select-field, .date-field, .error-indication, .sds--checkbox-container {
         grid-column-start: first;
     }
 
-    .input-field, .select-field, .date-field, .sds--checkbox-container{
+    .input-field, .select-field, .date-field, .sds--checkbox-container {
         margin-top: 20px;
     }
 
-    .sds--checkbox-container {
+    .user-role .sds--checkbox-container {
+        margin-top: 0;
         @media (max-width: $medium) {
-            margin-top: 0;
+            margin-bottom: 20px;
         }
-
     }
+
     .actions {
         grid-column-start: first;
         margin-top: 30px;
@@ -56,7 +57,7 @@
             margin-left: 25px;
         }
 
-        button.sds--btn--delete, button.sds--btn--delete--secondary  {
+        button.sds--btn--delete, button.sds--btn--delete--secondary {
             margin-right: auto;
             margin-left: 0;
         }
