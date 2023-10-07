@@ -24,11 +24,11 @@ const AUTHORITIES_HIERARCHY = {
     [AUTHORITIES.GUEST]: 5
 }
 
-export const highestAuthority = user => {
+export const highestAuthority = (user, forceApplications = true) => {
     if (user.superUser) {
         return AUTHORITIES.SUPER_USER;
     }
-    if (user.institutionAdmin && !isEmpty(user.applications)) {
+    if (user.institutionAdmin && (!isEmpty(user.applications) || !forceApplications)) {
         return AUTHORITIES.INSTITUTION_ADMIN;
     }
     return (user.userRoles || []).reduce((acc, u) => {

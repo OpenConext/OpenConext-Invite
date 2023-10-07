@@ -11,9 +11,13 @@ class UserTest {
 
     @Test
     void fromAttributes() {
-        User user = new User(false, Map.of(
+        Map<String, Object> attributes = Map.of(
                 "email", "john.doe@example.com"
-        ));
+        );
+        User user = new User(false, attributes);
+        assertEquals("John Doe", user.getName());
+
+        user.updateAttributes(attributes);
         assertEquals("John Doe", user.getName());
 
         user = new User(false, Map.of(

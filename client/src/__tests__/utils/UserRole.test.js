@@ -3,6 +3,7 @@ import {
     allowedAuthoritiesForInvitation,
     allowedToDeleteInvitation,
     allowedToEditRole,
+    highestAuthority,
     allowedToRenewUserRole,
     AUTHORITIES,
     isUserAllowed
@@ -91,4 +92,11 @@ test("Allowed to edit", () => {
         userRoles: [{authority: AUTHORITIES.INVITER, role: role}]
     }
     expect(allowedToEditRole(user, role)).toBeFalsy();
-})
+});
+
+test("Highest authority", () => {
+    const user = {
+        institutionAdmin: true,
+    }
+    expect(highestAuthority(user, false)).toEqual(AUTHORITIES.INSTITUTION_ADMIN);
+});

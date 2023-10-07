@@ -113,7 +113,7 @@ export const User = ({user, other, config}) => {
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
 
             <h3 className={"title span-row "}>{I18n.t("users.roles")}</h3>
-            {highestAuthority(user) === AUTHORITIES.GUEST &&
+            {highestAuthority(user, false) === AUTHORITIES.GUEST &&
                 <p className={"span-row"}
                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
             {(!hasRoles && user.superUser) &&

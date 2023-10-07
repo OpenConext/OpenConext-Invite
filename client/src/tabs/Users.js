@@ -61,7 +61,7 @@ export const Users = () => {
         searchUsers(query)
             .then(results => {
                 setInitial(false);
-                results.forEach(user => user.highestAuthority = highestAuthority(user));
+                results.forEach(user => user.highestAuthority = highestAuthority(user, false));
                 setUsers(results);
                 setMoreToShow(results.length === 15 && query !== "owl");
                 setNoResults(results.length === 0);

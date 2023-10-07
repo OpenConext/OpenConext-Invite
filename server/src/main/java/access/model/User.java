@@ -100,6 +100,10 @@ public class User implements Serializable, Provisionable {
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
 
+        this.nameInvariant(attributes);
+    }
+
+    private void nameInvariant(Map<String, Object> attributes) {
         String name = (String) attributes.get("name");
         String preferredUsername = (String) attributes.get("preferred_username");
         if (StringUtils.hasText(name)) {
@@ -181,6 +185,8 @@ public class User implements Serializable, Provisionable {
         this.familyName = (String) attributes.get("family_name");
         this.email = (String) attributes.get("email");
         this.lastActivity = Instant.now();
+
+        this.nameInvariant(attributes);
         this.updateRemoteAttributes(attributes);
     }
 
