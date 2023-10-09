@@ -117,9 +117,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CookieSerializer cookieSerializer() {
+    public CookieSerializer cookieSerializer(@Value("${server.servlet.session.cookie.secure}") boolean secure) {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setUseSecureCookie(true);
+        serializer.setUseSecureCookie(secure);
         return serializer;
     }
 
