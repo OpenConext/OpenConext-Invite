@@ -124,6 +124,8 @@ manage:
   url: "https://manage.test2.surfconext.nl"
   user: access
   password: secret
+  local: True
+#  local: False
 
 springdoc:
   pathsToMatch: "/api/external/v1/**"

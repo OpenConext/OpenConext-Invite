@@ -51,4 +51,19 @@ public class GraphController {
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
+    @PostMapping("/invitations")
+    public ResponseEntity<Map<String, String>> invitations(@RequestBody Map<String, Object> invitation) {
+        LOG.info("/graph/users POST " + invitation);
+
+        String id = UUID.randomUUID().toString();
+        provisioningRepository.save(new Provisioning(
+                ProvisioningType.graph,
+                objectMapper.valueToTree(invitation),
+                HttpMethod.POST,
+                ResourceType.USERS,
+                "/graph/users"
+        ));
+
+        return ResponseEntity.ok(Collections.singletonMap("id", id));
+    }
 }

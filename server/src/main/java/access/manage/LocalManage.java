@@ -17,8 +17,10 @@ import java.util.stream.Stream;
 public final class LocalManage implements Manage {
 
     private final Map<EntityType, List<Map<String, Object>>> allProviders;
+    private final boolean local;
 
-    public LocalManage(ObjectMapper objectMapper) {
+    public LocalManage(ObjectMapper objectMapper, boolean local) {
+        this.local = local;
         this.allProviders = Stream.of(EntityType.values()).collect(Collectors.toMap(
                 entityType -> entityType,
                 entityType -> this.initialize(objectMapper, entityType)));
@@ -26,7 +28,11 @@ public final class LocalManage implements Manage {
 
     @SneakyThrows
     private List<Map<String, Object>> initialize(ObjectMapper objectMapper, EntityType entityType) {
-        return objectMapper.readValue(new ClassPathResource("/manage/" + entityType.collectionName() + ".json").getInputStream(), new TypeReference<>() {
+        String collectionName = entityType.collectionName();
+        if (this.local && collectionName.equals(EntityType.PROVISIONING.collectionName())) {
+            collectionName += ".local";
+        }
+        return objectMapper.readValue(new ClassPathResource("/manage/" + collectionName + ".json").getInputStream(), new TypeReference<>() {
         });
     }
 

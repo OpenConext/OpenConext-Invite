@@ -129,7 +129,7 @@ public abstract class AbstractTest {
                     userRoleRepository).doSeed();
         }
         if (this.localManage == null) {
-            this.localManage = new LocalManage(objectMapper);
+            this.localManage = new LocalManage(objectMapper, false);
         }
     }
 

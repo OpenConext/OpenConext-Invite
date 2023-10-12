@@ -4,7 +4,9 @@ import access.exception.RemoteException;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
 import access.model.*;
+import access.provision.eva.EvaClient;
 import access.provision.eva.GuestAccount;
+import access.provision.graph.GraphClient;
 import access.provision.scim.*;
 import access.repository.RemoteProvisionedGroupRepository;
 import access.repository.RemoteProvisionedUserRepository;
@@ -61,6 +63,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     private final Manage manage;
     private final ObjectMapper objectMapper;
     private final String groupUrnPrefix;
+    private final GraphClient graphClient;
+    private final EvaClient evaClient;
 
     @Autowired
     public ProvisioningServiceDefault(UserRoleRepository userRoleRepository,
@@ -68,13 +72,17 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                       RemoteProvisionedGroupRepository remoteProvisionedGroupRepository,
                                       Manage manage,
                                       ObjectMapper objectMapper,
-                                      @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+                                      @Value("${voot.group_urn_domain}") String groupUrnPrefix,
+                                      @Value("${config.client-url}") String inviteBaseURL,
+                                      @Value("${config.welcome-url}") String welcomeBaseURL) {
         this.userRoleRepository = userRoleRepository;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
         this.remoteProvisionedGroupRepository = remoteProvisionedGroupRepository;
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.groupUrnPrefix = groupUrnPrefix;
+        this.graphClient = new GraphClient(inviteBaseURL, welcomeBaseURL);
+        this.evaClient = new EvaClient();
         // Otherwise, we can't use method PATCH
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(1, TimeUnit.MINUTES);
@@ -255,14 +263,12 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
-            MultiValueMap<String, String> map = new GuestAccount((User) provisionable, provisioning).getRequest();
-            String url = provisioning.getEvaUrl() + "/api/v1/guest/create";
-            requestEntity = new RequestEntity(map, httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
+            requestEntity = this.evaClient.newUserRequest(provisioning, (User) provisionable);
         } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
             requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
         } else if (hasGraphHook(provisioning) && isUser) {
-            return Optional.of(this.graphClient(provisioning, (User) provisionable));
+            return Optional.of(this.graphClient.newUserRequest(provisioning, (User) provisionable));
         }
         if (requestEntity != null) {
             Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
@@ -380,45 +386,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             }
         }
         return headers;
-    }
-
-    private String graphClient(Provisioning provisioning, User user) {
-        ClientSecretCredential credential = new ClientSecretCredentialBuilder()
-                .clientId(provisioning.getGraphClientId())
-                .tenantId(provisioning.getGraphTenant())
-                .clientSecret(provisioning.getGraphSecret()).build();
-
-        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
-
-        com.microsoft.graph.models.User graphUser = new com.microsoft.graph.models.User();
-
-        graphUser.accountEnabled = true;
-        graphUser.displayName = user.getName();
-        graphUser.userPrincipalName = user.getEduPersonPrincipalName();
-        graphUser.mailNickname = user.getGivenName();
-        graphUser.mail = user.getEmail();
-        graphUser.companyName = user.getSchacHomeOrganization();
-        graphUser.givenName = user.getGivenName();
-        graphUser.surname = user.getFamilyName();
-
-        PasswordProfile passwordProfile = new PasswordProfile();
-        passwordProfile.forceChangePasswordNextSignIn = true;
-        passwordProfile.password = "xWwvJ]6NMw+bWH-d";
-        graphUser.passwordProfile = passwordProfile;
-        GraphServiceClient<Request> graphClient = GraphServiceClient.builder().authenticationProvider(authProvider).buildClient();
-        UserCollectionRequest buildRequest = graphClient.users().buildRequest();
-        String graphUrl = provisioning.getGraphUrl();
-        if (graphUrl.startsWith("http://") || graphUrl.contains("mock")) {
-            Field field = ReflectionUtils.findField(BaseRequest.class, "requestUrl");
-            ReflectionUtils.makeAccessible(field);
-            ReflectionUtils.setField(field, buildRequest.getBaseRequest(), graphUrl);
-        }
-        LOG.info(String.format("Send CreateUser Graph request to %s for provisioning %s for user %s",
-                buildRequest.getBaseRequest().getRequestUrl(),
-                provisioning.getGraphClientId(),
-                user.getEduPersonPrincipalName()));
-        com.microsoft.graph.models.User createdUser = buildRequest.post(graphUser);
-        return createdUser.id;
     }
 
 }

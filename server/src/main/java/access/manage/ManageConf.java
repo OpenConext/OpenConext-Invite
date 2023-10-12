@@ -15,8 +15,9 @@ public class ManageConf {
                          @Value("${manage.user}") String user,
                          @Value("${manage.password}") String password,
                          @Value("${manage.enabled}") boolean enabled,
+                         @Value("${manage.local}") boolean local,
                                  ObjectMapper objectMapper) throws IOException {
-        return enabled ? new RemoteManage(url, user, password, objectMapper) : new LocalManage(objectMapper);
+        return enabled ? new RemoteManage(url, user, password, objectMapper) : new LocalManage(objectMapper, local);
     }
 
 
