@@ -133,7 +133,7 @@ class UserPermissionsTest {
     void assertRoleAccess() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.GUEST, identifier);
-        UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole());
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole()));
     }
 
     @Test

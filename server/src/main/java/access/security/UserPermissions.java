@@ -100,9 +100,10 @@ public class UserPermissions {
             return;
         }
         user.getUserRoles().stream()
-                .filter(userRole -> userRole.getRole().getId().equals(accessRole.getId()) ||
+                .filter(userRole -> (userRole.getRole().getId().equals(accessRole.getId()) &&
+                        userRole.getAuthority().hasEqualOrHigherRights(authority)) ||
                         (userRole.getRole().getManageId().equals(accessRole.getManageId()) &&
-                                userRole.getAuthority().hasEqualOrHigherRights(authority)))
+                                userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)))
                 .findFirst()
                 .orElseThrow(UserRestrictionException::new);
     }

@@ -75,9 +75,10 @@ public class RoleController {
     public ResponseEntity<Role> role(@PathVariable("id") Long id, User user) {
         LOG.debug("/role");
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
+        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         role.setApplication(provider);
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         return ResponseEntity.ok(role);
     }
 
