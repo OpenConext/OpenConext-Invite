@@ -98,7 +98,8 @@ const nl = {
         applicationInfoMultiple:"Deze applicaties zijn toegevoegd aan je SURF-invite startpagina.",
         continue: "Doorgaan",
         emailMismatch: "De uitnodiger heeft aangegeven dat je de uitnodiging dient te accepteren met e-mailadres {{email}}, " +
-            "maar je bent ingelogd met een account met een ander mailadres. Log opnieuw in met een ander account."
+            "maar je bent ingelogd met een account met een ander mailadres. Log opnieuw in met een ander account.",
+        inviteRedeemUrl: "Je nieuwe rol vereist een Microsoft account. Druk op Doorgaan om deze te registreren."
     },
     proceed: {
         info: "Gefeliciteerd! Je hebt de {{plural}} {{roles}} geaccepteerd en kunt nu verder naar de applicatie",

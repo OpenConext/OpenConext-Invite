@@ -2,10 +2,12 @@ package access.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
 
@@ -56,4 +58,24 @@ class UserTest {
         user = new User(false, Map.of());
         assertNull(user.getName());
     }
+
+    @Test
+    void latestUserRole() {
+        User user = new User();
+        assertTrue(user.latestUserRole().isEmpty());
+        addUserRole(user, 5,8,2);
+
+        Instant createdAt = user.latestUserRole().get().getCreatedAt();
+        assertEquals(2, createdAt.until(Instant.now(), ChronoUnit.DAYS));
+    }
+
+    private void addUserRole(User user, int... pastDays) {
+        Instant now = Instant.now();
+        Arrays.stream(pastDays).forEach(pastDay -> {
+            UserRole userRole = new UserRole();
+            userRole.setCreatedAt(now.minus(pastDay, ChronoUnit.DAYS));
+            user.addUserRole(userRole);
+        });
+    }
+
 }

@@ -17,7 +17,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
             attributePaths = {"inviter", "roles", "roles.role"})
     Optional<Invitation> findByHash(String hash);
 
-    List<Invitation> findByStatus(Status status);
+    Optional<Invitation> findTopByEmailOrderByCreatedAtDesc(String email);
 
     List<Invitation> findByStatusAndRoles_role(Status status, Role role);
 

@@ -139,7 +139,7 @@ class InvitationControllerTest extends AbstractTest {
         stubForCreateGraphUser();
 
         AcceptInvitation acceptInvitation = new AcceptInvitation(GRAPH_INVITATION_HASH, invitation.getId());
-        given()
+        Map<String, String> results = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -147,8 +147,10 @@ class InvitationControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .body(acceptInvitation)
                 .post("/api/v1/invitations/accept")
-                .then()
-                .statusCode(201);
+                .as(new TypeRef<>() {
+                });
+        assertEquals("https://www.google.com", results.get("inviteRedeemUrl"));
+
         User user = userRepository.findBySubIgnoreCase("graph@new.com").get();
         assertEquals(1, user.getUserRoles().size());
         //no roles provisioned to GRAPH

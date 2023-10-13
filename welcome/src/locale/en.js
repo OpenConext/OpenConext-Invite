@@ -98,7 +98,8 @@ const en = {
         applicationInfoMultiple: "These applications have been added to your SURF-invite homepage.",
         continue: "Continue",
         emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
-            "but you have logged in with an account with a different email. Please login in with a different account."
+            "but you have logged in with an account with a different email. Please login in with a different account.",
+        inviteRedeemUrl: "Your new role requires a microsoft account. Please press Continue to register one."
     },
     proceed: {
         info: "Congrats! You have accepted the {{plural}} {{roles}} and you now can go to the application",

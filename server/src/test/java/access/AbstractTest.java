@@ -2,6 +2,8 @@ package access;
 
 import access.manage.EntityType;
 import access.manage.LocalManage;
+import access.model.RemoteProvisionedUser;
+import access.model.User;
 import access.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -412,12 +414,34 @@ public abstract class AbstractTest {
 
     protected String stubForCreateGraphUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
-        String body = objectMapper.writeValueAsString(Map.of("id", value));
+        String body = objectMapper.writeValueAsString(Map.of(
+                "id", value,
+                "invitedUser", Map.of("id", value),
+                "inviteRedeemUrl",
+                "https://www.google.com"
+        ));
         stubFor(post(urlPathMatching(String.format("/graph/users")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
         return value;
+    }
+
+    protected void stubForUpdateGraphUser(String sub) throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(sub).get();
+        String remoteIdentifier = UUID.randomUUID().toString();
+        remoteProvisionedUserRepository.save(new RemoteProvisionedUser(user, remoteIdentifier, "9"));
+        String body = objectMapper.writeValueAsString(Map.of(
+                "id", remoteIdentifier
+        ));
+        stubFor(get(urlPathMatching(String.format("/graph/users")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
+        stubFor(patch(urlPathMatching(String.format("/graph/users")))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(body)));
     }
 
     protected void stubForUpdateScimRole() throws JsonProcessingException {

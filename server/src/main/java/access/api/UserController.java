@@ -2,12 +2,13 @@ package access.api;
 
 import access.config.Config;
 import access.exception.NotFoundException;
-import access.manage.ManageIdentifier;
+import access.manage.EntityType;
 import access.manage.Manage;
-import access.model.Authority;
-import access.model.Role;
-import access.model.User;
-import access.model.UserRole;
+import access.model.*;
+import access.provision.Provisioning;
+import access.provision.graph.GraphClient;
+import access.repository.InvitationRepository;
+import access.repository.RemoteProvisionedUserRepository;
 import access.repository.UserRepository;
 import access.security.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,11 +37,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
@@ -55,20 +53,29 @@ public class UserController {
 
     private final Config config;
     private final UserRepository userRepository;
+    private final InvitationRepository invitationRepository;
     private final Manage manage;
     private final ObjectMapper objectMapper;
-
+    private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
+    private final GraphClient graphClient;
 
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
+                          InvitationRepository invitationRepository,
                           Manage manage,
                           ObjectMapper objectMapper,
+                          RemoteProvisionedUserRepository remoteProvisionedUserRepository,
+                          @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
+                          @Value("${config.server-url}") String serverBaseURL,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+        this.invitationRepository = invitationRepository;
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
+        this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
+        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization);
     }
 
     @GetMapping("config")
@@ -128,6 +135,23 @@ public class UserController {
             session.invalidate();
         }
         return Results.okResult();
+    }
+
+    @GetMapping("ms-accept-return/{sub}")
+    public View msAcceptReturn(@PathVariable("sub") String sub) {
+        Optional<RemoteProvisionedUser> remoteProvisionedUserOptional = remoteProvisionedUserRepository.findByUserSub(sub);
+        AtomicReference<String> redirectReference = new AtomicReference<>(this.config.getWelcomeUrl());
+        remoteProvisionedUserOptional.ifPresent(remoteProvisionedUser -> {
+            User user = remoteProvisionedUser.getUser();
+            Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, remoteProvisionedUser.getManageProvisioningId());
+            Provisioning provisioning = new Provisioning(provisioningMap);
+            graphClient.updateUserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
+            //TODO, this does not work as the invitation is accepted with a different email. Store something on the invitation for the graph repsonse
+            String invitationHash = invitationRepository.findTopByEmailOrderByCreatedAtDesc(user.getEmail()).map(Invitation::getHash).orElse("");
+            String redirectUrl = String.format("%s/proceed?hash=%s&isRedirect=true", config.getWelcomeUrl(), invitationHash);
+            redirectReference.set(redirectUrl);
+        });
+        return new RedirectView(redirectReference.get());
     }
 
     @GetMapping("switch")

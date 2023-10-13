@@ -5,14 +5,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.io.Serializable;
 
 
 @Entity(name = "remote_provisioned_users")
+@Getter
 @NoArgsConstructor
-public class RemoteProvisionedUser implements Serializable, RemoteScimIdentifier {
+public class RemoteProvisionedUser implements Serializable, RemoteIdentifier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class RemoteProvisionedUser implements Serializable, RemoteScimIdentifier
     }
 
     @Override
-    public String getRemoteScimIdentifier() {
-        return this.remoteScimIdentifier;
+    public String getRemoteIdentifier() {
+        return remoteScimIdentifier;
     }
 }

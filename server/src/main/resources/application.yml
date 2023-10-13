@@ -99,6 +99,7 @@ config:
   eduid-entity-id: "https://login.test2.eduid.nl"
   role-search-required: false
   past-date-allowed: false
+  eduid-idp-schac-home-organization: "test.eduid.nl"
 
 voot:
   user: voot
@@ -124,7 +125,7 @@ manage:
   url: "https://manage.test2.surfconext.nl"
   user: access
   password: secret
-  local: True
+  local: False
 #  local: False
 
 springdoc:

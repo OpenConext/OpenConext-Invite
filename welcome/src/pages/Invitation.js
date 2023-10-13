@@ -50,7 +50,7 @@ export const Invitation = ({authenticated}) => {
                         const mayAccept = localStorage.getItem(MAY_ACCEPT);
                         if (mayAccept && config.name) {
                             acceptInvitation(hashParam, res.id)
-                                .then(() => {
+                                .then(res=> {
                                     localStorage.removeItem(MAY_ACCEPT);
                                     me()
                                         .then(userWithRoles => {
@@ -58,8 +58,9 @@ export const Invitation = ({authenticated}) => {
                                                 user: userWithRoles,
                                                 authenticated: true
                                             }));
+                                            const inviteRedeemUrlQueryParam = res.inviteRedeemUrl ? `&inviteRedeemUrl=${encodeURIComponent(res.inviteRedeemUrl)}` : "";
                                             localStorage.removeItem("location");
-                                            navigate(`/proceed?hash=${hashParam}`);
+                                            navigate(`/proceed?hash=${hashParam}${inviteRedeemUrlQueryParam}`);
                                         })
                                 })
                                 .catch(e => {

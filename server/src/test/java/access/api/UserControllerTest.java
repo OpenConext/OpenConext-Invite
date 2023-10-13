@@ -117,7 +117,7 @@ class UserControllerTest extends AbstractTest {
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
         assertEquals(3, user.getApplications().size());
         user.getApplications().stream().forEach(application -> assertEquals(ORGANISATION_GUID,
-                ((Map)((Map)application.get("data")).get("metaDataFields")).get("coin:institution_guid")));
+                ((Map) ((Map) application.get("data")).get("metaDataFields")).get("coin:institution_guid")));
 
         Map res = given()
                 .when()
@@ -337,6 +337,21 @@ class UserControllerTest extends AbstractTest {
         Set<UserRole> userRoles = user.getUserRoles();
         assertEquals(2, userRoles.size());
         assertEquals(List.of("5", "5"), userRoles.stream().map(userRole -> userRole.getRole().getApplication().get("id")).toList());
+    }
+
+    @Test
+    void msAcceptReturn() throws Exception {
+        super.stubForUpdateGraphUser(GUEST_SUB);
+        super.stubForManageProviderById(EntityType.PROVISIONING, "9");
+
+        given().redirects()
+                .follow(false)
+                .when()
+                .pathParams("sub", GUEST_SUB)
+                .get("/api/v1/users/ms-accept-return/{sub}")
+                .then()
+                .statusCode(302)
+                .header("Location", "http://localhost:4000");
     }
 
     @Test

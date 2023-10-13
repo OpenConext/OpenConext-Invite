@@ -1,10 +1,7 @@
 package access.provision;
 
 import access.AbstractTest;
-import access.model.Authority;
-import access.model.RemoteProvisionedUser;
-import access.model.User;
-import access.model.UserRole;
+import access.model.*;
 import access.provision.scim.OperationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
@@ -27,11 +24,10 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
 
         this.stubForManageProvisioning(List.of("3"));
         String remoteScimIdentifier = this.stubForCreateEvaUser();
-
         provisioningService.newUserRequest(user);
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
-        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteScimIdentifier());
+        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
     }
 
     @Test

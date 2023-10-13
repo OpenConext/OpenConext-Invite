@@ -8,8 +8,10 @@ import access.mail.MailBox;
 import access.manage.Manage;
 import access.model.*;
 import access.provision.ProvisioningService;
+import access.provision.graph.GraphResponse;
 import access.provision.scim.OperationType;
 import access.repository.InvitationRepository;
+import access.repository.RemoteProvisionedUserRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.security.SuperAdmin;
@@ -20,6 +22,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,7 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
+import java.net.http.HttpClient;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
@@ -54,7 +60,6 @@ public class InvitationController implements HasManage {
     private final RoleRepository roleRepository;
     private final EmailFormatValidator emailFormatValidator = new EmailFormatValidator();
     private final ProvisioningService provisioningService;
-
     private final SuperAdmin superAdmin;
 
     public InvitationController(MailBox mailBox,
@@ -163,7 +168,7 @@ public class InvitationController implements HasManage {
     @GetMapping("public")
     public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
-        manage.deriveRemoteApplications(invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole()).toList());
+        manage.deriveRemoteApplications(invitation.getRoles().stream().map(InvitationRole::getRole).toList());
         return ResponseEntity.ok(invitation);
     }
 
@@ -180,7 +185,7 @@ public class InvitationController implements HasManage {
 
 
     @PostMapping("accept")
-    public ResponseEntity<Map<String, Integer>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
+    public ResponseEntity<Map<String, String>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
                                                        Authentication authentication) {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
@@ -240,14 +245,16 @@ public class InvitationController implements HasManage {
         AccessLogger.user(LOG, Event.Created, user);
 
         //Already provisioned users in the remote systems are ignored / excluded
-        provisioningService.newUserRequest(user);
+        Optional<GraphResponse> graphResponse = provisioningService.newUserRequest(user);
         newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
 
         LOG.info(String.format("User %s accepted invitation with role(s) %s",
                 user.getName(),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", "))));
 
-        return Results.createResult();
+        Map<String, String> body = graphResponse.map(graph -> Map.of("inviteRedeemUrl", graph.inviteRedeemUrl())).
+                orElse(Map.of("status", "ok"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
     @GetMapping("roles/{roleId}")

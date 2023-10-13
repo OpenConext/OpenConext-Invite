@@ -11,6 +11,7 @@ import java.util.Map;
 
 @ConfigurationProperties(prefix = "config")
 @Getter
+@Setter
 @NoArgsConstructor
 public class Config {
 
@@ -24,6 +25,7 @@ public class Config {
     private String groupUrnPrefix;
     private boolean authenticated;
     private String name;
+    private String eduidIdpSchacHomeOrganization;
     private List<String> missingAttributes;
 
     public Config(Config base) {
@@ -35,6 +37,7 @@ public class Config {
         this.pastDateAllowed = base.pastDateAllowed;
         this.roleSearchRequired = base.roleSearchRequired;
         this.groupUrnPrefix = base.groupUrnPrefix;
+        this.eduidIdpSchacHomeOrganization = base.eduidIdpSchacHomeOrganization;
     }
 
     public Config withAuthenticated(boolean authenticated) {
@@ -57,31 +60,4 @@ public class Config {
         return this;
     }
 
-    public void setRoleSearchRequired(boolean roleSearchRequired) {
-        this.roleSearchRequired = roleSearchRequired;
-    }
-
-    public void setClientUrl(String clientUrl) {
-        this.clientUrl = clientUrl;
-    }
-
-    public void setServerUrl(String serverUrl) {
-        this.serverUrl = serverUrl;
-    }
-
-    public void setServerWelcomeUrl(String serverWelcomeUrl) {
-        this.serverWelcomeUrl = serverWelcomeUrl;
-    }
-
-    public void setEduidEntityId(String eduidEntityId) {
-        this.eduidEntityId = eduidEntityId;
-    }
-
-    public void setWelcomeUrl(String welcomeUrl) {
-        this.welcomeUrl = welcomeUrl;
-    }
-
-    public void setPastDateAllowed(boolean pastDateAllowed) {
-        this.pastDateAllowed = pastDateAllowed;
-    }
 }

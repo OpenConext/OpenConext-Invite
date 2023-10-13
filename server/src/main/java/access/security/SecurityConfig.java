@@ -142,6 +142,7 @@ public class SecurityConfig {
                                 "/api/v1/users/config",
                                 "/api/v1/users/logout",
                                 "/api/v1/invitations/public",
+                                "/api/v1/users/ms-accept-return/**",
                                 "/api/v1/validations/**",
                                 "/ui/**",
                                 "internal/**")

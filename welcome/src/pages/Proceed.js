@@ -13,38 +13,54 @@ import {login} from "../utils/Login";
 import {RoleCard} from "../components/RoleCard";
 import {User} from "../components/User";
 import HighFive from "../icons/high-five.svg";
+import {useNavigate} from "react-router-dom";
 
 
 export const Proceed = () => {
 
     const {user, invitation, config} = useAppStore(state => state);
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [reloadedInvitation, setReloadedInvitation] = useState(null);
     const [showModal, setShowModal] = useState(true);
+    const [inviteRedeemUrl, setInviteRedeemUrl] = useState(null);
+
+    function invariantParams() {
+        const isRedirect = getParameterByName("isRedirect", window.location.search);
+        if (isRedirect) {
+            setShowModal(false);
+        }
+        const inviteRedeemUrlParam = getParameterByName("inviteRedeemUrl", window.location.search);
+        if (inviteRedeemUrlParam) {
+            setInviteRedeemUrl(decodeURIComponent(inviteRedeemUrlParam));
+        }
+    }
 
     useEffect(() => {
-
         if (isEmpty(user)) {
             login(config);
         } else if (isEmpty(invitation)) {
             const hashParam = getParameterByName("hash", window.location.search);
+            invariantParams();
             invitationByHash(hashParam)
                 .then(res => {
                     setReloadedInvitation(res);
                     setLoading(false);
                 })
+                .catch(() => navigate("/profile"))
         } else {
+            invariantParams();
             setReloadedInvitation(invitation);
             setLoading(false);
         }
-    }, [invitation, user, config]);
+    }, [invitation, user, config]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const doLogin = e => {
         stopEvent(e);
         logout().then(() => login(config, true));
     }
 
-    const renderInvitationRole = (invitationRole, index, isNew, skipLaunch=false) => {
+    const renderInvitationRole = (invitationRole, index, isNew, skipLaunch = false) => {
         const role = invitationRole.role;
         return (
             <RoleCard role={role} key={index} index={index} isNew={isNew} skipLaunch={skipLaunch}/>
@@ -85,15 +101,24 @@ export const Proceed = () => {
         return <Loader/>
     }
 
+    const confirmModal = () => {
+        if (isEmpty(inviteRedeemUrl)) {
+            setShowModal(false);
+        } else {
+            window.location.href = inviteRedeemUrl
+        }
+    }
+
     return (
         <div className="mod-proceed mod-profile">
             {showModal &&
-                <Modal confirm={() => setShowModal(false)}
+                <Modal confirm={() => confirmModal()}
                        confirmationButtonLabel={I18n.t("invitationAccept.continue")}
                        full={true}
                        title={I18n.t("invitationAccept.access")}>
                     {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, false, true))}
                     <p>{I18n.t(`invitationAccept.applicationInfo${reloadedInvitation.roles.length > 1 ? "Multiple" : ""}`)}</p>
+                    {inviteRedeemUrl && <p className="invite-url">{I18n.t("invitationAccept.inviteRedeemUrl")}</p>}
                 </Modal>}
             <div className="proceed-container">
                 {renderProceedStep()}

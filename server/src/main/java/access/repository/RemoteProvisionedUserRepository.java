@@ -17,4 +17,6 @@ public interface RemoteProvisionedUserRepository extends JpaRepository<RemotePro
 
     Optional<RemoteProvisionedUser> findByManageProvisioningIdAndUser(String manageId, User user);
 
+    Optional<RemoteProvisionedUser> findByUserSub(String sub);
+
 }

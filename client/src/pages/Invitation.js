@@ -41,7 +41,7 @@ export const Invitation = ({authenticated}) => {
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
                 if (mayAccept && config.name && !reloaded) {
                     acceptInvitation(hashParam, res.id)
-                        .then(() => {
+                        .then(res => {
                             localStorage.removeItem(MAY_ACCEPT);
                             localStorage.removeItem("location");
                             useAppStore.setState(() => ({reload: true}));
@@ -110,7 +110,7 @@ export const Invitation = ({authenticated}) => {
         });
     }
 
-    const organisationName = role=> {
+    const organisationName = role => {
         return ` (${role.application.data.metaDataFields["OrganizationName:en"]})`;
     }
 

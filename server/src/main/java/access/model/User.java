@@ -197,4 +197,9 @@ public class User implements Serializable, Provisionable {
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
     }
+
+    @JsonIgnore
+    public Optional<UserRole> latestUserRole() {
+        return this.userRoles.stream().max(Comparator.comparing(UserRole::getCreatedAt));
+    }
 }

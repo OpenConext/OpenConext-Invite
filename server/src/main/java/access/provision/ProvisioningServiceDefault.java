@@ -5,23 +5,15 @@ import access.manage.Manage;
 import access.manage.ManageIdentifier;
 import access.model.*;
 import access.provision.eva.EvaClient;
-import access.provision.eva.GuestAccount;
 import access.provision.graph.GraphClient;
+import access.provision.graph.GraphResponse;
 import access.provision.scim.*;
 import access.repository.RemoteProvisionedGroupRepository;
 import access.repository.RemoteProvisionedUserRepository;
 import access.repository.UserRoleRepository;
-import com.azure.identity.ClientSecretCredential;
-import com.azure.identity.ClientSecretCredentialBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
-import com.microsoft.graph.http.BaseRequest;
-import com.microsoft.graph.models.PasswordProfile;
-import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.UserCollectionRequest;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +22,14 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @SuppressWarnings("unchecked")
@@ -73,15 +63,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                       Manage manage,
                                       ObjectMapper objectMapper,
                                       @Value("${voot.group_urn_domain}") String groupUrnPrefix,
-                                      @Value("${config.client-url}") String inviteBaseURL,
-                                      @Value("${config.welcome-url}") String welcomeBaseURL) {
+                                      @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
+                                      @Value("${config.server-url}") String serverBaseURL) {
         this.userRoleRepository = userRoleRepository;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
         this.remoteProvisionedGroupRepository = remoteProvisionedGroupRepository;
         this.manage = manage;
         this.objectMapper = objectMapper;
         this.groupUrnPrefix = groupUrnPrefix;
-        this.graphClient = new GraphClient(inviteBaseURL, welcomeBaseURL);
+        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization);
         this.evaClient = new EvaClient();
         // Otherwise, we can't use method PATCH
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -92,20 +82,25 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     @SneakyThrows
-    public void newUserRequest(User user) {
+    public Optional<GraphResponse> newUserRequest(User user) {
         List<Provisioning> provisionings = getProvisionings(user);
+        AtomicReference<GraphResponse> graphResponseReference = new AtomicReference<>();
         //Provision the user to all provisionings in Manage where the user is unknown
         provisionings.stream()
                 .filter(provisioning -> this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user)
                         .isEmpty())
                 .forEach(provisioning -> {
                     String userRequest = prettyJson(new UserRequest(user));
-                    Optional<String> remoteScimIdentifier = this.newRequest(provisioning, userRequest, user);
-                    remoteScimIdentifier.ifPresent(identifier -> {
-                        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, identifier, provisioning.getId());
+                    Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, userRequest, user);
+                    provisioningResponse.ifPresent(response -> {
+                        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, response.remoteIdentifier(), provisioning.getId());
                         this.remoteProvisionedUserRepository.save(remoteProvisionedUser);
+                        if (response.isGraphResponse()) {
+                          graphResponseReference.set((GraphResponse) response);
+                        }
                     });
                 });
+        return Optional.ofNullable(graphResponseReference.get());
     }
 
     @Override
@@ -122,7 +117,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     .findByManageProvisioningIdAndUser(provisioning.getId(), user);
             if (provisionedUserOptional.isPresent()) {
                 RemoteProvisionedUser remoteProvisionedUser = provisionedUserOptional.get();
-                String remoteScimIdentifier = remoteProvisionedUser.getRemoteScimIdentifier();
+                String remoteScimIdentifier = remoteProvisionedUser.getRemoteIdentifier();
                 String userRequest = prettyJson(new UserRequest(user, remoteScimIdentifier));
                 this.deleteRequest(provisioning, userRequest, user, remoteScimIdentifier);
                 this.remoteProvisionedUserRepository.delete(remoteProvisionedUser);
@@ -138,9 +133,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     .findByManageProvisioningIdAndRole(provisioning.getId(), role);
             if (provisionedGroupOptional.isEmpty()) {
                 String groupRequest = constructGroupRequest(role, null, Collections.emptyList());
-                Optional<String> remoteScimIdentifier = this.newRequest(provisioning, groupRequest, role);
-                remoteScimIdentifier.ifPresent(identifier -> {
-                    RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, identifier, provisioning.getId());
+                Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, groupRequest, role);
+                provisioningResponse.ifPresent(response -> {
+                    RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, response.remoteIdentifier(), provisioning.getId());
                     this.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
                 });
             }
@@ -184,15 +179,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                     })
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .map(RemoteProvisionedUser::getRemoteScimIdentifier)
+                                    .map(RemoteProvisionedUser::getRemoteIdentifier)
                                     .toList();
                             //We only provision GUEST users
                             if (!userScimIdentifiers.isEmpty()) {
                                 String groupRequest = constructGroupRequest(
                                         role,
-                                        provisionedGroup.getRemoteScimIdentifier(),
+                                        provisionedGroup.getRemoteIdentifier(),
                                         userScimIdentifiers);
-                                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteScimIdentifier(), HttpMethod.PUT);
+                                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PUT);
 
                             }
                         } else {
@@ -207,10 +202,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                             provisionedUserOptional.ifPresent(provisionedUser -> {
                                 String groupRequest = patchGroupRequest(
                                         role,
-                                        provisionedUser.getRemoteScimIdentifier(),
-                                        provisionedGroup.getRemoteScimIdentifier(),
+                                        provisionedUser.getRemoteIdentifier(),
+                                        provisionedGroup.getRemoteIdentifier(),
                                         operationType);
-                                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteScimIdentifier(), HttpMethod.PATCH);
+                                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PATCH);
                             });
                         }
                     }, () -> {
@@ -229,7 +224,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             this.remoteProvisionedGroupRepository
                     .findByManageProvisioningIdAndRole(provisioning.getId(), role)
                     .ifPresent(remoteProvisionedGroup -> {
-                        String remoteScimIdentifier = remoteProvisionedGroup.getRemoteScimIdentifier();
+                        String remoteScimIdentifier = remoteProvisionedGroup.getRemoteIdentifier();
                         String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
                         String groupRequest = prettyJson(new GroupRequest(externalId, remoteScimIdentifier, role.getName(), Collections.emptyList()));
                         this.deleteRequest(provisioning, groupRequest, role, remoteScimIdentifier);
@@ -258,7 +253,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @SneakyThrows
-    private Optional<String> newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
+    private Optional<ProvisioningResponse> newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
         boolean isUser = provisionable instanceof User;
         String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity = null;
@@ -268,11 +263,12 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
             requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
         } else if (hasGraphHook(provisioning) && isUser) {
-            return Optional.of(this.graphClient.newUserRequest(provisioning, (User) provisionable));
+            GraphResponse graphResponse = this.graphClient.newUserRequest(provisioning, (User) provisionable);
+            return Optional.of(graphResponse);
         }
         if (requestEntity != null) {
             Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
-            return Optional.of(String.valueOf(results.get("id")));
+            return Optional.of(new DefaultProvisioningResponse(String.valueOf(results.get("id"))));
         }
         return Optional.empty();
 
