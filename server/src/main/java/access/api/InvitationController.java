@@ -211,6 +211,7 @@ public class InvitationController implements HasManage {
         user.setLastActivity(Instant.now());
 
         invitation.setStatus(Status.ACCEPTED);
+        invitation.setSubInvitee(sub);
         invitationRepository.save(invitation);
         AccessLogger.invitation(LOG, Event.Accepted, invitation);
 

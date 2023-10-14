@@ -351,7 +351,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/ms-accept-return/{sub}")
                 .then()
                 .statusCode(302)
-                .header("Location", "http://localhost:4000");
+                .header("Location", "http://localhost:4000/proceed?hash=GUEST&isRedirect=true");
     }
 
     @Test

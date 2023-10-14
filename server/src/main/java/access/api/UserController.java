@@ -146,8 +146,8 @@ public class UserController {
             Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, remoteProvisionedUser.getManageProvisioningId());
             Provisioning provisioning = new Provisioning(provisioningMap);
             graphClient.updateUserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
-            //TODO, this does not work as the invitation is accepted with a different email. Store something on the invitation for the graph repsonse
-            String invitationHash = invitationRepository.findTopByEmailOrderByCreatedAtDesc(user.getEmail()).map(Invitation::getHash).orElse("");
+            String invitationHash = invitationRepository.findTopBySubInviteeOrderByCreatedAtDesc(user.getSub())
+                    .map(Invitation::getHash).orElse("");
             String redirectUrl = String.format("%s/proceed?hash=%s&isRedirect=true", config.getWelcomeUrl(), invitationHash);
             redirectReference.set(redirectUrl);
         });

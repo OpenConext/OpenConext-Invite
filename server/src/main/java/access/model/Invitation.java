@@ -43,6 +43,9 @@ public class Invitation implements Serializable {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String hash;
 
+    @Column(name = "sub_invitee")
+    private String subInvitee;
+
     @Column(name = "enforce_email_equality")
     private boolean enforceEmailEquality;
 

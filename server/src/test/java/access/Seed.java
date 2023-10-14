@@ -96,6 +96,9 @@ public record Seed(InvitationRepository invitationRepository,
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false,false, message,
                         inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(mail)));
         guestInvitation.setEduIDOnly(true);
+        //To test graph callback
+        guestInvitation.setSubInvitee(GUEST_SUB);
+
         Invitation graphInvitation =
                 new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com", false,false, message,
                         inviter,expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));

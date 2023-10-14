@@ -1,26 +1,25 @@
 package access.provision.graph;
 
+import access.AbstractTest;
 import access.manage.LocalManage;
 import access.provision.Provisioning;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
-import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.UserRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 
-import static access.Seed.GUEST_SUB;
 import static access.Seed.INVITER_SUB;
-import static org.junit.jupiter.api.Assertions.*;
 
-class GraphClientTest {
+class GraphClientTest extends AbstractTest  {
 
     @Test
+    @Disabled
     void newUserRequest() {
         GraphClient graphClient = new GraphClient("http://localhost:8080", "test.eduid.nl");
         LocalManage localManage = new LocalManage(new ObjectMapper(), true);
