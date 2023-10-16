@@ -39,7 +39,7 @@ public class GraphClient {
         InvitationCollectionRequest buildRequest = graphServiceClient.invitations().buildRequest();
 
         String graphUrl = provisioning.getGraphUrl();
-        replaceGraphUrl(graphUrl, buildRequest.getBaseRequest());
+        graphUrl = replaceGraphUrl(graphUrl, buildRequest.getBaseRequest());
 
         com.microsoft.graph.models.Invitation invitation = new com.microsoft.graph.models.Invitation();
         invitation.invitedUserEmailAddress = eduidIdpSchacHomeOrganization.equalsIgnoreCase(user.getSchacHomeOrganization()) ? user.getEduPersonPrincipalName() : user.getEmail();
@@ -120,13 +120,15 @@ public class GraphClient {
         return graphClient;
     }
 
-    private static void replaceGraphUrl(String graphUrl, BaseRequest buildRequest) {
+    private static String replaceGraphUrl(String graphUrl, BaseRequest buildRequest) {
         //hack to enable testing
         if (StringUtils.hasText(graphUrl) && (graphUrl.startsWith("http://") || graphUrl.contains("mock"))) {
             Field field = ReflectionUtils.findField(BaseRequest.class, "requestUrl");
             ReflectionUtils.makeAccessible(field);
             ReflectionUtils.setField(field, buildRequest, graphUrl);
+            return graphUrl;
         }
+        return "https://graph.microsoft.com/v1.0/";
     }
 
 
