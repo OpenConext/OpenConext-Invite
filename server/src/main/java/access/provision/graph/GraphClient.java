@@ -3,7 +3,6 @@ package access.provision.graph;
 import access.exception.RemoteException;
 import access.model.User;
 import access.provision.Provisioning;
-import access.provision.ProvisioningServiceDefault;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
@@ -12,7 +11,6 @@ import com.microsoft.graph.http.BaseRequest;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.InvitationCollectionRequest;
 import com.microsoft.graph.requests.UserRequest;
-import com.microsoft.graph.requests.UserRequestBuilder;
 import okhttp3.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +21,7 @@ import java.lang.reflect.Field;
 
 public class GraphClient {
 
-    private static final Log LOG = LogFactory.getLog(ProvisioningServiceDefault.class);
+    private static final Log LOG = LogFactory.getLog(GraphClient.class);
 
     private final String serverUrl;
     private final String eduidIdpSchacHomeOrganization;
@@ -46,7 +44,7 @@ public class GraphClient {
         invitation.invitedUserEmailAddress = eduidIdpSchacHomeOrganization.equalsIgnoreCase(user.getSchacHomeOrganization()) ? user.getEduPersonPrincipalName() : user.getEmail();
         invitation.invitedUserDisplayName = user.getName();
         invitation.inviteRedirectUrl = String.format("%s/api/v1/invitations/ms-accept-return/%s/%s",
-                serverUrl, provisioning.getId(),user.getId());
+                serverUrl, provisioning.getId(), user.getId());
         invitation.sendInvitationMessage = false;
         invitation.invitedUserType = "Guest";
 
@@ -56,6 +54,11 @@ public class GraphClient {
                 user.getEduPersonPrincipalName()));
         try {
             com.microsoft.graph.models.Invitation newInvitation = buildRequest.post(invitation);
+
+            LOG.info(String.format("Response from graph endpoint for user %s, inviteRedeemUrl: %s",
+                    user.getEmail(),
+                    newInvitation.inviteRedeemUrl
+            ));
             return new GraphResponse(newInvitation.invitedUser.id, newInvitation.inviteRedeemUrl);
         } catch (ClientException e) {
             String errorMessage = String.format("Error Graph request (entityID %s) to %s for user %s",
