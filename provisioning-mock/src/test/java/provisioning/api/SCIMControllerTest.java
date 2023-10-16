@@ -1,15 +1,7 @@
-package provisioning;
+package provisioning.api;
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import provisioning.repository.ProvisioningRepository;
 
 import java.util.Map;
 import java.util.UUID;
@@ -18,21 +10,7 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SCIMControllerTest {
-
-    @LocalServerPort
-    protected int port;
-
-    @Autowired
-    protected ProvisioningRepository provisioningRepository;
-
-    @BeforeEach
-    protected void beforeEach() {
-        RestAssured.port = port;
-        provisioningRepository.deleteAllInBatch();
-    }
+class SCIMControllerTest extends AbstractTest {
 
     @Test
     void user() {

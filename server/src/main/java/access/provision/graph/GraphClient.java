@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 
@@ -121,7 +122,7 @@ public class GraphClient {
 
     private static void replaceGraphUrl(String graphUrl, BaseRequest buildRequest) {
         //hack to enable testing
-        if (graphUrl.startsWith("http://") || graphUrl.contains("mock")) {
+        if (StringUtils.hasText(graphUrl) && (graphUrl.startsWith("http://") || graphUrl.contains("mock"))) {
             Field field = ReflectionUtils.findField(BaseRequest.class, "requestUrl");
             ReflectionUtils.makeAccessible(field);
             ReflectionUtils.setField(field, buildRequest, graphUrl);

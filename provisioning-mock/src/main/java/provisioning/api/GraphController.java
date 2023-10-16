@@ -16,6 +16,7 @@ import provisioning.model.ProvisioningType;
 import provisioning.model.ResourceType;
 import provisioning.repository.ProvisioningRepository;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -53,11 +54,13 @@ public class GraphController {
                 "/graph/users"
         ));
         String inviteRedirectUrl = (String) user.get("inviteRedirectUrl");
-        String sub = inviteRedirectUrl.substring(inviteRedirectUrl.lastIndexOf("/") + 1);
+        List<String> parts = List.of(inviteRedirectUrl.split("/"));
+        String manageId = parts.get(parts.size() - 2);
+        String userId = parts.get(parts.size() - 1);
         String id = UUID.randomUUID().toString();
         return ResponseEntity.ok(Map.of(
                 "invitedUser", Map.of("id", id),
-                "inviteRedeemUrl", this.mockServerBaseUrl + "/graph/accept/" + sub,
+                "inviteRedeemUrl", String.format("%s/graph/accept/%s/%s", this.mockServerBaseUrl, manageId, userId),
                 "id", id));
     }
 
@@ -76,6 +79,21 @@ public class GraphController {
         return ResponseEntity.ok(Map.of("id", UUID.randomUUID().toString()));
     }
 
+    @DeleteMapping("/users")
+    public ResponseEntity<Void> deleteUser() {
+        LOG.info("/graph/users DELETE ");
+
+        provisioningRepository.save(new Provisioning(
+                ProvisioningType.graph,
+                objectMapper.valueToTree(null),
+                HttpMethod.DELETE,
+                ResourceType.USERS,
+                "/graph/users"
+        ));
+
+        return ResponseEntity.status(201).build();
+    }
+
     @PatchMapping("/users")
     public ResponseEntity<Map<String, Object>> updateUser(@RequestBody Map<String, Object> user) {
         LOG.info("/graph/users PATCH " + user);
@@ -91,11 +109,11 @@ public class GraphController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/accept/{sub}")
-    public View accept(@PathVariable("sub") String sub) {
+    @GetMapping("/accept/{manageId}/{userId}")
+    public View accept(@PathVariable("manageId") String manageId, @PathVariable("userId") String userId) {
         LOG.info("/graph/accept GET ");
 
-        return new RedirectView(this.inviteServerMSRedirectUrl + "/" + sub);
+        return new RedirectView(String.format("%s/%s/%s", this.inviteServerMSRedirectUrl, manageId, userId));
     }
 
 }
