@@ -1,11 +1,13 @@
 package access.provision.graph;
 
+import access.exception.RemoteException;
 import access.model.User;
 import access.provision.Provisioning;
 import access.provision.ProvisioningServiceDefault;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
+import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.http.BaseRequest;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.InvitationCollectionRequest;
@@ -13,8 +15,8 @@ import com.microsoft.graph.requests.UserRequest;
 import okhttp3.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 
@@ -50,8 +52,18 @@ public class GraphClient {
                 buildRequest.getBaseRequest().getRequestUrl(),
                 provisioning.getGraphClientId(),
                 user.getEduPersonPrincipalName()));
-        com.microsoft.graph.models.Invitation newInvitation = buildRequest.post(invitation);
-        return new GraphResponse(newInvitation.invitedUser.id, newInvitation.inviteRedeemUrl);
+        try {
+
+            com.microsoft.graph.models.Invitation newInvitation = buildRequest.post(invitation);
+            return new GraphResponse(newInvitation.invitedUser.id, newInvitation.inviteRedeemUrl);
+
+        } catch (ClientException e) {
+            String errorMessage = String.format("Error Graph request (entityID %s) to %s for user %s",
+                    provisioning.getEntityId(),
+                    graphUrl,
+                    user.getEmail());
+            throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, e);
+        }
     }
 
     public void updateUserRequest(User user, Provisioning provisioning, String remoteUserIdentifier) {
@@ -60,11 +72,18 @@ public class GraphClient {
 
         String graphUrl = provisioning.getGraphUrl();
         replaceGraphUrl(graphUrl, userRequest);
+        try {
+            com.microsoft.graph.models.User graphUser = userRequest.get();
 
-        com.microsoft.graph.models.User graphUser = userRequest.get();
-
-        graphUser.mail = user.getEmail();
-        userRequest.patch(graphUser);
+            graphUser.mail = user.getEmail();
+            userRequest.patch(graphUser);
+        } catch (ClientException e) {
+            String errorMessage = String.format("Error Graph request (entityID %s) to %s for user %s",
+                    provisioning.getEntityId(),
+                    graphUrl,
+                    user.getEmail());
+            throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, e);
+        }
     }
 
     private GraphServiceClient<Request> getRequestGraphServiceClient(Provisioning provisioning) {
