@@ -47,6 +47,22 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     }
 
     @Test
+    void deleteGraphUserRequest() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+
+        //Mock that this user was provisioned earlier
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, UUID.randomUUID().toString(), "9");
+        remoteProvisionedUserRepository.save(remoteProvisionedUser);
+
+        this.stubForManageProvisioning(List.of("2", "6"));
+        this.stubForDeleteGraphUser();
+
+        provisioningService.deleteUserRequest(user);
+        List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
+        assertEquals(0, remoteProvisionedUsers.size());
+    }
+
+    @Test
     void updateGroupRequest() {
         //We only provision GUEST users
         provisioningService.updateGroupRequest(new UserRole(Authority.INVITER, null), OperationType.Add);

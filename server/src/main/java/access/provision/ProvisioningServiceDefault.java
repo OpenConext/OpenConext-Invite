@@ -96,7 +96,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                         RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, response.remoteIdentifier(), provisioning.getId());
                         this.remoteProvisionedUserRepository.save(remoteProvisionedUser);
                         if (response.isGraphResponse()) {
-                          graphResponseReference.set((GraphResponse) response);
+                            graphResponseReference.set((GraphResponse) response);
                         }
                     });
                 });
@@ -117,9 +117,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     .findByManageProvisioningIdAndUser(provisioning.getId(), user);
             if (provisionedUserOptional.isPresent()) {
                 RemoteProvisionedUser remoteProvisionedUser = provisionedUserOptional.get();
-                String remoteScimIdentifier = remoteProvisionedUser.getRemoteIdentifier();
-                String userRequest = prettyJson(new UserRequest(user, remoteScimIdentifier));
-                this.deleteRequest(provisioning, userRequest, user, remoteScimIdentifier);
+                String remoteIdentifier = remoteProvisionedUser.getRemoteIdentifier();
+                String userRequest = prettyJson(new UserRequest(user, remoteIdentifier));
+                this.deleteRequest(provisioning, userRequest, user, remoteIdentifier);
                 this.remoteProvisionedUserRepository.delete(remoteProvisionedUser);
             }
         });
@@ -220,17 +220,16 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     public void deleteGroupRequest(Role role) {
         List<Provisioning> provisionings = getProvisionings(role);
         //Delete the group to all provisionings in Manage where the group is known
-        provisionings.forEach(provisioning -> {
-            this.remoteProvisionedGroupRepository
-                    .findByManageProvisioningIdAndRole(provisioning.getId(), role)
-                    .ifPresent(remoteProvisionedGroup -> {
-                        String remoteScimIdentifier = remoteProvisionedGroup.getRemoteIdentifier();
-                        String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
-                        String groupRequest = prettyJson(new GroupRequest(externalId, remoteScimIdentifier, role.getName(), Collections.emptyList()));
-                        this.deleteRequest(provisioning, groupRequest, role, remoteScimIdentifier);
-                        this.remoteProvisionedGroupRepository.delete(remoteProvisionedGroup);
-                    });
-        });
+        provisionings.forEach(provisioning ->
+                this.remoteProvisionedGroupRepository
+                        .findByManageProvisioningIdAndRole(provisioning.getId(), role)
+                        .ifPresent(remoteProvisionedGroup -> {
+                            String remoteIdentifier = remoteProvisionedGroup.getRemoteIdentifier();
+                            String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
+                            String groupRequest = prettyJson(new GroupRequest(externalId, remoteIdentifier, role.getName(), Collections.emptyList()));
+                            this.deleteRequest(provisioning, groupRequest, role, remoteIdentifier);
+                            this.remoteProvisionedGroupRepository.delete(remoteProvisionedGroup);
+                        }));
     }
 
     private String constructGroupRequest(Role role, String remoteGroupScimIdentifier, List<String> remoteUserScimIdentifiers) {
@@ -258,11 +257,17 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
+            LOG.info(String.format("Provisioning new eva account for user %s and provisioning %s",
+                    ((User) provisionable).getEmail(), provisioning.getEntityId()));
             requestEntity = this.evaClient.newUserRequest(provisioning, (User) provisionable);
         } else if (hasScimHook(provisioning)) {
+            LOG.info(String.format("Provisioning new SCIM account for provisionable %s and provisioning %s",
+                    provisionable.getName(), provisioning.getEntityId()));
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
             requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
         } else if (hasGraphHook(provisioning) && isUser) {
+            LOG.info(String.format("Provisioning new Graph user for provisionable %s and provisioning %s",
+                    ((User) provisionable).getEmail(), provisioning.getEntityId()));
             GraphResponse graphResponse = this.graphClient.newUserRequest(provisioning, (User) provisionable);
             return Optional.of(graphResponse);
         }
@@ -278,10 +283,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     private void updateRequest(Provisioning provisioning,
                                String request,
                                String apiType,
-                               String remoteScimIdentifier,
+                               String remoteIdentifier,
                                HttpMethod httpMethod) {
         if (hasScimHook(provisioning)) {
-            URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteScimIdentifier));
+            URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             RequestEntity<String> requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), httpMethod, uri);
             doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
         }
@@ -301,18 +306,20 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     private void deleteRequest(Provisioning provisioning,
                                String request,
                                Provisionable provisionable,
-                               String remoteScimIdentifier) {
+                               String remoteIdentifier) {
         boolean isUser = provisionable instanceof User;
         String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
-            String url = provisioning.getEvaUrl() + "/api/v1/guest/disable/" + remoteScimIdentifier;
+            String url = provisioning.getEvaUrl() + "/api/v1/guest/disable/" + remoteIdentifier;
             requestEntity = new RequestEntity(httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
         } else if (hasScimHook(provisioning)) {
-            URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteScimIdentifier));
+            URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             HttpHeaders headers = new HttpHeaders();
             headers.setBasicAuth(provisioning.getScimUser(), provisioning.getScimPassword());
             requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
+        } else if (hasGraphHook(provisioning) && isUser) {
+            this.graphClient.deleteUser((User) provisionable, provisioning, remoteIdentifier);
         }
         if (requestEntity != null) {
             doExchange(requestEntity, apiType, stringParameterizedTypeReference, provisioning);
@@ -355,8 +362,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         return provisioning.getProvisioningType().equals(ProvisioningType.graph);
     }
 
-    private URI provisioningUri(Provisioning provisioning, String objectType, Optional<String> remoteScimIdentifier) {
-        String postFix = remoteScimIdentifier.map(identifier -> "/" + identifier).orElse("");
+    private URI provisioningUri(Provisioning provisioning, String objectType, Optional<String> remoteIdentifier) {
+        String postFix = remoteIdentifier.map(identifier -> "/" + identifier).orElse("");
         return URI.create(String.format("%s/%s%s",
                 provisioning.getScimUrl(),
                 objectType,

@@ -137,14 +137,15 @@ public class UserController {
         return Results.okResult();
     }
 
-    @GetMapping("ms-accept-return/{sub}")
-    public View msAcceptReturn(@PathVariable("sub") String sub) {
-        Optional<RemoteProvisionedUser> remoteProvisionedUserOptional = remoteProvisionedUserRepository.findByUserSub(sub);
+    @GetMapping("ms-accept-return/{manageId}/{userId}")
+    public View msAcceptReturn(@PathVariable("manageId") String manageId, @PathVariable("userId") Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
+        Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, manageId);
+        Provisioning provisioning = new Provisioning(provisioningMap);
         AtomicReference<String> redirectReference = new AtomicReference<>(this.config.getWelcomeUrl());
+        Optional<RemoteProvisionedUser> remoteProvisionedUserOptional = remoteProvisionedUserRepository
+                .findByManageProvisioningIdAndUser(manageId, user);
         remoteProvisionedUserOptional.ifPresent(remoteProvisionedUser -> {
-            User user = remoteProvisionedUser.getUser();
-            Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, remoteProvisionedUser.getManageProvisioningId());
-            Provisioning provisioning = new Provisioning(provisioningMap);
             graphClient.updateUserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
             String invitationHash = invitationRepository.findTopBySubInviteeOrderByCreatedAtDesc(user.getSub())
                     .map(Invitation::getHash).orElse("");

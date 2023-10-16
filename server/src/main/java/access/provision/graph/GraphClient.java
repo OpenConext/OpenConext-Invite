@@ -12,6 +12,7 @@ import com.microsoft.graph.http.BaseRequest;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.InvitationCollectionRequest;
 import com.microsoft.graph.requests.UserRequest;
+import com.microsoft.graph.requests.UserRequestBuilder;
 import okhttp3.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,7 +45,8 @@ public class GraphClient {
         com.microsoft.graph.models.Invitation invitation = new com.microsoft.graph.models.Invitation();
         invitation.invitedUserEmailAddress = eduidIdpSchacHomeOrganization.equalsIgnoreCase(user.getSchacHomeOrganization()) ? user.getEduPersonPrincipalName() : user.getEmail();
         invitation.invitedUserDisplayName = user.getName();
-        invitation.inviteRedirectUrl = String.format("%s/api/v1/invitations/ms-accept-return/%s", serverUrl, user.getSub());
+        invitation.inviteRedirectUrl = String.format("%s/api/v1/invitations/ms-accept-return/%s/%s",
+                serverUrl, provisioning.getId(),user.getId());
         invitation.sendInvitationMessage = false;
         invitation.invitedUserType = "Guest";
 
@@ -53,10 +55,8 @@ public class GraphClient {
                 provisioning.getGraphClientId(),
                 user.getEduPersonPrincipalName()));
         try {
-
             com.microsoft.graph.models.Invitation newInvitation = buildRequest.post(invitation);
             return new GraphResponse(newInvitation.invitedUser.id, newInvitation.inviteRedeemUrl);
-
         } catch (ClientException e) {
             String errorMessage = String.format("Error Graph request (entityID %s) to %s for user %s",
                     provisioning.getEntityId(),
@@ -84,6 +84,25 @@ public class GraphClient {
                     user.getEmail());
             throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, e);
         }
+    }
+
+    public void deleteUser(User user, Provisioning provisioning, String remoteUserIdentifier) {
+        GraphServiceClient<Request> graphServiceClient = getRequestGraphServiceClient(provisioning);
+        UserRequest userRequest = graphServiceClient.users(remoteUserIdentifier).buildRequest();
+
+        String graphUrl = provisioning.getGraphUrl();
+        replaceGraphUrl(graphUrl, userRequest);
+
+        try {
+            userRequest.delete();
+        } catch (ClientException e) {
+            String errorMessage = String.format("Error Graph delete (entityID %s) to %s for user %s",
+                    provisioning.getEntityId(),
+                    graphUrl,
+                    user.getEmail());
+            throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, e);
+        }
+
     }
 
     private GraphServiceClient<Request> getRequestGraphServiceClient(Provisioning provisioning) {

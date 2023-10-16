@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.model.Authority;
 import access.model.User;
@@ -18,12 +19,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static access.Seed.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("unchecked")
 class UserControllerTest extends AbstractTest {
 
     @Test
@@ -116,7 +119,7 @@ class UserControllerTest extends AbstractTest {
         assertTrue(user.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
         assertEquals(3, user.getApplications().size());
-        user.getApplications().stream().forEach(application -> assertEquals(ORGANISATION_GUID,
+        user.getApplications().forEach(application -> assertEquals(ORGANISATION_GUID,
                 ((Map) ((Map) application.get("data")).get("metaDataFields")).get("coin:institution_guid")));
 
         Map res = given()
@@ -145,7 +148,7 @@ class UserControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get(accessCookieFilter.apiURL())
                 .as(User.class);
-        List<String> roleNames = List.of("Mail", "Calendar").stream().sorted().toList();
+        List<String> roleNames = Stream.of("Mail", "Calendar").sorted().toList();
 
         assertEquals(roleNames, user.getUserRoles().stream().map(userRole -> userRole.getRole().getName()).sorted().toList());
         List<Object> applicationIdentifiers = user.getUserRoles().stream()
@@ -344,11 +347,13 @@ class UserControllerTest extends AbstractTest {
         super.stubForUpdateGraphUser(GUEST_SUB);
         super.stubForManageProviderById(EntityType.PROVISIONING, "9");
 
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).orElseThrow(NotFoundException::new);
         given().redirects()
                 .follow(false)
                 .when()
-                .pathParams("sub", GUEST_SUB)
-                .get("/api/v1/users/ms-accept-return/{sub}")
+                .pathParams("manageId", "9")
+                .pathParams("userId", user.getId())
+                .get("/api/v1/users/ms-accept-return/{manageId}/{userId}")
                 .then()
                 .statusCode(302)
                 .header("Location", "http://localhost:4000/proceed?hash=GUEST&isRedirect=true");

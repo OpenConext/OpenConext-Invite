@@ -369,12 +369,17 @@ public abstract class AbstractTest {
                         .withStatus(201)));
     }
 
-    protected void stubForDeleteEvaUser() throws JsonProcessingException {
+    protected void stubForDeleteEvaUser() {
         stubFor(post(urlPathMatching(String.format("/eva/api/v1/guest/disable/(.*)")))
                 .willReturn(aResponse()
                         .withStatus(201)));
     }
 
+    protected void stubForDeleteGraphUser() {
+        stubFor(delete(urlPathMatching(String.format("/graph/users")))
+                .willReturn(aResponse()
+                        .withStatus(201)));
+    }
 
     protected void stubForDeleteScimRole() {
         stubFor(delete(urlPathMatching("/api/scim/v2/groups/(.*)"))
