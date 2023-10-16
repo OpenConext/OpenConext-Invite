@@ -126,7 +126,7 @@ manage:
   user: access
   password: secret
   local: False
-#  local: False
+#  local: True
 
 springdoc:
   pathsToMatch: "/api/external/v1/**"
