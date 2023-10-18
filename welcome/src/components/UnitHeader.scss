@@ -67,6 +67,7 @@
             flex-grow: 3;
             display: flex;
             flex-direction: column;
+            word-break: break-word;
 
             span.name {
                 color: black;
