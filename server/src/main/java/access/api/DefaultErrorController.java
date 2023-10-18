@@ -2,6 +2,7 @@ package access.api;
 
 
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -56,10 +57,9 @@ public class DefaultErrorController implements ErrorController {
             statusCode = result.containsKey("status") && (int) result.get("status") != 999 ?
                     HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
         } else {
-            if (error instanceof NotFoundException) {
-                LOG.warn(error.getMessage());
-            } else {
-                LOG.error(String.format("Error occurred; %s", error), error);
+            if (!(error instanceof NotFoundException)) {
+                boolean logStackTrace = !(error instanceof UserRestrictionException);
+                LOG.error(String.format("Error occurred; %s", error), logStackTrace ? error : null);
             }
             //https://github.com/spring-projects/spring-boot/issues/3057
             ResponseStatus annotation = AnnotationUtils.getAnnotation(error.getClass(), ResponseStatus.class);
