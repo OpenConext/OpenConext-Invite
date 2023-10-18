@@ -29,6 +29,6 @@ export const splitListSemantically = (arr, lastSeparator) => {
 
 export const sanitizeURL = url => {
     const protocol = new URL(url).protocol;
-    return ["https", "http"].includes(protocol) ? url : "about:blank";
+    return ["https:", "http:"].includes(protocol) ? url : "about:blank";
 }
 
