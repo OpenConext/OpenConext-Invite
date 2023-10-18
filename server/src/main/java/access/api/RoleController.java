@@ -1,16 +1,21 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.InvalidInputException;
 import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
 import access.manage.Manage;
-import access.model.*;
+import access.model.Authority;
+import access.model.Role;
+import access.model.RoleExists;
+import access.model.User;
 import access.provision.ProvisioningService;
-import access.repository.RoleRepository;
 import access.provision.scim.GroupURN;
+import access.repository.RoleRepository;
 import access.security.UserPermissions;
+import access.validation.URLFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -19,7 +24,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +44,7 @@ public class RoleController {
     private final RoleRepository roleRepository;
     private final Manage manage;
     private final ProvisioningService provisioningService;
+    private final URLFormatValidator urlFormatValidator = new URLFormatValidator();
 
     public RoleController(Config config,
                           RoleRepository roleRepository,
@@ -67,7 +72,7 @@ public class RoleController {
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
                 .map(userRole -> userRole.getRole().getManageId())
                 .collect(Collectors.toSet());
-        roles.addAll(roleRepository.findByManageIdIn(manageIdentifiers)) ;
+        roles.addAll(roleRepository.findByManageIdIn(manageIdentifiers));
         return ResponseEntity.ok(manage.deriveRemoteApplications(roles));
     }
 
@@ -132,6 +137,9 @@ public class RoleController {
     }
 
     private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
+        if (!urlFormatValidator.isValid(role.getLandingPage())) {
+            throw new InvalidInputException();
+        }
         Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
         UserPermissions.assertManagerRole(provider, user);
         boolean isNew = role.getId() == null;

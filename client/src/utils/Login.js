@@ -1,4 +1,5 @@
-import {isEmpty} from "./Utils";
+import {isEmpty, sanitizeURL} from "./Utils";
+
 
 export function login(config, force = false, hash = null) {
     let params = force ? `?force=true` : "";
@@ -11,5 +12,5 @@ export function login(config, force = false, hash = null) {
         serverUrl = local ? "http://localhost:8080" :
             `${window.location.protocol}//${window.location.host}`
     }
-    window.location.href = `${serverUrl}/api/v1/users/login${params}`;
+    window.location.href = sanitizeURL(`${serverUrl}/api/v1/users/login${params}`);
 }

@@ -43,6 +43,23 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void createInvalidLandingPage() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        Role role = new Role("New", "New desc", "javascript:alert(42)", "1", EntityType.SAML20_SP, 365, false, false);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/v1/roles")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
     void createProvisionException() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
@@ -175,7 +192,7 @@ class RoleControllerTest extends AbstractTest {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
-                 m -> {
+                m -> {
                     m.put("eduperson_entitlement",
                             List.of(
                                     "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",

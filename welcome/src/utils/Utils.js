@@ -23,10 +23,12 @@ export function isEmpty(obj) {
     return false;
 }
 
-export function pseudoGuid() {
-    return (crypto.randomUUID && crypto.randomUUID()) || Math.round((new Date().getTime() * Math.random() * 1000)).toString()
-}
-
 export const splitListSemantically = (arr, lastSeparator) => {
     return [arr.slice(0, -1).join(", "), arr.slice(-1)[0]].join(arr.length < 2 ? "" : ` ${lastSeparator} `);
 }
+
+export const sanitizeURL = url => {
+    const protocol = new URL(url).protocol;
+    return ["https", "http"].includes(protocol) ? url : "about:blank";
+}
+

@@ -6,7 +6,7 @@ import "../styles/circle.scss";
 import DOMPurify from "dompurify";
 import {Loader, Modal, Toaster, ToasterType, Tooltip} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
-import {isEmpty, stopEvent} from "../utils/Utils";
+import {isEmpty, sanitizeURL, stopEvent} from "../utils/Utils";
 import {getParameterByName} from "../utils/QueryParameters";
 import {invitationByHash, logout} from "../api";
 import {login} from "../utils/Login";
@@ -14,7 +14,6 @@ import {RoleCard} from "../components/RoleCard";
 import {User} from "../components/User";
 import HighFive from "../icons/high-five.svg";
 import {useNavigate} from "react-router-dom";
-
 
 export const Proceed = () => {
 
@@ -105,7 +104,7 @@ export const Proceed = () => {
         if (isEmpty(inviteRedeemUrl)) {
             setShowModal(false);
         } else {
-            window.location.href = inviteRedeemUrl
+            window.location.href = sanitizeURL(inviteRedeemUrl);
         }
     }
 

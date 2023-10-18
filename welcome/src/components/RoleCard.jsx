@@ -4,6 +4,8 @@ import Logo from "./Logo";
 import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
+import {sanitizeURL} from "../utils/Utils";
+
 
 export const RoleCard = ({role, index, isNew = false, skipLaunch= false}) => {
 
@@ -19,7 +21,7 @@ export const RoleCard = ({role, index, isNew = false, skipLaunch= false}) => {
             </section>
             {!skipLaunch && <div className={"launch"}>
                 <Button txt={I18n.t("proceed.launch")} onClick={() => {
-                    window.location.href = role.landingPage;
+                    window.location.href = sanitizeURL(role.landingPage);
                 }}/>
             </div>}
 

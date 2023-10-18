@@ -9249,6 +9249,11 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
+urisanity@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/urisanity/-/urisanity-0.1.2.tgz#abe4010666ee745a3a20c49dadac633078f2a3e4"
+  integrity sha512-0tDbl+8E8oRUYWJhX3N4HtGiSfpEzpCoSPirvQg1nN8U6f/JTRGlCUCFadmc04mCoyLga//11JpoZFYuaVM30g==
+
 url-parse@^1.5.3:
   version "1.5.10"
   resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.10.tgz#9d3c2f736c1d75dd3bd2be507dcc111f1e2ea9c1"
