@@ -32,11 +32,6 @@ export const Invitation = ({authenticated}) => {
         invitationByHash(hashParam)
             .then(res => {
                 setInvitation(res);
-                if (res.status !== "OPEN") {
-                    localStorage.removeItem("location");
-                    navigate("/");
-                    return;
-                }
                 const reloaded = performance.getEntriesByType("navigation").map(entry => entry.type).includes("reload");
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
                 if (mayAccept && config.name && !reloaded) {
@@ -78,7 +73,16 @@ export const Invitation = ({authenticated}) => {
             })
             .catch(e => {
                 localStorage.removeItem(MAY_ACCEPT);
-                navigate(e.response?.status === 404 ? "/404" : "/profile");
+                const status = e.response?.status;
+                if (status === 409) {
+                    if (config.authenticated) {
+                        navigate(`/`);
+                    } else {
+                        login(config);
+                    }
+                } else {
+                    navigate("/404");
+                }
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);

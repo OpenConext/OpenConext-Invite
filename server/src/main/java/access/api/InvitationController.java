@@ -168,6 +168,9 @@ public class InvitationController implements HasManage {
     @GetMapping("public")
     public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
+        if (!invitation.getStatus().equals(Status.OPEN)) {
+            throw new InvitationStatusException();
+        }
         manage.deriveRemoteApplications(invitation.getRoles().stream().map(InvitationRole::getRole).toList());
         return ResponseEntity.ok(invitation);
     }

@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,6 +42,21 @@ class InvitationControllerTest extends AbstractTest {
         Map<String, Object> application = role.getApplication();
         assertEquals("Calendar EN", ((Map<String, Object>) ((Map<String, Object>) application.get("data"))
                 .get("metaDataFields")).get("name:en"));
+    }
+
+    @Test
+    void getInvitationAlreadyAccepted() {
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).orElseThrow(NotFoundException::new);
+        invitation.setStatus(Status.ACCEPTED);
+        invitationRepository.save(invitation);
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("hash", Authority.GUEST.name())
+                .get("/api/v1/invitations/public")
+                .then()
+                .statusCode(409);
     }
 
     @Test

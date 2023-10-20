@@ -43,66 +43,65 @@ export const Invitation = ({authenticated}) => {
                     useAppStore.setState(() => ({
                         invitation: res
                     }));
-                    const status = res.status;
-                    if (status !== "OPEN") {
-                        navigate(`/profile`);
-                    } else {
-                        const mayAccept = localStorage.getItem(MAY_ACCEPT);
-                        if (mayAccept && config.name) {
-                            acceptInvitation(hashParam, res.id)
-                                .then(res=> {
-                                    localStorage.removeItem(MAY_ACCEPT);
-                                    me()
-                                        .then(userWithRoles => {
-                                            useAppStore.setState(() => ({
-                                                user: userWithRoles,
-                                                authenticated: true
-                                            }));
-                                            const inviteRedeemUrlQueryParam = res.inviteRedeemUrl ? `&inviteRedeemUrl=${encodeURIComponent(res.inviteRedeemUrl)}` : "";
-                                            localStorage.removeItem("location");
-                                            navigate(`/proceed?hash=${hashParam}${inviteRedeemUrlQueryParam}`);
-                                        })
-                                })
-                                .catch(e => {
-                                        setLoading(false);
-                                        if (e.response && e.response.status === 412) {
-                                            setConfirmation({
-                                                cancel: null,
-                                                action: () => logout().then(() => login(config, true, hashParam)),
-                                                warning: false,
-                                                error: true,
-                                                question: I18n.t("invitationAccept.emailMismatch", {
-                                                    email: res.email,
-                                                    userEmail: user.email
-                                                }),
-                                                confirmationHeader: I18n.t("confirmationDialog.error"),
-                                                confirmationTxt: I18n.t("invitationAccept.login")
-                                            });
-                                            localStorage.setItem(MAY_ACCEPT, "true");
-                                            setConfirmationOpen(true);
-                                        } else {
-                                            localStorage.removeItem(MAY_ACCEPT);
-                                            handleError(e);
-                                        }
-
+                    const mayAccept = localStorage.getItem(MAY_ACCEPT);
+                    if (mayAccept && config.name) {
+                        acceptInvitation(hashParam, res.id)
+                            .then(res => {
+                                localStorage.removeItem(MAY_ACCEPT);
+                                me()
+                                    .then(userWithRoles => {
+                                        useAppStore.setState(() => ({
+                                            user: userWithRoles,
+                                            authenticated: true
+                                        }));
+                                        const inviteRedeemUrlQueryParam = res.inviteRedeemUrl ? `&inviteRedeemUrl=${encodeURIComponent(res.inviteRedeemUrl)}` : "";
+                                        localStorage.removeItem("location");
+                                        navigate(`/proceed?hash=${hashParam}${inviteRedeemUrlQueryParam}`);
+                                    })
+                            })
+                            .catch(e => {
+                                    setLoading(false);
+                                    if (e.response && e.response.status === 412) {
+                                        setConfirmation({
+                                            cancel: null,
+                                            action: () => logout().then(() => login(config, true, hashParam)),
+                                            warning: false,
+                                            error: true,
+                                            question: I18n.t("invitationAccept.emailMismatch", {
+                                                email: res.email,
+                                                userEmail: user.email
+                                            }),
+                                            confirmationHeader: I18n.t("confirmationDialog.error"),
+                                            confirmationTxt: I18n.t("invitationAccept.login")
+                                        });
+                                        localStorage.setItem(MAY_ACCEPT, "true");
+                                        setConfirmationOpen(true);
+                                    } else {
+                                        localStorage.removeItem(MAY_ACCEPT);
+                                        handleError(e);
                                     }
-                                )
-                        } else {
-                            localStorage.setItem(MAY_ACCEPT, "true");
-                            setExpired(new Date() > new Date(res.expiryDate * 1000));
-                            setLoading(false);
-                        }
+
+                                }
+                            )
+                    } else {
+                        localStorage.setItem(MAY_ACCEPT, "true");
+                        setExpired(new Date() > new Date(res.expiryDate * 1000));
+                        setLoading(false);
                     }
                 }
             )
             .catch(e => {
                 localStorage.removeItem(MAY_ACCEPT);
-                let path = "/404";
                 const status = e.response?.status;
                 if (status === 409) {
-                    path = "/profile";
+                    if (config.authenticated) {
+                        navigate(`/profile`);
+                    } else {
+                        login(config);
+                    }
+                } else {
+                    navigate("/404");
                 }
-                navigate(path);
             })
         //Prevent in dev mode an accidental acceptance of an invitation
         return () => localStorage.removeItem(MAY_ACCEPT);
