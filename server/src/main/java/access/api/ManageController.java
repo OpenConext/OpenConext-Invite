@@ -55,25 +55,6 @@ public class ManageController {
         return ResponseEntity.ok(provider);
     }
 
-    @GetMapping("provisioning/{id}")
-    public ResponseEntity<List<Map<String, Object>>> provisioning(@PathVariable("id") String id,
-                                                                  @Parameter(hidden = true) User user) {
-        LOG.debug("provisioning");
-        UserPermissions.assertManagerRole(Map.of("id", id), user);
-        List<Map<String, Object>> provisioning = manage.provisioning(List.of(id));
-        if (!user.isSuperUser()) {
-            provisioning.forEach(prov -> {
-                Map<String, Object> data = (Map<String, Object>) prov.get("data");
-                Map<String, Object> metaDataFields = (Map<String, Object>) data.getOrDefault("metaDataFields", Collections.emptyMap());
-                List.of("scim_url", "scim_user", "scim_password",
-                                "eva_url", "eva_token",
-                                "graph_url", "graph_tenant", "graph_secret", "graph_client_id")
-                        .forEach(metaDataFields::remove);
-            });
-        }
-        return ResponseEntity.ok(provisioning);
-    }
-
     @GetMapping("providers")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug("/providers");

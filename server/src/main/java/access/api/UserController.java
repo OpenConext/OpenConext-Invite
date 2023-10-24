@@ -155,17 +155,6 @@ public class UserController {
         return new RedirectView(redirectReference.get());
     }
 
-    @GetMapping("switch")
-    public View switchApp(@Param(value = "app") String app, @Parameter(hidden = true) User user) {
-        boolean welcome = app.equals("welcome");
-        UserPermissions.assertAuthority(user, welcome ? Authority.GUEST : Authority.INVITER);
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-        //This will force a cookie to authenticate
-        securityContext.setAuthentication(authentication);
-        return new RedirectView(welcome ? config.getWelcomeUrl() : config.getClientUrl(), false);
-    }
-
     @PostMapping("error")
     public ResponseEntity<Map<String, Integer>> error(@RequestBody Map<String, Object> payload,
                                                       @Parameter(hidden = true) User user) throws

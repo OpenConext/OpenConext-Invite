@@ -291,38 +291,6 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    void switchApp() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-
-        given().redirects()
-                .follow(false)
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .queryParam("app", "welcome")
-                .get("/api/v1/users/switch")
-                .then()
-                .header("Location", "http://localhost:4000");
-    }
-
-    @Test
-    void switchAppToClient() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-
-        given().redirects()
-                .follow(false)
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .queryParam("app", "client")
-                .get("/api/v1/users/switch")
-                .then()
-                .header("Location", "http://localhost:3000");
-    }
-
-    @Test
     void other() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Long id = userRepository.findBySubIgnoreCase(INVITER_SUB).get().getId();

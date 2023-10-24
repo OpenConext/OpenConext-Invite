@@ -48,6 +48,10 @@
 
         tbody {
             td {
+                &.email {
+                    word-break: keep-all;
+                }
+
                 &.check {
                     text-align: center;
                 }
