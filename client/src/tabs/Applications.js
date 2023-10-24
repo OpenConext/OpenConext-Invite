@@ -53,25 +53,21 @@ const Applications = () => {
 
     const providerById = (manageId, allProviders) => {
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
-        const metaData = provider.data.metaDataFields;
-        const organisation = metaData["OrganizationName:en"];
+        const organisation = provider["OrganizationName:en"];
         const organisationValue = isEmpty(organisation) ? "" : ` (${organisation})`;
-        return `${metaData["name:en"]}${organisationValue}`;
+        return `${provider["name:en"]}${organisationValue}`;
     }
 
     const providerLogoById = (manageId, allProviders) => {
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
-        return provider.data.metaDataFields["logo:0:url"];
+        return provider.logo;
     }
 
     const provisioningsByProviderId = (manageId, allProvisionings) => {
-        const provs = allProvisionings
-            .filter(provisioning => provisioning.data.applications.some(app => app.id === manageId))
-            .map(prov => {
-                const metaData = prov.data.metaDataFields;
-                return `${metaData["name:en"]} (${metaData.provisioning_type})`
-            });
-        return splitListSemantically(provs, I18n.t("forms.and"));
+        const providers = allProvisionings
+            .filter(provisioning => provisioning.applications.some(app => app.id === manageId))
+            .map(provider => `${provider["name:en"]} (${provider.provisioning_type})`);
+        return splitListSemantically(providers, I18n.t("forms.and"));
     }
 
     const columns = [

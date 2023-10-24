@@ -10,7 +10,7 @@ import {isEmpty} from "../utils/Utils";
 export const RoleCard = ({role, index, invitationSelected, invitationSelectCallback, isNew = false}) => {
     const navigate = useNavigate();
     const application = role.isUserRole ? role.role.application : role.application;
-    const logo = application.data.metaDataFields["logo:0:url"];
+    const logo = application.logo;
 
     const children =
         <div key={index} className="user-role" >
@@ -21,7 +21,7 @@ export const RoleCard = ({role, index, invitationSelected, invitationSelectCallb
             }
             <Logo src={logo} alt={"provider"} className={"provider"}/>
             <section className={"user-role-info"}>
-                <p>{application.data.metaDataFields[`name:${I18n.locale}`]} ({application.data.metaDataFields[`OrganizationName:${I18n.locale}`]})</p>
+                <p>{application[`name:${I18n.locale}`]} ({application[`OrganizationName:${I18n.locale}`]})</p>
                 <h3>{role.name}</h3>
                 <MoreLessText txt={role.description} cutOffNumber={80}/>
             </section>

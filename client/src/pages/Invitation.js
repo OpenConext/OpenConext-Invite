@@ -115,7 +115,7 @@ export const Invitation = ({authenticated}) => {
     }
 
     const organisationName = role => {
-        return ` (${role.application.data.metaDataFields["OrganizationName:en"]})`;
+        return ` (${role.application["OrganizationName:en"]})`;
     }
 
     const renderLoginStep = () => {

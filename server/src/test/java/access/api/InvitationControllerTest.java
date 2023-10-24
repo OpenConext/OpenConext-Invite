@@ -40,8 +40,7 @@ class InvitationControllerTest extends AbstractTest {
         Role role = invitation.getRoles().iterator().next().getRole();
         assertEquals("Mail", role.getName());
         Map<String, Object> application = role.getApplication();
-        assertEquals("Calendar EN", ((Map<String, Object>) ((Map<String, Object>) application.get("data"))
-                .get("metaDataFields")).get("name:en"));
+        assertEquals("Calendar EN", application.get("name:en"));
     }
 
     @Test

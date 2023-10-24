@@ -39,9 +39,9 @@ class ProvisioningTest {
     }
 
     private Map<String, Object> provisioningMap(ProvisioningType type, String... snakeCaseAttributes) {
-        HashMap<Object, Object> metaDataFields = new HashMap<>();
-        metaDataFields.put("provisioning_type", type.name());
-        Stream.of(snakeCaseAttributes).forEach(attr -> metaDataFields.put(attr, attr));
-        return Map.of("data", Map.of("metaDataFields", metaDataFields));
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("provisioning_type", type.name());
+        Stream.of(snakeCaseAttributes).forEach(attr -> data.put(attr, attr));
+        return data;
     }
 }

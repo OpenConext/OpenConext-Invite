@@ -10,7 +10,7 @@ export const RoleMetaData = ({role, provider, user}) => {
     if (isEmpty((user))) {
         return null;
     }
-    const organisation = providerInfo(provider).data.metaDataFields["OrganizationName:en"] || "-";
+    const organisation = providerInfo(provider)["OrganizationName:en"] || "-";
     const userRole = user.userRoles.find(userRole => userRole.role.id === role.id) ||
         {authority: I18n.t("roles.noMember")};
     const items = [

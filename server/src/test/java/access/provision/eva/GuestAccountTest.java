@@ -15,13 +15,12 @@ class GuestAccountTest {
 
     @Test
     void getRequest() {
-        HashMap<Object, Object> metaDataFields = new HashMap<>();
-        metaDataFields.put("provisioning_type", ProvisioningType.graph.name());
-        metaDataFields.put("graph_url", "https://graph");
-        metaDataFields.put("graph_client_id", "client");
-        metaDataFields.put("graph_secret", "secret");
-        Map<String, Object> data = Map.of("data", Map.of("metaDataFields", metaDataFields));
+        Map<String, Object> map = new HashMap<>();
+        map.put("provisioning_type", ProvisioningType.graph.name());
+        map.put("graph_url", "https://graph");
+        map.put("graph_client_id", "client");
+        map.put("graph_secret", "secret");
 
-        assertThrows(AssertionError.class, () -> new GuestAccount(new User(), new Provisioning(data)));
+        assertThrows(AssertionError.class, () -> new GuestAccount(new User(), new Provisioning(map)));
     }
 }

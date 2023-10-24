@@ -9,7 +9,7 @@ export const RoleMetaData = ({role, provider, user}) => {
     if (isEmpty((user))) {
         return null;
     }
-    const organisation = provider.data.metaDataFields["OrganizationName:en"] || "-";
+    const organisation = provider["OrganizationName:en"] || "-";
     const items = [
         {
             label: I18n.t("users.organisation"),

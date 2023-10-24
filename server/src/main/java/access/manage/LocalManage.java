@@ -39,14 +39,14 @@ public final class LocalManage implements Manage {
     @Override
     public List<Map<String, Object>> providers(EntityType... entityTypes) {
         //Ensure it is immutable
-        return addIdentifierAlias(Stream.of(entityTypes).map(entityType -> this.allProviders.get(entityType).stream().toList())
+        return transformProvider(Stream.of(entityTypes).map(entityType -> this.allProviders.get(entityType).stream().toList())
                 .flatMap(List::stream)
                 .toList());
     }
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        return addIdentifierAlias(this.allProviders.get(entityType).stream()
+        return transformProvider(this.allProviders.get(entityType).stream()
                 .filter(provider -> identifiers.contains(provider.get("_id")))
                 .collect(Collectors.toList()));
     }
@@ -55,41 +55,27 @@ public final class LocalManage implements Manage {
     public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
         return this.allProviders.get(entityType).stream()
                 .filter(provider -> entityID.equals(((Map<String, Object>) provider.get("data")).get("entityid")))
+                .map(this::transformProvider)
                 .findFirst();
     }
 
     @Override
     public Map<String, Object> providerById(EntityType entityType, String id) {
-        return addIdentifierAlias(providers(entityType).stream()
+        List<Map<String, Object>> providers = providers(entityType);
+        return providers.stream()
                 .filter(provider -> provider.get("_id").equals(id))
                 .findFirst()
-                .orElseThrow(NotFoundException::new));
+                .orElseThrow(NotFoundException::new);
     }
 
     @Override
     public List<Map<String, Object>> provisioning(List<String> ids) {
-        return addIdentifierAlias(providers(EntityType.PROVISIONING).stream()
+        return providers(EntityType.PROVISIONING).stream()
                 .filter(map -> {
-                    List<Map<String, String>> applications = (List<Map<String, String>>) ((Map) map.get("data")).get("applications");
+                    List<Map<String, String>> applications = (List<Map<String, String>>) map.get("applications");
                     return applications.stream().anyMatch(m -> ids.contains(m.get("id")));
                 })
-                .collect(Collectors.toList()));
-    }
-
-    @Override
-    public List<Map<String, Object>> allowedEntries(EntityType entityType, String id) {
-        Map<String, Object> provider = providers(entityType).stream()
-                .filter(prov -> prov.get("_id").equals(id))
-                .findFirst()
-                .orElseThrow(NotFoundException::new);
-        String entityId = (String) ((Map) provider.get("data")).get("entityid");
-        return addIdentifierAlias(providers(EntityType.SAML20_IDP).stream()
-                .filter(prov -> {
-                    Map data = (Map) prov.get("data");
-                    return (boolean) data.get("allowedall") ||
-                            ((List<Map<String, String>>) data.get("allowedEntities")).stream().anyMatch(entity -> entity.get("name").equals(entityId));
-                })
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -97,9 +83,7 @@ public final class LocalManage implements Manage {
         List<Map<String, Object>> providers = providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
         return providers
                 .stream()
-                .filter(provider -> Objects.equals(((Map<String, Object>) ((Map<String, Object>) provider.get("data"))
-                        .get("metaDataFields"))
-                        .get("coin:institution_guid"), organisationGUID))
+                .filter(provider -> Objects.equals(provider.get("institutionGuid"), organisationGUID))
                 .toList();
     }
 
@@ -108,9 +92,7 @@ public final class LocalManage implements Manage {
         List<Map<String, Object>> providers = providers(EntityType.SAML20_IDP);
         return providers
                 .stream()
-                .filter(provider -> Objects.equals(((Map<String, Object>) ((Map<String, Object>) provider.get("data"))
-                        .get("metaDataFields"))
-                        .get("coin:institution_guid"), organisationGUID))
+                .filter(provider -> Objects.equals(provider.get("institutionGuid"), organisationGUID))
                 .findAny();
     }
 }

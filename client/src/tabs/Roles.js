@@ -115,9 +115,9 @@ export const Roles = () => {
     }
 
     const noRolesInstitutionAdmin = () => {
-        const metaDataFields = user.institution.data.metaDataFields;
-        const name = metaDataFields[`name:${I18n.locale}`] || metaDataFields["name:en"];
-        const logo = metaDataFields["logo:0:url"]
+        const institution = user.institution;
+        const name = institution[`name:${I18n.locale}`] || institution["name:en"];
+        const logo = institution["logo"]
         return (
             <div className="institution-admin-welcome">
                 {logo ? <img src={logo} alt="logo"/> : <VoidImage/>}

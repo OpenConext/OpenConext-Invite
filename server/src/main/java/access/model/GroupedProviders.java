@@ -22,19 +22,13 @@ public record GroupedProviders(Map<String, Object> provider, List<Role> roles, S
         return roles.stream().map(role -> role.getName()).collect(Collectors.joining(", "));
     }
 
-    private Map<String, Object> metaDataFields() {
-        return (Map<String, Object>) ((Map) provider.get("data")).get("metaDataFields");
-    }
-
     public String getLogo() {
-        Map<String, Object> metaData = metaDataFields();
-        return (String) metaData.get("logo:0:url");
+        return (String) provider.get("logo");
     }
 
     private String getAttribute(String name) {
-        Map<String, Object> metaData = metaDataFields();
         String[] languages = preferredLanguageWithFallback();
-        return (String) metaData.getOrDefault(name + languages[0], metaData.get(name + languages[1]));
+        return (String) provider.getOrDefault(name + languages[0], provider.get(name + languages[1]));
     }
 
 

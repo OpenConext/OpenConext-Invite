@@ -28,22 +28,20 @@ public class Provisioning {
     public Provisioning(Map<String, Object> provider) {
         this.id = (String) provider.get("id");
 
-        Map<String, Object> data = (Map<String, Object>) provider.get("data");
-        this.entityId = (String) data.get("entityid");
+        this.entityId = (String) provider.get("entityid");
 
-        Map<String, Object> metaDataFields = (Map<String, Object>) data.get("metaDataFields");
-        this.provisioningType = ProvisioningType.valueOf((String) metaDataFields.get("provisioning_type"));
-        this.scimUrl = (String) metaDataFields.get("scim_url");
-        this.scimUser = (String) metaDataFields.get("scim_user");
-        this.scimPassword = (String) metaDataFields.get("scim_password");
-        this.scimUpdateRolePutMethod = (boolean) metaDataFields.getOrDefault("scim_update_role_put_method", false);
-        this.evaUrl = (String) metaDataFields.get("eva_url");
-        this.evaToken = (String) metaDataFields.get("eva_token");
-        this.evaGuestAccountDuration = (int) metaDataFields.getOrDefault("eva_guest_account_duration", 30);
-        this.graphUrl = (String) metaDataFields.get("graph_url");
-        this.graphClientId = (String) metaDataFields.get("graph_client_id");
-        this.graphSecret = (String) metaDataFields.get("graph_secret");
-        this.graphTenant = (String) metaDataFields.getOrDefault("graph_tenant", "common");
+        this.provisioningType = ProvisioningType.valueOf((String) provider.get("provisioning_type"));
+        this.scimUrl = (String) provider.get("scim_url");
+        this.scimUser = (String) provider.get("scim_user");
+        this.scimPassword = (String) provider.get("scim_password");
+        this.scimUpdateRolePutMethod = (boolean) provider.getOrDefault("scim_update_role_put_method", false);
+        this.evaUrl = (String) provider.get("eva_url");
+        this.evaToken = (String) provider.get("eva_token");
+        this.evaGuestAccountDuration = (int) provider.getOrDefault("eva_guest_account_duration", 30);
+        this.graphUrl = (String) provider.get("graph_url");
+        this.graphClientId = (String) provider.get("graph_client_id");
+        this.graphSecret = (String) provider.get("graph_secret");
+        this.graphTenant = (String) provider.getOrDefault("graph_tenant", "common");
         this.invariant();
 
     }

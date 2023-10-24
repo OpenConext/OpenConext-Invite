@@ -120,7 +120,7 @@ class UserControllerTest extends AbstractTest {
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
         assertEquals(3, user.getApplications().size());
         user.getApplications().forEach(application -> assertEquals(ORGANISATION_GUID,
-                ((Map) ((Map) application.get("data")).get("metaDataFields")).get("coin:institution_guid")));
+                application.get("institutionGuid")));
 
         Map res = given()
                 .when()

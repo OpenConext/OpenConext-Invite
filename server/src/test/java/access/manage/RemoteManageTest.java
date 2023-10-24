@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,6 +45,8 @@ class RemoteManageTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
         Map<String, Object> remoteProvider = manage.providerById(EntityType.SAML20_SP, "1");
+        provider.values().removeIf(Objects::isNull);
+        remoteProvider.values().removeIf(Objects::isNull);
         assertEquals(provider, remoteProvider);
     }
 
@@ -56,19 +59,9 @@ class RemoteManageTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
         List<Map<String, Object>> remoteProviders =  manage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
+        providers.forEach(provider -> provider.values().removeIf(Objects::isNull));
+        remoteProviders.forEach(provider -> provider.values().removeIf(Objects::isNull));
         assertEquals(providers, remoteProviders);
-    }
-
-    @Test
-    void allowedEntries() throws JsonProcessingException {
-        LocalManage localManage = new LocalManage(objectMapper, local);
-        List<Map<String, Object>> serviceProviders = localManage.allowedEntries(EntityType.SAML20_SP, "1");
-        String body = objectMapper.writeValueAsString(serviceProviders);
-        stubFor(get(urlPathMatching("/manage/api/internal/allowedEntities/saml20_sp/1")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
-        List<Map<String, Object>> allowedEntries = manage.allowedEntries(EntityType.SAML20_SP, "1");
-        assertEquals(2, allowedEntries.size());
     }
 
 }
