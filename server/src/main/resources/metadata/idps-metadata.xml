@@ -1,0 +1,77 @@
+<md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="CXTIDPS20200926T084401Ze74619a2"
+                       Name="http://www.surfconext.nl/" validUntil="2020-10-03T08:44:01Z"
+                       xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata sstc-saml-schema-metadata-2.0.xsd urn:mace:shibboleth:metadata:1.0 shibboleth-metadata-1.0.xsd http://www.w3.org/2000/09/xmldsig# xmldsig-core-schema.xsd">
+    <md:EntityDescriptor entityID="https://signon.rug.nl/nidp/saml2/metadata">
+        <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+            <md:Extensions>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">  rug.nl
+
+                </shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">student.rug.nl
+                </shibmd:Scope>
+                <mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+                    <mdui:DisplayName xml:lang="nl">Rijksuniversiteit Groningen</mdui:DisplayName>
+                    <mdui:DisplayName xml:lang="en">University of Groningen</mdui:DisplayName>
+                    <mdui:Description xml:lang="nl">Rijksuniversiteit Groningen</mdui:Description>
+                    <mdui:Description xml:lang="en">Rijksuniversiteit Groningen</mdui:Description>
+                    <mdui:Logo height="160" width="200">https://static.surfconext.nl/logos/idp/rug.png</mdui:Logo>
+                    <mdui:Keywords xml:lang="en">university of groningen rijksuniversiteit groningen rug</mdui:Keywords>
+                    <mdui:Keywords xml:lang="nl">university of groningen rijksuniversiteit groningen rug</mdui:Keywords>
+                </mdui:UIInfo>
+            </md:Extensions>
+            <md:KeyDescriptor xmlns:ds="http://www.w3.org/2000/09/xmldsig#" use="signing">
+                <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+                            MIID7DCCAtSgAwIBAgIJAIgMqnMYZ+t6MA0GCSqGSIb3DQEBCwUAMIGFMQswCQYDVQQGEwJOTDEQMA4GA1UECAwHVXRyZWNodDEQMA4GA1UEBwwHVXRyZWNodDEVMBMGA1UECgwMU1VSRm5ldCBCLlYuMRMwEQYDVQQLDApTVVJGY29uZXh0MSYwJAYDVQQDDB1lbmdpbmUuc3VyZmNvbmV4dC5ubCAyMDE4MTIxMzAeFw0xODEyMTMxNTI5MjBaFw0yMzEyMTMxNTI5MjBaMIGFMQswCQYDVQQGEwJOTDEQMA4GA1UECAwHVXRyZWNodDEQMA4GA1UEBwwHVXRyZWNodDEVMBMGA1UECgwMU1VSRm5ldCBCLlYuMRMwEQYDVQQLDApTVVJGY29uZXh0MSYwJAYDVQQDDB1lbmdpbmUuc3VyZmNvbmV4dC5ubCAyMDE4MTIxMzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALPOGS+fBERfmWiV8aV85z45QsuFw3gkq0HbWR1JGz7cjqhjV6YZHFXyRt4ikG//9BIHS0xc/cW1sOMnSuCjDhY8Oh/dOk01zfgFXUcv+0iNlkEKGMlT/xJpIDIy/N4WjpGvkJO2oJHfrQUY115Du56MSMqd0gPvo1OsDvXroYivqxYpTTHzaf5TYQYPf6n/3rEfsu3u6L3pzE3/q38jnEyxfQ1UoZ9VF2Fy6oe/StlwhPUJhVwHlKDMqQ+T+tljDt26Ok9QL3zzW9JtBo+pnydMT/rg5h7NW8A9HASLnRLK8rFD9nBEdAPkK+elTE6QddRiTh9H84KCs0fQiiT6YFsCAwEAAaNdMFswHQYDVR0OBBYEFAJuZa7u0f0o2kB9uRPoB/ekx04sMB8GA1UdIwQYMBaAFAJuZa7u0f0o2kB9uRPoB/ekx04sMAsGA1UdDwQEAwIHgDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBXh5l8u+ncPXkMyDqDuikNLe/X5j0KNjvqUtQ6QPRSt8MMvjRYWZdVC0gMOtKEAY1/cYnA2y+0yrGqmy9I/zBdLV73BBLnVlV2WYATYOZLWNW36kjBtdSbH0oXBp7HOu/I4lP+Sv69eRN6p2/9CmDyKc5JUpXU3PEftv5Lwsqco8MMqqENhwzYlxRb96LFq08Un2QQoV60HqX4Ks79qUrnjRL5pKtoP4ujLmPqQIieHpTgsvHSqSa+9tZMnyEaJEvl7vpNn1M7v1bWOWwjQvMlYnSq5b0U5gHXgpdBYSfWnCwwpq4h8KHZ7/XVvOVsdYpjHap+907OGhqXGBsIqf9U
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </md:KeyDescriptor>
+            <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+            <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+            <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                                    Location="https://engine.surfconext.nl/authentication/idp/single-sign-on/key:20181213/56d78f05c751aeb3d57b29caff8510e3"/>
+        </md:IDPSSODescriptor>
+        <md:Organization>
+            <md:OrganizationName xml:lang="en">Rijksuniversiteit Groningen</md:OrganizationName>
+            <md:OrganizationDisplayName xml:lang="en">RUG</md:OrganizationDisplayName>
+            <md:OrganizationURL xml:lang="en">http://www.rug.nl</md:OrganizationURL>
+        </md:Organization>
+        <md:ContactPerson contactType="administrative">
+            <md:GivenName>SURFconext support</md:GivenName>
+            <md:EmailAddress>mailto:support@surfconext.nl</md:EmailAddress>
+        </md:ContactPerson>
+        <md:ContactPerson contactType="technical">
+            <md:GivenName>SURFconext support</md:GivenName>
+            <md:EmailAddress>mailto:support@surfconext.nl</md:EmailAddress>
+        </md:ContactPerson>
+        <md:ContactPerson contactType="support">
+            <md:GivenName>SURFconext support</md:GivenName>
+            <md:EmailAddress>mailto:help@surfconext.nl</md:EmailAddress>
+        </md:ContactPerson>
+        <md:ContactPerson xmlns:remd="http://refeds.org/metadata" contactType="other"
+                          remd:contactType="http://refeds.org/metadata/contactType/security">
+            <md:GivenName>SURFcert</md:GivenName>
+            <md:EmailAddress>mailto:cert@surfnet.nl</md:EmailAddress>
+        </md:ContactPerson>
+    </md:EntityDescriptor>
+    <md:EntityDescriptor entityID="https://mujina-idp">
+        <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+            <md:Extensions>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">example.com
+                </shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">groningen.nl
+                </shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">example.nl
+                </shibmd:Scope>
+                <mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+                    <mdui:DisplayName xml:lang="nl">Mujina NL</mdui:DisplayName>
+                    <mdui:DisplayName xml:lang="en">Mujina EN</mdui:DisplayName>
+                    <mdui:Logo height="160" width="200">https://static.surfconext.nl/logos/idp/rug.png</mdui:Logo>
+                </mdui:UIInfo>
+            </md:Extensions>
+        </md:IDPSSODescriptor>
+    </md:EntityDescriptor>
+</md:EntitiesDescriptor>

@@ -1,5 +1,6 @@
 package access.mail;
 
+import access.cron.IdPMetaDataResolver;
 import access.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,8 +41,10 @@ public class MailBox {
     private final Map<String, Map<String, String>> subjects;
 
     private final MustacheFactory mustacheFactory = new DefaultMustacheFactory("templates");
+    private final IdPMetaDataResolver idPMetaDataResolver;
 
     public MailBox(ObjectMapper objectMapper,
+                   IdPMetaDataResolver idPMetaDataResolver,
                    JavaMailSender mailSender,
                    String emailFrom,
                    String contactEmail,
@@ -49,6 +52,7 @@ public class MailBox {
                    String welcomeUrl,
                    String environment) throws IOException {
         this.mailSender = mailSender;
+        this.idPMetaDataResolver = idPMetaDataResolver;
         this.emailFrom = emailFrom;
         this.contactEmail = contactEmail;
         this.clientUrl = clientUrl;
@@ -67,6 +71,10 @@ public class MailBox {
         Map<String, Object> variables = new HashMap<>();
         variables.put("groupedProviders", groupedProviders);
         variables.put("title", title);
+        variables.put("institutionName", idPMetaDataResolver
+                .getIdentityProvider(user.getSchacHomeOrganization())
+                .map(idp -> idp.getName())
+                .orElse(user.getSchacHomeOrganization()));
         variables.put("roles", splitListSemantically(invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole().getName()).toList()));
         variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(lang));

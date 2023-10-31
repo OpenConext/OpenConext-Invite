@@ -1,14 +1,12 @@
 package access.mail;
 
+import access.cron.IdPMetaDataResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.FileCopyUtils;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +15,8 @@ public class MockMailBox extends MailBox {
 
     private final Environment environment;
 
-    public MockMailBox(ObjectMapper objectMapper, JavaMailSender mailSender, String emailFrom, String contactEmail, String baseUrl, String welcomeUrl, Environment environment) throws IOException {
-        super(objectMapper, mailSender, emailFrom, contactEmail, baseUrl, welcomeUrl, "local");
+    public MockMailBox(ObjectMapper objectMapper, IdPMetaDataResolver idPMetaDataResolver, JavaMailSender mailSender, String emailFrom, String contactEmail, String baseUrl, String welcomeUrl, Environment environment) throws IOException {
+        super(objectMapper, idPMetaDataResolver, mailSender, emailFrom, contactEmail, baseUrl, welcomeUrl, "local");
         this.environment = environment;
     }
 

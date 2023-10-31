@@ -70,6 +70,10 @@ cron:
   role-expiration-notifier-expression: "0 0/30 * * * *"
   # Set to -1 to suppress role expiry notifications
   role-expiration-notifier-duration-days: 5
+  metadata-resolver-initial-delay-milliseconds: 1
+  metadata-resolver-fixed-rate-milliseconds: 86_400_000
+  metadata-resolver-url: "classpath:/metadata/idps-metadata.xml"
+
 
 oidcng:
   discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
