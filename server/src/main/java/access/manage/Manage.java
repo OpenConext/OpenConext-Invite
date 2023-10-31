@@ -4,6 +4,7 @@ import access.model.Role;
 import access.provision.ProvisioningType;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.DataTruncation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,18 +57,20 @@ public interface Manage {
         }
         //This data won't leave the application, but is needed by the provisioning service
         if (provider.get("type").equals(EntityType.PROVISIONING.collectionName())) {
-            application.put("provisioning_type", metaDataFields.get("provisioning_type"));
-            application.put("scim_url", metaDataFields.get("scim_url"));
-            application.put("scim_user", metaDataFields.get("scim_user"));
-            application.put("scim_password", metaDataFields.get("scim_password"));
-            application.put("scim_update_role_put_method", metaDataFields.getOrDefault("scim_update_role_put_method", false));
-            application.put("eva_url", metaDataFields.get("eva_url"));
-            application.put("eva_token", metaDataFields.get("eva_token"));
-            application.put("eva_guest_account_duration", metaDataFields.getOrDefault("eva_guest_account_duration", 30));
-            application.put("graph_url", metaDataFields.get("graph_url"));
-            application.put("graph_client_id", metaDataFields.get("graph_client_id"));
-            application.put("graph_secret", metaDataFields.get("graph_secret"));
-            application.put("graph_tenant", metaDataFields.getOrDefault("graph_tenant", "common"));
+            List.of(
+                    "provisioning_type",
+                    "scim_url",
+                    "scim_user",
+                    "scim_password",
+                    "scim_update_role_put_method",
+                    "eva_url",
+                    "eva_token",
+                    "eva_guest_account_duration",
+                    "graph_url",
+                    "graph_client_id",
+                    "graph_secret",
+                    "graph_tenant"
+            ).forEach(attribute -> application.put(attribute, metaDataFields.get(attribute)));
         }
         application.put("type", provider.get("type"));
         application.put("applications", data.get("applications"));
