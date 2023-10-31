@@ -51,7 +51,7 @@ const nl = {
         and: "en",
         more: "Meer",
         less: "Minder",
-        error: "Je kunt <a href=\"mailto:support@surfconext.nl\">contact opnemen</a> voor meer informartie.<br/><br/>" +
+        error: "Je kunt <a href=\"mailto:support@surfconext.nl\">contact opnemen</a> voor meer informatie.<br/><br/>" +
             "Het foutmeldingsnummer is {{reference}}."
     },
     profile: {
