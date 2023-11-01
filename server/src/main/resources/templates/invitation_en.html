@@ -40,7 +40,7 @@
         {{/message}}
 
         {{#invitation.eduIDOnly}}
-        <p>For the access to this application(s) eduID is used. Do you not have an eduID account yet?
+        <p>For access to these applications eduID is used. Do you not have an eduID account yet?
             No worries, you can create one in less than 30 seconds.</p>
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
@@ -51,7 +51,7 @@
         </div>
         {{/invitation.eduIDOnly}}
         {{^invitation.eduIDOnly}}
-        <p>For the access to this application's we use SURFconext.</p>
+        <p>For access to these applications we use SURFconext.</p>
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
                style="border-radius: 4px;color: white;width: 300px;display:flex;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 56px;font-size: 18px;">
@@ -73,7 +73,7 @@
             Request eduID
         </p>
         <p style="margin: 5px 0 10px 0;">Requesting an eduID is free, and you can do it now. All you need is an
-            email.</p>
+            emailaddress.</p>
     </div>
     {{/invitation.eduIDOnly}}
 
