@@ -11,65 +11,51 @@
     </div>
     <div class="head" style="padding: 30px 40px 20px 40px;">
         {{#environment}}
-        <p style="font-weight: bold;margin-bottom: 20px; background-color: #f1f19b;">
+        <p style="font-weight: bold;margin: 0; padding: 20px 5px background-color: #f1f19b;">
             This mail is from the {{environment}} environment
         </p>
         {{/environment}}
         <p class="title" style="">Hello,</p>
-        <strong>{{user.name}}</strong> (from <strong>{{institutionName}}</strong>) has granted you access to one or more
-        applications or systems that they use.
+        <p><strong>{{user.name}}</strong> (from <strong>{{institutionName}}</strong>) has granted you access to one or more
+            applications or systems that they use.</p>
 
-        You have been granted access to:
+        <p>You have been granted access to:</p>
 
         {{#invitation.anyRoles}}
-            <ul>
+        <ul>
             {{#groupedProviders}}
-                 <li><strong>{{name}}</strong> ({{organisation}}) - as <strong>{{rolesDisplay}}</strong></li>
+            <li style="margin-bottom: 4px;"><strong>{{name}}</strong> ({{organisation}}) - as <strong>{{rolesDisplay}}</strong></li>
             {{/groupedProviders}}
-            </ul>
+        </ul>
         {{/invitation.anyRoles}}
-        {{#invitation.message}}
-        Personal message from {{user.name}}
-        <div class="head" style="background-color: #f5f5f5;padding: 15px;margin-top:15px;font-style: italic;">
-            <p style=";white-space: pre-line;margin: 0;">
-                {{invitation.message}}
+        {{#message}}
+        <p style="margin: 0">Personal message from {{user.name}}</p>
+        <div class="head" style="background-color: #f5f5f5;padding: 20px;margin-top:15px;font-style: italic;">
+            <p style="margin: 0;">
+                {{{message}}}
             </p>
         </div>
-        {{/invitation.message}}
+        {{/message}}
 
         {{#invitation.eduIDOnly}}
-        <p>For the access to this application(s) eduID is used. Do you not have an eduID account yet? No worries, you can create one in less than 30 seconds.</p>
-        <a class="button" href="{{{ url }}}"
-           style="border-radius: 4px;color: white;background-color: #0077c8;text-decoration: none;display: inline-block;margin: 15px 0;cursor:pointer;padding: 14px 26px;font-size: 18px;">
-            <svg width="105px" height="44px" viewBox="0 0 105 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <defs>
-                    <polygon id="eduid-logo-path-1" points="0 0.0005 104.9995 0.0005 104.9995 44 0 44"></polygon>
-                </defs>
-                <g id="logo_eduID" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g id="eduID">
-                        <g id="Group-3">
-                            <mask id="eduid-logo-mask-2" fill="white">
-                                <use xlink:href="#eduid-logo-path-1"></use>
-                            </mask>
-                            <g id="Clip-2"></g>
-                            <path d="M92.9995,44.0005 L11.9995,44.0005 C5.3725,44.0005 -0.0005,38.6275 -0.0005,32.0005 L-0.0005,12.0005 C-0.0005,5.3725 5.3725,0.0005 11.9995,0.0005 L92.9995,0.0005 C99.6275,0.0005 104.9995,5.3725 104.9995,12.0005 L104.9995,32.0005 C104.9995,38.6275 99.6275,44.0005 92.9995,44.0005" id="Fill-1" fill="#002568" mask="url(#eduid-logo-mask-2)"></path>
-                        </g>
-                        <path d="M17.7329,18.2612 C14.9169,18.2612 13.6049,20.5002 13.4449,22.3572 L22.0199,22.3572 C21.9569,20.5652 20.7409,18.2612 17.7329,18.2612 M23.6519,24.7252 L13.4769,24.7252 C13.7009,27.0292 15.4609,28.9802 18.3399,28.9802 C19.4609,28.9802 20.7409,28.6282 21.7959,27.9562 C22.0199,27.8282 22.2759,27.7642 22.5009,27.7642 C23.2049,27.7642 23.9399,28.3402 23.9399,29.1722 C23.9399,30.9322 19.9719,31.7322 17.9889,31.7322 C13.3489,31.7322 9.8929,28.5002 9.8929,23.6052 C9.8929,19.1252 13.1569,15.5092 17.7329,15.5092 C21.3479,15.5092 23.9719,17.6852 24.9319,21.0132 C25.1249,21.6532 25.3159,22.3892 25.3159,23.0612 C25.3159,23.9562 24.5809,24.7252 23.6519,24.7252" id="Fill-4" fill="#FFFFFF"></path>
-                        <path d="M39.5249,20.5972 C38.7559,19.4452 37.1569,18.5492 35.5569,18.5492 C32.9329,18.5492 31.2369,20.6602 31.2369,23.6362 C31.2369,26.5802 32.9329,28.6922 35.5569,28.6922 C37.1569,28.6922 38.7559,27.7962 39.5249,26.6762 L39.5249,20.5972 Z M41.2199,31.5402 C40.2599,31.5402 39.5249,30.7722 39.5249,29.8442 L39.5249,29.2362 C38.3089,30.8042 36.5479,31.7322 34.5649,31.7322 C30.6289,31.7322 27.7169,28.7242 27.7169,23.6362 C27.7169,18.6452 30.5969,15.5092 34.5649,15.5092 C36.4849,15.5092 38.2769,16.4052 39.5249,18.0052 L39.5249,11.5092 C39.5249,10.5812 40.2599,9.8142 41.2849,9.8142 C42.1799,9.8142 42.9489,10.5812 42.9489,11.5092 L42.9489,29.8442 C42.9489,30.7722 42.1799,31.5402 41.2199,31.5402 L41.2199,31.5402 Z" id="Fill-6" fill="#FFFFFF"></path>
-                        <path d="M58.7876,31.5405 C57.8276,31.5405 57.0926,30.7715 57.0926,29.8445 L57.0926,29.3005 C55.9726,30.5485 54.0526,31.7315 51.6206,31.7315 C48.2926,31.7315 46.6606,29.9725 46.6606,26.8365 L46.6606,17.3645 C46.6606,16.4695 47.3966,15.7015 48.4206,15.7015 C49.3166,15.7015 50.0846,16.4695 50.0846,17.3645 L50.0846,25.5885 C50.0846,27.9565 51.3006,28.6915 53.1556,28.6915 C54.8516,28.6915 56.2926,27.7315 57.0926,26.7085 L57.0926,17.3645 C57.0926,16.4695 57.8276,15.7015 58.8516,15.7015 C59.7476,15.7015 60.5166,16.4695 60.5166,17.3645 L60.5166,29.8445 C60.5166,30.7715 59.7476,31.5405 58.7876,31.5405" id="Fill-8" fill="#FFFFFF"></path>
-                        <path d="M68.7085,31.5405 C67.6845,31.5405 66.8525,30.6765 66.8525,29.6515 L66.8525,11.6695 C66.8525,10.6775 67.6845,9.8135 68.7715,9.8135 C69.7965,9.8135 70.6595,10.6775 70.6595,11.6695 L70.6595,29.6515 C70.6595,30.6765 69.7965,31.5405 68.7085,31.5405" id="Fill-10" fill="#53A6F0"></path>
-                        <path d="M83.8111,13.3657 L79.6511,13.3657 L79.6511,27.9887 L83.8111,27.9887 C88.4181,27.9887 91.0751,24.6927 91.0751,20.6927 C91.0751,16.5967 88.5461,13.3657 83.8111,13.3657 M83.8111,31.3477 L78.1471,31.3477 C76.8681,31.3477 75.8431,30.2927 75.8431,29.0447 L75.8431,12.3087 C75.8431,11.0617 76.8681,10.0057 78.1471,10.0057 L83.8111,10.0057 C90.4661,10.0057 95.0101,14.4217 95.0101,20.6927 C95.0101,26.9967 90.4661,31.3477 83.8111,31.3477" id="Fill-12" fill="#53A6F0"></path>
-                    </g>
-                </g>
-            </svg>
-            <span style="color: white;font-size: 20px;display: table; margin: 6px auto;">Access with eduID</span>
-        </a>
+        <p>For the access to this application(s) eduID is used. Do you not have an eduID account yet?
+            No worries, you can create one in less than 30 seconds.</p>
+        <div style="display: flex;">
+            <a class="button" href="{{{ url }}}"
+               style="border-radius: 4px;color: white;width: 300px;background-color: #0077c8;text-decoration: none;display: inline-block;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
+                {{> eduid-logo.svg}}
+                <span style="color: white;font-size: 18px;position: relative;top: -16px;left: 30px;; margin: 6px auto;">Access with eduID</span>
+            </a>
+        </div>
         {{/invitation.eduIDOnly}}
         {{^invitation.eduIDOnly}}
-        <a class="button" href="{{{ url }}}"
-           style="border-radius: 4px;color: white;background-color: #0077c8;text-decoration: none;display: inline-block;margin: 15px 0;cursor:pointer;padding: 14px 26px;font-size: 18px;">
-            <span style="color: white;font-size: 20px;margin: 6px 0 6px 10px;">Continue</span>
-        </a>
+        <p>For the access to this application's we use SURFconext.</p>
+        <div style="display: flex;">
+            <a class="button" href="{{{ url }}}"
+               style="border-radius: 4px;color: white;background-color: #0077c8;text-decoration: none;display: inline-block;margin: 15px auto;cursor:pointer;padding: 14px 56px;font-size: 18px;">
+                <span style="color: white;font-size: 18px;margin: 6px 0 6px 10px;">Continue</span>
+            </a>
+        </div>
         {{/invitation.eduIDOnly}}
     </div>
     {{#invitation.eduIDOnly}}

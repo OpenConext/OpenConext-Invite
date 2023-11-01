@@ -76,7 +76,11 @@ public class MailBox {
                 .map(idp -> idp.getName())
                 .orElse(user.getSchacHomeOrganization()));
         variables.put("roles", splitListSemantically(invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole().getName()).toList()));
-        variables.put("invitation", invitation);
+        if (StringUtils.hasText(invitation.getMessage())) {
+            variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
+        }
+
+            variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(lang));
         variables.put("user", user);
         if (!environment.equalsIgnoreCase("prod")) {
