@@ -131,19 +131,19 @@ public class MailBox {
         setText(plainText, htmlText, helper);
         helper.setTo(to);
         helper.setFrom(emailFrom);
-        //Add logo, if there
-        if (variables.containsKey("groupedProviders")) {
-            List<GroupedProviders> groupedProviders = (List<GroupedProviders>) variables.get("groupedProviders");
-            groupedProviders.stream()
-                    .filter(groupedProvider -> StringUtils.hasText(groupedProvider.getLogo()))
-                    .forEach(groupedProvider -> {
-                        try {
-                            helper.addInline(groupedProvider.logoName(), new UrlResource(new URI(groupedProvider.getLogo())));
-                        } catch (Exception e) {
-                            //Can't be helped
-                        }
-                    });
-        }
+//        //Add logo, if there
+//        if (variables.containsKey("groupedProviders")) {
+//            List<GroupedProviders> groupedProviders = (List<GroupedProviders>) variables.get("groupedProviders");
+//            groupedProviders.stream()
+//                    .filter(groupedProvider -> StringUtils.hasText(groupedProvider.getLogo()))
+//                    .forEach(groupedProvider -> {
+//                        try {
+//                            helper.addInline(groupedProvider.logoName(), new UrlResource(new URI(groupedProvider.getLogo())));
+//                        } catch (Exception e) {
+//                            //Can't be helped
+//                        }
+//                    });
+//        }
         doSendMail(message);
     }
 
