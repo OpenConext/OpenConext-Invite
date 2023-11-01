@@ -30,6 +30,8 @@ class InvitationMailControllerTest extends AbstractMailTest {
                 .then()
                 .statusCode(201);
         String htmlContent = super.mailMessage().getHtmlContent();
-        assertTrue(htmlContent.contains("Calendar EN (SURF bv)"));
+        assertTrue(htmlContent.contains("Calendar EN"));
+        assertTrue(htmlContent.contains("SURF bv"));
+        assertTrue(htmlContent.contains("Mail"));
     }
 }

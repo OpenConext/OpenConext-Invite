@@ -74,7 +74,6 @@ cron:
   metadata-resolver-fixed-rate-milliseconds: 86_400_000
   metadata-resolver-url: "classpath:/metadata/idps-metadata.xml"
 
-
 oidcng:
   discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
   introspect-url: "https://connect.test2.surfconext.nl/oidc/introspect"

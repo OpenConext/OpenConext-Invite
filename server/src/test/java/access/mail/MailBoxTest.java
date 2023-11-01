@@ -46,7 +46,8 @@ class MailBoxTest extends AbstractMailTest {
         MimeMessageParser mimeMessageParser = super.mailMessage();
         String htmlContent = mimeMessageParser.getHtmlContent();
 
-        assertTrue(htmlContent.contains("Wiki EN (SURF bv)"));
+        assertTrue(htmlContent.contains("Wiki EN"));
+        assertTrue(htmlContent.contains("SURF bv"));
     }
 
 

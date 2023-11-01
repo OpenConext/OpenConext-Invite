@@ -34,10 +34,12 @@ public class Provisioning {
         this.scimUrl = (String) provider.get("scim_url");
         this.scimUser = (String) provider.get("scim_user");
         this.scimPassword = (String) provider.get("scim_password");
-        this.scimUpdateRolePutMethod = (boolean) provider.getOrDefault("scim_update_role_put_method", false);
+        Object updateRolePutMethod = provider.get("scim_update_role_put_method");
+        this.scimUpdateRolePutMethod = updateRolePutMethod != null && (boolean) updateRolePutMethod;
         this.evaUrl = (String) provider.get("eva_url");
         this.evaToken = (String) provider.get("eva_token");
-        this.evaGuestAccountDuration = (int) provider.getOrDefault("eva_guest_account_duration", 30);
+        Object guestAccountDuration = provider.get("eva_guest_account_duration");
+        this.evaGuestAccountDuration = guestAccountDuration != null ? (int) guestAccountDuration : 30;
         this.graphUrl = (String) provider.get("graph_url");
         this.graphClientId = (String) provider.get("graph_client_id");
         this.graphSecret = (String) provider.get("graph_secret");
