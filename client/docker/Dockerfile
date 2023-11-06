@@ -1,5 +1,5 @@
-FROM httpd:2.4
+FROM ghcr.io/openconext/openconext-basecontainers/apache2:latest
 ADD ./build/ /var/www/
-COPY ./docker/httpd.conf /usr/local/apache2/conf/httpd.conf
-COPY ./docker/appconf.conf /usr/local/apache2/conf/extra/
+RUN rm -rf /etc/apache2/sites-enabled/*.conf
+COPY ./docker/appconf.conf /etc/apache2/sites-enabled/
 
