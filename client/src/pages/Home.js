@@ -72,6 +72,10 @@ export const Home = () => {
         navigate(`/home/${name}`);
     }
 
+    const playOwl = () => {
+        new Audio(owl).play()
+    }
+
     if (loading) {
         return <Loader/>
     }
@@ -79,7 +83,7 @@ export const Home = () => {
         <div className="home">
             <div className="mod-home-container">
                 <UnitHeader obj={({name: I18n.t("home.access"), svg: Logo})}
-                            svgClick={() => new Audio(owl).play()}>
+                            svgClick={() => playOwl()}>
                     <p>{I18n.t("header.subTitle")}</p>
                 </UnitHeader>
                 <Tabs activeTab={currentTab}
