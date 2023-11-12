@@ -1,12 +1,21 @@
 .unit-header .image {
+
     svg path.right-eye {
         fill: #ffffff;
     }
 
+    svg path.upper-tongue {
+        fill: #f57900;
+    }
+
     &.wink {
-        transform: skewX(2deg);
+        transform: skewX(3deg);
         svg path.right-eye {
             fill: black;
+        }
+
+        svg path.upper-tongue {
+            fill: #c00;
         }
     }
 }
