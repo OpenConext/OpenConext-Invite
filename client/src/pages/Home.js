@@ -1,12 +1,12 @@
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import React, {useEffect, useState} from "react";
-import owl from "../icons/owl.wav";
 import {ReactComponent as Logo} from "../icons/Owl_Emblem.svg";
 import {ReactComponent as RoleLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
 import {ReactComponent as ApplicationLogo} from "@surfnet/sds/icons/illustrative-icons/database-refresh.svg";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import Tabs from "../components/Tabs";
+import "./Home.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import {useNavigate, useParams} from "react-router-dom";
 import {Users} from "../tabs/Users";
@@ -20,6 +20,7 @@ export const Home = () => {
     const {tab = "roles"} = useParams();
     const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
+    const [winking, setWinking] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const user = useAppStore((state) => state.user)
@@ -72,8 +73,9 @@ export const Home = () => {
         navigate(`/home/${name}`);
     }
 
-    const playOwl = () => {
-        new Audio(owl).play()
+    const winkOwl = () => {
+        setWinking(true);
+        setTimeout(() => setWinking(false), 850);
     }
 
     if (loading) {
@@ -82,8 +84,8 @@ export const Home = () => {
     return (
         <div className="home">
             <div className="mod-home-container">
-                <UnitHeader obj={({name: I18n.t("home.access"), svg: Logo})}
-                            svgClick={() => playOwl()}>
+                <UnitHeader obj={({name: I18n.t("home.access"), svg: Logo, style: winking ? "wink" : ""})}
+                            svgClick={() => winkOwl()}>
                     <p>{I18n.t("header.subTitle")}</p>
                 </UnitHeader>
                 <Tabs activeTab={currentTab}
