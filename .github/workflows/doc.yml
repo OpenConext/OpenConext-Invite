@@ -66,7 +66,11 @@ jobs:
         if: steps.changes.outputs.server == 'true'
 
       - name: Generate openapi.json
-        run: cd server && mvn spring-boot:run & && sleep 15 && curl -q http://localhost:8080/ui/api-docs -o server/target/openapi.json  && pkill -f java
+        run: |
+          cd server
+          mvn spring-boot:run &
+          sleep 20 && curl -q http://localhost:8080/ui/api-docs -o ./target/openapi.json
+          pkill -f java
         if: steps.changes.outputs.server == 'true'
 
       - name: Test api-specs with redoc-cli
