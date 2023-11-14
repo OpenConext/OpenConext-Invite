@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static access.Seed.INVITER_SUB;
 import static access.Seed.MANAGE_SUB;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,9 +108,9 @@ class UserRoleControllerTest extends AbstractTest {
 
     @Test
     void deleteUserRoleNotAllowed() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
-        UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.MANAGER)).findFirst().get();
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        List<UserRole> userRoles = userRoleRepository.findByRoleName("Calendar");
+        UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.INVITER)).findFirst().get();
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
