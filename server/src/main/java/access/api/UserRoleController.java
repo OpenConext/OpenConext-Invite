@@ -73,8 +73,7 @@ public class UserRoleController {
     public ResponseEntity<Void> deleteUserRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug("/deleteUserRole");
         UserRole userRole = userRoleRepository.findById(id).orElseThrow(NotFoundException::new);
-        Authority requiredAuthority = userRole.getAuthority().nextAuthorityInHierarchy();
-        UserPermissions.assertValidInvitation(user, requiredAuthority, List.of(userRole.getRole()));
+        UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));
         userRoleRepository.delete(userRole);
         AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
         return Results.deleteResult();

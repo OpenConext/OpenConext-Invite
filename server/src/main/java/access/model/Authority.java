@@ -28,15 +28,6 @@ public enum Authority {
         return rights > requiredAuthority.rights;
     }
 
-    public Authority nextAuthorityInHierarchy() {
-        return switch (this.rights) {
-            case 0 -> INVITER;
-            case 1 -> MANAGER;
-            case 2 -> INSTITUTION_ADMIN;
-            default -> SUPER_USER;
-        };
-    }
-
     public String translate(String lang) {
         return translations.get(this.name()).get(lang);
     }

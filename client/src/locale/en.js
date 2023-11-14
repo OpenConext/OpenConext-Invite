@@ -315,7 +315,8 @@ const en = {
         removeInvitation: "Delete all selected invitations",
         resendInvitation: "Resend all selected invitations",
         inviter: "Send invitations to persons who will - once accepted - become guest users for the application",
-        overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced setting (e.g. Email equality, eduID only and the role expiry end date)"
+        overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced setting (e.g. Email equality, eduID only and the role expiry end date)",
+        removeUserRole: "Remove the selected user roles"
     },
     confirmationDialog: {
         title: "Confirm",

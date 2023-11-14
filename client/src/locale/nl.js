@@ -314,8 +314,9 @@ const nl = {
         inviteesTooltip: "Geef e-mailadressen op, gescheiden door komma, spaties of puntkomma, of een voor een met gebruik van de enter-toets. Je kunt ook een csv-bestand plakken met daarin op elke regel een e-mailadres.",
         removeInvitation: "Verwijder al de geselecteerde uitnodigingen",
         resendInvitation: "Stuur al de geselecteerde uitnodigingen opnieuw",
-        inviter: "Send invitations to persons who will - once accepted - become guest users for the application",
-        overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced setting (e.g. Email equality, eduID only and the role expiry end date)"
+        inviter: "Verstuur uitnodigingen naar gebruikers die - als ze accepteren - gast gebruikers worden voor de applicatie",
+        overrideSettingsAllowed: "Indien ingeschakeld dan kunnen uitnodigingen voor de deze rol niet de geadvanceerde instellen (e.g. e-mail gelijkheid, alleen accepteren met eduID en de verloop- en eind-datum)",
+        removeUserRole: "Verwijder al de geselecteerde rollen"
     },
     confirmationDialog: {
         title: "Bevestig",
