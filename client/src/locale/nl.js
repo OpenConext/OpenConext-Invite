@@ -33,8 +33,7 @@ const nl = {
             access: "Invite",
             help: "Help",
             profile: "Profiel",
-            logout: "Log uit",
-            helpUrl: "https://support.surfconext.nl/help-invite-nl"
+            logout: "Log uit"
         },
     },
     tabs: {

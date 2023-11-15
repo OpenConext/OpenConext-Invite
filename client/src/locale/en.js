@@ -20,7 +20,7 @@ const en = {
             ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
         ],
         footer: "<p>SURFconext Invite is a service for access management to SURFconext-connected service providers.</p>" +
-            "<p>Do you want to know more? Please visit <a href='https://surf.nl/en/invite'>https://surf.nl/en/invite</a>.</p>",
+            "<p>Do you want to know more? <a href='https://support.surfconext.nl/invite-en'>Read more</a>.</p>",
     },
     header: {
         title: "SURFconext Invite",
@@ -33,8 +33,7 @@ const en = {
             access: "Access",
             help: "Help",
             profile: "Profile",
-            logout: "Logout",
-            helpUrl: "https://support.surfconext.nl/help-invite-en"
+            logout: "Logout"
         },
     },
     tabs: {
