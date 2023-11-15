@@ -48,7 +48,7 @@ Both policy types can be combined for an SP without issue.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationService" name="SAML" id="id-390297dab03441c784d0b0662f1b5b84"/>
     <element xsi:type="archimate:ApplicationComponent" name="Attribute Aggregation" id="id-df9b7d18eb064a97bca23e4f8fd084ed">
-      <documentation>Applicatiecomponent van SURFconect om extra attributen in een authenticateflow te injecteren, of vestaande attributen te bewerken.</documentation>
+      <documentation>Applicatiecomponent van SURFconext om extra attributen in een authenticateflow te injecteren, of vestaande attributen te bewerken.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationProcess" name="Afschermen applicatie" id="id-7bf0d5bb2d9348759f110f156146225e">
       <documentation>Na authenticatie kan binnen de login-flow worden besloten of een gebruiker toegang mag krijgen tot een applicatie, bijvoorbeeld op basis van attributen zoals entitlements.</documentation>

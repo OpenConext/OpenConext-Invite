@@ -248,7 +248,7 @@ const en = {
     inviteOnly: {
         welcome: "Welcome to SURFconext Invite",
         roles: "You don't have any roles.",
-        info: "The SURFconext Invite application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:support@surfconext.nl'>support@surfconect.nl</a>.",
+        info: "The SURFconext Invite application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Or ",
         login: "login",
         postLogin: " again with a different institution",
