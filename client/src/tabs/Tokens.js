@@ -93,7 +93,7 @@ export const Tokens = () => {
     const renderNewToken = () => {
         return (
             <Page className={"page new-token"}>
-                <div>
+                <div className="back-to-tokens-container">
                     <a href={"/cancel"}
                        className={"back-to-tokens"}
                        onClick={cancelSideScreen}>

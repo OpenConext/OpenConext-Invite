@@ -1,8 +1,4 @@
 package access.config;
-
-
-
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
