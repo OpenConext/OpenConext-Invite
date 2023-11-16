@@ -22,3 +22,13 @@
 button.sds--btn span {
     text-align: center;
 }
+
+section.actions {
+    border-top: 2px solid #e0e0df;
+    display: flex;
+    gap: 25px;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding: 30px 0;
+    position: relative;
+}

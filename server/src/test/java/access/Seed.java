@@ -1,5 +1,6 @@
 package access;
 
+import access.config.HashGenerator;
 import access.manage.EntityType;
 import access.model.*;
 import access.repository.*;
@@ -15,8 +16,8 @@ public record Seed(InvitationRepository invitationRepository,
                    RemoteProvisionedUserRepository remoteProvisionedUserRepository,
                    RoleRepository roleRepository,
                    UserRepository userRepository,
-                   UserRoleRepository userRoleRepository
-) {
+                   UserRoleRepository userRoleRepository,
+                   APITokenRepository apiTokenRepository) {
 
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
@@ -25,6 +26,7 @@ public record Seed(InvitationRepository invitationRepository,
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
     public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
+    public static final String API_TOKEN_HASH = HashGenerator.generateToken();
 
     public void doSeed() {
         this.invitationRepository.deleteAllInBatch();
@@ -33,7 +35,7 @@ public record Seed(InvitationRepository invitationRepository,
         this.roleRepository.deleteAllInBatch();
         this.userRepository.deleteAllInBatch();
         this.userRoleRepository.deleteAllInBatch();
-
+        this.apiTokenRepository.deleteAllInBatch();
 
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@examole.com");
@@ -103,6 +105,9 @@ public record Seed(InvitationRepository invitationRepository,
                 new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com", false,false, message,
                         inviter,expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation, graphInvitation);
+
+        APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH), "Test-token");
+        doSave(apiTokenRepository, apiToken);
     }
 
     @SafeVarargs

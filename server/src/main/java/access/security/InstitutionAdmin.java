@@ -1,7 +1,9 @@
 package access.security;
 
+import access.model.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,10 @@ public class InstitutionAdmin {
         return false;
     }
 
+    public static boolean isInstitutionAdmin(User user) {
+        return user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID());
+    }
+
     public static Optional<String> getOrganizationGuid(Map<String, Object> attributes, String organizationGuidPrefix) {
         if (attributes.containsKey("eduperson_entitlement")) {
             List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
@@ -39,4 +45,5 @@ public class InstitutionAdmin {
         }
         return Optional.empty();
     }
+
 }

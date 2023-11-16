@@ -191,6 +191,23 @@ export function updateUserRoleEndData(userRoleId, endDate) {
 export function deleteUserRole(userRoleId) {
     return fetchDelete(`/api/v1/user_roles/${userRoleId}`);
 }
+//API tokens
+export function apiTokens() {
+    return fetchJson("/api/v1/tokens");
+}
+
+export function generateToken() {
+    return fetchJson("/api/v1/tokens/generate-token");
+}
+
+export function createToken(description) {
+    return postPutJson("/api/v1/tokens", {description: description}, "POST");
+}
+
+export function deleteToken(token) {
+    return fetchDelete(`/api/v1/tokens/${token.id}`);
+}
+
 
 //Validations
 export function validate(type, value) {

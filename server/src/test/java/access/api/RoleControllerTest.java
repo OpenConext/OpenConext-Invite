@@ -2,19 +2,24 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.Seed;
 import access.manage.EntityType;
 import access.model.RemoteProvisionedGroup;
 import access.model.Role;
 import access.model.RoleExists;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import io.restassured.http.Headers;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 
 import static access.Seed.*;
+import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -192,14 +197,7 @@ class RoleControllerTest extends AbstractTest {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
-                m -> {
-                    m.put("eduperson_entitlement",
-                            List.of(
-                                    "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
-                                    "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + ORGANISATION_GUID
-                            ));
-                    return m;
-                });
+                institutionalAdminEntitlementOperator);
         List<Role> roles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -325,4 +323,28 @@ class RoleControllerTest extends AbstractTest {
                 .statusCode(404);
 
     }
+
+    @Test
+    void deleteRoleWithAPI() throws Exception {
+        Role role = roleRepository.search("wiki", 1).get(0);
+        //Ensure delete provisioning is done
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
+
+        stubForManageProviderById(role.getManageType(), role.getManageId());
+        stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        stubForManageProvisioning(List.of(role.getManageId()));
+        stubForDeleteScimRole();
+
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .contentType(ContentType.JSON)
+                .pathParams("id", role.getId())
+                .delete("/api/v1/roles/{id}")
+                .then()
+                .statusCode(204);
+        assertEquals(0, roleRepository.search("wiki", 1).size());
+    }
+
 }

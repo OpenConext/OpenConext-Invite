@@ -56,6 +56,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import static access.Seed.ORGANISATION_GUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -102,6 +103,8 @@ public abstract class AbstractTest {
     @Autowired
     protected RemoteProvisionedUserRepository remoteProvisionedUserRepository;
 
+    @Autowired
+    protected APITokenRepository apiTokenRepository;
 
     protected LocalManage localManage;
 
@@ -111,6 +114,14 @@ public abstract class AbstractTest {
     @LocalServerPort
     protected int port;
 
+    protected static final UnaryOperator<Map<String, Object>> institutionalAdminEntitlementOperator = m -> {
+        m.put("eduperson_entitlement",
+                List.of(
+                        "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
+                        "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + ORGANISATION_GUID
+                ));
+        return m;
+    };
     @BeforeAll
     protected static void beforeAll() {
         RestAssured.config = RestAssuredConfig.config()
@@ -128,7 +139,8 @@ public abstract class AbstractTest {
                     remoteProvisionedUserRepository,
                     roleRepository,
                     userRepository,
-                    userRoleRepository).doSeed();
+                    userRoleRepository,
+                    apiTokenRepository).doSeed();
         }
         if (this.localManage == null) {
             this.localManage = new LocalManage(objectMapper, false);

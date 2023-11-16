@@ -48,7 +48,8 @@ const en = {
         userRoles: "Role managers & inviters",
         guestRoles: "Guests with this role",
         cron: "Cron",
-        invite: "Invite"
+        invite: "Invite",
+        tokens: "API Tokens"
     },
     home: {
         access: "SURFconext Invite",
@@ -293,6 +294,28 @@ const en = {
     institutionAdmin: {
         welcome: "Welcome Institution administrator of {{name}}! You can start with creating your first role and subsequently invite managers.",
         create: "Create access role"
+    },
+    tokens: {
+        title: "API tokens",
+        new: "Add API token",
+        searchPlaceHolder: "Search for API tokens...",
+        noEntities: "No API tokens",
+        backToApiKeys: "Back to all API tokens",
+        titleNew: "Create an API token for {{institutions}}",
+        backToOverview: "Back to all API tokens",
+        createdAt: "Created at",
+        secretDisclaimer: "You can view this API token only once. Copy it and store it somewhere safe.<br><br>If the token is lost, delete it and create a new one.",
+        secret: "API token",
+        secretValue: "One-way hashed secret",
+        secretTooltip: "The value to use in the X-API-TOKEN header",
+        description: "Description",
+        descriptionPlaceHolder: "Description for this API token",
+        descriptionTooltip: "A description explaining the use of this API token",
+        deleteFlash: "API Token has been deleted",
+        deleteConfirmation: "Are you sure you want to delete this API token?",
+        createFlash: "API Token has been created",
+        submit: "Submit",
+        required: "The description is required for an API token",
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",

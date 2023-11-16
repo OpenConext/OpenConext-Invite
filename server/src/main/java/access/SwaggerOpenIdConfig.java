@@ -11,11 +11,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
+import static access.security.SecurityConfig.API_TOKEN_HEADER;
+
 @Configuration
 @OpenAPIDefinition
 public class SwaggerOpenIdConfig {
 
     public static final String OPEN_ID_SCHEME_NAME = "openId";
+    public static final String API_TOKENS_SCHEME_NAME = "apiTokens";
     public static final String VOOT_SCHEME_NAME = "voot";
     public static final String LIFE_CYCLE_SCHEME_NAME = "lifeCycle";
     public static final String ATTRIBUTE_AGGREGATION_SCHEME_NAME = "attributeAggregation";
@@ -32,12 +35,19 @@ public class SwaggerOpenIdConfig {
                         .authorizationUrl(authorizationUrl)
                         .tokenUrl(tokenUrl)
                         .scopes(new Scopes().addString("openid", "openid"))));
+
+        SecurityScheme apiTokensSecurityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name(API_TOKEN_HEADER);
+
         SecurityScheme basicAuthentication = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("basic");
 
         Components components = new Components()
                 .addSecuritySchemes(OPEN_ID_SCHEME_NAME, openIdSecuritySchema)
+                .addSecuritySchemes(API_TOKENS_SCHEME_NAME, apiTokensSecurityScheme)
                 .addSecuritySchemes(VOOT_SCHEME_NAME, basicAuthentication)
                 .addSecuritySchemes(LIFE_CYCLE_SCHEME_NAME, basicAuthentication)
                 .addSecuritySchemes(ATTRIBUTE_AGGREGATION_SCHEME_NAME, basicAuthentication);

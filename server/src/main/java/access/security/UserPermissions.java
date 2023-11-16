@@ -21,6 +21,13 @@ public class UserPermissions {
         }
     }
 
+    public static void assertInstitutionAdmin(User user) {
+        if (user.isSuperUser() || InstitutionAdmin.isInstitutionAdmin(user)) {
+            return;
+        }
+        throw new UserRestrictionException();
+    }
+
     public static void assertAuthority(User user, Authority authority) {
         if (user.isInstitutionAdmin() && Authority.INSTITUTION_ADMIN.hasEqualOrHigherRights(authority)) {
             return;

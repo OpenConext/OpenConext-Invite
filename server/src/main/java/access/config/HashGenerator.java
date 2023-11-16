@@ -1,5 +1,11 @@
 package access.config;
 
+
+
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -18,6 +24,14 @@ public class HashGenerator {
         secureRandom.nextBytes(aesKey);
         String base64 = Base64.getEncoder().encodeToString(aesKey);
         return URLEncoder.encode(base64, StandardCharsets.UTF_8).replaceAll("%", "");
+    }
+
+    public static String generateToken() {
+        return RandomStringUtils.random(36, true, true);
+    }
+
+    public static String hashToken(String token) {
+        return new DigestUtils("SHA3-256").digestAsHex(token);
     }
 
 }

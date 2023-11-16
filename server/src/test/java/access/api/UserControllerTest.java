@@ -97,16 +97,7 @@ class UserControllerTest extends AbstractTest {
     void institutionAdminProvision() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
-                s -> {
-                }, m -> {
-                    m.put("eduperson_entitlement",
-                            List.of(
-                                    "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
-                                    "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + ORGANISATION_GUID
-                            ));
-                    return m;
-                });
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin", institutionalAdminEntitlementOperator);
 
         User user = given()
                 .when()

@@ -2,10 +2,9 @@ package access.security;
 
 import access.exception.ExtendedErrorAttributes;
 import access.manage.Manage;
-import access.model.Invitation;
+import access.repository.APITokenRepository;
 import access.repository.InvitationRepository;
 import access.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,6 +12,7 @@ import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -24,15 +24,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -40,13 +36,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 @EnableWebSecurity
 @EnableScheduling
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    public static final String API_TOKEN_HEADER = "X-API-TOKEN";
 
     private final String eduidEntityId;
     private final String introspectionUri;
@@ -93,19 +90,21 @@ public class SecurityConfig {
     public static class MvcConfig implements WebMvcConfigurer {
 
         private final UserRepository userRepository;
+        private final APITokenRepository apiTokenRepository;
         private final SuperAdmin superAdmin;
         private final Manage manage;
 
         @Autowired
-        public MvcConfig(UserRepository userRepository, SuperAdmin superAdmin, Manage manage) {
+        public MvcConfig(UserRepository userRepository, APITokenRepository apiTokenRepository, SuperAdmin superAdmin, Manage manage) {
             this.userRepository = userRepository;
+            this.apiTokenRepository = apiTokenRepository;
             this.superAdmin = superAdmin;
             this.manage = manage;
         }
 
         @Override
         public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, superAdmin, manage));
+            argumentResolvers.add(new UserHandlerMethodArgumentResolver(userRepository, apiTokenRepository, superAdmin, manage));
         }
 
         @Override
@@ -130,10 +129,12 @@ public class SecurityConfig {
                                                    UserRepository userRepository,
                                                    @Value("${institution-admin.entitlement}") String entitlement,
                                                    @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
+        final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
         http
                 .csrf(c -> c
                         .ignoringRequestMatchers("/login/oauth2/code/oidcng")
-                        .ignoringRequestMatchers("/api/v1/validations/**"))
+                        .ignoringRequestMatchers("/api/v1/validations/**")
+                        .ignoringRequestMatchers(apiTokenRequestMatcher))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests(c -> c
                         .requestMatchers(
@@ -146,6 +147,9 @@ public class SecurityConfig {
                                 "/api/v1/validations/**",
                                 "/ui/**",
                                 "internal/**")
+                        .permitAll()
+                        //The API token is secured in the UserHandlerMethodArgumentResolver
+                        .requestMatchers(apiTokenRequestMatcher)
                         .permitAll()
                         .anyRequest()
                         .authenticated()

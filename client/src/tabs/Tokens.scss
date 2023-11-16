@@ -1,0 +1,91 @@
+@import "../styles/vars.scss";
+
+div.mod-tokens {
+
+    table.tokens {
+
+        thead {
+            th {
+                &.secret, &.hashed_token {
+                    width: 30%;
+                }
+
+                &.description {
+                    width: 40%;
+                }
+
+                &.created_at {
+                    width: 25%;
+                }
+
+                &.trash {
+                    width: 40px;
+                }
+
+            }
+        }
+    }
+
+    .page.new-token {
+        display: flex;
+        width: 100%;
+        margin: 40px auto 25px auto;
+
+        @media (max-width: $tablet-max) {
+            flex-direction: column;
+        }
+
+        a.back-to-tokens {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            color: var(--sds--color--blue--400);
+            text-decoration: underline;
+            margin-right: 60px;
+
+            svg {
+                margin-right: 5px;
+                fill: var(--sds--color--blue--400);;
+                height: 22px;
+            }
+        }
+
+        div.new-token {
+            width: 60%;
+
+            @media (max-width: $tablet-max) {
+                padding: 15px;
+                width: 100%;
+            }
+
+
+            .header {
+                display: flex;
+                width: 100%;
+
+                div.header-actions {
+                    margin-left: auto;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                button {
+                    margin-bottom: 15px;
+                }
+            }
+
+            .description {
+                margin-bottom: 25px;
+            }
+
+            section.copy-to-clipboard {
+                display: flex;
+            }
+
+        }
+
+    }
+
+
+}

@@ -1,8 +1,11 @@
 package access.security;
 
+import access.config.HashGenerator;
 import access.exception.UserRestrictionException;
 import access.manage.Manage;
+import access.model.APIToken;
 import access.model.User;
+import access.repository.APITokenRepository;
 import access.repository.UserRepository;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -16,21 +19,26 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static access.security.InstitutionAdmin.*;
+import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
+import static access.security.SecurityConfig.API_TOKEN_HEADER;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final UserRepository userRepository;
+    private final APITokenRepository apiTokenRepository;
     private final SuperAdmin superAdmin;
     private final Manage manage;
 
-    public UserHandlerMethodArgumentResolver(UserRepository userRepository, SuperAdmin superAdmin, Manage manage) {
+    public UserHandlerMethodArgumentResolver(UserRepository userRepository,
+                                             APITokenRepository apiTokenRepository,
+                                             SuperAdmin superAdmin,
+                                             Manage manage) {
         this.userRepository = userRepository;
+        this.apiTokenRepository = apiTokenRepository;
         this.superAdmin = superAdmin;
         this.manage = manage;
     }
@@ -47,10 +55,23 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         Principal userPrincipal = webRequest.getUserPrincipal();
         Map<String, Object> attributes;
 
+        String apiTokenHeader = webRequest.getHeader(API_TOKEN_HEADER);
+
         if (userPrincipal instanceof BearerTokenAuthentication bearerTokenAuthentication) {
             attributes = bearerTokenAuthentication.getTokenAttributes();
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
             attributes = authenticationToken.getPrincipal().getAttributes();
+        } else if (StringUtils.hasText(apiTokenHeader) && apiTokenHeader.length() == 64) {
+            String hashedToken = HashGenerator.hashToken(apiTokenHeader);
+            APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
+                    .orElseThrow(UserRestrictionException::new);
+            String organizationGuid = apiToken.getOrganizationGUID();
+            User user = userRepository.findByOrganizationGUIDAndAndInstitutionAdmin(organizationGuid, true)
+                    .orElseThrow(UserRestrictionException::new);
+            //The overhead is justified for API usage
+            user.setApplications(manage.providersByInstitutionalGUID(organizationGuid));
+            user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGuid).orElse(Collections.emptyMap()));
+            return user;
         } else {
             return null;
         }

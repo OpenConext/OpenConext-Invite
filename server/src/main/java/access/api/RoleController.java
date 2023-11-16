@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = {"/api/v1/roles", "/api/external/v1/roles"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/api/v1/roles", "/api/external/v1/roles", }, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @EnableConfigurationProperties(Config.class)
@@ -78,7 +78,7 @@ public class RoleController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Role> role(@PathVariable("id") Long id, User user) {
+    public ResponseEntity<Role> role(@PathVariable("id") Long id,@Parameter(hidden = true) User user) {
         LOG.debug("/role");
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
@@ -98,7 +98,8 @@ public class RoleController {
     }
 
     @PostMapping("validation/short_name")
-    public ResponseEntity<Map<String, Boolean>> shortNameExists(@RequestBody RoleExists roleExists, @Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, Boolean>> shortNameExists(@RequestBody RoleExists roleExists,
+                                                                @Parameter(hidden = true) User user) {
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         String shortName = GroupURN.sanitizeRoleShortName(roleExists.shortName());
         Optional<Role> optionalRole = roleRepository.findByManageIdAndShortNameIgnoreCase(roleExists.manageId(), shortName);

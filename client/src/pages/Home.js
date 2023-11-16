@@ -5,6 +5,7 @@ import {ReactComponent as Logo} from "../icons/Owl_Emblem.svg";
 import {ReactComponent as RoleLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
 import {ReactComponent as ApplicationLogo} from "@surfnet/sds/icons/illustrative-icons/database-refresh.svg";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import {ReactComponent as TokenLogo} from "@surfnet/sds/icons/illustrative-icons/database-hand.svg";
 import Tabs from "../components/Tabs";
 import "./Home.scss";
 import {UnitHeader} from "../components/UnitHeader";
@@ -15,6 +16,7 @@ import {Roles} from "../tabs/Roles";
 import Applications from "../tabs/Applications";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import {Loader} from "@surfnet/sds";
+import {Tokens} from "../tabs/Tokens";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
@@ -63,6 +65,15 @@ export const Home = () => {
                     <Applications/>
                 </Page>
             );
+        }
+        if (user && user.institutionAdmin && user.organizationGUID) {
+            newTabs.push(
+                <Page key="tokens"
+                      name="tokens"
+                      label={I18n.t("tabs.tokens")}
+                      Icon={TokenLogo}>
+                    <Tokens/>
+                </Page>);
         }
         setTabs(newTabs);
         setLoading(false);
