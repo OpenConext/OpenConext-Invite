@@ -61,7 +61,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             attributes = bearerTokenAuthentication.getTokenAttributes();
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
             attributes = authenticationToken.getPrincipal().getAttributes();
-        } else if (StringUtils.hasText(apiTokenHeader) && apiTokenHeader.length() == 64) {
+        } else if (StringUtils.hasText(apiTokenHeader) && apiTokenHeader.length() == 36) {
             String hashedToken = HashGenerator.hashToken(apiTokenHeader);
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
                     .orElseThrow(UserRestrictionException::new);
