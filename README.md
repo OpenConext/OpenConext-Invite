@@ -42,13 +42,13 @@ mvn clean deploy
 
 ### [Endpoints](#endpoints)
 
-<https://access.test.surfconext.nl/ui/swagger-ui/index.html>
+<https://invite.test.surfconext.nl/ui/swagger-ui/index.html>
 
 <https://mock.test.surfconext.nl/>
 
 <https://welcome.test.surfconext.nl/>
 
-<https://access.test.surfconext.nl/>
+<https://invite.test.surfconext.nl/>
 
 ### [Mock](#mock)
 

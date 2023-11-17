@@ -19,6 +19,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,8 +67,12 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
                     .orElseThrow(UserRestrictionException::new);
             String organizationGuid = apiToken.getOrganizationGUID();
-            User user = userRepository.findByOrganizationGUIDAndAndInstitutionAdmin(organizationGuid, true)
-                    .orElseThrow(UserRestrictionException::new);
+            List<User> institutionAdmins = userRepository.findByOrganizationGUIDAndAndInstitutionAdmin(organizationGuid, true);
+            if (institutionAdmins.isEmpty()) {
+                throw new UserRestrictionException();
+            }
+            //Does not make any difference security-wise which user we return
+            User user = institutionAdmins.get(0);
             //The overhead is justified for API usage
             user.setApplications(manage.providersByInstitutionalGUID(organizationGuid));
             user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGuid).orElse(Collections.emptyMap()));
