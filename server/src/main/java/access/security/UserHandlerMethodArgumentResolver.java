@@ -7,6 +7,7 @@ import access.model.APIToken;
 import access.model.User;
 import access.repository.APITokenRepository;
 import access.repository.UserRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -49,7 +50,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
     }
 
     @SuppressWarnings("unchecked")
-    public User resolveArgument(MethodParameter methodParameter,
+    public User resolveArgument(@NotNull MethodParameter methodParameter,
                                 ModelAndViewContainer mavContainer,
                                 NativeWebRequest webRequest,
                                 WebDataBinderFactory binderFactory) {
@@ -58,17 +59,22 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
 
         String apiTokenHeader = webRequest.getHeader(API_TOKEN_HEADER);
 
+
         if (userPrincipal instanceof BearerTokenAuthentication bearerTokenAuthentication) {
+            //The user has logged in and obtained an access_token. Invite is acting as an API resource server
             attributes = bearerTokenAuthentication.getTokenAttributes();
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
+            //The user has logged in with OpenIDConnect. Invite is acting as a backend server
             attributes = authenticationToken.getPrincipal().getAttributes();
         } else if (StringUtils.hasText(apiTokenHeader) && apiTokenHeader.length() == 36) {
+            //The user has obtained an API token (from her institution admin) and there is no state
             String hashedToken = HashGenerator.hashToken(apiTokenHeader);
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
                     .orElseThrow(UserRestrictionException::new);
             String organizationGuid = apiToken.getOrganizationGUID();
             List<User> institutionAdmins = userRepository.findByOrganizationGUIDAndAndInstitutionAdmin(organizationGuid, true);
             if (institutionAdmins.isEmpty()) {
+                //we don't want to return null as this is not part of the happy-path
                 throw new UserRestrictionException();
             }
             //Does not make any difference security-wise which user we return
@@ -78,6 +84,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGuid).orElse(Collections.emptyMap()));
             return user;
         } else {
+            //The user is not authenticated, but that is part of the accept invitation flow. Do not throw any Exception
             return null;
         }
 
@@ -85,12 +92,14 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         AtomicBoolean validImpersonation = new AtomicBoolean(false);
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub)
                 .or(() ->
+                        //Provision super-admin users on the fly
                         superAdmin.getUsers().stream().filter(adminSub -> adminSub.equals(sub))
                                 .findFirst()
                                 .map(adminSub -> userRepository.save(new User(true, attributes)))
                 )
                 .or(() -> {
                     if ((boolean) attributes.get(INSTITUTION_ADMIN)) {
+                        //Provision institution-admins on the fly as they do not need an invitation
                         User user = new User(attributes);
                         userRepository.save(user);
                         return Optional.of(user);
@@ -115,7 +124,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
                 String organizationGUID = user.getOrganizationGUID();
                 if (validImpersonation.get()) {
-                    //The overhead is justified when super_user is impersonating institutionAdmin
+                    //The overhead for retrieving data from manage is justified when super_user is impersonating institutionAdmin
                     user.setApplications(manage.providersByInstitutionalGUID(organizationGUID));
                     user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGUID).orElse(Collections.emptyMap()));
                 } else {
