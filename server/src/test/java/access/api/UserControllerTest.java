@@ -97,7 +97,8 @@ class UserControllerTest extends AbstractTest {
     void institutionAdminProvision() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin", institutionalAdminEntitlementOperator);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
         User user = given()
                 .when()

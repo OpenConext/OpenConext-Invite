@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static access.Seed.*;
 import static io.restassured.RestAssured.given;
@@ -21,7 +22,8 @@ class APITokenControllerTest extends AbstractTest {
     @Test
     void apiTokensByInstitution() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN, institutionalAdminEntitlementOperator);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
         List<APIToken> tokens = given()
                 .when()
@@ -38,7 +40,8 @@ class APITokenControllerTest extends AbstractTest {
     @Test
     void create() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN, institutionalAdminEntitlementOperator);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
         //First get the value, otherwise the creation will fail
         Map<String, String> res = given()
                 .when()
@@ -70,10 +73,28 @@ class APITokenControllerTest extends AbstractTest {
     }
 
     @Test
+    void createWithFaultyToken() throws Exception {
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(new APIToken("wrong", "wrong", "wrong"))
+                .post("/api/v1/tokens")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
     void deleteToken() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
         APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_HASH)).get();
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN, institutionalAdminEntitlementOperator);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
         given()
                 .when()
@@ -86,5 +107,25 @@ class APITokenControllerTest extends AbstractTest {
                 .then()
                 .statusCode(204);
         assertEquals(0, apiTokenRepository.count());
+    }
+
+    @Test
+    void deleteOtherToken() throws Exception {
+        String organisationGUID = "test_institution_guid";
+        super.stubForManageProviderByOrganisationGUID(organisationGUID);
+        APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_HASH)).get();
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+                institutionalAdminEntitlementOperator(organisationGUID));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", apiToken.getId())
+                .delete("/api/v1/tokens/{id}")
+                .then()
+                .statusCode(403);
     }
 }

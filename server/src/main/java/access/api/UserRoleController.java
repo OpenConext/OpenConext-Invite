@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
 @RestController
@@ -31,6 +32,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @EnableConfigurationProperties(Config.class)
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 public class UserRoleController {
 
     private static final Log LOG = LogFactory.getLog(UserRoleController.class);

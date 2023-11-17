@@ -31,12 +31,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/v1/roles", "/api/external/v1/roles", }, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 @EnableConfigurationProperties(Config.class)
 public class RoleController {
     private static final Log LOG = LogFactory.getLog(RoleController.class);

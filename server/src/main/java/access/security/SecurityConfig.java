@@ -129,12 +129,10 @@ public class SecurityConfig {
                                                    UserRepository userRepository,
                                                    @Value("${institution-admin.entitlement}") String entitlement,
                                                    @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
-        final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
         http
                 .csrf(c -> c
                         .ignoringRequestMatchers("/login/oauth2/code/oidcng")
-                        .ignoringRequestMatchers("/api/v1/validations/**")
-                        .ignoringRequestMatchers(apiTokenRequestMatcher))
+                        .ignoringRequestMatchers("/api/v1/validations/**"))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
                 .authorizeHttpRequests(c -> c
                         .requestMatchers(
@@ -147,9 +145,6 @@ public class SecurityConfig {
                                 "/api/v1/validations/**",
                                 "/ui/**",
                                 "internal/**")
-                        .permitAll()
-                        //The API token is secured in the UserHandlerMethodArgumentResolver
-                        .requestMatchers(apiTokenRequestMatcher)
                         .permitAll()
                         .anyRequest()
                         .authenticated()
@@ -180,7 +175,8 @@ public class SecurityConfig {
     @Order(2)
     SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> c.disable())
-                .securityMatcher("/api/voot/**",
+                .securityMatcher(
+                        "/api/voot/**",
                         "/api/external/v1/voot/**",
                         "/api/aa/**",
                         "/api/external/v1/aa/**",
@@ -200,10 +196,14 @@ public class SecurityConfig {
     @Bean
     @Order(3)
     SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http) throws Exception {
+        final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
         http.csrf(c -> c.disable())
                 .securityMatcher("/api/external/v1/**")
                 .authorizeHttpRequests(c -> c
                         .requestMatchers("/api/external/v1/validations/**")
+                        .permitAll()
+                        //The API token is secured in the UserHandlerMethodArgumentResolver
+                        .requestMatchers(apiTokenRequestMatcher)
                         .permitAll()
                         .anyRequest()
                         .authenticated()

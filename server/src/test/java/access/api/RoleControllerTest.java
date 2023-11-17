@@ -2,21 +2,17 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.Seed;
 import access.manage.EntityType;
 import access.model.RemoteProvisionedGroup;
 import access.model.Role;
 import access.model.RoleExists;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import io.restassured.http.Headers;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.UnaryOperator;
 
 import static access.Seed.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
@@ -197,7 +193,7 @@ class RoleControllerTest extends AbstractTest {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
-                institutionalAdminEntitlementOperator);
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
         List<Role> roles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -325,6 +321,23 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void rolesByApplicationInstitutionAdminByAPI() throws Exception {
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://wiki");
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+
+        List<Role> roles = given()
+                .when()
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/external/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(4, roles.size());
+    }
+
+    @Test
     void deleteRoleWithAPI() throws Exception {
         Role role = roleRepository.search("wiki", 1).get(0);
         //Ensure delete provisioning is done
@@ -341,7 +354,7 @@ class RoleControllerTest extends AbstractTest {
                 .header(API_TOKEN_HEADER, API_TOKEN_HASH)
                 .contentType(ContentType.JSON)
                 .pathParams("id", role.getId())
-                .delete("/api/v1/roles/{id}")
+                .delete("/api/external/v1/roles/{id}")
                 .then()
                 .statusCode(204);
         assertEquals(0, roleRepository.search("wiki", 1).size());

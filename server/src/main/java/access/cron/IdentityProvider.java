@@ -9,10 +9,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 public class IdentityProvider implements Serializable {
 
     private String displayNameEn;
@@ -21,7 +19,7 @@ public class IdentityProvider implements Serializable {
 
     public String getName() {
         String language = LocaleContextHolder.getLocale().getLanguage();
-        if ("en".equals(language.toLowerCase())) {
+        if ("en".equalsIgnoreCase(language)) {
             return StringUtils.hasText(displayNameEn) ? displayNameEn : displayNameNl;
         }
         return StringUtils.hasText(displayNameNl) ? displayNameNl : displayNameEn;

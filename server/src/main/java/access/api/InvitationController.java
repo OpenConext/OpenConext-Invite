@@ -41,6 +41,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static java.util.stream.Collectors.toSet;
 
@@ -48,6 +49,7 @@ import static java.util.stream.Collectors.toSet;
 @RequestMapping(value = {"/api/v1/invitations", "/api/external/v1/invitations"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
+@SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 @EnableConfigurationProperties(SuperAdmin.class)
 public class InvitationController implements HasManage {
 

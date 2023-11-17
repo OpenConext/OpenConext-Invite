@@ -56,7 +56,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-import static access.Seed.ORGANISATION_GUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -114,14 +113,6 @@ public abstract class AbstractTest {
     @LocalServerPort
     protected int port;
 
-    protected static final UnaryOperator<Map<String, Object>> institutionalAdminEntitlementOperator = m -> {
-        m.put("eduperson_entitlement",
-                List.of(
-                        "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
-                        "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + ORGANISATION_GUID
-                ));
-        return m;
-    };
     @BeforeAll
     protected static void beforeAll() {
         RestAssured.config = RestAssuredConfig.config()
@@ -474,5 +465,17 @@ public abstract class AbstractTest {
                         .withHeader("Content-Type", "application/json")
                 ));
     }
+
+    protected UnaryOperator<Map<String, Object>> institutionalAdminEntitlementOperator(String organisationGuid) {
+      return m -> {
+          m.put("eduperson_entitlement",
+                  List.of(
+                          "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
+                          "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisationGuid
+                  ));
+          return m;
+      };
+    }
+
 
 }
