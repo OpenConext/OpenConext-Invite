@@ -123,6 +123,7 @@ export const Tokens = () => {
                                 txt={I18n.t("forms.cancel")}
                                 onClick={() => setNewToken(false)}/>
                         <Button txt={I18n.t("forms.save")}
+                                disabled={!initial && isEmpty(description)}
                                 onClick={() => submitNewToken()}/>
                     </section>
                 </div>

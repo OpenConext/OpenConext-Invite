@@ -248,10 +248,6 @@
 
                     img {
                         border-radius: 4px;
-                        //min-width: 80px;
-                        //min-height: 58px;
-                        //max-width: 80px;
-                        //max-height: 58px;
                         width: 80px;
                         height: auto;
                         margin-right: 5px;
@@ -260,6 +256,12 @@
 
                 .sds--chips span {
                     white-space: nowrap;
+                }
+
+                svg.bin-svg {
+                    &:hover {
+                        color: var(--sds--color--red--400);
+                    }
                 }
             }
         }

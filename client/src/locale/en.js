@@ -14,8 +14,7 @@ const en = {
             //Arrays of titles and info blocks and if a function is an admin function
             ["Invites", "<p>SURF invites institution managers who can create roles for their applications.</p>" +
             "<p>Applications are services connected to SURFconext.</p>", true],
-            ["Roles", "<p>The application managers will invite colleagues for roles who can invite guests.</p>" +
-            "<p>Invites.</p>", true],
+            ["Roles", "<p>The application managers will invite colleagues for roles who then can invite guests.</p>", true],
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
         ],
@@ -300,13 +299,12 @@ const en = {
         new: "Add API token",
         searchPlaceHolder: "Search for API tokens...",
         noEntities: "No API tokens",
-        backToApiKeys: "Back to all API tokens",
         titleNew: "Create an API token for {{institutions}}",
         backToOverview: "Back to all API tokens",
         createdAt: "Created at",
         secretDisclaimer: "You can view this API token only once. Copy it and store it somewhere safe.<br><br>If the token is lost, delete it and create a new one.",
         secret: "API token",
-        secretValue: "One-way hashed secret",
+        secretValue: "One-way hashed token",
         secretTooltip: "The value to use in the X-API-TOKEN header",
         description: "Description",
         descriptionPlaceHolder: "Description for this API token",
