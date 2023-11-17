@@ -70,7 +70,7 @@ public class UserLifeCycleController {
             return result;
         }
         User user = optionalUser.get();
-        Set<Attribute> attributes = new HashSet<>();
+        List<Attribute> attributes = new ArrayList<>();
         attributes.add(new Attribute("email", user.getEmail()));
         attributes.add(new Attribute("eduPersonPrincipalName", user.getEduPersonPrincipalName()));
         attributes.add(new Attribute("schacHomeOrganization", user.getSchacHomeOrganization()));
@@ -83,10 +83,10 @@ public class UserLifeCycleController {
             this.provisioningService.deleteUserRequest(user);
             userRepository.delete(user);
         }
-        result.setData(new ArrayList<>(attributes).stream()
+        result.setData(attributes.stream()
                 .filter(attr -> StringUtils.hasText(attr.getValue()))
                 .sorted(Comparator.comparing(Attribute::getName))
-                .collect(Collectors.toList()));
+                .toList());
         return result;
     }
 
