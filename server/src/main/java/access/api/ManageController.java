@@ -79,7 +79,7 @@ public class ManageController {
                         EntityType.valueOf(entry.getKey()),
                         entry.getValue().stream().map(s -> s[1]).collect(Collectors.toList())))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
         List<Map<String, Object>> provisionings = manage.provisioning(manageIdentifiers.stream().map(s -> s[1]).toList());
         return ResponseEntity.ok(Map.of(
                 "providers", providers,

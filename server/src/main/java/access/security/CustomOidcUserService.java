@@ -52,7 +52,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             List<Map<String, Object>> applications = manage.providersByInstitutionalGUID(organizationGuid);
             newClaims.put(APPLICATIONS, applications);
             Optional<Map<String, Object>> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGuid);
-            newClaims.put(INSTITUTION, identityProvider.orElse(null));;
+            newClaims.put(INSTITUTION, identityProvider.orElse(null));
         }
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
         oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
