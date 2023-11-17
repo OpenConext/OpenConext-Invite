@@ -29,6 +29,7 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
 
         MimeMessageParser messageParser = super.mailMessage();
         String htmlContent = messageParser.getHtmlContent();
+        System.out.println(htmlContent);
         assertTrue(htmlContent.contains("Your Inviter role Mail at the application Calendar EN will expire"));
 
         userRole = userRoleRepository.findByRoleName("Mail").get(0);

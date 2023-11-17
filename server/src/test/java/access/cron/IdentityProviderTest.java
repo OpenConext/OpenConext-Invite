@@ -17,5 +17,7 @@ class IdentityProviderTest {
         LocaleContextHolder.setLocale(Locale.forLanguageTag("nl"));
         identityProvider = new IdentityProvider("en", "nl", "logo");
         assertEquals("nl", identityProvider.getName());
+        //Put back the locale, otherwise the mail tests become flakey
+        LocaleContextHolder.setLocale(Locale.ENGLISH);
     }
 }
