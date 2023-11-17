@@ -53,8 +53,12 @@ public class SwaggerOpenIdConfig {
                 .addSecuritySchemes(ATTRIBUTE_AGGREGATION_SCHEME_NAME, basicAuthentication);
 
         OpenAPI openAPI = new OpenAPI()
-                .info(new Info().description("Access app API endpoints").title("Access app API"))
-                .addServersItem(new Server().url(baseUrl));
+                .info(new Info()
+                        .description("Invite external API endpoints")
+                        .title("Invite API")
+                        .version("v1"))
+                .addServersItem(new Server()
+                        .url(baseUrl));
 
         openAPI.components(components)
                 .addSecurityItem(new SecurityRequirement().addList(OPEN_ID_SCHEME_NAME));

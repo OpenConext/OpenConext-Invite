@@ -33,7 +33,7 @@ export const Impersonating = () => {
                 onClick={() => {
                     stopImpersonation();
                     setFlash(I18n.t("impersonate.flash.clearedImpersonation"));
-                    navigate("/home");
+                    navigate("/");
                 }}
                 txt={I18n.t("impersonate.exit")}/>
     </div>
