@@ -53,17 +53,17 @@ public record Seed(InvitationRepository invitationRepository,
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, guest);
 
         Role wiki =
-                new Role("Wiki", "Wiki desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
+                new Role("Wiki", "Wiki desc", "https://landingpage.com", application("1", EntityType.SAML20_SP), 365, false, false);
         Role network =
-                new Role("Network", "Network desc", "https://landingpage.com", "2", EntityType.SAML20_SP, 365, false, false);
+                new Role("Network", "Network desc", "https://landingpage.com", application("2", EntityType.SAML20_SP), 365, false, false);
         Role storage =
-                new Role("Storage", "Storage desc", "https://landingpage.com", "3", EntityType.SAML20_SP, 365, false, false);
+                new Role("Storage", "Storage desc", "https://landingpage.com", application("3", EntityType.SAML20_SP), 365, false, false);
         Role research =
-                new Role("Research", "Research desc", "https://landingpage.com", "4", EntityType.SAML20_SP, 365, false, false);
+                new Role("Research", "Research desc", "https://landingpage.com", application("4", EntityType.SAML20_SP), 365, false, false);
         Role calendar =
-                new Role("Calendar", "Calendar desc", "https://landingpage.com", "5", EntityType.OIDC10_RP, 365, false, false);
+                new Role("Calendar", "Calendar desc", "https://landingpage.com", application("5", EntityType.OIDC10_RP), 365, false, false);
         Role mail =
-                new Role("Mail", "Mail desc", "https://landingpage.com", "5", EntityType.OIDC10_RP, 365, false, false);
+                new Role("Mail", "Mail desc", "https://landingpage.com", application("5", EntityType.OIDC10_RP), 365, false, false);
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 
         UserRole wikiManager =
@@ -114,4 +114,9 @@ public record Seed(InvitationRepository invitationRepository,
     private <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
         repository.saveAll(Arrays.asList(entities));
     }
+
+    public static Set<Application> application(String manageId, EntityType entityType) {
+        return Set.of(new Application(manageId, entityType));
+    }
+
 }

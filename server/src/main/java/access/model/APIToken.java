@@ -19,13 +19,6 @@ public class APIToken implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public APIToken(String organizationGUID, String hashedValue, String description) {
-        this.organizationGUID = organizationGUID;
-        this.hashedValue = hashedValue;
-        this.description = description;
-        this.createdAt = Instant.now();
-    }
-
     @Column(name = "organization_guid")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String organizationGUID;
@@ -39,5 +32,13 @@ public class APIToken implements Serializable {
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    public APIToken(String organizationGUID, String hashedValue, String description) {
+        this.organizationGUID = organizationGUID;
+        this.hashedValue = hashedValue;
+        this.description = description;
+        this.createdAt = Instant.now();
+    }
+
 
 }

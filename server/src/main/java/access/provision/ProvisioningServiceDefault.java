@@ -299,7 +299,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     private List<Provisioning> getProvisionings(Role role) {
-        return manage.provisioning(List.of(role.getManageId())).stream().map(Provisioning::new).toList();
+        List<String> manageIdentifiers = role.getApplications().stream().map(Application::getManageId).toList();
+        return manage.provisioning(manageIdentifiers).stream().map(Provisioning::new).toList();
     }
 
     @SneakyThrows

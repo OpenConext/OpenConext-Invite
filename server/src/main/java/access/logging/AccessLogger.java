@@ -6,6 +6,7 @@ import org.slf4j.MDC;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AccessLogger {
 
@@ -16,11 +17,16 @@ public class AccessLogger {
         MDC.setContextMap(Map.of(
                 "type", String.format("%s Role", event),
                 "userId", user.getSub(),
-                "applicationId", role.getManageId(),
-                "applicationType", role.getManageType().collectionName(),
+                "applications", applications(role),
                 "roleId", role.getId().toString()
         ));
         log.info(String.format("%s role %s", event, role.getName()));
+    }
+
+    private static String applications(Role role) {
+        return role.getApplications().stream()
+                .map(application -> String.format("%s %s", application.getManageType(), application.getManageId()))
+                .collect(Collectors.joining(", "));
     }
 
     public static void userRole(Log log, Event event, User user, UserRole userRole) {
@@ -28,8 +34,7 @@ public class AccessLogger {
         MDC.setContextMap(Map.of(
                 "type", String.format("%s UserRole", event),
                 "userId", user.getSub(),
-                "applicationId", role.getManageId(),
-                "applicationType", role.getManageType().collectionName(),
+                "applications", applications(role),
                 "roleId", role.getId().toString()
         ));
         log.info(String.format("%s userRole %s", event, role.getName()));
@@ -37,11 +42,11 @@ public class AccessLogger {
 
     public static void invitation(Log log, Event event, Invitation invitation) {
         List<Role> roles = invitation.getRoles().stream().map(InvitationRole::getRole).toList();
-        List<String> manageRoles = roles.stream().map(role -> String.format("%s-%s", role.getManageId(), role.getManageType())).toList();
+        ;
         MDC.setContextMap(Map.of(
                 "type", String.format("%s Invitation", event),
                 "userId", invitation.getInviter().getSub(),
-                "applications", String.join(", ", manageRoles),
+                "applications", roles.stream().map(AccessLogger::applications).collect(Collectors.joining(", ")),
                 "roles", String.join(",", roles.stream().map(Role::getName).toList())
         ));
         log.info(String.format("%s invitation for %s", event, invitation.getEmail()));

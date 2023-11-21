@@ -9,8 +9,6 @@ import access.model.UserRole;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -26,7 +24,7 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void byRole() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = roleRepository.findByManageIdAndShortNameIgnoreCase("1", "wiki").get();
+        Role role = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId("1", "wiki").get();
         List<UserRole> userRoles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

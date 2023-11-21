@@ -58,7 +58,7 @@ public class AttributeAggregatorController {
 
         Map<String, Object> provider = optionalProvider.get();
         List<Map<String, String>> roles = user.getUserRoles().stream()
-                .filter(role -> role.getRole().getManageId().equals(provider.get("id")))
+                .filter(role -> role.getRole().getApplications().stream().anyMatch(application -> application.getManageId().equals(provider.get("id"))))
                 .map(this::parseUserRole)
                 .toList();
         return ResponseEntity.ok(roles);

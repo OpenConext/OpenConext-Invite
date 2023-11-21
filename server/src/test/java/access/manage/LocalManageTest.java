@@ -14,7 +14,7 @@ class LocalManageTest extends AbstractTest {
     void deriveRemoteApplications() {
         List<Role> roles = roleRepository.findAll();
         assertEquals(6, roles.size());
-        localManage.deriveRemoteApplications(roles);
+        localManage.addManageMetaData(roles);
         roles.forEach(role -> assertNotNull(role.getApplication().get("id")));
     }
 }

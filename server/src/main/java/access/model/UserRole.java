@@ -1,5 +1,6 @@
 package access.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Set;
 
 @Entity(name = "user_roles")
 @NoArgsConstructor
@@ -66,5 +68,15 @@ public class UserRole implements Serializable {
         this.authority = authority;
         this.endDate = endDate == null && authority.equals(Authority.GUEST) ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
         this.createdAt = Instant.now();
+    }
+
+    @Transient
+    @JsonIgnore
+    public boolean hasAccessToApplication(Role otherRole) {
+        Set<Application> mineApplications = this.role.getApplications();
+        Set<Application> otherApplications = otherRole.getApplications();
+        return mineApplications.stream()
+                .anyMatch(application -> otherApplications.stream()
+                        .anyMatch(otherApplication -> otherApplication.getManageId().equals(application.getManageId())));
     }
 }

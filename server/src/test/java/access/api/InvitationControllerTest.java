@@ -64,7 +64,7 @@ class InvitationControllerTest extends AbstractTest {
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
 
-        List<Long> roleIdentifiers = roleRepository.findByManageIdIn(Set.of("1")).stream()
+        List<Long> roleIdentifiers = roleRepository.findByApplicationsManageIdIn(Set.of("1")).stream()
                 .map(Role::getId)
                 .toList();
         InvitationRequest invitationRequest = new InvitationRequest(

@@ -7,7 +7,6 @@ import access.model.APIToken;
 import access.model.User;
 import access.repository.APITokenRepository;
 import access.repository.UserRepository;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -50,7 +49,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
     }
 
     @SuppressWarnings("unchecked")
-    public User resolveArgument(@NotNull MethodParameter methodParameter,
+    public User resolveArgument(MethodParameter methodParameter,
                                 ModelAndViewContainer mavContainer,
                                 NativeWebRequest webRequest,
                                 WebDataBinderFactory binderFactory) {

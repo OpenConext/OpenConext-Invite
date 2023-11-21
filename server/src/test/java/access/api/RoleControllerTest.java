@@ -154,8 +154,8 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void nameExists() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role wiki = roleRepository.findByManageIdAndShortNameIgnoreCase("1", "WIKI").get();
-        Role research = roleRepository.findByManageIdAndShortNameIgnoreCase("4", "research").get();
+        Role wiki = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId("1", "WIKI").get();
+        Role research = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId("4", "research").get();
         Map result = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

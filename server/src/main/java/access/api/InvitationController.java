@@ -11,7 +11,6 @@ import access.provision.ProvisioningService;
 import access.provision.graph.GraphResponse;
 import access.provision.scim.OperationType;
 import access.repository.InvitationRepository;
-import access.repository.RemoteProvisionedUserRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.security.SuperAdmin;
@@ -31,10 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.view.RedirectView;
 
-import java.net.http.HttpClient;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
@@ -173,7 +169,7 @@ public class InvitationController implements HasManage {
         if (!invitation.getStatus().equals(Status.OPEN)) {
             throw new InvitationStatusException();
         }
-        manage.deriveRemoteApplications(invitation.getRoles().stream().map(InvitationRole::getRole).toList());
+        manage.addManageMetaData(invitation.getRoles().stream().map(InvitationRole::getRole).toList());
         return ResponseEntity.ok(invitation);
     }
 

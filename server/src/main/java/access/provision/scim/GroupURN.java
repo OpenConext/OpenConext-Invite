@@ -1,9 +1,11 @@
 package access.provision.scim;
 
 
+import access.model.Application;
 import access.model.Role;
 
 import java.text.Normalizer;
+import java.util.stream.Collectors;
 
 public class GroupURN {
 
@@ -22,7 +24,7 @@ public class GroupURN {
     public static String urnFromRole(String groupUrnPrefix, Role role) {
         return String.format("%s:%s:%s",
                 groupUrnPrefix,
-                role.getManageId(),
+                role.getIdentifier(),
                 role.getShortName());
     }
 

@@ -1,14 +1,9 @@
 package access.manage;
 
 import access.model.Role;
-import access.provision.ProvisioningType;
 import org.springframework.util.CollectionUtils;
 
-import java.sql.DataTruncation;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public interface Manage {
@@ -84,20 +79,23 @@ public interface Manage {
         return application;
     }
 
-    default List<Role> deriveRemoteApplications(List<Role> roles) {
+    default List<Role> addManageMetaData(List<Role> roles) {
         //First get all unique remote manage entities and group them by entityType
         Map<EntityType, List<ManageIdentifier>> groupedManageIdentifiers = roles.stream()
-                .map(role -> new ManageIdentifier(role.getManageId(), role.getManageType()))
+                .map(Role::getApplications)
+                .flatMap(Collection::stream)
+                .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
                 .collect(Collectors.toSet())
                 .stream()
                 .collect(Collectors.groupingBy(ManageIdentifier::entityType));
-        //Now for each entityType (hopefully one, maximum two) we call manage and create a map with as key
+        //Now for each entityType (hopefully one, maximum two) we call manage and create a map with as key the id in manage
         Map<String, Map<String, Object>> remoteApplications = groupedManageIdentifiers.entrySet().stream()
                 .map(entry -> this.providersByIdIn(entry.getKey(), entry.getValue().stream().map(ManageIdentifier::id).toList()))
                 .flatMap(List::stream)
                 .collect(Collectors.toMap(map -> (String) map.get("id"), map -> map));
         //Add the metadata to the role
-        roles.forEach(role -> role.setApplication(transformProvider(remoteApplications.get(role.getManageId()))));
+        roles.forEach(role -> role.setApplicationMaps(
+                role.getApplications().stream().map(application -> transformProvider(remoteApplications.get(application.getManageId()))).toList()));
         return roles;
     }
 

@@ -9,6 +9,7 @@ import access.model.UserRole;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserPermissions {
 
@@ -47,7 +48,7 @@ public class UserPermissions {
         //For all roles verify that the user has a higher authority then the one requested for all off the roles
         Set<UserRole> userRoles = user.getUserRoles();
         if (user.isInstitutionAdmin() && roles.stream()
-                .allMatch(role -> mayInviteByInstitutionAdmin(user.getApplications(), role.getManageId()))) {
+                .allMatch(role -> mayInviteByInstitutionAdmin(user.getApplications(), role.applicationIdentifiers()))) {
             return;
         }
         boolean allowed = roles.stream()
@@ -61,15 +62,16 @@ public class UserPermissions {
     //Does one off the userRoles has Authority.MANAGE and has the same application as the role
     private static boolean mayInviteByApplication(Set<UserRole> userRoles, Authority intendedAuthority, Role role) {
         return userRoles.stream()
-                .anyMatch(userRole -> userRole.getRole().getManageId().equals(role.getManageId()) &&
+                .anyMatch(userRole -> userRole.hasAccessToApplication(role) &&
                         userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER) &&
                         userRole.getAuthority().hasEqualOrHigherRights(intendedAuthority));
     }
 
     //Does the one off the applications has the same application as the role
-    private static boolean mayInviteByInstitutionAdmin(List<Map<String, Object>> applications, String manageId) {
+    private static boolean mayInviteByInstitutionAdmin(List<Map<String, Object>> applications,
+                                                       List<String> manageIdentifiers) {
         return applications.stream()
-                .anyMatch(application -> application.get("id").equals(manageId));
+                .anyMatch(application -> manageIdentifiers.contains(application.get("id")));
     }
 
     //Does one the userRoles has at least the Authority higher than the intendedAuthority and NOT Guest
@@ -80,17 +82,17 @@ public class UserPermissions {
                         userRole.getRole().getId().equals(role.getId()));
     }
 
-    public static void assertManagerRole(Map<String, Object> provider, User user) {
-        String manageId = (String) provider.get("id");
+    public static void assertManagerRole(List<Map<String, Object>> providers, User user) {
+        List<String> manageIdentifiers = providers.stream().map(provider -> (String) provider.get("id")).toList() ;
         if (user.isSuperUser()) {
             return;
         }
-        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), manageId)) {
+        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), manageIdentifiers)) {
             return;
         }
         user.getUserRoles().stream()
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)
-                        && userRole.getRole().getManageId().equals(manageId))
+                        && userRole.getRole().applicationIdentifiers().stream().anyMatch(manageIdentifiers::contains))
                 .findFirst()
                 .orElseThrow(UserRestrictionException::new);
     }
@@ -103,13 +105,13 @@ public class UserPermissions {
         if (user.isSuperUser()) {
             return;
         }
-        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), accessRole.getManageId())) {
+        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), accessRole.applicationIdentifiers())) {
             return;
         }
         user.getUserRoles().stream()
                 .filter(userRole -> (userRole.getRole().getId().equals(accessRole.getId()) &&
                         userRole.getAuthority().hasEqualOrHigherRights(authority)) ||
-                        (userRole.getRole().getManageId().equals(accessRole.getManageId()) &&
+                        (userRole.hasAccessToApplication(accessRole) &&
                                 userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)))
                 .findFirst()
                 .orElseThrow(UserRestrictionException::new);

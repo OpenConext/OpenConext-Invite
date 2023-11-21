@@ -1,6 +1,7 @@
 package access.mail;
 
 import access.AbstractMailTest;
+import access.Seed;
 import access.manage.EntityType;
 import access.model.*;
 import org.junit.jupiter.api.Test;
@@ -31,8 +32,8 @@ class MailBoxTest extends AbstractMailTest {
                 user,
                 Instant.now().plus(30, ChronoUnit.DAYS),
                 Instant.now().plus(365, ChronoUnit.DAYS),
-                Set.of(new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365, false, false)),
-                        new InvitationRole(new Role("name", "desc", "https://landingpage.com","1", EntityType.SAML20_SP, 365, false, false))));
+                Set.of(new InvitationRole(new Role("name", "desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false)),
+                        new InvitationRole(new Role("name", "desc", "https://landingpage.com",Seed.application("1", EntityType.SAML20_SP), 365, false, false))));
         mailBox.sendInviteMail(user, invitation, List.of(
                 new GroupedProviders(
                         localManage.providerById(EntityType.SAML20_SP, "1"),

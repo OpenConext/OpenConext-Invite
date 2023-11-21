@@ -7,10 +7,7 @@ import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
 import access.manage.Manage;
-import access.model.Authority;
-import access.model.Role;
-import access.model.RoleExists;
-import access.model.User;
+import access.model.*;
 import access.provision.ProvisioningService;
 import access.provision.scim.GroupURN;
 import access.repository.RoleRepository;
@@ -63,20 +60,22 @@ public class RoleController {
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user) {
         LOG.debug("/roles");
         if (user.isSuperUser() && !config.isRoleSearchRequired()) {
-            return ResponseEntity.ok(manage.deriveRemoteApplications(roleRepository.findAll()));
+            return ResponseEntity.ok(manage.addManageMetaData(roleRepository.findAll()));
         }
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         List<Role> roles = new ArrayList<>();
         if (user.isInstitutionAdmin()) {
-            roles.addAll(roleRepository.findByManageIdIn(user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet())));
+            roles.addAll(roleRepository.findByApplicationsManageIdIn(user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet())));
         }
         Set<String> manageIdentifiers = user.getUserRoles().stream()
                 //If the user has an userRole as Inviter, then we must exclude those
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
-                .map(userRole -> userRole.getRole().getManageId())
+                .map(userRole -> userRole.getRole().getApplications())
+                .flatMap(Collection::stream)
+                .map(application -> application.getManageId())
                 .collect(Collectors.toSet());
-        roles.addAll(roleRepository.findByManageIdIn(manageIdentifiers));
-        return ResponseEntity.ok(manage.deriveRemoteApplications(roles));
+        roles.addAll(roleRepository.findByApplicationsManageIdIn(manageIdentifiers));
+        return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
     @GetMapping("{id}")
@@ -84,9 +83,7 @@ public class RoleController {
         LOG.debug("/role");
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
-
-        Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
-        role.setApplication(provider);
+        manage.addManageMetaData(List.of(role));
         return ResponseEntity.ok(role);
     }
 
@@ -96,7 +93,7 @@ public class RoleController {
         LOG.debug("/search");
         UserPermissions.assertSuperUser(user);
         List<Role> roles = roleRepository.search(query + "*", 15);
-        return ResponseEntity.ok(manage.deriveRemoteApplications(roles));
+        return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
     @PostMapping("validation/short_name")
@@ -104,7 +101,7 @@ public class RoleController {
                                                                 @Parameter(hidden = true) User user) {
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         String shortName = GroupURN.sanitizeRoleShortName(roleExists.shortName());
-        Optional<Role> optionalRole = roleRepository.findByManageIdAndShortNameIgnoreCase(roleExists.manageId(), shortName);
+        Optional<Role> optionalRole = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId(roleExists.manageId(), shortName);
         Map<String, Boolean> result = optionalRole
                 .map(role -> Map.of("exists", roleExists.id() == null || !role.getId().equals(roleExists.id())))
                 .orElse(Map.of("exists", false));
@@ -115,9 +112,13 @@ public class RoleController {
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
         LOG.debug("/newRole");
         String shortName = GroupURN.sanitizeRoleShortName(role.getShortName());
-        ResponseEntity<Map<String, Boolean>> exists = this.shortNameExists(new RoleExists(shortName, role.getManageId(), role.getId()), user);
-        if (exists.getBody().get("exists")) {
-            throw new NotAllowedException("Duplicate name: '" + shortName + "' for manage entity:'" + role.getManageId() + "'");
+        Optional<Application> applicationOptional = role.getApplications().stream()
+                .filter(application -> roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId(application.getManageId(), shortName).isPresent())
+                .findFirst();
+        if (applicationOptional.isPresent()) {
+            Application application = applicationOptional.get();
+            throw new NotAllowedException(
+                    String.format("Duplicate name: '%s' for manage entity:'%s'", shortName, application.getManageId()));
         }
         return saveOrUpdate(role, user);
     }
@@ -132,20 +133,24 @@ public class RoleController {
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug("/deleteRole");
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
-        Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
-        UserPermissions.assertManagerRole(provider, user);
+        manage.addManageMetaData(List.of(role));
+        UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
         provisioningService.deleteGroupRequest(role);
         roleRepository.delete(role);
         AccessLogger.role(LOG, Event.Deleted, user, role);
         return Results.deleteResult();
     }
 
+    private void addApplicationData(Role role) {
+
+    }
+
     private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
         if (StringUtils.hasText(role.getLandingPage()) && !urlFormatValidator.isValid(role.getLandingPage())) {
             throw new InvalidInputException();
         }
-        Map<String, Object> provider = manage.providerById(role.getManageType(), role.getManageId());
-        UserPermissions.assertManagerRole(provider, user);
+        manage.addManageMetaData(List.of(role));
+        UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
         boolean isNew = role.getId() == null;
         if (!isNew) {
             role.setShortName(roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new).getShortName());

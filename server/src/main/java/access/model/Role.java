@@ -1,15 +1,13 @@
 package access.model;
 
 
-import access.manage.EntityType;
 import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.Formula;
 
 import java.io.Serializable;
@@ -42,18 +40,11 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "default_expiry_days")
     private Integer defaultExpiryDays;
 
-    @Column(name = "manage_id")
-    private String manageId;
-
     @Column(name = "enforce_email_equality")
     private boolean enforceEmailEquality;
 
     @Column(name = "edu_id_only")
     private boolean eduIDOnly;
-
-    @Column(name = "manage_type")
-    @Enumerated(EnumType.STRING)
-    private EntityType manageType;
 
     @Column(name = "block_expiry_date")
     private boolean blockExpiryDate;
@@ -61,8 +52,18 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "override_settings_allowed")
     private boolean overrideSettingsAllowed;
 
+    @Column(name = "identifier")
+    private String identifier;
+
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "roles_applications",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "application_id"))
+    private Set<Application> applications = new HashSet<>();
 
     @OneToMany(mappedBy = "role",
             orphanRemoval = true,
@@ -75,41 +76,43 @@ public class Role implements Serializable, Provisionable {
     private Auditable auditable = new Auditable();
 
     @Transient
-    private Map<String, Object> application;
+    private List<Map<String, Object>> applicationMaps;
 
     public Role(String name,
                 String description,
                 String landingPage,
-                String manageId,
-                EntityType manageType,
+                Set<Application> applications,
                 Integer defaultExpiryDays,
                 boolean enforceEmailEquality,
                 boolean eduIDOnly) {
-        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, manageId, manageType, defaultExpiryDays,
-                enforceEmailEquality, eduIDOnly,
-                Collections.emptyMap());
+        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, applications,
+                defaultExpiryDays, enforceEmailEquality, eduIDOnly, Collections.emptyList());
     }
 
     public Role(@NotNull String name,
                 @NotNull String shortName,
                 String description,
                 String landingPage,
-                String manageId,
-                EntityType manageType,
+                Set<Application> applications,
                 Integer defaultExpiryDays,
                 boolean enforceEmailEquality,
                 boolean eduIDOnly,
-                Map<String, Object> application) {
+                List<Map<String, Object>> applicationMaps) {
         this.name = name;
         this.shortName = shortName;
         this.description = description;
         this.landingPage = landingPage;
-        this.manageId = manageId;
-        this.manageType = manageType;
         this.defaultExpiryDays = defaultExpiryDays;
         this.enforceEmailEquality = enforceEmailEquality;
         this.eduIDOnly = eduIDOnly;
-        this.application = application;
+        this.applications = applications;
+        this.applicationMaps = applicationMaps;
+    }
+
+    @Transient
+    @JsonIgnore
+    public List<String> applicationIdentifiers() {
+        return applications.stream().map(Application::getManageId).toList();
     }
 
 }

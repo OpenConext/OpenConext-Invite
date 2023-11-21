@@ -17,12 +17,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
             nativeQuery = true)
     List<Role> search(String keyWord, int limit);
 
-    List<Role> findByManageIdIn(Set<String> manageIdentifiers);
+    List<Role> findByApplicationsManageIdIn(Set<String> manageIdentifiers);
 
-    @Query(value = "SELECT DISTINCT manage_type, manage_id FROM roles", nativeQuery = true)
+    @Query(value = "SELECT DISTINCT manage_type, manage_id FROM applications", nativeQuery = true)
     List<String[]> findDistinctManageIdentifiers();
 
-    Optional<Role> findByManageIdAndShortNameIgnoreCase(String managerId, String name);
+    Optional<Role> findByShortNameIgnoreCaseAndApplicationsManageId(String managerId, String name);
 
     List<Role> findByName(String name);
 
