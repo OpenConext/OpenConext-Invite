@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class LocalManageTest extends AbstractTest {
 
@@ -15,6 +16,6 @@ class LocalManageTest extends AbstractTest {
         List<Role> roles = roleRepository.findAll();
         assertEquals(6, roles.size());
         localManage.addManageMetaData(roles);
-        roles.forEach(role -> assertNotNull(role.getApplication().get("id")));
+        roles.forEach(role -> role.getApplicationMaps().forEach(map -> assertNotNull(map.get("id"))));
     }
 }

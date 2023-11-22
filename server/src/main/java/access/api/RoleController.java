@@ -150,7 +150,9 @@ public class RoleController {
             throw new InvalidInputException();
         }
         manage.addManageMetaData(List.of(role));
+
         UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
+
         boolean isNew = role.getId() == null;
         if (!isNew) {
             role.setShortName(roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new).getShortName());

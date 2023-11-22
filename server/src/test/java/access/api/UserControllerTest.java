@@ -144,7 +144,7 @@ class UserControllerTest extends AbstractTest {
 
         assertEquals(roleNames, user.getUserRoles().stream().map(userRole -> userRole.getRole().getName()).sorted().toList());
         List<Object> applicationIdentifiers = user.getUserRoles().stream()
-                .map(userRole -> userRole.getRole().getApplication().get("id")).sorted().toList();
+                .map(userRole -> userRole.getRole().getApplicationMaps().get(0).get("id")).sorted().toList();
         assertEquals(List.of("5", "5"), applicationIdentifiers);
     }
 
@@ -299,7 +299,7 @@ class UserControllerTest extends AbstractTest {
                 .as(User.class);
         Set<UserRole> userRoles = user.getUserRoles();
         assertEquals(2, userRoles.size());
-        assertEquals(List.of("5", "5"), userRoles.stream().map(userRole -> userRole.getRole().getApplication().get("id")).toList());
+        assertEquals(List.of("5", "5"), userRoles.stream().map(userRole -> userRole.getRole().getApplicationMaps().get(0).get("id")).toList());
     }
 
     @Test

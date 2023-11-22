@@ -2,7 +2,9 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.Seed;
 import access.manage.EntityType;
+import access.model.Application;
 import access.model.RemoteProvisionedGroup;
 import access.model.Role;
 import access.model.RoleExists;
@@ -25,7 +27,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void create() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
+        Role role = new Role("New", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
         stubForManageProvisioning(List.of("1"));
@@ -46,7 +48,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createInvalidLandingPage() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "javascript:alert(42)", "1", EntityType.SAML20_SP, 365, false, false);
+        Role role = new Role("New", "New desc", "javascript:alert(42)", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
 
         given()
                 .when()
@@ -63,7 +65,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createProvisionException() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
+        Role role = new Role("New", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
         stubForManageProvisioning(List.of("1"));
@@ -83,7 +85,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createWithDuplicateShortName() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("Wiki", "New desc", "https://landingpage.com", "1", EntityType.SAML20_SP, 365, false, false);
+        Role role = new Role("Wiki", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
 
         given()
                 .when()
@@ -162,7 +164,7 @@ class RoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(new RoleExists(research.getShortName(), research.getManageId(), wiki.getId()))
+                .body(new RoleExists(research.getShortName(), research.getApplications().iterator().next().getManageId(), wiki.getId()))
                 .post("/api/v1/roles/validation/short_name")
                 .as(Map.class);
         assertTrue((Boolean) result.get("exists"));
@@ -240,7 +242,7 @@ class RoleControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(roleDB.getName(), role.getName());
-        assertEquals("1", role.getApplication().get("id"));
+        assertEquals("1", role.getApplicationMaps().get(0).get("id"));
     }
 
     @Test
@@ -249,9 +251,9 @@ class RoleControllerTest extends AbstractTest {
         Role role = roleRepository.search("wiki", 1).get(0);
         //Ensure delete provisioning is done
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
-
-        stubForManageProviderById(role.getManageType(), role.getManageId());
-        stubForManageProvisioning(List.of(role.getManageId()));
+        Application application = role.getApplications().iterator().next();
+        stubForManageProviderById(application.getManageType(), application.getManageId());
+        stubForManageProvisioning(List.of(application.getManageId()));
         stubForDeleteScimRole();
 
         given()
@@ -342,10 +344,10 @@ class RoleControllerTest extends AbstractTest {
         Role role = roleRepository.search("wiki", 1).get(0);
         //Ensure delete provisioning is done
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
-
-        stubForManageProviderById(role.getManageType(), role.getManageId());
+        Application application = role.getApplications().iterator().next();
+        stubForManageProviderById(application.getManageType(), application.getManageId());
         stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        stubForManageProvisioning(List.of(role.getManageId()));
+        stubForManageProvisioning(List.of(application.getManageId()));
         stubForDeleteScimRole();
 
         given()
