@@ -18,7 +18,6 @@ import java.util.UUID;
 
 import static access.Seed.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,9 +28,9 @@ class RoleControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role role = new Role("New", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
 
-        stubForManageProviderById(EntityType.SAML20_SP, "1");
-        stubForManageProvisioning(List.of("1"));
-        stubForCreateScimRole();
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManageProvisioning(List.of("1"));
+        super.stubForCreateScimRole();
 
         Map result = given()
                 .when()
@@ -66,9 +65,8 @@ class RoleControllerTest extends AbstractTest {
     void createProvisionException() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role role = new Role("New", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
-
-        stubForManageProviderById(EntityType.SAML20_SP, "1");
-        stubForManageProvisioning(List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManageProvisioning(List.of("1"));
 
         Map result = given()
                 .when()
@@ -102,10 +100,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void update() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        String body = objectMapper.writeValueAsString(localManage.providerById(EntityType.SAML20_SP, "1"));
-        stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         Role roleDB = roleRepository.search("wiki", 1).get(0);
         roleDB.setDescription("changed");
         roleDB.setShortName("changed");
@@ -173,7 +168,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void rolesByApplication() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
 
         List<Role> roles = given()
                 .when()
@@ -190,8 +185,9 @@ class RoleControllerTest extends AbstractTest {
 
     @Test
     void rolesByApplicationInstitutionAdmin() throws Exception {
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://wiki");
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
+
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
@@ -211,8 +207,8 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void rolesByApplicationSuperUser() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
 
         List<Role> roles = given()
                 .when()
@@ -230,7 +226,7 @@ class RoleControllerTest extends AbstractTest {
     void roleById() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role roleDB = roleRepository.search("wiki", 1).get(0);
-        stubForManageProviderById(EntityType.SAML20_SP, "1");
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         Role role = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -252,9 +248,9 @@ class RoleControllerTest extends AbstractTest {
         //Ensure delete provisioning is done
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
         Application application = role.getApplications().iterator().next();
-        stubForManageProviderById(application.getManageType(), application.getManageId());
-        stubForManageProvisioning(List.of(application.getManageId()));
-        stubForDeleteScimRole();
+        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
+        super.stubForManageProvisioning(List.of(application.getManageId()));
+        super.stubForDeleteScimRole();
 
         given()
                 .when()
@@ -272,8 +268,8 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void search() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
 
         List<Role> roles = given()
                 .when()
@@ -292,7 +288,7 @@ class RoleControllerTest extends AbstractTest {
     void roleByIdForbidden() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         Role roleDB = roleRepository.search("research", 1).get(0);
-        stubForManageProviderById(EntityType.SAML20_SP, "4");
+        super.stubForManageProviderById(EntityType.SAML20_SP, "4");
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -324,8 +320,8 @@ class RoleControllerTest extends AbstractTest {
 
     @Test
     void rolesByApplicationInstitutionAdminByAPI() throws Exception {
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://wiki");
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
         List<Role> roles = given()
@@ -345,10 +341,10 @@ class RoleControllerTest extends AbstractTest {
         //Ensure delete provisioning is done
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
         Application application = role.getApplications().iterator().next();
-        stubForManageProviderById(application.getManageType(), application.getManageId());
-        stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        stubForManageProvisioning(List.of(application.getManageId()));
-        stubForDeleteScimRole();
+        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvisioning(List.of(application.getManageId()));
+        super.stubForDeleteScimRole();
 
         given()
                 .when()

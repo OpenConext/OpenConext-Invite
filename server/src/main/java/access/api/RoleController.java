@@ -65,16 +65,18 @@ public class RoleController {
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         List<Role> roles = new ArrayList<>();
         if (user.isInstitutionAdmin()) {
-            roles.addAll(roleRepository.findByApplicationsManageIdIn(user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet())));
+            Set<String> manageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
+            //This is a shortcoming of the json_array
+            manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationsManageId(manageId)));
         }
         Set<String> manageIdentifiers = user.getUserRoles().stream()
                 //If the user has an userRole as Inviter, then we must exclude those
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
                 .map(userRole -> userRole.getRole().getApplications())
                 .flatMap(Collection::stream)
-                .map(application -> application.getManageId())
+                .map(Application::getManageId)
                 .collect(Collectors.toSet());
-        roles.addAll(roleRepository.findByApplicationsManageIdIn(manageIdentifiers));
+        manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationsManageId(manageId)));
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 

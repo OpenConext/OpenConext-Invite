@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractMailTest;
 import access.AccessCookieFilter;
+import access.manage.EntityType;
 import access.model.AcceptInvitation;
 import access.model.Authority;
 import access.model.Invitation;
@@ -19,6 +20,7 @@ class InvitationMailControllerTest extends AbstractMailTest {
     void resendInviteMail() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
         Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

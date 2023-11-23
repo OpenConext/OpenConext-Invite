@@ -3,7 +3,9 @@ package access.cron;
 import access.AbstractMailTest;
 import access.AbstractTest;
 import access.mail.MimeMessageParser;
+import access.manage.EntityType;
 import access.model.UserRole;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,16 +22,17 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
     private RoleExpirationNotifier roleExpirationNotifier;
 
     @Test
-    void sweep() {
+    void sweep() throws JsonProcessingException {
         UserRole userRole = userRoleRepository.findByRoleName("Mail").get(0);
         userRole.setEndDate(Instant.now().minus(7, ChronoUnit.DAYS));
+        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
+
         userRoleRepository.save(userRole);
 
         roleExpirationNotifier.sweep();
 
         MimeMessageParser messageParser = super.mailMessage();
         String htmlContent = messageParser.getHtmlContent();
-        System.out.println(htmlContent);
         assertTrue(htmlContent.contains("Your Inviter role Mail at the application Calendar EN will expire"));
 
         userRole = userRoleRepository.findByRoleName("Mail").get(0);

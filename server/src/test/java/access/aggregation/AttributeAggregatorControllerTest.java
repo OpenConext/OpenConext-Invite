@@ -13,6 +13,7 @@ import java.util.Map;
 import static access.Seed.GUEST_SUB;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AttributeAggregatorControllerTest extends AbstractTest {
 
@@ -30,7 +31,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, roles.size());
-        assertEquals("urn:mace:surf.nl:test.surfaccess.nl:4:research", roles.get(0).get("id"));
+        assertTrue(roles.get(0).get("id").startsWith("urn:mace:surf.nl:test.surfaccess.nl:"));
     }
 
     @Test

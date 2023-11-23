@@ -25,6 +25,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
+import lombok.SneakyThrows;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -352,6 +353,16 @@ public abstract class AbstractTest {
     protected void stubForManageProviderById(EntityType entityType, String id) throws JsonProcessingException {
         String path = String.format("/manage/api/internal/metadata/%s/%s", entityType.name().toLowerCase(), id);
         String body = objectMapper.writeValueAsString(localManage.providerById(entityType, id));
+        stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+    }
+
+    @SneakyThrows
+    protected void stubForManagerProvidersByIdIn(EntityType entityType, List<String> identifiers) {
+        String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*", entityType.name().toLowerCase());
+        List<Map<String, Object>> providers = localManage.providersByIdIn(entityType, identifiers);
+        String body = objectMapper.writeValueAsString(providers);
         stubFor(get(urlPathMatching(path)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));

@@ -1,13 +1,17 @@
 package access.model;
 
 
+import access.config.ApplicationConverter;
 import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.hibernate.annotations.Formula;
 
 import java.io.Serializable;
@@ -58,11 +62,8 @@ public class Role implements Serializable, Provisionable {
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "roles_applications",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "application_id"))
+    @Column
+    @Convert(converter = ApplicationConverter.class)
     private Set<Application> applications = new HashSet<>();
 
     @OneToMany(mappedBy = "role",
@@ -107,6 +108,7 @@ public class Role implements Serializable, Provisionable {
         this.eduIDOnly = eduIDOnly;
         this.applications = applications;
         this.applicationMaps = applicationMaps;
+        this.identifier = UUID.randomUUID().toString();
     }
 
     @Transient
