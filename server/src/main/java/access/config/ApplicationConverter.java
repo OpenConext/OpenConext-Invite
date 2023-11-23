@@ -25,6 +25,7 @@ public class ApplicationConverter implements AttributeConverter<Set<Application>
     @SuppressWarnings("unchecked")
     public Set<Application> convertToEntityAttribute(String dbData) {
         Set<Map<String, String>> set = objectMapper.readValue(dbData, Set.class);
-        return set.stream().map(m -> new Application(m.get("manageId"), EntityType.valueOf(m.get("manageType")))).collect(Collectors.toSet());
+        return set.stream().map(m -> new Application(m.get("manageId"), EntityType.valueOf(m.get("manageType"))))
+                .collect(Collectors.toSet());
     }
 }
