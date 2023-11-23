@@ -14,12 +14,11 @@ const en = {
             //Arrays of titles and info blocks and if a function is an admin function
             ["Invites", "<p>SURF invites institution managers who can create roles for their applications.</p>" +
             "<p>Applications are services connected to SURFconext.</p>", true],
-            ["Roles", "<p>The application managers will invite colleagues for roles who can invite guests.</p>" +
-            "<p>Invites.</p>", true],
+            ["Roles", "<p>The application managers will invite colleagues for roles who can in turn invite guests.</p>", true],
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
-            ["Groups", "<p>The roles are actually group memberships that can be provisioned to external SCIM API's.</p>", false]
+            ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext rules, or provisioned as attributes or to external SCIM API's.</p>", false]
         ],
-        footer: "<p>SURFconext Invite is a service for access management of Dutch led service providers.</p>" +
+        footer: "<p>SURFconext Invite is a service for access management for research and education.</p>" +
             "<p>Do you want to know more? <a href='https://support.surfconext.nl/invite-en'>Read more</a>.</p>",
     },
     header: {
