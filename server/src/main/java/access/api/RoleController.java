@@ -122,6 +122,7 @@ public class RoleController {
             throw new NotAllowedException(
                     String.format("Duplicate name: '%s' for manage entity:'%s'", shortName, application.getManageId()));
         }
+        role.setIdentifier(UUID.randomUUID().toString());
         return saveOrUpdate(role, user);
     }
 

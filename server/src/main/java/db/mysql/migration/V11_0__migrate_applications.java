@@ -1,5 +1,6 @@
 package db.mysql.migration;
 
+import access.config.ObjectMapperHolder;
 import access.manage.EntityType;
 import access.model.Application;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,8 +21,6 @@ public class V11_0__migrate_applications extends BaseJavaMigration {
     public void migrate(Context context) {
         JdbcTemplate jdbcTemplate =
                 new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true));
-        ObjectMapper objectMapper = new ObjectMapper();
-
         jdbcTemplate.query("SELECT id, manage_id, manage_type FROM roles", rs -> {
             long roleId = rs.getLong("id");
             jdbcTemplate.update("UPDATE roles SET identifier = ? WHERE id = ?", UUID.randomUUID().toString(), roleId);
@@ -31,7 +30,7 @@ public class V11_0__migrate_applications extends BaseJavaMigration {
             Set<Application> applications = Set.of(new Application(manageId, EntityType.valueOf(manageType)));
             String jsonNode;
             try {
-                jsonNode = objectMapper.writeValueAsString(applications);
+                jsonNode =  ObjectMapperHolder.objectMapper.writeValueAsString(applications);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

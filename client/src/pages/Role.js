@@ -58,7 +58,7 @@ export const Role = () => {
         }
         Promise.all([roleByID(id, false), userRolesByRoleId(id), invitationsByRoleId(id)])
             .then(res => {
-                deriveApplicationAttributes(res[0])
+                deriveApplicationAttributes(res[0], I18n.locale, I18n.t("roles.multiple"))
                 setRole(res[0]);
                 setUserRole(res[1].find(userRole => userRole.role.id === res[0].id && userRole.userInfo.id === user.id));
                 const newTabs = [

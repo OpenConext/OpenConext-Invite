@@ -1,11 +1,12 @@
 package access.repository;
 
 import access.AbstractTest;
-import access.model.DistinctManagerIdentifiers;
+import access.manage.ManageIdentifier;
 import access.model.Role;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,9 +20,7 @@ class RoleRepositoryTest extends AbstractTest {
 
     @Test
     void findDistinctByManageId() {
-        List<String[]> manageIdentifiers = roleRepository.findDistinctManageIdentifiers().stream()
-                .map(tuple -> new String[] {tuple[0].replaceAll("[\"\\]\\[]",""),
-                        tuple[1].replaceAll("[\"\\]\\[]","")}).toList();
-        assertEquals(5, manageIdentifiers.size());
+        Set<ManageIdentifier> manageIdentifiers = roleRepository.findDistinctManageIdentifiers();
+        assertEquals(6, manageIdentifiers.size());
     }
 }

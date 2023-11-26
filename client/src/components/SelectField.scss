@@ -25,7 +25,7 @@
         border: 1px solid var(--sds--color--gray--300);
         border-radius: $br;
         font-size: 16px;
-        height: 48px;
+        min-height: 48px;
 
         &.creatable {
             height: auto;

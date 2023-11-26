@@ -46,7 +46,8 @@ public final class LocalManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        return transformProvider(this.allProviders.get(entityType).stream()
+        List<Map<String, Object>> providers = this.allProviders.get(entityType);
+        return transformProvider(providers.stream()
                 .filter(provider -> identifiers.contains(provider.get("_id")))
                 .collect(Collectors.toList()));
     }

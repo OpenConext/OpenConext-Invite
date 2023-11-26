@@ -40,7 +40,7 @@ public interface Manage {
         Map metaDataFields = (Map) data.get("metaDataFields");
         //Can't use Map.of as values can be null
         Map application = new HashMap<>();
-        //Due to the different API's we are using, the result sometimes contains an "_id" and sometimes an "id"
+        //Due to the different API's we are using, the result sometimes contains an "_id" and sometimes an "manageId"
         Object id = provider.get("id");
         if (id != null) {
             application.put("id", id);
@@ -80,17 +80,17 @@ public interface Manage {
     }
 
     default List<Role> addManageMetaData(List<Role> roles) {
-        //First get all unique remote manage entities and group them by entityType
+        //First get all unique remote manage entities and group them by manageType
         Map<EntityType, List<ManageIdentifier>> groupedManageIdentifiers = roles.stream()
                 .map(Role::getApplications)
                 .flatMap(Collection::stream)
                 .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
                 .collect(Collectors.toSet())
                 .stream()
-                .collect(Collectors.groupingBy(ManageIdentifier::entityType));
-        //Now for each entityType (hopefully one, maximum two) we call manage and create a map with as key the id in manage
+                .collect(Collectors.groupingBy(ManageIdentifier::manageType));
+        //Now for each manageType (hopefully one, maximum two) we call manage and create a map with as key the manageId in manage
         Map<String, Map<String, Object>> remoteApplications = groupedManageIdentifiers.entrySet().stream()
-                .map(entry -> this.providersByIdIn(entry.getKey(), entry.getValue().stream().map(ManageIdentifier::id).toList()))
+                .map(entry -> this.providersByIdIn(entry.getKey(), entry.getValue().stream().map(ManageIdentifier::manageId).toList()))
                 .flatMap(List::stream)
                 .collect(Collectors.toMap(map -> (String) map.get("id"), map -> map));
         //Add the metadata to the role

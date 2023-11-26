@@ -1,5 +1,6 @@
 package access.provision.graph;
 
+import access.config.ObjectMapperHolder;
 import access.exception.RemoteException;
 import access.manage.EntityType;
 import access.manage.LocalManage;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class GraphClientTest {
 
     final GraphClient graphClient = new GraphClient("http://localhost:8080", "test.eduid.nl");
-    final LocalManage localManage = new LocalManage(new ObjectMapper(), false);
+    final LocalManage localManage = new LocalManage( ObjectMapperHolder.objectMapper, false);
 
     @Test
     void newUserRequest() {

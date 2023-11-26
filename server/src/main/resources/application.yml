@@ -124,7 +124,7 @@ email:
   enabled: false
 
 manage:
-  enabled: True
+  enabled: False
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret

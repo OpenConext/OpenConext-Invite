@@ -34,14 +34,14 @@ export const Roles = () => {
             } else {
                 rolesByApplication()
                     .then(res => {
-                        const newRoles = markAndFilterRoles(user, res, I18n.locale);
+                        const newRoles = markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"));
                         setRoles(newRoles);
                         initFilterValues(newRoles);
                         setLoading(false);
                     })
             }
         } else {
-            const newRoles = markAndFilterRoles(user, [], I18n.locale);
+            const newRoles = markAndFilterRoles(user, [], I18n.locale, I18n.t("roles.multiple"));
             setRoles(newRoles);
             initFilterValues(newRoles);
             setLoading(false);
@@ -100,7 +100,7 @@ export const Roles = () => {
     const delayedAutocomplete = debounce(query => {
         searchRoles(query)
             .then(res => {
-                setRoles(markAndFilterRoles(user, res, I18n.locale));
+                setRoles(markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple")));
                 setMoreToShow(res.length === 15);
                 setNoResults(res.length === 0);
                 setSearching(false);
@@ -151,7 +151,7 @@ export const Roles = () => {
             header: "",
             mapper: role => {
                 return <div className="role-icon">
-                    <img src={role.logo} alt="logo"/>
+                    {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> :role.logo}
                 </div>
             }
         },

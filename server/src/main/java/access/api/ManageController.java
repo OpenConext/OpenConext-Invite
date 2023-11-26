@@ -22,10 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -76,19 +73,16 @@ public class ManageController {
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         UserPermissions.assertSuperUser(user);
-        List<ManageIdentifier> manageIdentifiers = roleRepository.findDistinctManageIdentifiers().stream()
-                .map(tuple -> new ManageIdentifier(tuple[0].replaceAll("[\"\\]\\[]", ""),
-                        EntityType.valueOf(tuple[1].replaceAll("[\"\\]\\[]", ""))))
-                .toList();
-        Map<EntityType, List<ManageIdentifier>> groupedByManageType = manageIdentifiers.stream().collect(Collectors.groupingBy(ManageIdentifier::entityType));
+        Set<ManageIdentifier> manageIdentifiers = roleRepository.findDistinctManageIdentifiers();
+        Map<EntityType, List<ManageIdentifier>> groupedByManageType = manageIdentifiers.stream().collect(Collectors.groupingBy(ManageIdentifier::manageType));
         List<Map<String, Object>> providers = groupedByManageType.entrySet().stream()
                 .map(entry -> manage.providersByIdIn(
                         entry.getKey(),
-                        entry.getValue().stream().map(ManageIdentifier::id).collect(Collectors.toList())))
+                        entry.getValue().stream().map(ManageIdentifier::manageId).collect(Collectors.toList())))
                 .flatMap(Collection::stream)
                 .toList();
         List<Map<String, Object>> provisionings = manage.provisioning(manageIdentifiers.stream()
-                .map(ManageIdentifier::id)
+                .map(ManageIdentifier::manageId)
                 .toList());
         return ResponseEntity.ok(Map.of(
                 "providers", providers,

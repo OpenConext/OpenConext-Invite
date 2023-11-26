@@ -294,7 +294,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     private List<Provisioning> getProvisionings(User user) {
         Set<ManageIdentifier> manageIdentifiers = user.manageIdentifierSet();
-        List<String> identifiers = manageIdentifiers.stream().map(ManageIdentifier::id).toList();
+        List<String> identifiers = manageIdentifiers.stream().map(ManageIdentifier::manageId).toList();
         return manage.provisioning(identifiers).stream().map(Provisioning::new).toList();
     }
 

@@ -1,4 +1,5 @@
 import {isEmpty} from "./Utils";
+import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
 
 export const singleProviderToOption = provider => {
     const organisation = provider["OrganizationName:en"];
@@ -6,7 +7,9 @@ export const singleProviderToOption = provider => {
     return {
         value: provider.id,
         label: `${provider["name:en"]}${organisationValue}`,
-        type: provider.type
+        type: provider.type.toUpperCase(),
+        manageType: provider.type.toUpperCase(),
+        manageId: provider.id
     };
 }
 
@@ -14,12 +17,20 @@ export const providersToOptions = providers => {
     return providers.map(provider => singleProviderToOption(provider));
 }
 
-export const deriveApplicationAttributes = (role, locale) => {
-    const application = role.application;
-    if (!isEmpty(application)) {
-        role.applicationName = application[`name:${locale}`] || application["name:en"]
-        role.applicationOrganizationName = application[`OrganizationName:${locale}`] || application["OrganizationName:en"];
-        role.logo = application.logo;
+export const deriveApplicationAttributes = (role, locale, multiple) => {
+    const applications = role.applicationMaps;
+    if (!isEmpty(applications)) {
+        if (applications.length === 1) {
+            role.applicationName = applications[0][`name:${locale}`] || applications[0]["name:en"];
+            role.applicationOrganizationName = applications[0][`OrganizationName:${locale}`] || applications[0]["OrganizationName:en"];
+            role.logo = applications[0].logo;
+        } else {
+            role.applicationName = multiple;
+            role.applicationOrganizationName = applications
+                .map(app => app[`OrganizationName:${locale}`] || app["OrganizationName:en"])
+                .join(", ")
+            role.logo = <MultipleIcon/>;
+        }
     }
 }
 

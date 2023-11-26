@@ -24,7 +24,7 @@ public interface HasManage {
                 .collect(Collectors.toSet())
                 .stream()
                 .map(manageIdentifier -> {
-                    Map<String, Object> provider = getManage().providerById(manageIdentifier.entityType(), manageIdentifier.id());
+                    Map<String, Object> provider = getManage().providerById(manageIdentifier.manageType(), manageIdentifier.manageId());
                     String id = (String) provider.get("id");
                     return new GroupedProviders(
                             provider,

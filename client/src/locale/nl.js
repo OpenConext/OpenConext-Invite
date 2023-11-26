@@ -119,6 +119,7 @@ const nl = {
         applicationName: "Applicatie",
         roleDetails: "Rol details",
         invitationDetails: "Uitnodiging details",
+        multiple: "Meerdere applicaties",
         accessRole: "Naam",
         name: "Naam",
         namePlaceHolder: "Naam van de rol",

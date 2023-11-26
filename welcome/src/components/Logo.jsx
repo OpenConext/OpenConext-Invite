@@ -8,6 +8,9 @@ export default function Logo({src, className = "", alt = ""}) {
     if (isEmpty(src)) {
         return <NotFoundIcon/>;
     }
+    if (typeof src !== "string") {
+        return src;
+    }
     const urlSrc = srcUrl(src, "jpeg");
     return <img src={urlSrc} alt={alt} className={className}/>
 

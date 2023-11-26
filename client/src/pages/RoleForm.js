@@ -3,7 +3,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
-import {allProviders, createRole, deleteRole, me, roleByID, shortNameExists, updateRole, validate} from "../api";
+import {allProviders, createRole, deleteRole, me, roleByID, updateRole, validate} from "../api";
 import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
@@ -23,6 +23,7 @@ export const RoleForm = () => {
     const {id} = useParams();
     const nameRef = useRef();
 
+    const required = ["name", "description", "applications"];
     const {user, setFlash, config} = useAppStore(state => state);
 
     const [role, setRole] = useState({name: "", shortName: "", defaultExpiryDays: 0});
@@ -30,10 +31,9 @@ export const RoleForm = () => {
     const [isNewRole, setNewRole] = useState(true);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
-    const required = ["name", "description", "manageId"];
     const [alreadyExists, setAlreadyExists] = useState({});
     const [invalidValues, setInvalidValues] = useState({});
-    const [managementOption, setManagementOption] = useState({});
+    const [managementOption, setManagementOption] = useState([]);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
 
@@ -70,11 +70,11 @@ export const RoleForm = () => {
                 if (newRole) {
                     const providerOption = singleProviderToOption(user.superUser ? res[0][0] :
                         user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.application);
-                    setManagementOption(providerOption);
-                    setRole({...role, manageId: providerOption.value, manageType: providerOption.type.toUpperCase()})
+                    setManagementOption([providerOption]);
+                    setRole({...role, applications: [providerOption]})
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
-                    setManagementOption(singleProviderToOption(res[0].application));
+                    setManagementOption([singleProviderToOption(res[0].application)]);
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});
@@ -88,14 +88,6 @@ export const RoleForm = () => {
             })
         },
         [id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const validateShortName = (shortName, manageId) => {
-        if (!isEmpty(manageId) && !isEmpty(shortName)) {
-            shortNameExists(shortName, manageId, role.id)
-                .then(json => setAlreadyExists({...alreadyExists, shortName: json.exists}));
-        }
-        return true;
-    }
 
     const validateValue = (type, attribute, value) => {
         if (!isEmpty(value)) {
@@ -189,11 +181,6 @@ export const RoleForm = () => {
                             value={role.name || ""}
                             placeholder={I18n.t("roles.namePlaceHolder")}
                             error={alreadyExists.name || (!initial && isEmpty(role.name))}
-                            onBlur={e => {
-                                if (isNewRole) {
-                                    validateShortName(constructShortName(e.target.value), role.manageId);
-                                }
-                            }}
                             onRef={nameRef}
                             onChange={e => {
                                 const shortName = isNewRole ? constructShortName(e.target.value) : role.shortName;
@@ -234,17 +221,22 @@ export const RoleForm = () => {
 
                 <SelectField name={I18n.t("roles.manage")}
                              value={managementOption}
-                             options={options.filter(provider => provider.value !== managementOption.value)}
-                             onChange={option => {
-                                 setManagementOption(option);
-                                 setRole({...role, manageId: option.value, manageType: option.type.toUpperCase()});
-                                 validateShortName(constructShortName(role.name), option.value);
+                             options={options.filter(option => !managementOption.some(provider => option.value === provider.value))}
+                             onChange={options => {
+                                 setManagementOption(options);
+                                 setRole({...role, applications: options});
                              }}
                              searchable={true}
                              clearable={false}
+                             isMulti={true}
                              disabled={options.length === 1}
                              toolTip={I18n.t("tooltips.manageService")}
                 />
+                {(!initial && isEmpty(role.applications)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {
+                        attribute: I18n.t("roles.manage").toLowerCase()
+                    })}/>}
+
                 <InputField name={I18n.t("roles.landingPage")}
                             value={role.landingPage || ""}
                             isUrl={true}

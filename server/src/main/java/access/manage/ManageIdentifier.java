@@ -1,5 +1,5 @@
 package access.manage;
 
 
-public record ManageIdentifier(String id, EntityType entityType) {
+public record ManageIdentifier(String manageId, EntityType manageType) {
 }

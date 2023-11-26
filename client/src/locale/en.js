@@ -119,6 +119,7 @@ const en = {
         applicationName: "Application",
         roleDetails: "Role details",
         invitationDetails: "Invitation details",
+        multiple: "Multiple applications",
         accessRole: "Name",
         name: "Name",
         namePlaceHolder: "The name of the role",
