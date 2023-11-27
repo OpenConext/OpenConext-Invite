@@ -13,12 +13,12 @@ const nl = {
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
             ["Uitnodigen", "<p>Instellingsbeheerders kunnen rollen aanmaken voor hun applicaties.</p>" +
-            "<p>Applicaties zijn diensten gekoppeld aan SURFconext.</p>", true],
+            "<p>Applicaties zijn aan SURFconext gekoppelde diensten.</p>", true],
             ["Rollen", "<p>De applicatiebeheerders nodigen collega's uit die op hun beurt weer gasten kunnen uitnodigen.</p>", true],
             ["Word lid", "<p>Uitgenodigde collega's die op de uitnodiging zijn ingegaan krijgen toegang tot applicaties.</p><br/>", false],
             ["Groepen", "<p>De rollen zijn feitelijk groepslidmaatschappen die gebruikt kunnen worden in SURFconext autorisatieregels, doorgegeven als attributen of via externe SCIM API's.</p>", false]
         ],
-        footer: "<p>SURFconext Invite is een dienst voor toegangsbeheer voor onderwijs en onderzoek.</p>" +
+        footer: "<p>SURFconext Invite biedt toegangsbeheer voor onderwijs en onderzoek.</p>" +
             "<p>Meer weten? <a href='https://support.surfconext.nl/invite'>Lees verder</a>.</p>",
     },
     header: {
@@ -147,7 +147,7 @@ const nl = {
         showAdvancedSettings: "Toon geadvanceerde uitnodiging instellingen",
         hideAdvancedSettings: "Verberg geadvanceerde uitnodiging instellingen",
         override: "Kunnen de instellingen worden veranderd bij een uitnodiging?",
-        manage: "Dienst",
+        manage: "Applicatie",
         manageMetaData: "Entity",
         provisioning: "Provisioning",
         deleteFlash: "Rol {{name}} is verwijderd",
@@ -324,7 +324,7 @@ const nl = {
         invitationIcon: "Uitnodiging aan {{email}} verstuurd op {{createdAt}} met verloopdatum {{expiryDate}}",
         roleShortName: "Een unieke korte naam voor de rol binnen een provisioning. Gebruikt in de urn, dus daarom zijn niet alle tekens toegestaan.",
         roleUrn: "De urn van deze rol. Deze is gebaseerd op de opgeschoonde naam en de applicatie-identifier. Hij wordt gebruikt als de unieke globale identifier van deze rol en daarom zijn niet alle tekens toegestaan.",
-        manageService: "De vereiste dienst uit SURFconext die optioneel een provisioning heeft.",
+        manageService: "De vereiste dienst uit SURFconext, optioneel met provisioning.",
         defaultExpiryDays: "Het default aantal dagen waarna de rol verloopt, gerekend vanaf het moment dat de gebruiker de uitnodiging voor de rol accepteert.",
         enforceEmailEqualityTooltip: "Indien ingeschakeld moet de genodigde de uitnodiging accepteren met een account dat hetzelfde e-mailadres voert als waarheen deze uitnodiging gestuurd is",
         eduIDOnlyTooltip: "Indien ingeschakeld moeten de genodigden eduID gebruiken om in te loggen bij het accepteren",
