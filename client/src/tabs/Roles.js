@@ -34,14 +34,14 @@ export const Roles = () => {
             } else {
                 rolesByApplication()
                     .then(res => {
-                        const newRoles = markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"));
+                        const newRoles = markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
                         setRoles(newRoles);
                         initFilterValues(newRoles);
                         setLoading(false);
                     })
             }
         } else {
-            const newRoles = markAndFilterRoles(user, [], I18n.locale, I18n.t("roles.multiple"));
+            const newRoles = markAndFilterRoles(user, [], I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
             setRoles(newRoles);
             initFilterValues(newRoles);
             setLoading(false);
@@ -100,7 +100,7 @@ export const Roles = () => {
     const delayedAutocomplete = debounce(query => {
         searchRoles(query)
             .then(res => {
-                setRoles(markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple")));
+                setRoles(markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and")));
                 setMoreToShow(res.length === 15);
                 setNoResults(res.length === 0);
                 setSearching(false);

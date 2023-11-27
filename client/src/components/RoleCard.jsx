@@ -16,8 +16,8 @@ export const RoleCard = ({role, index, invitationSelected, invitationSelectCallb
     const multiApp = applications.length === 1;
     const application = applications[0];
     const logo = multiApp ? application.logo : <MultipleIcon/>
-    const name = multiApp ? splitListSemantically(applications.map(app => roleName(app)), I18n.t("forms.and")) :
-        roleName(application);
+    const name = multiApp ? splitListSemantically(applications.map(app => roleName(app, I18n.locale)), I18n.t("forms.and")) :
+        roleName(application, I18n.locale);
 
     const children =
         <div key={index} className="user-role" >

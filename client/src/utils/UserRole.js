@@ -1,6 +1,5 @@
 import {isEmpty} from "./Utils";
 import {deriveApplicationAttributes} from "./Manage";
-import I18n from "../locale/I18n";
 
 export const INVITATION_STATUS = {
     OPEN: "OPEN",
@@ -100,18 +99,18 @@ export const allowedToRenewUserRole = (user, userRole) => {
 
 export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
 
-export const markAndFilterRoles = (user, allRoles, locale, multiple) => {
+export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) => {
     allRoles.forEach(role => {
         role.isUserRole = false;
         role.label = role.name;
         role.value = role.id;
-        deriveApplicationAttributes(role, locale, multiple, I18n.t("forms.and"));
+        deriveApplicationAttributes(role, locale, multiple, separator);
     });
     const userRoles = user.userRoles;
     userRoles.forEach(userRole => {
         userRole.isUserRole = true;
         const role = userRole.role;
-        deriveApplicationAttributes(role, locale, multiple, I18n.t("forms.and"));
+        deriveApplicationAttributes(role, locale, multiple, separator);
         userRole.name = role.name;
         userRole.label = role.name;
         userRole.value = role.id;

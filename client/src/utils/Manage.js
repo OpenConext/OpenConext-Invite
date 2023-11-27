@@ -1,6 +1,5 @@
 import {isEmpty, splitListSemantically} from "./Utils";
 import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
-import I18n from "../locale/I18n";
 
 export const singleProviderToOption = provider => {
     const organisation = provider["OrganizationName:en"];
@@ -16,9 +15,9 @@ export const singleProviderToOption = provider => {
     };
 }
 
-export const roleName = app => {
-    const name = app[`name:${I18n.locale}`] || app["name:en"]
-    const orgName = app[`OrganizationName:${I18n.locale}`] || app["OrganizationName:en"]
+export const roleName = (app, locale) => {
+    const name = app[`name:${locale}`] || app["name:en"]
+    const orgName = app[`OrganizationName:${locale}`] || app["OrganizationName:en"]
     return `${name} (${orgName})`;
 }
 
