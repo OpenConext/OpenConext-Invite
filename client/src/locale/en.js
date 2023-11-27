@@ -5,8 +5,8 @@ const en = {
     landing: {
         header: {
             title: "Manage access to your applications",
-            login: "Login",
-            sup: "The SURFconext Invite application is by invite only.",
+            login: "Log in",
+            sup: "SURFconext Invite is by invitation only.",
         },
         works: "How does it work?",
         adminFunction: "admin function",
@@ -16,23 +16,23 @@ const en = {
             "<p>Applications are services connected to SURFconext.</p>", true],
             ["Roles", "<p>The application managers will invite colleagues for roles who can in turn invite guests.</p>", true],
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
-            ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext rules, or provisioned as attributes or to external SCIM API's.</p>", false]
+            ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext authorisation rules, or provisioned as attributes or to external SCIM APIs.</p>", false]
         ],
         footer: "<p>SURFconext Invite offers access management to SURFconext-connected service providers.</p>" +
             "<p>Do you want to know more? <a href='https://support.surfconext.nl/invite-en'>Read more</a>.</p>",
     },
     header: {
         title: "SURFconext Invite",
-        subTitle: "Everything will be Owl right",
+        subTitle: "Everything will be owl right",
         links: {
-            login: "Login",
+            login: "Log in",
             system: "System",
             switchApp: "Go to {{app}}",
             welcome: "Welcome",
             access: "Access",
             help: "Help",
             profile: "Profile",
-            logout: "Logout"
+            logout: "Log out"
         },
     },
     tabs: {
@@ -48,7 +48,7 @@ const en = {
         guestRoles: "Guests with this role",
         cron: "Cron",
         invite: "Invite",
-        tokens: "API Tokens"
+        tokens: "API tokens"
     },
     home: {
         access: "SURFconext Invite",
@@ -109,7 +109,7 @@ const en = {
     },
     role: {
         copyUrn: "Copy urn",
-        userInfo: "{{nbr}} member(s)  &  Valid for {{valid}} days",
+        userInfo: "{{nbr}} member(s) & valid for {{valid}} days",
         roleInfo: "Role valid for <strong>{{days}} days</strong>",
         roleInfoNoEndDate: "Role has <strong>no end date</strong>",
         contactAdmin: "Contact manager(s)"
@@ -151,7 +151,7 @@ const en = {
         manageMetaData: "SURFconext entity",
         provisioning: "Provisioning",
         deleteFlash: "Role {{name}} has been deleted",
-        deleteConfirmation: "Are you sure  you want to delete this role?",
+        deleteConfirmation: "Are you sure you want to delete this role?",
         createFlash: "Role {{name}} has been created",
         updateFlash: "Role {{name}} has been updated",
     },
@@ -165,7 +165,7 @@ const en = {
         searchPlaceHolder: "Search for user roles...",
         noResults: "No user roles where found",
         guestRoles: "{{count}} guest users",
-        managerRoles: "{{count}} manager & inviter users",
+        managerRoles: "{{count}} managers & inviters",
         notAllowed: "You're not allowed to delete this user role because of missing roles",
         updateConfirmation: "Are you sure you want to change the end date of role {{roleName}} for {{userName}}",
         updateConfirmationRemoveEndDate: "Are you sure you want to remove the end date of role {{roleName}} for {{userName}}",
@@ -193,7 +193,7 @@ const en = {
         invitees: "Invitees",
         intendedRoles: "Roles",
         inviteesPlaceholder: "Invitee email addresses",
-        requiredEmail: "At least one email is required",
+        requiredEmail: "At least one email address is required",
         requiredRole: "At least one role is required for an invitation",
         intendedAuthority: "Authority",
         roles: "Roles",
@@ -205,7 +205,7 @@ const en = {
         message: "Message",
         messagePlaceholder: "Personal message for the invitee included in the invitation",
         invite: "Send invite",
-        invalidEmails: "Invalid email addresses removed: {{emails}}.",
+        invalidEmails: "Invalid email address removed: {{emails}}.",
         createFlash: "Invitation was sent",
         delete: "Delete",
         resend: "Resend",
@@ -227,7 +227,7 @@ const en = {
         you: "You",
         yes: "Yes",
         no: "No",
-        ok: "Ok",
+        ok: "OK",
         or: "or ",
         edit: "Edit",
         cancel: "Cancel",
@@ -237,9 +237,9 @@ const en = {
         less: "Less",
         alreadyExists: "The {{attribute}} '{{value}}' already exists",
         alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}",
-        required: "The {{attribute}} is required",
+        required: "{{attribute}} is required",
         invalid: "The value '{{value}}' is invalid for {{attribute}}",
-        error: "You can <a href=\"mailto:support@surfconext.nl\">contact SURFconext Invite</a> for more information.<br/><br/>" +
+        error: "You can contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> for help.<br/><br/>" +
             "The reference number for this exception is {{reference}}."
     },
     profile: {
@@ -249,7 +249,7 @@ const en = {
     inviteOnly: {
         welcome: "Welcome to SURFconext Invite",
         roles: "You don't have any roles.",
-        info: "The SURFconext Invite application is by invite only. If you want to enter, but don't have access, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
+        info: "SURFconext Invite is by invitation only. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> with questions.",
         preLogin: "Or ",
         login: "login",
         postLogin: " again with a different institution",
@@ -274,13 +274,13 @@ const en = {
         roles: "roles",
         progress: "1",
         info: "SURFconext Invite provides access to application based on your roles.",
-        infoLogin: "You can login with your institution account or edulD.",
-        infoLoginEduIDOnly: "You need to login with eduID.",
-        infoLoginAgain: "To accept the invitation you'll need to login again.",
-        login: "Login",
-        loginWithSub: "Login",
-        emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
-            "but you have logged in with an account with a different email. Please login in with a different account."
+        infoLogin: "You can log in with your institution account or edulD.",
+        infoLoginEduIDOnly: "You need to log in with eduID.",
+        infoLoginAgain: "To accept the invitation you'll need to log in again.",
+        login: "Log in",
+        loginWithSub: "Log in",
+        emailMismatch: "The inviter has indicated that you must accept this invitation with email address {{email}}, " +
+            "but you have logged in with an account with a different email address. Please login in with a different account."
     },
     inviter: {
         welcome: "Welcome, {{name}}",
@@ -289,10 +289,10 @@ const en = {
         viewHistory: "view history",
         manage: "You can manage guests and send invites for",
         details: "Show details",
-        history: "Invitation History"
+        history: "Invitation history"
     },
     institutionAdmin: {
-        welcome: "Welcome Institution administrator of {{name}}! You can start with creating your first role and subsequently invite managers.",
+        welcome: "Welcome institution administrator of {{name}}! You can start with creating your first role and subsequently invite managers.",
         create: "Create access role"
     },
     tokens: {
@@ -310,9 +310,9 @@ const en = {
         description: "Description",
         descriptionPlaceHolder: "Description for this API token",
         descriptionTooltip: "A description explaining the use of this API token",
-        deleteFlash: "API Token has been deleted",
+        deleteFlash: "API token has been deleted",
         deleteConfirmation: "Are you sure you want to delete this API token?",
-        createFlash: "API Token has been created",
+        createFlash: "API token has been created",
         submit: "Submit",
         required: "The description is required for an API token",
     },
@@ -325,19 +325,19 @@ const en = {
         roleShortName: "The unique short name of the role within a provisioning. It is used to format the urn and therefore not all characters are allowed.",
         roleUrn: "The urn of the role. It is based on the sanitized name and the application identifier. It is used as the unique global identifier of this role and therefore not all characters are allowed.",
         manageService: "The required service from SURFconext, optionally with provisioning",
-        defaultExpiryDays: "The default number of days the role will expiry when a use accepts a invitation for this role",
-        enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with the email where the invitation was sent to",
+        defaultExpiryDays: "The default number of days the role will expiry when a user accepts an invitation for this role",
+        enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with an account with the email address where the invitation was sent to",
         eduIDOnlyTooltip: "When checked the invitees will be required to login with eduID",
         roleExpiryDateTooltip: "The end date of this role. After this date the role is removed from the user.",
         expiryDateTooltip: "The date on which this invitation expires",
         rolesTooltip: "Select all the roles that the invitee will be granted after accepting the invitation",
-        intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted after accepting the invitation",
-        inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or one-by-one using the enter key. You can also copy & paste a csv file with line-separated email addresses.",
+        intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted on accepting the invitation",
+        inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or on seperate lines. You can also paste a csv file with line-separated email addresses.",
         removeInvitation: "Delete all selected invitations",
         resendInvitation: "Resend all selected invitations",
         inviter: "Send invitations to persons who will - once accepted - become guest users for the application",
-        overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced setting (e.g. Email equality, eduID only and the role expiry end date)",
-        removeUserRole: "Remove the selected user roles"
+        overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced setting (e.g. email equality, eduID only and the role expiry end date)",
+        removeUserRole: "Remove all selected user roles"
     },
     confirmationDialog: {
         title: "Confirm",

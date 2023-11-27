@@ -5,18 +5,18 @@ const nl = {
     landing: {
         header: {
             title: "Toegang tot je applicaties",
-            login: "Login",
-            sup: "SURFconext Invite is alleen op uitnodiging.",
+            login: "Inloggen",
+            sup: "SURFconext Invite is alleen op uitnodiging te gebruiken.",
         },
         works: "Hoe werkt het?",
-        adminFunction: "adminfunctie",
+        adminFunction: "beheerfunctie",
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
             ["Uitnodigen", "<p>Instellingsbeheerders kunnen rollen aanmaken voor hun applicaties.</p>" +
             "<p>Applicaties zijn aan SURFconext gekoppelde diensten.</p>", true],
-            ["Rollen", "<p>De applicatiebeheerders nodigen collega's uit die op hun beurt weer gasten kunnen uitnodigen.</p>", true],
-            ["Word lid", "<p>Uitgenodigde collega's die op de uitnodiging zijn ingegaan krijgen toegang tot applicaties.</p><br/>", false],
-            ["Groepen", "<p>De rollen zijn feitelijk groepslidmaatschappen die gebruikt kunnen worden in SURFconext autorisatieregels, doorgegeven als attributen of via externe SCIM API's.</p>", false]
+            ["Rollen", "<p>Applicatiebeheerders nodigen collega's uit die op hun beurt gasten kunnen uitnodigen.</p>", true],
+            ["Word lid", "<p>Uitgenodigde collega's die op de uitnodiging zijn ingegaan, krijgen toegang tot applicaties.</p><br/>", false],
+            ["Groepen", "<p>De rollen zijn eigenlijk groepslidmaatschappen die gebruikt kunnen worden in SURFconext-autorisatieregels, doorgegeven als attributen of via externe SCIM API's.</p>", false]
         ],
         footer: "<p>SURFconext Invite biedt toegangsbeheer voor onderwijs en onderzoek.</p>" +
             "<p>Meer weten? <a href='https://support.surfconext.nl/invite'>Lees verder</a>.</p>",
@@ -25,30 +25,30 @@ const nl = {
         title: "SURFconext Invite",
         subTitle: "Alles gaat uilstekend",
         links: {
-            login: "Login",
+            login: "Inloggen",
             system: "Systeem",
             switchApp: "Ga naar {{app}}",
             welcome: "Welcome",
-            access: "Invite",
+            access: "Toegang",
             help: "Help",
             profile: "Profiel",
-            logout: "Log uit"
+            logout: "Uitloggen"
         },
     },
     tabs: {
         home: "Home",
         applications: "Applicaties",
         users: "Gebruikers",
-        maintainers: "Rol managers en uitnodigers",
+        maintainers: "Rolmanagers & uitnodigers",
         guests: "Gasten met deze rol",
         invitations: "Uitnodigingen",
         roles: "Toegangsrollen",
         profile: "Profiel",
-        userRoles: "Rol managers en uitnodigers",
+        userRoles: "Rolmanagers & uitnodigers",
         guestRoles: "Gasten",
         cron: "Cron",
         invite: "Uitnodiging",
-        tokens: "API Tokens"
+        tokens: "API-tokens"
     },
     home: {
         access: "SURFconext Invite",
@@ -109,7 +109,7 @@ const nl = {
     },
     role: {
         copyUrn: "Copy urn",
-        userInfo: "{{nbr}} leden  &  geldig voor {{valid}} dagen",
+        userInfo: "{{nbr}} leden & geldig voor {{valid}} dagen",
         roleInfo: "Rol geldig voor <strong>{{days}} dagen</strong>",
         roleInfoNoEndDate: "Rol heeft <strong>geen einddatum</strong>",
         contactAdmin: "Contact manager(s)"
@@ -117,8 +117,8 @@ const nl = {
     roles: {
         title: "Toegangsrollen",
         applicationName: "Applicatie",
-        roleDetails: "Rol details",
-        invitationDetails: "Uitnodiging details",
+        roleDetails: "Details rol",
+        invitationDetails: "Details uitnodiging",
         multiple: "Meerdere applicaties",
         accessRole: "Naam",
         name: "Naam",
@@ -144,14 +144,14 @@ const nl = {
         edit: "Bewerk rol {{name}}",
         urn: "URN",
         advanced: "Advanced settings",
-        showAdvancedSettings: "Toon geadvanceerde uitnodiging instellingen",
-        hideAdvancedSettings: "Verberg geadvanceerde uitnodiging instellingen",
-        override: "Kunnen de instellingen worden veranderd bij een uitnodiging?",
+        showAdvancedSettings: "Toon geadvanceerde configuratie uitnodiging",
+        hideAdvancedSettings: "Verberg geadvanceerde configuratie uitnodiging",
+        override: "Kan de configuratie worden aangepast bij uitnodigen?",
         manage: "Applicatie",
-        manageMetaData: "Entity",
+        manageMetaData: "SURFconext entity",
         provisioning: "Provisioning",
         deleteFlash: "Rol {{name}} is verwijderd",
-        deleteConfirmation: "Weet je zeker dat je deze rol wilt verwijderen?",
+        deleteConfirmation: "Weet je zeker dat je deze rol wil verwijderen?",
         createFlash: "Rol {{name}} is aangemaakt",
         updateFlash: "Rol {{name}} is bijgewerkt",
     },
@@ -164,13 +164,13 @@ const nl = {
         multipleUserRoles: "gebruikersrollen",
         searchPlaceHolder: "Zoek gebruikersrollen...",
         noResults: "Geen gebruikersrollen gevonden",
-        guestRoles: "{{count}} gast gebruiker",
+        guestRoles: "{{count}} gastgebruikers",
         managerRoles: "{{count}} managers & uitnodigers",
         notAllowed: "Je kunt deze gebruikersrol niet verwijderen vanwege ontbrekende rollen",
-        updateConfirmation: "Weet je zeker dat je de einddatum wilt aanpassen van rol {{roleName}} voor {{userName}}",
-        updateConfirmationRemoveEndDate: "Weet je zeker dat je de einddatum wilt verwijderen van rol {{roleName}} voor {{userName}}",
-        updateFlash: "De einddatum is bijgewerkt van rol {{roleName}}",
-        deleteConfirmation: "Weet je zeker dat je de rol wilt verwijderen van deze gebruiker(s)?",
+        updateConfirmation: "Weet je zeker dat je de einddatum wil aanpassen van rol {{roleName}} voor {{userName}}",
+        updateConfirmationRemoveEndDate: "Weet je zeker dat je de einddatum wil verwijderen van rol {{roleName}} voor {{userName}}",
+        updateFlash: "De einddatum van rol {{roleName}} is bijgewerkt",
+        deleteConfirmation: "Weet je zeker dat je de rol van deze gebruiker(s) wil verwijderen?",
         deleteFlash: "Gebruikersrol(len) zijn verwijderd",
         createdAt: "Geaccepteerd op",
     },
@@ -186,7 +186,7 @@ const nl = {
         accepted: "Geaccepteerd",
         expired: "Verlopen",
         enforceEmailEquality: "E-mailadres moet overeenkomen",
-        eduIDOnly: "Uitsluitend voor eduID",
+        eduIDOnly: "Uitsluitend eduID",
         new: "Nodig manager of uitnodiger uit",
         newInvite: "Nieuwe uitnodiging",
         newGuest: "Gast uitnodigen",
@@ -211,8 +211,8 @@ const nl = {
         resend: "Stuur opnieuw",
         notAllowed: "Je kunt deze uitnodiging niet opnieuw versturen of verwijderen vanwege ontbrekende rollen",
         deleteFlash: "Uitnodiging(en) verwijderd",
-        deleteConfirmation: "Weet je zeker dat je deze uitnodiging(en) wilt verwijderen?",
-        resendConfirmation: "Weet je zeker dat je deze uitnodigingen opnieuw wilt versturen?",
+        deleteConfirmation: "Weet je zeker dat je deze uitnodiging(en) wil verwijderen?",
+        resendConfirmation: "Weet je zeker dat je deze uitnodiging(en) opnieuw wil versturen?",
         resendFlash: "Uitnodiging(en) opnieuw verstuurd.",
         statuses: {
             all: "All ({{nbr}})",
@@ -227,7 +227,7 @@ const nl = {
         you: "Jijzelf",
         yes: "Ja",
         no: "Nee",
-        ok: "Ok",
+        ok: "Oké",
         or: "of ",
         edit: "Bewerken",
         cancel: "Annuleren",
@@ -239,8 +239,8 @@ const nl = {
         alreadyExistsParent: "Het {{attribute}} {{value}} bestaat al binnen {{parent}}",
         required: "{{attribute}} is verplicht",
         invalid: "De waarde '{{value}}' is niet geldig voor {{attribute}}",
-        error: "Je kunt contact opnemen met <a href=\"mailto:support@surfconext.nl\">SURFconext Invite</a>.<br/><br/>" +
-            "De foutmeldingscode is {{reference}}."
+        error: "Je kunt contact opnemen met <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> voor hulp.<br/><br/>" +
+            "De foutcode is {{reference}}."
     },
     profile: {
         info: "Het account van {{name}} is aangemaakt op {{createdAt}}",
@@ -249,7 +249,7 @@ const nl = {
     inviteOnly: {
         welcome: "Welkom bij SURFconext Invite",
         roles: "Je hebt nog geen rollen.",
-        info: "SURFconext Invite is op uitnodiging. Heb je hierover vragen? <a href='mailto:support@surfconext.nl'>Neem contact op</a>.",
+        info: "SURFconext Invite is op uitnodiging. Neem bij vragen contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Of ",
         login: "login",
         postLogin: " via een andere instelling",
@@ -264,11 +264,11 @@ const nl = {
     },
     invitationAccept: {
         hi: "Hoi{{name}},",
-        nextStep: "Volgende: veel plezier met je nieuwe rol",
+        nextStep: "Volgende: veel plezier met deze rol",
         expired: "Deze uitnodiging is verlopen op {{expiryDate}}",
-        expiredInfo: "Neem contact op met degene die je uitnodigde en vraag hen je een nieuwe uitnodiging te sturen.",
+        expiredInfo: "Neem contact op met <a href='mailto:{{email}}'>{{email}}</a> en vraag om een nieuwe uitnodiging te sturen.",
         invited: "Uitgenodigd voor {{plural}} {{roles}} door {{inviter}}.",
-        invitedNoRoles: "Je bent uitgenodigt door {{inviter}} om {{authority}} te worden.",
+        invitedNoRoles: "Je bent uitgenodigd door {{inviter}} om {{authority}} te worden.",
         enforceEmailEquality: " Deze uitnodiging kan alleen geaccepteerd worden door <strong>{{email}}</strong>.",
         role: "rol",
         roles: "rollen",
@@ -277,22 +277,22 @@ const nl = {
         infoLogin: "Je kunt inloggen met je instellings-account of eduID.",
         infoLoginEduIDOnly: "Je moet inloggen met eduID.",
         infoLoginAgain: "Om de uitnodiging te accepteren moet je opnieuw inloggen.",
-        login: "Login",
-        loginWithSub: "Login",
+        login: "Inloggen",
+        loginWithSub: "Inloggen",
         emailMismatch: "De uitnodiger heeft aangegeven dat je de uitnodiging dient te accepteren met e-mailadres {{email}}, " +
-            "maar je bent ingelogd met een account met een ander mailadres. Log opnieuw in met een ander account."
+            "maar je bent ingelogd met een account met een ander e-mailadres. Log opnieuw in met een ander account."
     },
     inviter: {
-        welcome: "Welcome, {{name}}",
-        info: "Manage who gets access to the <strong>educational applications</strong> at <strong>your institution</strong>.",
-        sendInvite: "Send new invite",
-        viewHistory: "view history",
-        manage: "You can manage guests and send inviter for",
-        details: "Show details",
-        history: "Uitnodigingen"
+        welcome: "Welkom, {{name}}",
+        info: "Manage die toegang krijgt tot <strong>onderwijsapplicaties</strong> bij <strong>jouw instelling</strong>.",
+        sendInvite: "Verstuur een uitnodiging",
+        viewHistory: "toon geschiedenis",
+        manage: "Je kunt gasten beheren en uitnodigingen versturen voor",
+        details: "Toon details",
+        history: "Geschiedenis van uitnodigingen"
     },
     institutionAdmin: {
-        welcome: "Welkom Instellings admin van {{name}}! Je kan nu je eerste rol aanmaken en managers daarvoor uitnodigen.",
+        welcome: "Welkom instellingsadmin van {{name}}! Je kan nu je eerste rol aanmaken en managers daarvoor uitnodigen.",
         create: "Create access role"
     },
     tokens: {
@@ -305,39 +305,39 @@ const nl = {
         createdAt: "Aangemaakt op",
         secretDisclaimer: "Je kan het API token maar één keer zien. Kopieer het en bewaar het ergens veilig.<br><br>Als je het token kwijtraakt, verwijder het dan en maak een nieuwe aan.",
         secret: "API token",
-        secretValue: "Een-richting gehasht token",
+        secretValue: "One-way hashed token",
         secretTooltip: "De waarde die je gebruikt in de X-API-TOKEN header",
         description: "Omschrijving",
         descriptionPlaceHolder: "Omschrijving voor dit API token",
         descriptionTooltip: "Een omschrijving die de reden voor dit API token omschrijft",
-        deleteFlash: "API Token is verwijderd",
-        deleteConfirmation: "Weet je zeker dat je dit API token wilt verwijderen?",
-        createFlash: "API Token is aangemaakt",
+        deleteFlash: "API token is verwijderd",
+        deleteConfirmation: "Weet je zeker dat je dit API token wil verwijderen?",
+        createFlash: "API token is aangemaakt",
         submit: "Opslaan",
         required: "Een omschrijving is verplicht voor een API token",
     },
     tooltips: {
-        userIcon: "Gebruiker {{name}} geprovisioned op {{createdAt}} laatst actief op {{lastActivity}}",
+        userIcon: "Gebruiker {{name}} geprovisiond op {{createdAt}}, laatst actief op {{lastActivity}}",
         impersonateIcon: "Doe gebruiker {{name}} na",
         roleIcon: "Rol {{name}} aangemaakt op {{createdAt}}",
         userRoleIcon: "Gebruikersrol geaccepteerd door {{name}} op {{createdAt}}",
         invitationIcon: "Uitnodiging aan {{email}} verstuurd op {{createdAt}} met verloopdatum {{expiryDate}}",
-        roleShortName: "Een unieke korte naam voor de rol binnen een provisioning. Gebruikt in de urn, dus daarom zijn niet alle tekens toegestaan.",
+        roleShortName: "Een unieke korte naam voor de rol binnen een provisioning. Wordt gebruikt in de urn, daarom zijn niet alle tekens toegestaan.",
         roleUrn: "De urn van deze rol. Deze is gebaseerd op de opgeschoonde naam en de applicatie-identifier. Hij wordt gebruikt als de unieke globale identifier van deze rol en daarom zijn niet alle tekens toegestaan.",
         manageService: "De vereiste dienst uit SURFconext, optioneel met provisioning.",
-        defaultExpiryDays: "Het default aantal dagen waarna de rol verloopt, gerekend vanaf het moment dat de gebruiker de uitnodiging voor de rol accepteert.",
+        defaultExpiryDays: "Het standaardaantal dagen waarna de rol verloopt, gerekend vanaf het moment dat de gebruiker de uitnodiging voor de rol accepteert.",
         enforceEmailEqualityTooltip: "Indien ingeschakeld moet de genodigde de uitnodiging accepteren met een account dat hetzelfde e-mailadres voert als waarheen deze uitnodiging gestuurd is",
         eduIDOnlyTooltip: "Indien ingeschakeld moeten de genodigden eduID gebruiken om in te loggen bij het accepteren",
         roleExpiryDateTooltip: "De einddatum van deze rol. Na deze datum wordt de rol verwijderd bij de gebruiker.",
         expiryDateTooltip: "De datum waarop deze uitnodiging verloopt",
         rolesTooltip: "Alle rollen die de genodigden verkrijgen na het accepteren van de uitnodiging",
-        intendedAuthorityTooltip: "De autoriteit geeft de rechten aan die de genodigde verwerft na het accepteren van de uitnodiging",
-        inviteesTooltip: "Geef e-mailadressen op, gescheiden door komma, spaties of puntkomma, of een voor een met gebruik van de enter-toets. Je kunt ook een csv-bestand plakken met daarin op elke regel een e-mailadres.",
-        removeInvitation: "Verwijder al de geselecteerde uitnodigingen",
-        resendInvitation: "Stuur al de geselecteerde uitnodigingen opnieuw",
-        inviter: "Verstuur uitnodigingen naar gebruikers die - als ze accepteren - gast gebruikers worden voor de applicatie",
-        overrideSettingsAllowed: "Indien ingeschakeld dan kunnen uitnodigingen voor de deze rol niet de geadvanceerde instellen (e.g. e-mail gelijkheid, alleen accepteren met eduID en de verloop- en eind-datum)",
-        removeUserRole: "Verwijder al de geselecteerde rollen"
+        intendedAuthorityTooltip: "De autoriteit bepaalt de rechten die de genodigde verwerft bij het accepteren van de uitnodiging",
+        inviteesTooltip: "Geef e-mailadressen op, gescheiden door komma, spatie of puntkomma, of op een eigen regel. Je kunt ook een csv-bestand plakken met daarin op elke regel een e-mailadres.",
+        removeInvitation: "Verwijder alle geselecteerde uitnodigingen",
+        resendInvitation: "Verstuur alle geselecteerde uitnodigingen opnieuw",
+        inviter: "Verstuur uitnodigingen naar gebruikers die - na accepteren - gast gebruikers worden voor de applicatie",
+        overrideSettingsAllowed: "Indien ingeschakeld dan kunnen uitnodigingen voor de deze rol niet de geadvanceerde instellen (waaronder: e-mail gelijkheid, alleen accepteren met eduID en de verloop- en einddatum)",
+        removeUserRole: "Verwijder alle geselecteerde rollen"
     },
     confirmationDialog: {
         title: "Bevestig",
@@ -414,7 +414,7 @@ const nl = {
     system: {
         trigger: "Trigger",
         clear: "Clear",
-        cronInfo: "Roep de cron job aan die resources opruimt zoals verlopen gebruikersrollen, verweesde gebruikers en inactieve gebruikers"
+        cronInfo: "Roep de cron job aan die resources opruimt, zoals verlopen gebruikersrollen, verweesde gebruikers en inactieve gebruikers"
     }
 }
 
