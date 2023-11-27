@@ -92,8 +92,8 @@ const nl = {
         login: "Login",
         loginWithSub: "Login",
         access: "Toegang verleend",
-        applicationInfo: "Deze applicatie is toegevoegd aan je SURF-invite startpagina.",
-        applicationInfoMultiple:"Deze applicaties zijn toegevoegd aan je SURF-invite startpagina.",
+        applicationInfo: "Deze applicatie is toegevoegd aan je SURFconext Invite startpagina.",
+        applicationInfoMultiple:"Deze applicaties zijn toegevoegd aan je SURFconext Invite startpagina.",
         continue: "Doorgaan",
         emailMismatch: "De uitnodiger heeft aangegeven dat je de uitnodiging dient te accepteren met e-mailadres {{email}}, " +
             "maar je bent ingelogd met een account met een ander mailadres. Log opnieuw in met een ander account.",
