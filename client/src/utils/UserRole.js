@@ -1,6 +1,5 @@
 import {isEmpty} from "./Utils";
 import {deriveApplicationAttributes} from "./Manage";
-import I18n from "../locale/I18n";
 
 export const INVITATION_STATUS = {
     OPEN: "OPEN",
