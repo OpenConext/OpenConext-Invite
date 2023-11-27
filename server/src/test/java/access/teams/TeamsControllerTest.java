@@ -5,11 +5,14 @@ import access.manage.EntityType;
 import access.model.Application;
 import access.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
+import static access.Seed.GUEST_SUB;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -71,6 +74,20 @@ class TeamsControllerTest extends AbstractTest {
         assertEquals(2, users.size());
         users.forEach(user -> assertEquals(team.getName(), user.getUserRoles().iterator().next().getRole().getName()));
 
+        //Now check if we get the correct URN from the Voot interface
+        List<Map<String, String>> groups = given()
+                .when()
+                .auth().basic("voot", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", "urn:collab:person:surfnet.nl:hdoe")
+                .get("/api/voot/{sub}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, groups.size());
+        Map<String, String> group = groups.get(0);
+        assertEquals("urn:collab:group:test.surfteams.nl::nl:surfnet:diensten:test", group.get("urn"));
+        assertEquals(team.getName(), group.get("name"));
     }
 
     @Test
