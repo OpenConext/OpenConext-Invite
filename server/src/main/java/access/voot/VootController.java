@@ -55,7 +55,7 @@ public class VootController {
     private Map<String, String> parseUserRole(UserRole userRole) {
         Map<String, String> res = new HashMap<>();
         Role role = userRole.getRole();
-        String urn = role.isTeamsOrigin() ? GroupURN.teamsUrnFromRole(teamsNameContext, role) : GroupURN.urnFromRole(groupUrnPrefix, userRole.getRole());
+        String urn = role.isTeamsOrigin() ? GroupURN.teamsUrnFromRole(teamsNameContext, role) : GroupURN.urnFromRole(groupUrnPrefix, role);
         res.put("urn", urn);
         res.put("name", role.getName());
         return res;

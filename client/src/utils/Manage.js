@@ -4,12 +4,14 @@ import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
 export const singleProviderToOption = provider => {
     const organisation = provider["OrganizationName:en"];
     const organisationValue = isEmpty(organisation) ? "" : ` (${organisation})`;
+    const manageType = provider.type ? provider.type.toUpperCase() : provider.manageType;
+    const manageId = provider.id || provider.manageId;
     return {
-        value: provider.id,
+        value: manageId,
         label: `${provider["name:en"]}${organisationValue}`,
-        type: provider.type.toUpperCase(),
-        manageType: provider.type.toUpperCase(),
-        manageId: provider.id
+        type: manageType,
+        manageType: manageType,
+        manageId: manageId
     };
 }
 

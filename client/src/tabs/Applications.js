@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Loader} from "@surfnet/sds";
+import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
 import {applications, rolesByApplication} from "../api";
 import {isEmpty, splitListSemantically, stopEvent} from "../utils/Utils";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
@@ -26,9 +27,9 @@ const Applications = () => {
                     const providers = res[0].providers;
                     const provisionings = res[0].provisionings;
                     res[1].forEach(role => {
-                        role.logo = providerLogoById(role.manageId, providers);
-                        role.provider = providerById(role.manageId, providers);
-                        role.provisioning = provisioningsByProviderId(role.manageId, provisionings);
+                        role.logo = providerLogoById(role.applicationMaps, providers);
+                        role.provider = providerById(role.applicationMaps, providers);
+                        role.provisioning = provisioningsByProviderId(role.applicationMaps, provisionings);
                     })
                     setRoles(res[1]);
                     setLoading(false);
@@ -51,21 +52,30 @@ const Applications = () => {
         }
     };
 
-    const providerById = (manageId, allProviders) => {
+    const providerById = (manageMaps, allProviders) => {
+        if (manageMaps.length > 1) {
+            return I18n.t("roles.multiple");
+        }
+        const manageId = manageMaps[0].id
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
         const organisation = provider["OrganizationName:en"];
         const organisationValue = isEmpty(organisation) ? "" : ` (${organisation})`;
         return `${provider["name:en"]}${organisationValue}`;
     }
 
-    const providerLogoById = (manageId, allProviders) => {
+    const providerLogoById = (manageMaps, allProviders) => {
+        if (manageMaps.length > 1) {
+            return <MultipleIcon/>
+        }
+        const manageId = manageMaps[0].id
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
         return provider.logo;
     }
 
-    const provisioningsByProviderId = (manageId, allProvisionings) => {
+    const provisioningsByProviderId = (manageMaps, allProvisionings) => {
+        const manageIdentifiers = manageMaps.map(m => m.id);
         const providers = allProvisionings
-            .filter(provisioning => provisioning.applications.some(app => app.id === manageId))
+            .filter(provisioning => provisioning.applications.some(app => manageIdentifiers.includes( app.id)))
             .map(provider => `${provider["name:en"]} (${provider.provisioning_type})`);
         return splitListSemantically(providers, I18n.t("forms.and"));
     }
@@ -75,7 +85,9 @@ const Applications = () => {
             key: "logo",
             header: "",
             nonSortable: true,
-            mapper: role => <img src={role.logo} alt="logo"/>
+            mapper: role => <div className="role-icon">
+                {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
+            </div>
         },
         {
             key: "name",
@@ -105,7 +117,8 @@ const Applications = () => {
                       customNoEntities={I18n.t(`roles.noResults`)}
                       searchAttributes={["name", "provider", "provisioning"]}
                       rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
-                      inputFocus={true}>
+                      inputFocus={true}
+                      rowClassNameResolver={entity => entity.applications.length > 1 ? "multi-role" : ""}>
             </Entities>
 
         </div>

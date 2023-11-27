@@ -148,12 +148,11 @@ export const Roles = () => {
         {
             nonSortable: true,
             key: "logo",
+
             header: "",
-            mapper: role => {
-                return <div className="role-icon">
-                    {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> :role.logo}
+            mapper: role => <div className="role-icon">
+                    {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
                 </div>
-            }
         },
         {
             key: "applicationName",
@@ -221,6 +220,7 @@ export const Roles = () => {
                 filters={filter(filterOptions, filterValue)}
                 customSearch={roleSearchRequired && isSuperUser ? search : null}
                 rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
+                rowClassNameResolver={entity => entity.applications.length > 1 ? "multi-role" : ""}
                 busy={searching}/>
         </div>
     );

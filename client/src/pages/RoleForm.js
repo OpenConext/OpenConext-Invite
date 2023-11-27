@@ -74,7 +74,7 @@ export const RoleForm = () => {
                     setRole({...role, applications: [providerOption]})
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
-                    setManagementOption([singleProviderToOption(res[0].application)]);
+                    setManagementOption(providersToOptions(res[0].applicationMaps));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});
