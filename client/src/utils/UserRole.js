@@ -1,5 +1,6 @@
 import {isEmpty} from "./Utils";
 import {deriveApplicationAttributes} from "./Manage";
+import I18n from "../locale/I18n";
 
 export const INVITATION_STATUS = {
     OPEN: "OPEN",
@@ -104,13 +105,13 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple) => {
         role.isUserRole = false;
         role.label = role.name;
         role.value = role.id;
-        deriveApplicationAttributes(role, locale, multiple);
+        deriveApplicationAttributes(role, locale, multiple, I18n.t("forms.and"));
     });
     const userRoles = user.userRoles;
     userRoles.forEach(userRole => {
         userRole.isUserRole = true;
         const role = userRole.role;
-        deriveApplicationAttributes(role, locale, multiple);
+        deriveApplicationAttributes(role, locale, multiple, I18n.t("forms.and"));
         userRole.name = role.name;
         userRole.label = role.name;
         userRole.value = role.id;

@@ -1,5 +1,6 @@
-import {isEmpty} from "./Utils";
+import {isEmpty, splitListSemantically} from "./Utils";
 import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
+import I18n from "../locale/I18n";
 
 export const singleProviderToOption = provider => {
     const organisation = provider["OrganizationName:en"];
@@ -15,11 +16,17 @@ export const singleProviderToOption = provider => {
     };
 }
 
+export const roleName = app => {
+    const name = app[`name:${I18n.locale}`] || app["name:en"]
+    const orgName = app[`OrganizationName:${I18n.locale}`] || app["OrganizationName:en"]
+    return `${name} (${orgName})`;
+}
+
 export const providersToOptions = providers => {
     return providers.map(provider => singleProviderToOption(provider));
 }
 
-export const deriveApplicationAttributes = (role, locale, multiple) => {
+export const deriveApplicationAttributes = (role, locale, multiple, separator) => {
     const applications = role.applicationMaps;
     if (!isEmpty(applications)) {
         if (applications.length === 1) {
@@ -28,9 +35,9 @@ export const deriveApplicationAttributes = (role, locale, multiple) => {
             role.logo = applications[0].logo;
         } else {
             role.applicationName = multiple;
-            role.applicationOrganizationName = applications
-                .map(app => app[`OrganizationName:${locale}`] || app["OrganizationName:en"])
-                .join(", ")
+            const orgNames = new Set(applications
+                .map(app => app[`OrganizationName:${locale}`] || app["OrganizationName:en"]));
+            role.applicationOrganizationName = splitListSemantically([...orgNames], separator);
             role.logo = <MultipleIcon/>;
         }
     }

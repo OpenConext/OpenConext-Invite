@@ -44,6 +44,9 @@ const nl = {
         rolesInfo: "Je bezit de volgende rollen.",
         expiryDays: "Verloopdagen"
     },
+    roles: {
+        multiple: "Meedere applicaties",
+    },
     forms: {
         ok: "Ok",
         and: "en",

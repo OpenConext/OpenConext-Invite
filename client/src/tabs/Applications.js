@@ -118,7 +118,7 @@ const Applications = () => {
                       searchAttributes={["name", "provider", "provisioning"]}
                       rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                       inputFocus={true}
-                      rowClassNameResolver={entity => entity.applications.length > 1 ? "multi-role" : ""}>
+                      rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}>
             </Entities>
 
         </div>

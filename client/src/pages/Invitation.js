@@ -115,7 +115,12 @@ export const Invitation = ({authenticated}) => {
     }
 
     const organisationName = role => {
-        return ` (${role.application["OrganizationName:en"]})`;
+        if (role.applicationMaps.length === 1) {
+            const name = role.applicationMaps[0][`OrganizationName:${I18n.locale}`] || role.applicationMaps[0]["OrganizationName:en"];
+            return ` (${name})`;
+        }
+        const set = new Set(role.applicationMaps.map(app => app[`OrganizationName:${I18n.locale}`] || app["OrganizationName:en"]));
+        return ` (${splitListSemantically([...set], I18n.t("forms.and"))})`
     }
 
     const renderLoginStep = () => {
