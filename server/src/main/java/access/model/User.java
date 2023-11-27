@@ -37,7 +37,6 @@ public class User implements Serializable, Provisionable {
     private boolean superUser;
 
     @Column(name = "eduperson_principal_name")
-    @NotNull
     private String eduPersonPrincipalName;
 
     @Column(name = "given_name")

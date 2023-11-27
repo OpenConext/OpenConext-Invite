@@ -171,9 +171,6 @@ public class UserController {
         if (!StringUtils.hasText(user.getSub())) {
             missingAttributes.add("sub");
         }
-        if (!StringUtils.hasText(user.getEduPersonPrincipalName())) {
-            missingAttributes.add("eduPersonPrincipalName");
-        }
         if (!StringUtils.hasText(user.getEmail())) {
             missingAttributes.add("email");
         }

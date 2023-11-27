@@ -109,6 +109,11 @@ voot:
   password: secret
   group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
 
+teams:
+  user: teams
+  password: secret
+  group-name-context: "urn:collab:group:test.surfteams.nl:"
+
 attribute-aggregation:
   user: aa
   password: secret

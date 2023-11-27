@@ -28,4 +28,9 @@ public class GroupURN {
                 role.getShortName());
     }
 
+    public static String teamsUrnFromRole(String teamsNameContext, Role role) {
+        return String.format("%s:%s",
+                teamsNameContext,
+                role.getUrn());
+    }
 }
