@@ -274,7 +274,7 @@ const en = {
         roles: "roles",
         progress: "1",
         info: "SURFconext Invite provides access to application based on your roles.",
-        infoLogin: "You can log in with your institution account or edulD.",
+        infoLogin: "You can log in with your institution account or eduID.",
         infoLoginEduIDOnly: "You need to log in with eduID.",
         infoLoginAgain: "To accept the invitation you'll need to log in again.",
         login: "Log in",
