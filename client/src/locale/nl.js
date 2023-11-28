@@ -145,7 +145,7 @@ const nl = {
         urn: "URN",
         advanced: "Advanced settings",
         showAdvancedSettings: "Toon geavanceerde configuratie uitnodiging",
-        hideAdvancedSettings: "Verberg geadvanceerde configuratie uitnodiging",
+        hideAdvancedSettings: "Verberg geavanceerde configuratie uitnodiging",
         override: "Kan de configuratie worden aangepast bij uitnodigen?",
         manage: "Applicatie",
         manageMetaData: "SURFconext entity",
