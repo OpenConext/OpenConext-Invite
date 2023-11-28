@@ -284,7 +284,7 @@ const nl = {
     },
     inviter: {
         welcome: "Welkom, {{name}}",
-        info: "Manage die toegang krijgt tot <strong>onderwijsapplicaties</strong> bij <strong>jouw instelling</strong>.",
+        info: "Manage wie toegang krijgt tot <strong>onderwijsapplicaties</strong> bij <strong>jouw instelling</strong>.",
         sendInvite: "Verstuur een uitnodiging",
         viewHistory: "toon geschiedenis",
         manage: "Je kunt gasten beheren en uitnodigingen versturen voor",
