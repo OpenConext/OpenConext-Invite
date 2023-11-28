@@ -29,7 +29,7 @@ const en = {
             system: "System",
             switchApp: "Go to {{app}}",
             welcome: "Welcome",
-            access: "Access",
+            access: "Invite",
             help: "Help",
             profile: "Profile",
             logout: "Log out"

@@ -29,7 +29,7 @@ const nl = {
             system: "Systeem",
             switchApp: "Ga naar {{app}}",
             welcome: "Welcome",
-            access: "Toegang",
+            access: "Invite",
             help: "Help",
             profile: "Profiel",
             logout: "Uitloggen"
