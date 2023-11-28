@@ -220,7 +220,7 @@ export const Roles = () => {
                 filters={filter(filterOptions, filterValue)}
                 customSearch={roleSearchRequired && isSuperUser ? search : null}
                 rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
-                rowClassNameResolver={entity => (entity.applications || []) .length > 1 ? "multi-role" : ""}
+                rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
                 busy={searching}/>
         </div>
     );
