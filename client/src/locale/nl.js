@@ -335,7 +335,7 @@ const nl = {
         inviteesTooltip: "Geef e-mailadressen op, gescheiden door komma, spatie of puntkomma, of op een eigen regel. Je kunt ook een csv-bestand plakken met daarin op elke regel een e-mailadres.",
         removeInvitation: "Verwijder alle geselecteerde uitnodigingen",
         resendInvitation: "Verstuur alle geselecteerde uitnodigingen opnieuw",
-        inviter: "Verstuur uitnodigingen naar gebruikers die - na accepteren - gast gebruikers worden voor de applicatie",
+        inviter: "Verstuur uitnodigingen naar gebruikers die - na accepteren - een rol krijgen voor de applicatie",
         overrideSettingsAllowed: "Indien ingeschakeld dan kunnen uitnodigingen voor de deze rol niet de geavanceerde configuratie aanpassen (waaronder of e-mailadres overeen moet komen, alleen acceptatie met eduID en de verloop- en einddatum)",
         removeUserRole: "Verwijder alle geselecteerde rollen"
     },
