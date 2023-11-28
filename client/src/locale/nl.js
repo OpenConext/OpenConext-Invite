@@ -144,7 +144,7 @@ const nl = {
         edit: "Bewerk rol {{name}}",
         urn: "URN",
         advanced: "Advanced settings",
-        showAdvancedSettings: "Toon geadvanceerde configuratie uitnodiging",
+        showAdvancedSettings: "Toon geavanceerde configuratie uitnodiging",
         hideAdvancedSettings: "Verberg geadvanceerde configuratie uitnodiging",
         override: "Kan de configuratie worden aangepast bij uitnodigen?",
         manage: "Applicatie",
