@@ -6,7 +6,11 @@ import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
 import access.model.*;
+import access.provision.ProvisioningService;
+import access.provision.graph.GraphResponse;
+import access.provision.scim.OperationType;
 import access.repository.RoleRepository;
+import access.repository.UserRepository;
 import access.repository.UserRoleRepository;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,12 +21,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -39,11 +44,19 @@ public class UserRoleController {
 
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final ProvisioningService provisioningService;
     private final Config config;
 
-    public UserRoleController(UserRoleRepository userRoleRepository, RoleRepository roleRepository, Config config) {
+    public UserRoleController(UserRoleRepository userRoleRepository,
+                              RoleRepository roleRepository,
+                              UserRepository userRepository,
+                              ProvisioningService provisioningService,
+                              Config config) {
         this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
+        this.provisioningService = provisioningService;
         this.config = config;
     }
 
@@ -57,6 +70,51 @@ public class UserRoleController {
         userRoles.forEach(userRole -> userRole.setUserInfo(userRole.getUser().asMap()));
         return ResponseEntity.ok(userRoles);
     }
+
+    @PostMapping("user_role_provisioning")
+    public ResponseEntity<Map<String, Integer>> userRoleProvisioning(@Validated @RequestBody UserRoleProvisioning userRoleProvisioning,
+                                                                     @Parameter(hidden = true) User apiUser) {
+        userRoleProvisioning.validate();
+        UserPermissions.assertInstitutionAdmin(apiUser);
+        List<Role> roles = userRoleProvisioning.roleIdentifiers.stream()
+                .map(roleId -> roleRepository.findById(roleId).orElseThrow(NotFoundException::new))
+                .toList();
+        UserPermissions.assertValidInvitation(apiUser, userRoleProvisioning.intendedAuthority, roles);
+        Optional<User> userOptional = Optional.empty();
+
+        if (StringUtils.hasText(userRoleProvisioning.sub)) {
+            userOptional = userRepository.findBySubIgnoreCase(userRoleProvisioning.sub);
+        } else if (StringUtils.hasText(userRoleProvisioning.eduPersonPrincipalName)) {
+            userOptional = userRepository.findByEduPersonPrincipalNameIgnoreCase(userRoleProvisioning.eduPersonPrincipalName);
+        } else if (StringUtils.hasText(userRoleProvisioning.email)) {
+            userOptional = userRepository.findByEmailIgnoreCase(userRoleProvisioning.email);
+        }
+        //Can't use shorthand notation as there are probably null values
+        User user = userOptional.orElseGet(() -> userRepository.save(new User(userRoleProvisioning)));
+
+        List<UserRole> newUserRoles = roles.stream()
+                .map(role ->
+                    user.getUserRoles().stream()
+                            .noneMatch(userRole -> userRole.getRole().getId().equals(role.getId())) ?
+                        user.addUserRole(new UserRole(
+                                apiUser.getName(),
+                                user,
+                                role,
+                                userRoleProvisioning.intendedAuthority,
+                                Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS)))
+                        : null)
+                .filter(Objects::nonNull)
+                .toList();
+
+        userRepository.save(user);
+        AccessLogger.user(LOG, Event.Created, user);
+
+        provisioningService.newUserRequest(user);
+        newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
+
+        return Results.createResult();
+    }
+
 
     @PutMapping("")
     public ResponseEntity<Map<String, Integer>> updateUserRoleExpirationDate(@Validated @RequestBody UpdateUserRole updateUserRole,

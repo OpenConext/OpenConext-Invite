@@ -102,6 +102,20 @@ public class User implements Serializable, Provisionable {
         this.nameInvariant(attributes);
     }
 
+    public User(UserRoleProvisioning userRoleProvisioning) {
+        this.sub = resolveSub(userRoleProvisioning);
+        this.eduPersonPrincipalName = userRoleProvisioning.eduPersonPrincipalName;
+        this.schacHomeOrganization = userRoleProvisioning.schacHomeOrganization;
+        this.email = userRoleProvisioning.email;
+        this.name = userRoleProvisioning.name;
+        this.givenName = userRoleProvisioning.givenName;
+        this.familyName = userRoleProvisioning.familyName;
+        this.nameInvariant(Map.of(
+                "name", StringUtils.hasText(this.name)? this.name : "",
+                "preferred_username", ""
+        ));
+    }
+
     private void nameInvariant(Map<String, Object> attributes) {
         String name = (String) attributes.get("name");
         String preferredUsername = (String) attributes.get("preferred_username");
@@ -142,9 +156,10 @@ public class User implements Serializable, Provisionable {
     }
 
     @JsonIgnore
-    public void addUserRole(UserRole userRole) {
+    public UserRole addUserRole(UserRole userRole) {
         this.userRoles.add(userRole);
         userRole.setUser(this);
+        return userRole;
     }
 
     @JsonIgnore
@@ -202,5 +217,28 @@ public class User implements Serializable, Provisionable {
     @JsonIgnore
     public Optional<UserRole> latestUserRole() {
         return this.userRoles.stream().max(Comparator.comparing(UserRole::getCreatedAt));
+    }
+
+    @JsonIgnore
+    public String resolveSub(UserRoleProvisioning userRoleProvisioning) {
+        String schacHome = null;
+        String uid = null;
+        if (StringUtils.hasText(userRoleProvisioning.schacHomeOrganization)) {
+            schacHome = userRoleProvisioning.schacHomeOrganization;
+        }
+        String eppn = userRoleProvisioning.eduPersonPrincipalName;
+        if (StringUtils.hasText(eppn) && eppn.contains("@")) {
+            uid = eppn.substring(0, eppn.indexOf("@"));
+            schacHome = schacHome != null ? schacHome : eppn.substring(eppn.indexOf("@") + 1);
+        }
+        String mail = userRoleProvisioning.email;
+        if (StringUtils.hasText(mail)) {
+            uid = uid != null ? uid : mail.substring(0, mail.indexOf("@"));
+            schacHome = schacHome != null ? schacHome : mail.substring(mail.indexOf("@") + 1);
+        }
+        if (schacHome == null || uid == null) {
+            throw new IllegalArgumentException("Can't resolve sub from " + userRoleProvisioning);
+        }
+        return String.format("urn:collab:person:%s:%s", schacHome, uid);
     }
 }

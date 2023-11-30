@@ -31,6 +31,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 @SuppressWarnings("unchecked")
@@ -166,14 +167,14 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                             userRoles = userRoleRepository.findByRole(userRole.getRole())
                                     .stream()
                                     .filter(userRoleDB -> userRoleDB.getAuthority().equals(Authority.GUEST) || userRoleDB.isGuestRoleIncluded())
-                                    .toList();
+                                    .collect(Collectors.toCollection(ArrayList::new));
                             boolean userRolePresent = userRoles.stream().anyMatch(dbUserRole -> dbUserRole.getId().equals(userRole.getId()));
                             if (operationType.equals(OperationType.Add) && !userRolePresent) {
                                 userRoles.add(userRole);
                             } else if (operationType.equals(OperationType.Remove) && userRolePresent) {
                                 userRoles = userRoles.stream()
                                         .filter(dbUserRole -> !dbUserRole.getId().equals(userRole.getId()))
-                                        .toList();
+                                        .collect(Collectors.toCollection(ArrayList::new));
                             }
                         } else {
                             userRoles.add(userRole);
