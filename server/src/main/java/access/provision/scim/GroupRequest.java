@@ -17,8 +17,8 @@ public class GroupRequest implements Serializable {
 
     public GroupRequest(String externalId, String remoteScimIdentifier, String displayName, List<Member> members) {
         this.externalId = externalId;
+        this.id = remoteScimIdentifier;
         this.displayName = displayName;
         this.members = members;
-        this.id = remoteScimIdentifier;
     }
 }

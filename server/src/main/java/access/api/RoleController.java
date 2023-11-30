@@ -26,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -157,12 +158,18 @@ public class RoleController {
         UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
 
         boolean isNew = role.getId() == null;
+        AtomicReference<Role> roleAtomicReference = new AtomicReference<>();
         if (!isNew) {
-            role.setShortName(roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new).getShortName());
+            Role previousRole = roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new);
+            //We don't allow shortName changes after creation
+            role.setShortName(previousRole.getShortName());
+            roleAtomicReference.set(previousRole);
         }
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);
+        } else {
+            provisioningService.updateGroupRequest(roleAtomicReference.get(), saved);
         }
         AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
 

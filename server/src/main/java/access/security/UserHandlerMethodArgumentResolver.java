@@ -71,7 +71,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
                     .orElseThrow(UserRestrictionException::new);
             String organizationGuid = apiToken.getOrganizationGUID();
-            List<User> institutionAdmins = userRepository.findByOrganizationGUIDAndAndInstitutionAdmin(organizationGuid, true);
+            List<User> institutionAdmins = userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGuid, true);
             if (institutionAdmins.isEmpty()) {
                 //we don't want to return null as this is not part of the happy-path
                 throw new UserRestrictionException();

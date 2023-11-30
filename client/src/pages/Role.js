@@ -163,7 +163,7 @@ export const Role = () => {
                     <a href={role.landingPage}
                        rel="noreferrer"
                        target="_blank">
-                        <span className={"application-name"}>{`${role.applicationName}`}</span>
+                        <span className={"application-name"}>{`${role.applicationNames}`}</span>
                     </a>{role.applicationOrganizationName && <span>{` (${role.applicationOrganizationName})`}</span>}
                 </div>
 

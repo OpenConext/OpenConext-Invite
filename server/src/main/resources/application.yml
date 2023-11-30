@@ -63,6 +63,12 @@ spring:
     host: localhost
     port: 3025
 
+crypto:
+  development-mode: True
+  private-key-location: classpath:nope
+#  development-mode: False
+#  private-key-location: classpath:/private_key_pkcs8.pem
+
 cron:
   node-cron-job-responsible: true
   user-cleaner-expression: "0 0/30 * * * *"

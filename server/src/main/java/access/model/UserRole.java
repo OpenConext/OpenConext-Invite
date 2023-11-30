@@ -36,6 +36,9 @@ public class UserRole implements Serializable {
     @Column(name = "expiry_notifications")
     private int expiryNotifications;
 
+    @Column(name = "guest_role_included")
+    private boolean guestRoleIncluded;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

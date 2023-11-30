@@ -97,7 +97,7 @@ export const allowedToRenewUserRole = (user, userRole) => {
     }
 }
 
-export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
+export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.identifier}:${role.shortName}`;
 
 export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) => {
     allRoles.forEach(role => {
@@ -121,6 +121,8 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) 
         userRole.enforceEmailEquality = role.enforceEmailEquality;
         userRole.applicationName = role.applicationName;
         userRole.applicationOrganizationName = role.applicationOrganizationName;
+        userRole.applicationMaps = role.applicationMaps;
+        userRole.applications = role.applications;
         userRole.logo = role.logo;
         userRole.userRoleCount = role.userRoleCount;
     })

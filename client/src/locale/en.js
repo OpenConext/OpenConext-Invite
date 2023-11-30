@@ -323,7 +323,7 @@ const en = {
         userRoleIcon: "User role accepted by {{name}} at {{createdAt}}",
         invitationIcon: "Invitation for {{email}} sent at {{createdAt}} with expiration date {{expiryDate}}",
         roleShortName: "The unique short name of the role within a provisioning. It is used to format the urn and therefore not all characters are allowed.",
-        roleUrn: "The urn of the role. It is based on the sanitized name and the application identifier. It is used as the unique global identifier of this role and therefore not all characters are allowed.",
+        roleUrn: "The urn of the role. It is based on the sanitized name and the role identifier. It is used as the unique global identifier of this role and therefore not all characters are allowed.",
         manageService: "The required service from SURFconext with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expiry when a use accepts a invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with the email where the invitation was sent to",

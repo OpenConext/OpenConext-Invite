@@ -30,10 +30,14 @@ export const deriveApplicationAttributes = (role, locale, multiple, separator) =
     if (!isEmpty(applications)) {
         if (applications.length === 1) {
             role.applicationName = applications[0][`name:${locale}`] || applications[0]["name:en"];
+            role.applicationNames = role.applicationName;
             role.applicationOrganizationName = applications[0][`OrganizationName:${locale}`] || applications[0]["OrganizationName:en"];
             role.logo = applications[0].logo;
         } else {
             role.applicationName = multiple;
+            const appNames = new Set(applications
+                .map(app => app[`name:${locale}`] || app["name:en"]));
+            role.applicationNames = splitListSemantically([...appNames], separator);
             const orgNames = new Set(applications
                 .map(app => app[`OrganizationName:${locale}`] || app["OrganizationName:en"]));
             role.applicationOrganizationName = splitListSemantically([...orgNames], separator);

@@ -4,14 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,6 +37,9 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return Collections.emptyList();
+        }
         String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(","));
         String query = URLEncoder.encode(String.format("{ \"id\": { $in: [%s]}}", param), Charset.defaultCharset());
         String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.collectionName(), query);
@@ -60,7 +62,10 @@ public class RemoteManage implements Manage {
 
 
     @Override
-    public List<Map<String, Object>> provisioning(List<String> ids) {
+    public List<Map<String, Object>> provisioning(Collection<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         String queryUrl = String.format("%s/manage/api/internal/provisioning", url);
         return transformProvider(restTemplate.postForObject(queryUrl, ids, List.class));
     }

@@ -323,7 +323,7 @@ const nl = {
         userRoleIcon: "Gebruikersrol geaccepteerd door {{name}} op {{createdAt}}",
         invitationIcon: "Uitnodiging aan {{email}} verstuurd op {{createdAt}} met verloopdatum {{expiryDate}}",
         roleShortName: "Een unieke korte naam voor de rol binnen een provisioning. Gebruikt in de urn, dus daarom zijn niet alle tekens toegestaan.",
-        roleUrn: "De urn van deze rol. Deze is gebaseerd op de opgeschoonde naam en de applicatie-identifier. Hij wordt gebruikt als de unieke globale identifier van deze rol en daarom zijn niet alle tekens toegestaan.",
+        roleUrn: "De urn van deze rol. Deze is gebaseerd op de opgeschoonde naam en de rol-identifier. Hij wordt gebruikt als de unieke globale identifier van deze rol en daarom zijn niet alle tekens toegestaan.",
         manageService: "De vereiste dienst uit SURFconext die optioneel een provisioning heeft.",
         defaultExpiryDays: "Het default aantal dagen waarna de rol verloopt, gerekend vanaf het moment dat de gebruiker de uitnodiging voor de rol accepteert.",
         enforceEmailEqualityTooltip: "Indien ingeschakeld moet de genodigde de uitnodiging accepteren met een account dat hetzelfde e-mailadres voert als waarheen deze uitnodiging gestuurd is",

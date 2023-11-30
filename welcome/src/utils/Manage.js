@@ -6,7 +6,8 @@ export const organisationName = apps => {
         return ` (${apps[0]["OrganizationName:en"]})`;
     } else {
         const set = new Set(apps.map(app => app["OrganizationName:en"]).sort());
-        return splitListSemantically([...set], I18n.t("forms.and"));
+        const orgNames = splitListSemantically([...set], I18n.t("forms.and"));
+        return ` (${orgNames})`;
     }
 }
 

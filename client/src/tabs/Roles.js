@@ -7,7 +7,7 @@ import {Button, ButtonSize, Chip, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication, searchRoles} from "../api";
-import {isEmpty, stopEvent} from "../utils/Utils";
+import {distinctValues, isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
@@ -19,6 +19,7 @@ export const Roles = () => {
     const user = useAppStore(state => state.user);
     const {roleSearchRequired} = useAppStore(state => state.config);
     const navigate = useNavigate();
+
     const [loading, setLoading] = useState(true);
     const [searching, setSearching] = useState(false);
     const [roles, setRoles] = useState([]);
@@ -34,7 +35,12 @@ export const Roles = () => {
             } else {
                 rolesByApplication()
                     .then(res => {
-                        const newRoles = markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
+                        const newRoles = markAndFilterRoles(
+                            user,
+                            distinctValues(res, "id"),
+                            I18n.locale,
+                            I18n.t("roles.multiple"),
+                            I18n.t("forms.and"));
                         setRoles(newRoles);
                         initFilterValues(newRoles);
                         setLoading(false);
@@ -55,11 +61,12 @@ export const Roles = () => {
             value: allValue
         }];
         const reducedRoles = userRoles.reduce((acc, role) => {
-            const option = acc.find(opt => opt.manageId === role.manageId);
+            const manageIdentifiers = role.applicationMaps.map(m => m.id);
+            const option = acc.find(opt => manageIdentifiers.includes(opt.manageId));
             if (option) {
                 ++option.nbr;
             } else {
-                acc.push({manageId: role.manageId, nbr: 1, name: role.applicationName})
+                role.applicationMaps.forEach(app => acc.push({manageId: app.id, nbr: 1, name: app[`name:${I18n.locale}`] || app[0]["name:en"]}))
             }
             return acc;
         }, []);
@@ -199,7 +206,7 @@ export const Roles = () => {
         )
     }
     const filteredRoles = filterValue.value === allValue ? roles :
-        roles.filter(role => role.manageId=== filterValue.value);
+        roles.filter(role => role.applicationMaps.map(m => m.id).includes(filterValue.value));
 
     return (
         <div className={"mod-roles"}>
