@@ -158,18 +158,18 @@ public class RoleController {
         UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
 
         boolean isNew = role.getId() == null;
-        AtomicReference<Role> roleAtomicReference = new AtomicReference<>();
+        AtomicReference<List<String>> previousManageIdentifiersReference = new AtomicReference<>();
         if (!isNew) {
             Role previousRole = roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new);
             //We don't allow shortName changes after creation
             role.setShortName(previousRole.getShortName());
-            roleAtomicReference.set(previousRole);
+            previousManageIdentifiersReference.set(previousRole.applicationIdentifiers());
         }
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);
         } else {
-            provisioningService.updateGroupRequest(roleAtomicReference.get(), saved);
+            provisioningService.updateGroupRequest(previousManageIdentifiersReference.get(), saved);
         }
         AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
 

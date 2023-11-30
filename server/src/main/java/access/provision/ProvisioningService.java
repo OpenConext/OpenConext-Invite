@@ -4,6 +4,7 @@ import access.model.*;
 import access.provision.graph.GraphResponse;
 import access.provision.scim.OperationType;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProvisioningService {
@@ -16,7 +17,7 @@ public interface ProvisioningService {
 
     void updateGroupRequest(UserRole userRole, OperationType operationType);
 
-    void updateGroupRequest(Role previousRole, Role newRole);
+    void updateGroupRequest(List<String> previousManageIdentifiers, Role newRole);
     void deleteGroupRequest(Role role);
 
 }

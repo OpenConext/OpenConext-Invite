@@ -224,13 +224,14 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @Override
-    public void updateGroupRequest(Role previousRole, Role newRole) {
-        List<String> previousManageIdentifiers = this.getManageIdentifiers(previousRole);
+    public void updateGroupRequest(List<String> previousManageIdentifiers, Role newRole) {
+        //Immutable List can not be sorted
+        List<String> previousManageIdentifiersSorted = previousManageIdentifiers.stream().sorted().toList();
         List<String> newManageIdentifiers = this.getManageIdentifiers(newRole);
         if (previousManageIdentifiers.equals(newManageIdentifiers)) {
             return;
         }
-        List<String> addedManageIdentifiers = newManageIdentifiers.stream().filter(id -> !previousManageIdentifiers.contains(id)).toList();
+        List<String> addedManageIdentifiers = newManageIdentifiers.stream().filter(id -> !previousManageIdentifiersSorted.contains(id)).toList();
         List<String> deletedManageIdentifiers = previousManageIdentifiers.stream().filter(id -> !newManageIdentifiers.contains(id)).toList();
 
         manage.provisioning(addedManageIdentifiers).stream().map(Provisioning::new)
