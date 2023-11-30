@@ -91,7 +91,7 @@ const nl = {
         applications: "Applicaties",
         noRolesInfo: "Je hebt geen rollen (je bent een super-user)",
         noRolesInstitutionAdmin: "Als een instellingsmanager heb je geen rollen (maar je hebt wel toegang tot je applicaties)",
-        guestRoleOnly: "Je bent een gast gebruiker. Was je op zoek naar <a href='{{welcomeUrl}}'>de inviter app voor gasten</a>?",
+        guestRoleOnly: "Je bent een gastgebruiker. Ben je op zoek naar de <a href='{{welcomeUrl}}'>inviter app voor gasten</a>?",
         rolesInfo: "Je hebt de volgende rollen",
         applicationsInfo: "Je hebt toegang tot de volgende applicaties",
         noRolesFound: "Geen rollen gevonden.",
