@@ -102,6 +102,7 @@ public class UserRoleController {
                                 user,
                                 role,
                                 userRoleProvisioning.intendedAuthority,
+                                userRoleProvisioning.guestRoleIncluded,
                                 Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS)))
                         : null)
                 .filter(Objects::nonNull)

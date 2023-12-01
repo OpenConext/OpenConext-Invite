@@ -208,8 +208,8 @@ export const UserRoles = ({role, guests, userRoles}) => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: userRole => <Chip type={chipTypeForUserRole(userRole.authority)}
-                                      label={I18n.t(`access.${userRole.authority}`)}/>
+            mapper: userRole => <Chip type={chipTypeForUserRole(guests ? AUTHORITIES.GUEST: userRole.authority)}
+                                      label={I18n.t(`access.${guests ? AUTHORITIES.GUEST: userRole.authority}`)}/>
         },
         {
             key: "createdAt",

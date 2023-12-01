@@ -52,6 +52,9 @@ public class Invitation implements Serializable {
     @Column(name = "edu_id_only")
     private boolean eduIDOnly;
 
+    @Column(name = "guest_role_included")
+    private boolean guestRoleIncluded;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
@@ -77,6 +80,7 @@ public class Invitation implements Serializable {
                       String email,
                       boolean enforceEmailEquality,
                       boolean eduIDOnly,
+                      boolean guestRoleIncluded,
                       String message,
                       User inviter,
                       Instant expiryDate,
@@ -86,6 +90,7 @@ public class Invitation implements Serializable {
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
         this.eduIDOnly = eduIDOnly;
+        this.guestRoleIncluded = guestRoleIncluded;
         this.message = message;
         this.inviter = inviter;
         this.status = Status.OPEN;

@@ -20,7 +20,8 @@ class UserRoleProvisioningTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                false
         ));
         assertEquals("urn:collab:person:example.com:jdoe", user.getSub());
         assertEquals("example.com", user.getSchacHomeOrganization());
@@ -37,7 +38,8 @@ class UserRoleProvisioningTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                false
         ));
         assertEquals("urn:collab:person:example.com:jdoe", user.getSub());
         assertEquals("example.com", user.getSchacHomeOrganization());
@@ -54,7 +56,8 @@ class UserRoleProvisioningTest {
                 null,
                 null,
                 null,
-                "nice.org"
+                "nice.org",
+                false
         ));
         assertEquals("urn:collab:person:example.com:jdoe", user.getSub());
         assertEquals("nice.org", user.getSchacHomeOrganization());
@@ -71,7 +74,8 @@ class UserRoleProvisioningTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                false
         )));
         assertThrows(IllegalArgumentException.class, () -> new User(new UserRoleProvisioning(
                 List.of(1L),
@@ -82,7 +86,8 @@ class UserRoleProvisioningTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                false
         )));
     }
 

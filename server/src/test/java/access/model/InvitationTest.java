@@ -8,7 +8,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class InvitationTest {
 
@@ -16,7 +17,7 @@ class InvitationTest {
     void constructorWithoutDefaults() {
         Role role = new Role("mail", "description", "https://landingpage.com", Seed.application( "1", EntityType.SAML20_SP), 30, false, false);
 
-        Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, "Please join..", new User(),
+        Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, false, "Please join..", new User(),
                 null, Instant.now().plus(30, ChronoUnit.DAYS),
                 Set.of(new InvitationRole(role)));
 
@@ -28,7 +29,7 @@ class InvitationTest {
     void constructorWithDefaults() {
         Role role = new Role("mail", "description", "https://landingpage.com",Seed.application( "1", EntityType.SAML20_SP), null, false, false);
 
-        Invitation invitation = new Invitation(Authority.MANAGER, "hash", "john@example.com", false, false, "Please join..", new User(),
+        Invitation invitation = new Invitation(Authority.MANAGER, "hash", "john@example.com", false, false, false, "Please join..", new User(),
                 null, null, Set.of(new InvitationRole(role)));
         assertEquals(13, Instant.now().until(invitation.getExpiryDate(), ChronoUnit.DAYS));
         assertNull(invitation.getRoleExpiryDate());
@@ -38,7 +39,7 @@ class InvitationTest {
     void roleExpiryDate() {
         Role role = new Role("mail", "description", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 30, false, false);
 
-        Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, "Please join..", new User(),
+        Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, false, "Please join..", new User(),
                 null, null,
                 Set.of(new InvitationRole(role)));
 

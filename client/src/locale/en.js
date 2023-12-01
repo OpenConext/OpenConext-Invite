@@ -205,6 +205,7 @@ const en = {
         message: "Message",
         messagePlaceholder: "Personal message for the invitee included in the invitation",
         invite: "Send invite",
+        guestRoleIncluded: "Add the guest role?",
         invalidEmails: "Invalid email addresses removed: {{emails}}.",
         createFlash: "Invitation was sent",
         delete: "Delete",
@@ -337,7 +338,8 @@ const en = {
         resendInvitation: "Resend all selected invitations",
         inviter: "Send invitations to persons who will - once accepted - become guest users for the application",
         overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced setting (e.g. Email equality, eduID only and the role expiry end date)",
-        removeUserRole: "Remove the selected user roles"
+        removeUserRole: "Remove the selected user roles",
+        guestRoleIncludedTooltip: "Do you also want to invite the invitees as guests when they accept the invitation?",
     },
     confirmationDialog: {
         title: "Confirm",

@@ -205,6 +205,7 @@ const nl = {
         message: "Bericht",
         messagePlaceholder: "Persoonlijk bericht voor de genodigde dat wordt opgenomen in de uitnodiging",
         invite: "Stuur uitnodiging",
+        guestRoleIncluded: "Voeg toe als gastgebruiker?",
         invalidEmails: "Ongeldig e-mailadres verwijderd: {{emails}}.",
         createFlash: "Uitnodiging is verstuurd",
         delete: "Verwijder",
@@ -337,7 +338,8 @@ const nl = {
         resendInvitation: "Stuur al de geselecteerde uitnodigingen opnieuw",
         inviter: "Verstuur uitnodigingen naar gebruikers die - als ze accepteren - gast gebruikers worden voor de applicatie",
         overrideSettingsAllowed: "Indien ingeschakeld dan kunnen uitnodigingen voor de deze rol niet de geadvanceerde instellen (e.g. e-mail gelijkheid, alleen accepteren met eduID en de verloop- en eind-datum)",
-        removeUserRole: "Verwijder al de geselecteerde rollen"
+        removeUserRole: "Verwijder al de geselecteerde rollen",
+        guestRoleIncludedTooltip: "Wil je dat de uitgenodigden ook gast gebruiker worden als ze de uitnodiging accepteren?",
     },
     confirmationDialog: {
         title: "Bevestig",

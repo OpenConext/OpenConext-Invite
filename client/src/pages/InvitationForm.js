@@ -286,6 +286,14 @@ export const InvitationForm = () => {
                                   tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
                         />
 
+                        <Checkbox name={I18n.t("invitations.guestRoleIncluded")}
+                                  value={invitation.guestRoleIncluded || false}
+                                  onChange={e => setInvitation({...invitation, guestRoleIncluded: e.target.checked})}
+                                  info={I18n.t("invitations.guestRoleIncluded")}
+                                  readOnly={invitation.intendedAuthority === AUTHORITIES.GUEST}
+                                  tooltip={I18n.t("tooltips.guestRoleIncludedTooltip")}
+                        />
+
                         <DateField value={invitation.roleExpiryDate}
                                    onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
                                    showYearDropdown={true}

@@ -16,8 +16,7 @@ import java.util.List;
 import static access.Seed.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserRoleControllerTest extends AbstractTest {
 
@@ -145,7 +144,8 @@ class UserRoleControllerTest extends AbstractTest {
                 null,
                 null,
                 "Charly Green",
-                null
+                null,
+                true
         );
         User savedUser = given()
                 .when()
@@ -159,6 +159,7 @@ class UserRoleControllerTest extends AbstractTest {
         assertEquals("urn:collab:person:domain.org:new_user", savedUser.getSub());
         User user = userRepository.findBySubIgnoreCase("urn:collab:person:domain.org:new_user").orElseThrow(NotFoundException::new);
         assertEquals(2, user.getUserRoles().size());
+        user.getUserRoles().forEach(userRole -> assertTrue(userRole.isGuestRoleIncluded()));
     }
 
 }

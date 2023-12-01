@@ -68,7 +68,8 @@ export const Role = () => {
                           Icon={GuestLogo}>
                         <UserRoles role={res[0]}
                                    guests={true}
-                                   userRoles={res[1].filter(userRole => userRole.authority === AUTHORITIES.GUEST)}/>
+                                   userRoles={res[1].filter(userRole => userRole.authority === AUTHORITIES.GUEST ||
+                                                            userRole.guestRoleIncluded)}/>
                     </Page>,
                     <Page key="invitations"
                           name="invitations"

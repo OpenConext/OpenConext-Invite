@@ -26,6 +26,7 @@ public class UserRoleProvisioning {
     public String familyName;
     public String name;
     public String schacHomeOrganization;
+    public boolean guestRoleIncluded;
 
     public void validate() {
         if (!StringUtils.hasText(email) && (!StringUtils.hasText(eduPersonPrincipalName) || !eduPersonPrincipalName.contains("@"))) {

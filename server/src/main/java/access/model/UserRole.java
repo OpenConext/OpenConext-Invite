@@ -61,14 +61,15 @@ public class UserRole implements Serializable {
     }
 
     public UserRole(String inviter, User user, Role role, Authority authority) {
-        this(inviter, user, role, authority, null);
+        this(inviter, user, role, authority, false, null);
     }
 
-    public UserRole(String inviter, User user, Role role, @NotNull Authority authority, Instant endDate) {
+    public UserRole(String inviter, User user, Role role, @NotNull Authority authority, boolean guestRoleIncluded, Instant endDate) {
         this.inviter = inviter;
         this.user = user;
         this.role = role;
         this.authority = authority;
+        this.guestRoleIncluded = guestRoleIncluded;
         this.endDate = endDate == null && authority.equals(Authority.GUEST) ? Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS) : endDate;
         this.createdAt = Instant.now();
     }

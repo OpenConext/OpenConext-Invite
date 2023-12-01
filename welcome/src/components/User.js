@@ -14,7 +14,7 @@ export const User = ({user, invitationRoles = []}) => {
     }
     const rolesToExclude = invitationRoles.map(invitationRole => invitationRole.role.id);
     const filteredUserRoles = user.userRoles
-        .filter(userRole => user.superUser || userRole.authority === "GUEST")
+        .filter(userRole => user.superUser || userRole.authority === "GUEST" || userRole.guestRoleIncluded)
         .filter(userRole => !rolesToExclude.includes(userRole.role.id));
     return (
         <>

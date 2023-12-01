@@ -26,6 +26,8 @@ public class InvitationRequest implements Serializable {
 
     private boolean eduIDOnly;
 
+    private boolean guestRoleIncluded;
+
     @NotEmpty
     private List<String> invites;
 

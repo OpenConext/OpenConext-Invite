@@ -15,7 +15,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static access.Seed.*;
 import static io.restassured.RestAssured.given;
@@ -72,6 +71,7 @@ class InvitationControllerTest extends AbstractTest {
                 "Message",
                 true,
                 false,
+                false,
                 List.of("new@new.nl"),
                 roleIdentifiers,
                 Instant.now().plus(365, ChronoUnit.DAYS),
@@ -97,6 +97,7 @@ class InvitationControllerTest extends AbstractTest {
                 Authority.INVITER,
                 "Message",
                 true,
+                false,
                 false,
                 List.of("new@new.nl"),
                 Collections.emptyList(),

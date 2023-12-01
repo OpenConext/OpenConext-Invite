@@ -107,6 +107,7 @@ public class InvitationController implements HasManage {
                         invitee,
                         invitationRequest.isEnforceEmailEquality(),
                         invitationRequest.isEduIDOnly(),
+                        invitationRequest.isGuestRoleIncluded(),
                         invitationRequest.getMessage(),
                         user,
                         invitationRequest.getExpiryDate(),
@@ -241,6 +242,7 @@ public class InvitationController implements HasManage {
                                 user,
                                 role,
                                 invitation.getIntendedAuthority(),
+                                invitation.isGuestRoleIncluded(),
                                 invitation.getRoleExpiryDate());
                         user.addUserRole(userRole);
                         newUserRoles.add(userRole);
