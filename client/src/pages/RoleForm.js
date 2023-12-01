@@ -10,7 +10,7 @@ import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as RoleIcon} from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import InputField from "../components/InputField";
 import {constructShortName} from "../validations/regExps";
-import {isEmpty} from "../utils/Utils";
+import {distinctValues, isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {providersToOptions, singleProviderToOption} from "../utils/Manage";
@@ -26,7 +26,7 @@ export const RoleForm = () => {
     const required = ["name", "description", "applications"];
     const {user, setFlash, config} = useAppStore(state => state);
 
-    const [role, setRole] = useState({name: "", shortName: "", defaultExpiryDays: 0});
+    const [role, setRole] = useState({name: "", shortName: "", defaultExpiryDays: 0, identifier: crypto.randomUUID()});
     const [providers, setProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
     const [loading, setLoading] = useState(true);
@@ -57,9 +57,11 @@ export const RoleForm = () => {
                 if (user.superUser) {
                     setProviders(res[newRole ? 0 : 1]);
                 } else if (user.institutionAdmin) {
-                    setProviders(user.applications.concat(user.userRoles.map(userRole => userRole.role.application)));
+                    setProviders(distinctValues(user.applications
+                        .concat(user.userRoles.map(userRole => userRole.role.applicationMaps)
+                            .flat()), "id"));
                 } else {
-                    setProviders(user.userRoles.map(userRole => userRole.role.application));
+                    setProviders(distinctValues(user.userRoles.map(userRole => userRole.role.applicationMaps).flat(), "id"));
                 }
                 setNewRole(newRole);
                 const name = newRole ? "" : res[0].name;
@@ -69,12 +71,12 @@ export const RoleForm = () => {
                 ];
                 if (newRole) {
                     const providerOption = singleProviderToOption(user.superUser ? res[0][0] :
-                        user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.application);
+                        user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.applicationMaps[0]);
                     setManagementOption([providerOption]);
                     setRole({...role, applications: [providerOption]})
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
-                    setManagementOption([singleProviderToOption(res[0].application)]);
+                    setManagementOption(providersToOptions(res[0].applicationMaps));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});

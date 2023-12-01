@@ -58,7 +58,7 @@ export const Role = () => {
         }
         Promise.all([roleByID(id, false), userRolesByRoleId(id), invitationsByRoleId(id)])
             .then(res => {
-                deriveApplicationAttributes(res[0], I18n.locale, I18n.t("roles.multiple"))
+                deriveApplicationAttributes(res[0], I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"))
                 setRole(res[0]);
                 setUserRole(res[1].find(userRole => userRole.role.id === res[0].id && userRole.userInfo.id === user.id));
                 const newTabs = [
@@ -68,7 +68,8 @@ export const Role = () => {
                           Icon={GuestLogo}>
                         <UserRoles role={res[0]}
                                    guests={true}
-                                   userRoles={res[1].filter(userRole => userRole.authority === AUTHORITIES.GUEST)}/>
+                                   userRoles={res[1].filter(userRole => userRole.authority === AUTHORITIES.GUEST ||
+                                                            userRole.guestRoleIncluded)}/>
                     </Page>,
                     <Page key="invitations"
                           name="invitations"
@@ -163,7 +164,7 @@ export const Role = () => {
                     <a href={role.landingPage}
                        rel="noreferrer"
                        target="_blank">
-                        <span className={"application-name"}>{`${role.applicationName}`}</span>
+                        <span className={"application-name"}>{`${role.applicationNames}`}</span>
                     </a>{role.applicationOrganizationName && <span>{` (${role.applicationOrganizationName})`}</span>}
                 </div>
 

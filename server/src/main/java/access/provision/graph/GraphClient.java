@@ -11,6 +11,7 @@ import com.microsoft.graph.http.BaseRequest;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.InvitationCollectionRequest;
 import com.microsoft.graph.requests.UserRequest;
+import crypto.KeyStore;
 import okhttp3.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,10 +27,12 @@ public class GraphClient {
 
     private final String serverUrl;
     private final String eduidIdpSchacHomeOrganization;
+    private final KeyStore keyStore;
 
-    public GraphClient(String serverUrl, String eduidIdpSchacHomeOrganization) {
+    public GraphClient(String serverUrl, String eduidIdpSchacHomeOrganization, KeyStore keyStore) {
         this.serverUrl = serverUrl;
         this.eduidIdpSchacHomeOrganization = eduidIdpSchacHomeOrganization;
+        this.keyStore= keyStore;
     }
 
     @SuppressWarnings("unchecked")
@@ -110,10 +113,12 @@ public class GraphClient {
     }
 
     private GraphServiceClient<Request> getRequestGraphServiceClient(Provisioning provisioning) {
+        String encryptedGraphSecret = provisioning.getGraphSecret();
+        String graphSecret = keyStore.isEncryptedSecret(encryptedGraphSecret) ? keyStore.decodeAndDecrypt(encryptedGraphSecret) : encryptedGraphSecret;
         ClientSecretCredential credential = new ClientSecretCredentialBuilder()
                 .clientId(provisioning.getGraphClientId())
                 .tenantId(provisioning.getGraphTenant())
-                .clientSecret(provisioning.getGraphSecret()).build();
+                .clientSecret(graphSecret).build();
 
         TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(credential);
         GraphServiceClient<Request> graphClient = GraphServiceClient.builder().authenticationProvider(authProvider).buildClient();

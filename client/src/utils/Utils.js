@@ -17,6 +17,10 @@ export function isEmpty(obj) {
     if (typeof obj === "string") {
         return obj.trim().length === 0;
     }
+    if (obj && obj.getTime) {
+        // eslint-disable-next-line
+        return obj.getTime() !== obj.getTime();
+    }
     if (typeof obj === "object") {
         return Object.keys(obj).length === 0;
     }
@@ -34,4 +38,15 @@ export const splitListSemantically = (arr, lastSeparator) => {
 export const sanitizeURL = url => {
     const protocol = new URL(url).protocol;
     return ["https:", "http:"].includes(protocol) ? url : "about:blank";
+}
+
+export const distinctValues = (arr, attribute) => {
+    const distinctList = {};
+    return arr.filter(obj => {
+        if (distinctList[obj[attribute]]) {
+            return false;
+        }
+        distinctList[obj[attribute]] = true;
+        return true;
+    })
 }

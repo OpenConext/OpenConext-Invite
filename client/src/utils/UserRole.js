@@ -97,20 +97,20 @@ export const allowedToRenewUserRole = (user, userRole) => {
     }
 }
 
-export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.manageId}:${role.shortName}`;
+export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.identifier}:${role.shortName}`;
 
-export const markAndFilterRoles = (user, allRoles, locale, multiple) => {
+export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) => {
     allRoles.forEach(role => {
         role.isUserRole = false;
         role.label = role.name;
         role.value = role.id;
-        deriveApplicationAttributes(role, locale, multiple);
+        deriveApplicationAttributes(role, locale, multiple, separator);
     });
     const userRoles = user.userRoles;
     userRoles.forEach(userRole => {
         userRole.isUserRole = true;
         const role = userRole.role;
-        deriveApplicationAttributes(role, locale, multiple);
+        deriveApplicationAttributes(role, locale, multiple, separator);
         userRole.name = role.name;
         userRole.label = role.name;
         userRole.value = role.id;
@@ -121,6 +121,8 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple) => {
         userRole.enforceEmailEquality = role.enforceEmailEquality;
         userRole.applicationName = role.applicationName;
         userRole.applicationOrganizationName = role.applicationOrganizationName;
+        userRole.applicationMaps = role.applicationMaps;
+        userRole.applications = role.applications;
         userRole.logo = role.logo;
         userRole.userRoleCount = role.userRoleCount;
     })

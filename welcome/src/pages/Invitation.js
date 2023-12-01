@@ -136,7 +136,8 @@ export const Invitation = ({authenticated}) => {
     const renderLoginStep = () => {
         let html = DOMPurify.sanitize(I18n.t("invitationAccept.invited", {
             type: I18n.t("invitationAccept.role"),
-            roles: splitListSemantically(invitation.roles.map(invitationRole => `<strong>${invitationRole.role.name}</strong>${organisationName(invitationRole)}`), I18n.t("forms.and")),
+            roles: splitListSemantically(invitation.roles
+                .map(invitationRole => `<strong>${invitationRole.role.name}</strong>${organisationName(invitationRole.role.applicationMaps)}`), I18n.t("forms.and")),
             inviter: invitation.inviter.name,
             plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
             email: invitation.inviter.email

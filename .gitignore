@@ -40,3 +40,4 @@ provisioning.local.json
 IgnoreMeTest.java
 dependency.tree
 NOTES.txt
+private_key_pkcs8.pem

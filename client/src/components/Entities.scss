@@ -184,6 +184,10 @@
                     cursor: pointer;
                 }
 
+                &.multi-role {
+                    color: var(--sds--color--green--500)
+                }
+
                 .action-icons-container {
                     display: flex;
                     align-items: center;
@@ -251,6 +255,12 @@
                         width: 80px;
                         height: auto;
                         margin-right: 5px;
+                    }
+
+                    svg.multi-role {
+                        height: 36px;
+                        width: auto;
+                        margin-left: 15px;
                     }
                 }
 

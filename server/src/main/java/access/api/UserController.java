@@ -13,6 +13,7 @@ import access.repository.UserRepository;
 import access.security.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import crypto.KeyStore;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,6 +66,7 @@ public class UserController {
                           Manage manage,
                           ObjectMapper objectMapper,
                           RemoteProvisionedUserRepository remoteProvisionedUserRepository,
+                          KeyStore keyStore,
                           @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
                           @Value("${config.server-url}") String serverBaseURL,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
@@ -74,7 +76,7 @@ public class UserController {
         this.objectMapper = objectMapper;
         this.manage = manage;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
-        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization);
+        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore);
     }
 
     @GetMapping("config")
@@ -170,9 +172,6 @@ public class UserController {
         List<String> missingAttributes = new ArrayList<>();
         if (!StringUtils.hasText(user.getSub())) {
             missingAttributes.add("sub");
-        }
-        if (!StringUtils.hasText(user.getEduPersonPrincipalName())) {
-            missingAttributes.add("eduPersonPrincipalName");
         }
         if (!StringUtils.hasText(user.getEmail())) {
             missingAttributes.add("email");

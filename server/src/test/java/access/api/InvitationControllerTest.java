@@ -15,7 +15,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static access.Seed.*;
 import static io.restassured.RestAssured.given;
@@ -72,6 +71,7 @@ class InvitationControllerTest extends AbstractTest {
                 "Message",
                 true,
                 false,
+                false,
                 List.of("new@new.nl"),
                 roleIdentifiers,
                 Instant.now().plus(365, ChronoUnit.DAYS),
@@ -97,6 +97,7 @@ class InvitationControllerTest extends AbstractTest {
                 Authority.INVITER,
                 "Message",
                 true,
+                false,
                 false,
                 List.of("new@new.nl"),
                 Collections.emptyList(),
@@ -139,10 +140,10 @@ class InvitationControllerTest extends AbstractTest {
                 .statusCode(201);
         User user = userRepository.findBySubIgnoreCase("user@new.com").get();
         assertEquals(1, user.getUserRoles().size());
-        //one roles provisioned to 1 remote SCIM
+        //one role provisioned to 1 remote SCIM
         assertEquals(1, remoteProvisionedGroupRepository.count());
-        //two users provisioned to 1 remote SCIM - the inviter and one existing user with the userRole
-        assertEquals(2, remoteProvisionedUserRepository.count());
+        //one user provisioned to 1 remote SCIM - the invitee. The one existing user is not provisioned because only Guests are provisioned
+        assertEquals(1, remoteProvisionedUserRepository.count());
     }
 
     @Test

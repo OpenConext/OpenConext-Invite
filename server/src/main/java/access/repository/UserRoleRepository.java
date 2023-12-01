@@ -1,5 +1,6 @@
 package access.repository;
 
+import access.model.Authority;
 import access.model.Role;
 import access.model.UserRole;
 import org.springframework.data.jpa.repository.EntityGraph;

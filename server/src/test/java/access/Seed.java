@@ -92,24 +92,24 @@ public record Seed(InvitationRepository invitationRepository,
         Instant expiryDate = Instant.now().plus(14, ChronoUnit.DAYS);
 
         Invitation superUserInvitation =
-                new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false,message,
+                new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, false, message,
                         inviter,expiryDate, roleExpiryDate, Set.of());
         Invitation managerInvitation =
-                new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false,message,
+                new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, false, message,
                         inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(research)));
         Invitation inviterInvitation =
-                new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false,message,
+                new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, true, message,
                         inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)));
         inviterInvitation.setEnforceEmailEquality(true);
         Invitation guestInvitation =
-                new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false,false, message,
+                new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false, false, false, message,
                         inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(mail)));
         guestInvitation.setEduIDOnly(true);
         //To test graph callback
         guestInvitation.setSubInvitee(GUEST_SUB);
 
         Invitation graphInvitation =
-                new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com", false,false, message,
+                new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com", false, false, false, message,
                         inviter,expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation, graphInvitation);
 

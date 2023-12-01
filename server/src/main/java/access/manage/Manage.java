@@ -16,7 +16,7 @@ public interface Manage {
 
     List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers);
 
-    List<Map<String, Object>> provisioning(List<String> ids);
+    List<Map<String, Object>> provisioning(Collection<String> ids);
 
     List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID);
 
@@ -71,6 +71,7 @@ public interface Manage {
         application.put("applications", data.get("applications"));
         application.put("entityid", data.get("entityid"));
         application.put("logo", metaDataFields.get("logo:0:url"));
+        application.put("url", metaDataFields.get("coin:application_url"));
         application.put("OrganizationName:en", metaDataFields.get("OrganizationName:en"));
         application.put("OrganizationName:nl", metaDataFields.get("OrganizationName:nl"));
         application.put("name:en", metaDataFields.get("name:en"));

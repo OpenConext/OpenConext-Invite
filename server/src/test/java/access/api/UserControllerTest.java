@@ -67,7 +67,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/config")
                 .as(Map.class);
         assertFalse((Boolean) res.get("authenticated"));
-        assertEquals(2, ((List) res.get("missingAttributes")).size());
+        assertEquals(1, ((List) res.get("missingAttributes")).size());
     }
 
     @Test

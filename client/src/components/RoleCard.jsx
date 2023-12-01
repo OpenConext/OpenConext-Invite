@@ -5,12 +5,19 @@ import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {Button, Card, CardType, Checkbox, Chip, ChipType} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, splitListSemantically} from "../utils/Utils";
+import {roleName} from "../utils/Manage";
+import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
 
 export const RoleCard = ({role, index, invitationSelected, invitationSelectCallback, isNew = false}) => {
     const navigate = useNavigate();
-    const application = role.isUserRole ? role.role.application : role.application;
-    const logo = application.logo;
+
+    const applications = role.isUserRole ? role.role.applicationMaps : role.applicationMaps;
+    const multiApp = applications.length === 1;
+    const application = applications[0];
+    const logo = multiApp ? application.logo : <MultipleIcon/>
+    const name = multiApp ? splitListSemantically(applications.map(app => roleName(app, I18n.locale)), I18n.t("forms.and")) :
+        roleName(application, I18n.locale);
 
     const children =
         <div key={index} className="user-role" >
@@ -21,7 +28,7 @@ export const RoleCard = ({role, index, invitationSelected, invitationSelectCallb
             }
             <Logo src={logo} alt={"provider"} className={"provider"}/>
             <section className={"user-role-info"}>
-                <p>{application[`name:${I18n.locale}`]} ({application[`OrganizationName:${I18n.locale}`]})</p>
+                <p>{name}</p>
                 <h3>{role.name}</h3>
                 <MoreLessText txt={role.description} cutOffNumber={80}/>
             </section>

@@ -38,6 +38,7 @@ export const Entities = ({
                              newEntityPath,
                              newEntityFunc,
                              defaultSort,
+                            rowClassNameResolver,
     searchAutoFocus = false,
                              busy = false
                          }) => {
@@ -145,8 +146,9 @@ export const Entities = ({
     }
 
     const entityRow = (entity, index) => {
+        const additionalClassName = isEmpty(rowClassNameResolver) ? "" : rowClassNameResolver(entity);
         return <tr key={`tr_${entity.id}_${index}`}
-                   className={`${typeof rowLinkMapper === "function"  ? "clickable" : ""} ${onHover ? "hoverable" : ""}`}>
+                   className={`${typeof rowLinkMapper === "function"  ? "clickable" : ""} ${onHover ? "hoverable" : ""} ${additionalClassName}`}>
             {columns.map((column, i) =>
                 <td key={`td_${column.key}_${i}`}
                     onClick={e => (column.key !== "check" && !column.hasLink) ?

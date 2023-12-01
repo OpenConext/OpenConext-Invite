@@ -2,10 +2,9 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.model.Authority;
-import access.model.Role;
-import access.model.UpdateUserRole;
-import access.model.UserRole;
+import access.exception.NotFoundException;
+import access.manage.EntityType;
+import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -14,8 +13,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static access.Seed.INVITER_SUB;
-import static access.Seed.MANAGE_SUB;
+import static access.Seed.*;
+import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,4 +119,47 @@ class UserRoleControllerTest extends AbstractTest {
                 .then()
                 .statusCode(403);
     }
+
+    @Test
+    void userRoleProvisioning() throws Exception {
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvisioning(List.of("1", "2"));
+
+        super.stubForCreateScimUser();
+        super.stubForCreateGraphUser();
+        super.stubForCreateScimRole();
+        super.stubForUpdateScimRole();
+
+        List<Long> roleIdentifiers = List.of(
+                roleRepository.findByName("Network").get(0).getId(),
+                roleRepository.findByName("Wiki").get(0).getId()
+        );
+        UserRoleProvisioning userRoleProvisioning = new UserRoleProvisioning(
+                roleIdentifiers,
+                Authority.GUEST,
+                null,
+                "new_user@domain.org",
+                null,
+                null,
+                null,
+                "Charly Green",
+                null,
+                true
+        );
+        User savedUser = given()
+                .when()
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(userRoleProvisioning)
+                .post("/api/external/v1/user_roles/user_role_provisioning")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("urn:collab:person:domain.org:new_user", savedUser.getSub());
+        User user = userRepository.findBySubIgnoreCase("urn:collab:person:domain.org:new_user").orElseThrow(NotFoundException::new);
+        assertEquals(2, user.getUserRoles().size());
+        user.getUserRoles().forEach(userRole -> assertTrue(userRole.isGuestRoleIncluded()));
+    }
+
 }

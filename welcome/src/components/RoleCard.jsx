@@ -4,17 +4,24 @@ import Logo from "./Logo";
 import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
-import {isEmpty, sanitizeURL} from "../utils/Utils";
-
+import {isEmpty, sanitizeURL, splitListSemantically} from "../utils/Utils";
+import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
+import {roleName} from "../utils/Manage";
 
 export const RoleCard = ({role, index, isNew = false, skipLaunch= false}) => {
 
-    const application = role.application;
+    const applications = role.applicationMaps;
+    const multiApp = applications.length === 1;
+    const application = applications[0];
+    const logo = multiApp ? application.logo : <MultipleIcon/>
+    const name = multiApp ? splitListSemantically(applications.map(app => roleName(app)), I18n.t("forms.and")) :
+        roleName(application);
+
     const children =
         <div key={index} className="user-role">
-            <Logo src={application.logo} alt={"provider"} className={"provider"}/>
+            <Logo src={logo} alt={"provider"} className={"provider"}/>
             <section className={"user-role-info"}>
-                <p>{application[`name:${I18n.locale}`]} ({application[`OrganizationName:${I18n.locale}`]})</p>
+                <p>{name}</p>
                 <h3>{role.name}</h3>
                 <MoreLessText txt={role.description} cutOffNumber={120}/>
             </section>

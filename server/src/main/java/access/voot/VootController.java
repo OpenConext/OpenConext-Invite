@@ -28,10 +28,14 @@ public class VootController {
 
     private final UserRepository userRepository;
     private final String groupUrnPrefix;
+    private final String teamsNameContext;
 
-    public VootController(UserRepository userRepository, @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+    public VootController(UserRepository userRepository,
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix,
+                          @Value("${teams.group-name-context}") String teamsNameContext) {
         this.userRepository = userRepository;
         this.groupUrnPrefix = groupUrnPrefix;
+        this.teamsNameContext = teamsNameContext;
     }
 
     @GetMapping("/{unspecified_id}")
@@ -51,7 +55,8 @@ public class VootController {
     private Map<String, String> parseUserRole(UserRole userRole) {
         Map<String, String> res = new HashMap<>();
         Role role = userRole.getRole();
-        res.put("urn", GroupURN.urnFromRole(groupUrnPrefix, userRole.getRole()));
+        String urn = role.isTeamsOrigin() ? GroupURN.teamsUrnFromRole(teamsNameContext, role) : GroupURN.urnFromRole(groupUrnPrefix, role);
+        res.put("urn", urn);
         res.put("name", role.getName());
         return res;
     }

@@ -44,6 +44,9 @@ const en = {
         rolesInfo: "You have access to the following applications.",
         expiryDays: "Expiry days"
     },
+    roles: {
+        multiple: "Multiple applications",
+    },
     forms: {
         ok: "Ok",
         and: "and",

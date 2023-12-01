@@ -350,7 +350,8 @@ public abstract class AbstractTest {
 
     }
 
-    protected void stubForManageProviderById(EntityType entityType, String id) throws JsonProcessingException {
+    @SneakyThrows
+    protected void stubForManageProviderById(EntityType entityType, String id) {
         String path = String.format("/manage/api/internal/metadata/%s/%s", entityType.name().toLowerCase(), id);
         String body = objectMapper.writeValueAsString(localManage.providerById(entityType, id));
         stubFor(get(urlPathMatching(path)).willReturn(aResponse()

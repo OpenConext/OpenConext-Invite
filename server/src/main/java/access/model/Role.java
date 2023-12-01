@@ -41,6 +41,9 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "landing_page")
     private String landingPage;
 
+    @Column(name = "urn")
+    private String urn;
+
     @Column(name = "default_expiry_days")
     private Integer defaultExpiryDays;
 
@@ -55,6 +58,10 @@ public class Role implements Serializable, Provisionable {
 
     @Column(name = "override_settings_allowed")
     private boolean overrideSettingsAllowed;
+
+    @Column(name = "teams_origin")
+    private boolean teamsOrigin;
+
 
     @Column(name = "identifier")
     private String identifier;

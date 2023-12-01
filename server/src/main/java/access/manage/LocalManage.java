@@ -5,11 +5,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,7 +68,10 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> provisioning(List<String> ids) {
+    public List<Map<String, Object>> provisioning(Collection<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return providers(EntityType.PROVISIONING).stream()
                 .filter(map -> {
                     List<Map<String, String>> applications = (List<Map<String, String>>) map.get("applications");

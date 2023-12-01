@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static access.Seed.*;
@@ -114,8 +115,34 @@ class RoleControllerTest extends AbstractTest {
                 .body(roleDB)
                 .put("/api/v1/roles")
                 .as(Role.class);
-        assertEquals(updated.getDescription(), "changed");
-        assertEquals(updated.getShortName(), "wiki");
+        assertEquals("changed", updated.getDescription());
+        assertEquals("wiki", updated.getShortName());
+    }
+
+    @Test
+    void updateApplications() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "4"));
+        super.stubForManageProvisioning(List.of("1", "2", "4"));
+        super.stubForCreateScimRole();
+        super.stubForDeleteScimRole();
+
+        Role roleDB = roleRepository.search("Network", 1).get(0);
+        roleDB.setApplications(Set.of(
+                new Application("1",EntityType.SAML20_SP),
+                new Application("4",EntityType.SAML20_SP)));
+
+        Role updated = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(roleDB)
+                .put("/api/v1/roles")
+                .as(Role.class);
+        assertEquals(2, updated.getApplications().size());
     }
 
     @Test
