@@ -31,7 +31,7 @@ import java.util.*;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
-
+import io.swagger.v3.oas.annotations.Operation;
 @RestController
 @RequestMapping(value = {"/api/v1/user_roles", "/api/external/v1/user_roles"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
@@ -72,7 +72,8 @@ public class UserRoleController {
     }
 
     @PostMapping("user_role_provisioning")
-    public ResponseEntity<Map<String, Integer>> userRoleProvisioning(@Validated @RequestBody UserRoleProvisioning userRoleProvisioning,
+    @Operation(summary = "Add Role to a User", description = "Provision the User if the User is unknown and add the Role(s)")
+    public ResponseEntity<User> userRoleProvisioning(@Validated @RequestBody UserRoleProvisioning userRoleProvisioning,
                                                                      @Parameter(hidden = true) User apiUser) {
         userRoleProvisioning.validate();
         UserPermissions.assertInstitutionAdmin(apiUser);
@@ -89,7 +90,7 @@ public class UserRoleController {
         } else if (StringUtils.hasText(userRoleProvisioning.email)) {
             userOptional = userRepository.findByEmailIgnoreCase(userRoleProvisioning.email);
         }
-        //Can't use shorthand notation as there are probably null values
+        //Provision user if not found - minimal requirement is an email
         User user = userOptional.orElseGet(() -> userRepository.save(new User(userRoleProvisioning)));
 
         List<UserRole> newUserRoles = roles.stream()
@@ -112,7 +113,7 @@ public class UserRoleController {
         provisioningService.newUserRequest(user);
         newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
 
-        return Results.createResult();
+        return ResponseEntity.status(201).body(user);
     }
 
 

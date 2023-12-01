@@ -103,10 +103,11 @@ public class User implements Serializable, Provisionable {
     }
 
     public User(UserRoleProvisioning userRoleProvisioning) {
-        this.sub = resolveSub(userRoleProvisioning);
-        this.eduPersonPrincipalName = userRoleProvisioning.eduPersonPrincipalName;
-        this.schacHomeOrganization = userRoleProvisioning.schacHomeOrganization;
+        userRoleProvisioning.validate();
+        this.sub = userRoleProvisioning.resolveSub();
         this.email = userRoleProvisioning.email;
+        this.eduPersonPrincipalName = StringUtils.hasText(userRoleProvisioning.eduPersonPrincipalName) ? userRoleProvisioning.eduPersonPrincipalName : this.email;
+        this.schacHomeOrganization = StringUtils.hasText(userRoleProvisioning.schacHomeOrganization) ? userRoleProvisioning.schacHomeOrganization : this.schacHomeOrganization;
         this.name = userRoleProvisioning.name;
         this.givenName = userRoleProvisioning.givenName;
         this.familyName = userRoleProvisioning.familyName;
@@ -220,7 +221,10 @@ public class User implements Serializable, Provisionable {
     }
 
     @JsonIgnore
-    public String resolveSub(UserRoleProvisioning userRoleProvisioning) {
+    private static String resolveSub(UserRoleProvisioning userRoleProvisioning) {
+        if (StringUtils.hasText(userRoleProvisioning.sub)) {
+            return userRoleProvisioning.sub;
+        }
         String schacHome = null;
         String uid = null;
         if (StringUtils.hasText(userRoleProvisioning.schacHomeOrganization)) {

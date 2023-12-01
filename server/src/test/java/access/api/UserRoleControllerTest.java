@@ -147,16 +147,16 @@ class UserRoleControllerTest extends AbstractTest {
                 "Charly Green",
                 null
         );
-        given()
+        User savedUser = given()
                 .when()
                 .header(API_TOKEN_HEADER, API_TOKEN_HASH)
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(userRoleProvisioning)
                 .post("/api/external/v1/user_roles/user_role_provisioning")
-                .then()
-                .statusCode(201);
-
+                .as(new TypeRef<>() {
+                });
+        assertEquals("urn:collab:person:domain.org:new_user", savedUser.getSub());
         User user = userRepository.findBySubIgnoreCase("urn:collab:person:domain.org:new_user").orElseThrow(NotFoundException::new);
         assertEquals(2, user.getUserRoles().size());
     }
