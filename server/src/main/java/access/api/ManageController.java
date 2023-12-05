@@ -3,9 +3,10 @@ package access.api;
 import access.config.Config;
 import access.manage.EntityType;
 import access.manage.Manage;
-import access.manage.ManageIdentifier;
+import access.model.Application;
 import access.model.Authority;
 import access.model.User;
+import access.repository.ApplicationRepository;
 import access.repository.RoleRepository;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +23,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -41,11 +45,13 @@ public class ManageController {
 
     private final Manage manage;
     private final RoleRepository roleRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Autowired
-    public ManageController(Manage manage, RoleRepository roleRepository) {
+    public ManageController(Manage manage, RoleRepository roleRepository, ApplicationRepository applicationRepository) {
         this.manage = manage;
         this.roleRepository = roleRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     @GetMapping("provider/{type}/{id}")
@@ -73,16 +79,17 @@ public class ManageController {
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         UserPermissions.assertSuperUser(user);
-        Set<ManageIdentifier> manageIdentifiers = roleRepository.findDistinctManageIdentifiers();
-        Map<EntityType, List<ManageIdentifier>> groupedByManageType = manageIdentifiers.stream().collect(Collectors.groupingBy(ManageIdentifier::manageType));
+        List<Application> applications = applicationRepository.findAll();
+        Map<EntityType, List<Application>> groupedByManageType = applications.stream().collect(Collectors.groupingBy(Application::getManageType));
+
         List<Map<String, Object>> providers = groupedByManageType.entrySet().stream()
                 .map(entry -> manage.providersByIdIn(
                         entry.getKey(),
-                        entry.getValue().stream().map(ManageIdentifier::manageId).collect(Collectors.toList())))
+                        entry.getValue().stream().map(Application::getManageId).collect(Collectors.toList())))
                 .flatMap(Collection::stream)
                 .toList();
-        List<Map<String, Object>> provisionings = manage.provisioning(manageIdentifiers.stream()
-                .map(ManageIdentifier::manageId)
+        List<Map<String, Object>> provisionings = manage.provisioning(applications.stream()
+                .map(Application::getManageId)
                 .toList());
         return ResponseEntity.ok(Map.of(
                 "providers", providers,

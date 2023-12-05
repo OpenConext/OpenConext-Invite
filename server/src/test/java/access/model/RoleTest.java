@@ -1,6 +1,6 @@
 package access.model;
 
-import access.Seed;
+import access.WithApplicationTest;
 import access.manage.EntityType;
 import access.manage.ManageIdentifier;
 import org.junit.jupiter.api.Test;
@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class RoleTest {
+class RoleTest extends WithApplicationTest {
 
     @Test
     void groupBy() {
         List<Role> roles = List.of(
-                new Role("cloud", "cloud", "https://landingpage.com", Seed.application("1", EntityType.OIDC10_RP), 365, false, false),
-                new Role("mail", "mail", "https://landingpage.com", Seed.application("1", EntityType.OIDC10_RP), 365, false, false),
-                new Role("wiki", "wiki", "https://landingpage.com", Seed.application("2", EntityType.SAML20_SP), 365, false, false)
+                new Role("cloud", "cloud", "https://landingpage.com", application("1", EntityType.OIDC10_RP), 365, false, false),
+                new Role("mail", "mail", "https://landingpage.com", application("1", EntityType.OIDC10_RP), 365, false, false),
+                new Role("wiki", "wiki", "https://landingpage.com", application("2", EntityType.SAML20_SP), 365, false, false)
         );
         Set<ManageIdentifier> rolesByApplication = roles.stream()
                 .map(Role::getApplications)

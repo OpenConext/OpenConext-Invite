@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static access.Seed.*;
+import static access.AbstractTest.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +23,7 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void byRole() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId("1", "wiki").get();
+        Role role = roleRepository.search("wiki", 1).get(0);
         List<UserRole> userRoles = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

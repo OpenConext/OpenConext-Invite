@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static access.Seed.*;
+import static access.AbstractTest.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +27,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void create() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("New", "New desc", "https://landingpage.com", application("1", EntityType.SAML20_SP), 365, false, false);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
@@ -48,7 +48,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createInvalidLandingPage() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "javascript:alert(42)", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("New", "New desc", "javascript:alert(42)", application("1", EntityType.SAML20_SP), 365, false, false);
 
         given()
                 .when()
@@ -65,7 +65,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void createProvisionException() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("New", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("New", "New desc", "https://landingpage.com", application("1", EntityType.SAML20_SP), 365, false, false);
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
 
@@ -82,26 +82,10 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
-    void createWithDuplicateShortName() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role role = new Role("Wiki", "New desc", "https://landingpage.com", Seed.application("1", EntityType.SAML20_SP), 365, false, false);
-
-        given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
-                .contentType(ContentType.JSON)
-                .body(role)
-                .post("/api/v1/roles")
-                .then()
-                .statusCode(409);
-    }
-
-    @Test
     void update() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManageProvisioning(List.of("1"));
         Role roleDB = roleRepository.search("wiki", 1).get(0);
         roleDB.setDescription("changed");
         roleDB.setShortName("changed");
@@ -143,53 +127,6 @@ class RoleControllerTest extends AbstractTest {
                 .put("/api/v1/roles")
                 .as(Role.class);
         assertEquals(2, updated.getApplications().size());
-    }
-
-    @Test
-    void nameExistsTransientRole() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Map result = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
-                .contentType(ContentType.JSON)
-                .body(new RoleExists("WIKI", "1", null))
-                .post("/api/v1/roles/validation/short_name")
-                .as(Map.class);
-        assertTrue((Boolean) result.get("exists"));
-    }
-
-    @Test
-    void nameNotExistsTransientRole() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Map result = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
-                .contentType(ContentType.JSON)
-                .body(new RoleExists("unique", "1", null))
-                .post("/api/v1/roles/validation/short_name")
-                .as(Map.class);
-        assertFalse((Boolean) result.get("exists"));
-    }
-
-    @Test
-    void nameExists() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
-        Role wiki = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId("1", "WIKI").get();
-        Role research = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId("4", "research").get();
-        Map result = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
-                .contentType(ContentType.JSON)
-                .body(new RoleExists(research.getShortName(), research.getApplications().iterator().next().getManageId(), wiki.getId()))
-                .post("/api/v1/roles/validation/short_name")
-                .as(Map.class);
-        assertTrue((Boolean) result.get("exists"));
     }
 
     @Test

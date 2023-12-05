@@ -18,9 +18,4 @@ class RoleRepositoryTest extends AbstractTest {
         assertEquals(3, roles.size());
     }
 
-    @Test
-    void findDistinctByManageId() {
-        Set<ManageIdentifier> manageIdentifiers = roleRepository.findDistinctManageIdentifiers();
-        assertEquals(6, manageIdentifiers.size());
-    }
 }

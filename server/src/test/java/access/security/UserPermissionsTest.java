@@ -1,6 +1,6 @@
 package access.security;
 
-import access.Seed;
+import access.WithApplicationTest;
 import access.exception.UserRestrictionException;
 import access.manage.EntityType;
 import access.model.*;
@@ -11,7 +11,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class UserPermissionsTest {
+class UserPermissionsTest extends WithApplicationTest {
 
     private final static Random random = new SecureRandom();
 
@@ -81,7 +81,7 @@ class UserPermissionsTest {
     @Test
     void assertInvalidInvitation() {
         User user = userWithRole(Authority.INVITER, "mail");
-        Role role = new Role("name", "description", "https://landingpage.com", Seed.application("manageIdentifier", EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description", "https://landingpage.com", application("manageIdentifier", EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         List<Role> roles = List.of(role);
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertValidInvitation(user, Authority.GUEST, roles));
@@ -138,7 +138,7 @@ class UserPermissionsTest {
     void assertRoleAccessManager() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.MANAGER, identifier);
-        Role role = new Role("name", "description", "https://landingpage.com",Seed.application(identifier, EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description", "https://landingpage.com", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         UserPermissions.assertRoleAccess(user, role);
     }
@@ -147,7 +147,7 @@ class UserPermissionsTest {
     void assertNoRoleAccess() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.GUEST, identifier);
-        Role role = new Role("name", "description", "https://landingpage.com",Seed.application(identifier, EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description", "https://landingpage.com", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role));
     }
@@ -157,9 +157,11 @@ class UserPermissionsTest {
     }
 
     private User userWithRole(User user, Authority authority, String manageIdentifier) {
-        Role role = new Role("name", "description", "https://landingpage.com",Seed.application(manageIdentifier, EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description", "https://landingpage.com", application(manageIdentifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         user.addUserRole(new UserRole(authority, role));
         return user;
     }
+
+
 }

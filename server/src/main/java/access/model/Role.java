@@ -69,8 +69,11 @@ public class Role implements Serializable, Provisionable {
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;
 
-    @Column
-    @Convert(converter = ApplicationConverter.class)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "roles_applications",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "application_id"))
     private Set<Application> applications = new HashSet<>();
 
     @OneToMany(mappedBy = "role",

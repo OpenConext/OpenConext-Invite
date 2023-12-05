@@ -1,13 +1,13 @@
 package access.teams;
 
 import access.exception.NotFoundException;
-import access.exception.RemoteException;
 import access.manage.Manage;
 import access.model.Role;
 import access.model.*;
 import access.provision.ProvisioningService;
 import access.provision.scim.GroupURN;
 import access.provision.scim.OperationType;
+import access.repository.ApplicationRepository;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.repository.UserRoleRepository;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.rmi.Remote;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -42,17 +41,20 @@ public class TeamsController {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
+    private final ApplicationRepository applicationRepository;
     private final Manage manage;
     private final ProvisioningService provisioningService;
 
     public TeamsController(RoleRepository roleRepository,
                            UserRepository userRepository,
                            UserRoleRepository userRoleRepository,
+                           ApplicationRepository applicationRepository,
                            Manage manage,
                            ProvisioningService provisioningService) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+        this.applicationRepository = applicationRepository;
         this.manage = manage;
         this.provisioningService = provisioningService;
     }
@@ -71,11 +73,17 @@ public class TeamsController {
         role.setIdentifier(UUID.randomUUID().toString());
         role.setTeamsOrigin(true);
         //Check if the applications exist in Manage
-        Set<Application> applications = team.getApplications().stream().filter(this::applicationExists).collect(Collectors.toSet());
+        Set<Application> applications = team.getApplications().stream()
+                .filter(this::applicationExists)
+                .collect(Collectors.toSet());
         if (applications.isEmpty()) {
             throw new NotFoundException();
         }
-        role.setApplications(applications);
+        //This is the disadvantage of having to save references from Manage
+        role.setApplications(team.getApplications().stream()
+                .map(application -> applicationRepository.findByManageIdAndManageType(application.getManageId(), application.getManageType())
+                        .orElseGet(() -> applicationRepository.save(application)))
+                .collect(Collectors.toSet()));
         Role savedRole = roleRepository.save(role);
 
         provisioningService.newGroupRequest(savedRole);

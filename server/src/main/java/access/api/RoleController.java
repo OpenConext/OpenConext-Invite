@@ -2,14 +2,17 @@ package access.api;
 
 import access.config.Config;
 import access.exception.InvalidInputException;
-import access.exception.NotAllowedException;
 import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
 import access.manage.Manage;
-import access.model.*;
+import access.model.Application;
+import access.model.Authority;
+import access.model.Role;
+import access.model.User;
 import access.provision.ProvisioningService;
 import access.provision.scim.GroupURN;
+import access.repository.ApplicationRepository;
 import access.repository.RoleRepository;
 import access.security.UserPermissions;
 import access.validation.URLFormatValidator;
@@ -43,16 +46,18 @@ public class RoleController {
 
     private final Config config;
     private final RoleRepository roleRepository;
+    private final ApplicationRepository applicationRepository;
     private final Manage manage;
     private final ProvisioningService provisioningService;
     private final URLFormatValidator urlFormatValidator = new URLFormatValidator();
 
     public RoleController(Config config,
                           RoleRepository roleRepository,
-                          Manage manage,
+                          ApplicationRepository applicationRepository, Manage manage,
                           ProvisioningService provisioningService) {
         this.config = config;
         this.roleRepository = roleRepository;
+        this.applicationRepository = applicationRepository;
         this.manage = manage;
         this.provisioningService = provisioningService;
     }
@@ -99,30 +104,10 @@ public class RoleController {
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
-    @PostMapping("validation/short_name")
-    public ResponseEntity<Map<String, Boolean>> shortNameExists(@RequestBody RoleExists roleExists,
-                                                                @Parameter(hidden = true) User user) {
-        UserPermissions.assertAuthority(user, Authority.MANAGER);
-        String shortName = GroupURN.sanitizeRoleShortName(roleExists.shortName());
-        Optional<Role> optionalRole = roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId(roleExists.manageId(), shortName);
-        Map<String, Boolean> result = optionalRole
-                .map(role -> Map.of("exists", roleExists.id() == null || !role.getId().equals(roleExists.id())))
-                .orElse(Map.of("exists", false));
-        return ResponseEntity.ok(result);
-    }
-
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
         LOG.debug("/newRole");
-        String shortName = GroupURN.sanitizeRoleShortName(role.getShortName());
-        Optional<Application> applicationOptional = role.getApplications().stream()
-                .filter(application -> roleRepository.findByShortNameIgnoreCaseAndApplicationsManageId(application.getManageId(), shortName).isPresent())
-                .findFirst();
-        if (applicationOptional.isPresent()) {
-            Application application = applicationOptional.get();
-            throw new NotAllowedException(
-                    String.format("Duplicate name: '%s' for manage entity:'%s'", shortName, application.getManageId()));
-        }
+        role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
         return saveOrUpdate(role, user);
     }
@@ -145,10 +130,6 @@ public class RoleController {
         return Results.deleteResult();
     }
 
-    private void addApplicationData(Role role) {
-
-    }
-
     private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
         if (StringUtils.hasText(role.getLandingPage()) && !urlFormatValidator.isValid(role.getLandingPage())) {
             throw new InvalidInputException();
@@ -165,6 +146,11 @@ public class RoleController {
             role.setShortName(previousRole.getShortName());
             previousManageIdentifiersReference.set(previousRole.applicationIdentifiers());
         }
+        //This is the disadvantage of having to save references from Manage
+        role.setApplications(role.getApplications().stream()
+                .map(application -> applicationRepository.findByManageIdAndManageType(application.getManageId(), application.getManageType())
+                        .orElseGet(() -> applicationRepository.save(application)))
+                .collect(Collectors.toSet()));
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);

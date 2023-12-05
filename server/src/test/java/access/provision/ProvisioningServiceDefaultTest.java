@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.UUID;
 
-import static access.Seed.GUEST_SUB;
+import static access.AbstractTest.GUEST_SUB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProvisioningServiceDefaultTest extends AbstractTest {

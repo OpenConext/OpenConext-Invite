@@ -5,7 +5,7 @@ import access.AccessCookieFilter;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
-import static access.Seed.SUPER_SUB;
+import static access.AbstractTest.SUPER_SUB;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -174,11 +174,6 @@ export function searchRoles(query) {
     return fetchJson(`/api/v1/roles/search?query=${query}`);
 }
 
-export function shortNameExists(shortName, manageId, roleId) {
-    const body = {shortName: shortName, manageId: manageId, id: roleId};
-    return postPutJson("/api/v1/roles/validation/short_name", body, "POST");
-}
-
 //User roles
 export function userRolesByRoleId(roleId) {
     return fetchJson(`/api/v1/user_roles/roles/${roleId}`, {}, {}, false);

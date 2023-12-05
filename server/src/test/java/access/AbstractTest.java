@@ -1,9 +1,9 @@
 package access;
 
+import access.config.HashGenerator;
 import access.manage.EntityType;
 import access.manage.LocalManage;
-import access.model.RemoteProvisionedUser;
-import access.model.User;
+import access.model.*;
 import access.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.ActiveProfiles;
@@ -56,6 +57,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -82,6 +84,15 @@ public abstract class AbstractTest {
         Security.addProvider(new BouncyCastleProvider());
     }
 
+    public static final String SUPER_SUB = "urn:collab:person:example.com:super";
+    public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
+    public static final String INSTITUTION_ADMIN = "urn:collab:person:example.com:institution_admin";
+    public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
+    public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
+    public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
+    public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
+    public static final String API_TOKEN_HASH = HashGenerator.generateToken();
+
     @Autowired
     protected ObjectMapper objectMapper;
 
@@ -90,6 +101,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected RoleRepository roleRepository;
+
+    @Autowired
+    protected ApplicationRepository applicationRepository;
 
     @Autowired
     protected UserRoleRepository userRoleRepository;
@@ -125,14 +139,7 @@ public abstract class AbstractTest {
     protected void beforeEach() throws Exception {
         RestAssured.port = port;
         if (seedDatabase()) {
-            new Seed(
-                    invitationRepository,
-                    remoteProvisionedGroupRepository,
-                    remoteProvisionedUserRepository,
-                    roleRepository,
-                    userRepository,
-                    userRoleRepository,
-                    apiTokenRepository).doSeed();
+            this.doSeed();
         }
         if (this.localManage == null) {
             this.localManage = new LocalManage(objectMapper, false);
@@ -488,6 +495,110 @@ public abstract class AbstractTest {
           return m;
       };
     }
+
+    public Set<Application> application(String manageId, EntityType entityType) {
+        Application application = applicationRepository.findByManageIdAndManageType(manageId, entityType).
+                orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
+        return Set.of(application);
+    }
+
+    public void doSeed() {
+        this.invitationRepository.deleteAllInBatch();
+        this.remoteProvisionedGroupRepository.deleteAllInBatch();
+        this.remoteProvisionedUserRepository.deleteAllInBatch();
+        this.roleRepository.deleteAllInBatch();
+        this.applicationRepository.deleteAllInBatch();
+        this.userRepository.deleteAllInBatch();
+        this.userRoleRepository.deleteAllInBatch();
+        this.apiTokenRepository.deleteAllInBatch();
+
+        User superUser =
+                new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@examole.com");
+        User institutionAdmin =
+                new User(false, INSTITUTION_ADMIN, INSTITUTION_ADMIN, "example.com", "Carl", "Doe", "carl.doe@examole.com");
+        institutionAdmin.setInstitutionAdmin(true);
+        institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
+
+        User manager =
+                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@examole.com");
+        User inviter =
+                new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@examole.com");
+        User guest =
+                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@examole.com");
+        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, guest);
+
+        Role wiki =
+                new Role("Wiki", "Wiki desc", "https://landingpage.com",
+                        application("1", EntityType.SAML20_SP), 365, false, false);
+        Role network =
+                new Role("Network", "Network desc", "https://landingpage.com",
+                        application("2", EntityType.SAML20_SP), 365, false, false);
+        Set<Application> applications = Set.of(new Application("3", EntityType.SAML20_SP), new Application("6", EntityType.OIDC10_RP));
+
+        Role storage =
+                new Role("Storage", "Storage desc", "https://landingpage.com",
+                        applications.stream().map(application -> applicationRepository.save(application)).collect(Collectors.toSet()),
+                        365, false, false);
+        Role research =
+                new Role("Research", "Research desc", "https://landingpage.com",
+                        application("4", EntityType.SAML20_SP), 365, false, false);
+        Role calendar =
+                new Role("Calendar", "Calendar desc", "https://landingpage.com",
+                        application("5", EntityType.OIDC10_RP), 365, false, false);
+        Role mail =
+                new Role("Mail", "Mail desc", "https://landingpage.com",
+                        application("5", EntityType.OIDC10_RP), 365, false, false);
+        doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
+
+        UserRole wikiManager =
+                new UserRole("system", manager, wiki, Authority.MANAGER);
+        UserRole calendarInviter =
+                new UserRole("system", inviter, calendar, Authority.INVITER);
+        UserRole mailInviter =
+                new UserRole("system", inviter, mail, Authority.INVITER);
+        UserRole storageGuest =
+                new UserRole("system", guest, storage, Authority.GUEST);
+        UserRole wikiGuest =
+                new UserRole("system", guest, wiki, Authority.GUEST);
+        UserRole researchGuest =
+                new UserRole("system", guest, research, Authority.GUEST);
+        doSave(this.userRoleRepository, wikiManager, calendarInviter, mailInviter, storageGuest, wikiGuest, researchGuest);
+
+        String message = "Please join..";
+        Instant roleExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);
+        Instant expiryDate = Instant.now().plus(14, ChronoUnit.DAYS);
+
+        Invitation superUserInvitation =
+                new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, false, message,
+                        inviter,expiryDate, roleExpiryDate, Set.of());
+        Invitation managerInvitation =
+                new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, false, message,
+                        inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(research)));
+        Invitation inviterInvitation =
+                new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, true, message,
+                        inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)));
+        inviterInvitation.setEnforceEmailEquality(true);
+        Invitation guestInvitation =
+                new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false, false, false, message,
+                        inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(mail)));
+        guestInvitation.setEduIDOnly(true);
+        //To test graph callback
+        guestInvitation.setSubInvitee(GUEST_SUB);
+
+        Invitation graphInvitation =
+                new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com", false, false, false, message,
+                        inviter,expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));
+        doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation, graphInvitation);
+
+        APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH), "Test-token");
+        doSave(apiTokenRepository, apiToken);
+    }
+
+    @SafeVarargs
+    private <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
+        repository.saveAll(Arrays.asList(entities));
+    }
+
 
 
 }
