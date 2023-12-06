@@ -1,5 +1,6 @@
 package access.teams;
 
+import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.manage.Manage;
 import access.model.Role;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,12 +65,14 @@ public class TeamsController {
     @PreAuthorize("hasRole('TEAMS')")
     @Transactional
     public ResponseEntity<Void> migrateTeam(@RequestBody Team team) {
+        if (CollectionUtils.isEmpty(team.getApplications())) {
+            throw new InvalidInputException();
+        }
         Role role = new Role();
         role.setName(team.getName());
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getName()));
         role.setDescription(team.getDescription());
         role.setUrn(team.getUrn());
-        role.setLandingPage(team.getLandingPage());
         role.setDefaultExpiryDays(DEFAULT_EXPIRY_DAYS);
         role.setIdentifier(UUID.randomUUID().toString());
         role.setTeamsOrigin(true);
@@ -77,7 +81,7 @@ public class TeamsController {
                 .filter(this::applicationExists)
                 .collect(Collectors.toSet());
         if (applications.isEmpty()) {
-            throw new NotFoundException();
+            throw new InvalidInputException();
         }
         //This is the disadvantage of having to save references from Manage
         role.setApplications(team.getApplications().stream()

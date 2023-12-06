@@ -66,7 +66,8 @@ export const Roles = () => {
             if (option) {
                 ++option.nbr;
             } else {
-                role.applicationMaps.forEach(app => acc.push({manageId: app.id, nbr: 1, name: app[`name:${I18n.locale}`] || app[0]["name:en"]}))
+                role.applicationMaps
+                    .forEach(app => acc.push({manageId: app.id, nbr: 1, name: app[`name:${I18n.locale}`] || app["name:en"]}))
             }
             return acc;
         }, []);
