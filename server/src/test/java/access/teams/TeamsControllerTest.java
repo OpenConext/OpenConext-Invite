@@ -43,7 +43,6 @@ class TeamsControllerTest extends AbstractTest {
                 "nl:surfnet:diensten:test",
                 "test migration",
                 "test migration",
-                "https://landingpage.com",
                 memberships,
                 applications
         );
@@ -98,7 +97,6 @@ class TeamsControllerTest extends AbstractTest {
                 "nl:surfnet:diensten:test",
                 "test migration",
                 "test migration",
-                "https://landingpage.com",
                 memberships,
                 applications
         );
@@ -111,6 +109,6 @@ class TeamsControllerTest extends AbstractTest {
                 .body(team)
                 .post("/api/teams")
                 .then()
-                .statusCode(404);
+                .statusCode(400);
     }
 }
