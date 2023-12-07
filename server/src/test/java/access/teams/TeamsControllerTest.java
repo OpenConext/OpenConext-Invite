@@ -58,7 +58,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
-                .post("/api/teams")
+                .put("/api/teams")
                 .then()
                 .statusCode(201);
 
@@ -107,7 +107,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
-                .post("/api/teams")
+                .put("/api/teams")
                 .then()
                 .statusCode(400);
     }

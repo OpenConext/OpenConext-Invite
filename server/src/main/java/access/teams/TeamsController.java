@@ -1,5 +1,6 @@
 package access.teams;
 
+import access.api.Results;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.manage.Manage;
@@ -18,17 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.ATTRIBUTE_AGGREGATION_SCHEME_NAME;
@@ -61,10 +56,10 @@ public class TeamsController {
         this.provisioningService = provisioningService;
     }
 
-    @PostMapping("")
+    @PutMapping("")
     @PreAuthorize("hasRole('TEAMS')")
     @Transactional
-    public ResponseEntity<Void> migrateTeam(@RequestBody Team team) {
+    public ResponseEntity<Map<String, Integer>> migrateTeam(@RequestBody Team team) {
         if (CollectionUtils.isEmpty(team.getApplications())) {
             throw new InvalidInputException();
         }
@@ -95,7 +90,7 @@ public class TeamsController {
         List<Membership> memberships = team.getMemberships();
         memberships.forEach(membership -> this.provision(savedRole, membership));
 
-        return ResponseEntity.status(201).build();
+        return Results.createResult();
     }
 
     private boolean applicationExists(Application application) {

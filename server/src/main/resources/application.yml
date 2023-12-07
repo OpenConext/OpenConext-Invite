@@ -8,6 +8,7 @@ logging:
     console: WARN
 
 server:
+  port: 8888
   error:
     path: "/error"
     include-message: always
