@@ -111,6 +111,7 @@ export const InvitationForm = () => {
             setLoading(true);
             newInvitation(invitationRequest)
                 .then(() => {
+                    setLoading(false);
                     setFlash(I18n.t("invitations.createFlash"));
                     if (originalRoleId) {
                         navigate(`/roles/${originalRoleId}/invitations`);
@@ -124,7 +125,8 @@ export const InvitationForm = () => {
     }
 
     const isValid = () => {
-        return required.every(attr => !isEmpty(invitation[attr])) && (!isEmpty(selectedRoles) || invitation.intendedAuthority === AUTHORITIES.SUPER_USER);
+        return required.every(attr => !isEmpty(invitation[attr])) &&
+            (!isEmpty(selectedRoles) || [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority));
     }
 
     const addEmails = emails => {
@@ -177,7 +179,6 @@ export const InvitationForm = () => {
     const renderForm = isInviter => {
         const disabledSubmit = !initial && !isValid();
         const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
-            .filter(authority => authority !== AUTHORITIES.INSTITUTION_ADMIN)
             .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
         return (
             <>
@@ -198,10 +199,11 @@ export const InvitationForm = () => {
                                       rolesChanged(newSelectedRoles);
                                   }}/>)
                     }
+                    {(!initial && isEmpty(selectedRoles)) &&
+                        <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
+                    }
                 </div>}
-                {(!initial && isEmpty(selectedRoles)) &&
-                    <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
-                }
+
 
                 <EmailField
                     name={I18n.t("invitations.invitees")}
@@ -236,7 +238,8 @@ export const InvitationForm = () => {
                                  searchable={true}
                                  placeholder={I18n.t("invitations.rolesPlaceHolder")}
                                  onChange={rolesChanged}/>
-                    {(!initial && isEmpty(selectedRoles)) &&
+                    {(!initial && isEmpty(selectedRoles) &&
+                            ![AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority)) &&
                         <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
                 </>}
 

@@ -29,9 +29,6 @@ class UserPermissionsTest extends WithApplicationTest {
     void assertValidInvitationSuperUser() {
         assertThrows(UserRestrictionException.class, () ->
                 UserPermissions.assertValidInvitation(new User(new HashMap<>()),Authority.SUPER_USER, new ArrayList<>()));
-        assertThrows(UserRestrictionException.class, () ->
-                UserPermissions.assertValidInvitation(new User(new HashMap<>()),Authority.INSTITUTION_ADMIN, new ArrayList<>()));
-
         User user = new User();
         user.setInstitutionAdmin(true);
         user.setApplications(List.of(Map.of("id", "1")));
@@ -39,6 +36,30 @@ class UserPermissionsTest extends WithApplicationTest {
         Role role = new Role();
         role.getApplications().add(new Application("1", EntityType.SAML20_SP));
         UserPermissions.assertValidInvitation(user, Authority.MANAGER, List.of(role));
+    }
+
+    @Test
+    void assertValidInvitationInstitutionAdmin() {
+        User user = new User();
+        user.setInstitutionAdmin(true);
+        user.setApplications(List.of(Map.of("id", "1")));
+
+        Role role = new Role();
+        role.getApplications().add(new Application("1", EntityType.SAML20_SP));
+
+        UserPermissions.assertValidInvitation(new User(new HashMap<>()), Authority.INSTITUTION_ADMIN, new ArrayList<>());
+    }
+
+    @Test
+    void assertInvalidInvitationInstitutionAdmin() {
+        User user = new User();
+        user.setApplications(List.of(Map.of("id", "1")));
+        Role role = new Role();
+        role.getApplications().add(new Application("1", EntityType.SAML20_SP));
+        user.setUserRoles(Set.of(new UserRole(Authority.MANAGER, role)));
+
+         assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidInvitation(new User(new HashMap<>()), Authority.INSTITUTION_ADMIN, List.of(role)));
     }
 
     @Test

@@ -90,6 +90,7 @@ public abstract class AbstractTest {
     public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
     public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
+    public static final String INSTITUTION_ADMIN_INVITATION_HASH = "institution_admin_invitation_hash";
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
     public static final String API_TOKEN_HASH = HashGenerator.generateToken();
 
@@ -579,16 +580,24 @@ public abstract class AbstractTest {
                         inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)));
         inviterInvitation.setEnforceEmailEquality(true);
         Invitation guestInvitation =
-                new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com", false, false, false, message,
+                new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com",
+                        false, false, false, message,
                         inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(mail)));
         guestInvitation.setEduIDOnly(true);
         //To test graph callback
         guestInvitation.setSubInvitee(GUEST_SUB);
 
+        Invitation institutionAdminInvitation =
+                new Invitation(Authority.INSTITUTION_ADMIN, INSTITUTION_ADMIN_INVITATION_HASH, "institutionh@admin.com",
+                        false, false, false, message,
+                        institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));
+
         Invitation graphInvitation =
-                new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com", false, false, false, message,
+                new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com",
+                        false, false, false, message,
                         inviter,expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));
-        doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation, graphInvitation);
+        doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation,
+                institutionAdminInvitation, graphInvitation);
 
         APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH), "Test-token");
         doSave(apiTokenRepository, apiToken);

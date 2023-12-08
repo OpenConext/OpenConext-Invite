@@ -22,7 +22,8 @@ public class InstitutionAdmin {
     private InstitutionAdmin() {
     }
 
-    public static boolean isInstitutionAdmin(Map<String, Object> attributes, String requiredEntitlement) {
+    public static boolean isInstitutionAdmin(Map<String, Object> attributes,
+                                             String requiredEntitlement) {
         if (attributes.containsKey("eduperson_entitlement")) {
             List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
             return entitlements.stream().anyMatch(entitlement -> entitlement.equalsIgnoreCase(requiredEntitlement));
@@ -34,16 +35,24 @@ public class InstitutionAdmin {
         return user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID());
     }
 
-    public static Optional<String> getOrganizationGuid(Map<String, Object> attributes, String organizationGuidPrefix) {
+    public static Optional<String> getOrganizationGuid(Map<String, Object> attributes,
+                                                       String organizationGuidPrefix,
+                                                       Optional<User> optionalUser) {
+
         if (attributes.containsKey("eduperson_entitlement")) {
             List<String> entitlements = (List<String>) attributes.get("eduperson_entitlement");
             final String organizationGuidPrefixLower = organizationGuidPrefix.toLowerCase();
-            return entitlements.stream()
+            Optional<String> optionalOrganizationGuid = entitlements.stream()
                     .filter(entitlement -> entitlement.toLowerCase().startsWith(organizationGuidPrefixLower))
                     .map(entitlement -> entitlement.substring(organizationGuidPrefix.length()))
+                    .filter(StringUtils::hasText)
                     .findFirst();
+            if (optionalOrganizationGuid.isPresent()) {
+                return optionalOrganizationGuid.filter(StringUtils::hasText);
+            }
         }
-        return Optional.empty();
+        return optionalUser.map(User::getOrganizationGUID)
+                .filter(StringUtils::hasText);
     }
 
 }

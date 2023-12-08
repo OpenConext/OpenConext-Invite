@@ -81,6 +81,6 @@ class GraphControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get("/graph/accept/1/2")
                 .then()
-                .header("Location", "http://localhost:8080/api/v1/users/ms-accept-return/1/2");
+                .header("Location", "http://localhost:8888/api/v1/users/ms-accept-return/1/2");
     }
 }

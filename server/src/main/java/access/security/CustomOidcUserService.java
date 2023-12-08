@@ -42,10 +42,14 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         Map<String, Object> claims = oidcUser.getUserInfo().getClaims();
         Map<String, Object> newClaims = new HashMap<>(claims);
 
-        boolean institutionAdmin = InstitutionAdmin.isInstitutionAdmin(claims, entitlement);
+        String sub = (String) newClaims.get("sub");
+        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+        boolean institutionAdmin = InstitutionAdmin.isInstitutionAdmin(claims, entitlement) ||
+                (optionalUser.isPresent() && isInstitutionAdmin(optionalUser.get()));
         newClaims.put(INSTITUTION_ADMIN, institutionAdmin);
 
-        String organizationGuid = InstitutionAdmin.getOrganizationGuid(claims, organizationGuidPrefix).orElse(null);
+        String organizationGuid = InstitutionAdmin.getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)
+                .orElse(null);
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
@@ -54,14 +58,12 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             Optional<Map<String, Object>> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGuid);
             newClaims.put(INSTITUTION, identityProvider.orElse(null));
         }
-        OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
-        oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
-        String sub = (String) newClaims.get("sub");
-        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         optionalUser.ifPresent(user -> {
             user.updateAttributes(newClaims);
             userRepository.save(user);
         });
+        OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
+        oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
         return oidcUser;
 
     }

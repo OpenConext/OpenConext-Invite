@@ -11,7 +11,7 @@ export function login(config, force = false, hash = null) {
     let serverWelcomeUrl = config.serverWelcomeUrl;
     if (isEmpty(serverWelcomeUrl)) {
         const local = window.location.hostname === "localhost";
-        serverWelcomeUrl = local ? "http://localhost:8080" :
+        serverWelcomeUrl = local ? "http://localhost:8888" :
             `${window.location.protocol}//${window.location.host}`
     }
     window.location.href = sanitizeURL(`${serverWelcomeUrl}/api/v1/users/login${params}`);

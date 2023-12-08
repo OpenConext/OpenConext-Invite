@@ -25,7 +25,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -79,14 +82,14 @@ public class InvitationController implements HasManage {
     @PostMapping("")
     public ResponseEntity<Map<String, Integer>> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                               @Parameter(hidden = true) User user) {
-        if (!invitationRequest.getIntendedAuthority().equals(Authority.SUPER_USER)
+        Authority intendedAuthority = invitationRequest.getIntendedAuthority();
+        if (!List.of(Authority.INSTITUTION_ADMIN, Authority.SUPER_USER).contains(intendedAuthority)
                 && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
-            throw new NotAllowedException("Invitation for non-super-user must contain at least one role");
+            throw new NotAllowedException("Invitation for non-super-user or institution-admin must contain at least one role");
         }
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
                 .map(id -> roleRepository.findById(id).orElseThrow(NotFoundException::new)).toList();
-        Authority intendedAuthority = invitationRequest.getIntendedAuthority();
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
 
         boolean isOverrideSettingsAllowed = requestedRoles.stream().allMatch(Role::isOverrideSettingsAllowed);
@@ -222,6 +225,7 @@ public class InvitationController implements HasManage {
          * need to send the updateRoleRequests for each new Role of this user.
          */
         List<UserRole> newUserRoles = new ArrayList<>();
+        User inviter = invitation.getInviter();
         invitation.getRoles()
                 .forEach(invitationRole -> {
                     Role role = invitationRole.getRole();
@@ -238,7 +242,7 @@ public class InvitationController implements HasManage {
                         }
                     } else {
                         UserRole userRole = new UserRole(
-                                invitation.getInviter().getName(),
+                                inviter.getName(),
                                 user,
                                 role,
                                 invitation.getIntendedAuthority(),
@@ -248,6 +252,26 @@ public class InvitationController implements HasManage {
                         newUserRoles.add(userRole);
                     }
                 });
+        if (invitation.getIntendedAuthority().equals(Authority.INSTITUTION_ADMIN)) {
+            user.setInstitutionAdmin(true);
+            user.setOrganizationGUID(inviter.getOrganizationGUID());
+            //Corner case - a new institution admin has logged in, but was not enriched by the CustomOidcUserService
+            if (optionalUser.isEmpty()) {
+                OAuth2AuthenticationToken existingToken = (OAuth2AuthenticationToken) authentication;
+                DefaultOidcUser existingTokenPrincipal = (DefaultOidcUser) existingToken.getPrincipal();
+                existingTokenPrincipal.getClaims()
+                existingTokenPrincipal.getAttributes()
+                DefaultOidcUser oidcUser = new DefaultOidcUser(
+
+                )
+                OAuth2AuthenticationToken newToken = new OAuth2AuthenticationToken(
+                        existingToken.getPrincipal(),
+                        existingToken.getAuthorities(),
+                        existingToken.getAuthorizedClientRegistrationId()
+                );
+                SecurityContextHolder.getContext().setAuthentication(newToken);
+            }
+        }
         userRepository.save(user);
         AccessLogger.user(LOG, Event.Created, user);
 

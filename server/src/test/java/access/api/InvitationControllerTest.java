@@ -16,10 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static access.AbstractTest.*;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
 class InvitationControllerTest extends AbstractTest {
@@ -344,6 +342,28 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(1, remoteProvisionedGroupRepository.count());
         //One user provisioned to 1 remote SCIM
         assertEquals(1, remoteProvisionedUserRepository.count());
+    }
+
+    @Test
+    void acceptInstitutionAdmin() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "user@new.com");
+        Invitation invitation = invitationRepository.findByHash(INSTITUTION_ADMIN_INVITATION_HASH).get();
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(INSTITUTION_ADMIN_INVITATION_HASH, invitation.getId());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+
+        User user = userRepository.findBySubIgnoreCase("user@new.com").get();
+        assertTrue(user.isInstitutionAdmin());
+        assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
     }
 
     @Test

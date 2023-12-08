@@ -12,7 +12,7 @@ import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch} from "../utils/Date";
-import {highestAuthority} from "../utils/UserRole";
+import {AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
 import SearchSvg from "../icons/undraw_people_search_re_5rre.svg";
 import {chipTypeForUserRole} from "../utils/Authority";
 
@@ -162,6 +162,9 @@ export const Users = () => {
                   filters={moreToShow && moreResultsAvailable()}
                   columns={columns}
                   title={title}
+                  newLabel={currentUser.superUser ? I18n.t("invitations.newInvite") : null}
+                  showNew={isUserAllowed(AUTHORITIES.SUPER_USER, currentUser)}
+                  newEntityFunc={() => navigate(`/invitation/new?maintainer=true`)}
                   hideTitle={!hasEntities || noResults}
                   customNoEntities={I18n.t(`users.noResults`)}
                   loading={false}

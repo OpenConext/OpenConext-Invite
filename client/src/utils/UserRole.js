@@ -133,11 +133,13 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) 
 
 export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     if (user.superUser) {
-        return Object.keys(AUTHORITIES);
+        return Object.keys(AUTHORITIES)
+            //The superuser has no organization guid
+            .filter(authority => authority !== AUTHORITIES.INSTITUTION_ADMIN);
     }
     if (user.institutionAdmin && !isEmpty(user.applications)) {
         return Object.keys(AUTHORITIES)
-            .filter(authority => authority !== AUTHORITIES.SUPER_USER && authority !== AUTHORITIES.INSTITUTION_ADMIN);
+            .filter(authority => authority !== AUTHORITIES.SUPER_USER);
     }
     if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
         return [];

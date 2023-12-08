@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 //We test the non-happy paths here and the happy-paths through the controllers
 class GraphClientTest {
 
-    final GraphClient graphClient = new GraphClient("http://localhost:8080", "test.eduid.nl", new RSAKeyStore());
+    final GraphClient graphClient = new GraphClient("http://localhost:8888", "test.eduid.nl", new RSAKeyStore());
     final LocalManage localManage = new LocalManage( ObjectMapperHolder.objectMapper, false);
 
     @Test

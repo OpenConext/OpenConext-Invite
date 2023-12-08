@@ -2,12 +2,10 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
-import access.Seed;
 import access.manage.EntityType;
 import access.model.Application;
 import access.model.RemoteProvisionedGroup;
 import access.model.Role;
-import access.model.RoleExists;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -17,10 +15,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static access.AbstractTest.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class RoleControllerTest extends AbstractTest {
 
