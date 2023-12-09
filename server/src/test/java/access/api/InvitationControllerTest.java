@@ -349,6 +349,9 @@ class InvitationControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "user@new.com");
         Invitation invitation = invitationRepository.findByHash(INSTITUTION_ADMIN_INVITATION_HASH).get();
 
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("2"));
+
         AcceptInvitation acceptInvitation = new AcceptInvitation(INSTITUTION_ADMIN_INVITATION_HASH, invitation.getId());
         given()
                 .when()
@@ -364,6 +367,18 @@ class InvitationControllerTest extends AbstractTest {
         User user = userRepository.findBySubIgnoreCase("user@new.com").get();
         assertTrue(user.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
+
+        User me = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .as(User.class);
+        assertTrue(me.isInstitutionAdmin());
+        assertEquals(ORGANISATION_GUID, me.getOrganizationGUID());
+        assertEquals(3, me.getApplications().size());
+        assertEquals("https://mock-idp", me.getInstitution().get("entityid"));
     }
 
     @Test
@@ -393,7 +408,7 @@ class InvitationControllerTest extends AbstractTest {
                 .get("/api/v1/invitations/all")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(5, invitations.size());
+        assertEquals(6, invitations.size());
     }
 
     @Test

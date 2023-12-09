@@ -8,11 +8,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity(name = "applications")
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode(of = {"manageId", "manageType"})
@@ -36,7 +36,7 @@ public class Application implements Serializable {
 
     @ManyToMany(mappedBy = "applications")
     @JsonIgnore
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     public Application(String manageId, EntityType manageType) {
         this.manageId = manageId;

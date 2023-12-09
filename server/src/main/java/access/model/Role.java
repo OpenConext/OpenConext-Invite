@@ -1,17 +1,13 @@
 package access.model;
 
 
-import access.config.ApplicationConverter;
 import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.hibernate.annotations.Formula;
 
 import java.io.Serializable;

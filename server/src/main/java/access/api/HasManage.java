@@ -5,11 +5,10 @@ import access.manage.ManageIdentifier;
 import access.model.GroupedProviders;
 import access.model.Role;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static access.security.InstitutionAdmin.*;
 
 public interface HasManage {
 
@@ -32,7 +31,17 @@ public interface HasManage {
                                     .anyMatch(application -> application.getManageId().equals(id))).toList(), UUID.randomUUID().toString());
                 })
                 .toList();
+    }
 
+    default Map<String, Object> enrichInstitutionAdmin(String organizationGUID) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(INSTITUTION_ADMIN, true);
+        claims.put(ORGANIZATION_GUID, organizationGUID);
+        List<Map<String, Object>> applications = getManage().providersByInstitutionalGUID(organizationGUID);
+        claims.put(APPLICATIONS, applications);
+        Optional<Map<String, Object>> identityProvider = getManage().identityProviderByInstitutionalGUID(organizationGUID);
+        claims.put(INSTITUTION, identityProvider.orElse(null));
+        return claims;
     }
 
 }

@@ -1,5 +1,6 @@
 package access.security;
 
+import access.api.HasManage;
 import access.manage.Manage;
 import access.model.User;
 import access.repository.UserRepository;
@@ -19,7 +20,7 @@ import java.util.Optional;
 
 import static access.security.InstitutionAdmin.*;
 
-public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
+public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser>, HasManage {
 
     private final Manage manage;
     private final UserRepository userRepository;
@@ -53,10 +54,9 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
-            List<Map<String, Object>> applications = manage.providersByInstitutionalGUID(organizationGuid);
-            newClaims.put(APPLICATIONS, applications);
-            Optional<Map<String, Object>> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGuid);
-            newClaims.put(INSTITUTION, identityProvider.orElse(null));
+            Map<String, Object> manageClaims = enrichInstitutionAdmin(organizationGuid);
+            newClaims.put(APPLICATIONS, manageClaims.get(APPLICATIONS));
+            newClaims.put(INSTITUTION, manageClaims.get(INSTITUTION));
         }
         optionalUser.ifPresent(user -> {
             user.updateAttributes(newClaims);
@@ -66,5 +66,10 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
         return oidcUser;
 
+    }
+
+    @Override
+    public Manage getManage() {
+        return manage;
     }
 }

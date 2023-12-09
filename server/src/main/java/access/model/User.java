@@ -220,29 +220,4 @@ public class User implements Serializable, Provisionable {
         return this.userRoles.stream().max(Comparator.comparing(UserRole::getCreatedAt));
     }
 
-    @JsonIgnore
-    private static String resolveSub(UserRoleProvisioning userRoleProvisioning) {
-        if (StringUtils.hasText(userRoleProvisioning.sub)) {
-            return userRoleProvisioning.sub;
-        }
-        String schacHome = null;
-        String uid = null;
-        if (StringUtils.hasText(userRoleProvisioning.schacHomeOrganization)) {
-            schacHome = userRoleProvisioning.schacHomeOrganization;
-        }
-        String eppn = userRoleProvisioning.eduPersonPrincipalName;
-        if (StringUtils.hasText(eppn) && eppn.contains("@")) {
-            uid = eppn.substring(0, eppn.indexOf("@"));
-            schacHome = schacHome != null ? schacHome : eppn.substring(eppn.indexOf("@") + 1);
-        }
-        String mail = userRoleProvisioning.email;
-        if (StringUtils.hasText(mail)) {
-            uid = uid != null ? uid : mail.substring(0, mail.indexOf("@"));
-            schacHome = schacHome != null ? schacHome : mail.substring(mail.indexOf("@") + 1);
-        }
-        if (schacHome == null || uid == null) {
-            throw new IllegalArgumentException("Can't resolve sub from " + userRoleProvisioning);
-        }
-        return String.format("urn:collab:person:%s:%s", schacHome, uid);
-    }
 }

@@ -18,6 +18,8 @@ import access.security.UserPermissions;
 import access.validation.EmailFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,8 +29,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -59,9 +62,10 @@ public class InvitationController implements HasManage {
     private final InvitationRepository invitationRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final EmailFormatValidator emailFormatValidator = new EmailFormatValidator();
     private final ProvisioningService provisioningService;
+    private final SecurityContextRepository securityContextRepository;
     private final SuperAdmin superAdmin;
+    private final EmailFormatValidator emailFormatValidator = new EmailFormatValidator();
 
     public InvitationController(MailBox mailBox,
                                 Manage manage,
@@ -69,6 +73,7 @@ public class InvitationController implements HasManage {
                                 UserRepository userRepository,
                                 RoleRepository roleRepository,
                                 ProvisioningService provisioningService,
+                                SecurityContextRepository securityContextRepository,
                                 SuperAdmin superAdmin) {
         this.mailBox = mailBox;
         this.manage = manage;
@@ -76,6 +81,7 @@ public class InvitationController implements HasManage {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.provisioningService = provisioningService;
+        this.securityContextRepository = securityContextRepository;
         this.superAdmin = superAdmin;
     }
 
@@ -191,7 +197,9 @@ public class InvitationController implements HasManage {
 
     @PostMapping("accept")
     public ResponseEntity<Map<String, String>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
-                                                       Authentication authentication) {
+                                                      Authentication authentication,
+                                                      HttpServletRequest servletRequest,
+                                                      HttpServletResponse servletResponse) {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
             throw new NotFoundException();
@@ -255,21 +263,9 @@ public class InvitationController implements HasManage {
         if (invitation.getIntendedAuthority().equals(Authority.INSTITUTION_ADMIN)) {
             user.setInstitutionAdmin(true);
             user.setOrganizationGUID(inviter.getOrganizationGUID());
-            //Corner case - a new institution admin has logged in, but was not enriched by the CustomOidcUserService
+            //Rare case - a new institution admin has logged in, but was not yet enriched by the CustomOidcUserService
             if (optionalUser.isEmpty()) {
-                OAuth2AuthenticationToken existingToken = (OAuth2AuthenticationToken) authentication;
-                DefaultOidcUser existingTokenPrincipal = (DefaultOidcUser) existingToken.getPrincipal();
-                existingTokenPrincipal.getClaims()
-                existingTokenPrincipal.getAttributes()
-                DefaultOidcUser oidcUser = new DefaultOidcUser(
-
-                )
-                OAuth2AuthenticationToken newToken = new OAuth2AuthenticationToken(
-                        existingToken.getPrincipal(),
-                        existingToken.getAuthorities(),
-                        existingToken.getAuthorizedClientRegistrationId()
-                );
-                SecurityContextHolder.getContext().setAuthentication(newToken);
+                saveOAuth2AuthenticationToken(authentication, user, servletRequest, servletResponse);
             }
         }
         userRepository.save(user);
@@ -286,6 +282,32 @@ public class InvitationController implements HasManage {
         Map<String, String> body = graphResponse.map(graph -> Map.of("inviteRedeemUrl", graph.inviteRedeemUrl())).
                 orElse(Map.of("status", "ok"));
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    private void saveOAuth2AuthenticationToken(Authentication authentication,
+                                               User user,
+                                               HttpServletRequest servletRequest,
+                                               HttpServletResponse servletResponse) {
+        OAuth2AuthenticationToken existingToken = (OAuth2AuthenticationToken) authentication;
+        DefaultOidcUser existingTokenPrincipal = (DefaultOidcUser) existingToken.getPrincipal();
+        //claims of the tokenPricipal are immutable
+        Map<String, Object> claims = new HashMap<>(existingTokenPrincipal.getClaims());
+        claims.putAll(enrichInstitutionAdmin(user.getOrganizationGUID()));
+        DefaultOidcUser oidcUser = new DefaultOidcUser(
+                existingToken.getAuthorities(),
+                existingTokenPrincipal.getIdToken(),
+                new OidcUserInfo(claims)
+        );
+        OAuth2AuthenticationToken newToken = new OAuth2AuthenticationToken(
+                oidcUser,
+                existingToken.getAuthorities(),
+                existingToken.getAuthorizedClientRegistrationId()
+        );
+        SecurityContextHolder.getContext().setAuthentication(newToken);
+        //New in Spring security 6.x
+        securityContextRepository.saveContext(SecurityContextHolder.getContext(), servletRequest, servletResponse);
+
+
     }
 
     @GetMapping("roles/{roleId}")

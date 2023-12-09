@@ -7,6 +7,7 @@ import access.model.APIToken;
 import access.model.User;
 import access.repository.APITokenRepository;
 import access.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
+import static org.springframework.security.web.context.RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -115,10 +117,12 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                     }
                     return user;
                 });
-        String requestURI = ((ServletWebRequest) webRequest).getRequest().getRequestURI();
+        HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
+        String requestURI = request.getRequestURI();
         if (optionalUser.isEmpty() && requestURI.equals("/api/v1/users/config")) {
             return new User(attributes);
         }
+        Object attribute = request.getAttribute(DEFAULT_REQUEST_ATTR_NAME);
         return optionalUser.map(user -> {
             if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
                 String organizationGUID = user.getOrganizationGUID();

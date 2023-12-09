@@ -41,22 +41,22 @@ public class Config {
     }
 
     public Config withAuthenticated(boolean authenticated) {
-        this.authenticated = authenticated;
+        this.setAuthenticated(authenticated);
         return this;
     }
 
     public Config withName(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
     public Config withMissingAttributes(List<String> missingAttributes) {
-        this.missingAttributes = missingAttributes;
+        this.setMissingAttributes(missingAttributes);
         return this;
     }
 
     public Config withGroupUrnPrefix(String groupUrnPrefix) {
-        this.groupUrnPrefix = groupUrnPrefix;
+        this.setGroupUrnPrefix(groupUrnPrefix);
         return this;
     }
 
