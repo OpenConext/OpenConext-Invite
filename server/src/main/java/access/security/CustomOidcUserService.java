@@ -4,6 +4,7 @@ import access.api.HasManage;
 import access.manage.Manage;
 import access.model.User;
 import access.repository.UserRepository;
+import lombok.Getter;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -22,6 +23,7 @@ import static access.security.InstitutionAdmin.*;
 
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser>, HasManage {
 
+    @Getter
     private final Manage manage;
     private final UserRepository userRepository;
     private final String entitlement;
@@ -66,10 +68,5 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
         return oidcUser;
 
-    }
-
-    @Override
-    public Manage getManage() {
-        return manage;
     }
 }

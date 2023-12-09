@@ -6,6 +6,7 @@ import access.manage.Manage;
 import access.model.GroupedProviders;
 import access.model.UserRole;
 import access.repository.UserRoleRepository;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ public class RoleExpirationNotifier implements HasManage {
     private static final Log LOG = LogFactory.getLog(RoleExpirationNotifier.class);
 
     private final UserRoleRepository userRoleRepository;
+    @Getter
     private final Manage manage;
     private final MailBox mailBox;
 
@@ -59,10 +61,5 @@ public class RoleExpirationNotifier implements HasManage {
             LOG.info("Send expiration notification mail to " + userRole.getUser().getEmail());
         });
 
-    }
-
-    @Override
-    public Manage getManage() {
-        return manage;
     }
 }

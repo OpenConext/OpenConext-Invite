@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -58,6 +59,7 @@ public class InvitationController implements HasManage {
     private static final Log LOG = LogFactory.getLog(InvitationController.class);
 
     private final MailBox mailBox;
+    @Getter
     private final Manage manage;
     private final InvitationRepository invitationRepository;
     private final UserRepository userRepository;
@@ -288,9 +290,10 @@ public class InvitationController implements HasManage {
                                                User user,
                                                HttpServletRequest servletRequest,
                                                HttpServletResponse servletResponse) {
+        //Boilerplate code for setting updated Authentication on the SecurityContextHolder
         OAuth2AuthenticationToken existingToken = (OAuth2AuthenticationToken) authentication;
         DefaultOidcUser existingTokenPrincipal = (DefaultOidcUser) existingToken.getPrincipal();
-        //claims of the tokenPricipal are immutable
+        //Claims of the tokenPrincipal are immutable, so we need to instantiate a new Map
         Map<String, Object> claims = new HashMap<>(existingTokenPrincipal.getClaims());
         claims.putAll(enrichInstitutionAdmin(user.getOrganizationGUID()));
         DefaultOidcUser oidcUser = new DefaultOidcUser(
@@ -304,10 +307,9 @@ public class InvitationController implements HasManage {
                 existingToken.getAuthorizedClientRegistrationId()
         );
         SecurityContextHolder.getContext().setAuthentication(newToken);
-        //New in Spring security 6.x
+        //New in Spring security 6.x,
+        // See https://docs.spring.io/spring-security/reference/5.8/migration/servlet/session-management.html#_require_explicit_saving_of_securitycontextrepository
         securityContextRepository.saveContext(SecurityContextHolder.getContext(), servletRequest, servletResponse);
-
-
     }
 
     @GetMapping("roles/{roleId}")
@@ -317,10 +319,6 @@ public class InvitationController implements HasManage {
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
         return ResponseEntity.ok(invitations);
-    }
-
-    public Manage getManage() {
-        return manage;
     }
 
     private void checkEmailEquality(User user, Invitation invitation) {

@@ -140,11 +140,11 @@ public class SecurityConfig {
                                                    @Value("${institution-admin.entitlement}") String entitlement,
                                                    @Value("${institution-admin.organization-guid-prefix}") String organizationGuidPrefix) throws Exception {
         http
-                .csrf(c -> c
+                .csrf(csrfConfigurer -> csrfConfigurer
                         .ignoringRequestMatchers("/login/oauth2/code/oidcng")
                         .ignoringRequestMatchers("/api/v1/validations/**"))
                 .securityMatcher("/login/oauth2/**", "/oauth2/authorization/**", "/api/v1/**")
-                .authorizeHttpRequests(c -> c
+                .authorizeHttpRequests(authorizeHttpRequestsConfigurer -> authorizeHttpRequestsConfigurer
                         .requestMatchers(
                                 "/api/v1/csrf",
                                 "/api/v1/disclaimer",
@@ -159,16 +159,17 @@ public class SecurityConfig {
                         .anyRequest()
                         .authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
+                .oauth2Login(oAuth2LoginConfigurer -> oAuth2LoginConfigurer
                         .authorizationEndpoint(authorization -> authorization
                                 .authorizationRequestResolver(
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
-                        ).userInfoEndpoint(userInfo -> userInfo.oidcUserService(
+                        ).userInfoEndpoint(userInfoEndpointConfigurer -> userInfoEndpointConfigurer.oidcUserService(
                                 new CustomOidcUserService(manage, userRepository, entitlement, organizationGuidPrefix)))
                 )
                 //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin invitation accept
-                .securityContext(securityContext -> securityContext.securityContextRepository(this.securityContextRepository()));
+                .securityContext(securityContextConfigurer ->
+                        securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
 
         return http.build();
     }
