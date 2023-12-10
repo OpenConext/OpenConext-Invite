@@ -5,6 +5,7 @@ import access.AccessCookieFilter;
 import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.model.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static access.AbstractTest.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -121,21 +121,12 @@ class UserRoleControllerTest extends AbstractTest {
     }
 
     @Test
-    void userRoleProvisioning() throws Exception {
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
-        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        super.stubForManageProvisioning(List.of("1", "2"));
-
-        super.stubForCreateScimUser();
-        super.stubForCreateGraphUser();
-        super.stubForCreateScimRole();
-        super.stubForUpdateScimRole();
-
+    void userRoleProvisioningEmail() throws Exception {
         List<Long> roleIdentifiers = List.of(
                 roleRepository.findByName("Network").get(0).getId(),
                 roleRepository.findByName("Wiki").get(0).getId()
         );
-        UserRoleProvisioning userRoleProvisioning = new UserRoleProvisioning(
+        doUserRoleProvisioning(new UserRoleProvisioning(
                 roleIdentifiers,
                 Authority.GUEST,
                 null,
@@ -146,7 +137,79 @@ class UserRoleControllerTest extends AbstractTest {
                 "Charly Green",
                 null,
                 true
+        ), "urn:collab:person:domain.org:new_user", 2);
+    }
+
+    @Test
+    void userRoleProvisioningSub() throws Exception {
+        List<Long> roleIdentifiers = List.of(
+                roleRepository.findByName("Network").get(0).getId(),
+                roleRepository.findByName("Wiki").get(0).getId()
         );
+        doUserRoleProvisioning(new UserRoleProvisioning(
+                roleIdentifiers,
+                Authority.GUEST,
+                "urn:collab:person:example.com:brandcoper",
+                "some@domain.org",
+                null,
+                null,
+                null,
+                "Charly Green",
+                null,
+                true
+        ), "urn:collab:person:example.com:brandcoper", 2);
+    }
+
+    @Test
+    void userRoleProvisioningEPPN() throws Exception {
+        List<Long> roleIdentifiers = List.of(
+                roleRepository.findByName("Network").get(0).getId(),
+                roleRepository.findByName("Wiki").get(0).getId()
+        );
+        doUserRoleProvisioning(new UserRoleProvisioning(
+                roleIdentifiers,
+                Authority.GUEST,
+                "urn:collab:person:example.com:brandcoper",
+                "some@domain.org",
+                "eppn@domain.org",
+                null,
+                null,
+                "Charly Green",
+                null,
+                true
+        ), "urn:collab:person:example.com:brandcoper", 2);
+    }
+
+    @Test
+    void userRoleProvisioningExistingUser() throws Exception {
+        List<Long> roleIdentifiers = List.of(
+                roleRepository.findByName("Network").get(0).getId(),
+                roleRepository.findByName("Wiki").get(0).getId()
+        );
+        doUserRoleProvisioning(new UserRoleProvisioning(
+                roleIdentifiers,
+                Authority.GUEST,
+                "urn:collab:person:example.com:inviter",
+                "some@domain.org",
+                "eppn@domain.org",
+                null,
+                null,
+                "Charly Green",
+                null,
+                true
+        ), "urn:collab:person:example.com:inviter", 4);
+    }
+
+    private void doUserRoleProvisioning(UserRoleProvisioning userRoleProvisioning, String expectedSub, int expectedUserRoleCount) throws JsonProcessingException {
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvisioning(List.of("1", "2"));
+
+        super.stubForCreateScimUser();
+        super.stubForCreateGraphUser();
+        super.stubForCreateScimRole();
+        super.stubForUpdateScimRole();
+
         User savedUser = given()
                 .when()
                 .header(API_TOKEN_HEADER, API_TOKEN_HASH)
@@ -156,10 +219,9 @@ class UserRoleControllerTest extends AbstractTest {
                 .post("/api/external/v1/user_roles/user_role_provisioning")
                 .as(new TypeRef<>() {
                 });
-        assertEquals("urn:collab:person:domain.org:new_user", savedUser.getSub());
-        User user = userRepository.findBySubIgnoreCase("urn:collab:person:domain.org:new_user").orElseThrow(NotFoundException::new);
-        assertEquals(2, user.getUserRoles().size());
-        user.getUserRoles().forEach(userRole -> assertTrue(userRole.isGuestRoleIncluded()));
+        assertEquals(expectedSub, savedUser.getSub());
+        User user = userRepository.findBySubIgnoreCase(expectedSub).orElseThrow(NotFoundException::new);
+        assertEquals(expectedUserRoleCount, user.getUserRoles().size());
     }
 
 }

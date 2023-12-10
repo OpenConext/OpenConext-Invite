@@ -137,9 +137,9 @@ public class User implements Serializable, Provisionable {
                 !StringUtils.hasText(this.familyName) &&
                 StringUtils.hasText(this.name) &&
                 this.name.contains(" ")) {
-            String[] splittedName = this.name.split(" ", 2);
-            this.givenName = splittedName[0];
-            this.familyName = splittedName[1];
+            List<String> names = Arrays.asList(this.name.split(" "));
+            this.givenName = names.get(0);
+            this.familyName = String.join(" ", names.stream().skip(1).toList());
         }
     }
 

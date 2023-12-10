@@ -1,6 +1,5 @@
 package access.security;
 
-import access.api.HasManage;
 import access.manage.Manage;
 import access.model.User;
 import access.repository.UserRepository;
@@ -15,13 +14,12 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static access.security.InstitutionAdmin.*;
 
-public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser>, HasManage {
+public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
     @Getter
     private final Manage manage;
@@ -56,9 +54,8 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
-            Map<String, Object> manageClaims = enrichInstitutionAdmin(organizationGuid);
-            newClaims.put(APPLICATIONS, manageClaims.get(APPLICATIONS));
-            newClaims.put(INSTITUTION, manageClaims.get(INSTITUTION));
+            Map<String, Object> manageClaims = manage.enrichInstitutionAdmin(organizationGuid);
+            newClaims.putAll(manageClaims);
         }
         optionalUser.ifPresent(user -> {
             user.updateAttributes(newClaims);

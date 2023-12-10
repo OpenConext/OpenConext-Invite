@@ -1,17 +1,16 @@
 package access.cron;
 
-import access.api.HasManage;
 import access.mail.MailBox;
 import access.manage.Manage;
 import access.model.GroupedProviders;
 import access.model.UserRole;
 import access.repository.UserRoleRepository;
 import lombok.Getter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -19,7 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-public class RoleExpirationNotifier implements HasManage {
+public class RoleExpirationNotifier  {
 
     private static final Log LOG = LogFactory.getLog(RoleExpirationNotifier.class);
 
@@ -52,7 +51,7 @@ public class RoleExpirationNotifier implements HasManage {
         Instant instant = Instant.now().plus(roleExpirationNotificationDays, ChronoUnit.DAYS);
         List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(instant, 0);
         userRoles.forEach(userRole -> {
-            List<GroupedProviders> groupedProviders = getGroupedProviders(List.of(userRole.getRole()));
+            List<GroupedProviders> groupedProviders = manage.getGroupedProviders(List.of(userRole.getRole()));
             GroupedProviders groupedProvider = groupedProviders.isEmpty() ? null : groupedProviders.get(0);
             mailBox.sendUserRoleExpirationNotificationMail(userRole, groupedProvider, roleExpirationNotificationDays);
             userRole.setExpiryNotifications(1);

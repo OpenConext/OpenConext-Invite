@@ -60,7 +60,6 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
 
         String apiTokenHeader = webRequest.getHeader(API_TOKEN_HEADER);
 
-
         if (userPrincipal instanceof BearerTokenAuthentication bearerTokenAuthentication) {
             //The user has logged in and obtained an access_token. Invite is acting as an API resource server
             attributes = bearerTokenAuthentication.getTokenAttributes();
@@ -122,7 +121,6 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         if (optionalUser.isEmpty() && requestURI.equals("/api/v1/users/config")) {
             return new User(attributes);
         }
-        Object attribute = request.getAttribute(DEFAULT_REQUEST_ATTR_NAME);
         return optionalUser.map(user -> {
             if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
                 String organizationGUID = user.getOrganizationGUID();

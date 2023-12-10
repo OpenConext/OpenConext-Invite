@@ -20,7 +20,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -54,12 +53,11 @@ import static java.util.stream.Collectors.toSet;
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 @EnableConfigurationProperties(SuperAdmin.class)
-public class InvitationController implements HasManage {
+public class InvitationController {
 
     private static final Log LOG = LogFactory.getLog(InvitationController.class);
 
     private final MailBox mailBox;
-    @Getter
     private final Manage manage;
     private final InvitationRepository invitationRepository;
     private final UserRepository userRepository;
@@ -129,7 +127,7 @@ public class InvitationController implements HasManage {
                 .toList();
         invitationRepository.saveAll(invitations);
 
-        List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
+        List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
         invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders));
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
         return Results.createResult();
@@ -162,7 +160,7 @@ public class InvitationController implements HasManage {
                 .map(InvitationRole::getRole).toList();
         Authority intendedAuthority = invitation.getIntendedAuthority();
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
-        List<GroupedProviders> groupedProviders = getGroupedProviders(requestedRoles);
+        List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
 
         mailBox.sendInviteMail(user, invitation, groupedProviders);
         if (invitation.getExpiryDate().isBefore(Instant.now())) {
@@ -295,7 +293,7 @@ public class InvitationController implements HasManage {
         DefaultOidcUser existingTokenPrincipal = (DefaultOidcUser) existingToken.getPrincipal();
         //Claims of the tokenPrincipal are immutable, so we need to instantiate a new Map
         Map<String, Object> claims = new HashMap<>(existingTokenPrincipal.getClaims());
-        claims.putAll(enrichInstitutionAdmin(user.getOrganizationGUID()));
+        claims.putAll(manage.enrichInstitutionAdmin(user.getOrganizationGUID()));
         DefaultOidcUser oidcUser = new DefaultOidcUser(
                 existingToken.getAuthorities(),
                 existingTokenPrincipal.getIdToken(),
