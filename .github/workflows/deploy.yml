@@ -97,6 +97,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set docker labels and tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          flavor: |
+            latest=false
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}},value=${{ steps.versioncheck.outputs.version }}
+            type=sha
 
       - name: Build and push the server image
         uses: docker/build-push-action@v4
@@ -105,8 +116,8 @@ jobs:
           file: server/docker/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ghcr.io/openconext/openconext-invite/inviteserver:${{ steps.versioncheck.outputs.version }}
+          tags: ghcr.io/openconext/openconext-invite/inviteserver:${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push the client image
         uses: docker/build-push-action@v4
@@ -115,8 +126,8 @@ jobs:
           file: client/docker/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ghcr.io/openconext/openconext-invite/inviteclient:${{ steps.versioncheck.outputs.version }}
+          tags: ghcr.io/openconext/openconext-invite/inviteclient:${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push the welcome image
         uses: docker/build-push-action@v4
@@ -125,8 +136,8 @@ jobs:
           file: welcome/docker/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ghcr.io/openconext/openconext-invite/invitewelcome:${{ steps.versioncheck.outputs.version }}
+          tags: ghcr.io/openconext/openconext-invite/invitewelcome:${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push the provisioning mock image
         uses: docker/build-push-action@v4
@@ -135,8 +146,8 @@ jobs:
           file: provisioning-mock/docker/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ghcr.io/openconext/openconext-invite/inviteprovisioningmock:${{ steps.versioncheck.outputs.version }}
+          tags: ghcr.io/openconext/openconext-invite/inviteprovisioningmock:${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build Changelog
         id: changelog
