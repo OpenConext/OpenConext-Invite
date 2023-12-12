@@ -70,6 +70,7 @@ public class Role implements Serializable, Provisionable {
             name = "roles_applications",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "application_id"))
+    //TODO https://www.baeldung.com/hibernate-persisting-maps, store landingpage per applications
     private Set<Application> applications = new HashSet<>();
 
     @OneToMany(mappedBy = "role",

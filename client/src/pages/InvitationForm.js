@@ -13,7 +13,7 @@ import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id
 import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {newInvitation, rolesByApplication} from "../api";
-import {Button, ButtonType, Checkbox, Loader, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Checkbox, Loader, RadioOptions, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -28,6 +28,9 @@ import {RoleCard} from "../components/RoleCard";
 export const InvitationForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
+
+    const {user, setFlash, config} = useAppStore(state => state);
+
     const [guest, setGuest] = useState(false);
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
@@ -39,8 +42,9 @@ export const InvitationForm = () => {
         intendedAuthority: AUTHORITIES.GUEST
     });
     const [displayAdvancedSettings, setDisplayAdvancedSettings] = useState(false);
-    const {user, setFlash, config} = useAppStore(state => state);
     const [loading, setLoading] = useState(true);
+    const [customExpiryDate, setCustomExpiryDate] = useState(false);
+    const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [initial, setInitial] = useState(true);
     const required = ["intendedAuthority", "invites"];
 
@@ -264,15 +268,6 @@ export const InvitationForm = () => {
                             {I18n.t("roles.hideAdvancedSettings")}
                             <UpIcon/>
                         </a>
-                        <DateField value={invitation.expiryDate}
-                                   onChange={e => setInvitation({...invitation, expiryDate: e})}
-                                   showYearDropdown={true}
-                                   pastDatesAllowed={config.pastDateAllowed}
-                                   minDate={futureDate(1)}
-                                   maxDate={futureDate(30)}
-                                   name={I18n.t("invitations.expiryDate")}
-                                   toolTip={I18n.t("tooltips.expiryDateTooltip")}/>
-
                         <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
                                   value={invitation.enforceEmailEquality || false}
                                   onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
@@ -296,16 +291,42 @@ export const InvitationForm = () => {
                                   readOnly={invitation.intendedAuthority === AUTHORITIES.GUEST}
                                   tooltip={I18n.t("tooltips.guestRoleIncludedTooltip")}
                         />
+                        <RadioOptions name={"roleExpiryDate"}
+                                      value={customRoleExpiryDate}
+                                      onChange={e => setCustomRoleExpiryDate(!customRoleExpiryDate)}
+                                      label={I18n.t("invitations.roleExpiryDateQuestion")}
+                                      falseLabel={I18n.t("forms.no")}
+                                      reverse={false}
+                                      trueLabel={I18n.t("forms.specificDate")}
+                        />
+                        {customRoleExpiryDate &&
+                            <DateField value={invitation.roleExpiryDate}
+                                       onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
+                                       showYearDropdown={true}
+                                       disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
+                                       pastDatesAllowed={config.pastDateAllowed}
+                                       allowNull={selectedRoles.every(role => role.overrideSettingsAllowed) && invitation.intendedAuthority !== AUTHORITIES.GUEST}
+                                       minDate={futureDate(1, invitation.expiryDate)}
+                                       name={I18n.t("invitations.roleExpiryDate")}
+                                       toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>}
 
-                        <DateField value={invitation.roleExpiryDate}
-                                   onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
-                                   showYearDropdown={true}
-                                   disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
-                                   pastDatesAllowed={config.pastDateAllowed}
-                                   allowNull={selectedRoles.every(role => role.overrideSettingsAllowed) && invitation.intendedAuthority !== AUTHORITIES.GUEST}
-                                   minDate={futureDate(1, invitation.expiryDate)}
-                                   name={I18n.t("invitations.roleExpiryDate")}
-                                   toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>
+                        <RadioOptions name={"expiryDate"}
+                                      value={customExpiryDate}
+                                      onChange={e => setCustomExpiryDate(!customExpiryDate)}
+                                      label={I18n.t("invitations.expiryDateQuestion")}
+                                      falseLabel={I18n.t("invitations.withinThreeMonths")}
+                                      reverse={false}
+                                      trueLabel={I18n.t("forms.specificDate")}
+                        />
+                        {customExpiryDate &&
+                            <DateField value={invitation.expiryDate}
+                                       onChange={e => setInvitation({...invitation, expiryDate: e})}
+                                       showYearDropdown={true}
+                                       pastDatesAllowed={config.pastDateAllowed}
+                                       minDate={futureDate(1)}
+                                       maxDate={futureDate(30)}
+                                       name={I18n.t("invitations.expiryDate")}
+                                       toolTip={I18n.t("tooltips.expiryDateTooltip")}/>}
 
                     </div>}
                 <section className="actions">
