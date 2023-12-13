@@ -13,7 +13,7 @@ import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id
 import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {newInvitation, rolesByApplication} from "../api";
-import {Button, ButtonType, Loader, RadioOptions, Switch, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Loader, RadioOptions, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -24,6 +24,7 @@ import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
 import {futureDate} from "../utils/Date";
 import {RoleCard} from "../components/RoleCard";
+import SwitchField from "../components/SwitchField";
 
 export const InvitationForm = () => {
     const location = useLocation();
@@ -270,49 +271,29 @@ export const InvitationForm = () => {
                         </a>
 
                         {selectedRoles.every(role => role.overrideSettingsAllowed) &&
-                            <>
-                                <div className="switch-container">
-                                    <div className={"inner-switch"}>
-                                        <span
-                                            className="switch-label">{I18n.t("invitations.enforceEmailEquality")}</span>
-                                        <span
-                                            className="switch-info">{I18n.t("tooltips.enforceEmailEqualityTooltip")}</span>
-                                    </div>
-                                    <Switch name={"enforceEmailEquality"}
-                                            value={invitation.enforceEmailEquality || false}
-                                            onChange={val => setInvitation({
-                                                ...invitation,
-                                                enforceEmailEquality: val
-                                            })}/>
-                                </div>
-
-                            </>}
+                            <SwitchField name={"enforceEmailEquality"}
+                                         value={invitation.eduIDOnly || false}
+                                         onChange={val => setInvitation({...invitation, eduIDOnly: val})}
+                                         label={I18n.t("invitations.enforceEmailEquality")}
+                                         info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
+                            />}
 
                         {selectedRoles.every(role => role.overrideSettingsAllowed) &&
-                            <>
-                                <div className="switch-container">
-                                    <div className={"inner-switch"}>
-                                        <span className="switch-label">{I18n.t("invitations.eduIDOnly")}</span>
-                                        <span className="switch-info">{I18n.t("tooltips.eduIDOnlyTooltip")}</span>
-                                    </div>
-                                    <Switch name={"eduIDOnly"}
-                                            value={invitation.eduIDOnly || false}
-                                            onChange={val => setInvitation({...invitation, eduIDOnly: val})}/>
-                                </div>
+                            <SwitchField name={"eduIDOnly"}
+                                         value={invitation.eduIDOnly || false}
+                                         onChange={val => setInvitation({...invitation, eduIDOnly: val})}
+                                         label={I18n.t("invitations.eduIDOnly")}
+                                         info={I18n.t("tooltips.eduIDOnlyTooltip")}
+                            />}
 
-                            </>}
-
-                        {invitation.intendedAuthority === AUTHORITIES.GUEST && <>
-                            <div className="switch-container">
-                                <div className={"inner-switch"}>
-                                    <span className="switch-label">{I18n.t("invitations.guestRoleIncluded")}</span>
-                                    <span className="switch-info">{I18n.t("tooltips.guestRoleIncludedTooltip")}</span>
-                                </div>
-                                <Switch name={"guestRoleIncluded"}
-                                        value={invitation.guestRoleIncluded || false}
-                                        onChange={val => setInvitation({...invitation, guestRoleIncluded: val})}/>
-                            </div>
-                        </>}
+                        {invitation.intendedAuthority === AUTHORITIES.GUEST &&
+                            <SwitchField name={"guestRoleIncluded"}
+                                         value={invitation.guestRoleIncluded || false}
+                                         onChange={val => setInvitation({...invitation, guestRoleIncluded: val})}
+                                         label={I18n.t("invitations.guestRoleIncluded")}
+                                         info={I18n.t("tooltips.guestRoleIncludedTooltip")}
+                            />
+                        }
                         {selectedRoles.every(role => role.overrideSettingsAllowed) &&
                         <RadioOptions name={"roleExpiryDate"}
                                       value={customRoleExpiryDate}

@@ -16,6 +16,7 @@ import SelectField from "../components/SelectField";
 import {providersToOptions, singleProviderToOption} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import RadioButtonGroup from "../components/RadioButtonGroup";
+import SwitchField from "../components/SwitchField";
 
 export const RoleForm = () => {
 
@@ -33,7 +34,7 @@ export const RoleForm = () => {
     const [initial, setInitial] = useState(true);
     const [alreadyExists, setAlreadyExists] = useState({});
     const [invalidValues, setInvalidValues] = useState({});
-    const [managementOption, setManagementOption] = useState([]);
+    const [managementOptions, setManagementOptions] = useState([]);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
 
@@ -72,11 +73,11 @@ export const RoleForm = () => {
                 if (newRole) {
                     const providerOption = singleProviderToOption(user.superUser ? res[0][0] :
                         user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.applicationMaps[0]);
-                    setManagementOption([providerOption]);
+                    setManagementOptions([providerOption]);
                     setRole({...role, applications: [providerOption]})
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
-                    setManagementOption(providersToOptions(res[0].applicationMaps));
+                    setManagementOptions(providersToOptions(res[0].applicationMaps));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});
@@ -164,11 +165,24 @@ export const RoleForm = () => {
                 }).catch(handleError)
         }
     };
+
     const isValid = () => {
         return required.every(attr => !isEmpty(role[attr]))
             && Object.values(alreadyExists).every(attr => !attr)
             && Object.values(invalidValues).every(attr => !attr)
             && role.defaultExpiryDays > 0;
+    }
+
+    const changeApplication = application => {
+
+    }
+
+    const changeApplicationLandingPage = application => {
+
+    }
+
+    const deleteApplication = application => {
+
     }
 
     const renderForm = () => {
@@ -205,7 +219,7 @@ export const RoleForm = () => {
                     <ErrorIndicator msg={I18n.t("forms.alreadyExistsParent", {
                         attribute: I18n.t("roles.shortName").toLowerCase(),
                         value: role.shortName,
-                        parent: managementOption.label
+                        parent: managementOptions.label
                     })}/>}
 
                 <InputField name={I18n.t("roles.description")}
@@ -221,23 +235,42 @@ export const RoleForm = () => {
                         attribute: I18n.t("roles.description").toLowerCase()
                     })}/>}
 
-                <SelectField name={I18n.t("roles.manage")}
-                             value={managementOption}
-                             options={options.filter(option => !managementOption.some(provider => option.value === provider.value))}
-                             onChange={options => {
-                                 setManagementOption(options);
-                                 setRole({...role, applications: options});
-                             }}
-                             searchable={true}
-                             clearable={false}
-                             isMulti={true}
-                             disabled={options.length === 1}
-                             toolTip={I18n.t("tooltips.manageService")}
-                />
+                <h2 className="section-separator">
+                    {I18n.t("roles.applicationDetails")}
+                </h2>
+                <p className={"label"}>{I18n.t("roles.applicationName")}</p>
+                <p className={"label"}>{I18n.t("roles.landingPage")}</p>
+                {managementOptions.map(option =>
+                    <div className="application-container">
+                        <SelectField name={I18n.t("roles.manage")}
+                                     value={managementOptions}
+                                     options={options.filter(option => !managementOptions.some(provider => option.value === provider.value))}
+                                     onChange={options => {
+                                         setManagementOptions(options);
+                                         setRole({...role, applications: options});
+                                     }}
+                                     searchable={true}
+                                     clearable={false}
+                                     disabled={options.length === 1}
+                        />
+                        <InputField displayLabel={false}
+                                    value={role.description || ""}
+                                    placeholder={I18n.t("roles.descriptionPlaceHolder")}
+                                    error={!initial && isEmpty(role.description)}
+                                    multiline={true}
+                                    onChange={e => setRole(
+                                        {...role, description: e.target.value})}
+                        />
+                        <Button type={ButtonType.Delete}
+                                onClick={() => deleteApplication(option)}/>}
+                    </div>
+                )}
+
                 {(!initial && isEmpty(role.applications)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.manage").toLowerCase()
                     })}/>}
+
 
                 <InputField name={I18n.t("roles.landingPage")}
                             value={role.landingPage || ""}
@@ -262,18 +295,18 @@ export const RoleForm = () => {
 
                 <span className={"label"}>{I18n.t("roles.advanced")}</span>
 
-                <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
-                          value={role.enforceEmailEquality || false}
-                          info={I18n.t("invitations.enforceEmailEquality")}
-                          onChange={e => setRole({...role, enforceEmailEquality: e.target.checked})}
-                          tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
+                <SwitchField name={"enforceEmailEquality"}
+                             value={role.enforceEmailEquality || false}
+                             onChange={val => setRole({...role, enforceEmailEquality: val})}
+                             label={I18n.t("invitations.enforceEmailEquality")}
+                             info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                 />
 
-                <Checkbox name={I18n.t("invitations.eduIDOnly")}
-                          value={role.eduIDOnly || false}
-                          info={I18n.t("invitations.eduIDOnly")}
-                          onChange={e => setRole({...role, eduIDOnly: e.target.checked})}
-                          tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
+                <SwitchField name={"eduIDOnly"}
+                             value={role.eduIDOnly || false}
+                             onChange={val => setRole({...role, eduIDOnly: val})}
+                             label={I18n.t("invitations.eduIDOnly")}
+                             info={I18n.t("tooltips.eduIDOnlyTooltip")}
                 />
 
                 <InputField name={I18n.t("roles.defaultExpiryDays")}

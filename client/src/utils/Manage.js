@@ -11,7 +11,8 @@ export const singleProviderToOption = provider => {
         label: `${provider["name:en"]}${organisationValue}`,
         type: manageType,
         manageType: manageType,
-        manageId: manageId
+        manageId: manageId,
+        url: provider.url
     };
 }
 

@@ -1,0 +1,28 @@
+.switch-field {
+    display: flex;
+    margin-top: 20px;
+    align-items: center;
+
+
+    .sds--tooltip-parent {
+        margin-left: auto;
+    }
+
+    .inner-switch {
+        display: flex;
+        flex-direction: column;
+        margin-right: 20px;
+    }
+
+    .switch-label {
+        font-weight: 600;
+    }
+
+    .switch-info {
+        font-size: 14px;
+        color: var(--sds--color--gray--500);
+    }
+}
+
+
+
