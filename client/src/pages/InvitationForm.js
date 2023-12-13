@@ -13,7 +13,7 @@ import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id
 import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {newInvitation, rolesByApplication} from "../api";
-import {Button, ButtonType, Checkbox, Loader, RadioOptions, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Loader, RadioOptions, Switch, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -268,29 +268,52 @@ export const InvitationForm = () => {
                             {I18n.t("roles.hideAdvancedSettings")}
                             <UpIcon/>
                         </a>
-                        <Checkbox name={I18n.t("invitations.enforceEmailEquality")}
-                                  value={invitation.enforceEmailEquality || false}
-                                  onChange={e => setInvitation({...invitation, enforceEmailEquality: e.target.checked})}
-                                  info={I18n.t("invitations.enforceEmailEquality")}
-                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed)}
-                                  tooltip={I18n.t("tooltips.enforceEmailEqualityTooltip")}
-                        />
 
-                        <Checkbox name={I18n.t("invitations.eduIDOnly")}
-                                  value={invitation.eduIDOnly || false}
-                                  onChange={e => setInvitation({...invitation, eduIDOnly: e.target.checked})}
-                                  info={I18n.t("invitations.eduIDOnly")}
-                                  readOnly={selectedRoles.some(role => !role.overrideSettingsAllowed)}
-                                  tooltip={I18n.t("tooltips.eduIDOnlyTooltip")}
-                        />
+                        {selectedRoles.every(role => role.overrideSettingsAllowed) &&
+                            <>
+                                <div className="switch-container">
+                                    <div className={"inner-switch"}>
+                                        <span
+                                            className="switch-label">{I18n.t("invitations.enforceEmailEquality")}</span>
+                                        <span
+                                            className="switch-info">{I18n.t("tooltips.enforceEmailEqualityTooltip")}</span>
+                                    </div>
+                                    <Switch name={"enforceEmailEquality"}
+                                            value={invitation.enforceEmailEquality || false}
+                                            onChange={val => setInvitation({
+                                                ...invitation,
+                                                enforceEmailEquality: val
+                                            })}/>
+                                </div>
 
-                        <Checkbox name={I18n.t("invitations.guestRoleIncluded")}
-                                  value={invitation.guestRoleIncluded || false}
-                                  onChange={e => setInvitation({...invitation, guestRoleIncluded: e.target.checked})}
-                                  info={I18n.t("invitations.guestRoleIncluded")}
-                                  readOnly={invitation.intendedAuthority === AUTHORITIES.GUEST}
-                                  tooltip={I18n.t("tooltips.guestRoleIncludedTooltip")}
-                        />
+                            </>}
+
+                        {selectedRoles.every(role => role.overrideSettingsAllowed) &&
+                            <>
+                                <div className="switch-container">
+                                    <div className={"inner-switch"}>
+                                        <span className="switch-label">{I18n.t("invitations.eduIDOnly")}</span>
+                                        <span className="switch-info">{I18n.t("tooltips.eduIDOnlyTooltip")}</span>
+                                    </div>
+                                    <Switch name={"eduIDOnly"}
+                                            value={invitation.eduIDOnly || false}
+                                            onChange={val => setInvitation({...invitation, eduIDOnly: val})}/>
+                                </div>
+
+                            </>}
+
+                        {invitation.intendedAuthority === AUTHORITIES.GUEST && <>
+                            <div className="switch-container">
+                                <div className={"inner-switch"}>
+                                    <span className="switch-label">{I18n.t("invitations.guestRoleIncluded")}</span>
+                                    <span className="switch-info">{I18n.t("tooltips.guestRoleIncludedTooltip")}</span>
+                                </div>
+                                <Switch name={"guestRoleIncluded"}
+                                        value={invitation.guestRoleIncluded || false}
+                                        onChange={val => setInvitation({...invitation, guestRoleIncluded: val})}/>
+                            </div>
+                        </>}
+                        {selectedRoles.every(role => role.overrideSettingsAllowed) &&
                         <RadioOptions name={"roleExpiryDate"}
                                       value={customRoleExpiryDate}
                                       onChange={e => setCustomRoleExpiryDate(!customRoleExpiryDate)}
@@ -298,7 +321,7 @@ export const InvitationForm = () => {
                                       falseLabel={I18n.t("forms.no")}
                                       reverse={false}
                                       trueLabel={I18n.t("forms.specificDate")}
-                        />
+                        />}
                         {customRoleExpiryDate &&
                             <DateField value={invitation.roleExpiryDate}
                                        onChange={e => setInvitation({...invitation, roleExpiryDate: e})}

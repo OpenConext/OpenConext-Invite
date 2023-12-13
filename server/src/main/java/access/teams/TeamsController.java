@@ -2,7 +2,6 @@ package access.teams;
 
 import access.api.Results;
 import access.exception.InvalidInputException;
-import access.exception.NotFoundException;
 import access.manage.Manage;
 import access.model.Role;
 import access.model.*;
@@ -19,7 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -79,10 +81,15 @@ public class TeamsController {
             throw new InvalidInputException();
         }
         //This is the disadvantage of having to save references from Manage
-        role.setApplications(team.getApplications().stream()
-                .map(application -> applicationRepository.findByManageIdAndManageType(application.getManageId(), application.getManageType())
-                        .orElseGet(() -> applicationRepository.save(application)))
-                .collect(Collectors.toSet()));
+        Set<ApplicationUsage> applicationUsages = team.getApplications().stream()
+                .map(applicationFromTeams -> {
+                    Application applicationFromDB = applicationRepository
+                            .findByManageIdAndManageType(applicationFromTeams.getManageId(), applicationFromTeams.getManageType())
+                            .orElseGet(() -> applicationRepository.save(applicationFromTeams));
+                    return new ApplicationUsage(applicationFromDB, applicationFromTeams.getLandingPage());
+                })
+                .collect(Collectors.toSet());
+        role.setApplicationUsages(applicationUsages);
         Role savedRole = roleRepository.save(role);
 
         provisioningService.newGroupRequest(savedRole);

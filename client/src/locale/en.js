@@ -343,7 +343,7 @@ const en = {
         inviter: "Send invitations to persons who will - once accepted - become guest users for the application",
         overrideSettingsAllowed: "If checked then invitations for this role can't override the advanced settings (e.g. email equality, eduID only and the role expiry end date)",
         removeUserRole: "Remove all selected user roles",
-        guestRoleIncludedTooltip: "Do you also want to invite the invitees as guests when they accept the invitation?",
+        guestRoleIncludedTooltip: "Do you also want to grant the invitees the guest role when they accept the invitation?",
     },
     confirmationDialog: {
         title: "Confirm",

@@ -21,6 +21,6 @@ class ApplicationTest {
         Set<Application> applications = new HashSet<>(List.of(application, otherApplication));
         assertEquals(1, applications.size());
 
-        assertEquals(0, application.getRoles().size());
+        assertEquals(0, application.getApplicationUsages().size());
     }
 }

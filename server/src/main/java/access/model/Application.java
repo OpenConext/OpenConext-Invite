@@ -31,12 +31,14 @@ public class Application implements Serializable {
     @NotNull
     private EntityType manageType;
 
-    @Column(name = "landing_page")
+    @Transient
     private String landingPage;
 
-    @ManyToMany(mappedBy = "applications")
+    @OneToMany(mappedBy = "application",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
     @JsonIgnore
-    private Set<Role> roles = new HashSet<>();
+    private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
     public Application(String manageId, EntityType manageType) {
         this.manageId = manageId;

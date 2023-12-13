@@ -34,7 +34,7 @@ class UserPermissionsTest extends WithApplicationTest {
         user.setApplications(List.of(Map.of("id", "1")));
 
         Role role = new Role();
-        role.getApplications().add(new Application("1", EntityType.SAML20_SP));
+        role.getApplicationUsages().add(new ApplicationUsage(new Application("1", EntityType.SAML20_SP),"https://landing.com") );
         UserPermissions.assertValidInvitation(user, Authority.MANAGER, List.of(role));
     }
 
@@ -143,9 +143,9 @@ class UserPermissionsTest extends WithApplicationTest {
         user.setInstitutionAdmin(true);
         user.setApplications(List.of(Map.of("id", "1")));
 
-        Role role = new Role();
-        role.getApplications().add(new Application("1", EntityType.SAML20_SP));
 
+        Role role = new Role();
+        role.getApplicationUsages().add(new ApplicationUsage(new Application("1", EntityType.SAML20_SP),"https://landing.com") );
         UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
     }
     @Test

@@ -4,6 +4,7 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
 import access.model.Application;
+import access.model.ApplicationUsage;
 import access.model.RemoteProvisionedGroup;
 import access.model.Role;
 import io.restassured.common.mapper.TypeRef;
@@ -111,9 +112,10 @@ class RoleControllerTest extends AbstractTest {
         super.stubForDeleteScimRole();
 
         Role roleDB = roleRepository.search("Network", 1).get(0);
-        roleDB.setApplications(Set.of(
-                new Application("1",EntityType.SAML20_SP),
-                new Application("4",EntityType.SAML20_SP)));
+        roleDB.setApplicationUsages(Set.of(
+                new ApplicationUsage(new Application("1", EntityType.SAML20_SP), "https://landingpage.com"),
+                new ApplicationUsage(new Application("4", EntityType.SAML20_SP), "https://landingpage.com"))
+        );
 
         Role updated = given()
                 .when()

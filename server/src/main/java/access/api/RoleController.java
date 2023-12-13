@@ -6,13 +6,11 @@ import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
 import access.manage.Manage;
-import access.model.Application;
-import access.model.Authority;
-import access.model.Role;
-import access.model.User;
+import access.model.*;
 import access.provision.ProvisioningService;
 import access.provision.scim.GroupURN;
 import access.repository.ApplicationRepository;
+import access.repository.ApplicationUsageRepository;
 import access.repository.RoleRepository;
 import access.security.UserPermissions;
 import access.validation.URLFormatValidator;
@@ -47,17 +45,21 @@ public class RoleController {
     private final Config config;
     private final RoleRepository roleRepository;
     private final ApplicationRepository applicationRepository;
+    private final ApplicationUsageRepository applicationUsageRepository;
     private final Manage manage;
     private final ProvisioningService provisioningService;
     private final URLFormatValidator urlFormatValidator = new URLFormatValidator();
 
     public RoleController(Config config,
                           RoleRepository roleRepository,
-                          ApplicationRepository applicationRepository, Manage manage,
+                          ApplicationRepository applicationRepository,
+                          ApplicationUsageRepository applicationUsageRepository,
+                          Manage manage,
                           ProvisioningService provisioningService) {
         this.config = config;
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
+        this.applicationUsageRepository = applicationUsageRepository;
         this.manage = manage;
         this.provisioningService = provisioningService;
     }
@@ -73,7 +75,7 @@ public class RoleController {
         if (user.isInstitutionAdmin()) {
             Set<String> manageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
             //This is a shortcoming of the json_array
-            manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationsManageId(manageId)));
+            manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
         }
         Set<String> manageIdentifiers = user.getUserRoles().stream()
                 //If the user has an userRole as Inviter, then we must exclude those
@@ -82,7 +84,7 @@ public class RoleController {
                 .flatMap(Collection::stream)
                 .map(Application::getManageId)
                 .collect(Collectors.toSet());
-        manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationsManageId(manageId)));
+        manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
@@ -147,10 +149,23 @@ public class RoleController {
             previousManageIdentifiersReference.set(previousRole.applicationIdentifiers());
         }
         //This is the disadvantage of having to save references from Manage
-        role.setApplications(role.getApplications().stream()
-                .map(application -> applicationRepository.findByManageIdAndManageType(application.getManageId(), application.getManageType())
-                        .orElseGet(() -> applicationRepository.save(application)))
-                .collect(Collectors.toSet()));
+        Set<Application> applications = role.getApplications();
+        Set<ApplicationUsage> applicationUsages = applications.stream()
+                .map(applicationFromClient -> {
+                    Optional<Application> optionalApplication = applicationRepository
+                            .findByManageIdAndManageType(applicationFromClient.getManageId(), applicationFromClient.getManageType());
+                    Application applicationFromDB = optionalApplication
+                            .orElseGet(() -> applicationRepository.save(applicationFromClient));
+                    ApplicationUsage applicationUsage = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
+                            role.getId(),
+                            applicationFromDB.getManageId(),
+                            applicationFromDB.getManageType()
+                    ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationFromClient.getLandingPage()));
+                    applicationUsage.setLandingPage(applicationFromClient.getLandingPage());
+                    return applicationUsage;
+                })
+                .collect(Collectors.toSet());
+        role.setApplicationUsages(applicationUsages);
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);
@@ -158,7 +173,6 @@ public class RoleController {
             provisioningService.updateGroupRequest(previousManageIdentifiersReference.get(), saved);
         }
         AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
-
         return ResponseEntity.ok(saved);
     }
 

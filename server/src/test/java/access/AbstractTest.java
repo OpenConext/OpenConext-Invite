@@ -121,6 +121,9 @@ public abstract class AbstractTest {
     @Autowired
     protected APITokenRepository apiTokenRepository;
 
+    @Autowired
+    protected ApplicationUsageRepository applicationUsageRepository;
+
     protected LocalManage localManage;
 
     @RegisterExtension
@@ -497,10 +500,10 @@ public abstract class AbstractTest {
       };
     }
 
-    public Set<Application> application(String manageId, EntityType entityType) {
+    public Set<ApplicationUsage> application(String manageId, EntityType entityType) {
         Application application = applicationRepository.findByManageIdAndManageType(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
-        return Set.of(application);
+        return Set.of(new ApplicationUsage(application, "http://landingpage.com"));
     }
 
     public void doSeed() {
@@ -534,12 +537,19 @@ public abstract class AbstractTest {
         Role network =
                 new Role("Network", "Network desc", "https://landingpage.com",
                         application("2", EntityType.SAML20_SP), 365, false, false);
-        Set<Application> applications = Set.of(new Application("3", EntityType.SAML20_SP), new Application("6", EntityType.OIDC10_RP));
+
+        Set<Application> applications = Set.of(
+                        new Application("3", EntityType.SAML20_SP),
+                        new Application("6", EntityType.OIDC10_RP))
+                .stream()
+                .map(app -> applicationRepository.findByManageIdAndManageType(app.getManageId(), app.getManageType()).
+                        orElseGet(() -> applicationRepository.save(new Application(app.getManageId(), app.getManageType()))))
+                .collect(Collectors.toSet());
+        Set<ApplicationUsage> applicationUsages = applications.stream().map(application -> new ApplicationUsage(application, "https://landingpage.com")).collect(Collectors.toSet());
 
         Role storage =
                 new Role("Storage", "Storage desc", "https://landingpage.com",
-                        applications.stream().map(application -> applicationRepository.save(application)).collect(Collectors.toSet()),
-                        365, false, false);
+                        applicationUsages, 365, false, false);
         Role research =
                 new Role("Research", "Research desc", "https://landingpage.com",
                         application("4", EntityType.SAML20_SP), 365, false, false);

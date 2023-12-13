@@ -12,6 +12,7 @@ import org.hibernate.annotations.Formula;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity(name = "roles")
 @NoArgsConstructor
@@ -65,13 +66,11 @@ public class Role implements Serializable, Provisionable {
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "roles_applications",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "application_id"))
-    //TODO https://www.baeldung.com/hibernate-persisting-maps, store landingpage per applications
-    private Set<Application> applications = new HashSet<>();
+    @OneToMany(mappedBy = "role",
+            fetch = FetchType.EAGER,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL)
+    private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
     @OneToMany(mappedBy = "role",
             orphanRemoval = true,
@@ -86,14 +85,17 @@ public class Role implements Serializable, Provisionable {
     @Transient
     private List<Map<String, Object>> applicationMaps;
 
+    @Transient
+    private Set<Application> applications;
+
     public Role(String name,
                 String description,
                 String landingPage,
-                Set<Application> applications,
+                Set<ApplicationUsage> applicationUsages,
                 Integer defaultExpiryDays,
                 boolean enforceEmailEquality,
                 boolean eduIDOnly) {
-        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, applications,
+        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, applicationUsages,
                 defaultExpiryDays, enforceEmailEquality, eduIDOnly, Collections.emptyList());
     }
 
@@ -101,7 +103,7 @@ public class Role implements Serializable, Provisionable {
                 @NotNull String shortName,
                 String description,
                 String landingPage,
-                Set<Application> applications,
+                Set<ApplicationUsage> applicationUsages,
                 Integer defaultExpiryDays,
                 boolean enforceEmailEquality,
                 boolean eduIDOnly,
@@ -113,7 +115,8 @@ public class Role implements Serializable, Provisionable {
         this.defaultExpiryDays = defaultExpiryDays;
         this.enforceEmailEquality = enforceEmailEquality;
         this.eduIDOnly = eduIDOnly;
-        this.applications = applications;
+        this.applicationUsages = applicationUsages;
+        this.applicationUsages.forEach(applicationUsage -> applicationUsage.setRole(this));
         this.applicationMaps = applicationMaps;
         this.identifier = UUID.randomUUID().toString();
     }
@@ -121,7 +124,18 @@ public class Role implements Serializable, Provisionable {
     @Transient
     @JsonIgnore
     public List<String> applicationIdentifiers() {
-        return applications.stream().map(Application::getManageId).toList();
+        return applicationUsages.stream()
+                .map(applicationUsage -> applicationUsage.getApplication().getManageId()).toList();
     }
 
+    @Transient
+    public Set<Application> getApplications() {
+        return applicationUsages.stream()
+                .map(ApplicationUsage::getApplication).collect(Collectors.toSet());
+    }
+
+    public void setApplicationUsages(Set<ApplicationUsage> applicationUsages) {
+        this.applicationUsages = applicationUsages;
+        this.applicationUsages.forEach(applicationUsage -> applicationUsage.setRole(this));
+    }
 }

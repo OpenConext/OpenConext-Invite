@@ -15,7 +15,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
             nativeQuery = true)
     List<Role> search(String keyWord, int limit);
 
-    List<Role> findByApplicationsManageId(String manageId);
+    List<Role> findByApplicationUsagesApplicationManageId(String manageId);
 
     List<Role> findByName(String name);
 

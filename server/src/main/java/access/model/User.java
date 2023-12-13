@@ -175,9 +175,9 @@ public class User implements Serializable, Provisionable {
     public Set<ManageIdentifier> manageIdentifierSet() {
         return userRoles.stream()
                 .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST))
-                .map(userRole -> userRole.getRole().getApplications())
+                .map(userRole -> userRole.getRole().getApplicationUsages())
                 .flatMap(Collection::stream)
-                .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
+                .map(applicationUsage -> new ManageIdentifier(applicationUsage.getApplication().getManageId(),applicationUsage.getApplication().getManageType()))
                 .collect(Collectors.toSet());
     }
 
