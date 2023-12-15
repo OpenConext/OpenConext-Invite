@@ -22,6 +22,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -136,6 +137,9 @@ public class RoleController {
         if (StringUtils.hasText(role.getLandingPage()) && !urlFormatValidator.isValid(role.getLandingPage())) {
             throw new InvalidInputException();
         }
+        if (CollectionUtils.isEmpty(role.getClientApplications())) {
+            throw new InvalidInputException();
+        }
         manage.addManageMetaData(List.of(role));
 
         UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
@@ -149,8 +153,8 @@ public class RoleController {
             previousManageIdentifiersReference.set(previousRole.applicationIdentifiers());
         }
         //This is the disadvantage of having to save references from Manage
-        Set<Application> applications = role.getApplications();
-        Set<ApplicationUsage> applicationUsages = applications.stream()
+        Set<Application> applications = role.getClientApplications();
+        List<ApplicationUsage> applicationUsages = applications.stream()
                 .map(applicationFromClient -> {
                     Optional<Application> optionalApplication = applicationRepository
                             .findByManageIdAndManageType(applicationFromClient.getManageId(), applicationFromClient.getManageType());
@@ -164,8 +168,8 @@ public class RoleController {
                     applicationUsage.setLandingPage(applicationFromClient.getLandingPage());
                     return applicationUsage;
                 })
-                .collect(Collectors.toSet());
-        role.setApplicationUsages(applicationUsages);
+                .toList();
+        role.setApplicationUsages(new HashSet(applicationUsages));
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);

@@ -30,22 +30,13 @@ export const formatDate = date => {
     return `${day}/${month}/${date.getFullYear()}`;
 }
 
-export const isInvitationExpired = invitation => {
-    if (!invitation.expiry_date) {
-        return false;
-    }
-    const today = Date.now();
-    const inp = new Date(invitation.expiry_date * 1000);
-    return today > inp;
-}
-
 export const languageSwitched = () => {
     timeAgoInitialized = false;
 }
 
 const TIME_AGO_LOCALE = "time-ago-locale";
 const LAST_ACTIVITY_LOCALE = "last-activity-locale";
-const relativeTimeNotation = (expiryEpoch, translations) => {
+const relativeTimeNotation = (date, translations) => {
     if (!timeAgoInitialized) {
         const timeAgoLocale = (number, index) => {
             return [
@@ -87,29 +78,13 @@ const relativeTimeNotation = (expiryEpoch, translations) => {
         register(LAST_ACTIVITY_LOCALE, lastActivityLocale);
         timeAgoInitialized = true;
     }
-    const expiryDate = new Date(expiryEpoch * 1000);
-    const expired = expiryDate < new Date();
-    const relativeTime = format(expiryDate, translations);
+    const expired = date < new Date();
+    const relativeTime = format(date, translations);
     return {expired, relativeTime};
 }
 
-export const displayExpiryDate = expiryEpoch => {
-    if (!expiryEpoch) {
-        return I18n.t("expirations.never");
-    }
-    const {expired, relativeTime} = relativeTimeNotation(expiryEpoch, TIME_AGO_LOCALE);
-    return I18n.t(`expirations.${expired ? "expired" : "expires"}`, {relativeTime: relativeTime})
-}
-
-export const displayMembershipExpiryDate = expiryEpoch => {
-    if (!expiryEpoch) {
-        return I18n.t("expirations.never");
-    }
-    const {relativeTime} = relativeTimeNotation(expiryEpoch, TIME_AGO_LOCALE);
-    return relativeTime;
-}
-
-export const displayLastActivityDate = expiryEpoch => {
-    const {relativeTime} = relativeTimeNotation(expiryEpoch, LAST_ACTIVITY_LOCALE);
+export const displayExpiryDate = date => {
+    const oneDayAhead = futureDate(1 , date);
+    const {relativeTime} = relativeTimeNotation(oneDayAhead, TIME_AGO_LOCALE);
     return relativeTime;
 }

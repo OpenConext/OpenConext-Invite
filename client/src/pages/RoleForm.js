@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import {allProviders, createRole, deleteRole, me, roleByID, updateRole, validate} from "../api";
-import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
+import {Button, ButtonType, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as RoleIcon} from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
@@ -15,8 +15,8 @@ import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {providersToOptions, singleProviderToOption} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
-import RadioButtonGroup from "../components/RadioButtonGroup";
 import SwitchField from "../components/SwitchField";
+import {displayExpiryDate, futureDate} from "../utils/Date";
 
 export const RoleForm = () => {
 
@@ -24,19 +24,24 @@ export const RoleForm = () => {
     const {id} = useParams();
     const nameRef = useRef();
 
-    const required = ["name", "description", "applications"];
+    const required = ["name", "description"];
     const {user, setFlash, config} = useAppStore(state => state);
 
-    const [role, setRole] = useState({name: "", shortName: "", defaultExpiryDays: 0, identifier: crypto.randomUUID()});
+    const [role, setRole] = useState({
+        name: "",
+        shortName: "",
+        defaultExpiryDays: 365,
+        identifier: crypto.randomUUID()
+    });
     const [providers, setProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
     const [alreadyExists, setAlreadyExists] = useState({});
-    const [invalidValues, setInvalidValues] = useState({});
-    const [managementOptions, setManagementOptions] = useState([]);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
+    const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
+    const [applications, setApplications] = useState([]);
 
     useEffect(() => {
             if (!isUserAllowed(AUTHORITIES.MANAGER, user)) {
@@ -56,13 +61,14 @@ export const RoleForm = () => {
                     setRole(res[0])
                 }
                 if (user.superUser) {
-                    setProviders(res[newRole ? 0 : 1]);
+                    setProviders(providersToOptions(res[newRole ? 0 : 1]));
                 } else if (user.institutionAdmin) {
-                    setProviders(distinctValues(user.applications
+                    setProviders(providersToOptions(distinctValues(user.applications
                         .concat(user.userRoles.map(userRole => userRole.role.applicationMaps)
-                            .flat()), "id"));
+                            .flat()), "id")));
                 } else {
-                    setProviders(distinctValues(user.userRoles.map(userRole => userRole.role.applicationMaps).flat(), "id"));
+                    setProviders(providersToOptions(distinctValues(user.userRoles
+                        .map(userRole => userRole.role.applicationMaps).flat(), "id")));
                 }
                 setNewRole(newRole);
                 const name = newRole ? "" : res[0].name;
@@ -73,11 +79,11 @@ export const RoleForm = () => {
                 if (newRole) {
                     const providerOption = singleProviderToOption(user.superUser ? res[0][0] :
                         user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.applicationMaps[0]);
-                    setManagementOptions([providerOption]);
+                    setApplications([providerOption]);
                     setRole({...role, applications: [providerOption]})
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
-                    setManagementOptions(providersToOptions(res[0].applicationMaps));
+                    setApplications(providersToOptions(res[0].applicationMaps));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});
@@ -92,10 +98,14 @@ export const RoleForm = () => {
         },
         [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const validateValue = (type, attribute, value) => {
+    const validateApplication = (index, value) => {
         if (!isEmpty(value)) {
-            validate(type, value)
-                .then(json => setInvalidValues({...invalidValues, [attribute]: !json.valid}));
+            validate("url", value)
+                .then(json => {
+                    const application = applications[index];
+                    application.invalid = !json.valid;
+                    setApplications([...applications])
+                });
         }
         return true;
     }
@@ -105,7 +115,8 @@ export const RoleForm = () => {
         if (isValid()) {
             setLoading(true);
             const promise = isNewRole ? createRole : updateRole;
-            promise(role)
+            const newRoleData = {...role, applications: applications};
+            promise(newRoleData)
                 .then(res => {
                     const flashMessage = I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name});
                     updateUserIfNecessary(`/roles/${res.id}`, flashMessage);
@@ -169,26 +180,38 @@ export const RoleForm = () => {
     const isValid = () => {
         return required.every(attr => !isEmpty(role[attr]))
             && Object.values(alreadyExists).every(attr => !attr)
-            && Object.values(invalidValues).every(attr => !attr)
+            && applications.every(app => !app.invalid)
+            && !isEmpty(applications)
             && role.defaultExpiryDays > 0;
     }
 
-    const changeApplication = application => {
-
+    const changeApplication = (index, application) => {
+        applications.splice(index, 1, application);
+        setApplications([...applications]);
     }
 
-    const changeApplicationLandingPage = application => {
-
+    const changeApplicationLandingPage = (index, e) => {
+        const application = applications[index];
+        const newApplication = {...application, landingPage: e.target.value, invalid: false, changed: true};
+        applications.splice(index, 1, newApplication);
+        setApplications([...applications]);
     }
 
-    const deleteApplication = application => {
+    const addApplication = () => {
+        const filteredProviders = providers.filter(option => !applications.some(app => option.value === app.value));
+        applications.push(filteredProviders[0]);
+        setApplications([...applications]);
+    }
 
+    const deleteApplication = index => {
+        applications.splice(index, 1);
+        setApplications([...applications]);
     }
 
     const renderForm = () => {
         const valid = isValid();
         const disabledSubmit = !valid && !initial;
-        const options = providersToOptions(providers);
+        const filteredProviders = providers.filter(option => !applications.some(app => option.value === app.value));
         return (<>
                 <h2 className="section-separator">
                     {I18n.t("roles.roleDetails")}
@@ -215,12 +238,6 @@ export const RoleForm = () => {
                             disabled={true}
                             toolTip={I18n.t("tooltips.roleUrn")}
                 />
-                {alreadyExists.shortName &&
-                    <ErrorIndicator msg={I18n.t("forms.alreadyExistsParent", {
-                        attribute: I18n.t("roles.shortName").toLowerCase(),
-                        value: role.shortName,
-                        parent: managementOptions.label
-                    })}/>}
 
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}
@@ -238,56 +255,45 @@ export const RoleForm = () => {
                 <h2 className="section-separator">
                     {I18n.t("roles.applicationDetails")}
                 </h2>
-                <p className={"label"}>{I18n.t("roles.applicationName")}</p>
-                <p className={"label"}>{I18n.t("roles.landingPage")}</p>
-                {managementOptions.map(option =>
-                    <div className="application-container">
+                {applications.map((application, index) =>
+                    <div className="application-container" key={index}>
                         <SelectField name={I18n.t("roles.manage")}
-                                     value={managementOptions}
-                                     options={options.filter(option => !managementOptions.some(provider => option.value === provider.value))}
-                                     onChange={options => {
-                                         setManagementOptions(options);
-                                         setRole({...role, applications: options});
-                                     }}
+                                     value={application}
+                                     options={filteredProviders}
+                                     onChange={option => changeApplication(index, option)}
                                      searchable={true}
                                      clearable={false}
-                                     disabled={options.length === 1}
                         />
-                        <InputField displayLabel={false}
-                                    value={role.description || ""}
-                                    placeholder={I18n.t("roles.descriptionPlaceHolder")}
-                                    error={!initial && isEmpty(role.description)}
-                                    multiline={true}
-                                    onChange={e => setRole(
-                                        {...role, description: e.target.value})}
+                        <div className="input-field-container">
+                            <InputField name={I18n.t("roles.landingPage")}
+                                        value={application.changed ? (application.landingPage || "") : (application.url || "")}
+                                        isUrl={true}
+                                        placeholder={I18n.t("roles.landingPagePlaceHolder")}
+                                        onBlur={e => validateApplication(index, e.target.value)}
+                                        onChange={e => changeApplicationLandingPage(index, e)}
                         />
-                        <Button type={ButtonType.Delete}
-                                onClick={() => deleteApplication(option)}/>}
+                            {application.invalid &&
+                                <ErrorIndicator msg={I18n.t("forms.invalid", {
+                                    attribute: I18n.t("roles.landingPage").toLowerCase(),
+                                    value: application.landingPage
+                                })}/>}
+                        </div>
+                        {index !== 0 &&
+                            <Button type={ButtonType.Delete}
+                                    onClick={() => deleteApplication(index)}/>
+                        }
                     </div>
                 )}
-
-                {(!initial && isEmpty(role.applications)) &&
+                {(!initial && isEmpty(applications)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.manage").toLowerCase()
                     })}/>}
 
-
-                <InputField name={I18n.t("roles.landingPage")}
-                            value={role.landingPage || ""}
-                            isUrl={true}
-                            placeholder={I18n.t("roles.landingPagePlaceHolder")}
-                            onBlur={e => validateValue("url", "landingPage", e.target.value)}
-                            onChange={e => {
-                                setRole(
-                                    {...role, landingPage: e.target.value});
-                                setInvalidValues({...invalidValues, landingPage: false})
-                            }}
-                />
-                {invalidValues.landingPage &&
-                    <ErrorIndicator msg={I18n.t("forms.invalid", {
-                        attribute: I18n.t("roles.landingPage").toLowerCase(),
-                        value: role.landingPage
-                    })}/>}
+                <div className="application-actions">
+                    <Button txt={I18n.t("roles.addApplication")}
+                            disabled={providers.length === applications.length}
+                            onClick={addApplication}/>
+                </div>
 
                 <h2 className="section-separator">
                     {I18n.t("roles.invitationDetails")}
@@ -309,31 +315,41 @@ export const RoleForm = () => {
                              info={I18n.t("tooltips.eduIDOnlyTooltip")}
                 />
 
-                <InputField name={I18n.t("roles.defaultExpiryDays")}
-                            value={role.defaultExpiryDays || 0}
-                            isInteger={true}
-                            onChange={e => {
-                                const val = parseInt(e.target.value);
-                                const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
-                                setRole(
-                                    {...role, defaultExpiryDays: defaultExpiryDays})
-                            }}
-                            toolTip={I18n.t("tooltips.defaultExpiryDays")}
+                <SwitchField name={"roleExpiryDate"}
+                             value={customRoleExpiryDate}
+                             onChange={() => {
+                                 setCustomRoleExpiryDate(!customRoleExpiryDate);
+                                 setRole({...role, defaultExpiryDays: 366})
+                             }}
+                             label={I18n.t("invitations.roleExpiryDateQuestion")}
+                             info={I18n.t("invitations.roleExpiryDateInfo", {
+                                 expiry: displayExpiryDate(futureDate(role.defaultExpiryDays, new Date()))
+                             })}
                 />
+                {customRoleExpiryDate && <InputField name={I18n.t("roles.defaultExpiryDays")}
+                                                     value={role.defaultExpiryDays || 0}
+                                                     isInteger={true}
+                                                     onChange={e => {
+                                                         const val = parseInt(e.target.value);
+                                                         const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
+                                                         setRole(
+                                                             {...role, defaultExpiryDays: defaultExpiryDays})
+                                                     }}
+                                                     toolTip={I18n.t("tooltips.defaultExpiryDays")}
+                />}
+
                 {(!initial && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.defaultExpiryDays").toLowerCase()
                     })}/>}
 
-                <div className={"radio-button-group"}>
-                    <RadioButtonGroup name={"overrideSettingsAllowed"}
-                                      label={I18n.t("roles.override")}
-                                      value={role.overrideSettingsAllowed ? "yes" : "no"}
-                                      values={["yes", "no"]}
-                                      tooltip={I18n.t("tooltips.overrideSettingsAllowed")}
-                                      onChange={value => setRole({...role, overrideSettingsAllowed: value === "yes"})}
-                                      labelResolver={label => I18n.t(`forms.${label}`)}/>
-                </div>
+                <SwitchField name={"overrideSettingsAllowed"}
+                             value={role.overrideSettingsAllowed}
+                             onChange={value => setRole({...role, overrideSettingsAllowed: value})}
+                             label={I18n.t("roles.override")}
+                             info={I18n.t("tooltips.overrideSettingsAllowed")}
+                             last={true}
+                />
 
                 <section className="actions">
                     {!isNewRole &&

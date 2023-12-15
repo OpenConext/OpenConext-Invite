@@ -23,7 +23,9 @@ export const roleName = (app, locale) => {
 }
 
 export const providersToOptions = providers => {
-    return providers.map(provider => singleProviderToOption(provider));
+    return providers
+        .map(provider => singleProviderToOption(provider))
+        .sort((r1, r2) => r1.label.toLowerCase().localeCompare(r2.label.toLowerCase()));
 }
 
 export const deriveApplicationAttributes = (role, locale, multiple, separator) => {

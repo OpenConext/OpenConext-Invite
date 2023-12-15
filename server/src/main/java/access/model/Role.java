@@ -134,6 +134,11 @@ public class Role implements Serializable, Provisionable {
                 .map(ApplicationUsage::getApplication).collect(Collectors.toSet());
     }
 
+    @Transient
+    public Set<Application> getClientApplications() {
+        return applications;
+    }
+
     public void setApplicationUsages(Set<ApplicationUsage> applicationUsages) {
         this.applicationUsages = applicationUsages;
         this.applicationUsages.forEach(applicationUsage -> applicationUsage.setRole(this));

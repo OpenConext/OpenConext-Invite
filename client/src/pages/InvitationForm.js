@@ -13,7 +13,7 @@ import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id
 import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {newInvitation, rolesByApplication} from "../api";
-import {Button, ButtonType, Loader, RadioOptions, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Loader, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -22,7 +22,7 @@ import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
-import {futureDate} from "../utils/Date";
+import {displayExpiryDate, futureDate} from "../utils/Date";
 import {RoleCard} from "../components/RoleCard";
 import SwitchField from "../components/SwitchField";
 
@@ -38,7 +38,7 @@ export const InvitationForm = () => {
     const [originalRoleId, setOriginalRoleId] = useState(null);
     const [invitation, setInvitation] = useState({
         expiryDate: futureDate(30),
-        roleExpiryDate: futureDate(365),
+        roleExpiryDate: futureDate(366),
         invites: [],
         intendedAuthority: AUTHORITIES.GUEST
     });
@@ -272,8 +272,8 @@ export const InvitationForm = () => {
 
                         {selectedRoles.every(role => role.overrideSettingsAllowed) &&
                             <SwitchField name={"enforceEmailEquality"}
-                                         value={invitation.eduIDOnly || false}
-                                         onChange={val => setInvitation({...invitation, eduIDOnly: val})}
+                                         value={invitation.enforceEmailEquality || false}
+                                         onChange={val => setInvitation({...invitation, enforceEmailEquality: val})}
                                          label={I18n.t("invitations.enforceEmailEquality")}
                                          info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                             />}
@@ -295,14 +295,21 @@ export const InvitationForm = () => {
                             />
                         }
                         {selectedRoles.every(role => role.overrideSettingsAllowed) &&
-                        <RadioOptions name={"roleExpiryDate"}
-                                      value={customRoleExpiryDate}
-                                      onChange={e => setCustomRoleExpiryDate(!customRoleExpiryDate)}
-                                      label={I18n.t("invitations.roleExpiryDateQuestion")}
-                                      falseLabel={I18n.t("forms.no")}
-                                      reverse={false}
-                                      trueLabel={I18n.t("forms.specificDate")}
-                        />}
+                            <SwitchField name={"roleExpiryDate"}
+                                         value={customRoleExpiryDate}
+                                         onChange={() => {
+                                             setCustomRoleExpiryDate(!customRoleExpiryDate);
+                                             setInvitation({
+                                                 ...invitation,
+                                                 roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
+                                             })
+                                         }}
+                                         label={I18n.t("invitations.roleExpiryDateQuestion")}
+                                         info={I18n.t("invitations.roleExpiryDateInfo", {
+                                             expiry: displayExpiryDate(invitation.roleExpiryDate)
+                                         })}
+                            />
+                        }
                         {customRoleExpiryDate &&
                             <DateField value={invitation.roleExpiryDate}
                                        onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
@@ -314,14 +321,17 @@ export const InvitationForm = () => {
                                        name={I18n.t("invitations.roleExpiryDate")}
                                        toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>}
 
-                        <RadioOptions name={"expiryDate"}
-                                      value={customExpiryDate}
-                                      onChange={e => setCustomExpiryDate(!customExpiryDate)}
-                                      label={I18n.t("invitations.expiryDateQuestion")}
-                                      falseLabel={I18n.t("invitations.withinThreeMonths")}
-                                      reverse={false}
-                                      trueLabel={I18n.t("forms.specificDate")}
+                        <SwitchField name={"expiryDate"}
+                                     value={customExpiryDate}
+                                     onChange={() => {
+                                         setCustomExpiryDate(!customExpiryDate);
+                                         setInvitation({...invitation, expiryDate: futureDate(30)})
+                                     }}
+                                     label={I18n.t("invitations.expiryDateQuestion")}
+                                     info={I18n.t("invitations.expiryDateInfo")}
+                                     last={true}
                         />
+
                         {customExpiryDate &&
                             <DateField value={invitation.expiryDate}
                                        onChange={e => setInvitation({...invitation, expiryDate: e})}

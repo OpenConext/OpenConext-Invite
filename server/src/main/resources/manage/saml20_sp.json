@@ -10,7 +10,7 @@
         "name:nl": "Wiki NL",
         "OrganizationName:en": "SURF bv",
         "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
-        "coin:application_url": "https://default-url-from-manage.org"
+        "coin:application_url": "https://default-url-wiki.org"
       }
     }
   },
@@ -26,7 +26,7 @@
         "OrganizationName:en": "SURF bv",
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
         "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
-        "coin:application_url": "https://default-url-from-manage.org"
+        "coin:application_url": "https://default-url-network.org"
       }
     }
   },
@@ -41,7 +41,7 @@
         "name:nl": "Storage NL",
         "OrganizationName:en": "SURF bv",
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
-        "coin:application_url": "https://default-url-from-manage.org"
+        "coin:application_url": "https://default-url-storage.org"
       }
     }
   },
@@ -56,7 +56,7 @@
         "name:nl": "Research NL",
         "OrganizationName:en": "SURF bv",
         "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
-        "coin:application_url": "https://default-url-from-manage.org"
+        "coin:application_url": "https://default-url-research.org"
       }
     }
   }

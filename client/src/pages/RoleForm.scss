@@ -10,12 +10,61 @@
             margin-top: 30px;
         }
 
-        .radio-button-group, .switch-field {
+        .switch-field {
             grid-column-start: first;
         }
-
         .application-container {
             grid-column: 1/-1;
+            display: flex;
+            position: relative;
+
+            @media (max-width: $medium) {
+                flex-direction: column;
+            }
+
+            .select-field {
+                width: 47%;
+
+                @media (max-width: $medium) {
+                    width: 100%;
+                }
+
+            }
+
+            .input-field-container {
+                width: 47%;
+                margin-left: 40px;
+
+                .inner-input-field input {
+                    min-height: 48px;
+                    margin-top: -2px;
+                }
+
+                @media (max-width: $medium) {
+                    width: 100%;
+                    margin-left: 0;
+                }
+            }
+
+            button {
+                position: absolute;
+                right: 0;
+                top: 60px;
+
+                @media (max-width: $medium) {
+                    position: initial;
+                    margin-left: 0;
+                }
+            }
+        }
+
+        .application-actions {
+            grid-column-start: first;
+            margin-top: 30px;
+
+            button.sds--btn {
+                max-width: 240px;
+            }
         }
 
         span.label {
@@ -23,6 +72,7 @@
             font-weight: 600;
             margin-top: 32px;
         }
+
     }
 
 }
