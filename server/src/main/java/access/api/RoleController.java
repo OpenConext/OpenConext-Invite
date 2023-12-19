@@ -28,7 +28,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -145,20 +144,19 @@ public class RoleController {
         UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
 
         boolean isNew = role.getId() == null;
-        AtomicReference<List<String>> previousManageIdentifiersReference = new AtomicReference<>();
+        List<String> previousApplicationIdentifiers = new ArrayList<>();
         if (!isNew) {
             Role previousRole = roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new);
             //We don't allow shortName changes after creation
             role.setShortName(previousRole.getShortName());
-            previousManageIdentifiersReference.set(previousRole.applicationIdentifiers());
+            previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
         }
         //This is the disadvantage of having to save references from Manage
         Set<Application> applications = role.getClientApplications();
-        List<ApplicationUsage> applicationUsages = applications.stream()
+        Set<ApplicationUsage> applicationUsages = applications.stream()
                 .map(applicationFromClient -> {
-                    Optional<Application> optionalApplication = applicationRepository
-                            .findByManageIdAndManageType(applicationFromClient.getManageId(), applicationFromClient.getManageType());
-                    Application applicationFromDB = optionalApplication
+                    Application applicationFromDB = applicationRepository
+                            .findByManageIdAndManageType(applicationFromClient.getManageId(), applicationFromClient.getManageType())
                             .orElseGet(() -> applicationRepository.save(applicationFromClient));
                     ApplicationUsage applicationUsage = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
                             role.getId(),
@@ -168,13 +166,13 @@ public class RoleController {
                     applicationUsage.setLandingPage(applicationFromClient.getLandingPage());
                     return applicationUsage;
                 })
-                .toList();
-        role.setApplicationUsages(new HashSet(applicationUsages));
+                .collect(Collectors.toSet());
+        role.setApplicationUsages(applicationUsages);
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);
         } else {
-            provisioningService.updateGroupRequest(previousManageIdentifiersReference.get(), saved);
+            provisioningService.updateGroupRequest(previousApplicationIdentifiers, saved);
         }
         AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
         return ResponseEntity.ok(saved);

@@ -70,6 +70,7 @@ public class Role implements Serializable, Provisionable {
             fetch = FetchType.EAGER,
             orphanRemoval = true,
             cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
     @OneToMany(mappedBy = "role",

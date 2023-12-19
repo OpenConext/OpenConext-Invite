@@ -79,10 +79,12 @@ export const RoleForm = () => {
                 if (newRole) {
                     const providerOption = singleProviderToOption(user.superUser ? res[0][0] :
                         user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.applicationMaps[0]);
+                    providerOption.landingPage = providerOption.url;
                     setApplications([providerOption]);
                     setRole({...role, applications: [providerOption]})
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
+                    res[0].applicationMaps.forEach(m => m.landingPage = res[0].applications.find(app => app.manageId === m.id).landingPage);
                     setApplications(providersToOptions(res[0].applicationMaps));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
@@ -192,14 +194,15 @@ export const RoleForm = () => {
 
     const changeApplicationLandingPage = (index, e) => {
         const application = applications[index];
-        const newApplication = {...application, landingPage: e.target.value, invalid: false, changed: true};
+        const newApplication = {...application, landingPage: e.target.value, invalid: false};
         applications.splice(index, 1, newApplication);
         setApplications([...applications]);
     }
 
     const addApplication = () => {
-        const filteredProviders = providers.filter(option => !applications.some(app => option.value === app.value));
-        applications.push(filteredProviders[0]);
+        const filteredProvider = providers.find(option => !applications.some(app => option.value === app.value));
+        filteredProvider.landingPage = filteredProvider.url;
+        applications.push(filteredProvider);
         setApplications([...applications]);
     }
 
@@ -266,7 +269,7 @@ export const RoleForm = () => {
                         />
                         <div className="input-field-container">
                             <InputField name={I18n.t("roles.landingPage")}
-                                        value={application.changed ? (application.landingPage || "") : (application.url || "")}
+                                        value={application.landingPage}
                                         isUrl={true}
                                         placeholder={I18n.t("roles.landingPagePlaceHolder")}
                                         onBlur={e => validateApplication(index, e.target.value)}

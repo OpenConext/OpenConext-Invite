@@ -12,7 +12,8 @@ export const singleProviderToOption = provider => {
         type: manageType,
         manageType: manageType,
         manageId: manageId,
-        url: provider.url
+        url: provider.url,
+        landingPage: provider.landingPage
     };
 }
 
