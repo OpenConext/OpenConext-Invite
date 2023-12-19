@@ -5,7 +5,10 @@ import access.manage.EntityType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -41,7 +44,12 @@ public class Application implements Serializable {
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
     public Application(String manageId, EntityType manageType) {
+        this(manageId, manageType, "https://landingpage.com");
+    }
+
+    public Application(String manageId, EntityType manageType, String landingPage) {
         this.manageId = manageId;
         this.manageType = manageType;
+        this.landingPage = landingPage;
     }
 }

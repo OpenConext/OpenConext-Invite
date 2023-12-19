@@ -125,7 +125,7 @@ public class RoleController {
         LOG.debug("/deleteRole");
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
+        UserPermissions.assertManagerRole(role.getApplications().stream().map(Application::getManageId).toList(), user);
         provisioningService.deleteGroupRequest(role);
         roleRepository.delete(role);
         AccessLogger.role(LOG, Event.Deleted, user, role);
@@ -140,8 +140,9 @@ public class RoleController {
             throw new InvalidInputException();
         }
         manage.addManageMetaData(List.of(role));
-
-        UserPermissions.assertManagerRole(role.getApplicationMaps(), user);
+        Set<Application> applications = role.getClientApplications();
+        List<String> manageIdentifiers = applications.stream().map(Application::getManageId).toList();
+        UserPermissions.assertManagerRole(manageIdentifiers, user);
 
         boolean isNew = role.getId() == null;
         List<String> previousApplicationIdentifiers = new ArrayList<>();
@@ -152,7 +153,6 @@ public class RoleController {
             previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
         }
         //This is the disadvantage of having to save references from Manage
-        Set<Application> applications = role.getClientApplications();
         Set<ApplicationUsage> applicationUsages = applications.stream()
                 .map(applicationFromClient -> {
                     Application applicationFromDB = applicationRepository

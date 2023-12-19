@@ -112,21 +112,21 @@ class RoleControllerTest extends AbstractTest {
         super.stubForDeleteScimRole();
 
         Role roleDB = roleRepository.search("Network", 1).get(0);
-        roleDB.setApplicationUsages(Set.of(
-                new ApplicationUsage(new Application("1", EntityType.SAML20_SP), "https://landingpage.com"),
-                new ApplicationUsage(new Application("4", EntityType.SAML20_SP), "https://landingpage.com"))
+        roleDB.setApplications(Set.of(
+                new Application("1", EntityType.SAML20_SP, "https://landingpage.com"),
+                new Application("4", EntityType.SAML20_SP, "https://landingpage.com"))
         );
-
+        String body = super.objectMapper.writeValueAsString(roleDB);
         Role updated = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(roleDB)
+                .body(body)
                 .put("/api/v1/roles")
                 .as(Role.class);
-        assertEquals(2, updated.getApplications().size());
+        assertEquals(2, updated.getClientApplications().size());
     }
 
     @Test

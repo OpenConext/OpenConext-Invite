@@ -1,5 +1,5 @@
 package access.model;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -130,12 +130,14 @@ public class Role implements Serializable, Provisionable {
     }
 
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public Set<Application> getApplications() {
         return applicationUsages.stream()
                 .map(ApplicationUsage::getApplication).collect(Collectors.toSet());
     }
 
     @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Set<Application> getClientApplications() {
         return applications;
     }

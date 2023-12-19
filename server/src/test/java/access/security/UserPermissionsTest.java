@@ -112,20 +112,20 @@ class UserPermissionsTest extends WithApplicationTest {
     void assertManagerRole() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.MANAGER, identifier);
-        UserPermissions.assertManagerRole(List.of(Map.of("id", identifier)), user);
+        UserPermissions.assertManagerRole(List.of(identifier), user);
     }
 
     @Test
     void assertNotManagerRole() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.INVITER, identifier);
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(List.of(Map.of("id", identifier)), user));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(List.of(identifier), user));
     }
 
     @Test
     void assertManagerRoleNotProvisioning() {
         User user = userWithRole(Authority.MANAGER, "identifier");
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(List.of(Map.of("id", "nope")), user));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(List.of("nope"), user));
     }
 
     @Test
@@ -134,7 +134,7 @@ class UserPermissionsTest extends WithApplicationTest {
         user.setInstitutionAdmin(true);
         user.setApplications(List.of(Map.of("id", "1")));
 
-        UserPermissions.assertManagerRole(List.of(Map.of("id", "1")), user);
+        UserPermissions.assertManagerRole(List.of("1"), user);
     }
 
     @Test

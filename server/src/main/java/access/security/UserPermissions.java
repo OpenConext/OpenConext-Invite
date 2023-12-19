@@ -82,8 +82,7 @@ public class UserPermissions {
                         userRole.getRole().getId().equals(role.getId()));
     }
 
-    public static void assertManagerRole(List<Map<String, Object>> providers, User user) {
-        List<String> manageIdentifiers = providers.stream().map(provider -> (String) provider.get("id")).toList() ;
+    public static void assertManagerRole(List<String> manageIdentifiers, User user) {
         if (user.isSuperUser()) {
             return;
         }
