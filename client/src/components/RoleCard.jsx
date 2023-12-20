@@ -3,9 +3,8 @@ import "./RoleCard.scss";
 import Logo from "./Logo";
 import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
-import {Button, Card, CardType, Checkbox, Chip, ChipType} from "@surfnet/sds";
+import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
-import {isEmpty} from "../utils/Utils";
 import {roleName} from "../utils/Manage";
 
 export const RoleCard = ({
