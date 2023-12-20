@@ -346,7 +346,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     private List<String> getManageIdentifiers(Role role) {
-        return role.getApplications().stream().map(Application::getManageId).distinct().sorted().toList();
+        return role.applicationsUsed().stream().map(Application::getManageId).distinct().sorted().toList();
     }
 
     @SneakyThrows

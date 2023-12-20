@@ -80,7 +80,7 @@ public class RoleController {
         Set<String> manageIdentifiers = user.getUserRoles().stream()
                 //If the user has an userRole as Inviter, then we must exclude those
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
-                .map(userRole -> userRole.getRole().getApplications())
+                .map(userRole -> userRole.getRole().applicationsUsed())
                 .flatMap(Collection::stream)
                 .map(Application::getManageId)
                 .collect(Collectors.toSet());
@@ -125,7 +125,7 @@ public class RoleController {
         LOG.debug("/deleteRole");
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertManagerRole(role.getApplications().stream().map(Application::getManageId).toList(), user);
+        UserPermissions.assertManagerRole(role.applicationsUsed().stream().map(Application::getManageId).toList(), user);
         provisioningService.deleteGroupRequest(role);
         roleRepository.delete(role);
         AccessLogger.role(LOG, Event.Deleted, user, role);
@@ -136,12 +136,11 @@ public class RoleController {
         if (StringUtils.hasText(role.getLandingPage()) && !urlFormatValidator.isValid(role.getLandingPage())) {
             throw new InvalidInputException();
         }
-        if (CollectionUtils.isEmpty(role.getClientApplications())) {
+        if (CollectionUtils.isEmpty(role.getApplicationUsages())) {
             throw new InvalidInputException();
         }
         manage.addManageMetaData(List.of(role));
-        Set<Application> applications = role.getClientApplications();
-        List<String> manageIdentifiers = applications.stream().map(Application::getManageId).toList();
+        List<String> manageIdentifiers = role.applicationsUsed().stream().map(Application::getManageId).toList();
         UserPermissions.assertManagerRole(manageIdentifiers, user);
 
         boolean isNew = role.getId() == null;
@@ -153,18 +152,19 @@ public class RoleController {
             previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
         }
         //This is the disadvantage of having to save references from Manage
-        Set<ApplicationUsage> applicationUsages = applications.stream()
-                .map(applicationFromClient -> {
+        Set<ApplicationUsage> applicationUsages = role.getApplicationUsages().stream()
+                .map(applicationUsageFromClient -> {
+                    Application application = applicationUsageFromClient.getApplication();
                     Application applicationFromDB = applicationRepository
-                            .findByManageIdAndManageType(applicationFromClient.getManageId(), applicationFromClient.getManageType())
-                            .orElseGet(() -> applicationRepository.save(applicationFromClient));
-                    ApplicationUsage applicationUsage = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
+                            .findByManageIdAndManageType(application.getManageId(), application.getManageType())
+                            .orElseGet(() -> applicationRepository.save(application));
+                    ApplicationUsage applicationUsageFromDB = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
                             role.getId(),
                             applicationFromDB.getManageId(),
                             applicationFromDB.getManageType()
-                    ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationFromClient.getLandingPage()));
-                    applicationUsage.setLandingPage(applicationFromClient.getLandingPage());
-                    return applicationUsage;
+                    ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationUsageFromClient.getLandingPage()));
+                    applicationUsageFromDB.setLandingPage(applicationUsageFromClient.getLandingPage());
+                    return applicationUsageFromDB;
                 })
                 .collect(Collectors.toSet());
         role.setApplicationUsages(applicationUsages);

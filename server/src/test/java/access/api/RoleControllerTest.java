@@ -112,9 +112,9 @@ class RoleControllerTest extends AbstractTest {
         super.stubForDeleteScimRole();
 
         Role roleDB = roleRepository.search("Network", 1).get(0);
-        roleDB.setApplications(Set.of(
-                new Application("1", EntityType.SAML20_SP, "https://landingpage.com"),
-                new Application("4", EntityType.SAML20_SP, "https://landingpage.com"))
+        roleDB.setApplicationUsages(Set.of(
+                new ApplicationUsage( new Application("1", EntityType.SAML20_SP) ,"https://landingpage.com"),
+                new ApplicationUsage( new Application("4", EntityType.SAML20_SP) ,"https://landingpage.com"))
         );
         String body = super.objectMapper.writeValueAsString(roleDB);
         Role updated = given()
@@ -126,7 +126,7 @@ class RoleControllerTest extends AbstractTest {
                 .body(body)
                 .put("/api/v1/roles")
                 .as(Role.class);
-        assertEquals(2, updated.getClientApplications().size());
+        assertEquals(2, updated.getApplicationUsages().size());
     }
 
     @Test
@@ -211,7 +211,7 @@ class RoleControllerTest extends AbstractTest {
         Role role = roleRepository.search("wiki", 1).get(0);
         //Ensure delete provisioning is done
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
-        Application application = role.getApplications().iterator().next();
+        Application application = role.applicationsUsed().iterator().next();
         super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
         super.stubForManageProvisioning(List.of(application.getManageId()));
         super.stubForDeleteScimRole();
@@ -304,7 +304,7 @@ class RoleControllerTest extends AbstractTest {
         Role role = roleRepository.search("wiki", 1).get(0);
         //Ensure delete provisioning is done
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
-        Application application = role.getApplications().iterator().next();
+        Application application = role.applicationsUsed().iterator().next();
         super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
         super.stubForManageProvisioning(List.of(application.getManageId()));

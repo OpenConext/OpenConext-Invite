@@ -86,7 +86,7 @@ public interface Manage {
     default List<Role> addManageMetaData(List<Role> roles) {
         //First get all unique remote manage entities and group them by manageType
         Map<EntityType, List<ManageIdentifier>> groupedManageIdentifiers = roles.stream()
-                .map(Role::getApplications)
+                .map(Role::applicationsUsed)
                 .flatMap(Collection::stream)
                 .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
                 .collect(Collectors.toSet())
@@ -99,7 +99,7 @@ public interface Manage {
                 .collect(Collectors.toMap(map -> (String) map.get("id"), map -> map));
         //Add the metadata to the role
         roles.forEach(role -> role.setApplicationMaps(
-                role.getApplications().stream()
+                role.applicationsUsed().stream()
                         .map(application -> transformProvider(remoteApplications.get(application.getManageId()))).toList()));
         return roles;
     }
@@ -107,7 +107,7 @@ public interface Manage {
     default List<GroupedProviders> getGroupedProviders(List<Role> requestedRoles) {
         //We need to display the roles per manage application with the logo
         return requestedRoles.stream()
-                .map(Role::getApplications)
+                .map(Role::applicationsUsed)
                 .flatMap(Collection::stream)
                 .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
                 .collect(Collectors.toSet())
@@ -117,7 +117,7 @@ public interface Manage {
                     String id = (String) provider.get("id");
                     return new GroupedProviders(
                             provider,
-                            requestedRoles.stream().filter(role -> role.getApplications().stream()
+                            requestedRoles.stream().filter(role -> role.applicationsUsed().stream()
                                     .anyMatch(application -> application.getManageId().equals(id))).toList(), UUID.randomUUID().toString());
                 })
                 .toList();

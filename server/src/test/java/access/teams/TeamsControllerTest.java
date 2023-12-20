@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static access.AbstractTest.GUEST_SUB;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,7 +64,7 @@ class TeamsControllerTest extends AbstractTest {
         access.model.Role role = roleRepository.findByName(team.getName()).get(0);
         assertEquals(2L, role.getUserRoleCount());
         assertTrue(role.isTeamsOrigin());
-        assertEquals(2, role.getApplications().size());
+        assertEquals(2, role.applicationsUsed().size());
 
         List<User> users = memberships.stream()
                 .map(membership -> userRepository.findBySubIgnoreCase(membership.getPerson().getUrn()).orElseThrow(RuntimeException::new))

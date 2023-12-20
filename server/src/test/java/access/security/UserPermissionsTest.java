@@ -45,7 +45,7 @@ class UserPermissionsTest extends WithApplicationTest {
         user.setApplications(List.of(Map.of("id", "1")));
 
         Role role = new Role();
-        role.getApplications().add(new Application("1", EntityType.SAML20_SP));
+        role.applicationsUsed().add(new Application("1", EntityType.SAML20_SP));
 
         UserPermissions.assertValidInvitation(new User(new HashMap<>()), Authority.INSTITUTION_ADMIN, new ArrayList<>());
     }
@@ -55,7 +55,7 @@ class UserPermissionsTest extends WithApplicationTest {
         User user = new User();
         user.setApplications(List.of(Map.of("id", "1")));
         Role role = new Role();
-        role.getApplications().add(new Application("1", EntityType.SAML20_SP));
+        role.applicationsUsed().add(new Application("1", EntityType.SAML20_SP));
         user.setUserRoles(Set.of(new UserRole(Authority.MANAGER, role)));
 
          assertThrows(UserRestrictionException.class, () ->

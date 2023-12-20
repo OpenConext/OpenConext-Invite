@@ -1,5 +1,4 @@
 package access.model;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -70,7 +69,6 @@ public class Role implements Serializable, Provisionable {
             fetch = FetchType.EAGER,
             orphanRemoval = true,
             cascade = CascadeType.ALL)
-    @JsonIgnore
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
     @OneToMany(mappedBy = "role",
@@ -85,9 +83,6 @@ public class Role implements Serializable, Provisionable {
 
     @Transient
     private List<Map<String, Object>> applicationMaps;
-
-    @Transient
-    private Set<Application> applications;
 
     public Role(String name,
                 String description,
@@ -130,16 +125,10 @@ public class Role implements Serializable, Provisionable {
     }
 
     @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    public Set<Application> getApplications() {
+    @JsonIgnore
+    public Set<Application> applicationsUsed() {
         return applicationUsages.stream()
                 .map(ApplicationUsage::getApplication).collect(Collectors.toSet());
-    }
-
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public Set<Application> getClientApplications() {
-        return applications;
     }
 
     public void setApplicationUsages(Set<ApplicationUsage> applicationUsages) {

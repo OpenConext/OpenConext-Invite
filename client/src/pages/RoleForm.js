@@ -81,10 +81,10 @@ export const RoleForm = () => {
                         user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.applicationMaps[0]);
                     providerOption.landingPage = providerOption.url;
                     setApplications([providerOption]);
-                    setRole({...role, applications: [providerOption]})
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
-                    res[0].applicationMaps.forEach(m => m.landingPage = res[0].applications.find(app => app.manageId === m.id).landingPage);
+
+                    res[0].applicationMaps.forEach(m => m.landingPage = res[0].applicationUsages.find(appUsage => appUsage.application.manageId === m.id).landingPage);
                     setApplications(providersToOptions(res[0].applicationMaps));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
@@ -117,7 +117,10 @@ export const RoleForm = () => {
         if (isValid()) {
             setLoading(true);
             const promise = isNewRole ? createRole : updateRole;
-            const newRoleData = {...role, applications: applications};
+            const newRoleData = {...role, applicationUsages: applications.map(app => ({
+                    application: app,
+                    landingPage: app.landingPage
+                }))};
             promise(newRoleData)
                 .then(res => {
                     const flashMessage = I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name});

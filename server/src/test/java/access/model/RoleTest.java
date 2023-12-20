@@ -22,7 +22,7 @@ class RoleTest extends WithApplicationTest {
                 new Role("wiki", "wiki", "https://landingpage.com", application("2", EntityType.SAML20_SP), 365, false, false)
         );
         Set<ManageIdentifier> rolesByApplication = roles.stream()
-                .map(Role::getApplications)
+                .map(Role::applicationsUsed)
                 .flatMap(Collection::stream)
                 .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
                 .collect(Collectors.toSet());

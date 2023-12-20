@@ -77,8 +77,8 @@ public class UserRole implements Serializable {
     @Transient
     @JsonIgnore
     public boolean hasAccessToApplication(Role otherRole) {
-        Set<Application> mineApplications = this.role.getApplications();
-        Set<Application> otherApplications = otherRole.getApplications();
+        Set<Application> mineApplications = this.role.applicationsUsed();
+        Set<Application> otherApplications = otherRole.applicationsUsed();
         return mineApplications.stream()
                 .anyMatch(application -> otherApplications.stream()
                         .anyMatch(otherApplication -> otherApplication.getManageId().equals(application.getManageId())));

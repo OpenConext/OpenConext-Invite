@@ -5,6 +5,9 @@ import {BrowserRouter,Routes, Route} from "react-router-dom";
 //Always keep these two last
 import './index.scss';
 import '@surfnet/sds/styles/sds.css';
+//Do not change the order of @surfnet.sds style imports
+import '@surfnet/sds/cjs/index.css';
+
 
 const root = ReactDOM.createRoot(document.getElementById("app"));
 root.render(

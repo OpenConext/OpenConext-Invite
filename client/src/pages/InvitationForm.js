@@ -286,7 +286,7 @@ export const InvitationForm = () => {
                                          info={I18n.t("tooltips.eduIDOnlyTooltip")}
                             />}
 
-                        {invitation.intendedAuthority === AUTHORITIES.GUEST &&
+                        {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter) &&
                             <SwitchField name={"guestRoleIncluded"}
                                          value={invitation.guestRoleIncluded || false}
                                          onChange={val => setInvitation({...invitation, guestRoleIncluded: val})}

@@ -283,6 +283,7 @@
 
         span.email {
             color: var(--sds--color--gray--400);
+            word-break: keep-all;
         }
     }
 

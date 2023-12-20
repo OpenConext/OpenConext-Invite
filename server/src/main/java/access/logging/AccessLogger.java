@@ -24,7 +24,7 @@ public class AccessLogger {
     }
 
     private static String applications(Role role) {
-        return role.getApplications().stream()
+        return role.applicationsUsed().stream()
                 .map(application -> String.format("%s %s", application.getManageType(), application.getManageId()))
                 .collect(Collectors.joining(", "));
     }
