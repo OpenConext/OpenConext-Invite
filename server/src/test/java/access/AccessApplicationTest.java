@@ -14,8 +14,8 @@ class AccessApplicationTest {
 
     @Test
     void main() {
-        AccessServerApplication.main(new String[]{"--server.port=8088"});
-        RestAssured.port = 8088;
+        AccessServerApplication.main(new String[]{"--server.port=8098"});
+        RestAssured.port = 8098;
 
         given()
                 .when()
