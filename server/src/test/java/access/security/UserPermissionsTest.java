@@ -102,7 +102,7 @@ class UserPermissionsTest extends WithApplicationTest {
     @Test
     void assertInvalidInvitation() {
         User user = userWithRole(Authority.INVITER, "mail");
-        Role role = new Role("name", "description", "https://landingpage.com", application("manageIdentifier", EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description", application("manageIdentifier", EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         List<Role> roles = List.of(role);
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertValidInvitation(user, Authority.GUEST, roles));
@@ -159,7 +159,7 @@ class UserPermissionsTest extends WithApplicationTest {
     void assertRoleAccessManager() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.MANAGER, identifier);
-        Role role = new Role("name", "description", "https://landingpage.com", application(identifier, EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         UserPermissions.assertRoleAccess(user, role);
     }
@@ -168,7 +168,7 @@ class UserPermissionsTest extends WithApplicationTest {
     void assertNoRoleAccess() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.GUEST, identifier);
-        Role role = new Role("name", "description", "https://landingpage.com", application(identifier, EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role));
     }
@@ -178,7 +178,7 @@ class UserPermissionsTest extends WithApplicationTest {
     }
 
     private User userWithRole(User user, Authority authority, String manageIdentifier) {
-        Role role = new Role("name", "description", "https://landingpage.com", application(manageIdentifier, EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("name", "description",  application(manageIdentifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         user.addUserRole(new UserRole(authority, role));
         return user;

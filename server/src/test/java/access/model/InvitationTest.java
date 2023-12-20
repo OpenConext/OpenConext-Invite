@@ -15,7 +15,7 @@ class InvitationTest extends WithApplicationTest {
 
     @Test
     void constructorWithoutDefaults() {
-        Role role = new Role("mail", "description", "https://landingpage.com", application( "1", EntityType.SAML20_SP), 30, false, false);
+        Role role = new Role("mail", "description",  application( "1", EntityType.SAML20_SP), 30, false, false);
 
         Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, false, "Please join..", new User(),
                 null, Instant.now().plus(30, ChronoUnit.DAYS),
@@ -27,7 +27,7 @@ class InvitationTest extends WithApplicationTest {
 
     @Test
     void constructorWithDefaults() {
-        Role role = new Role("mail", "description", "https://landingpage.com",application( "1", EntityType.SAML20_SP), null, false, false);
+        Role role = new Role("mail", "description", application( "1", EntityType.SAML20_SP), null, false, false);
 
         Invitation invitation = new Invitation(Authority.MANAGER, "hash", "john@example.com", false, false, false, "Please join..", new User(),
                 null, null, Set.of(new InvitationRole(role)));
@@ -37,7 +37,7 @@ class InvitationTest extends WithApplicationTest {
 
     @Test
     void roleExpiryDate() {
-        Role role = new Role("mail", "description", "https://landingpage.com", application("1", EntityType.SAML20_SP), 30, false, false);
+        Role role = new Role("mail", "description", application("1", EntityType.SAML20_SP), 30, false, false);
 
         Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, false, "Please join..", new User(),
                 null, null,

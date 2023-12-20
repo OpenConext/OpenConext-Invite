@@ -23,8 +23,8 @@ import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
 import {displayExpiryDate, futureDate} from "../utils/Date";
-import {RoleCard} from "../components/RoleCard";
 import SwitchField from "../components/SwitchField";
+import {InvitationRoleCard} from "../components/InvitationRoleCard";
 
 export const InvitationForm = () => {
     const location = useLocation();
@@ -181,6 +181,19 @@ export const InvitationForm = () => {
 
     }
 
+    const renderUserRole = (role, index, invitationSelected, invitationSelectCallback) => {
+        const applicationMaps = role.isUserRole ? role.role.applicationMaps : role.applicationMaps;
+        return (
+            <InvitationRoleCard role={role}
+                                index={index}
+                                applicationMaps={applicationMaps}
+                                key={index}
+                                invitationSelected={invitationSelected}
+                                invitationSelectCallback={invitationSelectCallback}
+            />
+        )
+    }
+
     const renderForm = isInviter => {
         const disabledSubmit = !initial && !isValid();
         const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
@@ -192,17 +205,13 @@ export const InvitationForm = () => {
                         {I18n.t("invitations.inviterRoles")}
                         <Tooltip tip={I18n.t("tooltips.rolesTooltip")}/>
                     </span>
-                    {roles.map((role, index) =>
-                        <RoleCard role={role}
-                                  index={index}
-                                  key={index}
-                                  invitationSelected={selectedRoles.some(r => r.value === role.value)}
-                                  invitationSelectCallback={(e, value) => {
-                                      const checked = e.target.checked;
-                                      const roleSelected = roles.find(r => r.value === value);
-                                      const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
-                                      rolesChanged(newSelectedRoles);
-                                  }}/>)
+                    {roles.map((role, index) => renderUserRole(role, index, selectedRoles.some(r => r.value === role.value),
+                        (e, value) => {
+                            const checked = e.target.checked;
+                            const roleSelected = roles.find(r => r.value === value);
+                            const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
+                            rolesChanged(newSelectedRoles);
+                        }))
                     }
                     {(!initial && isEmpty(selectedRoles)) &&
                         <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>

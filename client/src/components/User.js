@@ -74,7 +74,15 @@ export const User = ({user, other, config}) => {
 
     const renderUserRole = (userRole, index) => {
         const role = userRole.role;
-        return <RoleCard role={role} index={index} key={index}/>
+        return (
+            <React.Fragment key={index}>
+                {role.applicationMaps.map((applicationMap, i) =>
+                    <RoleCard role={role}
+                              key={i}
+                              applicationMap={applicationMap}
+                              index={i}/>)}
+            </React.Fragment>
+        )
     }
 
     const filterApplication = application => {

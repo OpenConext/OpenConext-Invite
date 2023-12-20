@@ -61,7 +61,12 @@
                 margin: 0 auto 20px 0;
             }
         }
+.launches {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
 
+}
         .launch {
             margin-left: auto;
 

@@ -99,8 +99,13 @@ public interface Manage {
                 .collect(Collectors.toMap(map -> (String) map.get("id"), map -> map));
         //Add the metadata to the role
         roles.forEach(role -> role.setApplicationMaps(
-                role.applicationsUsed().stream()
-                        .map(application -> transformProvider(remoteApplications.get(application.getManageId()))).toList()));
+                role.getApplicationUsages().stream()
+                        .map(applicationUsage -> {
+                            Map<String, Object> applicationMap = transformProvider(remoteApplications.get(applicationUsage.getApplication().getManageId()));
+                            applicationMap.put("landingPage", applicationUsage.getLandingPage());
+                            return applicationMap;
+                        })
+                        .toList()));
         return roles;
     }
 

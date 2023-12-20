@@ -9,7 +9,13 @@ export const User = ({user, invitationRoles = []}) => {
     const renderUserRole = (userRole, index) => {
         const role = userRole.role;
         return (
-            <RoleCard role={role} key={index} index={index}/>
+            <React.Fragment key={index}>
+                {role.applicationMaps.map((applicationMap, i) =>
+                    <RoleCard role={role}
+                              key={i}
+                              index={i}
+                              applicationMap={applicationMap}/>)}
+            </React.Fragment>
         );
     }
     const rolesToExclude = invitationRoles.map(invitationRole => invitationRole.role.id);

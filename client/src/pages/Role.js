@@ -161,7 +161,7 @@ export const Role = () => {
                 </div>
                 <div className={"meta-data-row"}>
                     <WebsiteIcon/>
-                    <a href={role.landingPage}
+                    <a href={role.applicationUsages[0].landingPage}
                        rel="noreferrer"
                        target="_blank">
                         <span className={"application-name"}>{`${role.applicationNames}`}</span>

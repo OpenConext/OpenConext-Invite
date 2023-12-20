@@ -16,7 +16,6 @@ export const Profile = () => {
     const doLogin = e => {
         stopEvent(e);
         logout().then(() => login(config, true));
-
     }
 
     const toasterChildren = <div>

@@ -62,7 +62,15 @@ export const Proceed = () => {
     const renderInvitationRole = (invitationRole, index, isNew, skipLaunch = false) => {
         const role = invitationRole.role;
         return (
-            <RoleCard role={role} key={index} index={index} isNew={isNew} skipLaunch={skipLaunch}/>
+            <React.Fragment key={index}>
+                {role.applicationMaps.map((applicationMap, i) =>
+                    <RoleCard role={role}
+                              key={i}
+                              applicationMap={applicationMap}
+                              index={i}
+                              isNew={isNew}
+                              skipLaunch={skipLaunch}/>)}
+            </React.Fragment>
         );
     }
 

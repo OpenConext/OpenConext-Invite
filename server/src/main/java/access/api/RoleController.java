@@ -133,12 +133,15 @@ public class RoleController {
     }
 
     private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
-        if (StringUtils.hasText(role.getLandingPage()) && !urlFormatValidator.isValid(role.getLandingPage())) {
-            throw new InvalidInputException();
-        }
         if (CollectionUtils.isEmpty(role.getApplicationUsages())) {
             throw new InvalidInputException();
         }
+        role.getApplicationUsages().forEach(applicationUsage -> {
+            if (StringUtils.hasText(applicationUsage.getLandingPage()) && !urlFormatValidator.isValid(applicationUsage.getLandingPage())) {
+                throw new InvalidInputException();
+            }
+        });
+
         manage.addManageMetaData(List.of(role));
         List<String> manageIdentifiers = role.applicationsUsed().stream().map(Application::getManageId).toList();
         UserPermissions.assertManagerRole(manageIdentifiers, user);

@@ -34,9 +34,6 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "landing_page")
-    private String landingPage;
-
     @Column(name = "urn")
     private String urn;
 
@@ -86,19 +83,17 @@ public class Role implements Serializable, Provisionable {
 
     public Role(String name,
                 String description,
-                String landingPage,
                 Set<ApplicationUsage> applicationUsages,
                 Integer defaultExpiryDays,
                 boolean enforceEmailEquality,
                 boolean eduIDOnly) {
-        this(name, GroupURN.sanitizeRoleShortName(name), description, landingPage, applicationUsages,
+        this(name, GroupURN.sanitizeRoleShortName(name), description, applicationUsages,
                 defaultExpiryDays, enforceEmailEquality, eduIDOnly, Collections.emptyList());
     }
 
     public Role(@NotNull String name,
                 @NotNull String shortName,
                 String description,
-                String landingPage,
                 Set<ApplicationUsage> applicationUsages,
                 Integer defaultExpiryDays,
                 boolean enforceEmailEquality,
@@ -107,7 +102,6 @@ public class Role implements Serializable, Provisionable {
         this.name = name;
         this.shortName = shortName;
         this.description = description;
-        this.landingPage = landingPage;
         this.defaultExpiryDays = defaultExpiryDays;
         this.enforceEmailEquality = enforceEmailEquality;
         this.eduIDOnly = eduIDOnly;

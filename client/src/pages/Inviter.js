@@ -5,9 +5,9 @@ import {Button, Tooltip} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
 import DOMPurify from "dompurify";
-import {RoleCard} from "../components/RoleCard";
 import {stopEvent} from "../utils/Utils";
 import {useNavigate} from "react-router-dom";
+import {InvitationRoleCard} from "../components/InvitationRoleCard";
 
 export const Inviter = () => {
 
@@ -26,6 +26,19 @@ export const Inviter = () => {
     const gotoHistory = e => {
         stopEvent(e);
         navigate("/invitations")
+    }
+
+    const renderUserRole = (role, index) => {
+        const applicationMaps = role.applicationMaps;
+        return (
+            <InvitationRoleCard role={role}
+                                index={index}
+                                applicationMaps={applicationMaps}
+                                key={index}
+                                isNew={false}
+
+            />
+        )
     }
 
     return (
@@ -49,10 +62,7 @@ export const Inviter = () => {
                     </div>
                 </div>
                 <h3 className={"sub-info"}>{I18n.t("inviter.manage")}</h3>
-                {user.userRoles.map((userRole, index) => <RoleCard key={index}
-                                                                   role={userRole.role}
-                                                                   isNew={false}
-                                                                   index={index}/>)}
+                {user.userRoles.map((userRole, index) => renderUserRole(userRole.role, index))}
             </div>
         </div>);
 };
