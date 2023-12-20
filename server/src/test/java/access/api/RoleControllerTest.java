@@ -149,8 +149,8 @@ class RoleControllerTest extends AbstractTest {
 
     @Test
     void rolesByApplicationInstitutionAdmin() throws Exception {
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
-        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
 
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
@@ -171,8 +171,8 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void rolesByApplicationSuperUser() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
-        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
 
         List<Role> roles = given()
                 .when()
@@ -232,8 +232,8 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void search() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
-        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
 
         List<Role> roles = given()
                 .when()
@@ -284,8 +284,8 @@ class RoleControllerTest extends AbstractTest {
 
     @Test
     void rolesByApplicationInstitutionAdminByAPI() throws Exception {
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
-        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
         List<Role> roles = given()

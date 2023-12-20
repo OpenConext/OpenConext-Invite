@@ -18,7 +18,7 @@ export const InvitationRoleCard = ({
                                        isNew = false
                                    }) => {
     const navigate = useNavigate();
-    
+
     const multiApp = applicationMaps.length > 1;
     const application = applicationMaps[0];
     const logo = multiApp ?<MultipleIcon/> : application.logo;
