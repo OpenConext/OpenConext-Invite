@@ -200,10 +200,12 @@ class InvitationControllerTest extends AbstractTest {
                 .then()
                 .statusCode(201);
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
-        Authority upgradedAuthority = user.getUserRoles().stream()
+        UserRole researchRole = user.getUserRoles().stream()
                 .filter(userRole -> userRole.getRole().getName().equals("Research"))
-                .findFirst().get().getAuthority();
+                .findFirst().get();
+        Authority upgradedAuthority = researchRole.getAuthority();
         assertEquals(Authority.MANAGER, upgradedAuthority);
+        assertTrue(researchRole.isGuestRoleIncluded());
     }
 
     @Test

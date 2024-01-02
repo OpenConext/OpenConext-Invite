@@ -214,9 +214,10 @@ public class InvitationController {
         Map<String, Object> attributes = token.getPrincipal().getAttributes();
         String sub = (String) attributes.get("sub");
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+        Authority intendedAuthority = invitation.getIntendedAuthority();
         User user = optionalUser.orElseGet(() -> {
             boolean superUser = this.superAdmin.getUsers().stream().anyMatch(superSub -> superSub.equals(sub))
-                    || invitation.getIntendedAuthority().equals(Authority.SUPER_USER);
+                    || intendedAuthority.equals(Authority.SUPER_USER);
             return new User(superUser, attributes);
         });
 
@@ -241,10 +242,14 @@ public class InvitationController {
                             .filter(userRole -> userRole.getRole().getId().equals(role.getId())).findFirst();
                     if (optionalUserRole.isPresent()) {
                         UserRole userRole = optionalUserRole.get();
-                        if (invitation.getIntendedAuthority().hasHigherRights(userRole.getAuthority())) {
-                            userRole.setAuthority(invitation.getIntendedAuthority());
-                            userRole.setEndDate(invitation.getRoleExpiryDate());
-                            if (invitation.getIntendedAuthority().equals(Authority.GUEST)) {
+                        Authority currentAuthority = userRole.getAuthority();
+                        //Only act upon different authorities
+                        if (!currentAuthority.equals(intendedAuthority)) {
+                            if (intendedAuthority.hasHigherRights(currentAuthority)) {
+                                userRole.setAuthority(intendedAuthority);
+                                userRole.setEndDate(invitation.getRoleExpiryDate());
+                            }
+                            if (currentAuthority.equals(Authority.GUEST) || intendedAuthority.equals(Authority.GUEST)) {
                                 userRole.setGuestRoleIncluded(true);
                             }
                         }
@@ -253,14 +258,14 @@ public class InvitationController {
                                 inviter.getName(),
                                 user,
                                 role,
-                                invitation.getIntendedAuthority(),
+                                intendedAuthority,
                                 invitation.isGuestRoleIncluded(),
                                 invitation.getRoleExpiryDate());
                         user.addUserRole(userRole);
                         newUserRoles.add(userRole);
                     }
                 });
-        if (invitation.getIntendedAuthority().equals(Authority.INSTITUTION_ADMIN)) {
+        if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
             user.setInstitutionAdmin(true);
             user.setOrganizationGUID(inviter.getOrganizationGUID());
             //Rare case - a new institution admin has logged in, but was not yet enriched by the CustomOidcUserService
