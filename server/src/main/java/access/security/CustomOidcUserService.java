@@ -45,11 +45,11 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
         String sub = (String) newClaims.get("sub");
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
-        boolean institutionAdmin = InstitutionAdmin.isInstitutionAdmin(claims, entitlement) ||
+        boolean institutionAdmin = isInstitutionAdmin(claims, entitlement) ||
                 (optionalUser.isPresent() && isInstitutionAdmin(optionalUser.get()));
         newClaims.put(INSTITUTION_ADMIN, institutionAdmin);
 
-        String organizationGuid = InstitutionAdmin.getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)
+        String organizationGuid = getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)
                 .orElse(null);
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
