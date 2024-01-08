@@ -38,7 +38,7 @@
         </div>
         {{/message}}
 
-        {{#invitation.eduIDOnly}}
+        {{#useEduID}}
         <p>Voor de toegang tot deze applicatie(s) wordt gebruik gemaakt van eduID. Heb je nog geen eduID account? Geen probleem,
         een eduID accounnt aanmaken kost minder dan 30 seconden.</p>
         <div style="display: flex;">
@@ -48,8 +48,8 @@
                 <span style="color: white;margin: auto 0 auto 25px;">Toegang met eduID</span>
             </a>
         </div>
-        {{/invitation.eduIDOnly}}
-        {{^invitation.eduIDOnly}}
+        {{/useEduID}}
+        {{^useEduID}}
         <p>Voor de toegang tot deze applicaties wordt gebruik gemaakt van SURFconext.</p>
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
@@ -57,9 +57,9 @@
                 <span style="color: white;margin: auto;">Doorgaan</span>
             </a>
         </div>
-        {{/invitation.eduIDOnly}}
+        {{/useEduID}}
     </div>
-    {{#invitation.eduIDOnly}}
+    {{#useEduID}}
     <div class="eduid-info" style="background-color: #f3f2f2;padding: 20px 40px 20px 40px; color: #9b9b9b">
         <p style="font-size: 18px;margin:20px 0 15px 0;">Waarom heb ik een eduID account nodig?</p>
         <p>
@@ -74,7 +74,7 @@
         </p>
         <p style="margin: 5px 0 10px 0;">Het aanvragen van een eduID is kosteloos en kan direct. Je hebt alleen een e-mailadres nodig.</p>
     </div>
-    {{/invitation.eduIDOnly}}
+    {{/useEduID}}
 
     {{> footer_en.html}}
 

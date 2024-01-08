@@ -39,7 +39,7 @@
         </div>
         {{/message}}
 
-        {{#invitation.eduIDOnly}}
+        {{#useEduID}}
         <p>For access to these applications eduID is used. Do you not have an eduID account yet?
             No worries, you can create one in less than 30 seconds.</p>
         <div style="display: flex;">
@@ -49,8 +49,8 @@
                 <span style="color: white;margin: auto 0 auto 25px;">Access with eduID</span>
             </a>
         </div>
-        {{/invitation.eduIDOnly}}
-        {{^invitation.eduIDOnly}}
+        {{/useEduID}}
+        {{^useEduID}}
         <p>For access to these applications we use SURFconext.</p>
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
@@ -58,9 +58,9 @@
                 <span style="color: white;margin: auto;">Continue</span>
             </a>
         </div>
-        {{/invitation.eduIDOnly}}
+        {{/useEduID}}
     </div>
-    {{#invitation.eduIDOnly}}
+    {{#useEduID}}
     <div class="eduid-info" style="background-color: #f3f2f2;padding: 20px 40px 20px 40px; color: #9b9b9b">
         <p style="font-size: 18px;margin:20px 0 15px 0;">Why do I need an eduID account?</p>
         <p>An eduID is an account for users within the Dutch educational and research community. It is yours and exists
@@ -75,7 +75,7 @@
         <p style="margin: 5px 0 10px 0;">Requesting an eduID is free, and you can do it now. All you need is an
             emailaddress.</p>
     </div>
-    {{/invitation.eduIDOnly}}
+    {{/useEduID}}
 
     {{> footer_en.html}}
 

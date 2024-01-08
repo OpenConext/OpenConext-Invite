@@ -89,6 +89,7 @@ public class MailBox {
         String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : clientUrl;
 
         variables.put("url", String.format("%s/invitation/accept?hash=%s", url, invitation.getHash()));
+        variables.put("useEduID", invitation.isEduIDOnly() && invitation.getIntendedAuthority().equals(Authority.GUEST));
 
         sendMail(String.format("invitation_%s", lang),
                 title,
