@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -426,4 +428,20 @@ class InvitationControllerTest extends AbstractTest {
                 });
         assertEquals(2, invitations.size());
     }
+
+    @Test
+    void eduIDRequiredLoginOnlyForGuests() throws Exception {
+        Invitation invitation = invitationRepository.findByHash(Authority.INVITER.name()).get();
+        invitation.setEduIDOnly(true);
+        invitationRepository.save(invitation);
+        openIDConnectFlow(
+                "/api/v1/users/login?force=true&hash=" + Authority.INVITER.name(),
+                "urn:collab:person:example.com:admin",
+                authorizationUrl -> {
+                    MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(authorizationUrl).build().getQueryParams();
+                    assertFalse(queryParams.containsKey("login_hint"));
+                },
+                m -> m);
+    }
+
 }

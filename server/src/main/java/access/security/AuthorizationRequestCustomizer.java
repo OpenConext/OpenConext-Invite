@@ -1,5 +1,6 @@
 package access.security;
 
+import access.model.Authority;
 import access.model.Invitation;
 import access.repository.InvitationRepository;
 import jakarta.servlet.http.HttpSession;
@@ -40,7 +41,7 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
             if (hash != null && hash.length == 1) {
                 Optional<Invitation> optionalInvitation = invitationRepository.findByHash(hash[0]);
                 optionalInvitation.ifPresent(invitation -> {
-                    if (invitation.isEduIDOnly()) {
+                    if (invitation.isEduIDOnly() && invitation.getIntendedAuthority().equals(Authority.GUEST)) {
                         params.put("login_hint", eduidEntityId);
                     }
                 });
