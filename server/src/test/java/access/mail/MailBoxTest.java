@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MailBoxTest extends AbstractMailTest {
@@ -21,12 +22,31 @@ class MailBoxTest extends AbstractMailTest {
 
     @Test
     void sendInviteMail() {
+        String htmlContent = doSendInviteMail(true, Authority.INVITER);
+
+        assertTrue(htmlContent.contains("Wiki EN"));
+        assertTrue(htmlContent.contains("SURF bv"));
+        assertTrue(htmlContent.contains("For access to these applications we use SURFconext"));
+        assertFalse(htmlContent.contains("For access to these applications eduID is used"));
+    }
+
+    @Test
+    void sendInviteMailForEduIDOnly() {
+        String htmlContent = doSendInviteMail(true, Authority.GUEST);
+
+        assertTrue(htmlContent.contains("Wiki EN"));
+        assertTrue(htmlContent.contains("SURF bv"));
+        assertFalse(htmlContent.contains("For access to these applications we use SURFconext"));
+        assertTrue(htmlContent.contains("For access to these applications eduID is used"));
+    }
+
+    private String doSendInviteMail(boolean eduIDOnly, Authority intendedAuthority) {
         User user = new User(false, "eppn", "sub", "example.com", "John", "Doe", "jdoe@example.com");
-        Invitation invitation = new Invitation(Authority.GUEST,
+        Invitation invitation = new Invitation(intendedAuthority,
                 "hash",
                 "nope@ex.com",
                 false,
-                false,
+                eduIDOnly,
                 false,
                 "Please join..",
                 user,
@@ -45,10 +65,7 @@ class MailBoxTest extends AbstractMailTest {
                         UUID.randomUUID().toString())
         ));
         MimeMessageParser mimeMessageParser = super.mailMessage();
-        String htmlContent = mimeMessageParser.getHtmlContent();
-
-        assertTrue(htmlContent.contains("Wiki EN"));
-        assertTrue(htmlContent.contains("SURF bv"));
+        return mimeMessageParser.getHtmlContent();
     }
 
 
