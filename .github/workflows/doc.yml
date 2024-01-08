@@ -29,7 +29,7 @@ jobs:
           files: .
 
       - name: lint yaml files
-        uses: ibiqlik/action-yamllint@v3
+        uses: ibiqlik/action-yamllint@v2
 
       # Check for changes in the server component of the Archimate model
       - uses: dorny/paths-filter@v2
