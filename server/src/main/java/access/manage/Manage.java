@@ -33,12 +33,12 @@ public interface Manage {
     default Map<String, Object> transformProvider(Map<String, Object> provider) {
         //Defensive mostly because of tests
         if (CollectionUtils.isEmpty(provider)) {
-            return Collections.emptyMap();
+            return provider;
         }
         Map data = (Map) provider.get("data");
         //When mocking - using the results of LocalManage - the provider may already be transformed
         if (CollectionUtils.isEmpty(data)) {
-            return Collections.emptyMap();
+            return provider;
         }
         Map metaDataFields = (Map) data.get("metaDataFields");
         //Can't use Map.of as values can be null
@@ -102,6 +102,10 @@ public interface Manage {
                 role.getApplicationUsages().stream()
                         .map(applicationUsage -> {
                             Map<String, Object> applicationMap = transformProvider(remoteApplications.get(applicationUsage.getApplication().getManageId()));
+                            if (applicationMap == null) {
+                                //If remote manage is not behaving
+                                applicationMap = new HashMap<>();
+                            }
                             applicationMap.put("landingPage", applicationUsage.getLandingPage());
                             return applicationMap;
                         })
