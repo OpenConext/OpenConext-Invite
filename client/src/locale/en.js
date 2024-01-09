@@ -157,7 +157,8 @@ const en = {
         deleteConfirmation: "Are you sure you want to delete this role?",
         createFlash: "Role {{name}} has been created",
         updateFlash: "Role {{name}} has been updated",
-        unknownInManage: "Unknown in Manage"
+        unknownInManage: "Unknown in Manage",
+        unknownInManageToolTip: "The application for this role has been removed from the SURF backend. Please contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> to resolve this."
     },
     applications: {
         searchPlaceHolder: "Search for roles"

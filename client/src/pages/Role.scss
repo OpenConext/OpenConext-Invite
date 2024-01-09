@@ -16,6 +16,11 @@
                 width: 24px;
                 height: auto;
                 margin-right: 15px;
+
+                &.info-svg {
+                    width: 16px;
+                    margin-left: 5px;
+                }
             }
 
             &.unknown-in-manage {

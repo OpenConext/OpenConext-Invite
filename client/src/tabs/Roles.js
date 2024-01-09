@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, ButtonSize, Chip, Loader} from "@surfnet/sds";
+import {Button, ButtonSize, Chip, Loader, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication, searchRoles} from "../api";
@@ -166,7 +166,13 @@ export const Roles = () => {
         {
             key: "applicationName",
             header: I18n.t("roles.applicationName"),
-            mapper: role => role.unknownInManage ? <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span>  :
+            mapper: role => role.unknownInManage ?
+                <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}
+                    <Tooltip tip={I18n.t("roles.unknownInManageToolTip")}
+                             standalone={true}
+                             clickable={true}/>
+                </span>
+                :
                 <span>{role.applicationName}</span>
         },
         {
