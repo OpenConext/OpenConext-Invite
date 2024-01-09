@@ -33,12 +33,12 @@ public interface Manage {
     default Map<String, Object> transformProvider(Map<String, Object> provider) {
         //Defensive mostly because of tests
         if (CollectionUtils.isEmpty(provider)) {
-            return provider;
+            return Collections.emptyMap();
         }
         Map data = (Map) provider.get("data");
         //When mocking - using the results of LocalManage - the provider may already be transformed
         if (CollectionUtils.isEmpty(data)) {
-            return provider;
+            return Collections.emptyMap();
         }
         Map metaDataFields = (Map) data.get("metaDataFields");
         //Can't use Map.of as values can be null
