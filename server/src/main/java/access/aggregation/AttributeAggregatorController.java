@@ -7,6 +7,8 @@ import access.model.UserRole;
 import access.provision.scim.GroupURN;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,8 @@ import static access.SwaggerOpenIdConfig.ATTRIBUTE_AGGREGATION_SCHEME_NAME;
 @SecurityRequirement(name = ATTRIBUTE_AGGREGATION_SCHEME_NAME)
 public class AttributeAggregatorController {
 
+    private static final Log LOG = LogFactory.getLog(AttributeAggregatorController.class);
+
     private final UserRepository userRepository;
     private final Manage manage;
     private final String groupUrnPrefix;
@@ -42,9 +46,16 @@ public class AttributeAggregatorController {
     @PreAuthorize("hasRole('ATTRIBUTE_AGGREGATION')")
     public ResponseEntity<List<Map<String, String>>> getGroupMemberships(@PathVariable("unspecified_id") String unspecifiedId,
                                                                          @RequestParam("SPentityID") String spEntityId) {
-        Optional<Map<String, Object>> optionalProvider = manage
-                .providerByEntityID(EntityType.SAML20_SP, spEntityId)
-                .or(() -> manage.providerByEntityID(EntityType.OIDC10_RP, spEntityId));
+        Optional<Map<String, Object>> optionalProvider;
+        try {
+            optionalProvider = manage
+                    .providerByEntityID(EntityType.SAML20_SP, spEntityId)
+                    .or(() -> manage.providerByEntityID(EntityType.OIDC10_RP, spEntityId));
+        } catch (RuntimeException e) {
+            LOG.error("Error in communication with Manage", e);
+            optionalProvider = Optional.empty();
+        }
+
         if (optionalProvider.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }

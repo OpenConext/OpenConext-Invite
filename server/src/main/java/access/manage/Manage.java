@@ -105,6 +105,7 @@ public interface Manage {
                             if (applicationMap == null) {
                                 //If remote manage is not behaving
                                 applicationMap = new HashMap<>();
+                                applicationMap.put("unknown", true);
                             }
                             applicationMap.put("landingPage", applicationUsage.getLandingPage());
                             return applicationMap;

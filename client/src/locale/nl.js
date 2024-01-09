@@ -156,6 +156,7 @@ const nl = {
         deleteConfirmation: "Weet je zeker dat je deze rol wil verwijderen?",
         createFlash: "Rol {{name}} is aangemaakt",
         updateFlash: "Rol {{name}} is bijgewerkt",
+        unknownInManage: "Onbekend in Manage"
     },
     applications: {
         searchPlaceHolder: "Zoek rollen"

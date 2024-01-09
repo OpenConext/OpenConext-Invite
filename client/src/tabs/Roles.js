@@ -12,6 +12,7 @@ import debounce from "lodash.debounce";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
 import Select from "react-select";
+import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 
 const allValue = "all";
 
@@ -158,14 +159,15 @@ export const Roles = () => {
             key: "logo",
 
             header: "",
-            mapper: role => <div className="role-icon">
+            mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> : <div className="role-icon">
                     {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
                 </div>
         },
         {
             key: "applicationName",
             header: I18n.t("roles.applicationName"),
-            mapper: role => <span>{role.applicationName}</span>
+            mapper: role => role.unknownInManage ? <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span>  :
+                <span>{role.applicationName}</span>
         },
         {
             key: "name",

@@ -7,6 +7,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import {ReactComponent as WebsiteIcon} from "../icons/network-information.svg";
 import {ReactComponent as PersonIcon} from "../icons/persons.svg";
 import {ReactComponent as GuestLogo} from "@surfnet/sds/icons/illustrative-icons/hr.svg";
@@ -159,6 +160,7 @@ export const Role = () => {
                         }))
                     }}/>
                 </div>
+                {!role.unknownInManage &&
                 <div className={"meta-data-row"}>
                     <WebsiteIcon/>
                     <a href={role.applicationUsages[0].landingPage}
@@ -166,8 +168,12 @@ export const Role = () => {
                        target="_blank">
                         <span className={"application-name"}>{`${role.applicationNames}`}</span>
                     </a>{role.applicationOrganizationName && <span>{` (${role.applicationOrganizationName})`}</span>}
-                </div>
-
+                </div>}
+                {role.unknownInManage &&
+                    <div className="meta-data-row unknown-in-manage">
+                        <AlertLogo/>
+                        <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span>
+                    </div>}
             </div>
         </UnitHeader>}
         <div className="mod-role">

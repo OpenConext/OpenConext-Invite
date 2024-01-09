@@ -48,7 +48,8 @@ const en = {
         guestRoles: "Guests with this role",
         cron: "Cron",
         invite: "Invite",
-        tokens: "API tokens"
+        tokens: "API tokens",
+        unknownRoles: "Missing applications"
     },
     home: {
         access: "SURFconext Invite",
@@ -156,6 +157,7 @@ const en = {
         deleteConfirmation: "Are you sure you want to delete this role?",
         createFlash: "Role {{name}} has been created",
         updateFlash: "Role {{name}} has been updated",
+        unknownInManage: "Unknown in Manage"
     },
     applications: {
         searchPlaceHolder: "Search for roles"
@@ -425,6 +427,10 @@ const en = {
         trigger: "Trigger",
         clear: "Clear",
         cronInfo: "Trigger the cron job to cleanup resources like expired user-roles, orphaned users and in-active users"
+    },
+    unknownRoles: {
+        title: "Roles linked to applications unknown in Manage",
+        searchPlaceHolder: "Search..."
     }
 }
 

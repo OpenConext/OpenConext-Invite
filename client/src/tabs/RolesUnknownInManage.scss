@@ -1,39 +1,8 @@
 @import "../styles/vars.scss";
 
-div.mod-roles {
+div.mod-unknown-roles {
 
-    .more-results-available {
-        max-width: $medium;
-        width: 100%;
-        margin: 20px auto 0 auto;
-    }
-
-    .institution-admin-welcome {
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        margin-top: 25px;
-
-        @media (max-width: $medium) {
-            padding: 0 15px;
-        }
-
-        svg {
-            width: 240px;
-            height: auto
-        }
-
-        img {
-            width: 200px;
-            height: auto
-        }
-
-        p {
-            margin: 40px 0;
-        }
-    }
-
-    table.roles {
+    table.unknown-roles {
 
         thead {
             th {

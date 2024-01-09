@@ -33,12 +33,19 @@ export const deriveApplicationAttributes = (role, locale, multiple, separator) =
     const applications = role.applicationMaps;
     if (!isEmpty(applications)) {
         if (applications.length === 1) {
-            role.applicationName = applications[0][`name:${locale}`] || applications[0]["name:en"];
+            const firstApplication = applications[0];
+            if (firstApplication.unknown) {
+                role.unknownInManage = true;
+            }
+            role.applicationName = firstApplication[`name:${locale}`] || firstApplication["name:en"];
             role.applicationNames = role.applicationName;
-            role.applicationOrganizationName = applications[0][`OrganizationName:${locale}`] || applications[0]["OrganizationName:en"];
-            role.logo = applications[0].logo;
+            role.applicationOrganizationName = firstApplication[`OrganizationName:${locale}`] || firstApplication["OrganizationName:en"];
+            role.logo = firstApplication.logo;
         } else {
             role.applicationName = multiple;
+            if (applications.every(app => app.unknown)) {
+                role.unknownInManage = true;
+            }
             const appNames = new Set(applications
                 .map(app => app[`name:${locale}`] || app["name:en"]));
             role.applicationNames = splitListSemantically([...appNames], separator);

@@ -5,9 +5,11 @@ import {Loader} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {ReactComponent as CronLogo} from "@surfnet/sds/icons/illustrative-icons/database-check.svg";
+import {ReactComponent as RoleLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
 import {Cron} from "../tabs/Cron";
+import {RolesUnknownInManage} from "../tabs/RolesUnknownInManage";
 import {Invitations} from "../tabs/Invitations";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 
@@ -39,6 +41,12 @@ export const System = () => {
                       label={I18n.t("tabs.invitations")}
                       Icon={InvitationLogo}>
                     <Invitations standAlone={true}/>
+                </Page>,
+                <Page key="unknownRoles"
+                      name="unknownRoles"
+                      label={I18n.t("tabs.unknownRoles")}
+                      Icon={RoleLogo}>
+                    <RolesUnknownInManage/>
                 </Page>
 
             ];

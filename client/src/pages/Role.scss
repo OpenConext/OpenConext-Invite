@@ -17,8 +17,14 @@
                 height: auto;
                 margin-right: 15px;
             }
+
+            &.unknown-in-manage {
+                color: var(--sds--color--red--500);
+                font-weight: 600;
+            }
         }
     }
+
     .application-name {
         margin-right: 5px;
     }
