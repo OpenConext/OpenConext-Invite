@@ -10,6 +10,7 @@ import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {useAppStore} from "../stores/AppStore";
 import {useNavigate} from "react-router-dom";
 import {providerInfo} from "../utils/Manage";
+import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 
 /*
  * Show all roles with the manage information and a link to role detail for super admin
@@ -60,7 +61,7 @@ const Applications = () => {
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
         const organisation = provider["OrganizationName:en"];
         const organisationValue = isEmpty(organisation) ? "" : ` (${organisation})`;
-        return `${provider["name:en"]}${organisationValue}`;
+        return provider.unknownInManage ? <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span> : `${provider["name:en"]}${organisationValue}`;
     }
 
     const providerLogoById = (manageMaps, allProviders) => {
@@ -69,7 +70,7 @@ const Applications = () => {
         }
         const manageId = manageMaps[0].id
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
-        return provider.logo;
+        return provider.unknownInManage ? <div className="unknown-in-manage"><AlertLogo/></div> : provider.logo;
     }
 
     const provisioningsByProviderId = (manageMaps, allProvisionings) => {

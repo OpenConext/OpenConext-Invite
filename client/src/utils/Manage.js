@@ -12,8 +12,8 @@ export const singleProviderToOption = provider => {
         type: manageType,
         manageType: manageType,
         manageId: manageId,
-        url: provider.url,
-        landingPage: provider.landingPage
+        url: provider.url || provider.landingPage,
+        landingPage: provider.landingPage || provider.url
     };
 }
 
@@ -69,7 +69,8 @@ export const providerInfo = provider => {
         return {
             "OrganizationName:en": "",
             provisioning_type: "",
-            "name:en": "Unknown in Manage"
+            "name:en": "Unknown in Manage",
+            unknownInManage: true
         }
     }
     return provider;

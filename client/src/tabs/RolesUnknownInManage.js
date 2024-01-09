@@ -93,7 +93,7 @@ export const RolesUnknownInManage = () => {
                 defaultSort="name"
                 columns={columns}
                 searchAttributes={["name", "description", "applicationName"]}
-                customNoEntities={I18n.t(`system.noRoles`)}
+                customNoEntities={I18n.t("unknownRoles.noRoles")}
                 loading={false}
                 inputFocus={true}
                 hideTitle={false}

@@ -430,7 +430,8 @@ const en = {
     },
     unknownRoles: {
         title: "Roles linked to applications unknown in Manage",
-        searchPlaceHolder: "Search..."
+        searchPlaceHolder: "Search...",
+        noRoles: "Yeah, no unknown manage applications"
     }
 }
 

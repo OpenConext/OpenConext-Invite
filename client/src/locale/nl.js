@@ -430,7 +430,8 @@ const nl = {
     },
     unknownRoles: {
         title: "Rollen gekoppeld aan applicaties die verwijderd zijn in Manage",
-        searchPlaceHolder: "Zoek..."
+        searchPlaceHolder: "Zoek...",
+        noRoles: "Yeah, no unknown manage applications"
     }
 }
 

@@ -84,7 +84,7 @@ export const RoleForm = () => {
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
 
-                    res[0].applicationMaps.forEach(m => m.landingPage = res[0].applicationUsages.find(appUsage => appUsage.application.manageId === m.id).landingPage);
+                    res[0].applicationMaps.forEach(m => m.landingPage = (res[0].applicationUsages.find(appUsage => appUsage.application.manageId === m.id) || {}).landingPage);
                     setApplications(providersToOptions(res[0].applicationMaps));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
