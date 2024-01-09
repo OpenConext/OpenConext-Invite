@@ -48,7 +48,8 @@ const nl = {
         guestRoles: "Gasten",
         cron: "Cron",
         invite: "Uitnodiging",
-        tokens: "API-tokens"
+        tokens: "API-tokens",
+        unknownRoles: "Missing applications"
     },
     home: {
         access: "SURFconext Invite",
@@ -426,6 +427,10 @@ const nl = {
         trigger: "Trigger",
         clear: "Clear",
         cronInfo: "Roep de cron job aan die resources opruimt, zoals verlopen gebruikersrollen, verweesde gebruikers en inactieve gebruikers"
+    },
+    unknownRoles: {
+        title: "Rollen gekoppeld aan applicaties die verwijderd zijn in Manage",
+        searchPlaceHolder: "Zoek..."
     }
 }
 
