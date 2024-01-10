@@ -158,7 +158,8 @@ const nl = {
         createFlash: "Rol {{name}} is aangemaakt",
         updateFlash: "Rol {{name}} is bijgewerkt",
         unknownInManage: "Onbekend in Manage",
-        unknownInManageToolTip: "De applicatie voor deze rol is verwijderd in de SURF backend. Neem contact op met <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> om dit op te lossen."
+        unknownInManageToolTip: "De applicatie voor deze rol is verwijderd in de SURF backend. Neem contact op met <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> om dit op te lossen.",
+        unknownInManageDisabled: "De applicatie voor deze rol is verwijderd in de SURF backend. Daarom kan je geen nieuwe gebruikers uitnodigen."
     },
     applications: {
         searchPlaceHolder: "Zoek rollen"

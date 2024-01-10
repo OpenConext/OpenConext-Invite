@@ -158,7 +158,8 @@ const en = {
         createFlash: "Role {{name}} has been created",
         updateFlash: "Role {{name}} has been updated",
         unknownInManage: "Unknown in Manage",
-        unknownInManageToolTip: "The application for this role has been removed from the SURF backend. Please contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> to resolve this."
+        unknownInManageToolTip: "The application for this role has been removed from the SURF backend. Please contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> to resolve this.",
+        unknownInManageDisabled: "The application for this role has been removed from the SURF backend. Therefore you can't invite new users."
     },
     applications: {
         searchPlaceHolder: "Search for roles"

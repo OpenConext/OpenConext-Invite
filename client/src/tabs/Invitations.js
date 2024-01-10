@@ -310,7 +310,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                   columns={columns}
                   title={title}
                   newLabel={I18n.t("invitations.newInvite")}
-                  showNew={!!role && (isUserAllowed(AUTHORITIES.MANAGER, user) || standAlone)}
+                  showNew={!!role && (isUserAllowed(AUTHORITIES.MANAGER, user) || standAlone) && !role.unknownInManage}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={false}

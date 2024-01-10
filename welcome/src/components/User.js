@@ -10,7 +10,9 @@ export const User = ({user, invitationRoles = []}) => {
         const role = userRole.role;
         return (
             <React.Fragment key={index}>
-                {role.applicationMaps.map((applicationMap, i) =>
+                {role.applicationMaps
+                    .filter(applicationMap => !applicationMap.unknown)
+                    .map((applicationMap, i) =>
                     <RoleCard role={role}
                               key={i}
                               index={i}

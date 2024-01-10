@@ -25,7 +25,7 @@ import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
 export const Role = () => {
     const {id, tab = "users"} = useParams();
     const navigate = useNavigate();
-    const {user, config, clearFlash} = useAppStore(state => state);
+    const {user, config, clearFlash, setFlash} = useAppStore(state => state);
     const [role, setRole] = useState({});
     const [userRole, setUserRole] = useState({});
     const [loading, setLoading] = useState(true);
@@ -94,7 +94,10 @@ export const Role = () => {
                     managers = res[1].filter(userRole => userRole.authority === AUTHORITIES.INSTITUTION_ADMIN)
                         .map(userRole => userRole.userInfo.email);
                 }
-                setManagerEmails(managers)
+                setManagerEmails(managers);
+                if (res[0].unknownInManage) {
+                    setFlash(I18n.t("roles.unknownInManageDisabled"), "error");
+                }
                 setLoading(false);
 
             })
