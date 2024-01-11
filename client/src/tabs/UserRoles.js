@@ -17,7 +17,7 @@ import {isEmpty, pseudoGuid} from "../utils/Utils";
 
 export const UserRoles = ({role, guests, userRoles}) => {
     const navigate = useNavigate();
-    const {user, setFlash} = useAppStore(state => state);
+    const {user, setFlash, config} = useAppStore(state => state);
 
     const [selectedUserRoles, setSelectedUserRoles] = useState({});
     const [allSelected, setAllSelected] = useState(false);
@@ -136,6 +136,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                         minDate={futureDate(1)}
                         value={userRole.endDate ? new Date(userRole.endDate * 1000) : null}
                         onChange={date => doUpdateEndDate(userRole, date, true)}
+                        pastDatesAllowed={config.pastDateAllowed}
                         allowNull={true}
                         showYearDropdown={true}
                     />
