@@ -13,9 +13,8 @@ import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
 import DOMPurify from "dompurify";
 
-export const User = ({user, other, config}) => {
+export const User = ({user, other, config, currentUser}) => {
     const searchRef = useRef();
-
     const [query, setQuery] = useState("");
     const [queryApplication, setQueryApplication] = useState("");
 
@@ -113,7 +112,7 @@ export const User = ({user, other, config}) => {
     user.highestAuthority = I18n.t(`access.${highestAuthority(user)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
         ["lastActivity", true]];
-    const filteredUserRoles = user.userRoles.filter(filterUserRole).filter(role => role.authority !== AUTHORITIES.GUEST);
+    const filteredUserRoles = user.userRoles.filter(filterUserRole).filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);
     const filteredApplications = (user.applications || []).filter(filterApplication);
     const hasRoles = !isEmpty(user.userRoles.filter(role => role.authority !== AUTHORITIES.GUEST))
     return (
@@ -121,14 +120,14 @@ export const User = ({user, other, config}) => {
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
 
             <h3 className={"title span-row "}>{I18n.t("users.roles")}</h3>
-            {highestAuthority(user, false) === AUTHORITIES.GUEST &&
+            {(highestAuthority(user, false) === AUTHORITIES.GUEST && !other) &&
                 <p className={"span-row"}
                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
             {(!hasRoles && user.superUser) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {(!hasRoles && user.institutionAdmin) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInstitutionAdmin")}</p>}
-            {hasRoles &&
+            {(hasRoles || currentUser.superUser) &&
                 <>
                     <div className="roles-search span-row">
                         <p>

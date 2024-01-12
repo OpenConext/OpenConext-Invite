@@ -47,6 +47,7 @@ export const Profile = () => {
     if (loading) {
         return <Loader/>
     }
+
     return (
         <div className="mod-profile">
             <UnitHeader obj={({name: user.name, svg: Logo, style: "small"})}>
@@ -56,7 +57,7 @@ export const Profile = () => {
                 })}</p>
             </UnitHeader>
             <div className="profile-container">
-                <User user={user} other={!isEmpty(id)} config={config}/>
+                <User user={user} other={!isEmpty(id)} config={config} currentUser={currentUser}/>
             </div>
         </div>);
 };
