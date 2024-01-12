@@ -211,8 +211,12 @@ export function validate(type, value) {
 }
 
 //System
-export function cron() {
-    return fetchJson("/api/v1/system/cron")
+export function cronCleanup() {
+    return fetchJson("/api/v1/system/cron/cleanup")
+}
+
+export function expiryUserRoles() {
+    return fetchJson("/api/v1/system/expiry-user-roles")
 }
 
 export function rolesUnknownInManage() {

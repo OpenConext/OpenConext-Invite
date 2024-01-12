@@ -107,8 +107,8 @@ config:
   server-url: "http://localhost:8888"
   server-welcome-url: "http://localhost:8888"
   eduid-entity-id: "https://login.test2.eduid.nl"
-  role-search-required: false
-  past-date-allowed: false
+  role-search-required: False
+  past-date-allowed: True
   eduid-idp-schac-home-organization: "test.eduid.nl"
 
 voot:

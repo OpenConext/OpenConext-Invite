@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SystemControllerTest extends AbstractTest {
 
     @Test
-    void cron() throws Exception {
+    void cronCleanup() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         given()
                 .when()
@@ -20,9 +20,23 @@ class SystemControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .get("/api/v1/system/cron")
+                .get("/api/v1/system/cron/cleanup")
                 .then()
                 .statusCode(200);
-
     }
+
+    @Test
+    void expiryUserRoles() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/system/expiry-user-roles")
+                .then()
+                .statusCode(200);
+    }
+
 }

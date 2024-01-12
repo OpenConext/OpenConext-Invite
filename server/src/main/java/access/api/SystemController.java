@@ -5,7 +5,9 @@ import access.cron.ResourceCleaner;
 import access.manage.Manage;
 import access.model.Role;
 import access.model.User;
+import access.model.UserRole;
 import access.repository.RoleRepository;
+import access.repository.UserRoleRepository;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -34,20 +38,35 @@ public class SystemController {
 
     private final ResourceCleaner resourceCleaner;
     private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final Manage manage;
 
-    public SystemController(ResourceCleaner resourceCleaner, RoleRepository roleRepository, Manage manage) {
+    public SystemController(ResourceCleaner resourceCleaner,
+                            RoleRepository roleRepository,
+                            UserRoleRepository userRoleRepository,
+                            Manage manage) {
         this.resourceCleaner = resourceCleaner;
         this.roleRepository = roleRepository;
+        this.userRoleRepository = userRoleRepository;
         this.manage = manage;
     }
 
-    @GetMapping("/cron")
-    public ResponseEntity<Map<String, List<? extends Serializable>>> cron(@Parameter(hidden = true) User user) {
-        LOG.debug("/cron");
+    @GetMapping("/cron/cleanup")
+    public ResponseEntity<Map<String, List<? extends Serializable>>> cronCleanup(@Parameter(hidden = true) User user) {
+        LOG.debug("/cron/cleanup");
         UserPermissions.assertSuperUser(user);
         Map<String, List<? extends Serializable>> body = resourceCleaner.doClean();
         return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/expiry-user-roles")
+    public ResponseEntity<List<UserRole>> expiryUserRoles(@Parameter(hidden = true) User user) {
+        LOG.debug("/cron/notifications");
+        UserPermissions.assertSuperUser(user);
+        Instant instant = Instant.now().plus(30, ChronoUnit.DAYS);
+        List<UserRole> userRoles = userRoleRepository.findByEndDateBefore(instant);
+        userRoles.forEach(userRole -> userRole.setUserInfo(userRole.getUser().asMap()));
+        return ResponseEntity.ok(userRoles);
     }
 
     @GetMapping("/unknown-roles")

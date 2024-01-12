@@ -49,7 +49,8 @@ const en = {
         cron: "Cron",
         invite: "Invite",
         tokens: "API tokens",
-        unknownRoles: "Missing applications"
+        unknownRoles: "Missing applications",
+        expiredUserRoles: "User role expirations"
     },
     home: {
         access: "SURFconext Invite",
@@ -434,6 +435,11 @@ const en = {
         title: "Roles linked to applications unknown in Manage",
         searchPlaceHolder: "Search...",
         noRoles: "Yeah, no unknown manage applications"
+    },
+    expiredUserRoles: {
+        title: "Roles to be expired the next month",
+        searchPlaceHolder: "Zoek...",
+        noResults: "Yeah, no user-roles to be expired within one month"
     }
 }
 

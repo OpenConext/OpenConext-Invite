@@ -49,7 +49,8 @@ const nl = {
         cron: "Cron",
         invite: "Uitnodiging",
         tokens: "API-tokens",
-        unknownRoles: "Missing applications"
+        unknownRoles: "Missing applications",
+        expiredUserRoles: "User role expirations"
     },
     home: {
         access: "SURFconext Invite",
@@ -434,6 +435,11 @@ const nl = {
         title: "Rollen gekoppeld aan applicaties die verwijderd zijn in Manage",
         searchPlaceHolder: "Zoek...",
         noRoles: "Yeah, no unknown manage applications"
+    },
+    expiredUserRoles: {
+        title: "Roles to be expired the next month",
+        searchPlaceHolder: "Zoek...",
+        noRoles: "Yeah, no user-roles to be expired within one month"
     }
 }
 

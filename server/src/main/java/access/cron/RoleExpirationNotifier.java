@@ -59,6 +59,5 @@ public class RoleExpirationNotifier  {
 
             LOG.info("Send expiration notification mail to " + userRole.getUser().getEmail());
         });
-
     }
 }

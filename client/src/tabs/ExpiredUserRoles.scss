@@ -1,0 +1,63 @@
+.mod-expired-user-roles {
+    background: white;
+
+    .date-field-container {
+        display: flex;
+        position: relative;
+
+        .date-field {
+            margin-left: auto;
+        }
+
+        .no-end-date {
+            position: absolute;
+            z-index: 99;
+            top: 10px;
+            right: 130px;
+        }
+    }
+
+    table.userRoles {
+
+        thead {
+            th {
+                &.name {
+                    width: 18%;
+                }
+
+                &.schacHomeOrganisation {
+                    width: 12%;
+                }
+
+                &.authority {
+                    width: 18%;
+                    text-align: center;
+                }
+
+                &.createdAt {
+                    width: 12%;
+                }
+
+                &.endDate {
+                    width: 30%;
+                    text-align: right;
+                }
+            }
+        }
+
+        tbody {
+            td {
+                &.authority {
+                    text-align: center;
+                }
+
+                &.endDate {
+                    text-align: right;
+                }
+            }
+
+
+        }
+    }
+
+}

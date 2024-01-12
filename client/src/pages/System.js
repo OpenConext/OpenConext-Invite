@@ -12,6 +12,7 @@ import {Cron} from "../tabs/Cron";
 import {RolesUnknownInManage} from "../tabs/RolesUnknownInManage";
 import {Invitations} from "../tabs/Invitations";
 import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
+import {ExpiredUserRoles} from "../tabs/ExpiredUserRoles";
 
 
 export const System = () => {
@@ -47,6 +48,12 @@ export const System = () => {
                       label={I18n.t("tabs.unknownRoles")}
                       Icon={RoleLogo}>
                     <RolesUnknownInManage/>
+                </Page>,
+                <Page key="expiredUserRoles"
+                      name="expiredUserRoles"
+                      label={I18n.t("tabs.expiredUserRoles")}
+                      Icon={RoleLogo}>
+                    <ExpiredUserRoles/>
                 </Page>
 
             ];
