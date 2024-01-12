@@ -439,7 +439,7 @@ const nl = {
     expiredUserRoles: {
         title: "Roles to be expired the next month",
         searchPlaceHolder: "Zoek...",
-        noRoles: "Yeah, no user-roles to be expired within one month"
+        noResults: "Yeah, no user-roles to be expired within one month"
     }
 }
 
