@@ -70,6 +70,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
                 "oidcng.introspect-url=http://localhost:8081/introspect",
+                "config.past-date-allowed=False",
                 "spring.security.oauth2.client.provider.oidcng.authorization-uri=http://localhost:8081/authorization",
                 "spring.security.oauth2.client.provider.oidcng.token-uri=http://localhost:8081/token",
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
