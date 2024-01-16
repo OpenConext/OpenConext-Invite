@@ -1,35 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.openconext</groupId>
     <artifactId>access</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4</version>
     <packaging>pom</packaging>
-
     <name>access</name>
     <description>SURFconext Invite</description>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.1.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
+        <!-- lookup parent from repository -->
     </parent>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>17</java.version>
-	</properties>
-
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>17</java.version>
+    </properties>
     <modules>
         <module>server</module>
         <module>client</module>
         <module>welcome</module>
         <module>provisioning-mock</module>
     </modules>
-
     <build>
         <plugins>
             <plugin>
@@ -63,7 +57,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
         <extensions>
             <extension>
@@ -73,7 +66,6 @@
             </extension>
         </extensions>
     </build>
-
     <repositories>
         <repository>
             <releases>
@@ -103,7 +95,6 @@
             <url>https://repo.spring.io/milestone/</url>
         </repository>
     </repositories>
-
     <distributionManagement>
         <repository>
             <id>openconext-releases</id>
