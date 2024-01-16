@@ -14,7 +14,6 @@ concurrency:
 jobs:
   documentation:
     runs-on: ubuntu-latest
-    container: ubuntu
     name: Test documentation and generate openapi html documentation
     permissions:
       contents: write
@@ -48,13 +47,12 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
           cache: 'maven'
-        if: steps.changes.outputs.server == 'true'
-
+#        if: steps.changes.outputs.server == 'true'
       - name: Set up MySQL
         uses: shogo82148/actions-setup-mysql@v1
         with:
           mysql-version: '8.0'
-        if: steps.changes.outputs.server == 'true'
+#        if: steps.changes.outputs.server == 'true'
       - name: Prepare database
         run: |
           mysql -uroot -h127.0.0.1 -e \
@@ -64,7 +62,7 @@ jobs:
           "CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';";
           mysql -uroot -h127.0.0.1 -e \
           "GRANT ALL privileges ON access.* TO 'access'@'localhost';"
-        if: steps.changes.outputs.server == 'true'
+#        if: steps.changes.outputs.server == 'true'
 
       - name: Generate openapi.json
         run: |
@@ -72,19 +70,19 @@ jobs:
           mvn spring-boot:run &
           sleep 20 && curl -q http://localhost:8888/ui/api-docs -o ./target/openapi.json
           pkill -f java
-        if: steps.changes.outputs.server == 'true'
+#        if: steps.changes.outputs.server == 'true'
 
       - name: Test api-specs with redoc-cli
         uses: seeebiii/redoc-cli-github-action@v10
         with:
           args: 'bundle server/target/openapi.json -t template.hbs -o docs/api/index.html'
-        if: steps.changes.outputs.server == 'true'
+#        if: steps.changes.outputs.server == 'true'
 
       - name: check result
         run: |
           ls -al docs/api/
           test -f docs/api/index.html || (echo "Missing docs/api/index.html from previous step." && exit 1)
-        if: steps.changes.outputs.server == 'true'
+#        if: steps.changes.outputs.server == 'true'
 
       - name: Commit files if the OpenAPI html has changed
         run: |
@@ -92,22 +90,22 @@ jobs:
           git config user.email github-actions@github.com
           git add docs/api/index.html
           git diff-index --quiet HEAD || git commit -m "Update github page"
-        if: steps.changes.outputs.server == 'true'
+#        if: steps.changes.outputs.server == 'true'
         continue-on-error: true
 
       # Generate a HTML page for the archmate model, only if the moder has changed
       - name: Download Archi
         run: |
-          curl "https://www.archimatetool.com/downloads/archi5.php?/5.1.0/Archi-Linux64-5.1.0.tgz" \
+          curl "https://www.archimatetool.com/downloads/archi-5.php?/5.2.0/Archi-Linux64-5.2.0.tgz" \
             -q -o /tmp/archi.tgz
           tar -zxvf /tmp/archi.tgz -C /tmp/
-        if: steps.changes.outputs.archi == 'true'
+#        if: steps.changes.outputs.archi == 'true'
       - name: Generate HTML report from Archimate model
         run: |
             xvfb-run /tmp/Archi/Archi -application com.archimatetool.commandline.app \
               -nosplash --consoleLog --loadModel ./docs/invite.archimate \
               --html.createReport "./docs/Archi/"
-        if: steps.changes.outputs.archi == 'true'
+#        if: steps.changes.outputs.archi == 'true'
 
       - name: Commit files if the Archimate html has changed
         run: |
@@ -116,7 +114,7 @@ jobs:
           git pull
           git add docs/Archi/*
           git diff-index --quiet HEAD || git commit -m "Update HTML export of Archimate file"
-        if: steps.changes.outputs.archi == 'true'
+#        if: steps.changes.outputs.archi == 'true'
         continue-on-error: true
 
       - name: Push changes
