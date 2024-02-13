@@ -80,14 +80,15 @@ public class UserController {
     }
 
     @GetMapping("config")
-    public ResponseEntity<Config> config(User user) {
+    public ResponseEntity<Config> config(User user,
+                                         @RequestParam(value = "guest", required = false, defaultValue = "false") boolean guest) {
         LOG.debug("/config");
         Config result = new Config(this.config);
         result
                 .withAuthenticated(user != null && user.getId() != null)
                 .withName(user != null ? user.getName() : null);
         if (user != null && user.getId() == null) {
-            verifyMissingAttributes(user, result);
+            verifyMissingAttributes(user, result, guest);
         }
         return ResponseEntity.ok(result);
     }
@@ -168,7 +169,7 @@ public class UserController {
         return Results.createResult();
     }
 
-    private void verifyMissingAttributes(User user, Config result) {
+    private void verifyMissingAttributes(User user, Config result, boolean guest) {
         List<String> missingAttributes = new ArrayList<>();
         if (!StringUtils.hasText(user.getSub())) {
             missingAttributes.add("sub");
@@ -178,6 +179,12 @@ public class UserController {
         }
         if (!StringUtils.hasText(user.getSchacHomeOrganization())) {
             missingAttributes.add("schacHomeOrganization");
+        }
+        if (guest && !StringUtils.hasText(user.getFamilyName())) {
+            missingAttributes.add("familyName");
+        }
+        if (guest && !StringUtils.hasText(user.getGivenName())) {
+            missingAttributes.add("givenName");
         }
         if (!missingAttributes.isEmpty()) {
             result.withMissingAttributes(missingAttributes);

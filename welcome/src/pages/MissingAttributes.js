@@ -26,7 +26,7 @@ export const MissingAttributes = () => {
                 <p className="roles">{I18n.t("missingAttributes.attributes")}</p>
                 <ul className={"missing-attributes-list"}>
                     {config.missingAttributes.map(attr =>
-                        <li key={attr}>{attr}</li>)}
+                        <li key={attr}>{I18n.t(`missingAttributes.${attr}`) }</li>)}
                 </ul>
                 <Toaster message={""}
                          large={true}

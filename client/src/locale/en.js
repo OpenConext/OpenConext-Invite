@@ -275,6 +275,11 @@ const en = {
         preLogin: "Or ",
         login: "login",
         postLogin: " again with a different institution.",
+        sub: "sub",
+        email: "email",
+        givenName: "givenName",
+        familyName: "familyName",
+        schacHomeOrganization: "schacHomeOrganization"
     },
     invitationAccept: {
         hi: "Hi{{name}},",

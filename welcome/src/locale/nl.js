@@ -77,6 +77,11 @@ const nl = {
         preLogin: "Of ",
         login: "login",
         postLogin: " via een andere instelling",
+        sub: "sub",
+        email: "email",
+        givenName: "voornaam",
+        familyName: "achternaam",
+        schacHomeOrganization: "schacHomeOrganisatie"
     },
     invitationAccept: {
         hi: "Hoi{{name}},",

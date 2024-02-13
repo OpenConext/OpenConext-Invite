@@ -60,7 +60,7 @@ function postPutJson(path, body, method, showErrorDialog = true) {
 }
 
 export function configuration() {
-    return fetchJson("/api/v1/users/config", {}, {}, false);
+    return fetchJson("/api/v1/users/config?guest=true", {}, {}, false);
 }
 
 //Users
