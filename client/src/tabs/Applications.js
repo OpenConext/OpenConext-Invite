@@ -31,7 +31,7 @@ const Applications = () => {
                         role.logo = providerLogoById(role.applicationMaps, providers);
                         role.provider = providerById(role.applicationMaps, providers);
                         role.provisioning = provisioningsByProviderId(role.applicationMaps, provisionings);
-                    })
+                    });
                     setRoles(res[1]);
                     setLoading(false);
                 })

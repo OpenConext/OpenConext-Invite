@@ -5,9 +5,7 @@ import {isEmpty} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
 import {headerIcon} from "../utils/Forms";
 import "./Entities.scss";
-import {Button, Loader, Tooltip} from "@surfnet/sds";
-
-import {Pagination} from "@surfnet/sds";
+import {Button, Loader, Pagination, Tooltip} from "@surfnet/sds";
 import {pageCount} from "../utils/Pagination";
 import {useNavigate} from "react-router-dom";
 
@@ -117,13 +115,10 @@ export const Entities = ({
             return entities;
         }
         const queryLower = newQuery.toLowerCase();
-        return entities.filter(entity => {
-            return searchAttributes.some(attr => {
+        return entities.filter(entity => searchAttributes.some(attr => {
                 const val = valueForSort(attr, entity);
-                return val.toLowerCase().indexOf(queryLower) > -1
-            });
-        });
-
+            return isEmpty(val) ? false : val.toLowerCase().indexOf(queryLower) > -1
+        }));
     };
 
     const setSortedKey = key => {
