@@ -32,7 +32,7 @@ public class InstitutionAdmin {
     }
 
     public static boolean isInstitutionAdmin(User user) {
-        return user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID());
+        return user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID()) && user.isInstitutionAdminByInvite();
     }
 
     public static Optional<String> getOrganizationGuid(Map<String, Object> attributes,

@@ -50,8 +50,8 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
                 (optionalUser.isPresent() && isInstitutionAdmin(optionalUser.get()));
         newClaims.put(INSTITUTION_ADMIN, institutionAdmin);
 
-        String organizationGuid = getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)
-                .orElse(null);
+        String organizationGuid = institutionAdmin ? getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)
+                .orElse(null) : null;
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {

@@ -58,6 +58,10 @@ public class User implements Serializable, Provisionable {
     @NotNull
     private boolean institutionAdmin;
 
+    @Column(name = "institution_admin_by_invite")
+    @NotNull
+    private boolean institutionAdminByInvite;
+
     @Column
     private String email;
 

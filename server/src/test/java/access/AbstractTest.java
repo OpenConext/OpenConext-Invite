@@ -522,6 +522,7 @@ public abstract class AbstractTest {
         User institutionAdmin =
                 new User(false, INSTITUTION_ADMIN, INSTITUTION_ADMIN, "example.com", "Carl", "Doe", "carl.doe@examole.com");
         institutionAdmin.setInstitutionAdmin(true);
+        institutionAdmin.setInstitutionAdminByInvite(true);
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
 
         User manager =

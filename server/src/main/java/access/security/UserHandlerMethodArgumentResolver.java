@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
-import static org.springframework.security.web.context.RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 

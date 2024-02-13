@@ -267,6 +267,7 @@ public class InvitationController {
                 });
         if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
             user.setInstitutionAdmin(true);
+            user.setInstitutionAdminByInvite(true);
             user.setOrganizationGUID(inviter.getOrganizationGUID());
             //Rare case - a new institution admin has logged in, but was not yet enriched by the CustomOidcUserService
             if (optionalUser.isEmpty()) {
