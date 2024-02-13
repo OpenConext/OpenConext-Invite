@@ -94,12 +94,16 @@ export const InvitationForm = () => {
             })
             setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
         } else {
+            let defaultExpiryDays = 366;
             if (markedRoles.length === 1) {
+                const role = markedRoles[0]
+                defaultExpiryDays = role.isUserRole ? role.role.defaultExpiryDays : role.defaultExpiryDays;
                 setSelectedRoles(markedRoles);
             }
             setInvitation({
                 ...invitation,
-                intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER
+                intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
+                roleExpiryDate: futureDate(defaultExpiryDays)
             })
         }
     }
@@ -198,6 +202,7 @@ export const InvitationForm = () => {
         const disabledSubmit = !initial && !isValid();
         const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
             .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
+        const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
         return (
             <>
                 {isInviter && <div className="card-containers">
@@ -279,7 +284,7 @@ export const InvitationForm = () => {
                             <UpIcon/>
                         </a>
 
-                        {selectedRoles.every(role => role.overrideSettingsAllowed) &&
+                        {overrideSettingsAllowed &&
                             <SwitchField name={"enforceEmailEquality"}
                                          value={invitation.enforceEmailEquality || false}
                                          onChange={val => setInvitation({...invitation, enforceEmailEquality: val})}
@@ -287,7 +292,7 @@ export const InvitationForm = () => {
                                          info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                             />}
 
-                        {selectedRoles.every(role => role.overrideSettingsAllowed) &&
+                        {overrideSettingsAllowed &&
                             <SwitchField name={"eduIDOnly"}
                                          value={invitation.eduIDOnly || false}
                                          onChange={val => setInvitation({...invitation, eduIDOnly: val})}
@@ -303,7 +308,7 @@ export const InvitationForm = () => {
                                          info={I18n.t("tooltips.guestRoleIncludedTooltip")}
                             />
                         }
-                        {selectedRoles.every(role => role.overrideSettingsAllowed) &&
+                        {overrideSettingsAllowed &&
                             <SwitchField name={"roleExpiryDate"}
                                          value={customRoleExpiryDate}
                                          onChange={() => {
@@ -325,7 +330,7 @@ export const InvitationForm = () => {
                                        showYearDropdown={true}
                                        disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
                                        pastDatesAllowed={config.pastDateAllowed}
-                                       allowNull={selectedRoles.every(role => role.overrideSettingsAllowed) && invitation.intendedAuthority !== AUTHORITIES.GUEST}
+                                       allowNull={overrideSettingsAllowed && invitation.intendedAuthority !== AUTHORITIES.GUEST}
                                        minDate={futureDate(1, invitation.expiryDate)}
                                        name={I18n.t("invitations.roleExpiryDate")}
                                        toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>}

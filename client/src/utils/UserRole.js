@@ -119,6 +119,7 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) 
         userRole.defaultExpiryDays = role.defaultExpiryDays;
         userRole.eduIDOnly = role.eduIDOnly;
         userRole.enforceEmailEquality = role.enforceEmailEquality;
+        userRole.overrideSettingsAllowed = role.overrideSettingsAllowed;
         userRole.applicationName = role.applicationName;
         userRole.applicationOrganizationName = role.applicationOrganizationName;
         userRole.applicationMaps = role.applicationMaps;
