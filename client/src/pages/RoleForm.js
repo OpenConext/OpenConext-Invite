@@ -323,10 +323,7 @@ export const RoleForm = () => {
 
                 <SwitchField name={"roleExpiryDate"}
                              value={customRoleExpiryDate}
-                             onChange={() => {
-                                 setCustomRoleExpiryDate(!customRoleExpiryDate);
-                                 setRole({...role, defaultExpiryDays: 366})
-                             }}
+                             onChange={() => setCustomRoleExpiryDate(!customRoleExpiryDate)}
                              label={I18n.t("invitations.roleExpiryDateQuestion")}
                              info={I18n.t("invitations.roleExpiryDateInfo", {
                                  expiry: displayExpiryDate(futureDate(role.defaultExpiryDays, new Date()))
