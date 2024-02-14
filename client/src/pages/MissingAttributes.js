@@ -29,7 +29,6 @@ export const MissingAttributes = () => {
                         <li key={attr}>{I18n.t(`missingAttributes.${attr}`) }</li>)}
                 </ul>
                 <Toaster message={""}
-                         large={true}
                          toasterType={ToasterType.Warning}
                          children={
                              <div className="warning">
