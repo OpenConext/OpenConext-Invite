@@ -117,7 +117,8 @@ export const Entities = ({
         const queryLower = newQuery.toLowerCase();
         return entities.filter(entity => searchAttributes.some(attr => {
                 const val = valueForSort(attr, entity);
-            return isEmpty(val) ? false : val.toLowerCase().indexOf(queryLower) > -1
+            //When the application is unknown in Manage then the val is a React span child object
+            return (isEmpty(val) || typeof val !== "string" || val.toLowerCase === undefined) ? false : val.toLowerCase().indexOf(queryLower) > -1;
         }));
     };
 
