@@ -163,7 +163,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,mappings"
+        include: "health,info,mappings,metrics"
       base-path: "/internal"
   endpoint:
     info:
@@ -171,6 +171,8 @@ management:
     health:
       enabled: true
     mappings:
+      enabled: true
+    metrics:
       enabled: true
   info:
     git:
