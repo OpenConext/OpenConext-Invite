@@ -18,6 +18,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
 import {displayExpiryDate, futureDate} from "../utils/Date";
 
+const DEFAULT_EXPIRY_DAYS = 365;
 export const RoleForm = () => {
 
     const navigate = useNavigate();
@@ -30,7 +31,7 @@ export const RoleForm = () => {
     const [role, setRole] = useState({
         name: "",
         shortName: "",
-        defaultExpiryDays: 365,
+        defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
         identifier: crypto.randomUUID()
     });
     const [providers, setProviders] = useState([]);
@@ -58,7 +59,8 @@ export const RoleForm = () => {
             }
             Promise.all(promises).then(res => {
                 if (!newRole) {
-                    setRole(res[0])
+                    setRole(res[0]);
+                    setCustomRoleExpiryDate(res[0].defaultExpiryDays !== DEFAULT_EXPIRY_DAYS)
                 }
                 if (user.superUser) {
                     setProviders(providersToOptions(res[newRole ? 0 : 1]));

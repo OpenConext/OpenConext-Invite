@@ -109,7 +109,7 @@ export const User = ({user, other, config, currentUser}) => {
         );
     }
 
-    user.highestAuthority = I18n.t(`access.${highestAuthority(user)}`);
+    user.highestAuthority = I18n.t(`access.${highestAuthority(user, false)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
         ["lastActivity", true]];
     const filteredUserRoles = user.userRoles.filter(filterUserRole).filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);

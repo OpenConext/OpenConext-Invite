@@ -92,7 +92,7 @@ const en = {
         roles: "Roles",
         applications: "Applications",
         noRolesInfo: "You have no roles (which means you must be super-user)",
-        noRolesInstitutionAdmin: "As an institution admin you have no roles (but you do have access to applications)",
+        noRolesInstitutionAdmin: "As an institution admin you have no roles (but you might have access to applications)",
         guestRoleOnly: "You are a guest user. Are you looking for the <a href='{{welcomeUrl}}'>inviter app for guests</a>?",
         rolesInfo: "You have the following roles",
         applicationsInfo: "You have access to the following applications",

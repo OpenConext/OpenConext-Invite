@@ -31,7 +31,7 @@ export const UserMenu = ({user, config, actions}) => {
         });
     }
 
-    const renderMenu = (adminLinks) => {
+    const renderMenu = adminLinks => {
         return (<>
                 <ul>
                     {user.superUser && adminLinks.map(l => <li key={l}>
@@ -60,7 +60,7 @@ export const UserMenu = ({user, config, actions}) => {
              onBlur={() => setTimeout(() => setDropDownActive(false), 250)}>
             <UserInfo isOpen={dropDownActive}
                       children={renderMenu(adminLinks)}
-                      organisationName={I18n.t(`access.${highestAuthority(user)}`)}
+                      organisationName={I18n.t(`access.${highestAuthority(user, false)}`)}
                       userName={user.name}
                       toggle={() => setDropDownActive(!dropDownActive)}
             />

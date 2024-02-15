@@ -5,6 +5,7 @@ import access.model.Authority;
 import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,8 @@ public class UserPermissions {
     }
 
     public static void assertInstitutionAdmin(User user) {
-        if (user.isSuperUser() || InstitutionAdmin.isInstitutionAdmin(user)) {
+        if (user.isSuperUser() || (user.isInstitutionAdmin() &&
+                StringUtils.hasText(user.getOrganizationGUID()))) {
             return;
         }
         throw new UserRestrictionException();
