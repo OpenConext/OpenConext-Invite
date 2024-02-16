@@ -73,6 +73,15 @@ jobs:
           server-password: MAVEN_PASSWORD
         if: ${{!( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
 
+      - name: Extract Maven project version
+        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+        id: project
+      - name: Check if git tag matches project version
+        run: |
+          echo "Project version ${{ steps.project.outputs.version }} does not match git tag ${{ github.ref_name }}"
+          exit 1
+        if: ${{ steps.project.outputs.version != github.ref_name }}
+
       - name: Deploy with Maven
         run: mvn --batch-mode deploy -DskipTests
         env:
@@ -128,3 +137,22 @@ jobs:
           push: true
           tags: |
             ghcr.io/openconext/openconext-invite/inviteprovisioningmock:${{ steps.versioncheck.outputs.version }}
+
+      - name: Build Changelog
+        id: changelog
+        uses: ardalanamini/auto-changelog@v3
+        with:
+          default-commit-type: New Features
+
+      - name: Create release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: true
+          release_name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
