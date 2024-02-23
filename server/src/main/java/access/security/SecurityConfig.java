@@ -203,8 +203,8 @@ public class SecurityConfig {
                         "/api/external/v1/teams/**",
                         "/api/aa/**",
                         "/api/external/v1/aa/**",
-                        "/api/deprovisioning/**",
-                        "/api/external/v1/deprovisioning/**")
+                        "/api/deprovision/**",
+                        "/api/external/v1/deprovision/**")
                 .sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

@@ -23,7 +23,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .get("/api/deprovisioning/{sub}")
+                .get("/api/deprovision/{sub}")
                 .as(new TypeRef<>() {
                 });
         List<String> memberships = lifeCycleResult.getData().stream().filter(attribute -> attribute.getName().equals("membership"))
@@ -40,7 +40,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .get("/api/deprovisioning/{sub}")
+                .get("/api/deprovision/{sub}")
                 .then()
                 .statusCode(400);
     }
@@ -53,7 +53,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .delete("/api/deprovisioning/{sub}/dry-run")
+                .delete("/api/deprovision/{sub}/dry-run")
                 .as(new TypeRef<>() {
                 });
         List<String> memberships = lifeCycleResult.getData().stream().filter(attribute -> attribute.getName().equals("membership"))
@@ -76,7 +76,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .delete("/api/deprovisioning/{sub}")
+                .delete("/api/deprovision/{sub}")
                 .as(new TypeRef<>() {
                 });
         List<String> memberships = lifeCycleResult.getData().stream().filter(attribute -> attribute.getName().equals("membership"))
