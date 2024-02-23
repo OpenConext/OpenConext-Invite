@@ -125,8 +125,8 @@ attribute-aggregation:
   user: aa
   password: secret
 
-lifecyle:
-  user: lifecyle
+lifecycle:
+  user: lifecycle
   password: secret
 
 email:

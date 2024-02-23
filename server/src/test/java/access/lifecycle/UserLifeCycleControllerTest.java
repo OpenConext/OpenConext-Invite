@@ -19,7 +19,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
     void preview() {
         LifeCycleResult lifeCycleResult = given()
                 .when()
-                .auth().basic("lifecyle", "secret")
+                .auth().basic("lifecycle", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
@@ -49,7 +49,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
     void dryRun() {
         LifeCycleResult lifeCycleResult = given()
                 .when()
-                .auth().basic("lifecyle", "secret")
+                .auth().basic("lifecycle", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
@@ -72,7 +72,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
         super.stubForDeleteScimUser();
         LifeCycleResult lifeCycleResult = given()
                 .when()
-                .auth().basic("lifecyle", "secret")
+                .auth().basic("lifecycle", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
