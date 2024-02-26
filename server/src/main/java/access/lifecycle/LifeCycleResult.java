@@ -13,7 +13,7 @@ import java.util.List;
 public class LifeCycleResult {
 
   private final String status = "OK";
-  private final String name = "OpenConext-access-server";
+  private final String name = "OpenConext-invite-server";
   private List<Attribute> data = new ArrayList<>();
 
   public void setData(List<Attribute> data) {

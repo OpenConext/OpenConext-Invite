@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import static access.SwaggerOpenIdConfig.LIFE_CYCLE_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = {"/api/deprovisioning", "/api/external/v1/deprovisioning"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/api/deprovision", "/api/external/v1/deprovision"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = LIFE_CYCLE_SCHEME_NAME)
 public class UserLifeCycleController {
 

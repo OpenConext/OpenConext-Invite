@@ -73,8 +73,8 @@ public class SecurityConfig {
                           @Value("${oidcng.resource-server-secret}") String secret,
                           @Value("${voot.user}") String vootUser,
                           @Value("${voot.password}") String vootPassword,
-                          @Value("${lifecyle.user}") String lifeCycleUser,
-                          @Value("${lifecyle.password}") String lifeCyclePassword,
+                          @Value("${lifecycle.user}") String lifeCycleUser,
+                          @Value("${lifecycle.password}") String lifeCyclePassword,
                           @Value("${teams.user}") String teamsUser,
                           @Value("${teams.password}") String teamsPassword,
                           @Value("${attribute-aggregation.user}") String attributeAggregationUser,
@@ -203,8 +203,8 @@ public class SecurityConfig {
                         "/api/external/v1/teams/**",
                         "/api/aa/**",
                         "/api/external/v1/aa/**",
-                        "/api/deprovisioning/**",
-                        "/api/external/v1/deprovisioning/**")
+                        "/api/deprovision/**",
+                        "/api/external/v1/deprovision/**")
                 .sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
