@@ -153,6 +153,7 @@ jobs:
         uses: ardalanamini/auto-changelog@v3
         with:
           default-commit-type: New Features
+        if: github.event_name != 'workflow_dispatch'
 
       - name: Create release
         uses: actions/create-release@v1
@@ -166,3 +167,4 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
+        if: github.event_name != 'workflow_dispatch'
