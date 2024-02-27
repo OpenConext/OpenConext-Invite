@@ -83,36 +83,36 @@ jobs:
       - name: Upload the produced artefacts
         uses: actions/upload-artifact@v4
         with:
-           name: invitebuilds
-           path: |
+          name: invitebuilds
+          path: |
             client/build/
             provisioning-mock/target/*.jar
             server/target/*.jar
             welcome/build/
-           retention-days: 1
-  
+          retention-days: 1
+
   dockerbuild:
     permissions:
       packages: write
     runs-on: ubuntu-latest
-    needs: deployment 
+    needs: deployment
     strategy:
       matrix:
         include:
-            - image: ghcr.io/openconext/openconext-invite/inviteclient
-              app: client
-            - image: ghcr.io/openconext/openconext-invite/invitewelcome
-              app: welcome
-            - image: ghcr.io/openconext/openconext-invite/inviteprovisioningmock
-              app: provisioning-mock
-            - image: ghcr.io/openconext/openconext-invite/inviteserver
-              app: server
+          - image: ghcr.io/openconext/openconext-invite/inviteclient
+            app: client
+          - image: ghcr.io/openconext/openconext-invite/invitewelcome
+            app: welcome
+          - image: ghcr.io/openconext/openconext-invite/inviteprovisioningmock
+            app: provisioning-mock
+          - image: ghcr.io/openconext/openconext-invite/inviteserver
+            app: server
     steps:
 
       - uses: actions/checkout@v4
 
       - name: Download the previous produced artefacts
-        uses: actions/download-artifact@v4 
+        uses: actions/download-artifact@v4
         with:
           name: invitebuilds
 
@@ -125,7 +125,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Set docker labels and tags
         id: meta
         uses: docker/metadata-action@v5
@@ -145,7 +145,7 @@ jobs:
           file: ${{ matrix.app }}/docker/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ${{ steps.meta.outputs.tags }} 
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build Changelog
