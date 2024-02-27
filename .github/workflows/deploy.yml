@@ -1,5 +1,4 @@
 ---
-
 name: Maven install
 
 on:
@@ -18,17 +17,19 @@ jobs:
       packages: write
     environment: deploy
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.versioncheck.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup Maven
-        uses: stCarolas/setup-maven@v.4.5
+      - uses: actions/setup-java@v4
         with:
-          maven-version: 3.8.7
+          java-version: 17
+          distribution: "temurin"
 
       - name: Set up cache
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -36,7 +37,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Determine the version
-        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+        run: echo "version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)" >> $GITHUB_OUTPUT
         id: versioncheck
 
       - name: Exit when workflow_dispatch is triggered, and the version does not contain SNAPSHOT in it's name
@@ -52,7 +53,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch' && steps.versioncheck.outputs.version != github.ref_name
 
       - name: Set up JDK 17 for snapshots
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -63,7 +64,7 @@ jobs:
         if: ( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT'))
 
       - name: Set up JDK 17 for releases
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -73,26 +74,53 @@ jobs:
           server-password: MAVEN_PASSWORD
         if: ${{!( endsWith(steps.versioncheck.outputs.version, '-SNAPSHOT')) }}
 
-      - name: Extract Maven project version
-        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-        id: project
-      - name: Check if git tag matches project version
-        run: |
-          echo "Project version ${{ steps.project.outputs.version }} does not match git tag ${{ github.ref_name }}"
-          exit 1
-        if: ${{ steps.project.outputs.version != github.ref_name }}
-
       - name: Deploy with Maven
         run: mvn --batch-mode deploy -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.BUILD_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.BUILD_PASSWORD }}
 
+      - name: Upload the produced artefacts
+        uses: actions/upload-artifact@v4
+        with:
+           name: invitebuilds
+           path: |
+            client/build/
+            provisioning-mock/target/*.jar
+            server/target/*.jar
+            welcome/build/
+           retention-days: 1
+  
+  dockerbuild:
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    needs: deployment 
+    strategy:
+      matrix:
+        include:
+            - image: ghcr.io/openconext/openconext-invite/inviteclient
+              app: client
+            - image: ghcr.io/openconext/openconext-invite/invitewelcome
+              app: welcome
+            - image: ghcr.io/openconext/openconext-invite/inviteprovisioningmock
+              app: provisioning-mock
+            - image: ghcr.io/openconext/openconext-invite/inviteserver
+              app: server
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Download the previous produced artefacts
+        uses: actions/download-artifact@v4 
+        with:
+          name: invitebuilds
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -102,51 +130,22 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
+          images: ${{ matrix.image }}
           flavor: |
             latest=false
           tags: |
             type=ref,event=tag
-            type=semver,pattern={{version}},value=${{ steps.versioncheck.outputs.version }}
+            type=semver,pattern={{version}},value=${{ needs.deployment.outputs.version }}
             type=sha
 
-      - name: Build and push the server image
-        uses: docker/build-push-action@v4
+      - name: Build and push the ${{ matrix.app }} image
+        uses: docker/build-push-action@v5
         with:
-          context: server
-          file: server/docker/Dockerfile
+          context: ${{ matrix.app }}
+          file: ${{ matrix.app }}/docker/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/openconext/openconext-invite/inviteserver:${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push the client image
-        uses: docker/build-push-action@v4
-        with:
-          context: client
-          file: client/docker/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/openconext/openconext-invite/inviteclient:${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push the welcome image
-        uses: docker/build-push-action@v4
-        with:
-          context: welcome
-          file: welcome/docker/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/openconext/openconext-invite/invitewelcome:${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push the provisioning mock image
-        uses: docker/build-push-action@v4
-        with:
-          context: provisioning-mock
-          file: provisioning-mock/docker/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/openconext/openconext-invite/inviteprovisioningmock:${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }} 
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build Changelog
