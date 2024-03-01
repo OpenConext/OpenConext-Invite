@@ -68,12 +68,8 @@ public class ManageController {
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug("/providers");
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
-        List<Map<String, Object>> serviceProviders = manage.providers(EntityType.SAML20_SP);
-        List<Map<String, Object>> relyingParties = manage.providers(EntityType.OIDC10_RP);
-        List<Map<String, Object>> results = new ArrayList<>();
-        results.addAll(serviceProviders);
-        results.addAll(relyingParties);
-        return ResponseEntity.ok(results);
+        List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
+        return ResponseEntity.ok(providers);
     }
 
     @GetMapping("applications")

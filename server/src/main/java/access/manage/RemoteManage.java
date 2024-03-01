@@ -72,7 +72,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID) {
-        Map<String, Object> baseQuery = (Map<String, Object>) this.queries.get("base_query");
+        Map<String, Object> baseQuery = getBaseQuery();
         baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
         List serviceProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_SP.collectionName()),
@@ -86,7 +86,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
-        Map<String, Object> baseQuery = (Map<String, Object>) this.queries.get("base_query");
+        Map<String, Object> baseQuery = getBaseQuery();
         baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
         List<Map<String, Object> > identityProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_IDP.collectionName()),
@@ -95,9 +95,14 @@ public class RemoteManage implements Manage {
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type) {
-        Object baseQuery = this.queries.get("base_query");
+        Map<String, Object> baseQuery = getBaseQuery();
         String url = String.format("%s/manage/api/internal/search/%s", this.url, type);
         return transformProvider(restTemplate.postForObject(url, baseQuery, List.class));
     }
+
+    private Map<String, Object> getBaseQuery() {
+        return new HashMap<>((Map<String, Object>) this.queries.get("base_query"));
+    }
+
 
 }
