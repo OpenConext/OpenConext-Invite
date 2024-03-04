@@ -84,7 +84,7 @@ class TeamsControllerTest extends AbstractTest {
                 });
         assertEquals(1, groups.size());
         Map<String, String> group = groups.get(0);
-        assertEquals("urn:collab:group:test.surfteams.nl::nl:surfnet:diensten:test", group.get("urn"));
+        assertEquals("nl:surfnet:diensten:test", group.get("urn"));
         assertEquals(team.getName(), group.get("name"));
     }
 
