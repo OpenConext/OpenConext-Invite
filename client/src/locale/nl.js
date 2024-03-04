@@ -2,6 +2,12 @@ const nl = {
     code: "NL",
     name: "Nederlands",
     select_locale: "Wissel taal naar Nederlands",
+    languages: {
+        language: "Taal",
+        languageTooltip: "Kies de taal van de uitnodigings e-mail",
+        en: "Engels",
+        nl: "Nederlands",
+    },
     landing: {
         header: {
             title: "Toegang tot je applicaties",

@@ -6,23 +6,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
-import lombok.SneakyThrows;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.SneakyThrows;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,10 +58,9 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders) {
+    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders, Language language) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
-        String lang = preferredLanguage().toLowerCase();
-        String title = String.format(subjects.get(lang).get("newInvitation"),
+        String title = String.format(subjects.get(language.name()).get("newInvitation"),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", ")));
         Map<String, Object> variables = new HashMap<>();
         variables.put("groupedProviders", groupedProviders);
@@ -81,7 +75,7 @@ public class MailBox {
         }
 
             variables.put("invitation", invitation);
-        variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(lang));
+        variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(language.name()));
         variables.put("user", user);
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
@@ -91,7 +85,7 @@ public class MailBox {
         variables.put("url", String.format("%s/invitation/accept?hash=%s", url, invitation.getHash()));
         variables.put("useEduID", invitation.isEduIDOnly() && invitation.getIntendedAuthority().equals(Authority.GUEST));
 
-        sendMail(String.format("invitation_%s", lang),
+        sendMail(String.format("invitation_%s", language.name()),
                 title,
                 variables,
                 invitation.getEmail());

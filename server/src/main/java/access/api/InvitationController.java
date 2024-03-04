@@ -128,7 +128,7 @@ public class InvitationController {
         invitationRepository.saveAll(invitations);
 
         List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
-        invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders));
+        invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders, invitationRequest.getLanguage()));
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
         return Results.createResult();
     }
@@ -162,7 +162,7 @@ public class InvitationController {
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
         List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
 
-        mailBox.sendInviteMail(user, invitation, groupedProviders);
+        mailBox.sendInviteMail(user, invitation, groupedProviders, Language.en);
         if (invitation.getExpiryDate().isBefore(Instant.now())) {
             invitation.setExpiryDate(Instant.now().plus(Period.ofDays(14)));
             invitationRepository.save(invitation);

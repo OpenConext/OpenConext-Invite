@@ -30,6 +30,7 @@ export const InvitationForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    const languageOptions = ["en", "nl"].map(lang => ({label: I18n.t(`languages.${lang}`), value: lang}))
     const {user, setFlash, config} = useAppStore(state => state);
 
     const [guest, setGuest] = useState(false);
@@ -47,6 +48,7 @@ export const InvitationForm = () => {
     const [customExpiryDate, setCustomExpiryDate] = useState(false);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [initial, setInitial] = useState(true);
+    const [language, setLanguage] = useState(I18n.locale === "en" ? languageOptions[0] : languageOptions[1]);
     const required = ["intendedAuthority", "invites"];
 
     useEffect(() => {
@@ -116,7 +118,11 @@ export const InvitationForm = () => {
     const submit = () => {
         setInitial(false);
         if (isValid()) {
-            const invitationRequest = {...invitation, roleIdentifiers: selectedRoles.map(role => role.value)};
+            const invitationRequest = {
+                ...invitation,
+                roleIdentifiers: selectedRoles.map(role => role.value),
+                language: language.value
+            };
             setLoading(true);
             newInvitation(invitationRequest)
                 .then(() => {
@@ -269,6 +275,16 @@ export const InvitationForm = () => {
                             name={I18n.t("invitations.message")}
                             large={true}
                             multiline={true}/>
+
+                <SelectField
+                    value={language}
+                    options={languageOptions}
+                    name={I18n.t("languages.language")}
+                    searchable={false}
+                    onChange={val => setLanguage(val)}
+                    toolTip={I18n.t("languages.languageTooltip")}
+                    clearable={false}
+                />
 
                 {!displayAdvancedSettings &&
                     <a className="advanced-settings" href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>

@@ -63,7 +63,7 @@ class MailBoxTest extends AbstractMailTest {
                         localManage.providerById(EntityType.SAML20_SP, "2"),
                         invitation.getRoles().stream().map(InvitationRole::getRole).toList(),
                         UUID.randomUUID().toString())
-        ));
+        ), invitationRequest.getLanguage());
         MimeMessageParser mimeMessageParser = super.mailMessage();
         return mimeMessageParser.getHtmlContent();
     }

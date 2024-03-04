@@ -22,6 +22,8 @@ public class InvitationRequest implements Serializable {
 
     private String message;
 
+    private Language language;
+
     private boolean enforceEmailEquality;
 
     private boolean eduIDOnly;

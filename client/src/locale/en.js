@@ -2,6 +2,12 @@ const en = {
     code: "EN",
     name: "English",
     select_locale: "Change language to English",
+    languages: {
+        language: "Language",
+        languageTooltip: "Choose the language of the invitation mail",
+        en: "English",
+        nl: "Dutch",
+    },
     landing: {
         header: {
             title: "Manage access to your applications",
