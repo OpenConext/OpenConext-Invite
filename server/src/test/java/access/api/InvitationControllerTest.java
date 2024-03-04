@@ -69,6 +69,7 @@ class InvitationControllerTest extends AbstractTest {
         InvitationRequest invitationRequest = new InvitationRequest(
                 Authority.GUEST,
                 "Message",
+                Language.en,
                 true,
                 false,
                 false,
@@ -96,6 +97,7 @@ class InvitationControllerTest extends AbstractTest {
         InvitationRequest invitationRequest = new InvitationRequest(
                 Authority.INVITER,
                 "Message",
+                Language.en,
                 true,
                 false,
                 false,
