@@ -137,6 +137,10 @@ public class User implements Serializable, Provisionable {
         } else if (StringUtils.hasText(this.sub)) {
             this.name = StringUtils.capitalize(this.sub.substring(this.sub.lastIndexOf(":") + 1));
         }
+        nameInvariant();
+    }
+
+    public void nameInvariant() {
         if (!StringUtils.hasText(this.givenName) &&
                 !StringUtils.hasText(this.familyName) &&
                 StringUtils.hasText(this.name) &&

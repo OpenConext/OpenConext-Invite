@@ -112,19 +112,28 @@ public class TeamsController {
     private void provision(Role role, Membership membership) {
         Person person = membership.getPerson();
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(person.getUrn());
+        Instant now = Instant.now();
         User user = optionalUser.orElseGet(() -> {
             User newUser = new User();
             newUser.setSub(person.getUrn());
             newUser.setName(person.getName());
             newUser.setEmail(person.getEmail());
             newUser.setSchacHomeOrganization(person.getSchacHomeOrganization());
+            newUser.setCreatedAt(now);
+            newUser.setLastActivity(now);
+            newUser.nameInvariant();
             return userRepository.save(newUser);
         });
+        if (user.getCreatedAt() == null) {
+            user.setCreatedAt(now);
+        }
+        if (user.getLastActivity() == null) {
+            user.setLastActivity(now);
+        }
         UserRole userRole = new UserRole();
         userRole.setInviter("teams_migration");
         userRole.setUser(user);
         userRole.setRole(role);
-        Instant now = Instant.now();
         userRole.setCreatedAt(now);
         userRole.setEndDate(now.plus(DEFAULT_EXPIRY_DAYS, ChronoUnit.DAYS));
         userRole.setAuthority(membership.getRole().equals(access.teams.Role.MEMBER) ? Authority.GUEST : Authority.INVITER);

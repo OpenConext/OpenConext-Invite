@@ -2,6 +2,7 @@ package access.aggregation;
 
 import access.manage.EntityType;
 import access.manage.Manage;
+import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
 import access.provision.scim.GroupURN;
@@ -76,7 +77,9 @@ public class AttributeAggregatorController {
     }
 
     private Map<String, String> parseUserRole(UserRole userRole) {
-        return Map.of("id", GroupURN.urnFromRole(groupUrnPrefix, userRole.getRole()));
+        Role role = userRole.getRole();
+        String urn = role.isTeamsOrigin() ? role.getUrn() : GroupURN.urnFromRole(groupUrnPrefix, role);
+        return Map.of("id", urn);
     }
 
 }
