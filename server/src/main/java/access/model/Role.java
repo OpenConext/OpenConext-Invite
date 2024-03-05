@@ -55,7 +55,6 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "teams_origin")
     private boolean teamsOrigin;
 
-
     @Column(name = "identifier")
     private String identifier;
 

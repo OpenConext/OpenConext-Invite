@@ -97,7 +97,7 @@ export const allowedToRenewUserRole = (user, userRole) => {
     }
 }
 
-export const urnFromRole = (groupUrnPrefix, role) => `${groupUrnPrefix}:${role.identifier}:${role.shortName}`;
+export const urnFromRole = (groupUrnPrefix, role) => role.teamsOrigin ? role.urn : `${groupUrnPrefix}:${role.identifier}:${role.shortName}`;
 
 export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) => {
     allRoles.forEach(role => {
