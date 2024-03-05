@@ -215,7 +215,7 @@ const nl = {
         expiryDate: "Verloopdatum uitnodiging",
         roleExpiryDate: "Verloopdatum rol",
         roleExpiryDateQuestion: "Zet een specifieke verloopdatum voor de rol",
-        roleExpiryDateInfo: "Deze rol wordt verwijderd van de gebruiker na {{expiry}}",
+        roleExpiryDateInfo: "Deze rol wordt verwijderd van de gebruiker {{expiry}}",
         expiryDateQuestion: "Zet een specifieke verloopdatum voor de uitnodiging",
         expiryDateInfo: "Standaard verloopt een uitnodiging na 1 maand",
         withinThreeMonths: "Binnen 1 maand",
