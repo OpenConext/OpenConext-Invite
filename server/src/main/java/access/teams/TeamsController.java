@@ -63,7 +63,18 @@ public class TeamsController {
     @Transactional
     public ResponseEntity<Map<String, Integer>> migrateTeam(@RequestBody Team team) {
         if (CollectionUtils.isEmpty(team.getApplications())) {
-            throw new InvalidInputException();
+            throw new InvalidInputException("applications are required");
+        }
+        List<Membership> memberships = team.getMemberships();
+        if (!CollectionUtils.isEmpty(memberships)) {
+            memberships.forEach(membership -> {
+                if (membership.getPerson() == null) {
+                    throw new InvalidInputException("person of a membership is required");
+                }
+                if (membership.getPerson().getSchacHomeOrganization() == null) {
+                    throw new InvalidInputException("schacHomeOrganization of a person is required");
+                }
+            });
         }
         Role role = new Role();
         role.setName(team.getName());
@@ -78,7 +89,7 @@ public class TeamsController {
                 .filter(this::applicationExists)
                 .collect(Collectors.toSet());
         if (applications.isEmpty()) {
-            throw new InvalidInputException();
+            throw new InvalidInputException("None of the applications exists in Manange");
         }
         //This is the disadvantage of having to save references from Manage
         Set<ApplicationUsage> applicationUsages = team.getApplications().stream()
@@ -94,7 +105,6 @@ public class TeamsController {
 
         provisioningService.newGroupRequest(savedRole);
 
-        List<Membership> memberships = team.getMemberships();
         memberships.forEach(membership -> this.provision(savedRole, membership));
 
         return Results.createResult();

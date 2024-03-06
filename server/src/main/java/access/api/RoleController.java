@@ -134,11 +134,11 @@ public class RoleController {
 
     private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
         if (CollectionUtils.isEmpty(role.getApplicationUsages())) {
-            throw new InvalidInputException();
+            throw new InvalidInputException("applicationUsages are required");
         }
         role.getApplicationUsages().forEach(applicationUsage -> {
             if (StringUtils.hasText(applicationUsage.getLandingPage()) && !urlFormatValidator.isValid(applicationUsage.getLandingPage())) {
-                throw new InvalidInputException();
+                throw new InvalidInputException("landingPage is required");
             }
         });
 
