@@ -31,8 +31,7 @@ export const RoleForm = () => {
     const [role, setRole] = useState({
         name: "",
         shortName: "",
-        defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
-        identifier: crypto.randomUUID()
+        defaultExpiryDays: DEFAULT_EXPIRY_DAYS
     });
     const [providers, setProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
@@ -241,11 +240,12 @@ export const RoleForm = () => {
                         attribute: I18n.t("roles.name").toLowerCase()
                     })}/>}
 
-                <InputField name={I18n.t("roles.urn")}
+                {!isNewRole && <InputField
+                            name={I18n.t("roles.urn")}
                             value={urnFromRole(config.groupUrnPrefix, role)}
                             disabled={true}
                             toolTip={I18n.t("tooltips.roleUrn")}
-                />
+                />}
 
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}

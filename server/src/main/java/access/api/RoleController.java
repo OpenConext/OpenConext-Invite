@@ -150,8 +150,9 @@ public class RoleController {
         List<String> previousApplicationIdentifiers = new ArrayList<>();
         if (!isNew) {
             Role previousRole = roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new);
-            //We don't allow shortName changes after creation
+            //We don't allow shortName or identifier changes after creation
             role.setShortName(previousRole.getShortName());
+            role.setIdentifier(previousRole.getIdentifier());
             previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
         }
         //This is the disadvantage of having to save references from Manage
