@@ -136,7 +136,7 @@ public class InvitationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInvitation(@PathVariable("id") Long id,
                                                  @Parameter(hidden = true) User user) {
-        LOG.debug("/deleteInvitation");
+        LOG.debug(String.format("/deleteInvitation/%s by user %s", id, user.getEduPersonPrincipalName()));
         //We need to assert validations on the roles soo we need to load them
         Invitation invitation = invitationRepository.findById(id).orElseThrow(NotFoundException::new);
         List<Role> requestedRoles = invitation.getRoles().stream()
@@ -153,7 +153,7 @@ public class InvitationController {
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
                                                                  @Parameter(hidden = true) User user) {
-        LOG.debug("/resendInvitation");
+        LOG.debug(String.format("/resendInvitation/%s by user %s", id, user.getEduPersonPrincipalName()));
         //We need to assert validations on the roles soo we need to load them
         Invitation invitation = invitationRepository.findById(id).orElseThrow(NotFoundException::new);
         List<Role> requestedRoles = invitation.getRoles().stream()
@@ -282,7 +282,7 @@ public class InvitationController {
         newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
 
         LOG.info(String.format("User %s accepted invitation with role(s) %s",
-                user.getName(),
+                user.getEduPersonPrincipalName(),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", "))));
 
         Map<String, String> body = graphResponse.map(graph -> Map.of("inviteRedeemUrl", graph.inviteRedeemUrl())).
@@ -318,7 +318,7 @@ public class InvitationController {
 
     @GetMapping("roles/{roleId}")
     public ResponseEntity<List<Invitation>> byRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
-        LOG.debug("/me");
+        LOG.debug(String.format("/roles/%s by user %s", roleId, user.getEduPersonPrincipalName()));
         Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
