@@ -58,10 +58,12 @@ public class AttributeAggregatorController {
         }
 
         if (optionalProvider.isEmpty()) {
+            LOG.debug(String.format("AA request for unknown service: %s", spEntityId));
             return ResponseEntity.ok(Collections.emptyList());
         }
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(unspecifiedId);
         if (optionalUser.isEmpty()) {
+            LOG.debug(String.format("AA request for unknown user: %s", unspecifiedId));
             return ResponseEntity.ok(Collections.emptyList());
         }
         User user = optionalUser.get();
@@ -73,6 +75,7 @@ public class AttributeAggregatorController {
                 .filter(role -> role.getRole().applicationsUsed().stream().anyMatch(application -> application.getManageId().equals(provider.get("id"))))
                 .map(this::parseUserRole)
                 .toList();
+        LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", roles.size(), unspecifiedId, spEntityId));
         return ResponseEntity.ok(roles);
     }
 
