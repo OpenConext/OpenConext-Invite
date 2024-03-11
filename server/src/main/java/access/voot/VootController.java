@@ -1,11 +1,14 @@
 package access.voot;
 
+import access.aggregation.AttributeAggregatorController;
 import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
 import access.provision.scim.GroupURN;
 import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,7 @@ import static access.SwaggerOpenIdConfig.VOOT_SCHEME_NAME;
 @RequestMapping(value = {"/api/voot", "/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = VOOT_SCHEME_NAME)
 public class VootController {
+    private static final Log LOG = LogFactory.getLog(VootController.class);
 
     private final UserRepository userRepository;
     private final String groupUrnPrefix;
@@ -44,9 +48,12 @@ public class VootController {
             user.setLastActivity(Instant.now());
             userRepository.save(user);
             List<Map<String, String>> roles = user.getUserRoles().stream().map(this::parseUserRole).collect(Collectors.toList());
+            LOG.debug(String.format("Returning %o roles for VOOT request for user: %s", roles.size(), unspecifiedId));
             return ResponseEntity.ok(roles);
+        } else {
+            LOG.debug(String.format("VOOT request for unknown user: %s", unspecifiedId));
+            return ResponseEntity.ok(Collections.emptyList());
         }
-        return ResponseEntity.ok(Collections.emptyList());
     }
 
     private Map<String, String> parseUserRole(UserRole userRole) {
