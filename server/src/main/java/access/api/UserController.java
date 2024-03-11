@@ -82,7 +82,7 @@ public class UserController {
     @GetMapping("config")
     public ResponseEntity<Config> config(User user,
                                          @RequestParam(value = "guest", required = false, defaultValue = "false") boolean guest) {
-        LOG.debug(String.format("/config for user %s", user.getEduPersonPrincipalName()));
+        LOG.debug("/config");
         Config result = new Config(this.config);
         result
                 .withAuthenticated(user != null && user.getId() != null)
