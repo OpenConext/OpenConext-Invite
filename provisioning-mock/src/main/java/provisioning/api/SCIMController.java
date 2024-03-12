@@ -1,7 +1,6 @@
 package provisioning.api;
 
 
-import provisioning.model.ProvisioningType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import provisioning.model.HttpMethod;
 import provisioning.model.Provisioning;
+import provisioning.model.ProvisioningType;
 import provisioning.model.ResourceType;
 import provisioning.repository.ProvisioningRepository;
 
@@ -46,7 +45,9 @@ public class SCIMController {
                 "/api/scim/v2/users"
         ));
         String id = UUID.randomUUID().toString();
-        return ResponseEntity.ok(Collections.singletonMap("id", id));
+        Map<String, String> results = Collections.singletonMap("id", id);
+        LOG.info("/api/scim/v2/users POST Results: " + results);
+        return ResponseEntity.ok(results);
     }
 
     @PutMapping("/users/{id}")
@@ -78,7 +79,6 @@ public class SCIMController {
     @PostMapping("/groups")
     public ResponseEntity<Map<String, String>> createGroup(@RequestBody Map<String, Object> group) {
         LOG.info("/api/scim/v2/groups POST " + group);
-        String id = UUID.randomUUID().toString();
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(group),
@@ -86,7 +86,9 @@ public class SCIMController {
                 ResourceType.GROUPS,
                 "/api/scim/v2/groups"
         ));
-        return ResponseEntity.ok(Collections.singletonMap("id", id));
+        Map<String, String> results = Collections.singletonMap("id", UUID.randomUUID().toString());
+        LOG.info("/api/scim/v2/groups POST Results: " + results);
+        return ResponseEntity.ok(results);
     }
 
     @PatchMapping("/groups/{id}")

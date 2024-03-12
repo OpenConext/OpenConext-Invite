@@ -76,6 +76,13 @@ public class TeamsController {
                 }
             });
         }
+        //Check if the applications exist in Manage
+        Set<Application> applications = team.getApplications().stream()
+                .filter(this::applicationExists)
+                .collect(Collectors.toSet());
+        if (applications.isEmpty()) {
+            throw new InvalidInputException("None of the applications exists in Manage");
+        }
         Role role = new Role();
         role.setName(team.getName());
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getName()));
@@ -84,13 +91,6 @@ public class TeamsController {
         role.setDefaultExpiryDays(DEFAULT_EXPIRY_DAYS);
         role.setIdentifier(UUID.randomUUID().toString());
         role.setTeamsOrigin(true);
-        //Check if the applications exist in Manage
-        Set<Application> applications = team.getApplications().stream()
-                .filter(this::applicationExists)
-                .collect(Collectors.toSet());
-        if (applications.isEmpty()) {
-            throw new InvalidInputException("None of the applications exists in Manange");
-        }
         //This is the disadvantage of having to save references from Manage
         Set<ApplicationUsage> applicationUsages = team.getApplications().stream()
                 .map(applicationFromTeams -> {

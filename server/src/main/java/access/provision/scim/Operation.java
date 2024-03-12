@@ -2,6 +2,7 @@ package access.provision.scim;
 
 import lombok.Getter;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Getter
@@ -13,6 +14,6 @@ public class Operation {
 
     public Operation(OperationType op, List<String> remoteScimIdentifiers) {
         this.op = op;
-        this.value = remoteScimIdentifiers.stream().map(Member::new).toList();
+        this.value = new HashSet<>(remoteScimIdentifiers).stream().map(Member::new).toList();
     }
 }

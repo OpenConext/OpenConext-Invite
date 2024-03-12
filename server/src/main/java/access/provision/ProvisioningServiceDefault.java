@@ -275,7 +275,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     private String constructGroupRequest(Role role, String remoteGroupScimIdentifier, List<String> remoteUserScimIdentifiers) {
-        List<Member> members = remoteUserScimIdentifiers.stream()
+        HashSet<String> uniqueRemoteUserScimIdentifiers = new HashSet<>(remoteUserScimIdentifiers);
+        List<Member> members = uniqueRemoteUserScimIdentifiers.stream()
                 .filter(StringUtils::hasText)
                 .map(Member::new)
                 .toList();
