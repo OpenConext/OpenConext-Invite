@@ -55,9 +55,9 @@ jobs:
       - name: Set up JDK 17 for snapshots
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
           server-id: openconext-snapshots
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
@@ -66,9 +66,9 @@ jobs:
       - name: Set up JDK 17 for releases
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
           server-id: openconext-releases
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
@@ -108,7 +108,6 @@ jobs:
           - image: ghcr.io/openconext/openconext-invite/inviteserver
             app: server
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Download the previous produced artefacts
@@ -135,6 +134,8 @@ jobs:
             latest=false
           tags: |
             type=ref,event=tag
+            type=raw,event=tag,value=latest
+            type=raw,event=workflow_dispatch,value=snapshot
             type=semver,pattern={{version}},value=${{ needs.deployment.outputs.version }}
             type=sha
 
