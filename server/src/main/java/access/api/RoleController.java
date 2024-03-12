@@ -66,7 +66,7 @@ public class RoleController {
 
     @GetMapping("")
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user) {
-        LOG.debug("/roles");
+        LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
         if (user.isSuperUser() && !config.isRoleSearchRequired()) {
             return ResponseEntity.ok(manage.addManageMetaData(roleRepository.findAll()));
         }
@@ -90,7 +90,7 @@ public class RoleController {
 
     @GetMapping("{id}")
     public ResponseEntity<Role> role(@PathVariable("id") Long id,@Parameter(hidden = true) User user) {
-        LOG.debug("/role");
+        LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         manage.addManageMetaData(List.of(role));
@@ -108,22 +108,22 @@ public class RoleController {
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
-        LOG.debug("/newRole");
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
+        LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);
     }
 
     @PutMapping("")
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
-        LOG.debug("/updateRole");
+        LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
-        LOG.debug("/deleteRole");
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
+        LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
         manage.addManageMetaData(List.of(role));
         UserPermissions.assertManagerRole(role.applicationsUsed().stream().map(Application::getManageId).toList(), user);
         provisioningService.deleteGroupRequest(role);

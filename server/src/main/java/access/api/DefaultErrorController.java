@@ -58,7 +58,7 @@ public class DefaultErrorController implements ErrorController {
                     HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
         } else {
             if (!(error instanceof NotFoundException)) {
-                boolean logStackTrace = !(error instanceof UserRestrictionException);
+                boolean logStackTrace = !(error instanceof UserRestrictionException || error instanceof access.exception.RemoteException);
                 LOG.error(String.format("Error occurred; %s", error), logStackTrace ? error : null);
             }
             //https://github.com/spring-projects/spring-boot/issues/3057

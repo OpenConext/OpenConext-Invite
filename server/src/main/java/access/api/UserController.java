@@ -95,7 +95,7 @@ public class UserController {
 
     @GetMapping("me")
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
-        LOG.debug("/me");
+        LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
         List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.addManageMetaData(roles);
         return ResponseEntity.ok(user);
@@ -103,7 +103,7 @@ public class UserController {
 
     @GetMapping("other/{id}")
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
-        LOG.debug("/me");
+        LOG.debug(String.format("/other/%s for user $s", id, user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         User other = userRepository.findById(id).orElseThrow(NotFoundException::new);
 
@@ -115,7 +115,7 @@ public class UserController {
     @GetMapping("search")
     public ResponseEntity<List<User>> search(@RequestParam(value = "query") String query,
                                              @Parameter(hidden = true) User user) {
-        LOG.debug("/search");
+        LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         List<User> users = query.equals("owl") ? userRepository.findAll() :
                 userRepository.search(query.replaceAll("@", " ") + "*", 15);
@@ -142,6 +142,7 @@ public class UserController {
     @GetMapping("ms-accept-return/{manageId}/{userId}")
     public View msAcceptReturn(@PathVariable("manageId") String manageId, @PathVariable("userId") Long userId) {
         User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
+        LOG.debug(String.format("Return from MS accept. User %s",user.getEduPersonPrincipalName()));
         Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, manageId);
         Provisioning provisioning = new Provisioning(provisioningMap);
         AtomicReference<String> redirectReference = new AtomicReference<>(this.config.getWelcomeUrl());
