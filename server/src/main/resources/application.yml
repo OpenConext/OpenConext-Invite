@@ -65,10 +65,10 @@ spring:
     port: 3025
 
 crypto:
-  development-mode: True
-  private-key-location: classpath:nope
-#  development-mode: False
-#  private-key-location: classpath:/private_key_pkcs8.pem
+#  development-mode: True
+#  private-key-location: classpath:nope
+  development-mode: False
+  private-key-location: classpath:/private_key_pkcs8.pem
 
 cron:
   node-cron-job-responsible: true
@@ -136,7 +136,7 @@ email:
   enabled: false
 
 manage:
-  enabled: False
+  enabled: True
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret

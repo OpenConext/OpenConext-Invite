@@ -28,6 +28,7 @@ import static access.SwaggerOpenIdConfig.VOOT_SCHEME_NAME;
 @RequestMapping(value = {"/api/voot", "/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = VOOT_SCHEME_NAME)
 public class VootController {
+
     private static final Log LOG = LogFactory.getLog(VootController.class);
 
     private final UserRepository userRepository;

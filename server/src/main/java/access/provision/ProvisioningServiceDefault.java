@@ -232,6 +232,12 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         if (previousManageIdentifiers.equals(newManageIdentifiers)) {
             return;
         }
+
+        LOG.info(String.format("Group %s update request with different manage identifiers. Old identifiers %s, new identifiers %s",
+                newRole.getName(),
+                previousManageIdentifiers,
+                newManageIdentifiers));
+
         List<String> addedManageIdentifiers = newManageIdentifiers.stream().filter(id -> !previousManageIdentifiersSorted.contains(id)).toList();
         List<String> deletedManageIdentifiers = previousManageIdentifiers.stream().filter(id -> !newManageIdentifiers.contains(id)).toList();
 
@@ -250,6 +256,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                         this.sendGroupPutRequest(provisioning, provisionedGroup, userRoles, newRole, OperationType.Add);
                     });
                 });
+
+        LOG.info(String.format("Deleting existing provisionings %s from group %s", deletedManageIdentifiers, newRole.getName()));
+
         List<Provisioning> provisionings = manage.provisioning(deletedManageIdentifiers).stream().map(Provisioning::new).toList();
         deleteGroupRequest(newRole, provisionings);
     }
