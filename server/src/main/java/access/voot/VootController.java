@@ -49,10 +49,13 @@ public class VootController {
             user.setLastActivity(Instant.now());
             userRepository.save(user);
             List<Map<String, String>> roles = user.getUserRoles().stream().map(this::parseUserRole).collect(Collectors.toList());
+
             LOG.debug(String.format("Returning %o roles for VOOT request for user: %s", roles.size(), unspecifiedId));
+
             return ResponseEntity.ok(roles);
         } else {
             LOG.debug(String.format("VOOT request for unknown user: %s", unspecifiedId));
+
             return ResponseEntity.ok(Collections.emptyList());
         }
     }

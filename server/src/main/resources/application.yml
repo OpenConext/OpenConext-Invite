@@ -65,10 +65,11 @@ spring:
     port: 3025
 
 crypto:
-#  development-mode: True
-#  private-key-location: classpath:nope
-  development-mode: False
-  private-key-location: classpath:/private_key_pkcs8.pem
+  development-mode: True
+  private-key-location: classpath:nope
+#  Use the commented lines when you want to test against a remote manage. Do not add the private_key to git
+#  development-mode: False
+#  private-key-location: classpath:/private_key_pkcs8.pem
 
 cron:
   node-cron-job-responsible: true
