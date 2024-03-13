@@ -1,5 +1,5 @@
 ---
-name: Maven install
+name: Deploy
 
 on:
   workflow_dispatch:

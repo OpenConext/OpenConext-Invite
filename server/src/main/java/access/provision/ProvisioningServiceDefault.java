@@ -230,6 +230,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         List<String> previousManageIdentifiersSorted = previousManageIdentifiers.stream().sorted().toList();
         List<String> newManageIdentifiers = this.getManageIdentifiers(newRole);
         if (previousManageIdentifiers.equals(newManageIdentifiers)) {
+            LOG.info(String.format("Group %s update request with no difference in manage identifiers (%s). No action required",
+                    newRole.getName(),
+                    newManageIdentifiers));
             return;
         }
 

@@ -67,13 +67,6 @@ public class Role implements Serializable, Provisionable {
             cascade = CascadeType.ALL)
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
-    @OneToMany(mappedBy = "role",
-            orphanRemoval = true,
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<RemoteProvisionedGroup> remoteProvisionedGroups = new HashSet<>();
-
     @Embedded
     private Auditable auditable = new Auditable();
 
