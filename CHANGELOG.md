@@ -6,9 +6,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - yyyy-mm-dd
+## Unreleased - YYYY-MM-DD
 
+## 0.0.10 - 2024-03-14
+
+- Not used bi-directional relation removed
 - Enable metrics endpoint
+- Update github page
+- Choose language of invitation mail
+- Bugfix for migrated users
+- Idempotency bugfix for manage queries
+- Refactor the GitHub action for building the app and publishing the docker
+- Rename confusingly misspelled lifecy(c)le config
+- Enable metrics
 
 ## [0.0.5] - 17-02-2024
 
