@@ -1,6 +1,5 @@
 package access.voot;
 
-import access.aggregation.AttributeAggregatorController;
 import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
