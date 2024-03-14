@@ -92,8 +92,7 @@ jobs:
           retention-days: 1
 
   dockerbuild:
-    permissions:
-      packages: write
+    permissions: write-all
     runs-on: ubuntu-latest
     needs: deployment
     strategy:
@@ -109,6 +108,8 @@ jobs:
             app: server
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download the previous produced artefacts
         uses: actions/download-artifact@v4
