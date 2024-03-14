@@ -94,7 +94,7 @@ jobs:
 
       - name: Build Changelog
         id: changelog
-        uses: ardalanamini/auto-changelog@v3
+        uses: ardalanamini/auto-changelog@v4
         with:
           default-commit-type: New Features
           github-token: ${{ github.token }}
