@@ -32,7 +32,7 @@ import static org.awaitility.Awaitility.await;
         })
 public class AbstractMailTest extends AbstractTest {
 
-    private static final ServerSetup serverSetup = ServerSetupTest.SMTP;
+    private static final ServerSetup serverSetup = new ServerSetup(1025, "localhost", ServerSetup.PROTOCOL_SMTP);
 
     static {
         serverSetup.setServerStartupTimeout(500000);

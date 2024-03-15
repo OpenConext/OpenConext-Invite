@@ -62,7 +62,7 @@ spring:
     fail-on-missing-locations: true
   mail:
     host: localhost
-    port: 3025
+    port: 1025
 
 crypto:
   development-mode: True
@@ -137,7 +137,7 @@ email:
   enabled: false
 
 manage:
-  enabled: True
+  enabled: False
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret
