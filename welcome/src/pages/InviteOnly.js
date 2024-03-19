@@ -25,7 +25,6 @@ export const InviteOnly = () => {
                 <h1>{I18n.t("inviteOnly.welcome")}</h1>
                 <p className="roles">{I18n.t("inviteOnly.roles")}</p>
                 <Toaster message={""}
-                         large={true}
                          toasterType={ToasterType.Warning}
                          children={
                              <div className="warning">
