@@ -39,10 +39,11 @@ To build and deploy (the latter requires credentials in your maven settings):
 ```bash
 mvn clean deploy
 ```
+
 ### [Mail](#mail)
 
-In the default `application.properties` the mail host is `localhost` and the port is `1025`. Run mailpit to capture mails. 
-See https://github.com/axllent/mailpit
+In the default `application.properties` the mail host is `localhost` and the port is `1025`. Run mailpit to capture mails.
+See <https://github.com/axllent/mailpit>
 
 ### [Endpoints](#endpoints)
 
