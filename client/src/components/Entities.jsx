@@ -36,8 +36,8 @@ export const Entities = ({
                              newEntityPath,
                              newEntityFunc,
                              defaultSort,
-                            rowClassNameResolver,
-    searchAutoFocus = false,
+                             rowClassNameResolver,
+                             searchAutoFocus = false,
                              busy = false
                          }) => {
 

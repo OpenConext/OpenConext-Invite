@@ -78,6 +78,7 @@ export const User = ({user, other, config, currentUser}) => {
                 {role.applicationMaps.map((applicationMap, i) =>
                     <RoleCard role={role}
                               key={i}
+                              userRole={userRole}
                               applicationMap={applicationMap}
                               index={i}/>)}
             </React.Fragment>
@@ -127,7 +128,7 @@ export const User = ({user, other, config, currentUser}) => {
                 <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {(!hasRoles && user.institutionAdmin) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInstitutionAdmin")}</p>}
-            {(hasRoles || currentUser.superUser) &&
+            {(hasRoles) &&
                 <>
                     <div className="roles-search span-row">
                         <p>
@@ -137,7 +138,7 @@ export const User = ({user, other, config, currentUser}) => {
                     </div>
                     {filteredUserRoles
                         .map((userRole, index) => renderUserRole(userRole, index))}
-                    {filteredUserRoles.length === 0 &&
+                    {(filteredUserRoles.length === 0 && hasRoles) &&
                         <p>{I18n.t(`users.noRolesFound`)}</p>}
                 </>}
             {(!isEmpty(user.applications) && user.institutionAdmin) &&

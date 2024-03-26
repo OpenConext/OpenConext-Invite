@@ -23,6 +23,7 @@ export const Profile = () => {
         <a href="/logout" onClick={doLogin}>{I18n.t("profile.changeThis")}</a>
         <span>)</span>
     </div>
+
     return (
         <div className="mod-profile">
             <div className="profile-container">

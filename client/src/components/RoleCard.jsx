@@ -11,7 +11,8 @@ export const RoleCard = ({
                              role,
                              applicationMap,
                              index,
-                             isNew = false
+                             isNew = false,
+                             userRole = null,
                          }) => {
     const navigate = useNavigate();
 
@@ -19,11 +20,11 @@ export const RoleCard = ({
         <div key={index} className="user-role" >
             <Logo src={applicationMap.logo} alt={"provider"} className={"provider"}/>
             <section className={"user-role-info"}>
-                <p>{role.name}</p>
+                <p>{role.name} {userRole && <span>- {I18n.t(`access.${userRole.authority}`)}</span>}</p>
                 <h3>{roleName(applicationMap, I18n.locale)}</h3>
                 <MoreLessText txt={role.description} cutOffNumber={80}/>
             </section>
-            <div className={"launch"}>
+            <div className="launch">
                 <Button txt={I18n.t("inviter.details")} onClick={() => navigate(`/roles/${role.id}`)}/>
             </div>
 
