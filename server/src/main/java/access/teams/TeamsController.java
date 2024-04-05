@@ -146,7 +146,7 @@ public class TeamsController {
         userRole.setRole(role);
         userRole.setCreatedAt(now);
         userRole.setEndDate(now.plus(DEFAULT_EXPIRY_DAYS, ChronoUnit.DAYS));
-        userRole.setAuthority(membership.getRole().equals(access.teams.Role.MEMBER) ? Authority.GUEST : Authority.INVITER);
+        userRole.setAuthority(membership.getRole().equals(access.teams.Role.MEMBER) ? Authority.GUEST : Authority.MANAGER);
         userRole = userRoleRepository.save(userRole);
 
         provisioningService.updateGroupRequest(userRole, OperationType.Add);

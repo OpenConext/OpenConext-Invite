@@ -3,6 +3,7 @@ package access.teams;
 import access.AbstractTest;
 import access.manage.EntityType;
 import access.model.Application;
+import access.model.Authority;
 import access.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
@@ -70,7 +71,10 @@ class TeamsControllerTest extends AbstractTest {
                 .map(membership -> userRepository.findBySubIgnoreCase(membership.getPerson().getUrn()).orElseThrow(RuntimeException::new))
                 .toList();
         assertEquals(2, users.size());
+
         users.forEach(user -> assertEquals(team.getName(), user.getUserRoles().iterator().next().getRole().getName()));
+        User maryDoe = users.stream().filter(user -> user.getName().equals("Mary Doe")).findFirst().get();
+        assertEquals(Authority.MANAGER, maryDoe.getUserRoles().stream().findFirst().get().getAuthority());
 
         //Now check if we get the correct URN from the Voot interface
         List<Map<String, String>> groups = given()
