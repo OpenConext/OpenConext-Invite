@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@surfnet/sds": "^0.0.102",
-    "dompurify": "^3.0.3",
+    "@surfnet/sds": "^0.0.104",
+    "dompurify": "^3.0.11",
     "i18n-js": "^4.2.3",
     "isomorphic-dompurify": "^1.5.0",
     "js-cookie": "^3.0.1",
