@@ -2,6 +2,7 @@ package access.aggregation;
 
 import access.manage.EntityType;
 import access.manage.Manage;
+import access.model.Authority;
 import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
@@ -71,12 +72,13 @@ public class AttributeAggregatorController {
         userRepository.save(user);
 
         Map<String, Object> provider = optionalProvider.get();
-        List<Map<String, String>> roles = user.getUserRoles().stream()
-                .filter(role -> role.getRole().applicationsUsed().stream().anyMatch(application -> application.getManageId().equals(provider.get("id"))))
+        List<Map<String, String>> userRoles = user.getUserRoles().stream()
+                .filter(userRole -> userRole.getRole().applicationsUsed().stream().anyMatch(application -> application.getManageId().equals(provider.get("id"))))
+                .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(this::parseUserRole)
                 .toList();
-        LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", roles.size(), unspecifiedId, spEntityId));
-        return ResponseEntity.ok(roles);
+        LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", userRoles.size(), unspecifiedId, spEntityId));
+        return ResponseEntity.ok(userRoles);
     }
 
     private Map<String, String> parseUserRole(UserRole userRole) {

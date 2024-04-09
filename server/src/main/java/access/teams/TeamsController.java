@@ -146,9 +146,29 @@ public class TeamsController {
         userRole.setRole(role);
         userRole.setCreatedAt(now);
         userRole.setEndDate(now.plus(DEFAULT_EXPIRY_DAYS, ChronoUnit.DAYS));
-        userRole.setAuthority(membership.getRole().equals(access.teams.Role.MEMBER) ? Authority.GUEST : Authority.MANAGER);
+        access.teams.Role teamsRole = membership.getRole();
+        userRole.setAuthority(mapAuthority(teamsRole));
+        boolean guestRoleIncluded = teamsRole.equals(access.teams.Role.ADMIN) || teamsRole.equals(access.teams.Role.MANAGER);
+        userRole.setGuestRoleIncluded(guestRoleIncluded);
         userRole = userRoleRepository.save(userRole);
 
         provisioningService.updateGroupRequest(userRole, OperationType.Add);
+    }
+
+    protected static Authority mapAuthority(access.teams.Role role) {
+        switch (role) {
+            case MEMBER -> {
+                return Authority.GUEST;
+            }
+            case MANAGER -> {
+                return Authority.INVITER;
+            }
+            case ADMIN, OWNER -> {
+                return Authority.MANAGER;
+            }
+            default -> {
+                throw new InvalidInputException("Unknown membership role: " + role);
+            }
+        }
     }
 }

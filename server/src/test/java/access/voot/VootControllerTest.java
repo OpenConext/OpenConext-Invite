@@ -43,4 +43,34 @@ class VootControllerTest extends AbstractTest {
                 });
         assertEquals(0, groups.size());
     }
+
+    @Test
+    void getGroupMembershipsGuestIncluded() {
+        List<Map<String, String>> groups = given()
+                .when()
+                .auth().basic("voot", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", MANAGE_SUB)
+                .get("/api/voot/{sub}")
+                .as(new TypeRef<>() {
+                });
+        List<String> urns = groups.stream().map(m -> m.get("urn")).sorted().toList();
+        assertEquals(1, urns.size());
+        assertTrue(urns.get(0).startsWith("urn:mace:surf.nl:test.surfaccess.nl:"));
+    }
+
+    @Test
+    void getGroupMembershipsOnlyGuest() {
+        List<Map<String, String>> groups = given()
+                .when()
+                .auth().basic("voot", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", INVITER_SUB)
+                .get("/api/voot/{sub}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, groups.size());
+    }
 }

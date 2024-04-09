@@ -565,6 +565,7 @@ public abstract class AbstractTest {
 
         UserRole wikiManager =
                 new UserRole("system", manager, wiki, Authority.MANAGER);
+        wikiManager.setGuestRoleIncluded(true);
         UserRole calendarInviter =
                 new UserRole("system", inviter, calendar, Authority.INVITER);
         UserRole mailInviter =

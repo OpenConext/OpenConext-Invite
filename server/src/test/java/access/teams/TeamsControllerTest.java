@@ -5,6 +5,7 @@ import access.manage.EntityType;
 import access.model.Application;
 import access.model.Authority;
 import access.model.User;
+import access.model.UserRole;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -12,30 +13,24 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static access.teams.TeamsController.mapAuthority;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TeamsControllerTest extends AbstractTest {
 
+    private static final Map<String, Role> userRoles = Map.of(
+            "Mary Doe", Role.ADMIN,
+            "Harry Doe", Role.MEMBER,
+            "John Doe", Role.MANAGER,
+            "Paul Doe", Role.OWNER
+    );
+
     @Test
     void migrateTeam() throws JsonProcessingException {
-        List<Membership> memberships = List.of(
-                new Membership(
-                        new Person(
-                                "urn:collab:person:surfnet.nl:mdoe",
-                                "Mary Doe",
-                                "mdoe@example.com",
-                                "example.com"), Role.ADMIN),
-                new Membership(
-                        new Person(
-                                "urn:collab:person:surfnet.nl:hdoe",
-                                "Harry Doe",
-                                "hdoe@example.com",
-                                "example.com"), Role.MEMBER)
-
-        );
+        List<Membership> memberships = getMemberships();
         List<Application> applications = List.of(
                 new Application("1", EntityType.SAML20_SP),
                 new Application("5", EntityType.OIDC10_RP));
@@ -63,18 +58,27 @@ class TeamsControllerTest extends AbstractTest {
                 .statusCode(201);
 
         access.model.Role role = roleRepository.findByName(team.getName()).get(0);
-        assertEquals(2L, role.getUserRoleCount());
+        assertEquals(4L, role.getUserRoleCount());
         assertTrue(role.isTeamsOrigin());
         assertEquals(2, role.applicationsUsed().size());
 
         List<User> users = memberships.stream()
                 .map(membership -> userRepository.findBySubIgnoreCase(membership.getPerson().getUrn()).orElseThrow(RuntimeException::new))
                 .toList();
-        assertEquals(2, users.size());
+        assertEquals(4, users.size());
 
         users.forEach(user -> assertEquals(team.getName(), user.getUserRoles().iterator().next().getRole().getName()));
-        User maryDoe = users.stream().filter(user -> user.getName().equals("Mary Doe")).findFirst().get();
-        assertEquals(Authority.MANAGER, maryDoe.getUserRoles().stream().findFirst().get().getAuthority());
+        userRoles.forEach((key, teamsRole) -> {
+            User user = users.stream().filter(u -> u.getName().equals(key)).findFirst().get();
+            UserRole userRole = user.getUserRoles().stream().findFirst().get();
+            Authority authority = userRole.getAuthority();
+            assertEquals(mapAuthority(teamsRole), authority);
+            if (teamsRole.equals(Role.MEMBER) || teamsRole.equals(Role.OWNER)) {
+                assertFalse(userRole.isGuestRoleIncluded());
+            } else {
+                assertTrue(userRole.isGuestRoleIncluded());
+            }
+        });
 
         //Now check if we get the correct URN from the Voot interface
         List<Map<String, String>> groups = given()
@@ -82,7 +86,7 @@ class TeamsControllerTest extends AbstractTest {
                 .auth().basic("voot", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("sub", "urn:collab:person:surfnet.nl:hdoe")
+                .pathParam("sub", memberships.get(0).getPerson().getUrn())
                 .get("/api/voot/{sub}")
                 .as(new TypeRef<>() {
                 });
@@ -90,6 +94,17 @@ class TeamsControllerTest extends AbstractTest {
         Map<String, String> group = groups.get(0);
         assertEquals("nl:surfnet:diensten:test", group.get("urn"));
         assertEquals(team.getName(), group.get("name"));
+    }
+
+    private List<Membership> getMemberships() {
+        return userRoles.entrySet().stream()
+                .map(entry -> new Membership(
+                        new Person(
+                                "urn:collab:person:surfnet.nl:" + entry.getKey().toLowerCase().replaceAll(" ", "."),
+                                entry.getKey(),
+                                entry.getKey().replaceAll(" ", "") + "@example.com",
+                                "example.com"), entry.getValue()))
+                .collect(Collectors.toList());
     }
 
     @Test

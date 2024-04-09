@@ -1,5 +1,6 @@
 package access.voot;
 
+import access.model.Authority;
 import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
@@ -47,7 +48,9 @@ public class VootController {
             User user = optionalUser.get();
             user.setLastActivity(Instant.now());
             userRepository.save(user);
-            List<Map<String, String>> roles = user.getUserRoles().stream().map(this::parseUserRole).collect(Collectors.toList());
+            List<Map<String, String>> roles = user.getUserRoles().stream()
+                    .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
+                    .map(this::parseUserRole).collect(Collectors.toList());
 
             LOG.debug(String.format("Returning %o roles for VOOT request for user: %s", roles.size(), unspecifiedId));
 
