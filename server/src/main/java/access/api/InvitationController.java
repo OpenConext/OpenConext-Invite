@@ -249,7 +249,8 @@ public class InvitationController {
                                 userRole.setAuthority(intendedAuthority);
                                 userRole.setEndDate(invitation.getRoleExpiryDate());
                             }
-                            if (currentAuthority.equals(Authority.GUEST) || intendedAuthority.equals(Authority.GUEST)) {
+                            if (currentAuthority.equals(Authority.GUEST) || intendedAuthority.equals(Authority.GUEST) ||
+                                    invitation.isGuestRoleIncluded()) {
                                 userRole.setGuestRoleIncluded(true);
                             }
                         }
