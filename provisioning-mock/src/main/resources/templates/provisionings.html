@@ -26,10 +26,14 @@
                 <p class="info">Click to fetch the provisioning details</p>
             </div>
             <div th:each="provisioning : ${provisionings}">
+                <span th:text="${provisioning.createdAt}"></span>
+                <span> : </span>
                 <a th:href="@{/provisioning/{id}(id=${provisioning.id})}">
                     <span th:text="${provisioning.method}"></span>
-                    <span>: </span>
+                    <span> - </span>
                     <span th:text="${provisioning.url}"></span>
+
+
                 </a>
             </div>
             <div th:if="${!provisionings.empty}">

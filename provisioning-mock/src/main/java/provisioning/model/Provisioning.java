@@ -10,6 +10,7 @@ import lombok.Setter;
 
 
 import java.io.Serializable;
+import java.time.Instant;
 
 @Entity(name = "provisionings")
 @NoArgsConstructor
@@ -38,6 +39,9 @@ public class Provisioning implements Serializable {
 
     @Column
     private String url;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
 
     @Transient
     private String prettyMessage;

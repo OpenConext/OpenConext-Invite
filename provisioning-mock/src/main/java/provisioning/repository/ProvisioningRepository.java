@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface ProvisioningRepository extends JpaRepository<Provisioning, Long> {
 
-    List<Provisioning> findProvisioningByProvisioningType(ProvisioningType provisioningType);
+    List<Provisioning> findByProvisioningTypeOrderByCreatedAtDesc(ProvisioningType provisioningType);
 }

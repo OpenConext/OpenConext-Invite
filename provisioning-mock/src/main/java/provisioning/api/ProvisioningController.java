@@ -37,7 +37,7 @@ public class ProvisioningController {
     @GetMapping("/provisionings/{type}")
     public ModelAndView allProvisionings(@PathVariable("type") ProvisioningType provisioningType) {
         return new ModelAndView("provisionings",
-                Map.of("provisionings", provisioningRepository.findProvisioningByProvisioningType(provisioningType),
+                Map.of("provisionings", provisioningRepository.findByProvisioningTypeOrderByCreatedAtDesc(provisioningType),
                         "provisioningType", provisioningType.name(),
                         "environment", environment));
     }
@@ -55,7 +55,7 @@ public class ProvisioningController {
 
     @GetMapping("/delete/provisionings/{type}")
     public ModelAndView deleteProvisionings(@PathVariable("type") ProvisioningType provisioningType) {
-        provisioningRepository.deleteAll(provisioningRepository.findProvisioningByProvisioningType(provisioningType));
+        provisioningRepository.deleteAll(provisioningRepository.findByProvisioningTypeOrderByCreatedAtDesc(provisioningType));
         return this.allProvisionings(provisioningType);
     }
 
