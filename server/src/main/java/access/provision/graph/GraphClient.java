@@ -5,6 +5,7 @@ import access.model.User;
 import access.provision.Provisioning;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.http.BaseRequest;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 public class GraphClient {
@@ -28,11 +30,13 @@ public class GraphClient {
     private final String serverUrl;
     private final String eduidIdpSchacHomeOrganization;
     private final KeyStore keyStore;
+    private final ObjectMapper objectMapper;
 
-    public GraphClient(String serverUrl, String eduidIdpSchacHomeOrganization, KeyStore keyStore) {
+    public GraphClient(String serverUrl, String eduidIdpSchacHomeOrganization, KeyStore keyStore, ObjectMapper objectMapper) {
         this.serverUrl = serverUrl;
         this.eduidIdpSchacHomeOrganization = eduidIdpSchacHomeOrganization;
         this.keyStore= keyStore;
+        this.objectMapper = objectMapper;
     }
 
     @SuppressWarnings("unchecked")
@@ -59,12 +63,15 @@ public class GraphClient {
         try {
             com.microsoft.graph.models.Invitation newInvitation = buildRequest.post(invitation);
 
-            LOG.info(String.format("Response from graph endpoint for user %s, inviteRedeemUrl: %s",
+            String invitationJson = objectMapper.writeValueAsString(newInvitation);
+
+            LOG.info(String.format("Response from graph endpoint for user %s, inviteRedeemUrl: %s, json: %s",
                     user.getEmail(),
-                    newInvitation.inviteRedeemUrl
+                    newInvitation.inviteRedeemUrl,
+                    invitationJson
             ));
             return new GraphResponse(newInvitation.invitedUser.id, newInvitation.inviteRedeemUrl);
-        } catch (ClientException e) {
+        } catch (ClientException | IOException e) {
             String errorMessage = String.format("Error Graph request (entityID %s) to %s for user %s",
                     provisioning.getEntityId(),
                     graphUrl,

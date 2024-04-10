@@ -59,6 +59,8 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void newInvitation() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
         stubForManageProviderById(EntityType.SAML20_SP, "1");
@@ -92,6 +94,8 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void newInvitationEmptyRoles() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
         InvitationRequest invitationRequest = new InvitationRequest(
@@ -185,13 +189,14 @@ class InvitationControllerTest extends AbstractTest {
                 .findFirst().get().getAuthority();
         assertEquals(Authority.GUEST, authority);
 
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
         String hash = Authority.MANAGER.name();
         Invitation invitation = invitationRepository.findByHash(hash).get();
 
         stubForManageProvisioning(List.of("5"));
         stubForCreateScimUser();
-
         AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
         given()
                 .when()

@@ -22,7 +22,10 @@ class UserRoleControllerTest extends AbstractTest {
 
     @Test
     void byRole() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
         Role role = roleRepository.search("wiki", 1).get(0);
         List<UserRole> userRoles = given()
                 .when()
@@ -39,7 +42,10 @@ class UserRoleControllerTest extends AbstractTest {
 
     @Test
     void updateEndDate() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
         UserRole userRole = userRoleRepository.findByRoleName("Wiki").stream()
                 .filter(userRole1 -> userRole1.getAuthority().equals(Authority.GUEST))
                 .findFirst()
@@ -66,7 +72,10 @@ class UserRoleControllerTest extends AbstractTest {
 
     @Test
     void updateEndDateInThePast() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
         UserRole userRole = userRoleRepository.findByRoleName("Wiki").stream()
                 .filter(userRole1 -> userRole1.getAuthority().equals(Authority.GUEST))
                 .findFirst()
@@ -85,7 +94,10 @@ class UserRoleControllerTest extends AbstractTest {
 
     @Test
     void deleteUserRole() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
         List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
         UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.GUEST)).findFirst().get();
         given()

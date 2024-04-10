@@ -81,12 +81,13 @@ class TeamsControllerTest extends AbstractTest {
         });
 
         //Now check if we get the correct URN from the Voot interface
+        Membership harryDoe = memberships.stream().filter(m -> m.getPerson().getName().equals("Harry Doe")).findFirst().get();
         List<Map<String, String>> groups = given()
                 .when()
                 .auth().basic("voot", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("sub", memberships.get(0).getPerson().getUrn())
+                .pathParam("sub", harryDoe.getPerson().getUrn())
                 .get("/api/voot/{sub}")
                 .as(new TypeRef<>() {
                 });

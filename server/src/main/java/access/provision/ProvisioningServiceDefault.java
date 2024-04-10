@@ -76,7 +76,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         this.objectMapper = objectMapper;
         this.keyStore = keyStore;
         this.groupUrnPrefix = groupUrnPrefix;
-        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore);
+        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
         this.evaClient = new EvaClient(keyStore);
         // Otherwise, we can't use method PATCH
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -86,7 +86,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @Override
-    @SneakyThrows
     public Optional<GraphResponse> newUserRequest(User user) {
         List<Provisioning> provisionings = getProvisionings(user);
         AtomicReference<GraphResponse> graphResponseReference = new AtomicReference<>();
@@ -109,7 +108,23 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @Override
-    @SneakyThrows
+    public void updateUserRequest(User user) {
+        List<Provisioning> userProvisionings = getProvisionings(user);
+        List<Provisioning> provisionings = userProvisionings.stream()
+                .filter(provisioning -> provisioning.getProvisioningType().equals(ProvisioningType.scim))
+                .toList();
+        //Provision the user to all provisionings in Manage where the user is known
+        provisionings.forEach(provisioning -> {
+            Optional<RemoteProvisionedUser> provisionedUserOptional =
+                    this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
+            provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
+                String userRequest = prettyJson(new UserRequest(user, remoteProvisionedUser.getRemoteIdentifier()));
+                this.updateRequest(provisioning, userRequest, USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
+            });
+        });
+    }
+
+    @Override
     public void deleteUserRequest(User user) {
         //First send update role requests
         user.getUserRoles()
@@ -306,7 +321,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         return prettyJson(request);
     }
 
-    @SneakyThrows
     private Optional<ProvisioningResponse> newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
         boolean isUser = provisionable instanceof User;
         String apiType = isUser ? USER_API : GROUP_API;
@@ -334,7 +348,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     }
 
-    @SneakyThrows
     private void updateRequest(Provisioning provisioning,
                                String request,
                                String apiType,
@@ -362,7 +375,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         return role.applicationsUsed().stream().map(Application::getManageId).distinct().sorted().toList();
     }
 
-    @SneakyThrows
     private void deleteRequest(Provisioning provisioning,
                                String request,
                                Provisionable provisionable,

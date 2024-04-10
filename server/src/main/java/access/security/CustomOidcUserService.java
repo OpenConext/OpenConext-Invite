@@ -2,6 +2,7 @@ package access.security;
 
 import access.manage.Manage;
 import access.model.User;
+import access.provision.ProvisioningService;
 import access.repository.UserRepository;
 import lombok.Getter;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -23,14 +24,20 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
     @Getter
     private final Manage manage;
+    private final ProvisioningService provisioningService;
     private final UserRepository userRepository;
     private final String entitlement;
     private final String organizationGuidPrefix;
     private final OidcUserService delegate;
 
-    public CustomOidcUserService(Manage manage, UserRepository userRepository, String entitlement, String organizationGuidPrefix) {
+    public CustomOidcUserService(Manage manage,
+                                 UserRepository userRepository,
+                                 ProvisioningService provisioningService,
+                                 String entitlement,
+                                 String organizationGuidPrefix) {
         this.manage = manage;
         this.userRepository = userRepository;
+        this.provisioningService = provisioningService;
         this.entitlement = entitlement;
         this.organizationGuidPrefix = organizationGuidPrefix;
         delegate = new OidcUserService();
@@ -59,7 +66,10 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             newClaims.putAll(manageClaims);
         }
         optionalUser.ifPresent(user -> {
-            user.updateAttributes(newClaims);
+            boolean changed = user.updateAttributes(newClaims);
+            if (changed) {
+                provisioningService.updateUserRequest(user);
+            }
             userRepository.save(user);
         });
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);

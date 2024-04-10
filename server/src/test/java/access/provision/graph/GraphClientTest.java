@@ -6,11 +6,10 @@ import access.manage.EntityType;
 import access.manage.LocalManage;
 import access.model.User;
 import access.provision.Provisioning;
-import crypto.KeyStore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import crypto.RSAKeyStore;
 import org.junit.jupiter.api.Test;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,7 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 //We test the non-happy paths here and the happy-paths through the controllers
 class GraphClientTest {
 
-    final GraphClient graphClient = new GraphClient("http://localhost:8888", "test.eduid.nl", new RSAKeyStore());
+    final GraphClient graphClient = new GraphClient("http://localhost:8888",
+            "test.eduid.nl",
+            new RSAKeyStore(),
+            new ObjectMapper());
     final LocalManage localManage = new LocalManage( ObjectMapperHolder.objectMapper, false);
 
     @Test

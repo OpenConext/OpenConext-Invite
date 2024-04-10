@@ -76,7 +76,7 @@ public class UserController {
         this.objectMapper = objectMapper;
         this.manage = manage;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
-        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore);
+        this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
     }
 
     @GetMapping("config")

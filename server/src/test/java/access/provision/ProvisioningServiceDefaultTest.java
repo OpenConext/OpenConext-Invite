@@ -3,11 +3,14 @@ package access.provision;
 import access.AbstractTest;
 import access.model.*;
 import access.provision.scim.OperationType;
+import access.provision.scim.UserRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static access.AbstractTest.GUEST_SUB;
@@ -28,6 +31,23 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
         assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+    }
+
+    @Test
+    void updateUserRequest() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        //Need to ensure the user is updated therefore the remote needs to exists and provisioning is scimn
+        String remoteScimIdentifier = UUID.randomUUID().toString();
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier,"7");
+        remoteProvisionedUserRepository.save(remoteProvisionedUser);
+        this.stubForManageProvisioning(List.of("1", "4", "5"));
+        this.stubForUpdateScimUser();
+        provisioningService.updateUserRequest(user);
+        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching(String.format("/api/scim/v2/users/(.*)"))));
+
+        assertEquals(1, loggedRequests.size());
+        Map<String, Object> userRequest = objectMapper.readValue(loggedRequests.get(0).getBodyAsString(), Map.class);
+        assertEquals(remoteScimIdentifier, userRequest.get("id"));
     }
 
     @Test

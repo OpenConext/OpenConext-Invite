@@ -11,6 +11,8 @@ public interface ProvisioningService {
 
     Optional<GraphResponse> newUserRequest(User user);
 
+    void updateUserRequest(User user);
+
     void deleteUserRequest(User user);
 
     void newGroupRequest(Role role);

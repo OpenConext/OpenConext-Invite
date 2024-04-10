@@ -2,6 +2,7 @@ package access.security;
 
 import access.exception.ExtendedErrorAttributes;
 import access.manage.Manage;
+import access.provision.ProvisioningService;
 import access.repository.APITokenRepository;
 import access.repository.InvitationRepository;
 import access.repository.UserRepository;
@@ -55,6 +56,7 @@ public class SecurityConfig {
     private final String secret;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final InvitationRepository invitationRepository;
+    private final ProvisioningService provisioningService;
     private final String vootUser;
     private final String vootPassword;
     private final String attributeAggregationUser;
@@ -67,6 +69,7 @@ public class SecurityConfig {
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           InvitationRepository invitationRepository,
+                          ProvisioningService provisioningService,
                           @Value("${config.eduid-entity-id}") String eduidEntityId,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
@@ -81,6 +84,7 @@ public class SecurityConfig {
                           @Value("${attribute-aggregation.password}") String attributeAggregationPassword) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
+        this.provisioningService = provisioningService;
         this.eduidEntityId = eduidEntityId;
         this.introspectionUri = introspectionUri;
         this.clientId = clientId;
@@ -165,7 +169,7 @@ public class SecurityConfig {
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
                         ).userInfoEndpoint(userInfoEndpointConfigurer -> userInfoEndpointConfigurer.oidcUserService(
-                                new CustomOidcUserService(manage, userRepository, entitlement, organizationGuidPrefix)))
+                                new CustomOidcUserService(manage, userRepository, provisioningService, entitlement, organizationGuidPrefix)))
                 )
                 //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin invitation accept
                 .securityContext(securityContextConfigurer ->

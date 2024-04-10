@@ -5,8 +5,10 @@ import access.AccessCookieFilter;
 import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.model.Authority;
+import access.model.RemoteProvisionedUser;
 import access.model.User;
 import access.model.UserRole;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static access.AbstractTest.*;
@@ -217,6 +220,8 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void meWithNotAllowedImpersonation() throws Exception {
+        super.stubForManageProvisioning(List.of("1", "5"));
+
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
         User guest = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
@@ -378,4 +383,25 @@ class UserControllerTest extends AbstractTest {
                 .then()
                 .statusCode(201);
     }
+
+    @Test
+    void meUpdateScim() throws Exception {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        String remoteScimIdentifier = UUID.randomUUID().toString();
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier,"7");
+        remoteProvisionedUserRepository.save(remoteProvisionedUser);
+
+        super.stubForManageProvisioning(List.of("1", "4", "5"));
+        super.stubForUpdateScimUser();
+
+        //This will trigger the SCIM update request, see CustomOidcUserService#loadUser
+        openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
+
+        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching("/api/scim/v2/users/(.*)")));
+
+        assertEquals(1, loggedRequests.size());
+        Map<String, Object> userRequest = objectMapper.readValue(loggedRequests.get(0).getBodyAsString(), Map.class);
+        assertEquals(remoteScimIdentifier, userRequest.get("id"));
+    }
+
 }

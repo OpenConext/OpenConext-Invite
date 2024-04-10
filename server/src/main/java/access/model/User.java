@@ -178,7 +178,7 @@ public class User implements Serializable, Provisionable {
     @JsonIgnore
     public Set<ManageIdentifier> manageIdentifierSet() {
         return userRoles.stream()
-                .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST))
+                .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(userRole -> userRole.getRole().getApplicationUsages())
                 .flatMap(Collection::stream)
                 .map(applicationUsage -> new ManageIdentifier(applicationUsage.getApplication().getManageId(),applicationUsage.getApplication().getManageType()))
@@ -199,16 +199,41 @@ public class User implements Serializable, Provisionable {
     }
 
     @JsonIgnore
-    public void updateAttributes(Map<String, Object> attributes) {
-        this.eduPersonPrincipalName = (String) attributes.get("eduperson_principal_name");
-        this.schacHomeOrganization = (String) attributes.get("schac_home_organization");
-        this.givenName = (String) attributes.get("given_name");
-        this.familyName = (String) attributes.get("family_name");
-        this.email = (String) attributes.get("email");
+    public boolean updateAttributes(Map<String, Object> attributes) {
+        boolean changed = false;
+        String newEdupersonPrincipalName = (String) attributes.get("eduperson_principal_name");
+        changed = changed || !Objects.equals(this.eduPersonPrincipalName, newEdupersonPrincipalName);
+        this.eduPersonPrincipalName = newEdupersonPrincipalName;
+
+        String newSchacHomeOrganization = (String) attributes.get("schac_home_organization");
+        changed = changed || !Objects.equals(this.schacHomeOrganization, newSchacHomeOrganization);
+        this.schacHomeOrganization = newSchacHomeOrganization;
+
+        String newGivenName = (String) attributes.get("given_name");
+        changed = changed || !Objects.equals(this.givenName, newGivenName);
+        this.givenName = newGivenName;
+
+        String newFamilyName = (String) attributes.get("family_name");
+        changed = changed || !Objects.equals(this.familyName, newFamilyName);
+        this.familyName = newFamilyName;
+
+        String newEmail = (String) attributes.get("email");
+        changed = changed || !Objects.equals(this.email, newEmail);
+        this.email = newEmail;
+
         this.lastActivity = Instant.now();
 
+        String currentName = this.name;
+        String currentGivenName = this.givenName;
+        String currentFamilyName = this.familyName;
+
         this.nameInvariant(attributes);
+
+        changed = changed || !Objects.equals(this.name, currentName) || !Objects.equals(this.givenName, currentGivenName)
+                || !Objects.equals(this.familyName, currentFamilyName);
+
         this.updateRemoteAttributes(attributes);
+        return changed;
     }
 
     @JsonIgnore
