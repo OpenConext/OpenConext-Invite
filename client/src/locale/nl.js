@@ -361,7 +361,7 @@ const nl = {
         removeInvitation: "Verwijder alle geselecteerde uitnodigingen",
         resendInvitation: "Verstuur al de geselecteerde uitnodigingen opnieuw",
         inviter: "Verstuur uitnodigingen naar gebruikers die - na accepteren - en rol krijgen voor de applicatie",
-        overrideSettingsAllowed: "Indien ingeschakeld kunnen uitnodigingen voor de deze rol de geavanceerde configuratie aanpassen (waaronder of e-mailadres oveeren moet komen, alleen accepteren met eduID en de verloop- en einddatum)",
+        overrideSettingsAllowed: "Indien ingeschakeld kunnen uitnodigingen voor de deze rol de geavanceerde configuratie aanpassen (waaronder of e-mailadres overeen moet komen, alleen accepteren met eduID en de verloop- en einddatum)",
         removeUserRole: "Verwijder alle geselecteerde rollen",
         guestRoleIncludedTooltip: "Wil je dat de uitgenodigden ook gastgebruiker worden als ze de uitnodiging accepteren?",
     },
