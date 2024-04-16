@@ -5,6 +5,8 @@ import access.model.User;
 import access.provision.ProvisioningService;
 import access.repository.UserRepository;
 import lombok.Getter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -21,6 +23,8 @@ import java.util.Optional;
 import static access.security.InstitutionAdmin.*;
 
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
+
+    private static final Log LOG = LogFactory.getLog(CustomOidcUserService.class);
 
     @Getter
     private final Manage manage;
@@ -68,7 +72,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         optionalUser.ifPresent(user -> {
             boolean changed = user.updateAttributes(newClaims);
             if (changed) {
-                provisioningService.updateUserRequest(user);
+                try {
+                    provisioningService.updateUserRequest(user);
+                } catch (RuntimeException e) {
+                    //We choose to ignore these
+                    LOG.error("Error in updateUserRequest", e);
+                }
+
             }
             userRepository.save(user);
         });
