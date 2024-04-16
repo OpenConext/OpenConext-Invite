@@ -51,8 +51,10 @@ public class GraphClient {
         com.microsoft.graph.models.Invitation invitation = new com.microsoft.graph.models.Invitation();
         invitation.invitedUserEmailAddress = eduidIdpSchacHomeOrganization.equalsIgnoreCase(user.getSchacHomeOrganization()) ? user.getEduPersonPrincipalName() : user.getEmail();
         invitation.invitedUserDisplayName = user.getName();
-        invitation.inviteRedirectUrl = String.format("%s/api/v1/invitations/ms-accept-return/%s/%s",
+        String redeemUrl=String.format("%s/api/v1/invitations/ms-accept-return/%s/%s",
                 serverUrl, provisioning.getId(), user.getId());
+        LOG.debug(String.format("Graph invite redeem url will be : %s", redeemUrl));
+        invitation.inviteRedirectUrl = redeemUrl;
         invitation.sendInvitationMessage = false;
         invitation.invitedUserType = "Guest";
 
