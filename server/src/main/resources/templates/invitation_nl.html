@@ -16,10 +16,10 @@
         </p>
         {{/environment}}
         <p class="title" style="">Hallo,</p>
-        <p><strong>{{user.name}}</strong> (van <strong>{{institutionName}}</strong>) heeft je toegang gegeven tot één of meer
+        <p><strong>{{user.name}}</strong> (van <strong>{{institutionName}}</strong>) heeft je uitgenodigd voor één of meer
             applicaties en systemen die zij gebruiken.</p>
 
-        <p>Je hebt toegang gekregen tot:</p>
+        <p>Je bent uitgenodigd voor:</p>
 
         {{#invitation.anyRoles}}
         <ul>
@@ -45,7 +45,7 @@
             <a class="button" href="{{{ url }}}"
                style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
                 {{> eduid-logo.svg}}
-                <span style="color: white;margin: auto 0 auto 25px;">Toegang met eduID</span>
+                <span style="color: white;margin: auto 0 auto 25px;">Uitnodiging accepteren met eduID</span>
             </a>
         </div>
         {{/useEduID}}
@@ -54,7 +54,7 @@
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
                style="border-radius: 4px;color: white;width: 300px;display:flex;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 56px;font-size: 18px;">
-                <span style="color: white;margin: auto;">Doorgaan</span>
+                <span style="color: white;margin: auto;">Uitnodiging accepteren</span>
             </a>
         </div>
         {{/useEduID}}

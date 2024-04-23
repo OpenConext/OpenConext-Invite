@@ -23,6 +23,7 @@ spring:
     banner-mode: "off"
   session:
     jdbc:
+      cleanup-cron: "-"
       initialize-schema: always
     store-type: jdbc
     timeout: 8h

@@ -16,11 +16,11 @@
         </p>
         {{/environment}}
         <p class="title" style="">Hello,</p>
-        <p><strong>{{user.name}}</strong> (from <strong>{{institutionName}}</strong>) has granted you access to one or
+        <p><strong>{{user.name}}</strong> (from <strong>{{institutionName}}</strong>) has invited you for one or
             more
             applications or systems that they use.</p>
 
-        <p>You have been granted access to:</p>
+        <p>You have been invited for:</p>
 
         {{#invitation.anyRoles}}
         <ul>
@@ -46,7 +46,7 @@
             <a class="button" href="{{{ url }}}"
                style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
                 {{> eduid-logo.svg}}
-                <span style="color: white;margin: auto 0 auto 25px;">Access with eduID</span>
+                <span style="color: white;margin: auto 0 auto 25px;">Accept invitation with eduID</span>
             </a>
         </div>
         {{/useEduID}}
@@ -55,7 +55,7 @@
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
                style="border-radius: 4px;color: white;width: 300px;display:flex;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 56px;font-size: 18px;">
-                <span style="color: white;margin: auto;">Continue</span>
+                <span style="color: white;margin: auto;">Accept invitation</span>
             </a>
         </div>
         {{/useEduID}}
