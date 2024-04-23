@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.12 - 20-04-20
+
+- Fix error-handling when name-update fails in SCIM call
+
 ## 0.0.11 - 2024-04-16
 
 - Fix styling of welcome deadend on medium screens
