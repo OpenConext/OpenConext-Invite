@@ -233,6 +233,13 @@ const nl = {
         deleteConfirmation: "Weet je zeker dat je deze uitnodiging(en) wil verwijderen?",
         resendConfirmation: "Weet je zeker dat je deze uitnodiging(en) opnieuw wil versturen?",
         resendFlash: "Uitnodiging(en) opnieuw verstuurd.",
+        inviterRole: {
+            title: "Verstuur nieuwe uitnodiging",
+            roles: "Voor de volgende rollen",
+            to: "Naar",
+            message: "Voeg een persoonlijke boodschap toe",
+            settings: "Geavanceerde configuratie uitnodiging"
+        },
         statuses: {
             all: "All ({{nbr}})",
             open: "Open",

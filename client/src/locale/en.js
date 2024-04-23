@@ -233,6 +233,13 @@ const en = {
         deleteConfirmation: "Are you sure you want to delete this invitation(s)?",
         resendConfirmation: "Are you sure you want to resend this invitation(s)?",
         resendFlash: "Invitation(s) have been resent",
+        inviterRole: {
+            title: "Send new invite",
+            roles: "For the following roles",
+            to: "To",
+            message: "Add a personal message",
+            settings: "Advanced invite settings"
+        },
         statuses: {
             all: "All ({{nbr}})",
             open: "Open",

@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
+import {ReactComponent as CloseIcon} from "@surfnet/sds/icons/functional-icons/close.svg";
 import {
     allowedAuthoritiesForInvitation,
     AUTHORITIES,
@@ -25,6 +26,12 @@ import EmailField from "../components/EmailField";
 import {displayExpiryDate, futureDate} from "../utils/Date";
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
+
+export const InviterContainer = ({isInviter, children}) => {
+    return isInviter ?
+        <div className="inviter-wrapper">{children}</div> : <>{children}</>
+
+}
 
 export const InvitationForm = () => {
     const location = useLocation();
@@ -51,6 +58,8 @@ export const InvitationForm = () => {
     const [language, setLanguage] = useState(I18n.locale === "en" ? languageOptions[0] : languageOptions[1]);
     const required = ["intendedAuthority", "invites"];
 
+    const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
+
     useEffect(() => {
         if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
             navigate("/404");
@@ -70,7 +79,7 @@ export const InvitationForm = () => {
             setRoles(markedRoles)
             setLoading(false);
         }
-        const breadcrumbPath = [
+        const breadcrumbPath = isInviter ? [] : [
             {path: "/home", value: I18n.t("tabs.home")},
             {path: "/home/roles", value: I18n.t("tabs.roles")},
         ];
@@ -204,34 +213,11 @@ export const InvitationForm = () => {
         )
     }
 
-    const renderForm = isInviter => {
-        const disabledSubmit = !initial && !isValid();
-        const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
-            .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
-        const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
+    const renderFormElements = authorityOptions => {
         return (
             <>
-                {isInviter && <div className="card-containers">
-                    <span className={"label"}>
-                        {I18n.t("invitations.inviterRoles")}
-                        <Tooltip tip={I18n.t("tooltips.rolesTooltip")}/>
-                    </span>
-                    {roles.map((role, index) => renderUserRole(role, index, selectedRoles.some(r => r.value === role.value),
-                        (e, value) => {
-                            const checked = e.target.checked;
-                            const roleSelected = roles.find(r => r.value === value);
-                            const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
-                            rolesChanged(newSelectedRoles);
-                        }))
-                    }
-                    {(!initial && isEmpty(selectedRoles)) &&
-                        <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
-                    }
-                </div>}
-
-
                 <EmailField
-                    name={I18n.t("invitations.invitees")}
+                    name={I18n.t(isInviter ? "invitations.inviterRole.to" : "invitations.invitees")}
                     addEmails={addEmails}
                     emails={invitation.invites}
                     isAdmin={false}
@@ -269,10 +255,10 @@ export const InvitationForm = () => {
                 </>}
 
 
-                <InputField value={invitation.message}
+                <InputField name={I18n.t(isInviter ? "invitations.inviterRole.message" : "invitations.message")}
+                            value={invitation.message}
                             onChange={e => setInvitation({...invitation, message: e.target.value})}
                             placeholder={I18n.t("invitations.messagePlaceholder")}
-                            name={I18n.t("invitations.message")}
                             large={true}
                             multiline={true}/>
 
@@ -285,94 +271,128 @@ export const InvitationForm = () => {
                     toolTip={I18n.t("languages.languageTooltip")}
                     clearable={false}
                 />
+            </>
+        );
+    }
 
-                {!displayAdvancedSettings &&
-                    <a className="advanced-settings" href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
-                        {I18n.t("roles.showAdvancedSettings")}
-                        <DownIcon/>
-                    </a>
-                }
+    const renderForm = () => {
+        const disabledSubmit = !initial && !isValid();
+        const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
+            .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
+        const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
+        return (
+            <>
+                {isInviter && <div className="card-containers">
+                    <span className={"label"}>
+                        {I18n.t("invitations.inviterRole.roles")}
+                        <Tooltip tip={I18n.t("tooltips.rolesTooltip")}/>
+                    </span>
+                    {roles.map((role, index) => renderUserRole(role, index, selectedRoles.some(r => r.value === role.value),
+                        (e, value) => {
+                            const checked = e.target.checked;
+                            const roleSelected = roles.find(r => r.value === value);
+                            const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
+                            rolesChanged(newSelectedRoles);
+                        }))
+                    }
+                    {(!initial && isEmpty(selectedRoles)) &&
+                        <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
+                    }
+                </div>}
+                <InviterContainer isInviter={isInviter}>
+                    {renderFormElements(authorityOptions)}
+                </InviterContainer>
 
-                {displayAdvancedSettings &&
-                    <div className="advanced-settings-container">
-                        <a className="advanced-settings" href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
-                            {I18n.t("roles.hideAdvancedSettings")}
-                            <UpIcon/>
+                <InviterContainer isInviter={isInviter}>
+                    {!displayAdvancedSettings &&
+                        <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
+                            {I18n.t("roles.showAdvancedSettings")}
+                            <DownIcon/>
                         </a>
+                    }
 
-                        {overrideSettingsAllowed &&
-                            <SwitchField name={"enforceEmailEquality"}
-                                         value={invitation.enforceEmailEquality || false}
-                                         onChange={val => setInvitation({...invitation, enforceEmailEquality: val})}
-                                         label={I18n.t("invitations.enforceEmailEquality")}
-                                         info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
-                            />}
+                    {displayAdvancedSettings &&
+                        <div className="advanced-settings-container">
+                            <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
+                                {I18n.t("roles.hideAdvancedSettings")}
+                                <UpIcon/>
+                            </a>
 
-                        {overrideSettingsAllowed &&
-                            <SwitchField name={"eduIDOnly"}
-                                         value={invitation.eduIDOnly || false}
-                                         onChange={val => setInvitation({...invitation, eduIDOnly: val})}
-                                         label={I18n.t("invitations.eduIDOnly")}
-                                         info={I18n.t("tooltips.eduIDOnlyTooltip")}
-                            />}
+                            {overrideSettingsAllowed &&
+                                <SwitchField name={"enforceEmailEquality"}
+                                             value={invitation.enforceEmailEquality || false}
+                                             onChange={val => setInvitation({...invitation, enforceEmailEquality: val})}
+                                             label={I18n.t("invitations.enforceEmailEquality")}
+                                             info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
+                                />}
 
-                        {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter) &&
-                            <SwitchField name={"guestRoleIncluded"}
-                                         value={invitation.guestRoleIncluded || false}
-                                         onChange={val => setInvitation({...invitation, guestRoleIncluded: val})}
-                                         label={I18n.t("invitations.guestRoleIncluded")}
-                                         info={I18n.t("tooltips.guestRoleIncludedTooltip")}
-                            />
-                        }
-                        {overrideSettingsAllowed &&
-                            <SwitchField name={"roleExpiryDate"}
-                                         value={customRoleExpiryDate}
+                            {overrideSettingsAllowed &&
+                                <SwitchField name={"eduIDOnly"}
+                                             value={invitation.eduIDOnly || false}
+                                             onChange={val => setInvitation({...invitation, eduIDOnly: val})}
+                                             label={I18n.t("invitations.eduIDOnly")}
+                                             info={I18n.t("tooltips.eduIDOnlyTooltip")}
+                                />}
+
+                            {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter) &&
+                                <SwitchField name={"guestRoleIncluded"}
+                                             value={invitation.guestRoleIncluded || false}
+                                             onChange={val => setInvitation({...invitation, guestRoleIncluded: val})}
+                                             label={I18n.t("invitations.guestRoleIncluded")}
+                                             info={I18n.t("tooltips.guestRoleIncludedTooltip")}
+                                />
+                            }
+                            {overrideSettingsAllowed &&
+                                <SwitchField name={"roleExpiryDate"}
+                                             value={customRoleExpiryDate}
+                                             onChange={() => {
+                                                 setCustomRoleExpiryDate(!customRoleExpiryDate);
+                                                 setInvitation({
+                                                     ...invitation,
+                                                     roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
+                                                 })
+                                             }}
+                                             label={I18n.t("invitations.roleExpiryDateQuestion")}
+                                             info={I18n.t("invitations.roleExpiryDateInfo", {
+                                                 expiry: displayExpiryDate(invitation.roleExpiryDate)
+                                             })}
+                                />
+                            }
+                            {customRoleExpiryDate &&
+                                <DateField value={invitation.roleExpiryDate}
+                                           onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
+                                           showYearDropdown={true}
+                                           disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
+                                           pastDatesAllowed={config.pastDateAllowed}
+                                           allowNull={overrideSettingsAllowed && invitation.intendedAuthority !== AUTHORITIES.GUEST}
+                                           minDate={futureDate(1, invitation.expiryDate)}
+                                           name={I18n.t("invitations.roleExpiryDate")}
+                                           toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>}
+
+                            <SwitchField name={"expiryDate"}
+                                         value={customExpiryDate}
                                          onChange={() => {
-                                             setCustomRoleExpiryDate(!customRoleExpiryDate);
-                                             setInvitation({
-                                                 ...invitation,
-                                                 roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
-                                             })
+                                             setCustomExpiryDate(!customExpiryDate);
+                                             setInvitation({...invitation, expiryDate: futureDate(30)})
                                          }}
-                                         label={I18n.t("invitations.roleExpiryDateQuestion")}
-                                         info={I18n.t("invitations.roleExpiryDateInfo", {
-                                             expiry: displayExpiryDate(invitation.roleExpiryDate)
-                                         })}
+                                         label={I18n.t("invitations.expiryDateQuestion")}
+                                         info={I18n.t("invitations.expiryDateInfo")}
+                                         last={true}
                             />
-                        }
-                        {customRoleExpiryDate &&
-                            <DateField value={invitation.roleExpiryDate}
-                                       onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
-                                       showYearDropdown={true}
-                                       disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
-                                       pastDatesAllowed={config.pastDateAllowed}
-                                       allowNull={overrideSettingsAllowed && invitation.intendedAuthority !== AUTHORITIES.GUEST}
-                                       minDate={futureDate(1, invitation.expiryDate)}
-                                       name={I18n.t("invitations.roleExpiryDate")}
-                                       toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>}
 
-                        <SwitchField name={"expiryDate"}
-                                     value={customExpiryDate}
-                                     onChange={() => {
-                                         setCustomExpiryDate(!customExpiryDate);
-                                         setInvitation({...invitation, expiryDate: futureDate(30)})
-                                     }}
-                                     label={I18n.t("invitations.expiryDateQuestion")}
-                                     info={I18n.t("invitations.expiryDateInfo")}
-                                     last={true}
-                        />
+                            {customExpiryDate &&
+                                <DateField value={invitation.expiryDate}
+                                           onChange={e => setInvitation({...invitation, expiryDate: e})}
+                                           showYearDropdown={true}
+                                           pastDatesAllowed={config.pastDateAllowed}
+                                           minDate={futureDate(1)}
+                                           maxDate={futureDate(30)}
+                                           name={I18n.t("invitations.expiryDate")}
+                                           toolTip={I18n.t("tooltips.expiryDateTooltip")}/>}
 
-                        {customExpiryDate &&
-                            <DateField value={invitation.expiryDate}
-                                       onChange={e => setInvitation({...invitation, expiryDate: e})}
-                                       showYearDropdown={true}
-                                       pastDatesAllowed={config.pastDateAllowed}
-                                       minDate={futureDate(1)}
-                                       maxDate={futureDate(30)}
-                                       name={I18n.t("invitations.expiryDate")}
-                                       toolTip={I18n.t("tooltips.expiryDateTooltip")}/>}
+                        </div>}
 
-                    </div>}
+                </InviterContainer>
                 <section className="actions">
                     <Button type={ButtonType.Secondary}
                             txt={I18n.t("forms.cancel")}
@@ -390,17 +410,22 @@ export const InvitationForm = () => {
     if (loading) {
         return <Loader/>
     }
-    const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
     return (
-        <div className={"mod-invitation-form"}>
-            <UnitHeader
+        <div className={`mod-invitation-form ${isInviter ? "inviter" : ""}`}>
+            {!isInviter && <UnitHeader
                 obj={({
                     name: I18n.t(`invitations.${guest ? "newGuest" : "new"}`),
                     svg: UserIcon,
                     style: "small"
-                })}/>
-            <div className={"invitation-form"}>
-                {renderForm(isInviter)}
+                })}/>}
+            <div className={`invitation-form ${isInviter ? "inviter" : ""}`}>
+                {isInviter && <div className="invite-header">
+                    <h3>{I18n.t("invitations.inviterRole.title")}</h3>
+                    <span onClick={() => navigate("/")}>
+                        <CloseIcon/>
+                    </span>
+                </div>}
+                {renderForm()}
             </div>
         </div>
     );

@@ -1,18 +1,59 @@
 @import "../styles/mixins";
 
 .mod-invitation-form {
+
+    &.inviter {
+        background-color: $background;
+    }
+
     .invitation-form {
         @include page;
         @include form;
 
-        .email-field , .advanced-settings, .advanced-settings-container, .card-containers {
+        &.inviter {
+            max-width: 820px;
+
+            .email-field label, .sds--text-field label, .select-field label {
+                font-size: 22px;
+            }
+        }
+
+        .invite-header {
+            padding: 35px 15px;
+            display: flex;
+
+            span {
+                margin-left: auto;
+                cursor: pointer;
+
+                svg {
+                    width: 25px;
+                    height: auto;
+                }
+            }
+        }
+
+        .email-field, .advanced-settings, .advanced-settings-container, .card-containers, .inviter-wrapper {
             grid-column-start: first;
         }
 
-        .card-containers {
+        .inviter-wrapper {
             margin-top: 25px;
+            padding: 25px;
+            border-radius: 0.175rem;
+            border: 1px solid var(--sds--color--gray--400);
+            background-color: white;
+        }
+
+        .card-containers {
+            padding: 25px;
+            border-radius: 0.175rem;
+            border: 1px solid var(--sds--color--gray--400);
+            background-color: white;
+
             span.label {
                 font-weight: 600;
+                font-size: 22px;
                 display: block;
                 margin-bottom: 6px;
             }
@@ -22,11 +63,24 @@
             margin-top: 32px;
             display: flex;
             align-items: center;
+
             svg {
                 width: 24px;
                 height: auto;
                 margin-left: 15px;
             }
+
+            &.inviter {
+                margin-top: 0;
+                font-size: 22px;
+                text-decoration: none;
+                font-weight: 600;
+
+                svg {
+                    margin-left: auto;
+                }
+            }
+
         }
 
         .sds--radio-options {
