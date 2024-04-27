@@ -23,12 +23,17 @@
             }
 
             .select-field {
-                width: 47%;
+                width: 100%;
 
                 @media (max-width: $medium) {
                     width: 100%;
                 }
 
+            }
+            .select-field-container {
+                display: flex;
+                flex-direction: column;
+                width: 47%;
             }
 
             .input-field-container {

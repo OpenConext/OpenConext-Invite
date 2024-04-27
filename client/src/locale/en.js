@@ -130,6 +130,7 @@ const en = {
         applicationDetails: "Application(s) this role applies to",
         addApplication: "Add application",
         multiple: "Multiple applications",
+        applicationPlaceholder: "Choose an application...",
         accessRole: "Name",
         name: "Name",
         namePlaceHolder: "The name of the role",

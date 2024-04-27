@@ -19,6 +19,7 @@ import SwitchField from "../components/SwitchField";
 import {displayExpiryDate, futureDate} from "../utils/Date";
 
 const DEFAULT_EXPIRY_DAYS = 365;
+
 export const RoleForm = () => {
 
     const navigate = useNavigate();
@@ -78,10 +79,7 @@ export const RoleForm = () => {
                     {path: "/home/roles", value: I18n.t("tabs.roles")},
                 ];
                 if (newRole) {
-                    const providerOption = singleProviderToOption(user.superUser ? res[0][0] :
-                        user.institutionAdmin ? user.applications[0] : user.userRoles[0].role.applicationMaps[0]);
-                    providerOption.landingPage = providerOption.url;
-                    setApplications([providerOption]);
+                    setApplications([null]);
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
 
@@ -118,10 +116,12 @@ export const RoleForm = () => {
         if (isValid()) {
             setLoading(true);
             const promise = isNewRole ? createRole : updateRole;
-            const newRoleData = {...role, applicationUsages: applications.map(app => ({
-                    application: app,
-                    landingPage: app.landingPage
-                }))};
+            const newRoleData = {
+                ...role,
+                applicationUsages: applications
+                    .filter(app => !isEmpty(app))
+                    .map(app => ({application: app, landingPage: app.landingPage}))
+            };
             promise(newRoleData)
                 .then(res => {
                     const flashMessage = I18n.t(`roles.${isNewRole ? "createFlash" : "updateFlash"}`, {name: role.name});
@@ -186,8 +186,9 @@ export const RoleForm = () => {
     const isValid = () => {
         return required.every(attr => !isEmpty(role[attr]))
             && Object.values(alreadyExists).every(attr => !attr)
-            && applications.every(app => !app.invalid)
             && !isEmpty(applications)
+            && !isEmpty(applications[0])
+            && applications.every(app => !app || (!app.invalid && !isEmpty(app.landingPage)))
             && role.defaultExpiryDays > 0;
     }
 
@@ -204,9 +205,7 @@ export const RoleForm = () => {
     }
 
     const addApplication = () => {
-        const filteredProvider = providers.find(option => !applications.some(app => option.value === app.value));
-        filteredProvider.landingPage = filteredProvider.url;
-        applications.push(filteredProvider);
+        applications.push(null);
         setApplications([...applications]);
     }
 
@@ -218,7 +217,7 @@ export const RoleForm = () => {
     const renderForm = () => {
         const valid = isValid();
         const disabledSubmit = !valid && !initial;
-        const filteredProviders = providers.filter(option => !applications.some(app => option.value === app.value));
+        const filteredProviders = providers.filter(option => !applications.some(app => app && option.value === app.value));
         return (<>
                 <h2 className="section-separator">
                     {I18n.t("roles.roleDetails")}
@@ -265,25 +264,37 @@ export const RoleForm = () => {
                 </h2>
                 {applications.map((application, index) =>
                     <div className="application-container" key={index}>
+                        <div className="select-field-container">
                         <SelectField name={I18n.t("roles.manage")}
                                      value={application}
+                                     placeholder={I18n.t("roles.applicationPlaceholder")}
                                      options={filteredProviders}
                                      onChange={option => changeApplication(index, option)}
                                      searchable={true}
                                      clearable={false}
                         />
+                            {(!initial && isEmpty(application) && index === 0) &&
+                                <ErrorIndicator msg={I18n.t("forms.required", {
+                                    attribute: I18n.t("roles.manage").toLowerCase()
+                                })}/>}
+                        </div>
                         <div className="input-field-container">
                             <InputField name={I18n.t("roles.landingPage")}
-                                        value={application.landingPage}
+                                        value={application ? application.landingPage : null}
                                         isUrl={true}
+                                        disabled={isEmpty(application)}
                                         placeholder={I18n.t("roles.landingPagePlaceHolder")}
                                         onBlur={e => validateApplication(index, e.target.value)}
                                         onChange={e => changeApplicationLandingPage(index, e)}
                         />
-                            {application.invalid &&
+                            {(!initial && application?.landingPage && application.invalid) &&
                                 <ErrorIndicator msg={I18n.t("forms.invalid", {
                                     attribute: I18n.t("roles.landingPage").toLowerCase(),
-                                    value: application.landingPage
+                                    value: application?.landingPage
+                                })}/>}
+                            {(!initial && !isEmpty(application) && isEmpty(application.landingPage)) &&
+                                <ErrorIndicator msg={I18n.t("forms.required", {
+                                    attribute: I18n.t("roles.landingPage").toLowerCase()
                                 })}/>}
                         </div>
                         {index !== 0 &&
@@ -299,7 +310,7 @@ export const RoleForm = () => {
 
                 <div className="application-actions">
                     <Button txt={I18n.t("roles.addApplication")}
-                            disabled={providers.length === applications.length}
+                            disabled={providers.length === applications.length || isEmpty(applications[0])}
                             onClick={addApplication}/>
                 </div>
 

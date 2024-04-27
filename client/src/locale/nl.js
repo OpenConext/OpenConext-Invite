@@ -130,6 +130,7 @@ const nl = {
         applicationDetails: "Applicatie(s) voor deze rol",
         addApplication: "Applicatie toevoegen",
         multiple: "Meerdere applicaties",
+        applicationPlaceholder: "Kies een applicatie...",
         accessRole: "Naam",
         name: "Naam",
         namePlaceHolder: "Naam van de rol",
