@@ -13,7 +13,7 @@ import {constructShortName} from "../validations/regExps";
 import {distinctValues, isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
-import {providersToOptions, singleProviderToOption} from "../utils/Manage";
+import {providersToOptions} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
 import {displayExpiryDate, futureDate} from "../utils/Date";
