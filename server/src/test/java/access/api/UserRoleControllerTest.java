@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
@@ -95,11 +97,17 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void deleteUserRole() throws Exception {
         //Because the user is changed and provisionings are queried
-        stubForManageProvisioning(List.of());
+        stubForManageProvisioning(List.of("4"));
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
         List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
         UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.GUEST)).findFirst().get();
+
+        String remoteScimIdentifier = UUID.randomUUID().toString();
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(guestUserRole.getRole(), remoteScimIdentifier, "8"));
+        remoteProvisionedUserRepository.save(new RemoteProvisionedUser(guestUserRole.getUser(), remoteScimIdentifier, "8"));
+        stubForUpdateScimRolePatch();
+
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -111,8 +119,8 @@ class UserRoleControllerTest extends AbstractTest {
                 .then()
                 .statusCode(204);
 
-        List<UserRole> newUserRoles = userRoleRepository.findByRoleName("Wiki");
-        assertEquals(userRoles.size(), newUserRoles.size() + 1);
+        Optional<UserRole> optionalUserRole = userRoleRepository.findById(guestUserRole.getId());
+        assertFalse(optionalUserRole.isPresent());
     }
 
     @Test

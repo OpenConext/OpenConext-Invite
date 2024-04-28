@@ -136,7 +136,10 @@ public class UserRoleController {
         LOG.debug("/deleteUserRole");
         UserRole userRole = userRoleRepository.findById(id).orElseThrow(NotFoundException::new);
         UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));
-        userRoleRepository.delete(userRole);
+
+        provisioningService.updateGroupRequest(userRole, OperationType.Remove);
+        userRoleRepository.deleteUserRoleById(id);
+
         AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
         return Results.deleteResult();
     }

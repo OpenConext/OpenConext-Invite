@@ -53,6 +53,7 @@ spring:
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
+    show-sql: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost/access

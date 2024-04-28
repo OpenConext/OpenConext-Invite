@@ -225,7 +225,7 @@ class RoleControllerTest extends AbstractTest {
     @Test
     void deleteRole() throws Exception {
         //Because the user is changed and provisionings are queried
-        stubForManageProvisioning(List.of());
+        stubForManageProvisioning(List.of("4"));
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
 
         Role role = roleRepository.search("wiki", 1).get(0);

@@ -22,7 +22,6 @@ public class MailConf {
                            @Value("${email.contactEmail}") String contactEmail,
                            @Value("${email.environment}") String env,
                            IdPMetaDataResolver idPMetaDataResolver,
-                           Environment environment,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
         return new MailBox(objectMapper, idPMetaDataResolver, mailSender, emailFrom, contactEmail, config.getClientUrl(), config.getWelcomeUrl(), env);
