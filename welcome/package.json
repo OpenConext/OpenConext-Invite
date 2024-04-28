@@ -16,6 +16,7 @@
     "react-router-dom": "^6.11.2",
     "react-tooltip": "^5.11.2",
     "timeago.js": "^4.0.2",
+    "word-wrap": "^1.2.3",
     "zustand": "^4.3.8"
   },
   "devDependencies": {
