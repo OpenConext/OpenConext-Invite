@@ -61,7 +61,9 @@ const Applications = () => {
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
         const organisation = provider["OrganizationName:en"];
         const organisationValue = isEmpty(organisation) ? "" : ` (${organisation})`;
-        return provider.unknownInManage ? <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span> : `${provider["name:en"]}${organisationValue}`;
+        return provider.unknownInManage ?
+            <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span> :
+            `${provider["name:en"]}${organisationValue}`;
     }
 
     const providerLogoById = (manageMaps, allProviders) => {
@@ -70,7 +72,9 @@ const Applications = () => {
         }
         const manageId = manageMaps[0].id
         const provider = allProviders.find(provider => provider.id === manageId) || providerInfo(null);
-        return provider.unknownInManage ? <div className="unknown-in-manage"><AlertLogo/></div> : provider.logo;
+        return provider.unknownInManage ?
+            <div className="unknown-in-manage"><AlertLogo/></div> :
+            provider.logo;
     }
 
     const provisioningsByProviderId = (manageMaps, allProvisionings) => {
