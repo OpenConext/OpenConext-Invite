@@ -129,7 +129,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
             return (
                 <div className={"date-field-container"}>
                     {!userRole.endDate &&
-                        <span className="no-end-date">
+                        <span className={`no-end-date ${I18n.locale}`}>
                         {I18n.t("roles.noEndDate")}
                     </span>}
                     <DateField

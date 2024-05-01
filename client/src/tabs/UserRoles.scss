@@ -10,9 +10,14 @@
 
         .no-end-date {
             position: absolute;
-            z-index: 99;
+            z-index: 2;
             top: 10px;
-            right: 130px;
+            right: 127px;
+            font-size: 14px;
+
+            &.en {
+                right: 157px;
+            }
         }
     }
 
@@ -26,19 +31,19 @@
                 }
 
                 &.name {
-                    width: 18%;
+                    width: 28%;
                 }
 
                 &.me {
-                    width: 10%;
+                    width: 8%;
                 }
 
                 &.schacHomeOrganisation {
-                    width: 12%;
+                    width: 10%;
                 }
 
                 &.authority {
-                    width: 18%;
+                    width: 20%;
                     text-align: center;
                 }
 
@@ -47,7 +52,7 @@
                 }
 
                 &.endDate {
-                    width: 30%;
+                    width: 22%;
                     text-align: right;
                 }
             }

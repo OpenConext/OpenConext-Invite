@@ -17,6 +17,7 @@ import {UnitHeader} from "../components/UnitHeader";
 import Select from "react-select";
 
 const allValue = "all";
+const mineValue = "mine";
 
 export const Invitations = ({role, preloadedInvitations, standAlone = false, history = false}) => {
     const navigate = useNavigate();
@@ -74,7 +75,10 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                 }, []).map(option => ({
                     label: `${I18n.t("invitations.statuses." + option.status.toLowerCase())} (${option.nbr})`,
                     value: option.status
-                })).sort((o1, o2) => o1.label.localeCompare(o2.label));
+                })).concat({
+                    label: `${I18n.t("invitations.statuses.mine")} (${res.filter(inv => inv.inviter.email === user.email).length})`,
+                    value: mineValue
+                }).sort((o1, o2) => o1.label.localeCompare(o2.label));
 
                 setFilterOptions(newFilterOptions.concat(statusOptions));
                 setFilterValue(newFilterOptions[0]);
@@ -285,7 +289,9 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
             mapper: invitation => shortDateFromEpoch(invitation.roleExpiryDate)
         }];
     const filteredInvitations = filterValue.value === allValue ? invitations.current :
-        invitations.current.filter(invitation => invitation.status === filterValue.value);
+        invitations.current.filter(invitation => invitation.status === filterValue.value ||
+            (filterValue.value === mineValue && invitation.inviter.email === user.email)
+        );
     const countInvitations = filteredInvitations.length;
     const hasEntities = countInvitations > 0;
     let title = " ";

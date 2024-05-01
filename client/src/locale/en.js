@@ -245,7 +245,8 @@ const en = {
             all: "All ({{nbr}})",
             open: "Open",
             accepted: "Accepted",
-            expired: "Expired"
+            expired: "Expired",
+            mine: "Mine"
         }
     },
     forms: {

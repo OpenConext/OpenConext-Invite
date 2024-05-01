@@ -9,3 +9,7 @@
 .sds--modal.sds--backdrop {
     z-index: 99;
 }
+
+.react-datepicker-popper {
+    z-index: 3!important;
+}

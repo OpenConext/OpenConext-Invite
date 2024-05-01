@@ -242,10 +242,11 @@ const nl = {
             settings: "Geavanceerde configuratie uitnodiging"
         },
         statuses: {
-            all: "All ({{nbr}})",
+            all: "Alle ({{nbr}})",
             open: "Open",
             accepted: "Geaccepteerd",
-            expired: "Verlopen"
+            expired: "Verlopen",
+            mine: "Mijn"
         }
     },
     forms: {

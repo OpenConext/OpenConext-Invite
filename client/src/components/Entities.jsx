@@ -82,7 +82,7 @@ export const Entities = ({
         return (
             <section className="entities-search">
                 {!hideTitle && <h2>{title || `${I18n.t(`${modelName}.title`)} (${entities.length})`}</h2>}
-                <div className={`${filterClassName} search-filter`}>{filters}</div>
+                {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
                         <div className={"sds--text-field sds--text-field--has-icon"}>
@@ -149,7 +149,7 @@ export const Entities = ({
                 <td key={`td_${column.key}_${i}`}
                     onClick={e => (column.key !== "check" && !column.hasLink) ?
                         onRowClick(e, entity) : undefined}
-                    data-label={column.header}
+                    data-label={typeof column === "string" ? column.header : ""}
                     className={`${column.key} ${column.nonSortable ? "" : "sortable"} ${column.className ? column.className : ""}`}>
                     {getEntityValue(entity, column)}
                 </td>)}

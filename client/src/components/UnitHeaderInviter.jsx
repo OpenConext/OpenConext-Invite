@@ -15,7 +15,6 @@ export const UnitHeaderInviter = ({
                                       userRole,
                                       managerEmails
                                   }) => {
-
     const navigate = useNavigate();
     const endDateDays = (userRole && userRole.endDate) ? Math.ceil((new Date(userRole.endDate * 1000) - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
     const adminHref = managerEmails.join(",");
