@@ -118,6 +118,7 @@ public class InvitationController {
                         invitationRequest.isEduIDOnly(),
                         invitationRequest.isGuestRoleIncluded(),
                         invitationRequest.getMessage(),
+                        invitationRequest.getLanguage(),
                         user,
                         invitationRequest.getExpiryDate(),
                         invitationRequest.getRoleExpiryDate(),
@@ -162,7 +163,7 @@ public class InvitationController {
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
         List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
 
-        mailBox.sendInviteMail(user, invitation, groupedProviders, Language.en);
+        mailBox.sendInviteMail(user, invitation, groupedProviders, invitation.getLanguage());
         if (invitation.getExpiryDate().isBefore(Instant.now())) {
             invitation.setExpiryDate(Instant.now().plus(Period.ofDays(14)));
             invitationRepository.save(invitation);

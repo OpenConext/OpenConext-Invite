@@ -49,6 +49,7 @@ class MailBoxTest extends AbstractMailTest {
                 eduIDOnly,
                 false,
                 "Please join..",
+                Language.en,
                 user,
                 Instant.now().plus(30, ChronoUnit.DAYS),
                 Instant.now().plus(365, ChronoUnit.DAYS),

@@ -31,6 +31,9 @@ public class Invitation implements Serializable {
     private Authority intendedAuthority;
 
     @Enumerated(EnumType.STRING)
+    private Language language;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column
@@ -82,6 +85,7 @@ public class Invitation implements Serializable {
                       boolean eduIDOnly,
                       boolean guestRoleIncluded,
                       String message,
+                      Language language,
                       User inviter,
                       Instant expiryDate,
                       Instant roleExpiryDate,
@@ -100,6 +104,7 @@ public class Invitation implements Serializable {
         this.roleExpiryDate = this.roleExpiryDate(roles, roleExpiryDate, intendedAuthority);
         this.createdAt = Instant.now();
         roles.forEach(role -> role.setInvitation(this));
+        this.language = language;
     }
 
     private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles, Instant roleExpiryDate, Authority intendedAuthority) {
