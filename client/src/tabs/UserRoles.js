@@ -125,7 +125,8 @@ export const UserRoles = ({role, guests, userRoles}) => {
     };
 
     const displayEndDate = userRole => {
-        if (allowedToRenewUserRole(user, userRole)) {
+        const allowed = allowedToRenewUserRole(user, userRole);
+        if (allowed) {
             return (
                 <div className={"date-field-container"}>
                     {!userRole.endDate &&

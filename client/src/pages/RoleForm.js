@@ -318,8 +318,6 @@ export const RoleForm = () => {
                     {I18n.t("roles.invitationDetails")}
                 </h2>
 
-                <span className={"label"}>{I18n.t("roles.advanced")}</span>
-
                 <SwitchField name={"enforceEmailEquality"}
                              value={role.enforceEmailEquality || false}
                              onChange={val => setRole({...role, enforceEmailEquality: val})}
