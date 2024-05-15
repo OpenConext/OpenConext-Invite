@@ -93,7 +93,7 @@ public class ResourceCleaner {
     }
 
     private List<UserRole> cleanUserRoles() {
-        List<UserRole> userRoles = userRoleRepository.findByEndDateBefore(Instant.now());
+        List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(Instant.now(), 1);
 
         LOG.info(String.format("Deleted %s userRoles with an endDate in the past: %s",
                 userRoles.size(),

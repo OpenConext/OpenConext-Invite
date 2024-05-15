@@ -86,7 +86,10 @@ class ResourceCleanerTest extends AbstractTest {
     private void markUserRole(String sub) {
         User user = userRepository.findBySubIgnoreCase(sub).get();
         Instant past = Instant.now().minus(Period.ofDays(1050));
-        user.getUserRoles().forEach(userRole -> userRole.setEndDate(past));
+        user.getUserRoles().forEach(userRole -> {
+            userRole.setEndDate(past);
+            userRole.setExpiryNotifications(1);
+        });
         userRepository.save(user);
     }
 
