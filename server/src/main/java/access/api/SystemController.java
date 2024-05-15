@@ -2,6 +2,7 @@ package access.api;
 
 import access.config.Config;
 import access.cron.ResourceCleaner;
+import access.cron.RoleExpirationNotifier;
 import access.manage.Manage;
 import access.model.Role;
 import access.model.User;
@@ -17,7 +18,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -37,15 +40,18 @@ public class SystemController {
     private static final Log LOG = LogFactory.getLog(SystemController.class);
 
     private final ResourceCleaner resourceCleaner;
+    private final RoleExpirationNotifier roleExpirationNotifier;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final Manage manage;
 
     public SystemController(ResourceCleaner resourceCleaner,
+                            RoleExpirationNotifier roleExpirationNotifier,
                             RoleRepository roleRepository,
                             UserRoleRepository userRoleRepository,
                             Manage manage) {
         this.resourceCleaner = resourceCleaner;
+        this.roleExpirationNotifier = roleExpirationNotifier;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.manage = manage;
@@ -57,6 +63,13 @@ public class SystemController {
         UserPermissions.assertSuperUser(user);
         Map<String, List<? extends Serializable>> body = resourceCleaner.doClean();
         return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/cron/expiry-notifications")
+    public ResponseEntity<List<String>> expiryNotifications(@Parameter(hidden = true) User user) {
+        LOG.debug("/cron/expiry-notifications");
+        UserPermissions.assertSuperUser(user);
+        return ResponseEntity.ok(roleExpirationNotifier.doSweep());
     }
 
     @GetMapping("/expiry-user-roles")

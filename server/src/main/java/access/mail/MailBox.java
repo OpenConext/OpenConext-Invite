@@ -74,7 +74,7 @@ public class MailBox {
             variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
         }
 
-            variables.put("invitation", invitation);
+        variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(language.name()));
         variables.put("user", user);
         if (!environment.equalsIgnoreCase("prod")) {
@@ -92,9 +92,9 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendUserRoleExpirationNotificationMail(UserRole userRole,
-                                                       GroupedProviders groupedProvider,
-                                                       int nbrOfDays) {
+    public String sendUserRoleExpirationNotificationMail(UserRole userRole,
+                                                         GroupedProviders groupedProvider,
+                                                         int nbrOfDays) {
         String lang = preferredLanguage().toLowerCase();
         String title = String.format(subjects.get(lang).get("roleExpirationNotification"),
                 userRole.getAuthority().translate(lang),
@@ -110,7 +110,7 @@ public class MailBox {
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
-        sendMail(String.format("role_expiration_%s", lang),
+        return sendMail(String.format("role_expiration_%s", lang),
                 title,
                 variables,
                 userRole.getUser().getEmail());
@@ -120,7 +120,7 @@ public class MailBox {
         return LocaleContextHolder.getLocale().getLanguage();
     }
 
-    private void sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {
+    private String sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 
@@ -144,6 +144,7 @@ public class MailBox {
 //                    });
 //        }
         doSendMail(message);
+        return htmlText;
     }
 
     protected void setText(String plainText, String htmlText, MimeMessageHelper helper) throws MessagingException, IOException {

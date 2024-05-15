@@ -8,6 +8,10 @@ import {
     isUserAllowed
 } from "../../utils/UserRole";
 
+const applicationUsagesForManageId = manageId => {
+    return [{application: {manageId: manageId}}];
+}
+
 test("Test isUserAllowed", () => {
     let user = {userRoles: [{authority: AUTHORITIES.GUEST}]}
     expect(isUserAllowed(AUTHORITIES.INVITER, user)).toBeFalsy();
@@ -47,10 +51,6 @@ test("Allowed authorities for invitation - manager", () => {
 });
 
 test("Allowed to renew UserRole", () => {
-    const applicationUsagesForManageId = manageId => {
-        return [{application: {manageId: manageId}}];
-    }
-
     const research = {
         authority: AUTHORITIES.MANAGER,
         role: {id: "1", applicationUsages: applicationUsagesForManageId("2")}
@@ -107,8 +107,8 @@ test("Allowed to renew UserRole", () => {
 })
 
 test("Allowed to delete Invitation", () => {
-    const mail = {authority: AUTHORITIES.INVITER, role: {id: "1", manageId: "10"}};
-    const research = {authority: AUTHORITIES.INVITER, role: {id: "2", manageId: "11"}};
+    const mail = {authority: AUTHORITIES.INVITER, role: {id: "1", applicationUsages: applicationUsagesForManageId("10")}};
+    const research = {authority: AUTHORITIES.INVITER, role: {id: "2", applicationUsages: applicationUsagesForManageId("11")}};
     const user = {userRoles: [mail, research]}
     const invitation = {intendedAuthority: AUTHORITIES.GUEST, roles: [mail, research]};
     expect(allowedToDeleteInvitation(user, invitation)).toBeTruthy();
@@ -118,13 +118,13 @@ test("Allowed to delete Invitation", () => {
 });
 
 test("Allowed to edit", () => {
-    const role = {id: 1, manageId: 5};
+    const role = {id: 1, applicationUsages: applicationUsagesForManageId("1")};
     const user = {
         institutionAdmin: true,
-        applications: [{id: 1}],
+        applications: [{id: "1"}],
         userRoles: [{authority: AUTHORITIES.INVITER, role: role}]
     }
-    expect(allowedToEditRole(user, role)).toBeFalsy();
+    expect(allowedToEditRole(user, role)).toBeTruthy();
 });
 
 test("Highest authority", () => {

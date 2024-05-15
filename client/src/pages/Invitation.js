@@ -36,7 +36,7 @@ export const Invitation = ({authenticated}) => {
                 const mayAccept = localStorage.getItem(MAY_ACCEPT);
                 if (mayAccept && config.name && !reloaded) {
                     acceptInvitation(hashParam, res.id)
-                        .then(res => {
+                        .then(() => {
                             localStorage.removeItem(MAY_ACCEPT);
                             localStorage.removeItem("location");
                             useAppStore.setState(() => ({reload: true}));
@@ -51,8 +51,7 @@ export const Invitation = ({authenticated}) => {
                                     warning: false,
                                     error: true,
                                     question: I18n.t("invitationAccept.emailMismatch", {
-                                        email: res.invitation.email,
-                                        userEmail: user.email
+                                        email: res.email
                                     }),
                                     confirmationHeader: I18n.t("confirmationDialog.error"),
                                     confirmationTxt: I18n.t("invitationAccept.login")

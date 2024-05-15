@@ -48,16 +48,23 @@ public class RoleExpirationNotifier  {
         if (!cronJobResponsible || roleExpirationNotificationDays == -1) {
             return;
         }
+        this.doSweep();
+    }
+
+    public List<String> doSweep() {
         Instant instant = Instant.now().plus(roleExpirationNotificationDays, ChronoUnit.DAYS);
         List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(instant, 0);
-        userRoles.forEach(userRole -> {
+        return userRoles.stream().map(userRole -> {
             List<GroupedProviders> groupedProviders = manage.getGroupedProviders(List.of(userRole.getRole()));
             GroupedProviders groupedProvider = groupedProviders.isEmpty() ? null : groupedProviders.get(0);
-            mailBox.sendUserRoleExpirationNotificationMail(userRole, groupedProvider, roleExpirationNotificationDays);
+            String mail = mailBox.sendUserRoleExpirationNotificationMail(userRole, groupedProvider, roleExpirationNotificationDays);
             userRole.setExpiryNotifications(1);
             userRoleRepository.save(userRole);
 
             LOG.info("Send expiration notification mail to " + userRole.getUser().getEmail());
-        });
+
+            return mail;
+        }).toList();
     }
+
 }

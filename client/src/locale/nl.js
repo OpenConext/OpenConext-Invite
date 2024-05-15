@@ -449,7 +449,8 @@ const nl = {
     system: {
         trigger: "Trigger",
         clear: "Clear",
-        cronInfo: "Roep de cron job aan die resources opruimt, zoals verlopen gebruikersrollen, verweesde gebruikers en inactieve gebruikers"
+        cronInfo: "Roep de cron job aan die resources opruimt, zoals verlopen gebruikersrollen, verweesde gebruikers en inactieve gebruikers",
+        cronNotificationsInfo: "Roep de cron job aan die notificatie mails verstuurd voor gebruikersrollen die verlopen in X dagen"
     },
     unknownRoles: {
         title: "Rollen gekoppeld aan applicaties die verwijderd zijn in Manage",
