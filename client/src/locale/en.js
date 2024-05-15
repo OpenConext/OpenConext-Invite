@@ -450,8 +450,8 @@ const en = {
         trigger: "Trigger",
         clear: "Clear",
         cronInfo: "Trigger the cron job to cleanup resources like expired user-roles, orphaned users and in-active users",
-        cronNotificationsInfo: "Trigger the cron job to send notification mails for user-roles thaat will expire in X days"
-
+        cronNotificationsInfo: "Trigger the cron job to send notification mails for user-roles that will expire in X days",
+        noMails: "No notification mails for user-role expirations were send"
     },
     unknownRoles: {
         title: "Roles linked to applications unknown in Manage",

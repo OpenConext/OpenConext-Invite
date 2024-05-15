@@ -33,7 +33,7 @@ export const Cron = () => {
     const expiredNotificationsCron = () => {
         return <div className="mod-cron">
             <div className="actions">
-                <span>{I18n.t("system.cronInfo")}</span>
+                <span>{I18n.t("system.cronNotificationsInfo")}</span>
                 {isEmpty(mailResults) &&
                     <Button onClick={() => cronExpiryNotifications().then(res => setMailResults(res))}
                             txt={I18n.t("system.trigger")}/>}
@@ -43,11 +43,14 @@ export const Cron = () => {
             </div>
             {!isEmpty(mailResults) &&
                 <div className="cron-results">
-                    {mailResults.map(mail => <div className="mail-content">
+                    {mailResults["mails"].map(mail => <div className="mail-content">
                         <p dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(mail)
                         }}/>
                     </div>)}
+                    {isEmpty(mailResults["mails"]) && <p>
+                        {I18n.t("system.noMails")}
+                    </p>}
                 </div>}
         </div>;
     }

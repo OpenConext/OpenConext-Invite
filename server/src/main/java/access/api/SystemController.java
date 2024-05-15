@@ -66,10 +66,10 @@ public class SystemController {
     }
 
     @GetMapping("/cron/expiry-notifications")
-    public ResponseEntity<List<String>> expiryNotifications(@Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, List<String>>> expiryNotifications(@Parameter(hidden = true) User user) {
         LOG.debug("/cron/expiry-notifications");
         UserPermissions.assertSuperUser(user);
-        return ResponseEntity.ok(roleExpirationNotifier.doSweep());
+        return ResponseEntity.ok(Map.of("mails", roleExpirationNotifier.doSweep()));
     }
 
     @GetMapping("/expiry-user-roles")
