@@ -8,6 +8,10 @@ import {
     isUserAllowed
 } from "../../utils/UserRole";
 
+const applicationUsagesForManageId = manageId => {
+    return [{application: {manageId: manageId}}];
+}
+
 test("Test isUserAllowed", () => {
     let user = {userRoles: [{authority: AUTHORITIES.GUEST}]}
     expect(isUserAllowed(AUTHORITIES.INVITER, user)).toBeFalsy();
@@ -30,26 +34,35 @@ test("Allowed authorities for invitation - superUser", () => {
 });
 
 test("Allowed authorities for invitation - manager", () => {
-    const research = {authority: AUTHORITIES.MANAGER, role: {id: "1", manageId: "2"}};
+    const researchUserRole = {authority: AUTHORITIES.MANAGER, role: {id: "1", manageId: "2"}};
     const wikiRole = {id: "2", manageId: "2"};
-    const mail = {authority: AUTHORITIES.INVITER, role: {id: "3", manageId: "9"}};
-    const user = {userRoles: [research, mail]}
+    const mailUserRole = {authority: AUTHORITIES.INVITER, role: {id: "3", manageId: "9"}};
+    const user = {userRoles: [researchUserRole, mailUserRole]}
 
     let authorities = allowedAuthoritiesForInvitation(user, []);
     expect(authorities).toEqual([AUTHORITIES.INVITER, AUTHORITIES.GUEST]);
 
     authorities = allowedAuthoritiesForInvitation(user, [wikiRole]);
-    expect(authorities).toEqual([AUTHORITIES.INVITER, AUTHORITIES.GUEST]);
+    expect(authorities).toEqual([]);
 
-    authorities = allowedAuthoritiesForInvitation(user, [mail.role]);
+    authorities = allowedAuthoritiesForInvitation(user, [mailUserRole.role]);
     expect(authorities).toEqual([AUTHORITIES.GUEST]);
 
 });
 
 test("Allowed to renew UserRole", () => {
-    const research = {authority: AUTHORITIES.MANAGER, role: {id: "1", manageId: "2"}};
-    const mail = {authority: AUTHORITIES.INVITER, role: {id: "3", manageId: "9"}};
-    const calendar = {authority: AUTHORITIES.GUEST, role: {id: "3", manageId: "9"}};
+    const research = {
+        authority: AUTHORITIES.MANAGER,
+        role: {id: "1", applicationUsages: applicationUsagesForManageId("2")}
+    };
+    const mail = {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "3", applicationUsages: applicationUsagesForManageId("9")}
+    };
+    const calendar = {
+        authority: AUTHORITIES.GUEST,
+        role: {id: "3", applicationUsages: applicationUsagesForManageId("9")}
+    };
     let user = {superUser: true}
     expect(allowedToRenewUserRole(user, null)).toBeTruthy();
 
@@ -59,22 +72,43 @@ test("Allowed to renew UserRole", () => {
     user = {userRoles: [research]}
     expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.SUPER_USER})).toBeFalsy();
     expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.MANAGER})).toBeFalsy();
-    expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.INVITER, role: {id: "9", manageId: "9"}})).toBeFalsy();
-    expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.INVITER, role: {id: "1", manageId: "9"}})).toBeTruthy();
-    expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.INVITER, role: {id: "9", manageId: "2"}})).toBeTruthy();
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "9", applicationUsages: applicationUsagesForManageId("9")}
+    })).toBeFalsy();
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "1", applicationUsages: applicationUsagesForManageId("9")}
+    })).toBeTruthy();
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "9", applicationUsages: applicationUsagesForManageId("2")}
+    })).toBeTruthy();
 
     user = {userRoles: [mail]}
-    expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.INVITER, role: {id: "3", manageId: "9"}})).toBeFalsy();
-    expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.GUEST, role: {id: "1", manageId: "11"}})).toBeFalsy();
-    expect(allowedToRenewUserRole(user, {authority: AUTHORITIES.GUEST, role: {id: "3", manageId: "11"}})).toBeTruthy();
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "3", applicationUsages: applicationUsagesForManageId("9")}
+    })).toBeFalsy();
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.GUEST,
+        role: {id: "1", applicationUsages: applicationUsagesForManageId("11")}
+    })).toBeFalsy();
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.GUEST,
+        role: {id: "3", applicationUsages: applicationUsagesForManageId("11")}
+    })).toBeTruthy();
 
-    user = {userRoles: [mail]}
+    // An institution admin is allowed to CRUD for every role that is owned by the organization of the insitution admin
+    user = {institutionAdmin: true, applications: [{id: "2"}]}
+    expect(allowedToRenewUserRole(user, research)).toBeTruthy();
+    expect(allowedToRenewUserRole(user, mail)).toBeFalsy();
 
 })
 
 test("Allowed to delete Invitation", () => {
-    const mail = {authority: AUTHORITIES.INVITER, role: {id: "1", manageId: "10"}};
-    const research = {authority: AUTHORITIES.INVITER, role: {id: "2", manageId: "11"}};
+    const mail = {authority: AUTHORITIES.INVITER, role: {id: "1", applicationUsages: applicationUsagesForManageId("10")}};
+    const research = {authority: AUTHORITIES.INVITER, role: {id: "2", applicationUsages: applicationUsagesForManageId("11")}};
     const user = {userRoles: [mail, research]}
     const invitation = {intendedAuthority: AUTHORITIES.GUEST, roles: [mail, research]};
     expect(allowedToDeleteInvitation(user, invitation)).toBeTruthy();
@@ -84,13 +118,13 @@ test("Allowed to delete Invitation", () => {
 });
 
 test("Allowed to edit", () => {
-    const role = {id: 1, manageId: 5};
+    const role = {id: 1, applicationUsages: applicationUsagesForManageId("1")};
     const user = {
         institutionAdmin: true,
-        applications: [{id: 1}],
+        applications: [{id: "1"}],
         userRoles: [{authority: AUTHORITIES.INVITER, role: role}]
     }
-    expect(allowedToEditRole(user, role)).toBeFalsy();
+    expect(allowedToEditRole(user, role)).toBeTruthy();
 });
 
 test("Highest authority", () => {

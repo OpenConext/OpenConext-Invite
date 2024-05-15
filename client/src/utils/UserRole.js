@@ -50,6 +50,22 @@ export const isUserAllowed = (minimalAuthority, user) => {
     return AUTHORITIES_HIERARCHY[authority] <= AUTHORITIES_HIERARCHY[minimalAuthority];
 }
 
+const roleIsConnectedToApp = (role, app) => {
+    return role.applicationUsages
+        .map(appUsage => appUsage.application.manageId)
+        .includes(app.id)
+}
+
+const isApplicationManagerForUserRole = (user, userRole) => {
+    if (AUTHORITIES_HIERARCHY[userRole.authority] <= AUTHORITIES_HIERARCHY[AUTHORITIES.MANAGER]) {
+        return false;
+    }
+    const userRoleManageIdentifiers = userRole.role.applicationUsages.map(appUsage => appUsage.application.manageId);
+    return (user.userRoles || [])
+        .filter(ur => AUTHORITIES_HIERARCHY[ur.authority] >= AUTHORITIES_HIERARCHY[AUTHORITIES.MANAGER])
+        .some(ur => ur.role.applicationUsages.some(appUsage => userRoleManageIdentifiers.includes(appUsage.application.manageId)))
+}
+
 export const allowedToEditRole = (user, role) => {
     if (user.superUser) {
         return true;
@@ -57,11 +73,11 @@ export const allowedToEditRole = (user, role) => {
     if (!isUserAllowed(AUTHORITIES.MANAGER, user)) {
         return false;
     }
-    if (user.institutionAdmin && (user.applications || []).some(app => app.id === role.manageId)) {
+    if (user.institutionAdmin && (user.applications || []).some(app => roleIsConnectedToApp(role, app))) {
         return true;
     }
     //One the userRoles must have the same manageId as the role
-    const userRole = user.userRoles.find(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id);
+    const userRole = user.userRoles.find(userRole => userRole.role.id === role.id);
     return !isEmpty(userRole) && AUTHORITIES_HIERARCHY[userRole.authority] <= AUTHORITIES_HIERARCHY[AUTHORITIES.MANAGER];
 }
 
@@ -77,21 +93,26 @@ export const allowedToRenewUserRole = (user, userRole) => {
     if (user.superUser) {
         return true;
     }
-    const allowedByApplication = user.institutionAdmin && (user.applications || [])
-        .some(application => application.id === userRole.role.manageId);
+    const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
+        .some(application => roleIsConnectedToApp(userRole.role, application));
+    const allowedByApplicationForManager = isApplicationManagerForUserRole(user, userRole);
     switch (userRole.authority) {
         case AUTHORITIES.SUPER_USER:
             return false;
         case AUTHORITIES.INSTITUTION_ADMIN:
             return false;
         case AUTHORITIES.MANAGER:
-            return allowedByApplication;
+            return allowedByApplicationForInstitutionAdmin;
         case AUTHORITIES.INVITER :
             return isUserAllowed(AUTHORITIES.MANAGER, user) &&
-                (user.userRoles.some(ur => userRole.role.manageId === ur.role.manageId || userRole.role.id === ur.role.id) || allowedByApplication) ;
+                ((user.userRoles || []).some(ur => userRole.role.id === ur.role.id)
+                    || allowedByApplicationForManager
+                    || allowedByApplicationForInstitutionAdmin);
         case  AUTHORITIES.GUEST:
             return isUserAllowed(AUTHORITIES.INVITER, user) &&
-                (user.userRoles.some(ur => userRole.role.id === ur.role.id) || allowedByApplication);
+                (user.userRoles.some(ur => userRole.role.id === ur.role.id)
+                    || allowedByApplicationForManager
+                    || allowedByApplicationForInstitutionAdmin);
         default:
             return false
     }
@@ -153,7 +174,7 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     //Return only the AUTHORITIES where the user has the correct authority per selectedRole
     const userRolesForSelectedRoles = selectedRoles
         .map(role => role.isUserRole ? role.role : role)
-        .map(role => user.userRoles.find(userRole => userRole.role.manageId === role.manageId || userRole.role.id === role.id))
+        .map(role => user.userRoles.find(userRole => userRole.role.id === role.id))
         .filter(userRole => !isEmpty(userRole));
     const leastImportantAuthority = userRolesForSelectedRoles
         .reduce((acc, userRole) => {

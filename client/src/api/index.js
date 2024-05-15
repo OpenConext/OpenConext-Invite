@@ -215,6 +215,10 @@ export function cronCleanup() {
     return fetchJson("/api/v1/system/cron/cleanup")
 }
 
+export function cronExpiryNotifications() {
+    return fetchJson("/api/v1/system/cron/expiry-notifications")
+}
+
 export function expiryUserRoles() {
     return fetchJson("/api/v1/system/expiry-user-roles")
 }
