@@ -6,6 +6,8 @@ on:
       - "*.*.*"
     branches:
       - "feature/reusable_workflows"
+  workflow_dispatch:
+    
 
 jobs:
   build-release-and-push-container:
