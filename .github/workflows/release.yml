@@ -1,0 +1,14 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+    branches:
+      - "feature/reusable_workflows"
+
+jobs:
+  build-release-and-push-container:
+    uses: openconext/openconext-githubactions/.github/workflows/java-release.yml@main
+    with:
+      java_version: "17"
