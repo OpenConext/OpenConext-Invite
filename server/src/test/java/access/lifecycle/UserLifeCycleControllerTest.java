@@ -42,7 +42,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .pathParam("sub", GUEST_SUB)
                 .get("/api/deprovision/{sub}")
                 .then()
-                .statusCode(400);
+                .statusCode(403);
     }
 
     @Test
