@@ -19,9 +19,7 @@ public class SwaggerOpenIdConfig {
 
     public static final String OPEN_ID_SCHEME_NAME = "openId";
     public static final String API_TOKENS_SCHEME_NAME = "apiTokens";
-    public static final String VOOT_SCHEME_NAME = "voot";
-    public static final String LIFE_CYCLE_SCHEME_NAME = "lifeCycle";
-    public static final String ATTRIBUTE_AGGREGATION_SCHEME_NAME = "attributeAggregation";
+    public static final String BASIC_AUTHENTICATION_SCHEME_NAME = "basic_auth";
 
     @Bean
     OpenAPI customOpenApi(@Value("${spring.security.oauth2.client.provider.oidcng.authorization-uri}") String authorizationUrl,
@@ -48,9 +46,7 @@ public class SwaggerOpenIdConfig {
         Components components = new Components()
                 .addSecuritySchemes(OPEN_ID_SCHEME_NAME, openIdSecuritySchema)
                 .addSecuritySchemes(API_TOKENS_SCHEME_NAME, apiTokensSecurityScheme)
-                .addSecuritySchemes(VOOT_SCHEME_NAME, basicAuthentication)
-                .addSecuritySchemes(LIFE_CYCLE_SCHEME_NAME, basicAuthentication)
-                .addSecuritySchemes(ATTRIBUTE_AGGREGATION_SCHEME_NAME, basicAuthentication);
+                .addSecuritySchemes(BASIC_AUTHENTICATION_SCHEME_NAME, basicAuthentication);
 
         OpenAPI openAPI = new OpenAPI()
                 .info(new Info()

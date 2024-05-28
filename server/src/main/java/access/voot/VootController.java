@@ -22,11 +22,11 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static access.SwaggerOpenIdConfig.VOOT_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/voot", "/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@SecurityRequirement(name = VOOT_SCHEME_NAME)
+@SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class VootController {
 
     private static final Log LOG = LogFactory.getLog(VootController.class);

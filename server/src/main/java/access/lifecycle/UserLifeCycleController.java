@@ -18,13 +18,12 @@ import access.model.*;
 import access.repository.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static access.SwaggerOpenIdConfig.LIFE_CYCLE_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/deprovision", "/api/external/v1/deprovision"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@SecurityRequirement(name = LIFE_CYCLE_SCHEME_NAME)
+@SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class UserLifeCycleController {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserLifeCycleController.class);

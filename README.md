@@ -93,7 +93,7 @@ Graph
 
 Login with Mujina IdP and user `admin` to become super-user in the local environment
 
-<http://localhost:8080/ui/swagger-ui/index.html>
+<http://localhost:8888/ui/swagger-ui/index.html>
 
 <http://localhost:8081/>
 

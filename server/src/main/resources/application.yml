@@ -132,6 +132,10 @@ lifecycle:
   user: lifecycle
   password: secret
 
+profile:
+  user: profile
+  password: secret
+
 email:
   from: "no-reply@surf.nl"
   contactEmail: "access@surf.nl"

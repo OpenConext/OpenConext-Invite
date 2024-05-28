@@ -65,6 +65,8 @@ public class SecurityConfig {
     private final String lifeCyclePassword;
     private final String teamsUser;
     private final String teamsPassword;
+    private final String profileUser;
+    private final String profilePassword;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
@@ -80,6 +82,8 @@ public class SecurityConfig {
                           @Value("${lifecycle.password}") String lifeCyclePassword,
                           @Value("${teams.user}") String teamsUser,
                           @Value("${teams.password}") String teamsPassword,
+                          @Value("${profile.user}") String profileUser,
+                          @Value("${profile.password}") String profilePassword,
                           @Value("${attribute-aggregation.user}") String attributeAggregationUser,
                           @Value("${attribute-aggregation.password}") String attributeAggregationPassword) {
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -95,6 +99,8 @@ public class SecurityConfig {
         this.lifeCyclePassword = lifeCyclePassword;
         this.teamsUser = teamsUser;
         this.teamsPassword = teamsPassword;
+        this.profileUser = profileUser;
+        this.profilePassword = profilePassword;
         this.attributeAggregationUser = attributeAggregationUser;
         this.attributeAggregationPassword = attributeAggregationPassword;
     }
@@ -205,6 +211,8 @@ public class SecurityConfig {
                         "/api/external/v1/voot/**",
                         "/api/teams/**",
                         "/api/external/v1/teams/**",
+                        "/api/profile/**",
+                        "/api/external/v1/profile/**",
                         "/api/aa/**",
                         "/api/external/v1/aa/**",
                         "/api/deprovision/**",
@@ -268,11 +276,17 @@ public class SecurityConfig {
                 .password("{noop}" + lifeCyclePassword)
                 .roles("LIFECYCLE")
                 .build();
+        UserDetails profileUserDetails = User
+                .withUsername(profileUser)
+                .password("{noop}" + profilePassword)
+                .roles("PROFILE")
+                .build();
         return new InMemoryUserDetailsManager(
                 vootUserDetails,
                 attributeAggregationUserDetails,
                 lifeCyleUserDetails,
-                teamsUserDetails);
+                teamsUserDetails,
+                profileUserDetails);
     }
 
     @Bean

@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static access.SwaggerOpenIdConfig.ATTRIBUTE_AGGREGATION_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/aa", "/api/external/v1/aa"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@SecurityRequirement(name = ATTRIBUTE_AGGREGATION_SCHEME_NAME)
+@SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class AttributeAggregatorController {
 
     private static final Log LOG = LogFactory.getLog(AttributeAggregatorController.class);

@@ -28,11 +28,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static access.SwaggerOpenIdConfig.ATTRIBUTE_AGGREGATION_SCHEME_NAME;
+import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/teams", "/api/external/v1/teams"}, produces = MediaType.APPLICATION_JSON_VALUE)
-@SecurityRequirement(name = ATTRIBUTE_AGGREGATION_SCHEME_NAME)
+@SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class TeamsController {
 
     private static final int DEFAULT_EXPIRY_DAYS = 5 * 365;
