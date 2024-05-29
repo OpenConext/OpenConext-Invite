@@ -146,9 +146,6 @@ external-api-configuration:
 voot:
   group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
 
-#teams:
-#  group-name-context: "urn:collab:group:test.surfteams.nl:"
-
 email:
   from: "no-reply@surf.nl"
   contactEmail: "access@surf.nl"
