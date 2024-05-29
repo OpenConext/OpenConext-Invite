@@ -19,12 +19,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -46,6 +44,7 @@ import java.util.Locale;
 @EnableScheduling
 @Configuration
 @EnableMethodSecurity
+@EnableConfigurationProperties({ExternalApiConfiguration.class})
 public class SecurityConfig {
 
     public static final String API_TOKEN_HEADER = "X-API-TOKEN";
@@ -57,35 +56,17 @@ public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final InvitationRepository invitationRepository;
     private final ProvisioningService provisioningService;
-    private final String vootUser;
-    private final String vootPassword;
-    private final String attributeAggregationUser;
-    private final String attributeAggregationPassword;
-    private final String lifeCycleUser;
-    private final String lifeCyclePassword;
-    private final String teamsUser;
-    private final String teamsPassword;
-    private final String profileUser;
-    private final String profilePassword;
+    private final ExternalApiConfiguration externalApiConfiguration;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           InvitationRepository invitationRepository,
                           ProvisioningService provisioningService,
+                          ExternalApiConfiguration externalApiConfiguration,
                           @Value("${config.eduid-entity-id}") String eduidEntityId,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
-                          @Value("${oidcng.resource-server-secret}") String secret,
-                          @Value("${voot.user}") String vootUser,
-                          @Value("${voot.password}") String vootPassword,
-                          @Value("${lifecycle.user}") String lifeCycleUser,
-                          @Value("${lifecycle.password}") String lifeCyclePassword,
-                          @Value("${teams.user}") String teamsUser,
-                          @Value("${teams.password}") String teamsPassword,
-                          @Value("${profile.user}") String profileUser,
-                          @Value("${profile.password}") String profilePassword,
-                          @Value("${attribute-aggregation.user}") String attributeAggregationUser,
-                          @Value("${attribute-aggregation.password}") String attributeAggregationPassword) {
+                          @Value("${oidcng.resource-server-secret}") String secret) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
         this.provisioningService = provisioningService;
@@ -93,16 +74,7 @@ public class SecurityConfig {
         this.introspectionUri = introspectionUri;
         this.clientId = clientId;
         this.secret = secret;
-        this.vootUser = vootUser;
-        this.vootPassword = vootPassword;
-        this.lifeCycleUser = lifeCycleUser;
-        this.lifeCyclePassword = lifeCyclePassword;
-        this.teamsUser = teamsUser;
-        this.teamsPassword = teamsPassword;
-        this.profileUser = profileUser;
-        this.profilePassword = profilePassword;
-        this.attributeAggregationUser = attributeAggregationUser;
-        this.attributeAggregationPassword = attributeAggregationPassword;
+        this.externalApiConfiguration = externalApiConfiguration;
     }
 
     @Configuration
@@ -255,38 +227,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails vootUserDetails = User
-                .withUsername(vootUser)
-                .password("{noop}" + vootPassword)
-                .roles("VOOT")
-                .build();
-        UserDetails attributeAggregationUserDetails = User
-                .withUsername(attributeAggregationUser)
-                .password("{noop}" + attributeAggregationPassword)
-                .roles("ATTRIBUTE_AGGREGATION")
-                .build();
-        UserDetails teamsUserDetails = User
-                .withUsername(teamsUser)
-                .password("{noop}" + teamsPassword)
-                .roles("TEAMS")
-                .build();
-        UserDetails lifeCyleUserDetails = User
-                .withUsername(lifeCycleUser)
-                .password("{noop}" + lifeCyclePassword)
-                .roles("LIFECYCLE")
-                .build();
-        UserDetails profileUserDetails = User
-                .withUsername(profileUser)
-                .password("{noop}" + profilePassword)
-                .roles("PROFILE")
-                .build();
-        return new InMemoryUserDetailsManager(
-                vootUserDetails,
-                attributeAggregationUserDetails,
-                lifeCyleUserDetails,
-                teamsUserDetails,
-                profileUserDetails);
+    public UserDetailsService userDetailsService() {
+        return new ExtendedInMemoryUserDetailsManager(externalApiConfiguration.getRemoteUsers());
     }
 
     @Bean

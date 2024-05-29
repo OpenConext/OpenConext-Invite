@@ -114,27 +114,40 @@ config:
   past-date-allowed: True
   eduid-idp-schac-home-organization: "test.eduid.nl"
 
+# We don't encode in-memory passwords, so we need to prefix them with {noop}
+external-api-configuration:
+  remote-users:
+    -
+      username: voot
+      password: "{noop}secret"
+      scopes:
+        - voot
+    -
+      username: teams
+      password: "{noop}secret"
+      scopes:
+        - teams
+    -
+      username: aa
+      password: "{noop}secret"
+      scopes:
+        - attribute_aggregation
+    -
+      username: lifecycle
+      password: "{noop}secret"
+      scopes:
+        - lifecycle
+    -
+      username: profile
+      password: "{noop}secret"
+      scopes:
+        - profile
+
 voot:
-  user: voot
-  password: secret
   group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
 
-teams:
-  user: teams
-  password: secret
-  group-name-context: "urn:collab:group:test.surfteams.nl:"
-
-attribute-aggregation:
-  user: aa
-  password: secret
-
-lifecycle:
-  user: lifecycle
-  password: secret
-
-profile:
-  user: profile
-  password: secret
+#teams:
+#  group-name-context: "urn:collab:group:test.surfteams.nl:"
 
 email:
   from: "no-reply@surf.nl"
