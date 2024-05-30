@@ -124,7 +124,7 @@ external-api-configuration:
         - voot
     -
       username: teams
-      password: "{noop}secret"
+      password: "secret"
       scopes:
         - teams
     -
@@ -134,7 +134,7 @@ external-api-configuration:
         - attribute_aggregation
     -
       username: lifecycle
-      password: "{noop}secret"
+      password: "secret"
       scopes:
         - lifecycle
     -
