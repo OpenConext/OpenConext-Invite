@@ -126,11 +126,12 @@ public class Invitation implements Serializable {
     }
 
     @JsonProperty(value = "inviter", access = JsonProperty.Access.READ_ONLY)
-    public Map<String, String> getInviterEmail() {
+    public Map<String, Object> getInviterEmail() {
         User inviter = this.getInviter();
         return inviter != null ? Map.of(
                 "email", inviter.getEmail(),
-                "name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail())
+                "name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail(),
+                    "user_id", inviter.getId())
                 : Collections.emptyMap();
     }
 

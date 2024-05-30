@@ -65,7 +65,7 @@ export const InvitationForm = () => {
             navigate("/404");
             return;
         }
-        if (isUserAllowed(AUTHORITIES.MANAGER, user)) {
+        if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
             rolesByApplication()
                 .then(res => {
                     const markedRoles = markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));

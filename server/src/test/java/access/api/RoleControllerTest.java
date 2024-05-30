@@ -27,7 +27,7 @@ class RoleControllerTest extends AbstractTest {
     void create() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
@@ -50,7 +50,9 @@ class RoleControllerTest extends AbstractTest {
     void createInvalidLandingPage() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN);
         Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
 
         given()
@@ -69,7 +71,9 @@ class RoleControllerTest extends AbstractTest {
     void createProvisionException() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN);
         Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
@@ -144,7 +148,11 @@ class RoleControllerTest extends AbstractTest {
     void rolesByApplication() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
 
@@ -157,8 +165,7 @@ class RoleControllerTest extends AbstractTest {
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, roles.size());
-        assertEquals("Wiki", roles.get(0).getName());
+        assertEquals(4, roles.size());
     }
 
     @Test

@@ -70,13 +70,13 @@ public class RoleController {
         if (user.isSuperUser() && !config.isRoleSearchRequired()) {
             return ResponseEntity.ok(manage.addManageMetaData(roleRepository.findAll()));
         }
-        UserPermissions.assertAuthority(user, Authority.MANAGER);
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         List<Role> roles = new ArrayList<>();
         if (user.isInstitutionAdmin()) {
             Set<String> manageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
-            //This is a shortcoming of the json_array
             manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
         }
+
         Set<String> manageIdentifiers = user.getUserRoles().stream()
                 //If the user has an userRole as Inviter, then we must exclude those
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
@@ -108,6 +108,7 @@ public class RoleController {
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
@@ -116,6 +117,7 @@ public class RoleController {
 
     @PutMapping("")
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
+        UserPermissions.assertAuthority(user, Authority.MANAGER);
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);
     }

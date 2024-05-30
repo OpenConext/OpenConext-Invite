@@ -43,12 +43,14 @@ export const RoleForm = () => {
     const [confirmationOpen, setConfirmationOpen] = useState(false);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [applications, setApplications] = useState([]);
+    const [allowedToEditApplication, setAllowedToEditApplication] = useState(true);
 
     useEffect(() => {
             if (!isUserAllowed(AUTHORITIES.MANAGER, user)) {
                 navigate("/404");
                 return;
             }
+            setAllowedToEditApplication(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user))
             const newRole = id === "new";
             const promises = [];
             if (!newRole) {
@@ -272,6 +274,7 @@ export const RoleForm = () => {
                                      onChange={option => changeApplication(index, option)}
                                      searchable={true}
                                      clearable={false}
+                                     disabled={!allowedToEditApplication}
                         />
                             {(!initial && isEmpty(application) && index === 0) &&
                                 <ErrorIndicator msg={I18n.t("forms.required", {
@@ -282,7 +285,7 @@ export const RoleForm = () => {
                             <InputField name={I18n.t("roles.landingPage")}
                                         value={application ? application.landingPage : null}
                                         isUrl={true}
-                                        disabled={isEmpty(application)}
+                                        disabled={isEmpty(application) || !allowedToEditApplication}
                                         placeholder={I18n.t("roles.landingPagePlaceHolder")}
                                         onBlur={e => validateApplication(index, e.target.value)}
                                         onChange={e => changeApplicationLandingPage(index, e)}
@@ -297,7 +300,7 @@ export const RoleForm = () => {
                                     attribute: I18n.t("roles.landingPage").toLowerCase()
                                 })}/>}
                         </div>
-                        {index !== 0 &&
+                        {(index !== 0 && allowedToEditApplication)&&
                             <Button type={ButtonType.Delete}
                                     onClick={() => deleteApplication(index)}/>
                         }
@@ -307,12 +310,13 @@ export const RoleForm = () => {
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.manage").toLowerCase()
                     })}/>}
-
+                {allowedToEditApplication &&
                 <div className="application-actions">
                     <Button txt={I18n.t("roles.addApplication")}
                             disabled={providers.length === applications.length || isEmpty(applications[0])}
                             onClick={addApplication}/>
                 </div>
+                }
 
                 <h2 className="section-separator">
                     {I18n.t("roles.invitationDetails")}
@@ -366,7 +370,7 @@ export const RoleForm = () => {
                 />
 
                 <section className="actions">
-                    {!isNewRole &&
+                    {(!isNewRole && allowedToEditApplication) &&
                         <Button type={ButtonType.Delete}
                                 onClick={() => doDelete(true)}/>}
                     <Button type={ButtonType.Secondary}

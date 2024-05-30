@@ -202,6 +202,7 @@ const nl = {
         enforceEmailEquality: "E-mailadres moet overeenkomen",
         eduIDOnly: "Uitsluitend eduID",
         new: "Nodig manager of uitnodiger uit",
+        newInvitation: "Nodig uitnodiger uit",
         newInvite: "Nieuwe uitnodiging",
         newGuest: "Gast uitnodigen",
         invitees: "Genodigden",

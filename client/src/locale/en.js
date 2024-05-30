@@ -202,6 +202,7 @@ const en = {
         enforceEmailEquality: "Email equality",
         eduIDOnly: "eduID only",
         new: "Invite manager or inviter",
+        newInvitation: "Invite inviter",
         newInvite: "New invite",
         newGuest: "Invite new guest",
         invitees: "Invitees",

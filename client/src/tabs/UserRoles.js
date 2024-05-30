@@ -37,7 +37,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                     acc[userRole.id] = {
                         selected: false,
                         ref: userRole,
-                        allowed: allowedToRenewUserRole(user, userRole)
+                        allowed: allowedToRenewUserRole(user, userRole, true)
                     };
                     return acc;
                 }, {}));
@@ -103,6 +103,13 @@ export const UserRoles = ({role, guests, userRoles}) => {
             .filter(id => resultAfterSearch.some(res => res.id === id));
     }
 
+    const willUpdateCurrentUser = () => {
+        return Object.entries(selectedUserRoles)
+            .filter(entry => (entry[1].selected) && entry[1].allowed && entry[1]?.ref?.userInfo?.id === user.id)
+            .map(entry => parseInt(entry[0]))
+            .some(id => resultAfterSearch.some(res => res.id === id));
+    }
+
     const doDeleteUserRoles = showConfirmation => {
         if (showConfirmation) {
             setConfirmation({
@@ -114,12 +121,19 @@ export const UserRoles = ({role, guests, userRoles}) => {
             setConfirmationOpen(true);
         } else {
             const identifiers = userRoleIdentifiers();
+            const deleteCurrentUserRole = willUpdateCurrentUser();
+            debugger;
             Promise.all(identifiers.map(identifier => deleteUserRole(identifier)))
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.deleteFlash"));
-                    const path = encodeURIComponent(window.location.pathname);
-                    navigate(`/refresh-route/${path}`, {replace: true});
+                    if (deleteCurrentUserRole) {
+                        useAppStore.setState(() => ({reload: true}));
+                        navigate("/home", {replace: true});
+                    } else {
+                        const path = encodeURIComponent(window.location.pathname);
+                        navigate(`/refresh-route/${path}`, {replace: true});
+                    }
                 })
         }
     };
@@ -238,7 +252,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                   modelName="userRoles"
                   defaultSort="name"
                   columns={columns}
-                  newLabel={I18n.t(guests ? "invitations.newGuest" : "invitations.new")}
+                  newLabel={I18n.t(guests ? "invitations.newGuest" : isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user) ? "invitations.new" : "invitations.newInvitation")}
                   showNew={isUserAllowed(AUTHORITIES.MANAGER, user) && !role.unknownInManage}
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=${guests === false}`, {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}

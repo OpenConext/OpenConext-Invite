@@ -30,7 +30,7 @@ export const Roles = () => {
     const [filterValue, setFilterValue] = useState(null);
 
     useEffect(() => {
-        if (isUserAllowed(AUTHORITIES.MANAGER, user)) {
+        if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
             if (roleSearchRequired) {
                 setLoading(false);
             } else {
@@ -205,7 +205,7 @@ export const Roles = () => {
     }
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
-    const isManager = isUserAllowed(AUTHORITIES.MANAGER, user);
+    const isManager = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
     const isInstitutionAdmin = highestAuthority(user) === AUTHORITIES.INSTITUTION_ADMIN;
     if (isInstitutionAdmin && !isEmpty(user.institution) && roles.length === 0) {
         return (

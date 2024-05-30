@@ -82,15 +82,19 @@ export const allowedToEditRole = (user, role) => {
 }
 
 export const allowedToDeleteInvitation = (user, invitation) => {
-    return invitation.roles
-        .every(invitationRole => allowedToRenewUserRole(user, {
-            ...invitationRole,
-            authority: invitation.intendedAuthority
+    return (!isEmpty(invitation.user_id) && invitation.user_id === user.id) ||
+        invitation.roles
+            .every(invitationRole => allowedToRenewUserRole(user, {
+                ...invitationRole,
+                authority: invitation.intendedAuthority
         }))
 }
 
-export const allowedToRenewUserRole = (user, userRole) => {
+export const allowedToRenewUserRole = (user, userRole, deleteAction = false) => {
     if (user.superUser) {
+        return true;
+    }
+    if (deleteAction && user.id === userRole.userInfo?.id) {
         return true;
     }
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
