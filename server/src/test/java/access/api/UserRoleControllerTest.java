@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -218,6 +219,24 @@ class UserRoleControllerTest extends AbstractTest {
                 null,
                 true
         ), "urn:collab:person:example.com:inviter", 4);
+    }
+
+    @Test
+    void consequencesForDeletion() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        Role role = roleRepository.search("wiki", 1).get(0);
+        List<Map<String, Object>> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("roleId", role.getId())
+                .get("/api/v1/user_roles/consequences/{roleId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, userRoles.size());
+        System.out.println(userRoles);
     }
 
     private void doUserRoleProvisioning(UserRoleProvisioning userRoleProvisioning, String expectedSub, int expectedUserRoleCount) throws JsonProcessingException {

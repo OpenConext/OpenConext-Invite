@@ -7,7 +7,6 @@ import access.logging.AccessLogger;
 import access.logging.Event;
 import access.model.*;
 import access.provision.ProvisioningService;
-import access.provision.graph.GraphResponse;
 import access.provision.scim.OperationType;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
@@ -70,6 +69,25 @@ public class UserRoleController {
         userRoles.forEach(userRole -> userRole.setUserInfo(userRole.getUser().asMap()));
         return ResponseEntity.ok(userRoles);
     }
+
+    @GetMapping("/consequences/{roleId}")
+    public ResponseEntity<List<Map<String, Object>>> consequencesDeleteRole(@PathVariable("roleId") Long roleId,
+                                                                            @Parameter(hidden = true) User user) {
+        Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
+
+        LOG.debug(String.format("Fetching consequences delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
+
+        UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
+
+        List<UserRole> userRoles = userRoleRepository.findByRole(role);
+        List<Map<String, Object>> res = userRoles.stream().map(userRole -> Map.of(
+                "authority", userRole.getAuthority().name(),
+                "userInfo", userRole.getUser().asMap()
+        )).toList();
+        return ResponseEntity.ok(res);
+    }
+
+
 
     @PostMapping("user_role_provisioning")
     @Operation(summary = "Add Role to a User", description = "Provision the User if the User is unknown and add the Role(s)")

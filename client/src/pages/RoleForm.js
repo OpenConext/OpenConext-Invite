@@ -3,7 +3,16 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
-import {allProviders, createRole, deleteRole, me, roleByID, updateRole, validate} from "../api";
+import {
+    allProviders,
+    consequencesRoleDeletion,
+    createRole,
+    deleteRole,
+    me,
+    roleByID,
+    updateRole,
+    validate
+} from "../api";
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
@@ -16,7 +25,7 @@ import SelectField from "../components/SelectField";
 import {providersToOptions} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
-import {displayExpiryDate, futureDate} from "../utils/Date";
+import {dateFromEpoch, displayExpiryDate, futureDate} from "../utils/Date";
 
 const DEFAULT_EXPIRY_DAYS = 365;
 
@@ -44,6 +53,7 @@ export const RoleForm = () => {
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [applications, setApplications] = useState([]);
     const [allowedToEditApplication, setAllowedToEditApplication] = useState(true);
+    const [deletedUserRoles, setDeletedUserRoles] = useState(null);
 
     useEffect(() => {
             if (!isUserAllowed(AUTHORITIES.MANAGER, user)) {
@@ -144,6 +154,7 @@ export const RoleForm = () => {
                 confirmationTxt: I18n.t("forms.ok"),
                 confirmationHeader: I18n.t("confirmationDialog.error")
             });
+            setDeletedUserRoles(null);
             setConfirmationOpen(true);
         })
     }
@@ -165,18 +176,24 @@ export const RoleForm = () => {
 
     const doDelete = showConfirmation => {
         if (showConfirmation) {
-            setConfirmation({
-                cancel: () => setConfirmationOpen(false),
-                action: () => doDelete(false),
-                warning: true,
-                error: false,
-                question: I18n.t("roles.deleteConfirmation"),
-                confirmationTxt: I18n.t("confirmationDialog.confirm"),
-                confirmationHeader: I18n.t("confirmationDialog.title")
-            });
-            setConfirmationOpen(true);
+            setLoading(true);
+            consequencesRoleDeletion(role.id).then(res => {
+                setLoading(false);
+                setDeletedUserRoles(res);
+                setConfirmation({
+                    cancel: () => setConfirmationOpen(false),
+                    action: () => doDelete(false),
+                    warning: true,
+                    error: false,
+                    question: I18n.t("roles.deleteConfirmation"),
+                    confirmationTxt: I18n.t("confirmationDialog.confirm"),
+                    confirmationHeader: I18n.t("confirmationDialog.title")
+                });
+                setConfirmationOpen(true);
+            })
         } else {
             setLoading(true);
+            setDeletedUserRoles(null);
             deleteRole(role)
                 .then(() => {
                     setConfirmationOpen(false);
@@ -397,7 +414,20 @@ export const RoleForm = () => {
                                                      confirmationHeader={confirmation.confirmationHeader}
                                                      isWarning={confirmation.warning}
                                                      isError={confirmation.error}
-                                                     question={confirmation.question}/>}
+                                                     question={confirmation.question}>
+                {!isEmpty(deletedUserRoles) && <div className="consequences">
+                    <p>{I18n.t("roles.consequences.info")}</p>
+                    <ul>
+                        {deletedUserRoles.map(userRole => <li>
+                            {I18n.t("roles.consequences.userInfo", {
+                                name: userRole.userInfo.name,
+                                authority: I18n.t(`access.${userRole.authority}`),
+                                lastActivity: dateFromEpoch(userRole.userInfo.lastActivity)
+                            })}
+                        </li>)}
+                    </ul>
+                </div>}
+            </ConfirmationDialog>}
 
             <UnitHeader
                 obj={({
