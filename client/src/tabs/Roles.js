@@ -13,11 +13,12 @@ import {chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
 import Select from "react-select";
 import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import DOMPurify from "dompurify";
 
 const allValue = "all";
 
 export const Roles = () => {
-    const user = useAppStore(state => state.user);
+    const {user, config} = useAppStore(state => state);
     const {roleSearchRequired} = useAppStore(state => state.config);
     const navigate = useNavigate();
 
@@ -207,6 +208,7 @@ export const Roles = () => {
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
     const isManager = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
     const isInstitutionAdmin = highestAuthority(user) === AUTHORITIES.INSTITUTION_ADMIN;
+    const isGuest = highestAuthority(user) === AUTHORITIES.GUEST;
     if (isInstitutionAdmin && !isEmpty(user.institution) && roles.length === 0) {
         return (
             <div className={"mod-roles"}>
@@ -220,7 +222,9 @@ export const Roles = () => {
     return (
         <div className={"mod-roles"}>
             {moreToShow && moreResultsAvailable()}
-            <Entities
+            {isGuest && <p className={"guest-only"}
+                           dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
+            {!isGuest && <Entities
                 entities={isSuperUser ? filteredRoles : filteredRoles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
                 modelName="roles"
                 showNew={isManager}
@@ -237,7 +241,7 @@ export const Roles = () => {
                 customSearch={roleSearchRequired && isSuperUser ? search : null}
                 rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                 rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
-                busy={searching}/>
+                busy={searching}/>}
         </div>
     );
 

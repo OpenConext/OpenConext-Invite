@@ -4,6 +4,8 @@ import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Map;
 
@@ -13,8 +15,8 @@ import static org.hamcrest.Matchers.equalTo;
 class AccessApplicationTest {
 
     @Test
-    void main() {
-        AccessServerApplication.main(new String[]{"--server.port=8098"});
+    void mainApp() {
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(AccessServerApplication.class, new String[]{"--server.port=8098"});
         RestAssured.port = 8098;
 
         given()
@@ -24,5 +26,6 @@ class AccessApplicationTest {
                 .get("/internal/health")
                 .then()
                 .body("status", equalTo("UP"));
+        SpringApplication.exit(applicationContext);
     }
 }

@@ -52,6 +52,7 @@ class InvitationTest extends WithApplicationTest {
         Invitation invitation = new Invitation();
         assertEquals(0, invitation.getInviterEmail().size());
         User inviter = new User();
+        inviter.setId(1L);
         inviter.setEmail("jdoe@example.com");
         invitation.setInviter(inviter);
         assertEquals(inviter.getEmail(), invitation.getInviterEmail().get("name"));

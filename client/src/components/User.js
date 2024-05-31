@@ -115,7 +115,8 @@ export const User = ({user, other, config, currentUser}) => {
         ["lastActivity", true]];
     const filteredUserRoles = user.userRoles.filter(filterUserRole).filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);
     const filteredApplications = (user.applications || []).filter(filterApplication);
-    const hasRoles = !isEmpty(user.userRoles.filter(role => role.authority !== AUTHORITIES.GUEST))
+    const hasRoles = !isEmpty(user.userRoles.filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser))
+
     return (
         <section className={"user"}>
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}

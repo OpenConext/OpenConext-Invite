@@ -20,7 +20,7 @@ class APITokenControllerTest extends AbstractTest {
     @Test
     void apiTokensByInstitution() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
         List<APIToken> tokens = given()
@@ -38,7 +38,7 @@ class APITokenControllerTest extends AbstractTest {
     @Test
     void create() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
         //First get the value, otherwise the creation will fail
         Map<String, String> res = given()
@@ -73,7 +73,7 @@ class APITokenControllerTest extends AbstractTest {
     @Test
     void createWithFaultyToken() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
         given()
                 .when()
@@ -91,7 +91,7 @@ class APITokenControllerTest extends AbstractTest {
     void deleteToken() throws Exception {
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
         APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_HASH)).get();
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
         given()
@@ -112,7 +112,7 @@ class APITokenControllerTest extends AbstractTest {
         String organisationGUID = "test_institution_guid";
         super.stubForManageProviderByOrganisationGUID(organisationGUID);
         APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_HASH)).get();
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(organisationGUID));
 
         given()

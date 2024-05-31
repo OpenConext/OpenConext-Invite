@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static access.AbstractTest.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -202,7 +201,7 @@ class UserControllerTest extends AbstractTest {
     void meWithImpersonationInstitutionAdmin() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
-        User institutionAdmin = userRepository.findBySubIgnoreCase(INSTITUTION_ADMIN).get();
+        User institutionAdmin = userRepository.findBySubIgnoreCase(INSTITUTION_ADMIN_SUB).get();
         stubForManageProviderByOrganisationGUID(institutionAdmin.getOrganizationGUID());
 
         User user = given()
@@ -213,7 +212,7 @@ class UserControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get("/api/v1/users/me")
                 .as(User.class);
-        assertEquals(INSTITUTION_ADMIN, user.getEduPersonPrincipalName());
+        assertEquals(INSTITUTION_ADMIN_SUB, user.getEduPersonPrincipalName());
         assertEquals(3, user.getApplications().size());
         assertEquals(EntityType.SAML20_IDP.collectionName(), user.getInstitution().get("type"));
     }

@@ -122,7 +122,6 @@ export const UserRoles = ({role, guests, userRoles}) => {
         } else {
             const identifiers = userRoleIdentifiers();
             const deleteCurrentUserRole = willUpdateCurrentUser();
-            debugger;
             Promise.all(identifiers.map(identifier => deleteUserRole(identifier)))
                 .then(() => {
                     setConfirmationOpen(false);

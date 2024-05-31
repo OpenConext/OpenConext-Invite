@@ -302,7 +302,7 @@ const nl = {
         nextStep: "Volgende: veel plezier met deze rol",
         expired: "Deze uitnodiging is verlopen op {{expiryDate}}",
         expiredInfo: "Neem contact op met <a href='mailto:{{email}}'>{{email}}</a> en vraag om een nieuwe uitnodiging te sturen.",
-        invited: "Uitgenodigd voor {{plural}} {{roles}} door {{inviter}}.",
+        invited: "Je bent uitgenodigd voor {{plural}} {{roles}} door {{inviter}} om {{authority}} te worden.",
         invitedNoRoles: "Je bent uitgenodigd door {{inviter}} om {{authority}} te worden.",
         enforceEmailEquality: " Deze uitnodiging kan alleen geaccepteerd worden door <strong>{{email}}</strong>.",
         role: "rol",

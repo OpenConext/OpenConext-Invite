@@ -52,7 +52,7 @@ class RoleControllerTest extends AbstractTest {
         stubForManageProvisioning(List.of());
         stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
         Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
 
         given()
@@ -73,7 +73,7 @@ class RoleControllerTest extends AbstractTest {
         stubForManageProvisioning(List.of());
         stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
         Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
@@ -119,14 +119,20 @@ class RoleControllerTest extends AbstractTest {
     void updateApplications() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "4"));
         super.stubForManageProvisioning(List.of("1", "2", "4"));
+        super.stubForCreateGraphUser();
+        super.stubForCreateScimUser();
         super.stubForCreateScimRole();
+        super.stubForUpdateScimRole();
+        super.stubForUpdateScimRolePatch();
         super.stubForDeleteScimRole();
 
-        Role roleDB = roleRepository.search("Network", 1).get(0);
+        Role roleDB = roleRepository.search("Wiki", 1).get(0);
         roleDB.setApplicationUsages(Set.of(
                 new ApplicationUsage( new Application("1", EntityType.SAML20_SP) ,"https://landingpage.com"),
                 new ApplicationUsage( new Application("4", EntityType.SAML20_SP) ,"https://landingpage.com"))
@@ -141,7 +147,39 @@ class RoleControllerTest extends AbstractTest {
                 .body(body)
                 .put("/api/v1/roles")
                 .as(Role.class);
+        //Because the applicationUsages are mutable for institution admins
         assertEquals(2, updated.getApplicationUsages().size());
+    }
+
+    @Test
+    void updateApplicationsImmutableApplicationsForManager() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "4"));
+        super.stubForManageProvisioning(List.of("1", "2", "4"));
+        super.stubForCreateScimRole();
+        super.stubForDeleteScimRole();
+
+        Role roleDB = roleRepository.search("Wiki", 1).get(0);
+        assertEquals(1, roleDB.getApplicationUsages().size());
+        roleDB.setApplicationUsages(Set.of(
+                new ApplicationUsage( new Application("1", EntityType.SAML20_SP) ,"https://landingpage.com"),
+                new ApplicationUsage( new Application("4", EntityType.SAML20_SP) ,"https://landingpage.com"))
+        );
+        String body = super.objectMapper.writeValueAsString(roleDB);
+        Role updated = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(body)
+                .put("/api/v1/roles")
+                .as(Role.class);
+        //Because the applicationUsages are immutable for managers
+        assertEquals(1, updated.getApplicationUsages().size());
     }
 
     @Test
@@ -152,7 +190,7 @@ class RoleControllerTest extends AbstractTest {
         stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
         stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
 
@@ -175,7 +213,7 @@ class RoleControllerTest extends AbstractTest {
 
         super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN,
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
         List<Role> roles = given()
                 .when()
@@ -233,7 +271,9 @@ class RoleControllerTest extends AbstractTest {
     void deleteRole() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of("4"));
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
         Role role = roleRepository.search("wiki", 1).get(0);
         //Ensure delete provisioning is done

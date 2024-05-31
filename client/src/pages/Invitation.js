@@ -77,6 +77,8 @@ export const Invitation = ({authenticated}) => {
                     if (config.authenticated) {
                         navigate(`/`);
                     } else {
+                        //Prevent endless loop for already accepted / expired invitations
+                        localStorage.removeItem("location");
                         login(config);
                     }
                 } else {
@@ -124,8 +126,9 @@ export const Invitation = ({authenticated}) => {
 
     const renderLoginStep = () => {
         const translation = invitation.roles.length === 0 ? "invitedNoRoles" : "invited";
+        const intentedAuthority = I18n.t(`access.${invitation.intendedAuthority}`);
         let html = DOMPurify.sanitize(I18n.t(`invitationAccept.${translation}`, {
-            authority: I18n.t(`access.${invitation.intendedAuthority}`),
+            authority: `<strong>${intentedAuthority}</strong>`,
             plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
             roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role.role)}`), I18n.t("forms.and")),
             inviter: invitation.inviter.name,

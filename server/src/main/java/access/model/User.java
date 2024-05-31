@@ -249,4 +249,8 @@ public class User implements Serializable, Provisionable {
         return this.userRoles.stream().max(Comparator.comparing(UserRole::getCreatedAt));
     }
 
+    @JsonIgnore
+    public Optional<UserRole> userRoleForRole(Role role) {
+        return this.userRoles.stream().filter(userRole -> userRole.getRole().getId().equals(role.getId())).findFirst();
+    }
 }

@@ -240,11 +240,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @Override
-    public void updateGroupRequest(List<String> previousManageIdentifiers, Role newRole) {
+    public void updateGroupRequest(List<String> previousManageIdentifiers, Role newRole, boolean nameChanged) {
         //Immutable List can not be sorted
         List<String> previousManageIdentifiersSorted = previousManageIdentifiers.stream().sorted().toList();
         List<String> newManageIdentifiers = this.getManageIdentifiers(newRole);
-        if (previousManageIdentifiers.equals(newManageIdentifiers)) {
+        if (!nameChanged && previousManageIdentifiers.equals(newManageIdentifiers)) {
             LOG.info(String.format("Group %s update request with no difference in manage identifiers (%s). No action required",
                     newRole.getName(),
                     newManageIdentifiers));
@@ -256,8 +256,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 previousManageIdentifiers,
                 newManageIdentifiers));
 
-        List<String> addedManageIdentifiers = newManageIdentifiers.stream().filter(id -> !previousManageIdentifiersSorted.contains(id)).toList();
-        List<String> deletedManageIdentifiers = previousManageIdentifiers.stream().filter(id -> !newManageIdentifiers.contains(id)).toList();
+        List<String> addedManageIdentifiers = newManageIdentifiers.stream()
+                .filter(id -> !previousManageIdentifiersSorted.contains(id) || nameChanged).toList();
+        List<String> deletedManageIdentifiers = previousManageIdentifiers.stream()
+                .filter(id -> !newManageIdentifiers.contains(id)).toList();
 
         manage.provisioning(addedManageIdentifiers).stream().map(Provisioning::new)
                 .forEach(provisioning -> {
@@ -387,7 +389,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             requestEntity = new RequestEntity(httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
         } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
-            HttpHeaders headers = new HttpHeaders();
+            HttpHeaders headers = this.httpHeaders(provisioning);
             headers.setBasicAuth(provisioning.getScimUser(), this.decryptScimPassword(provisioning));
             requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
         } else if (hasGraphHook(provisioning) && isUser) {

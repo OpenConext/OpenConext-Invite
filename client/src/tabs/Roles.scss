@@ -8,6 +8,17 @@ div.mod-roles {
         margin: 20px auto 0 auto;
     }
 
+    .guest-only {
+
+        max-width: $medium;
+        width: 100%;
+        margin: 25px auto 15px auto;
+
+        @media (max-width: $medium) {
+            padding: 0 15px;
+        }
+    }
+
     .institution-admin-welcome {
         display: flex;
         align-items: center;

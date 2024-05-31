@@ -113,7 +113,7 @@ public class UserPermissions {
                 .filter(userRole -> (userRole.getRole().getId().equals(accessRole.getId()) &&
                         userRole.getAuthority().hasEqualOrHigherRights(authority)) ||
                         (userRole.hasAccessToApplication(accessRole) &&
-                                userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)))
+                                userRole.getAuthority().hasEqualOrHigherRights(Authority.INSTITUTION_ADMIN)))
                 .findFirst()
                 .orElseThrow(UserRestrictionException::new);
     }

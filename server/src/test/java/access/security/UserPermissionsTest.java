@@ -155,10 +155,19 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole()));
     }
 
-    @Test
+    @Test()
     void assertRoleAccessManager() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.MANAGER, identifier);
+        Role role = new Role("name", "description", application(identifier, EntityType.SAML20_SP), 365, false, false);
+        role.setId(random.nextLong());
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role));
+    }
+
+    @Test
+    void assertRoleAccessImstitutionAdmin() {
+        String identifier = UUID.randomUUID().toString();
+        User user = userWithRole(Authority.INSTITUTION_ADMIN, identifier);
         Role role = new Role("name", "description", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
         UserPermissions.assertRoleAccess(user, role);

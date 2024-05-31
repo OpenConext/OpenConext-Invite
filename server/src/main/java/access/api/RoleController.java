@@ -125,9 +125,12 @@ public class RoleController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
+
         LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
+
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertManagerRole(role.applicationsUsed().stream().map(Application::getManageId).toList(), user);
+        UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
+
         provisioningService.deleteGroupRequest(role);
         roleRepository.delete(role);
         AccessLogger.role(LOG, Event.Deleted, user, role);
@@ -145,40 +148,48 @@ public class RoleController {
         });
 
         manage.addManageMetaData(List.of(role));
-        List<String> manageIdentifiers = role.applicationsUsed().stream().map(Application::getManageId).toList();
-        UserPermissions.assertManagerRole(manageIdentifiers, user);
-
+        UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
         boolean isNew = role.getId() == null;
         List<String> previousApplicationIdentifiers = new ArrayList<>();
+        Optional<UserRole> optionalUserRole = user.userRoleForRole(role);
+        boolean immutableApplicationUsages = optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER);
+        boolean nameChanged = false;
         if (!isNew) {
             Role previousRole = roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new);
             //We don't allow shortName or identifier changes after creation
             role.setShortName(previousRole.getShortName());
             role.setIdentifier(previousRole.getIdentifier());
             previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
+            if (immutableApplicationUsages) {
+                role.setApplicationUsages(previousRole.getApplicationUsages());
+            }
+            nameChanged = !previousRole.getName().equals(role.getName());
         }
-        //This is the disadvantage of having to save references from Manage
-        Set<ApplicationUsage> applicationUsages = role.getApplicationUsages().stream()
-                .map(applicationUsageFromClient -> {
-                    Application application = applicationUsageFromClient.getApplication();
-                    Application applicationFromDB = applicationRepository
-                            .findByManageIdAndManageType(application.getManageId(), application.getManageType())
-                            .orElseGet(() -> applicationRepository.save(application));
-                    ApplicationUsage applicationUsageFromDB = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
-                            role.getId(),
-                            applicationFromDB.getManageId(),
-                            applicationFromDB.getManageType()
-                    ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationUsageFromClient.getLandingPage()));
-                    applicationUsageFromDB.setLandingPage(applicationUsageFromClient.getLandingPage());
-                    return applicationUsageFromDB;
-                })
-                .collect(Collectors.toSet());
-        role.setApplicationUsages(applicationUsages);
+        if (!immutableApplicationUsages) {
+            //This is the disadvantage of having to save references from Manage
+            Set<ApplicationUsage> applicationUsages = role.getApplicationUsages().stream()
+                    .map(applicationUsageFromClient -> {
+                        Application application = applicationUsageFromClient.getApplication();
+                        Application applicationFromDB = applicationRepository
+                                .findByManageIdAndManageType(application.getManageId(), application.getManageType())
+                                .orElseGet(() -> applicationRepository.save(application));
+                        ApplicationUsage applicationUsageFromDB = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
+                                role.getId(),
+                                applicationFromDB.getManageId(),
+                                applicationFromDB.getManageType()
+                        ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationUsageFromClient.getLandingPage()));
+                        applicationUsageFromDB.setLandingPage(applicationUsageFromClient.getLandingPage());
+                        return applicationUsageFromDB;
+                    })
+                    .collect(Collectors.toSet());
+            role.setApplicationUsages(applicationUsages);
+        }
+
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);
         } else {
-            provisioningService.updateGroupRequest(previousApplicationIdentifiers, saved);
+            provisioningService.updateGroupRequest(previousApplicationIdentifiers, saved, nameChanged);
         }
         AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
         return ResponseEntity.ok(saved);

@@ -87,7 +87,7 @@ public abstract class AbstractTest {
 
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
-    public static final String INSTITUTION_ADMIN = "urn:collab:person:example.com:institution_admin";
+    public static final String INSTITUTION_ADMIN_SUB = "urn:collab:person:example.com:institution_admin";
     public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
     public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
@@ -527,7 +527,7 @@ public abstract class AbstractTest {
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@examole.com");
         User institutionAdmin =
-                new User(false, INSTITUTION_ADMIN, INSTITUTION_ADMIN, "example.com", "Carl", "Doe", "carl.doe@examole.com");
+                new User(false, INSTITUTION_ADMIN_SUB, INSTITUTION_ADMIN_SUB, "example.com", "Carl", "Doe", "carl.doe@examole.com");
         institutionAdmin.setInstitutionAdmin(true);
         institutionAdmin.setInstitutionAdminByInvite(true);
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);

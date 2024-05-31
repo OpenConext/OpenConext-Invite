@@ -19,7 +19,7 @@ public interface ProvisioningService {
 
     void updateGroupRequest(UserRole userRole, OperationType operationType);
 
-    void updateGroupRequest(List<String> previousManageIdentifiers, Role newRole);
+    void updateGroupRequest(List<String> previousManageIdentifiers, Role newRole, boolean nameChanged);
 
     void deleteGroupRequest(Role role);
 
