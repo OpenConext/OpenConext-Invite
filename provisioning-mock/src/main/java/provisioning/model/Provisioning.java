@@ -52,5 +52,6 @@ public class Provisioning implements Serializable {
         this.method = method;
         this.resourceType = resourceType;
         this.url = url;
+        this.createdAt = Instant.now();
     }
 }
