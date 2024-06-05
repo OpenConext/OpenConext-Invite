@@ -170,7 +170,8 @@ const en = {
         unknownInManageDisabled: "The application for this role has been removed from the SURF backend. Therefore, you can't invite new users. Contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> to resolve this.",
         consequences: {
             info: "The following users will lose their access:",
-            userInfo: "{{name}} ({{authority}}), last activity {{lastActivity}}"
+            userInfo: "{{name}} ({{authority}}), last activity {{lastActivity}}",
+            andMore: "And {{nbr}} more.. Check the list of current users for more details."
         }
     },
     applications: {

@@ -28,6 +28,7 @@ import SwitchField from "../components/SwitchField";
 import {dateFromEpoch, displayExpiryDate, futureDate} from "../utils/Date";
 
 const DEFAULT_EXPIRY_DAYS = 365;
+const CUT_OFF_DELETED_USER = 5;
 
 export const RoleForm = () => {
 
@@ -405,6 +406,7 @@ export const RoleForm = () => {
     if (loading) {
         return <Loader/>
     }
+
     return (
         <div className={"mod-role-form"}>
             {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
@@ -418,7 +420,7 @@ export const RoleForm = () => {
                 {!isEmpty(deletedUserRoles) && <div className="consequences">
                     <p>{I18n.t("roles.consequences.info")}</p>
                     <ul>
-                        {deletedUserRoles.map(userRole => <li>
+                        {deletedUserRoles.slice(0, CUT_OFF_DELETED_USER).map(userRole => <li>
                             {I18n.t("roles.consequences.userInfo", {
                                 name: userRole.userInfo.name,
                                 authority: I18n.t(`access.${userRole.authority}`),
@@ -426,6 +428,8 @@ export const RoleForm = () => {
                             })}
                         </li>)}
                     </ul>
+                    {deletedUserRoles.length > CUT_OFF_DELETED_USER &&
+                        <p>{I18n.t("roles.consequences.andMore", {nbr: deletedUserRoles.length - CUT_OFF_DELETED_USER})}</p>}
                 </div>}
             </ConfirmationDialog>}
 

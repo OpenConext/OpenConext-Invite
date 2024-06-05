@@ -170,8 +170,8 @@ const nl = {
         unknownInManageDisabled: "De applicatie voor deze rol is verwijderd in de SURF backend. Daarom kan je geen nieuwe gebruikers uitnodigen. Neem contact op met <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> om dit op te lossen.",
         consequences: {
             info: "De volgende gebruikers verliezen toegang tot deze rol:",
-            userInfo: "{{name}} ({{authority}}), laatste activiteit {{lastActivity}}"
-        }
+            userInfo: "{{name}} ({{authority}}), laatste activiteit {{lastActivity}}",
+            andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."        }
     },
     applications: {
         searchPlaceHolder: "Zoek rollen"
