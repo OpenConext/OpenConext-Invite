@@ -273,7 +273,7 @@ const nl = {
         alreadyExistsParent: "Het {{attribute}} {{value}} bestaat al binnen {{parent}}",
         required: "{{attribute}} is verplicht",
         invalid: "De waarde '{{value}}' is niet geldig voor {{attribute}}",
-        error: "Je kunt contact opnemen met <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> voor hulp.<br/><br/>" +
+        error: "Je kunt contact opnemen met <a href=\"mailto:support@surfconext.nl?subject=Error SURF Invite referentie code {{reference}}\">support@surfconext.nl</a> voor hulp.<br/><br/>" +
             "De foutcode is {{reference}}."
     },
     profile: {

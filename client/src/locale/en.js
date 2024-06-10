@@ -274,7 +274,7 @@ const en = {
         alreadyExistsParent: "The {{attribute}} {{value}} already exists within {{parent}}",
         required: "{{attribute}} is required",
         invalid: "The value '{{value}}' is invalid for {{attribute}}",
-        error: "You can contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> for help.<br/><br/>" +
+        error: "You can contact <a href=\"mailto:support@surfconext.nl?subject=Error SURF Invite reference {{reference}}\">support@surfconext.nl</a> for help.<br/><br/>" +
             "The reference number for this exception is {{reference}}."
     },
     profile: {

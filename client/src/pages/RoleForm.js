@@ -144,6 +144,7 @@ export const RoleForm = () => {
     }
 
     const handleError = e => {
+        setLoading(false);
         e.response.json().then(j => {
             const reference = j.reference;
             setConfirmation({
