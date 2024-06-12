@@ -51,7 +51,7 @@ public class GraphClient {
         com.microsoft.graph.models.Invitation invitation = new com.microsoft.graph.models.Invitation();
         invitation.invitedUserEmailAddress = eduidIdpSchacHomeOrganization.equalsIgnoreCase(user.getSchacHomeOrganization()) ? user.getEduPersonPrincipalName() : user.getEmail();
         //MS does not support '+' signs in the email
-        if (invitation.invitedUserEmailAddress.contains("+")) {
+        if (StringUtils.hasText(invitation.invitedUserEmailAddress) && invitation.invitedUserEmailAddress.contains("+")) {
             return new GraphResponse(null, null, true);
         }
 
