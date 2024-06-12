@@ -54,9 +54,10 @@ export const Invitation = ({authenticated}) => {
                                             user: userWithRoles,
                                             authenticated: true
                                         }));
-                                        const inviteRedeemUrlQueryParam = res.inviteRedeemUrl ? `&inviteRedeemUrl=${encodeURIComponent(res.inviteRedeemUrl)}` : "";
+                                        const inviteRedeemUrlQueryParam = res.inviteRedeemUrl && !res.errorResponse ? `&inviteRedeemUrl=${encodeURIComponent(res.inviteRedeemUrl)}` : "";
+                                        const errorResponseQueryParam = res.errorResponse ? "&errorResponse=true" : "";
                                         localStorage.removeItem("location");
-                                        navigate(`/proceed?hash=${hashParam}${inviteRedeemUrlQueryParam}`);
+                                        navigate(`/proceed?hash=${hashParam}${inviteRedeemUrlQueryParam}${errorResponseQueryParam}`);
                                     })
                             })
                             .catch(e => {

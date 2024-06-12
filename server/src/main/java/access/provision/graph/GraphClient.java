@@ -50,6 +50,11 @@ public class GraphClient {
 
         com.microsoft.graph.models.Invitation invitation = new com.microsoft.graph.models.Invitation();
         invitation.invitedUserEmailAddress = eduidIdpSchacHomeOrganization.equalsIgnoreCase(user.getSchacHomeOrganization()) ? user.getEduPersonPrincipalName() : user.getEmail();
+        //MS does not support '+' signs in the email
+        if (invitation.invitedUserEmailAddress.contains("+")) {
+            return new GraphResponse(null, null, true);
+        }
+
         invitation.invitedUserDisplayName = user.getName();
         String redeemUrl=String.format("%s/api/v1/invitations/ms-accept-return/%s/%s",
                 serverUrl, provisioning.getId(), user.getId());
@@ -74,7 +79,7 @@ public class GraphClient {
                     newInvitation.inviteRedeemUrl,
                     invitationJson
             ));
-            return new GraphResponse(newInvitation.invitedUser.id, newInvitation.inviteRedeemUrl);
+            return new GraphResponse(newInvitation.invitedUser.id, newInvitation.inviteRedeemUrl, false);
         } catch (ClientException | IOException e) {
             String errorMessage = String.format("Error Graph request (entityID %s) to %s for user %s",
                     provisioning.getEntityId(),

@@ -7,4 +7,8 @@ public record DefaultProvisioningResponse(String remoteIdentifier) implements Pr
         return false;
     }
 
+    @Override
+    public boolean isErrorResponse() {
+        return false;
+    }
 }

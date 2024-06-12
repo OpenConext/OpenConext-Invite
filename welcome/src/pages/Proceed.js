@@ -23,16 +23,19 @@ export const Proceed = () => {
     const [reloadedInvitation, setReloadedInvitation] = useState(null);
     const [showModal, setShowModal] = useState(true);
     const [inviteRedeemUrl, setInviteRedeemUrl] = useState(null);
+    const [errorResponse, setErrorResponse] = useState(null);
 
     function invariantParams() {
-        const isRedirect = getParameterByName("isRedirect", window.location.search);
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const isRedirect = urlSearchParams.get("isRedirect");
         if (isRedirect) {
             setShowModal(false);
         }
-        const inviteRedeemUrlParam = getParameterByName("inviteRedeemUrl", window.location.search);
+        const inviteRedeemUrlParam = urlSearchParams.get("inviteRedeemUrl");
         if (inviteRedeemUrlParam) {
             setInviteRedeemUrl(decodeURIComponent(inviteRedeemUrlParam));
         }
+        setErrorResponse(urlSearchParams.get("errorResponse"));
     }
 
     useEffect(() => {
@@ -126,6 +129,7 @@ export const Proceed = () => {
                     {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, false, true))}
                     <p>{I18n.t(`invitationAccept.applicationInfo${reloadedInvitation.roles.length > 1 ? "Multiple" : ""}`)}</p>
                     {inviteRedeemUrl && <p className="invite-url">{I18n.t("invitationAccept.inviteRedeemUrl")}</p>}
+                    {errorResponse && <p className="invite-error">{I18n.t("invitationAccept.graphEmailViolation")}</p>}
                 </Modal>}
             <div className="proceed-container">
                 {renderProceedStep()}

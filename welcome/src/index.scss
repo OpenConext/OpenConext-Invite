@@ -15,13 +15,13 @@ $min-width-pixels: 620px;
 .sds--card--big {
     width: $min-width-pixels;
     @media (max-width: $medium) {
-        width: 90vw;
+        max-width: 90vw;
     }
 }
 
 .sds--modal--container.full {
     @media (max-width: $medium) {
-        width: 90vw;
+        max-width: 90vw;
     }
 
 }

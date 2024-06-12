@@ -105,7 +105,8 @@ const nl = {
         continue: "Doorgaan",
         emailMismatch: "De uitnodiger heeft aangegeven dat je de uitnodiging dient te accepteren met e-mailadres {{email}}, " +
             "maar je bent ingelogd met een account met een ander mailadres. Log opnieuw in met een ander account.",
-        inviteRedeemUrl: "Je nieuwe rol vereist een Microsoft account. Druk op Doorgaan om deze te registreren."
+        inviteRedeemUrl: "Je nieuwe rol vereist een Microsoft account. Druk op Doorgaan om deze te registreren.",
+        graphEmailViolation: "Je nieuwe rol vereist een Microsoft account, alleen microsoft ondersteunt je e-mail niet. Er wordt geen MS account voor je aangemaakt."
     },
     proceed: {
         info: "Gefeliciteerd! Je hebt de {{plural}} {{roles}} geaccepteerd en kunt nu verder naar de applicatie",

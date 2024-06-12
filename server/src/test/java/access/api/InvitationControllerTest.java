@@ -182,6 +182,35 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
+    void acceptGraphWithInvalidAliasMail() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "graph+damn@new.com");
+        Invitation invitation = invitationRepository.findByHash(GRAPH_INVITATION_HASH).get();
+
+        stubForManageProvisioning(List.of("2"));
+        stubForCreateGraphUser();
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(GRAPH_INVITATION_HASH, invitation.getId());
+        Map<String, String> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("true", results.get("errorResponse"));
+
+        User user = userRepository.findBySubIgnoreCase("graph+damn@new.com").get();
+        assertEquals(1, user.getUserRoles().size());
+        //no roles provisioned to GRAPH
+        assertEquals(0, remoteProvisionedGroupRepository.count());
+        //no user provisioned to remote GRAPH because of MS error
+        assertEquals(0, remoteProvisionedUserRepository.count());
+    }
+
+    @Test
     void acceptForUpgradingExistingUserRole() throws Exception {
         User beforeAcceptUser = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         Authority authority = beforeAcceptUser.getUserRoles().stream()

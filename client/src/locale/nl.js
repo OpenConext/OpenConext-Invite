@@ -56,7 +56,9 @@ const nl = {
         invite: "Uitnodiging",
         tokens: "API-tokens",
         unknownRoles: "Missing applications",
-        expiredUserRoles: "User role expirations"
+        expiredUserRoles: "User role expirations",
+        pendingInvitations: "Open",
+        acceptedInvitations: "Geaccepteerd"
     },
     home: {
         access: "SURFconext Invite",
@@ -194,12 +196,14 @@ const nl = {
     },
     invitations: {
         found: "{{count}} {{plural}} gevonden",
+        foundWithStatus: "{{count}} {{status}} {{plural}}",
         singleInvitation: "uitnodiging",
         multipleInvitations: "uitnodigingen",
         searchPlaceHolder: "Zoek uitnodiging...",
         noResults: "Geen uitnodigingen gevonden",
         inviter: "Uitnodiger",
         status: "Status",
+        pending: "open",
         open: "Open",
         accepted: "Geaccepteerd",
         expired: "Verlopen",

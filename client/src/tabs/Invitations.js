@@ -19,7 +19,7 @@ import Select from "react-select";
 const allValue = "all";
 const mineValue = "mine";
 
-export const Invitations = ({role, preloadedInvitations, standAlone = false, history = false}) => {
+export const Invitations = ({role, preloadedInvitations, standAlone = false, history = false, pending = true}) => {
     const navigate = useNavigate();
     const {user, setFlash} = useAppStore(state => state);
     const invitations = useRef();
@@ -187,6 +187,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                                          txt={I18n.t("invitations.delete")}/>
                              }/>
                 </div>
+                {pending &&
                 <div>
                     <Tooltip standalone={true}
                              anchorId={"remove-members"}
@@ -197,7 +198,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                                          type={ButtonType.Secondary}
                                          txt={I18n.t("invitations.resend")}/>
                              }/>
-                </div>
+                </div>}
             </div>);
     }
 
@@ -297,8 +298,9 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
     let title = " ";
 
     if (hasEntities) {
-        title = I18n.t(`invitations.found`, {
+        title = I18n.t(`invitations.${standAlone ? "found" : "foundWithStatus"}`, {
             count: countInvitations,
+            status: pending ? I18n.t("invitations.pending") : I18n.t("invitations.accepted").toLowerCase(),
             plural: I18n.t(`invitations.${countInvitations === 1 ? "singleInvitation" : "multipleInvitations"}`)
         })
     }
@@ -312,7 +314,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
         {history && <UnitHeader obj={{name: I18n.t("inviter.history")}} actions={getActions()}/>}
         <Entities entities={filteredInvitations}
                   modelName="invitations"
-                  defaultSort="name"
+                  defaultSort="email"
                   columns={columns}
                   title={title}
                   newLabel={I18n.t("invitations.newInvite")}

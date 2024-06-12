@@ -37,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
@@ -197,10 +198,10 @@ public class InvitationController {
 
 
     @PostMapping("accept")
-    public ResponseEntity<Map<String, String>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
-                                                      Authentication authentication,
-                                                      HttpServletRequest servletRequest,
-                                                      HttpServletResponse servletResponse) {
+    public ResponseEntity<Map<String, ? extends Serializable>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
+                                                                      Authentication authentication,
+                                                                      HttpServletRequest servletRequest,
+                                                                      HttpServletResponse servletResponse) {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
             throw new NotFoundException();
@@ -287,7 +288,10 @@ public class InvitationController {
                 user.getEduPersonPrincipalName(),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", "))));
 
-        Map<String, String> body = graphResponse.map(graph -> Map.of("inviteRedeemUrl", graph.inviteRedeemUrl())).
+        Map<String, ? extends Serializable> body = graphResponse
+                .map(graph -> graph.isErrorResponse() ?
+                        Map.of("errorResponse", Boolean.TRUE) :
+                        Map.of("inviteRedeemUrl", graph.inviteRedeemUrl())).
                 orElse(Map.of("status", "ok"));
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }

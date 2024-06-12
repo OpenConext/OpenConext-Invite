@@ -7,4 +7,6 @@ public interface ProvisioningResponse {
     boolean isGraphResponse();
 
     String remoteIdentifier();
+
+    boolean isErrorResponse();
 }

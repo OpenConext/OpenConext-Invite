@@ -56,7 +56,9 @@ const en = {
         invite: "Invite",
         tokens: "API tokens",
         unknownRoles: "Missing applications",
-        expiredUserRoles: "User role expirations"
+        expiredUserRoles: "User role expirations",
+        pendingInvitations: "Pending",
+        acceptedInvitations: "Accepted"
     },
     home: {
         access: "SURFconext Invite",
@@ -195,12 +197,14 @@ const en = {
     },
     invitations: {
         found: "{{count}} {{plural}} found",
+        foundWithStatus: "{{count}} {{status}} {{plural}}",
         singleInvitation: "invitation",
         multipleInvitations: "invitations",
         searchPlaceHolder: "Search for invitation...",
         noResults: "No invitation where found",
         inviter: "Inviter",
         status: "Status",
+        pending: "pending",
         open: "Open",
         accepted: "Accepted",
         expired: "Expired",

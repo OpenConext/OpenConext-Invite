@@ -97,8 +97,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     String userRequest = prettyJson(new UserRequest(user));
                     Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, userRequest, user);
                     provisioningResponse.ifPresent(response -> {
-                        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, response.remoteIdentifier(), provisioning.getId());
-                        this.remoteProvisionedUserRepository.save(remoteProvisionedUser);
+                        if (!response.isErrorResponse() && StringUtils.hasText(response.remoteIdentifier())) {
+                            RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, response.remoteIdentifier(), provisioning.getId());
+                            this.remoteProvisionedUserRepository.save(remoteProvisionedUser);
+                        }
                         if (response.isGraphResponse()) {
                             graphResponseReference.set((GraphResponse) response);
                         }
