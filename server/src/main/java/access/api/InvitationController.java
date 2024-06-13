@@ -179,7 +179,7 @@ public class InvitationController {
     public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
         if (!invitation.getStatus().equals(Status.OPEN)) {
-            throw new InvitationStatusException();
+            throw new InvitationStatusException("Invitation is not OPEN anymore");
         }
         manage.addManageMetaData(invitation.getRoles().stream().map(InvitationRole::getRole).toList());
         return ResponseEntity.ok(invitation);
@@ -207,10 +207,10 @@ public class InvitationController {
             throw new NotFoundException();
         }
         if (!invitation.getStatus().equals(Status.OPEN)) {
-            throw new InvitationStatusException();
+            throw new InvitationStatusException("Invitation is not OPEN anymore");
         }
         if (invitation.getExpiryDate().isBefore(Instant.now())) {
-            throw new InvitationExpiredException();
+            throw new InvitationExpiredException("Invitation has expired");
         }
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         Map<String, Object> attributes = token.getPrincipal().getAttributes();

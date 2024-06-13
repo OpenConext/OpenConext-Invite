@@ -17,6 +17,7 @@ import {organisationName} from "../utils/Manage";
 import HighFive from "../icons/high-five.svg";
 
 const MAY_ACCEPT = "mayAccept";
+const HAS_LOGGED_IN_AGAIN = "hasLoggedInAgain"
 
 let runOnce = false;
 
@@ -44,10 +45,12 @@ export const Invitation = ({authenticated}) => {
                         invitation: res
                     }));
                     const mayAccept = localStorage.getItem(MAY_ACCEPT);
-                    if (mayAccept && config.name) {
+                    const hasLoggedInAgain = localStorage.getItem(HAS_LOGGED_IN_AGAIN);
+                    if (mayAccept && config.name && hasLoggedInAgain) {
                         acceptInvitation(hashParam, res.id)
                             .then(res => {
                                 localStorage.removeItem(MAY_ACCEPT);
+                                localStorage.removeItem(HAS_LOGGED_IN_AGAIN);
                                 me()
                                     .then(userWithRoles => {
                                         useAppStore.setState(() => ({
@@ -130,6 +133,7 @@ export const Invitation = ({authenticated}) => {
         const direction = window.location.pathname + window.location.search;
         localStorage.setItem("location", direction);
         logout().then(() => {
+            localStorage.setItem(HAS_LOGGED_IN_AGAIN, "true");
             login(config, true, hashParam)
         });
     }
