@@ -68,7 +68,7 @@ jobs:
         run: |
           cd server
           mvn spring-boot:run &
-          sleep 25 && curl -q http://localhost:8888/ui/api-docs -o ./target/openapi.json
+          sleep 60 && curl -q http://localhost:8888/ui/api-docs -o ./target/openapi.json
           pkill -f java
         if: steps.changes.outputs.server == 'true'
 
