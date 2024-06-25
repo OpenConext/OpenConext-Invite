@@ -94,7 +94,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .filter(provisioning -> this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user)
                         .isEmpty())
                 .forEach(provisioning -> {
-                    String userRequest = prettyJson(new UserRequest(user));
+                    String userRequest = prettyJson(new UserRequest(user, provisioning));
                     Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, userRequest, user);
                     provisioningResponse.ifPresent(response -> {
                         if (!response.isErrorResponse() && StringUtils.hasText(response.remoteIdentifier())) {
@@ -120,7 +120,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             Optional<RemoteProvisionedUser> provisionedUserOptional =
                     this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
             provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
-                String userRequest = prettyJson(new UserRequest(user, remoteProvisionedUser.getRemoteIdentifier()));
+                String userRequest = prettyJson(new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier()));
                 this.updateRequest(provisioning, userRequest, USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
             });
         });
@@ -140,7 +140,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             if (provisionedUserOptional.isPresent()) {
                 RemoteProvisionedUser remoteProvisionedUser = provisionedUserOptional.get();
                 String remoteIdentifier = remoteProvisionedUser.getRemoteIdentifier();
-                String userRequest = prettyJson(new UserRequest(user, remoteIdentifier));
+                String userRequest = prettyJson(new UserRequest(user, provisioning, remoteIdentifier));
                 this.deleteRequest(provisioning, userRequest, user, remoteIdentifier);
                 this.remoteProvisionedUserRepository.delete(remoteProvisionedUser);
             }

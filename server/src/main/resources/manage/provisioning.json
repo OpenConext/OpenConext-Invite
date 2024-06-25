@@ -39,7 +39,8 @@
         "scim_url": "http://localhost:8081/api/scim/v2",
         "scim_user": "user",
         "scim_password": "secret",
-        "scim_update_role_put_method": false
+        "scim_update_role_put_method": false,
+        "scim_user_identifier": "subject_id"
       },
       "applications": [
         {

@@ -48,6 +48,15 @@ public class User implements Serializable, Provisionable {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "subject_id")
+    private String subjectId;
+
+    @Column(name = "eduid")
+    private String eduId;
+
+    @Column(name = "uid")
+    private String uid;
+
     @Column(name = "schac_home_organization")
     private String schacHomeOrganization;
 
@@ -92,12 +101,20 @@ public class User implements Serializable, Provisionable {
         this.email = (String) attributes.get("email");
         this.givenName = (String) attributes.get("given_name");
         this.familyName = (String) attributes.get("family_name");
+        this.subjectId = (String) attributes.get("subject_id");
+        this.eduId = (String) attributes.get("eduid");
+        this.uid = ((List<String>) attributes.getOrDefault("uids", List.of())).stream().findAny().orElse(null);
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
+
+        //Defensive mode, EPPN is not a required attribute for invite SP
+        if (!StringUtils.hasText(this.eduPersonPrincipalName)) {
+            this.eduPersonPrincipalName = this.email;
+        }
 
         this.nameInvariant(attributes);
     }
@@ -126,7 +143,7 @@ public class User implements Serializable, Provisionable {
             this.name = preferredUsername;
         } else if (StringUtils.hasText(this.givenName) && StringUtils.hasText(this.familyName)) {
             this.name = this.givenName + " " + this.familyName;
-        } else if (StringUtils.hasText(this.email)) {
+        } else if (StringUtils.hasText(this.email) && this.email.contains("@")) {
             this.name = Stream.of(this.email.substring(0, this.email.indexOf("@")).toLowerCase().split("\\."))
                     .map(StringUtils::capitalize)
                     .collect(Collectors.joining(" "));

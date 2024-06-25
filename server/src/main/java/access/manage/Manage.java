@@ -61,6 +61,7 @@ public interface Manage {
                     "scim_user",
                     "scim_password",
                     "scim_update_role_put_method",
+                    "scim_user_identifier",
                     "eva_url",
                     "eva_token",
                     "eva_guest_account_duration",

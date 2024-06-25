@@ -6,6 +6,8 @@ import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -382,6 +385,42 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(1, remoteProvisionedGroupRepository.count());
         //One user provisioned to 1 remote SCIM
         assertEquals(1, remoteProvisionedUserRepository.count());
+    }
+
+    @Test
+    void acceptPatchForDifferentScimIdentifier() throws Exception {
+        String externalId = "subject@example.com";
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "new@prov.com",
+                m -> {
+
+                    m.put("subject_id", externalId);
+                    return m;
+                });
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        //Provisioning with id=4 hs different scim_user_identifier
+        stubForManageProvisioning(List.of("4"));
+        stubForCreateScimUser();
+        stubForCreateScimRole();
+        stubForUpdateScimRolePatch();
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(Authority.GUEST.name(), invitation.getId());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+        //Now assert the correct scim_identifier was used
+        List<LoggedRequest> requests = findAll(postRequestedFor(urlPathMatching("/api/scim/v2/users")));
+        assertEquals(1, requests.size());
+
+        Map<String, Object> request = objectMapper.readValue(requests.get(0).getBodyAsString(), new TypeReference<>() {
+        }) ;
+        assertEquals(externalId, request.get("externalId"));
     }
 
     @Test
