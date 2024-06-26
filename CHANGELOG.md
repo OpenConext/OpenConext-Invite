@@ -8,7 +8,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
-## 0.0.14 - 27-05-20
+## 0.0.15 - 2024-06-26
+
+* Update dependencies
+* Force login for authenticated user new invite
+* Warn user for email-formats not accepted by Microsoft
+* Show error when SCIM is not responding
+* CreatedAt for new provisionings
+* Show warning when deleting role
+* Endpoint for Profile to fetch roles for user
+* Introduce RoleManager permissions
+
+## 0.0.14 - 2024-05-27
 
 - Different invitation screen for inviters
 - Institution manager can manage managers
@@ -20,7 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Resending an invite should use the language setting the original invite was sent in
 - Do not delete expired user-roles without notification
 
-## 0.0.12 - 20-04-20
+## 0.0.12 - 2024-20-04
 
 - Fix error-handling when name-update fails in SCIM call
 
