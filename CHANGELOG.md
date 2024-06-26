@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.14 - 27-05-20
+
+- Different invitation screen for inviters
+- Institution manager can manage managers
+- Improve invite email texts
+- Fix typo in help message
+- Ignore exceptions in remote endpoints during login
+- When creating role, not preselect random/first app
+- SCIM update group request after user role delete
+- Resending an invite should use the language setting the original invite was sent in
+- Do not delete expired user-roles without notification
+
 ## 0.0.12 - 20-04-20
 
 - Fix error-handling when name-update fails in SCIM call
