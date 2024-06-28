@@ -10,14 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.0.15 - 2024-06-26
 
-* Update dependencies
-* Force login for authenticated user new invite
-* Warn user for email-formats not accepted by Microsoft
-* Show error when SCIM is not responding
-* CreatedAt for new provisionings
-* Show warning when deleting role
-* Endpoint for Profile to fetch roles for user
-* Introduce RoleManager permissions
+- Update dependencies
+- Force login for authenticated user new invite
+- Warn user for email-formats not accepted by Microsoft
+- Show error when SCIM is not responding
+- CreatedAt for new provisionings
+- Show warning when deleting role
+- Endpoint for Profile to fetch roles for user
+- Introduce RoleManager permissions
 
 ## 0.0.14 - 2024-05-27
 
