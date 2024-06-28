@@ -128,6 +128,8 @@ public class User implements Serializable, Provisionable {
         this.name = userRoleProvisioning.name;
         this.givenName = userRoleProvisioning.givenName;
         this.familyName = userRoleProvisioning.familyName;
+        this.createdAt = Instant.now();
+        this.lastActivity = this.createdAt;
         this.nameInvariant(Map.of(
                 "name", StringUtils.hasText(this.name)? this.name : "",
                 "preferred_username", ""
@@ -204,10 +206,13 @@ public class User implements Serializable, Provisionable {
 
     @JsonIgnore
     public Map<String, Object> asMap() {
+        //Avoid null-pointers. Minimal requirements are validated in UserRoleProvisioning#validate
+        String notNullIdentifier = StringUtils.hasText(email) ? email : eduPersonPrincipalName;
         return Map.of(
-                "id", id,
-                "name", StringUtils.hasText(name) ? name : email,
-                "email", email,
+                //Defensive because of non-persisted users - only in tests
+                "id", Objects.isNull(id) ? 0L : id,
+                "name", StringUtils.hasText(name) ? name : notNullIdentifier,
+                "email", notNullIdentifier,
                 "createdAt", createdAt,
                 "lastActivity", lastActivity,
                 "schacHomeOrganization", schacHomeOrganization,

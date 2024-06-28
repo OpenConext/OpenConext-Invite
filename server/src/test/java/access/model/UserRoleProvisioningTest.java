@@ -25,6 +25,8 @@ class UserRoleProvisioningTest {
         ));
         assertEquals("urn:collab:person:example.com:jdoe", user.getSub());
         assertEquals("example.com", user.getSchacHomeOrganization());
+        //No errors should be thrown
+        user.asMap();
     }
 
     @Test
@@ -43,6 +45,8 @@ class UserRoleProvisioningTest {
         ));
         assertEquals("urn:collab:person:example.com:jdoe", user.getSub());
         assertEquals("example.com", user.getSchacHomeOrganization());
+        //No errors should be thrown
+        user.asMap();
     }
 
     @Test
@@ -61,6 +65,8 @@ class UserRoleProvisioningTest {
         ));
         assertEquals("urn:collab:person:example.com:jdoe", user.getSub());
         assertEquals("nice.org", user.getSchacHomeOrganization());
+        //No errors should be thrown
+        user.asMap();
     }
 
     @Test
@@ -76,7 +82,7 @@ class UserRoleProvisioningTest {
                 null,
                 null,
                 false
-        )));
+        )).asMap());
         assertThrows(IllegalArgumentException.class, () -> new User(new UserRoleProvisioning(
                 List.of(1L),
                 Authority.GUEST,
@@ -88,7 +94,7 @@ class UserRoleProvisioningTest {
                 null,
                 null,
                 false
-        )));
+        )).asMap());
     }
 
 }
