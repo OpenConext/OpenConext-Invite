@@ -113,7 +113,7 @@ public class InvitationController {
                 .filter(emailFormatValidator::isValid)
                 .map(invitee -> new Invitation(
                         intendedAuthority,
-                        HashGenerator.generateHash(),
+                        HashGenerator.generateRandomHash(),
                         invitee,
                         invitationRequest.isEnforceEmailEquality(),
                         invitationRequest.isEduIDOnly(),
