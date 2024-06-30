@@ -66,7 +66,7 @@ export const Home = () => {
                 </Page>
             );
         }
-        if (user && user.institutionAdmin && user.organizationGUID) {
+        if (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) {
             newTabs.push(
                 <Page key="tokens"
                       name="tokens"

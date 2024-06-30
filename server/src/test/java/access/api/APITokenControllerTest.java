@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class APITokenControllerTest extends AbstractTest {
 
@@ -81,7 +80,7 @@ class APITokenControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(new APIToken("wrong", "wrong", "wrong"))
+                .body(new APIToken("wrong", "wrong", false, "wrong"))
                 .post("/api/v1/tokens")
                 .then()
                 .statusCode(403);
@@ -94,6 +93,8 @@ class APITokenControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
+        assertEquals(2, apiTokenRepository.count());
+
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -104,7 +105,7 @@ class APITokenControllerTest extends AbstractTest {
                 .delete("/api/v1/tokens/{id}")
                 .then()
                 .statusCode(204);
-        assertEquals(0, apiTokenRepository.count());
+        assertEquals(1, apiTokenRepository.count());
     }
 
     @Test
@@ -126,4 +127,62 @@ class APITokenControllerTest extends AbstractTest {
                 .then()
                 .statusCode(403);
     }
+
+    @Test
+    void deleteSuperUserTokenNotAllowed() throws Exception {
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH)).get();
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
+                institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", apiToken.getId())
+                .delete("/api/v1/tokens/{id}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void apiTokensBySuperAdmin() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        List<APIToken> tokens = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/tokens")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, tokens.size());
+        assertTrue(tokens.get(0).isSuperUserToken());
+    }
+
+    @Test
+    void deleteSuperUserToken() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH)).get();
+
+        assertEquals(2, apiTokenRepository.count());
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", apiToken.getId())
+                .delete("/api/v1/tokens/{id}")
+                .then()
+                .statusCode(204);
+
+        assertEquals(1, apiTokenRepository.count());
+    }
+
 }

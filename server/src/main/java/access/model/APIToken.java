@@ -2,6 +2,7 @@ package access.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,15 +28,20 @@ public class APIToken implements Serializable {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String hashedValue;
 
+    @Column(name = "super_user_token")
+    private boolean superUserToken;
+
     @Column(name = "description")
+    @NotBlank
     private String description;
 
     @Column(name = "created_at")
     private Instant createdAt;
 
-    public APIToken(String organizationGUID, String hashedValue, String description) {
+    public APIToken(String organizationGUID, String hashedValue, boolean superUserToken, String description) {
         this.organizationGUID = organizationGUID;
         this.hashedValue = hashedValue;
+        this.superUserToken = superUserToken;
         this.description = description;
         this.createdAt = Instant.now();
     }

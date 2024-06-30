@@ -94,6 +94,7 @@ public abstract class AbstractTest {
     public static final String INSTITUTION_ADMIN_INVITATION_HASH = "institution_admin_invitation_hash";
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
     public static final String API_TOKEN_HASH = HashGenerator.generateToken();
+    public static final String API_TOKEN_SUPER_USER_HASH = HashGenerator.generateToken();
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -229,7 +230,14 @@ public abstract class AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(publicKeysJson)));
 
-        SignedJWT signedJWT = getSignedJWT(keyId, redirectUri, rsaKey, sub, nonce, state);
+        Map<String, Object> userInfo = objectMapper.readValue(new ClassPathResource("user-info.json").getInputStream(), new TypeReference<>() {
+        });
+        userInfo.put("sub", StringUtils.hasText(sub) ? sub : "sub");
+        userInfo.put("email", sub);
+        userInfo.put("eduperson_principal_name", sub);
+        userInfo = userInfoEnhancer.apply(userInfo);
+
+        SignedJWT signedJWT = getSignedJWT(keyId, redirectUri, rsaKey, sub, nonce, state, userInfo);
         String serialized = signedJWT.serialize();
         Map<String, Object> tokenResult = Map.of(
                 "access_token", serialized,
@@ -243,12 +251,6 @@ public abstract class AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(validTokenResult)));
 
-        Map<String, Object> userInfo = objectMapper.readValue(new ClassPathResource("user-info.json").getInputStream(), new TypeReference<>() {
-        });
-        userInfo.put("sub", StringUtils.hasText(sub) ? sub : "sub");
-        userInfo.put("email", sub);
-        userInfo.put("eduperson_principal_name", sub);
-        userInfo = userInfoEnhancer.apply(userInfo);
         String userInfoResult = objectMapper.writeValueAsString(userInfo);
         stubFor(get(urlPathMatching("/user-info")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
@@ -300,8 +302,8 @@ public abstract class AbstractTest {
                 .build();
     }
 
-    protected SignedJWT getSignedJWT(String keyID, String redirectURI, RSAKey rsaKey, String sub, String nonce, String state) throws Exception {
-        JWTClaimsSet claimsSet = getJwtClaimsSet("http://localhost:8081", sub, redirectURI, nonce, state);
+    protected SignedJWT getSignedJWT(String keyID, String redirectURI, RSAKey rsaKey, String sub, String nonce, String state, Map<String, Object> userInfo) throws Exception {
+        JWTClaimsSet claimsSet = getJwtClaimsSet("http://localhost:8081", sub, redirectURI, nonce, state, userInfo);
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JWT).keyID(keyID).build();
         SignedJWT signedJWT = new SignedJWT(header, claimsSet);
         JWSSigner jswsSigner = new RSASSASigner(rsaKey);
@@ -309,7 +311,7 @@ public abstract class AbstractTest {
         return signedJWT;
     }
 
-    protected JWTClaimsSet getJwtClaimsSet(String clientId, String sub, String redirectURI, String nonce, String state) {
+    protected JWTClaimsSet getJwtClaimsSet(String clientId, String sub, String redirectURI, String nonce, String state, Map<String, Object> userInfo) {
         Instant instant = Clock.systemDefaultZone().instant();
 
         JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
@@ -323,8 +325,8 @@ public abstract class AbstractTest {
                 .claim("redirect_uri", redirectURI)
                 .claim("eduperson_principal_name", sub)
                 .claim("email", sub)
-                .claim("given_name", "John")
-                .claim("family_name", "Doe")
+                .claim("given_name", userInfo.get("given_name"))
+                .claim("family_name", userInfo.get("family_name"))
                 .claim("nonce", nonce)
                 .claim("state", state);
         return builder.build();
@@ -619,8 +621,10 @@ public abstract class AbstractTest {
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation,
                 institutionAdminInvitation, graphInvitation);
 
-        APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH), "Test-token");
-        doSave(apiTokenRepository, apiToken);
+        APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH), false, "Test-token");
+        APIToken superUserApiToken = new APIToken(null,
+                HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH), true, "Test super-user token");
+        doSave(apiTokenRepository, apiToken, superUserApiToken);
     }
 
     @SafeVarargs

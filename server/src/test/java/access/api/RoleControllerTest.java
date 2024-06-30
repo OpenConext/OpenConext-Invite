@@ -47,6 +47,46 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void createInvalidApplicationUsages() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        Role role = new Role("New", "New desc", Set.of(), 365, false, false);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/v1/roles")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    void createInvalidApplicationLandingPage() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        Set<ApplicationUsage> applicationUsages = application("1", EntityType.SAML20_SP);
+        applicationUsages.iterator().next().setLandingPage("nope");
+        Role role = new Role("New", "New desc", applicationUsages, 365, false, false);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/v1/roles")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
     void createInvalidLandingPage() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
@@ -388,6 +428,22 @@ class RoleControllerTest extends AbstractTest {
                 .then()
                 .statusCode(204);
         assertEquals(0, roleRepository.search("wiki", 1).size());
+    }
+
+    @Test
+    void rolesByApplicationSuperUserWithAPIToken() {
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
+
+        List<Role> roles = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_SUPER_USER_HASH)
+                .contentType(ContentType.JSON)
+                .get("/api/external/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(6, roles.size());
     }
 
 }

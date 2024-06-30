@@ -2,9 +2,15 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.manage.EntityType;
+import access.model.Role;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 import static access.AbstractTest.SUPER_SUB;
 import static io.restassured.RestAssured.given;
@@ -56,5 +62,21 @@ class SystemControllerTest extends AbstractTest {
 
     }
 
+    @Test
+    void unknownRoles() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
+        List<Role> roles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/system/unknown-roles")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(roles.isEmpty());
+    }
 
 }

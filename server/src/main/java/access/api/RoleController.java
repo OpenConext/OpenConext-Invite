@@ -143,7 +143,7 @@ public class RoleController {
         }
         role.getApplicationUsages().forEach(applicationUsage -> {
             if (StringUtils.hasText(applicationUsage.getLandingPage()) && !urlFormatValidator.isValid(applicationUsage.getLandingPage())) {
-                throw new InvalidInputException("landingPage is required");
+                throw new InvalidInputException("Valid landingPage is required");
             }
         });
 

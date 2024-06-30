@@ -3,7 +3,8 @@ package access.api;
 import access.config.HashGenerator;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
-import access.model.*;
+import access.model.APIToken;
+import access.model.User;
 import access.repository.APITokenRepository;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -43,7 +45,8 @@ public class APITokenController {
     public ResponseEntity<List<APIToken>> apiTokensByInstitution(@Parameter(hidden = true) User user) {
         LOG.debug("/tokens");
         UserPermissions.assertInstitutionAdmin(user);
-        return ResponseEntity.ok(apiTokenRepository.findByOrganizationGUID(user.getOrganizationGUID()));
+        List<APIToken> apiTokens = user.isSuperUser() ? apiTokenRepository.findBySuperUserTokenTrue() : apiTokenRepository.findByOrganizationGUID(user.getOrganizationGUID());
+        return ResponseEntity.ok(apiTokens);
     }
 
     @GetMapping("generate-token")
@@ -66,7 +69,11 @@ public class APITokenController {
         if (!StringUtils.hasText(token)) {
             throw new UserRestrictionException();
         }
-        APIToken apiToken = new APIToken(user.getOrganizationGUID(), HashGenerator.hashToken(token), apiTokenRequest.getDescription());
+        APIToken apiToken = new APIToken(
+                user.getOrganizationGUID(),
+                HashGenerator.hashToken(token),
+                user.isSuperUser(),
+                apiTokenRequest.getDescription());
         return ResponseEntity.ok(apiTokenRepository.save(apiToken));
     }
 
@@ -75,7 +82,10 @@ public class APITokenController {
         LOG.debug("/deleteToken");
         UserPermissions.assertInstitutionAdmin(user);
         APIToken apiToken = apiTokenRepository.findById(id).orElseThrow(NotFoundException::new);
-        if (!apiToken.getOrganizationGUID().equals(user.getOrganizationGUID())) {
+        if (apiToken.isSuperUserToken() && !user.isSuperUser()) {
+            throw new UserRestrictionException();
+        }
+        if (!user.isSuperUser() && !apiToken.getOrganizationGUID().equals(user.getOrganizationGUID())) {
             throw new UserRestrictionException();
         }
         apiTokenRepository.delete(apiToken);

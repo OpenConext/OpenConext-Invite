@@ -70,17 +70,21 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             String hashedToken = HashGenerator.hashToken(apiTokenHeader);
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
                     .orElseThrow(UserRestrictionException::new);
-            String organizationGuid = apiToken.getOrganizationGUID();
-            List<User> institutionAdmins = userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGuid, true);
-            if (institutionAdmins.isEmpty()) {
+            String organizationGUID = apiToken.getOrganizationGUID();
+            List<User> apiUsers = apiToken.isSuperUserToken() ?
+                    userRepository.findBySuperUserTrue() :
+                    userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGUID, true);
+            if (apiUsers.isEmpty()) {
                 //we don't want to return null as this is not part of the happy-path
                 throw new UserRestrictionException();
             }
             //Does not make any difference security-wise which user we return
-            User user = institutionAdmins.get(0);
-            //The overhead is justified for API usage
-            user.setApplications(manage.providersByInstitutionalGUID(organizationGuid));
-            user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGuid).orElse(Collections.emptyMap()));
+            User user = apiUsers.get(0);
+            if (StringUtils.hasText(organizationGUID)) {
+                //The overhead is justified for API usage
+                user.setApplications(manage.providersByInstitutionalGUID(organizationGUID));
+                user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGUID).orElse(Collections.emptyMap()));
+            }
             return user;
         } else {
             //The user is not authenticated, but that is part of the accept invitation flow. Do not throw any Exception

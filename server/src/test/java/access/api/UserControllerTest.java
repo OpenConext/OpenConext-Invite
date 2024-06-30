@@ -73,6 +73,31 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void configMissingAttributesGuest() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "", map -> {
+            map.put("schac_home_organization", "");
+            map.put("name", "");
+            map.put("nickname", "");
+            map.put("display_name", "");
+            map.put("preferred_username", "");
+            map.put("family_name", "");
+            map.put("given_name", "");
+            return map;
+        });
+
+        Map res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("guest", "true")
+                .get("/api/v1/users/config")
+                .as(Map.class);
+        assertFalse((Boolean) res.get("authenticated"));
+        assertEquals(4, ((List) res.get("missingAttributes")).size());
+    }
+
+    @Test
     void meWithOauth2Login() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "urn:collab:person:example.com:admin");
 
@@ -267,7 +292,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, users.size());
+        assertEquals(1, users.size());
     }
 
     @Test

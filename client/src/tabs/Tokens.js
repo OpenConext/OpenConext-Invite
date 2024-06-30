@@ -41,7 +41,7 @@ export const Tokens = () => {
     }, []);
 
     useEffect(() => {
-        if (user.institutionAdmin) {
+        if (user.superUser || user.institutionAdmin) {
             fetchTokens();
         } else {
             navigate("/404");

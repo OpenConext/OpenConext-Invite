@@ -12,5 +12,7 @@ public interface APITokenRepository extends JpaRepository<APIToken, Long> {
 
     List<APIToken> findByOrganizationGUID(String organizationGUID);
 
+    List<APIToken> findBySuperUserTokenTrue();
+
     Optional<APIToken> findByHashedValue(String hashedValue);
 }
