@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.16 2024-07-02
+
+- Super-user tokens
+- Bugfix for NPE after adding users by API
+- Configurable scim external ID
+
 ## 0.0.15 - 2024-06-26
 
 - Update dependencies
