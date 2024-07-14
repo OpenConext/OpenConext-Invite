@@ -22,7 +22,7 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
     private RoleExpirationNotifier roleExpirationNotifier;
 
     @Test
-    void sweep() throws JsonProcessingException {
+    void sweep() {
         UserRole userRole = userRoleRepository.findByRoleName("Mail").get(0);
         userRole.setEndDate(Instant.now().minus(7, ChronoUnit.DAYS));
         super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
