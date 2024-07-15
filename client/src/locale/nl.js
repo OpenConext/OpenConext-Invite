@@ -184,7 +184,7 @@ const nl = {
         found: "{{count}} {{plural}} gevonden",
         singleUserRole: "gebruikersrol",
         multipleUserRoles: "gebruikersrollen",
-        searchPlaceHolder: "Zoek gebruikersrollen...",
+        searchPlaceHolder: "Zoek gebruikers...",
         noResults: "Geen gebruikersrollen gevonden",
         guestRoles: "{{count}} gastgebruikers",
         managerRoles: "{{count}} managers & uitnodigers",
