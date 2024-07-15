@@ -43,7 +43,7 @@ public interface Manage {
         Map metaDataFields = (Map) data.get("metaDataFields");
         //Can't use Map.of as values can be null
         Map application = new HashMap<>();
-        //Due to the different API's we are using, the result sometimes contains an "_id" and sometimes an "manageId"
+        //Due to the different API's we are using, the result sometimes contains an "_id" and sometimes an "id"
         Object id = provider.get("id");
         if (id != null) {
             application.put("id", id);
@@ -138,10 +138,8 @@ public interface Manage {
         Map<String, Object> claims = new HashMap<>();
         claims.put(INSTITUTION_ADMIN, true);
         claims.put(ORGANIZATION_GUID, organizationGUID);
-        List<Map<String, Object>> applications = providersByInstitutionalGUID(organizationGUID);
-        claims.put(APPLICATIONS, applications);
-        Optional<Map<String, Object>> identityProvider = identityProviderByInstitutionalGUID(organizationGUID);
-        claims.put(INSTITUTION, identityProvider.orElse(null));
+        claims.put(APPLICATIONS, providersByInstitutionalGUID(organizationGUID));
+        claims.put(INSTITUTION, identityProviderByInstitutionalGUID(organizationGUID).orElse(null));
         return claims;
     }
 

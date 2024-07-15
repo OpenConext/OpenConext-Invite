@@ -78,9 +78,9 @@ export const RoleForm = () => {
                 if (user.superUser) {
                     setProviders(providersToOptions(res[newRole ? 0 : 1]));
                 } else if (user.institutionAdmin) {
-                    setProviders(providersToOptions(distinctValues(user.applications
-                        .concat(user.userRoles.map(userRole => userRole.role.applicationMaps)
-                            .flat()), "id")));
+                    setProviders(providersToOptions(distinctValues(user.applications.concat(
+                        user.userRoles.map(userRole => userRole.role.applicationMaps).flat()
+                    ), "id")));
                 } else {
                     setProviders(providersToOptions(distinctValues(user.userRoles
                         .map(userRole => userRole.role.applicationMaps).flat(), "id")));
