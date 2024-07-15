@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -293,6 +294,65 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, users.size());
+    }
+
+    @Test
+    void searchByApplication() throws Exception {
+        //Institution admin is enriched with Manage information
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        List<Map<String, Object>> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "Doe")
+                .get("/api/v1/users/search-by-application")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(3, users.size());
+    }
+
+    @Test
+    void otherBYInstitutionAdmin() throws Exception {
+        //Institution admin is enriched with Manage information
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        Long id = userRepository.findBySubIgnoreCase(INVITER_SUB).get().getId();
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", id)
+                .get("/api/v1/users/other/{id}")
+                .as(User.class);
+        Set<UserRole> userRoles = user.getUserRoles();
+        assertEquals(2, userRoles.size());
+    }
+
+    @Test
+    void otherBYInstitutionAdminForbidden() throws Exception {
+        //Institution admin is enriched with Manage information
+        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        Long id = userRepository.findBySubIgnoreCase(SUPER_SUB).get().getId();
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", id)
+                .get("/api/v1/users/other/{id}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test

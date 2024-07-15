@@ -45,6 +45,7 @@ const en = {
         home: "Home",
         applications: "Applications",
         users: "Users",
+        applicationUsers: "Users",
         maintainers: "Role managers & inviters",
         guests: "Guest with this role",
         invitations: "Invitations",
@@ -115,7 +116,8 @@ const en = {
         searchPlaceHolder: "Search for users...",
         authority: "Authority",
         endDate: "End date",
-        expiryDays: "Expiry days"
+        expiryDays: "Expiry days",
+        roleExpiryTooltip: "Sort on roles to see which roles will expire the soonest"
     },
     role: {
         copyUrn: "Copy urn",

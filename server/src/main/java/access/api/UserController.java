@@ -2,6 +2,7 @@ package access.api;
 
 import access.config.Config;
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.manage.EntityType;
 import access.manage.Manage;
 import access.model.*;
@@ -37,6 +38,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -104,11 +106,21 @@ public class UserController {
     @GetMapping("other/{id}")
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/other/%s for user $s", id, user.getEduPersonPrincipalName()));
-        UserPermissions.assertSuperUser(user);
-        User other = userRepository.findById(id).orElseThrow(NotFoundException::new);
 
+        User other = userRepository.findById(id).orElseThrow(NotFoundException::new);
         List<Role> roles = other.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.addManageMetaData(roles);
+        if (!user.isSuperUser()) {
+            UserPermissions.assertInstitutionAdmin(user);
+            //We need to ensure the institution admin has access to at least one of the roles
+            List<String> manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).toList();
+            boolean allowedByManage = roles.stream()
+                    .anyMatch(role -> role.getApplicationUsages().stream()
+                            .anyMatch(applicationUsage -> manageIdentifiers.contains(applicationUsage.getApplication().getManageId())));
+            if (!allowedByManage) {
+                throw new UserRestrictionException();
+            }
+        }
         return ResponseEntity.ok(other);
     }
 
@@ -120,6 +132,22 @@ public class UserController {
         List<User> users = query.equals("owl") ? userRepository.findAll() :
                 userRepository.search(query.replaceAll("@", " ") + "*", 15);
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("search-by-application")
+    public ResponseEntity<List<UserRoles>> searchByApplication(@RequestParam(value = "query") String query,
+                                                               @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/searchByApplication for user %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertInstitutionAdmin(user);
+        List<String> manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList());
+        List<Map<String, Object>> results = userRepository
+                .searchByApplication(manageIdentifiers, query.replaceAll("@", " ") + "*", 15);
+        //There are duplicate users in the results, need to group by ID
+        Map<Long, List<Map<String, Object>>> groupedBy = results.stream().collect(Collectors.groupingBy(map -> (Long) map.get("id")));
+        List<UserRoles> userRoles = groupedBy.values().stream()
+                .map(UserRoles::new)
+                .toList();
+        return ResponseEntity.ok(userRoles);
     }
 
     @GetMapping("login")

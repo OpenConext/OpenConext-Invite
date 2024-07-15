@@ -1,0 +1,78 @@
+.mod-application-users {
+    position: relative;
+
+    .mod-spinner-loading {
+        position: absolute;
+        top: -90px;
+        right: 50%;
+    }
+
+    .mod-entities .entities-search .search-filter {
+        width: auto;
+    }
+
+    .more-results-available {
+        text-align: center;
+        margin: 0 25px 0 0;
+        font-weight: 600;
+        flex-grow: 2;
+    }
+
+    .image-container {
+        display: flex;
+
+        img {
+            width: 320px;
+            height: auto;
+            margin: auto;
+        }
+    }
+
+    table.users {
+
+        thead {
+            th {
+                &.name {
+                    width: 35%;
+                }
+
+                &.schac_home_organisation {
+                    width: 25%;
+                }
+
+                &.roles {
+                    width: 40%;
+                }
+            }
+        }
+
+        tbody {
+            ul {
+                list-style: disc;
+
+                li {
+                    margin-left: 20px;
+
+                    span {
+                        display: block;
+
+                        &.authority {
+                            font-weight: 600;
+                        }
+
+                        &.inline {
+                            display: inline;
+                            font-weight: normal;
+                        }
+                    }
+
+                    a {
+                        font-weight: 400;
+                    }
+                }
+            }
+        }
+
+    }
+
+}

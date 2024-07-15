@@ -3,7 +3,7 @@ import {other} from "../api";
 import I18n from "../locale/I18n";
 import "./Profile.scss";
 import {Loader} from "@surfnet/sds";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
 import {UnitHeader} from "../components/UnitHeader";
@@ -16,6 +16,7 @@ export const Profile = () => {
     const {user: currentUser, config} = useAppStore(state => state);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (id) {
@@ -31,6 +32,7 @@ export const Profile = () => {
                         ]
                     });
                 })
+                .catch(() => navigate("/404"))
         } else {
             setUser(currentUser);
             setLoading(false);
@@ -42,7 +44,7 @@ export const Profile = () => {
             });
         }
 
-    }, [id, currentUser]);
+    }, [id, currentUser]);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return <Loader/>

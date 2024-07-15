@@ -45,6 +45,7 @@ const nl = {
         home: "Home",
         applications: "Applicaties",
         users: "Gebruikers",
+        applicationUsers: "Gebruikers",
         maintainers: "Rolmanagers & uitnodigers",
         guests: "Gasten met deze rol",
         invitations: "Uitnodigingen",
@@ -115,7 +116,8 @@ const nl = {
         searchPlaceHolder: "Zoek gebruikers...",
         authority: "Autoriteit",
         endDate: "Einddatum",
-        expiryDays: "Verloopdagen"
+        expiryDays: "Verloopdagen",
+        roleExpiryTooltip: "Sorteer op rollen, om te zien welke rol het eerst zal verlopen"
     },
     role: {
         copyUrn: "Copy urn",

@@ -17,6 +17,7 @@ import Applications from "../tabs/Applications";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import {Loader} from "@surfnet/sds";
 import {Tokens} from "../tabs/Tokens";
+import {ApplicationUsers} from "../tabs/ApplicationUsers";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
@@ -65,6 +66,15 @@ export const Home = () => {
                     <Applications/>
                 </Page>
             );
+        }
+        if (user && user.institutionAdmin && user.organizationGUID) {
+            newTabs.push(
+                <Page key="applicationUsers"
+                      name="applicationUsers"
+                      label={I18n.t("tabs.applicationUsers")}
+                      Icon={UserLogo}>
+                    <ApplicationUsers/>
+                </Page>);
         }
         if (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) {
             newTabs.push(

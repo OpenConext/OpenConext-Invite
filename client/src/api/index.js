@@ -91,11 +91,15 @@ export function me() {
 }
 
 export function other(id) {
-    return fetchJson(`/api/v1/users/other/${id}`);
+    return fetchJson(`/api/v1/users/other/${id}`, {}, {}, false);
 }
 
 export function searchUsers(query) {
     return fetchJson(`/api/v1/users/search?query=${query}`);
+}
+
+export function searchUsersByApplication(query) {
+    return fetchJson(`/api/v1/users/search-by-application?query=${query}`);
 }
 
 export function csrf() {

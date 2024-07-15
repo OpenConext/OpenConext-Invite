@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -28,6 +29,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND id > 0 LIMIT ?2",
             nativeQuery = true)
     List<User> search(String keyWord, int limit);
+
+    @Query(value = "SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity, " +
+            "ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date " +
+            "FROM users u " +
+            "INNER JOIN user_roles ur ON ur.user_id = u.id " +
+            "INNER JOIN roles r ON r.id = ur.role_id " +
+            "INNER JOIN application_usages au ON au.role_id = r.id " +
+            "INNER JOIN applications a ON a.id = au.application_id " +
+            "WHERE a.manage_id in ?1 AND " +
+            "MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE) " +
+            "LIMIT ?3",
+            nativeQuery = true)
+    List<Map<String, Object>> searchByApplication(List<String> manageIdentifiers, String keyWord, int limit);
 
     @Query(value = "SELECT * FROM users u WHERE super_user = 0 AND institution_admin = 0 " +
             "AND NOT EXISTS (SELECT ur.id FROM user_roles ur WHERE ur.user_id = u.id)",
