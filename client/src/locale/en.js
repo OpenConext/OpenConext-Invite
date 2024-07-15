@@ -183,7 +183,7 @@ const en = {
         found: "{{count}} {{plural}} found",
         singleUserRole: "user role",
         multipleUserRoles: "user roles",
-        searchPlaceHolder: "Search for user roles...",
+        searchPlaceHolder: "Search for users...",
         noResults: "No user roles where found",
         guestRoles: "{{count}} guest users",
         managerRoles: "{{count}} managers & inviters",
