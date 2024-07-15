@@ -396,7 +396,7 @@ class UserControllerTest extends AbstractTest {
         super.stubForUpdateGraphUser(GUEST_SUB);
         super.stubForManageProviderById(EntityType.PROVISIONING, "9");
 
-        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).orElseThrow(NotFoundException::new);
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).orElseThrow(() -> new NotFoundException("User not found"));
         given().redirects()
                 .follow(false)
                 .when()

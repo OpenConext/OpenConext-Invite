@@ -47,7 +47,8 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void getInvitationAlreadyAccepted() {
-        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).orElseThrow(NotFoundException::new);
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name())
+                .orElseThrow(() -> new NotFoundException("Invitation not found"));
         invitation.setStatus(Status.ACCEPTED);
         invitationRepository.save(invitation);
         given()

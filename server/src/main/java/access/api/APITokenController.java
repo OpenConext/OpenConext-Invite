@@ -81,7 +81,7 @@ public class APITokenController {
     public ResponseEntity<Void> deleteToken(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug("/deleteToken");
         UserPermissions.assertInstitutionAdmin(user);
-        APIToken apiToken = apiTokenRepository.findById(id).orElseThrow(NotFoundException::new);
+        APIToken apiToken = apiTokenRepository.findById(id).orElseThrow(() -> new NotFoundException("API token not found"));
         if (apiToken.isSuperUserToken() && !user.isSuperUser()) {
             throw new UserRestrictionException();
         }

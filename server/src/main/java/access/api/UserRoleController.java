@@ -63,7 +63,7 @@ public class UserRoleController {
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug("/me");
-        Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         List<UserRole> userRoles = userRoleRepository.findByRole(role);
         userRoles.forEach(userRole -> userRole.setUserInfo(userRole.getUser().asMap()));
@@ -73,7 +73,7 @@ public class UserRoleController {
     @GetMapping("/consequences/{roleId}")
     public ResponseEntity<List<Map<String, Object>>> consequencesDeleteRole(@PathVariable("roleId") Long roleId,
                                                                             @Parameter(hidden = true) User user) {
-        Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
 
         LOG.debug(String.format("Fetching consequences delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
@@ -96,7 +96,7 @@ public class UserRoleController {
         userRoleProvisioning.validate();
         UserPermissions.assertInstitutionAdmin(apiUser);
         List<Role> roles = userRoleProvisioning.roleIdentifiers.stream()
-                .map(roleId -> roleRepository.findById(roleId).orElseThrow(NotFoundException::new))
+                .map(roleId -> roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found")))
                 .toList();
         UserPermissions.assertValidInvitation(apiUser, userRoleProvisioning.intendedAuthority, roles);
         Optional<User> userOptional = Optional.empty();
@@ -139,7 +139,7 @@ public class UserRoleController {
     @PutMapping("")
     public ResponseEntity<Map<String, Integer>> updateUserRoleExpirationDate(@Validated @RequestBody UpdateUserRole updateUserRole,
                                                                              @Parameter(hidden = true) User user) {
-        UserRole userRole = userRoleRepository.findById(updateUserRole.getUserRoleId()).orElseThrow(NotFoundException::new);
+        UserRole userRole = userRoleRepository.findById(updateUserRole.getUserRoleId()).orElseThrow(() -> new NotFoundException("UserRole not found"));
         if (updateUserRole.getEndDate() != null && !config.isPastDateAllowed() && Instant.now().isAfter(updateUserRole.getEndDate())) {
             throw new NotAllowedException("End date must be after now");
         }
@@ -152,7 +152,7 @@ public class UserRoleController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug("/deleteUserRole");
-        UserRole userRole = userRoleRepository.findById(id).orElseThrow(NotFoundException::new);
+        UserRole userRole = userRoleRepository.findById(id).orElseThrow(() -> new NotFoundException("UserRole not found"));
         UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));
 
         provisioningService.updateGroupRequest(userRole, OperationType.Remove);

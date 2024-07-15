@@ -64,7 +64,7 @@ public final class LocalManage implements Manage {
         return providers.stream()
                 .filter(provider -> provider.get("_id").equals(id))
                 .findFirst()
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new NotFoundException("Provider not found"));
     }
 
     @Override

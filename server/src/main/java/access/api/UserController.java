@@ -107,7 +107,7 @@ public class UserController {
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/other/%s for user $s", id, user.getEduPersonPrincipalName()));
 
-        User other = userRepository.findById(id).orElseThrow(NotFoundException::new);
+        User other = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         List<Role> roles = other.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.addManageMetaData(roles);
         if (!user.isSuperUser()) {
@@ -169,7 +169,7 @@ public class UserController {
 
     @GetMapping("ms-accept-return/{manageId}/{userId}")
     public View msAcceptReturn(@PathVariable("manageId") String manageId, @PathVariable("userId") Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         LOG.debug(String.format("Return from MS accept. User %s",user.getEduPersonPrincipalName()));
         Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, manageId);
         Provisioning provisioning = new Provisioning(provisioningMap);

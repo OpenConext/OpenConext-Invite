@@ -91,7 +91,7 @@ public class RoleController {
     @GetMapping("{id}")
     public ResponseEntity<Role> role(@PathVariable("id") Long id,@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
-        Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
+        Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         manage.addManageMetaData(List.of(role));
         return ResponseEntity.ok(role);
@@ -124,7 +124,7 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
-        Role role = roleRepository.findById(id).orElseThrow(NotFoundException::new);
+        Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
 
         LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
@@ -155,7 +155,7 @@ public class RoleController {
         boolean immutableApplicationUsages = optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER);
         boolean nameChanged = false;
         if (!isNew) {
-            Role previousRole = roleRepository.findById(role.getId()).orElseThrow(NotFoundException::new);
+            Role previousRole = roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));
             //We don't allow shortName or identifier changes after creation
             role.setShortName(previousRole.getShortName());
             role.setIdentifier(previousRole.getIdentifier());

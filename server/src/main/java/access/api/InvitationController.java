@@ -96,7 +96,7 @@ public class InvitationController {
         }
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
-                .map(id -> roleRepository.findById(id).orElseThrow(NotFoundException::new)).toList();
+                .map(id -> roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"))).toList();
         UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
 
         boolean isOverrideSettingsAllowed = requestedRoles.stream().allMatch(Role::isOverrideSettingsAllowed);
@@ -140,7 +140,7 @@ public class InvitationController {
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/deleteInvitation/%s by user %s", id, user.getEduPersonPrincipalName()));
         //We need to assert validations on the roles soo we need to load them
-        Invitation invitation = invitationRepository.findById(id).orElseThrow(NotFoundException::new);
+        Invitation invitation = invitationRepository.findById(id).orElseThrow(() -> new NotFoundException("Invitation not found"));
         List<Role> requestedRoles = invitation.getRoles().stream()
                 .map(InvitationRole::getRole).toList();
         Authority intendedAuthority = invitation.getIntendedAuthority();
@@ -157,7 +157,7 @@ public class InvitationController {
                                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/resendInvitation/%s by user %s", id, user.getEduPersonPrincipalName()));
         //We need to assert validations on the roles soo we need to load them
-        Invitation invitation = invitationRepository.findById(id).orElseThrow(NotFoundException::new);
+        Invitation invitation = invitationRepository.findById(id).orElseThrow(() -> new NotFoundException("Invitation not found"));
         List<Role> requestedRoles = invitation.getRoles().stream()
                 .map(InvitationRole::getRole).toList();
         Authority intendedAuthority = invitation.getIntendedAuthority();
@@ -177,7 +177,7 @@ public class InvitationController {
 
     @GetMapping("public")
     public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
-        Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(NotFoundException::new);
+        Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(() -> new NotFoundException("Invitation not found"));
         if (!invitation.getStatus().equals(Status.OPEN)) {
             throw new InvitationStatusException("Invitation is not OPEN anymore");
         }
@@ -202,9 +202,9 @@ public class InvitationController {
                                                                       Authentication authentication,
                                                                       HttpServletRequest servletRequest,
                                                                       HttpServletResponse servletResponse) {
-        Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(NotFoundException::new);
+        Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(() -> new NotFoundException("Invitation not found"));
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
-            throw new NotFoundException();
+            throw new NotFoundException("Invitation not found");
         }
         if (!invitation.getStatus().equals(Status.OPEN)) {
             throw new InvitationStatusException("Invitation is not OPEN anymore");
@@ -325,7 +325,7 @@ public class InvitationController {
     @GetMapping("roles/{roleId}")
     public ResponseEntity<List<Invitation>> byRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/roles/%s by user %s", roleId, user.getEduPersonPrincipalName()));
-        Role role = roleRepository.findById(roleId).orElseThrow(NotFoundException::new);
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
         return ResponseEntity.ok(invitations);

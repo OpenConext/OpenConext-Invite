@@ -259,7 +259,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(expectedSub, savedUser.getSub());
-        User user = userRepository.findBySubIgnoreCase(expectedSub).orElseThrow(NotFoundException::new);
+        User user = userRepository.findBySubIgnoreCase(expectedSub).orElseThrow(() -> new NotFoundException("User not found"));
         assertEquals(expectedUserRoleCount, user.getUserRoles().size());
     }
 
