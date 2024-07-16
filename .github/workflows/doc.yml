@@ -96,7 +96,7 @@ jobs:
       # Generate a HTML page for the archmate model, only if the model has changed
       - name: Download Archi
         run: |
-          curl "https://www.archimatetool.com/downloads/archi-5.php?/5.2.0/Archi-Linux64-5.2.0.tgz" \
+          curl "https://www.archimatetool.com/downloads/archi/5.3.0/Archi-Linux64-5.3.0.tgz" \
             -q -o /tmp/archi.tgz
           tar -zxvf /tmp/archi.tgz -C /tmp/
         if: ${{ steps.changes.outputs.archi == 'true' ||  github.event_name == 'workflow_dispatch' }}
