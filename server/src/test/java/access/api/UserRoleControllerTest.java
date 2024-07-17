@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -237,6 +238,36 @@ class UserRoleControllerTest extends AbstractTest {
                 });
         assertEquals(2, userRoles.size());
         System.out.println(userRoles);
+    }
+
+    @Test
+    void invalidAPIToken() {
+        List<Long> roleIdentifiers = List.of(
+                roleRepository.findByName("Network").get(0).getId(),
+                roleRepository.findByName("Wiki").get(0).getId()
+        );
+        UserRoleProvisioning userRoleProvisioning = new UserRoleProvisioning(
+                roleIdentifiers,
+                Authority.GUEST,
+                null,
+                "new_user@domain.org",
+                null,
+                null,
+                null,
+                "Charly Green",
+                null,
+                true
+        );
+        given()
+                .when()
+                .header(API_TOKEN_HEADER, "bogus")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(userRoleProvisioning)
+                .post("/api/external/v1/user_roles/user_role_provisioning")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
     }
 
     private void doUserRoleProvisioning(UserRoleProvisioning userRoleProvisioning, String expectedSub, int expectedUserRoleCount) throws JsonProcessingException {

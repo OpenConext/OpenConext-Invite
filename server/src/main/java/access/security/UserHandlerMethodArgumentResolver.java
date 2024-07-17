@@ -65,7 +65,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
         } else if (userPrincipal instanceof OAuth2AuthenticationToken authenticationToken) {
             //The user has logged in with OpenIDConnect. Invite is acting as a backend server
             attributes = authenticationToken.getPrincipal().getAttributes();
-        } else if (StringUtils.hasText(apiTokenHeader) && apiTokenHeader.length() == 36) {
+        } else if (StringUtils.hasText(apiTokenHeader)) {
             //The user has obtained an API token (from her institution admin) and there is no state
             String hashedToken = HashGenerator.hashToken(apiTokenHeader);
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
