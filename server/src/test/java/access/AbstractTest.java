@@ -342,26 +342,29 @@ public abstract class AbstractTest {
 
     }
 
-    protected void stubForManageProviderByOrganisationGUID(String organisationGUID) throws JsonProcessingException {
-        String path = "/manage/api/internal/search/%s";
-        List<Map<String, Object>> providers = localManage.providersByInstitutionalGUID(organisationGUID);
-        Optional<Map<String, Object>> identityProvider = localManage.identityProviderByInstitutionalGUID(organisationGUID);
-        Map<EntityType, Object> providersMap = Map.of(
-                EntityType.SAML20_SP,
-                providers.stream().filter(m -> m.get("type").equals(EntityType.SAML20_SP.collectionName())).toList(),
-                EntityType.SAML20_IDP,
-                List.of(identityProvider.get()),
-                EntityType.OIDC10_RP,
-                providers.stream().filter(m -> m.get("type").equals(EntityType.OIDC10_RP.collectionName())).toList()
-        );
+    protected void stubForManageProvidersAllowedByIdP(String organisationGUID) throws JsonProcessingException {
+        String postPath = "/manage/api/internal/search/%s";
+        Map<String, Object> identityProvider = localManage.identityProviderByInstitutionalGUID(organisationGUID).get();
+        stubFor(post(urlPathMatching(String.format(postPath, EntityType.SAML20_IDP.collectionName()))).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(List.of(identityProvider)))));
+        Boolean allowedAll = (Boolean) identityProvider.getOrDefault("allowedall", Boolean.FALSE);
+        List<Map<String, Object>> providers = localManage.providersAllowedByIdP(identityProvider);
         //Lambda can't do exception handling
-        for (Map.Entry<EntityType, Object> entry : providersMap.entrySet()) {
-            EntityType entityType = entry.getKey();
-            stubFor(post(urlPathMatching(String.format(path, entityType.collectionName()))).willReturn(aResponse()
-                    .withHeader("Content-Type", "application/json")
-                    .withBody(objectMapper.writeValueAsString(entry.getValue()))));
+        for (EntityType entityType : List.of(EntityType.SAML20_SP, EntityType.OIDC10_RP)) {
+            List<Map<String, Object>> body = providers.stream().filter(m -> m.get("type").equals(entityType.collectionName())).toList();
+            if (allowedAll) {
+                String path = String.format("/manage/api/internal/search/%s", entityType.name().toLowerCase());
+                stubFor(post(urlPathMatching(path)).willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(body))));
+            } else {
+                String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*", entityType.name().toLowerCase());
+                stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(body))));
+            }
         }
-
     }
 
     @SneakyThrows

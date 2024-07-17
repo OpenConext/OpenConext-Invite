@@ -21,7 +21,7 @@ public interface Manage {
 
     List<Map<String, Object>> provisioning(Collection<String> ids);
 
-    List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID);
+    List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider);
 
     Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID);
 
@@ -73,6 +73,8 @@ public interface Manage {
         }
         application.put("type", provider.get("type"));
         application.put("applications", data.get("applications"));
+        application.put("allowedEntities", data.get("allowedEntities"));
+        application.put("allowedall", data.get("allowedall"));
         application.put("entityid", data.get("entityid"));
         application.put("logo", metaDataFields.get("logo:0:url"));
         application.put("url", metaDataFields.get("coin:application_url"));
@@ -138,8 +140,10 @@ public interface Manage {
         Map<String, Object> claims = new HashMap<>();
         claims.put(INSTITUTION_ADMIN, true);
         claims.put(ORGANIZATION_GUID, organizationGUID);
-        claims.put(APPLICATIONS, providersByInstitutionalGUID(organizationGUID));
-        claims.put(INSTITUTION, identityProviderByInstitutionalGUID(organizationGUID).orElse(null));
+        Optional<Map<String, Object>> optionalIdentityProvider = identityProviderByInstitutionalGUID(organizationGUID);
+        claims.put(INSTITUTION, optionalIdentityProvider.orElse(null));
+        List<Map<String, Object>> applications = optionalIdentityProvider.map(this::providersAllowedByIdP).orElse(Collections.emptyList());
+        claims.put(APPLICATIONS, applications);
         return claims;
     }
 

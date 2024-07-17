@@ -153,11 +153,13 @@ email:
   enabled: false
 
 manage:
+#  enabled: True
   enabled: False
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret
   local: False
+# If you want to run the mock Manage against a git ignored file with sensitive data, e.g. manage/provisioning.local.json file
 #  local: True
 
 springdoc:

@@ -241,7 +241,7 @@ class UserRoleControllerTest extends AbstractTest {
 
     private void doUserRoleProvisioning(UserRoleProvisioning userRoleProvisioning, String expectedSub, int expectedUserRoleCount) throws JsonProcessingException {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
-        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         super.stubForManageProvisioning(List.of("1", "2"));
 
         super.stubForCreateScimUser();

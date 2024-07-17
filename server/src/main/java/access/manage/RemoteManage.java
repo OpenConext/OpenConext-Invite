@@ -14,6 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
+
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
 
@@ -38,7 +40,7 @@ public class RemoteManage implements Manage {
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
         if (CollectionUtils.isEmpty(identifiers)) {
-            return Collections.emptyList();
+            return emptyList();
         }
         String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(","));
         String query = URLEncoder.encode(String.format("{ \"id\": { $in: [%s]}}", param), Charset.defaultCharset());
@@ -64,30 +66,41 @@ public class RemoteManage implements Manage {
     @Override
     public List<Map<String, Object>> provisioning(Collection<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
-            return Collections.emptyList();
+            return emptyList();
         }
         String queryUrl = String.format("%s/manage/api/internal/provisioning", url);
         return transformProvider(restTemplate.postForObject(queryUrl, ids, List.class));
     }
 
     @Override
-    public List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID) {
-        Map<String, Object> baseQuery = getBaseQuery();
-        baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
-        List serviceProviders = restTemplate.postForObject(
-                String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_SP.collectionName()),
-                baseQuery, List.class);
-        List relyingParties = restTemplate.postForObject(
-                String.format("%s/manage/api/internal/search/%s", this.url, EntityType.OIDC10_RP.collectionName()),
-                baseQuery, List.class);
-        serviceProviders.addAll(relyingParties);
-        return transformProvider(serviceProviders);
+    public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
+        Boolean allowedAll = (Boolean) identityProvider.getOrDefault("allowedall", Boolean.FALSE);
+        if (allowedAll) {
+            return this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
+        }
+        List<Map< String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
+        String split = allowedEntities.stream().map(m -> "\"" + m.get("name") + "\"")
+                .collect(Collectors.joining(","));
+        String queryPart =  URLEncoder.encode(String.format("{\"data.entityid\":{\"$in\":[%s]}}", split), Charset.defaultCharset()) ;
+        List<Map<String, Object>> results = new ArrayList<>();
+        List.of(EntityType.SAML20_SP, EntityType.OIDC10_RP).forEach(entityType -> {
+            String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url,
+                    entityType.collectionName(), queryPart);
+            List<Map<String, Object>> providers = transformProvider(restTemplate.getForEntity(queryUrl, List.class).getBody());
+            results.addAll(providers);
+        });
+        return results;
     }
 
     @Override
     public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
         Map<String, Object> baseQuery = getBaseQuery();
         baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
+
+        List<String> requestedAttributes = (List<String>) baseQuery.get("REQUESTED_ATTRIBUTES");
+        requestedAttributes.add("allowedEntities");
+        requestedAttributes.add("allowedall");
+
         List<Map<String, Object> > identityProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_IDP.collectionName()),
                 baseQuery, List.class);
@@ -101,7 +114,9 @@ public class RemoteManage implements Manage {
     }
 
     private Map<String, Object> getBaseQuery() {
-        return new HashMap<>((Map<String, Object>) this.queries.get("base_query"));
+        HashMap<String, Object> baseQuery = new HashMap<>((Map<String, Object>) this.queries.get("base_query"));
+        baseQuery.put("REQUESTED_ATTRIBUTES", baseQuery.get("REQUESTED_ATTRIBUTES"));
+        return baseQuery;
     }
 
 

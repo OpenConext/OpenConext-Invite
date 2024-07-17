@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptyList;
+
 @SuppressWarnings("unchecked")
 public final class LocalManage implements Manage {
 
@@ -81,12 +83,15 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providersByInstitutionalGUID(String organisationGUID) {
-        List<Map<String, Object>> providers = providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
-        return providers
-                .stream()
-                .filter(provider -> Objects.equals(provider.get("institutionGuid"), organisationGUID))
-                .toList();
+    public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
+        Boolean allowedAll = (Boolean) identityProvider.getOrDefault("allowedall", Boolean.FALSE);
+        List<Map<String, Object>> allProviders = this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
+        if (allowedAll) {
+            return allProviders;
+        }
+        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
+        List<String> entityIdentifiers = allowedEntities.stream().map(m -> m.get("name")).toList();
+        return allProviders.stream().filter(provider -> entityIdentifiers.contains((String) provider.get("entityid"))).toList();
     }
 
     @Override

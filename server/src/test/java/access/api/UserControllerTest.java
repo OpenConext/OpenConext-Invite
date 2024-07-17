@@ -123,7 +123,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void institutionAdminProvision() throws Exception {
-        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", "new_institution_admin",
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
@@ -138,9 +138,7 @@ class UserControllerTest extends AbstractTest {
         assertNotNull(user.getId());
         assertTrue(user.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
-        assertEquals(3, user.getApplications().size());
-        user.getApplications().forEach(application -> assertEquals(ORGANISATION_GUID,
-                application.get("institutionGuid")));
+        assertEquals(4, user.getApplications().size());
 
         Map res = given()
                 .when()
@@ -228,7 +226,7 @@ class UserControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
         User institutionAdmin = userRepository.findBySubIgnoreCase(INSTITUTION_ADMIN_SUB).get();
-        stubForManageProviderByOrganisationGUID(institutionAdmin.getOrganizationGUID());
+        stubForManageProvidersAllowedByIdP(institutionAdmin.getOrganizationGUID());
 
         User user = given()
                 .when()
@@ -239,7 +237,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/me")
                 .as(User.class);
         assertEquals(INSTITUTION_ADMIN_SUB, user.getEduPersonPrincipalName());
-        assertEquals(3, user.getApplications().size());
+        assertEquals(4, user.getApplications().size());
         assertEquals(EntityType.SAML20_IDP.collectionName(), user.getInstitution().get("type"));
     }
 
@@ -299,7 +297,7 @@ class UserControllerTest extends AbstractTest {
     @Test
     void searchByApplication() throws Exception {
         //Institution admin is enriched with Manage information
-        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
         List<Map<String, Object>> users = given()
@@ -311,17 +309,16 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(3, users.size());
+        assertEquals(2, users.size());
     }
 
     @Test
-    void otherBYInstitutionAdmin() throws Exception {
+    void otherByInstitutionAdmin() throws Exception {
         //Institution admin is enriched with Manage information
-        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
-        Long id = userRepository.findBySubIgnoreCase(INVITER_SUB).get().getId();
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        Long id = userRepository.findBySubIgnoreCase(GUEST_SUB).get().getId();
 
         User user = given()
                 .when()
@@ -332,13 +329,13 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/other/{id}")
                 .as(User.class);
         Set<UserRole> userRoles = user.getUserRoles();
-        assertEquals(2, userRoles.size());
+        assertEquals(3, userRoles.size());
     }
 
     @Test
     void otherBYInstitutionAdminForbidden() throws Exception {
         //Institution admin is enriched with Manage information
-        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
         Long id = userRepository.findBySubIgnoreCase(SUPER_SUB).get().getId();

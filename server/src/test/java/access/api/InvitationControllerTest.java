@@ -429,8 +429,7 @@ class InvitationControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "user@new.com");
         Invitation invitation = invitationRepository.findByHash(INSTITUTION_ADMIN_INVITATION_HASH).get();
 
-        super.stubForManageProviderByOrganisationGUID(ORGANISATION_GUID);
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("2"));
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
 
         AcceptInvitation acceptInvitation = new AcceptInvitation(INSTITUTION_ADMIN_INVITATION_HASH, invitation.getId());
         given()
@@ -457,7 +456,7 @@ class InvitationControllerTest extends AbstractTest {
                 .as(User.class);
         assertTrue(me.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, me.getOrganizationGUID());
-        assertEquals(3, me.getApplications().size());
+        assertEquals(4, me.getApplications().size());
         assertEquals("https://mock-idp", me.getInstitution().get("entityid"));
     }
 

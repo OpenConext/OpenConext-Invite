@@ -82,8 +82,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             User user = apiUsers.get(0);
             if (StringUtils.hasText(organizationGUID)) {
                 //The overhead is justified for API usage
-                user.setApplications(manage.providersByInstitutionalGUID(organizationGUID));
-                user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGUID).orElse(Collections.emptyMap()));
+                enrichInstitutionAdmin(user, organizationGUID);
             }
             return user;
         } else {
@@ -129,8 +128,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 String organizationGUID = user.getOrganizationGUID();
                 if (validImpersonation.get()) {
                     //The overhead for retrieving data from manage is justified when super_user is impersonating institutionAdmin
-                    user.setApplications(manage.providersByInstitutionalGUID(organizationGUID));
-                    user.setInstitution(manage.identityProviderByInstitutionalGUID(organizationGUID).orElse(Collections.emptyMap()));
+                    enrichInstitutionAdmin(user, organizationGUID);
                 } else {
                     user.updateRemoteAttributes(attributes);
                 }
@@ -138,6 +136,13 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             return user;
         }).orElseThrow(UserRestrictionException::new);
 
+    }
+
+    private void enrichInstitutionAdmin(User user, String organizationGUID) {
+        Optional<Map<String, Object>> optionalIdentityProvider = manage.identityProviderByInstitutionalGUID(organizationGUID);
+        user.setInstitution(optionalIdentityProvider.orElse(null));
+        List<Map<String, Object>> applications = optionalIdentityProvider.map(manage::providersAllowedByIdP).orElse(Collections.emptyList());
+        user.setApplications(applications);
     }
 
 }
