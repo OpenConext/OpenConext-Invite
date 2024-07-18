@@ -1,7 +1,8 @@
 # Openconext-Invite
 
 [![Build Status](https://github.com/OpenConext/OpenConext-Invite/actions/workflows/actions.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Invite/actions/workflows/actions.yml/badge.svg)
-[![codecov](https://codecov.io/gh/OpenConext/OpenConext-Invite/branch/main/graph/badge.svg?token=HZ7ES3TLQ9)](https://codecov.io/gh/OpenConext/OpenConext-Invite)
+![Coverage](.github/badges/jacoco.svg)
+![Branches](.github/badges/branches.svg)
 
 ## [Getting started](#getting-started)
 
