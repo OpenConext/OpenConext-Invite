@@ -42,7 +42,7 @@ jobs:
       - run: |
           mysql -uroot -h127.0.0.1 -e \
           "CREATE DATABASE invite CHARACTER SET utf8mb4 \
-          COLLATE utf8mb4_0900_ai_ci;"
+          COLLATE utf8mb4_unicode_520_ci;"
       - run: |
           mysql -uroot -h127.0.0.1 -e \
           "CREATE USER 'invite'@'localhost' IDENTIFIED BY 'secret';";
