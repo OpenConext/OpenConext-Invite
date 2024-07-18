@@ -18,8 +18,8 @@ spring:
     open-in-view: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost/access
-    username: access
+    url: jdbc:mysql://localhost/invite
+    username: invite
     password: secret
 
 server:
