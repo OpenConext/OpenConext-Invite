@@ -21,7 +21,7 @@ class ProfileControllerTest extends AbstractTest {
 
         List<UserRoleProfile> roles = given()
                 .when()
-                .auth().basic("profile", "secret")
+                .auth().preemptive().basic("profile", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("collabPersonId", GUEST_SUB)
@@ -48,7 +48,7 @@ class ProfileControllerTest extends AbstractTest {
     void rolesNotExistentUser() {
         List<UserRoleProfile> roles = given()
                 .when()
-                .auth().basic("profile", "secret")
+                .auth().preemptive().basic("profile", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("collabPersonId", "nope")
@@ -62,7 +62,7 @@ class ProfileControllerTest extends AbstractTest {
     void rolesForbidden() {
         given()
                 .when()
-                .auth().basic("teams", "secret")
+                .auth().preemptive().basic("teams", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("collabPersonId", "nope")

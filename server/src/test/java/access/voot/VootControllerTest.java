@@ -18,7 +18,7 @@ class VootControllerTest extends AbstractTest {
     void getGroupMemberships() {
         List<Map<String, String>> groups = given()
                 .when()
-                .auth().basic("voot", "secret")
+                .auth().preemptive().basic("voot", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
@@ -34,7 +34,7 @@ class VootControllerTest extends AbstractTest {
     void getGroupMembershipsUnknownUser() {
         List<Map<String, String>> groups = given()
                 .when()
-                .auth().basic("voot", "secret")
+                .auth().preemptive().basic("voot", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", "nope")
@@ -48,7 +48,7 @@ class VootControllerTest extends AbstractTest {
     void getGroupMembershipsGuestIncluded() {
         List<Map<String, String>> groups = given()
                 .when()
-                .auth().basic("voot", "secret")
+                .auth().preemptive().basic("voot", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", MANAGE_SUB)
@@ -64,7 +64,7 @@ class VootControllerTest extends AbstractTest {
     void getGroupMembershipsOnlyGuest() {
         List<Map<String, String>> groups = given()
                 .when()
-                .auth().basic("voot", "secret")
+                .auth().preemptive().basic("voot", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", INVITER_SUB)

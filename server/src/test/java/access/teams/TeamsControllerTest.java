@@ -49,7 +49,7 @@ class TeamsControllerTest extends AbstractTest {
 
         given()
                 .when()
-                .auth().basic("teams", "secret")
+                .auth().preemptive().basic("teams", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
@@ -84,7 +84,7 @@ class TeamsControllerTest extends AbstractTest {
         Membership harryDoe = memberships.stream().filter(m -> m.getPerson().getName().equals("Harry Doe")).findFirst().get();
         List<Map<String, String>> groups = given()
                 .when()
-                .auth().basic("voot", "secret")
+                .auth().preemptive().basic("voot", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", harryDoe.getPerson().getUrn())
@@ -122,7 +122,7 @@ class TeamsControllerTest extends AbstractTest {
 
         given()
                 .when()
-                .auth().basic("teams", "secret")
+                .auth().preemptive().basic("teams", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)

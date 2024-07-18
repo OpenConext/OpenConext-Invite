@@ -22,7 +22,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
         stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
         List<Map<String, String>> roles = given()
                 .when()
-                .auth().basic("aa", "secret")
+                .auth().preemptive().basic("aa", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
@@ -39,7 +39,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
         stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
         List<Map<String, String>> roles = given()
                 .when()
-                .auth().basic("aa", "secret")
+                .auth().preemptive().basic("aa", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", MANAGE_SUB)
@@ -56,7 +56,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
         stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
         List<Map<String, String>> roles = given()
                 .when()
-                .auth().basic("aa", "secret")
+                .auth().preemptive().basic("aa", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", "nope")
@@ -73,7 +73,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
         stubForManageProviderByEntityID(EntityType.OIDC10_RP, "nope");
         List<Map<String, String>> roles = given()
                 .when()
-                .auth().basic("aa", "secret")
+                .auth().preemptive().basic("aa", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
