@@ -37,7 +37,8 @@ jobs:
       - name: Set up MySQL
         uses: shogo82148/actions-setup-mysql@v1
         with:
-          mysql-version: '8.3'
+          distribution: "mariadb"
+          mysql-version: "10.6"
       - run: |
           mysql -uroot -h127.0.0.1 -e \
           "CREATE DATABASE invite CHARACTER SET utf8mb4 \
