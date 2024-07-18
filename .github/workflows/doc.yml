@@ -56,12 +56,12 @@ jobs:
       - name: Prepare database
         run: |
           mysql -uroot -h127.0.0.1 -e \
-          "CREATE DATABASE access CHARACTER SET utf8mb4 \
+          "CREATE DATABASE invite CHARACTER SET utf8mb4 \
           COLLATE utf8mb4_0900_ai_ci;"
           mysql -uroot -h127.0.0.1 -e \
-          "CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';";
+          "CREATE USER 'invite'@'localhost' IDENTIFIED BY 'secret';";
           mysql -uroot -h127.0.0.1 -e \
-          "GRANT ALL privileges ON access.* TO 'access'@'localhost';"
+          "GRANT ALL privileges ON invite.* TO 'invite'@'localhost';"
         if: ${{ steps.changes.outputs.server == 'true' ||  github.event_name == 'workflow_dispatch' }}
 
       - name: Generate openapi.json

@@ -40,14 +40,14 @@ jobs:
           mysql-version: '8.3'
       - run: |
           mysql -uroot -h127.0.0.1 -e \
-          "CREATE DATABASE access CHARACTER SET utf8mb4 \
+          "CREATE DATABASE invite CHARACTER SET utf8mb4 \
           COLLATE utf8mb4_0900_ai_ci;"
       - run: |
           mysql -uroot -h127.0.0.1 -e \
-          "CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';";
+          "CREATE USER 'invite'@'localhost' IDENTIFIED BY 'secret';";
       - run: |
           mysql -uroot -h127.0.0.1 -e \
-          "GRANT ALL privileges ON access.* TO 'access'@'localhost';"
+          "GRANT ALL privileges ON invite.* TO 'invite'@'localhost';"
       - name: Build with Maven
         run: mvn clean install --file pom.xml
       - name: Codecov
