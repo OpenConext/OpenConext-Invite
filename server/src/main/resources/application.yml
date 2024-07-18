@@ -56,8 +56,8 @@ spring:
     show-sql: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost/access
-    username: access
+    url: jdbc:mysql://localhost/invite
+    username: invite
     password: secret
   flyway:
     locations: classpath:db/{vendor}/migration
@@ -173,7 +173,6 @@ springdoc:
       client-id: ${spring.security.oauth2.client.registration.oidcng.client-id}
       client-secret: ${spring.security.oauth2.client.registration.oidcng.client-secret}
       use-basic-authentication-with-access-code-grant: true
-
 
 management:
   health:

@@ -1,7 +1,7 @@
 # Openconext-Invite
 
-[![Build Status](https://github.com/OpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Access/actions/workflows/actions.yml/badge.svg)
-[![codecov](https://codecov.io/gh/OpenConext/OpenConext-Access/branch/main/graph/badge.svg?token=HZ7ES3TLQ9)](https://codecov.io/gh/OpenConext/OpenConext-Access)
+[![Build Status](https://github.com/OpenConext/OpenConext-Invite/actions/workflows/actions.yml/badge.svg)](https://github.com/SOpenConext/OpenConext-Invite/actions/workflows/actions.yml/badge.svg)
+[![codecov](https://codecov.io/gh/OpenConext/OpenConext-Invite/branch/main/graph/badge.svg?token=HZ7ES3TLQ9)](https://codecov.io/gh/OpenConext/OpenConext-Invite)
 
 ## [Getting started](#getting-started)
 
@@ -20,10 +20,10 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home/
 Then create the MySQL database:
 
 ```sql
-DROP DATABASE IF EXISTS access;
-CREATE DATABASE access CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-CREATE USER 'access'@'localhost' IDENTIFIED BY 'secret';
-GRANT ALL privileges ON `access`.* TO 'access'@'localhost';
+DROP DATABASE IF EXISTS invite;
+CREATE DATABASE invite CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE USER 'invite'@'localhost' IDENTIFIED BY 'secret';
+GRANT ALL privileges ON `invite`.* TO 'invite'@'localhost';
 ```
 
 ### [Building and running](#building-and-running)
