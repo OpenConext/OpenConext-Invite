@@ -53,5 +53,8 @@ jobs:
         run: mvn clean install --file pom.xml
       - name: Generate JaCoCo Badge
         uses: cicirello/jacoco-badge-generator@v2
+        with:
+          generate-branches-badge: true
+          jacoco-csv-file: "**/jacoco.csv"
       - name: Codecov
         uses: codecov/codecov-action@v4.3.0
