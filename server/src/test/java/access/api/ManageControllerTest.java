@@ -92,4 +92,25 @@ class ManageControllerTest extends AbstractTest {
         assertEquals("1", result.get("id"));
     }
 
+    @Test
+    void applicationsByInstitutionAdmin() throws Exception {
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
+        stubForManageProvisioning(List.of("1", "2", "3", "4"));
+
+        Map<String, List<Map<String, Object>>> result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/manage/applications")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(4, result.get("providers").size());
+        assertEquals(4, result.get("provisionings").size());
+    }
+
 }
