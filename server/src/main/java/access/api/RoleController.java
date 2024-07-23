@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
+import access.exception.UserRestrictionException;
 import access.logging.AccessLogger;
 import access.logging.Event;
 import access.manage.Manage;
@@ -67,23 +68,27 @@ public class RoleController {
     @GetMapping("")
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
+
         if (user.isSuperUser() && !config.isRoleSearchRequired()) {
             return ResponseEntity.ok(manage.addManageMetaData(roleRepository.findAll()));
         }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-        List<Role> roles = new ArrayList<>();
+        Set<String> manageIdentifiers = new HashSet<>();
         if (user.isInstitutionAdmin()) {
-            Set<String> manageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
-            manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
+            Set<String> applicationManageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
+            manageIdentifiers.addAll(applicationManageIdentifiers);
         }
 
-        Set<String> manageIdentifiers = user.getUserRoles().stream()
+        Set<String> roleManageIdentifiers = user.getUserRoles().stream()
                 //If the user has an userRole as Inviter, then we must exclude those
                 .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
                 .map(userRole -> userRole.getRole().applicationsUsed())
                 .flatMap(Collection::stream)
                 .map(Application::getManageId)
                 .collect(Collectors.toSet());
+        manageIdentifiers.addAll(roleManageIdentifiers);
+
+        List<Role> roles = new ArrayList<>();
         manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
@@ -96,6 +101,30 @@ public class RoleController {
         manage.addManageMetaData(List.of(role));
         return ResponseEntity.ok(role);
     }
+
+    @GetMapping("/application/{manageId}")
+    public ResponseEntity<List<Role>> rolesPerApplicationId(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/rolesPerApplicationId for user %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+
+        if (!user.isSuperUser()) {
+            Set<String> applicationManageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
+            Set<String> roleManageIdentifiers = user.getUserRoles().stream()
+                    //If the user has an userRole as Inviter, then we must exclude those
+                    .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
+                    .map(userRole -> userRole.getRole().applicationsUsed())
+                    .flatMap(Collection::stream)
+                    .map(Application::getManageId)
+                    .collect(Collectors.toSet());
+            applicationManageIdentifiers.addAll(roleManageIdentifiers);
+            if (!applicationManageIdentifiers.contains(manageId)) {
+                throw new UserRestrictionException();
+            }
+        }
+        List<Role> roles = roleRepository.findByApplicationUsagesApplicationManageId(manageId);
+        return ResponseEntity.ok(manage.addManageMetaData(roles));
+    }
+
 
     @GetMapping("search")
     public ResponseEntity<List<Role>> search(@RequestParam(value = "query") String query,

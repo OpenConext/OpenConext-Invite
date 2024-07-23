@@ -8,6 +8,7 @@ import access.model.Authority;
 import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.RoleRepository;
+import access.security.InstitutionAdmin;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -74,8 +75,11 @@ public class ManageController {
 
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
-        UserPermissions.assertSuperUser(user);
-        List<Application> applications = applicationRepository.findAll();
+        UserPermissions.assertInstitutionAdmin(user);
+        List<Application> applications = user.isSuperUser() ?
+                applicationRepository.findAll() :
+                applicationRepository.findByManageIdIn(user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList()));
+
         Map<EntityType, List<Application>> groupedByManageType = applications.stream().collect(Collectors.groupingBy(Application::getManageType));
 
         List<Map<String, Object>> providers = groupedByManageType.entrySet().stream()

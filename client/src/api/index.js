@@ -149,13 +149,17 @@ export function allProviders() {
     return fetchJson("/api/v1/manage/providers");
 }
 
-export function applications() {
+export function allApplications() {
     return fetchJson("/api/v1/manage/applications")
 }
 
 //Roles
 export function rolesByApplication() {
     return fetchJson("/api/v1/roles");
+}
+
+export function rolesPerApplicationManageId(manageId) {
+    return fetchJson(`/api/v1/roles/application/${manageId}`);
 }
 
 export function roleByID(roleID, showErrorDialog=true) {

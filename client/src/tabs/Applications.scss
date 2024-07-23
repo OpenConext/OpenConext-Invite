@@ -10,18 +10,31 @@ div.mod-applications {
                     width: 5%;
                 }
                 &.name {
-                    width: 25%;
+                    width: 20%;
                 }
-                &.provider {
-                    width: 35%;
+
+                &.type {
+                    width: 15%;
                 }
-                &.provisioning {
-                    width: 35%;
+
+                &.organization {
+                    width: 20%;
+                }
+
+                &.roles {
+                    width: 20%;
+                }
+
+                &.provisionings {
+                    width: 20%;
                 }
             }
         }
         tbody {
             td {
+                a {
+                    font-weight: normal;
+                }
                 &.logo {
                     img {
                         width: 40px;

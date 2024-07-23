@@ -179,7 +179,24 @@ const en = {
         }
     },
     applications: {
-        searchPlaceHolder: "Search for roles"
+        title: "Access Roles for this application",
+        new: "New Access Role",
+        searchPlaceHolder: "Search for applications",
+        name:"Application name",
+        types: {
+            saml20_sp: "Service Provider",
+            oidc10_rp: "Relying Party"
+        },
+        type:"Type",
+        organization: "Organization",
+        url: "URL",
+        roles: "Roles",
+        provisionings: "Provisionings",
+        accessRole: "Access Role",
+    },
+    applicationRoles: {
+        searchPlaceHolder: "Search for Access Roles",
+        noEntities: "No access roles found",
     },
     userRoles: {
         found: "{{count}} {{plural}} found",

@@ -23,7 +23,9 @@ export const RolesUnknownInManage = () => {
         if (isUserAllowed(AUTHORITIES.SUPER_USER, user)) {
             rolesUnknownInManage()
                 .then(res => {
-                    deriveApplicationAttributes(res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"))
+                    res.forEach(role =>
+                        deriveApplicationAttributes(role, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"))
+                    );
                     setRoles(res);
                     setLoading(false);
                 })

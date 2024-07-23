@@ -313,6 +313,24 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void searchAllUsersByApplication() throws Exception {
+        //Institution admin is enriched with Manage information
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        List<Map<String, Object>> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "owl")
+                .get("/api/v1/users/search-by-application")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, users.size());
+    }
+
+    @Test
     void otherByInstitutionAdmin() throws Exception {
         //Institution admin is enriched with Manage information
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);

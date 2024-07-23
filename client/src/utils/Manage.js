@@ -76,3 +76,48 @@ export const providerInfo = provider => {
     return provider;
 }
 
+export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles, locale = "en") => {
+    /**
+     * We want the following structure for the providers, provisionings and roles:
+     *
+     *     const app = {
+     *         "id": "2",
+     *         "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
+     *         "name": "Calendar EN",
+     *         "type": "oidc10_rp",
+     *         "organization": "SURF bv",
+     *         "url": "https://default-url-calendar.org",
+     *         "roles": [
+     *              "id": 3920,
+     *              "name": "Mail",
+     *              "landingPage": "https://landingpage.com"
+     *         ],
+     *         "provisionings": [
+     *             "name": "SCIM Hardewijk"
+     *             "provisioningType": "scim",
+     *         ]
+     *     }
+     */
+    return providers.map(provider => ({
+        id: provider.id,
+        logo: provider.logo,
+        name: locale === "en" ? provider["name:en"] || provider["name:nl"] : provider["name:nl"] || provider["name:en"],
+        type: provider.type,
+        organization: locale === "en" ? provider["OrganizationName:en"] || provider["OrganizationName:nl"] : provider["OrganizationName:nl"] || provider["OrganizationName:en"],
+        url: provider.url,
+        roles: roles
+            .filter(role => role.applicationUsages.some(appUsage => appUsage.application.manageId === provider.id))
+            .map(role => ({
+                id: role.id,
+                name: role.name,
+                landingPage: role.applicationUsages.find(appUsage => appUsage.application.manageId === provider.id).landingPage
+            })),
+        provisionings: provisionings
+            .filter(prov => prov.applications.some(app => app.id === provider.id))
+            .map(prov => ({
+                provisioningType: prov.provisioning_type,
+                name: locale === "en" ? prov["name:en"] || prov["name:nl"] : prov["name:nl"] || prov["name:en"],
+            }))
+    }))
+}
+

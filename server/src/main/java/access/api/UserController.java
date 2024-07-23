@@ -137,11 +137,13 @@ public class UserController {
     @GetMapping("search-by-application")
     public ResponseEntity<List<UserRoles>> searchByApplication(@RequestParam(value = "query") String query,
                                                                @Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/searchByApplication for user %s", user.getEduPersonPrincipalName()));
+        LOG.debug(String.format("/searchByApplication for user %s and query %s", user.getEduPersonPrincipalName(), query));
+
         UserPermissions.assertInstitutionAdmin(user);
         List<String> manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList());
-        List<Map<String, Object>> results = userRepository
-                .searchByApplication(manageIdentifiers, query.replaceAll("@", " ") + "*", 15);
+        List<Map<String, Object>> results = query.equals("owl") ?
+                userRepository.searchByApplicationAllUsers(manageIdentifiers) :
+                userRepository.searchByApplication(manageIdentifiers, query.replaceAll("@", " ") + "*", 15);
         //There are duplicate users in the results, need to group by ID
         Map<Long, List<Map<String, Object>>> groupedBy = results.stream().collect(Collectors.groupingBy(map -> (Long) map.get("id")));
         List<UserRoles> userRoles = groupedBy.values().stream()

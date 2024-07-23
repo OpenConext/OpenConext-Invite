@@ -178,7 +178,24 @@ const nl = {
             andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."        }
     },
     applications: {
-        searchPlaceHolder: "Zoek rollen"
+        title: "Access Roles voor deze applicatie",
+        new: "Nieuwe Access Role",
+        searchPlaceHolder: "Zoek naar applications",
+        name:"Application naam",
+        types: {
+            saml20_sp: "Service Provider",
+            oidc10_rp: "Relying Party"
+        },
+        type:"Type",
+        organization: "Organisatie",
+        url: "URL",
+        roles: "Rollen",
+        provisionings: "Provisionings",
+        accessRole: "Access Rol",
+    },
+    applicationRoles: {
+        searchPlaceHolder: "Zoek naar Access Rollen",
+        noEntities: "Geen access rollen gevonden",
     },
     userRoles: {
         found: "{{count}} {{plural}} gevonden",

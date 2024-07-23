@@ -1,0 +1,65 @@
+.mod-application-container {
+    .meta-data {
+        .meta-data-row {
+            display: flex;
+            margin-top: 10px;
+            align-items: center;
+
+            svg {
+                width: 24px;
+                height: auto;
+                margin-right: 15px;
+
+                &.info-svg {
+                    width: 16px;
+                    margin-left: 5px;
+                }
+            }
+
+            &.unknown-in-manage {
+                color: var(--sds--color--red--500);
+                font-weight: 600;
+            }
+        }
+    }
+    table.applicationRoles {
+        thead {
+            th {
+                &.name {
+                    width: 25%;
+                }
+
+                &.description {
+                    width: 40%;
+                }
+
+                &.authority {
+                    width: 15%;
+                    text-align: center;
+                }
+
+                &.userRoleCount {
+                    width: 15%;
+                    text-align: center;
+                }
+
+            }
+        }
+
+        tbody {
+            td.authority, td.defaultExpiryDays, td.userRoleCount {
+                text-align: center;
+            }
+
+            .unknown-in-manage {
+                color: var(--sds--color--red--500);
+                font-weight: 600;
+                svg {
+                    margin-left: 15px;
+                }
+            }
+
+        }
+
+    }
+}

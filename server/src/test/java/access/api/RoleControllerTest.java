@@ -10,6 +10,7 @@ import access.model.Role;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -447,6 +448,61 @@ class RoleControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(6, roles.size());
+    }
+
+    @Test
+    void rolesPerApplicationId() throws Exception {
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        List<Role> roles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("manageId", "2")
+                .get("/api/v1/roles/application/{manageId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, roles.size());
+    }
+
+    @Test
+    void rolesPerApplicationIdNotAllowed() throws Exception {
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("manageId", "6")
+                .get("/api/v1/roles/application/{manageId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void rolesPerApplicationIdSuperUser() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("3"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("6"));
+
+        List<Role> roles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("manageId", "6")
+                .get("/api/v1/roles/application/{manageId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, roles.size());
+        assertEquals(2, roles.get(0).getApplicationUsages().size());
     }
 
 }

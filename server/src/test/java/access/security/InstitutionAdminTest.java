@@ -24,9 +24,14 @@ class InstitutionAdminTest {
         assertFalse(InstitutionAdmin.isInstitutionAdmin(user));
 
         user.setOrganizationGUID(UUID.randomUUID().toString());
+        assertTrue(InstitutionAdmin.isInstitutionAdmin(user));
+
+        user.setInstitutionAdminByInvite(true);
+        user.setOrganizationGUID(null);
         assertFalse(InstitutionAdmin.isInstitutionAdmin(user));
 
         user.setInstitutionAdminByInvite(true);
+        user.setOrganizationGUID(UUID.randomUUID().toString());
         assertTrue(InstitutionAdmin.isInstitutionAdmin(user));
     }
 

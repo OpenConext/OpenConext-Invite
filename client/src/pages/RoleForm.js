@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
@@ -31,7 +31,7 @@ const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
 
 export const RoleForm = () => {
-
+    const location = useLocation();
     const navigate = useNavigate();
     const {id} = useParams();
     const nameRef = useRef();
@@ -75,16 +75,18 @@ export const RoleForm = () => {
                     setRole(res[0]);
                     setCustomRoleExpiryDate(res[0].defaultExpiryDays !== DEFAULT_EXPIRY_DAYS)
                 }
+                let providers;
                 if (user.superUser) {
-                    setProviders(providersToOptions(res[newRole ? 0 : 1]));
+                    providers = providersToOptions(res[newRole ? 0 : 1]);
                 } else if (user.institutionAdmin) {
-                    setProviders(providersToOptions(distinctValues(user.applications.concat(
+                    providers = providersToOptions(distinctValues(user.applications.concat(
                         user.userRoles.map(userRole => userRole.role.applicationMaps).flat()
-                    ), "id")));
+                    ), "id"));
                 } else {
-                    setProviders(providersToOptions(distinctValues(user.userRoles
-                        .map(userRole => userRole.role.applicationMaps).flat(), "id")));
+                    providers = providersToOptions(distinctValues(user.userRoles
+                        .map(userRole => userRole.role.applicationMaps).flat(), "id"));
                 }
+                setProviders(providers);
                 setNewRole(newRole);
                 const name = newRole ? "" : res[0].name;
                 const breadcrumbPath = [
@@ -93,6 +95,11 @@ export const RoleForm = () => {
                 ];
                 if (newRole) {
                     setApplications([null]);
+                    if (location.state) {
+                        setApplications(providers.filter(provider => provider.value === location.state));
+                    } else {
+                        setApplications([null]);
+                    }
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
 

@@ -25,6 +25,7 @@ import {MissingAttributes} from "./MissingAttributes";
 import {System} from "./System";
 import {Inviter} from "./Inviter";
 import {InvitationOverview} from "./InvitationOverview";
+import {Application} from "./Application";
 
 
 export const App = () => {
@@ -99,6 +100,7 @@ export const App = () => {
                         <Route path="invitations/:tab?" element={<InvitationOverview/>}/>
                         <Route path="inviter" element={<Inviter/>}/>
                         <Route path="roles/:id/:tab?" element={<Role/>}/>
+                        <Route path="applications/:manageId" element={<Application/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>

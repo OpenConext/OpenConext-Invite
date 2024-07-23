@@ -13,11 +13,11 @@ import {useNavigate, useParams} from "react-router-dom";
 import {Users} from "../tabs/Users";
 import {Page} from "../components/Page";
 import {Roles} from "../tabs/Roles";
-import Applications from "../tabs/Applications";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import {Loader} from "@surfnet/sds";
 import {Tokens} from "../tabs/Tokens";
 import {ApplicationUsers} from "../tabs/ApplicationUsers";
+import Applications from "../tabs/Applications";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
@@ -68,6 +68,14 @@ export const Home = () => {
             );
         }
         if (user && user.institutionAdmin && user.organizationGUID) {
+            newTabs.push(
+                <Page key="applications"
+                      name="applications"
+                      label={I18n.t("tabs.applications")}
+                      Icon={ApplicationLogo}>
+                    <Applications/>
+                </Page>
+            );
             newTabs.push(
                 <Page key="applicationUsers"
                       name="applicationUsers"
