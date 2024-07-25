@@ -82,7 +82,7 @@ config:
   client-url: "https://invite.dev.openconext.local"
   welcome-url: "https://welcome.dev.openconext.local"
   server-url: "https://invite.dev.openconext.local"
-  server-welcome-url: "http://localhost:8888"
+  server-welcome-url: "https://welcome.dev.openconext.local"
   eduid-entity-id: "https://login.dev.openconext.local"
   role-search-required: False
   past-date-allowed: True
