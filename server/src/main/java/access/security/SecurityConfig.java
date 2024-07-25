@@ -188,7 +188,8 @@ public class SecurityConfig {
                         "/api/aa/**",
                         "/api/external/v1/aa/**",
                         "/api/deprovision/**",
-                        "/api/external/v1/deprovision/**")
+                        "/api/external/v1/deprovision/**",
+                        "/api/external/v1/roles")
                 .sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

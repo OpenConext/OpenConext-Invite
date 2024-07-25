@@ -435,6 +435,25 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void createWithAPIUser() throws Exception {
+        Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManageProvisioning(List.of("1"));
+        super.stubForCreateScimRole();
+
+        Map result = given()
+                .when()
+                .auth().preemptive().basic("voot", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/external/v1/roles")
+                .as(Map.class);
+        assertNotNull(result.get("id"));
+    }
+
+    @Test
     void rolesByApplicationSuperUserWithAPIToken() {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
         super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));

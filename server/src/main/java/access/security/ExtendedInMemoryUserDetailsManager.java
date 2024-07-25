@@ -32,6 +32,7 @@ public class ExtendedInMemoryUserDetailsManager implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         RemoteUser remoteUser = users.get(username);
+        //Need to make copy, otherwise the password is erased. See RemoteUser#CredentialsContainer
         return remoteUser != null ? new RemoteUser(remoteUser) : null;
     }
 }

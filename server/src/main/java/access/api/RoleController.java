@@ -13,6 +13,7 @@ import access.provision.scim.GroupURN;
 import access.repository.ApplicationRepository;
 import access.repository.ApplicationUsageRepository;
 import access.repository.RoleRepository;
+import access.security.RemoteUser;
 import access.security.UserPermissions;
 import access.validation.URLFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -136,7 +139,10 @@ public class RoleController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Role> newRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
+    public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
+                                        @Parameter(hidden = true, required = true) User user,
+                                        @AuthenticationPrincipal RemoteUser remoteUser) {
+        //TODO differentiate between RemoteUser and User
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
