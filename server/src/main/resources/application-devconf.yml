@@ -1,0 +1,132 @@
+---
+server:
+  port: 8080
+  error:
+    path: "/error"
+    include-message: always
+  forward-headers-strategy: native
+  servlet:
+    session:
+      cookie:
+        secure: false
+
+spring:
+  main:
+    banner-mode: "off"
+  session:
+    jdbc:
+      cleanup-cron: "-"
+      initialize-schema: always
+    store-type: jdbc
+    timeout: 8h
+  mvc:
+    log-request-details: false
+  security:
+    oauth2:
+      client:
+        registration:
+          oidcng:
+            client-id: invite.dev.openconext.local
+            client-secret: secretsecret
+            redirect-uri: "https://{baseHost}{basePort}{basePath}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: "authorization_code"
+            scope: openid
+        provider:
+          oidcng:
+            authorization-uri: "https://connect.dev.openconext.local/oidc/authorize"
+            token-uri: "https://connect.dev.openconext.local/oidc/token"
+            user-info-uri: "https://connect.dev.openconext.local/oidc/userinfo"
+            jwk-set-uri: "https://connect.dev.openconext.local/oidc/certs"
+            user-name-attribute: sub
+            user-info-authentication-method: client_secret_basic
+  jpa:
+    properties:
+      hibernate:
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    show-sql: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mariadb/invite
+    username: inviterw
+    password: secret
+  flyway:
+    locations: classpath:db/{vendor}/migration
+    fail-on-missing-locations: true
+  mail:
+    host: localhost
+    port: 1025
+
+oidcng:
+  discovery-url: "https://connect.dev.openconext.local/oidc/.well-known/openid-configuration"
+  introspect-url: "https://connect.dev.openconext.local/oidc/introspect"
+  resource-server-id: inviters.dev.openconext.local
+  resource-server-secret: secretsecret
+  base-url: https://invite.dev.openconext.local
+
+super-admin:
+  users:
+    - "urn:collab:person:example.com:admin"
+
+institution-admin:
+  entitlement: "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke"
+  organization-guid-prefix: "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:"
+
+gui:
+  disclaimer:
+    background-color: red
+    content: DEV
+
+config:
+  client-url: "https://invite.dev.openconext.local"
+  welcome-url: "https://welcome.dev.openconext.local"
+  server-url: "https://invite.dev.openconext.local"
+  server-welcome-url: "https://welcome.dev.openconext.local"
+  eduid-entity-id: "https://login.dev.openconext.local"
+  role-search-required: False
+  past-date-allowed: True
+  eduid-idp-schac-home-organization: "dev.eduid.nl"
+
+# We don't encode in-memory passwords, so we need to prefix them with {noop}
+external-api-configuration:
+  remote-users:
+    -
+      username: voot
+      password: "{noop}secret"
+      scopes:
+        - voot
+    -
+      username: teams
+      password: "secret"
+      scopes:
+        - teams
+    -
+      username: aa
+      password: "{noop}secret"
+      scopes:
+        - attribute_aggregation
+    -
+      username: lifecycle
+      password: "secret"
+      scopes:
+        - lifecycle
+    -
+      username: profile
+      password: "{noop}secret"
+      scopes:
+        - profile
+
+voot:
+  group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
+
+manage:
+#  enabled: True
+  enabled: False
+  url: "https://manage.dev.openconext.local"
+  user: invite
+  password: secret
+  local: False
+# If you want to run the mock Manage against a git ignored file with sensitive data, e.g. manage/provisioning.local.json file
+#  local: True
+

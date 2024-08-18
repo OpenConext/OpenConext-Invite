@@ -152,6 +152,15 @@ email:
   environment: "local"
   enabled: false
 
+# The manage section determines if an external Manage is used to integrate with, or that a predefined, static list
+# of applications is loaded to populate the application dropdown in the JS new-role form.
+# To disable the integration with an external Manage instance, set enabled to False. When enabled is False the url is
+# ignored then and the different manage entities are loaded from json files in `server/src/main/resources/manage`.
+# Each *.json file in this directory corresponds with the contents of that specific entity_type.
+# To test the provisioning (e.g. SCIM, EVA, Graphp) with real endpoints you can set the manage.local property below to
+# False and then the provisioning.local.json file is used which is not in git as it is n .gitignore. You can safely
+# configure real users / passwords and test against those. See server/src/main/java/access/manage/ManageConf.java
+# and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
 #  enabled: True
   enabled: False
