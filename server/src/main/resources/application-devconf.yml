@@ -129,4 +129,3 @@ manage:
   local: False
 # If you want to run the mock Manage against a git ignored file with sensitive data, e.g. manage/provisioning.local.json file
 #  local: True
-
