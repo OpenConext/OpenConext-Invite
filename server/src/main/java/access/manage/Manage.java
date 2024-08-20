@@ -125,8 +125,9 @@ public interface Manage {
                 .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
                 .collect(Collectors.toSet())
                 .stream()
-                .map(manageIdentifier -> {
-                    Map<String, Object> provider = providerById(manageIdentifier.manageType(), manageIdentifier.manageId());
+                .map(manageIdentifier -> providerById(manageIdentifier.manageType(), manageIdentifier.manageId()))
+                .filter(provider -> !CollectionUtils.isEmpty(provider))
+                .map(provider -> {
                     String id = (String) provider.get("id");
                     return new GroupedProviders(
                             provider,

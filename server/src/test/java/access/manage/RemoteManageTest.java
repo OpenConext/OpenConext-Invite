@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RemoteManageTest extends AbstractTest {
 
@@ -62,6 +63,15 @@ class RemoteManageTest extends AbstractTest {
         providers.forEach(provider -> provider.values().removeIf(Objects::isNull));
         remoteProviders.forEach(provider -> provider.values().removeIf(Objects::isNull));
         assertEquals(providers, remoteProviders);
+    }
+
+    @Test
+    void providerByIdExceptionHandling() {
+        stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withStatus(404)));
+        Map<String, Object> remoteProvider = manage.providerById(EntityType.SAML20_SP, "1");
+        assertNull(remoteProvider);
     }
 
 }

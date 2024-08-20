@@ -29,6 +29,7 @@ public class RemoteUser implements UserDetails, CredentialsContainer {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        //Convention dictates upperCase Role names to be used in @PreAuthorize annotations
         return scopes.stream()
                 .map(scope -> new SimpleGrantedAuthority("ROLE_" + scope.toUpperCase()))
                 .collect(Collectors.toList());

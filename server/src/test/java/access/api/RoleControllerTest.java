@@ -12,6 +12,7 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -432,6 +433,27 @@ class RoleControllerTest extends AbstractTest {
                 .then()
                 .statusCode(204);
         assertEquals(0, roleRepository.search("wiki", 1).size());
+    }
+
+    @Test
+    void createWithAPIUser() throws Exception {
+        Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManageProvisioning(List.of("1"));
+        super.stubForCreateScimRole();
+
+        given()
+                .when()
+                .auth().preemptive().basic("voot", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/external/v1/roles")
+                .then()
+                .statusCode(400);
+        //TODO
+//        assertNotNull(result.get("id"));
     }
 
     @Test
