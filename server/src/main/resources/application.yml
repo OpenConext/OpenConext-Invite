@@ -158,7 +158,7 @@ email:
 # ignored then and the different manage entities are loaded from json files in `server/src/main/resources/manage`.
 # Each *.json file in this directory corresponds with the contents of that specific entity_type.
 # To test the provisioning (e.g. SCIM, EVA, Graphp) with real endpoints you can set the manage.local property below to
-# False and then the provisioning.local.json file is used which is not in git as it is n .gitignore. You can safely
+# True and then the provisioning.local.json file is used which is not in git as it is n .gitignore. You can safely
 # configure real users / passwords and test against those. See server/src/main/java/access/manage/ManageConf.java
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:

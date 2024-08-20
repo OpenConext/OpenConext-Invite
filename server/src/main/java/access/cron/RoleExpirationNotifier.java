@@ -58,8 +58,8 @@ public class RoleExpirationNotifier  {
             List<GroupedProviders> groupedProviders = manage.getGroupedProviders(List.of(userRole.getRole()));
             GroupedProviders groupedProvider = groupedProviders.isEmpty() ? null : groupedProviders.get(0);
             String mail = mailBox.sendUserRoleExpirationNotificationMail(userRole, groupedProvider, roleExpirationNotificationDays);
-            userRole.setExpiryNotifications(1);
-            userRoleRepository.save(userRole);
+            //https://stackoverflow.com/a/75121707
+            userRoleRepository.updateExpiryNotifications(1, userRole.getId());
 
             LOG.info("Send expiration notification mail to " + userRole.getUser().getEmail());
 

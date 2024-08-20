@@ -112,8 +112,8 @@ public class TeamsController {
 
     private boolean applicationExists(Application application) {
         try {
-            manage.providerById(application.getManageType(), application.getManageId());
-            return true;
+            Map<String, Object> provider = manage.providerById(application.getManageType(), application.getManageId());
+            return provider != null;
         } catch (RuntimeException e) {
             return false;
         }

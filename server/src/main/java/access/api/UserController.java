@@ -172,7 +172,9 @@ public class UserController {
     @GetMapping("ms-accept-return/{manageId}/{userId}")
     public View msAcceptReturn(@PathVariable("manageId") String manageId, @PathVariable("userId") Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        LOG.debug(String.format("Return from MS accept. User %s",user.getEduPersonPrincipalName()));
+
+        LOG.info(String.format("Return from MS accept. User %s",user.getEduPersonPrincipalName()));
+
         Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, manageId);
         Provisioning provisioning = new Provisioning(provisioningMap);
         AtomicReference<String> redirectReference = new AtomicReference<>(this.config.getWelcomeUrl());

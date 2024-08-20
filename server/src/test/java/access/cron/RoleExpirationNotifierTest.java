@@ -37,6 +37,10 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
 
         userRole = userRoleRepository.findByRoleName("Mail").get(0);
         assertEquals(1, userRole.getExpiryNotifications());
+
+        Instant instant = Instant.now().plus(100, ChronoUnit.DAYS);
+        List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(instant, 0);
+        assertEquals(0, userRoles.size());
     }
 
     @Test

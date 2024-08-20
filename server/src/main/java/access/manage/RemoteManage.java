@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -28,6 +29,8 @@ public class RemoteManage implements Manage {
         this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
         });
         restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(user, password));
+        ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler();
+        restTemplate.setErrorHandler(resilientErrorHandler);
     }
 
     @Override

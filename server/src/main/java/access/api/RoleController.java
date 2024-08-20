@@ -140,8 +140,8 @@ public class RoleController {
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
-                                        @Parameter(hidden = true, required = true) User user,
-                                        @AuthenticationPrincipal RemoteUser remoteUser) {
+                                        @Parameter(hidden = true) User user,
+                                        @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         //TODO differentiate between RemoteUser and User
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));

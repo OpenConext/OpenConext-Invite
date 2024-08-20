@@ -58,6 +58,8 @@ public class SecurityConfig {
     private final ProvisioningService provisioningService;
     private final ExternalApiConfiguration externalApiConfiguration;
 
+    private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
+
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           InvitationRepository invitationRepository,
@@ -194,6 +196,9 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(c -> c
+                        //The API token is secured in the UserHandlerMethodArgumentResolver
+                        .requestMatchers(apiTokenRequestMatcher)
+                        .permitAll()
                         .anyRequest()
                         .authenticated()
                 )
@@ -204,7 +209,7 @@ public class SecurityConfig {
     @Bean
     @Order(3)
     SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http) throws Exception {
-        final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
+
         http.csrf(c -> c.disable())
                 .securityMatcher("/api/external/v1/**")
                 .authorizeHttpRequests(c -> c
