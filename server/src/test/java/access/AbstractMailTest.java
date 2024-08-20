@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +30,7 @@ import static org.awaitility.Awaitility.await;
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "email.enabled=true",
                 "manage.url: http://localhost:8081",
+                "manage.enabled: true"
         })
 public class AbstractMailTest extends AbstractTest {
 

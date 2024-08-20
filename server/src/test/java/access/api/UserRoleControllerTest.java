@@ -45,6 +45,20 @@ class UserRoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void byRoleNotFound() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("roleId", Integer.MAX_VALUE)
+                .get("/api/v1/user_roles/roles/{roleId}")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
     void updateEndDate() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
@@ -72,6 +86,21 @@ class UserRoleControllerTest extends AbstractTest {
                 .get();
         Instant newEndDate = updatedRole.getEndDate();
         assertEquals(365L, endDate.until(newEndDate, ChronoUnit.DAYS));
+    }
+
+    @Test
+    void updateEndDateNotFound() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new UpdateUserRole(-1L, Instant.now()))
+                .put("/api/v1/user_roles")
+                .then()
+                .statusCode(404);
     }
 
     @Test
@@ -123,6 +152,21 @@ class UserRoleControllerTest extends AbstractTest {
 
         Optional<UserRole> optionalUserRole = userRoleRepository.findById(guestUserRole.getId());
         assertFalse(optionalUserRole.isPresent());
+    }
+
+    @Test
+    void deleteUserRoleNotFound() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("userRoleId", Integer.MAX_VALUE)
+                .delete("/api/v1/user_roles/{userRoleId}")
+                .then()
+                .statusCode(404);
     }
 
     @Test
@@ -191,7 +235,7 @@ class UserRoleControllerTest extends AbstractTest {
         doUserRoleProvisioning(new UserRoleProvisioning(
                 roleIdentifiers,
                 Authority.GUEST,
-                "urn:collab:person:example.com:brandcoper",
+                "",
                 "some@domain.org",
                 "eppn@domain.org",
                 null,
@@ -199,7 +243,7 @@ class UserRoleControllerTest extends AbstractTest {
                 "Charly Green",
                 null,
                 true
-        ), "urn:collab:person:example.com:brandcoper", 2);
+        ), "urn:collab:person:domain.org:eppn", 2);
     }
 
     @Test
@@ -237,7 +281,20 @@ class UserRoleControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(2, userRoles.size());
-        System.out.println(userRoles);
+    }
+
+    @Test
+    void consequencesForDeletionNotFound() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("roleId", Integer.MAX_VALUE)
+                .get("/api/v1/user_roles/consequences/{roleId}")
+                .then()
+                .statusCode(404);
     }
 
     @Test

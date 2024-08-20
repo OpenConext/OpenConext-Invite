@@ -11,6 +11,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -129,5 +130,78 @@ class TeamsControllerTest extends AbstractTest {
                 .put("/api/teams")
                 .then()
                 .statusCode(400);
+    }
+
+    @Test
+    void migrateTeamEmptyApplications() {
+        List<Membership> memberships = List.of(new Membership());
+        Team team = new Team(
+                "nl:surfnet:diensten:test",
+                "test migration",
+                "test migration",
+                memberships,
+                List.of()
+        );
+
+        Map<String, Object> responseBody = given()
+                .when()
+                .auth().preemptive().basic("teams", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(team)
+                .put("/api/teams")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("Applications are required", responseBody.get("message"));
+    }
+
+    @Test
+    void migrateTeamInvalidPerson() {
+        List<Application> applications = List.of(new Application("999", EntityType.SAML20_SP));
+        List<Membership> memberships = List.of(new Membership());
+        Team team = new Team(
+                "nl:surfnet:diensten:test",
+                "test migration",
+                "test migration",
+                memberships,
+                applications
+        );
+
+        Map<String, Object> responseBody = given()
+                .when()
+                .auth().preemptive().basic("teams", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(team)
+                .put("/api/teams")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("Person of a membership is required", responseBody.get("message"));
+    }
+
+    @Test
+    void migrateTeamInvalidSchacHome() {
+        List<Application> applications = List.of(new Application("999", EntityType.SAML20_SP));
+        Person person = new Person();
+        Membership membership = new Membership(person, Role.MANAGER);
+        List<Membership> memberships = List.of(membership);
+        Team team = new Team(
+                "nl:surfnet:diensten:test",
+                "test migration",
+                "test migration",
+                memberships,
+                applications
+        );
+
+        Map<String, Object> responseBody = given()
+                .when()
+                .auth().preemptive().basic("teams", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(team)
+                .put("/api/teams")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("SchacHomeOrganization of a person is required", responseBody.get("message"));
     }
 }

@@ -63,16 +63,16 @@ public class TeamsController {
     @Transactional
     public ResponseEntity<Map<String, Integer>> migrateTeam(@RequestBody Team team) {
         if (CollectionUtils.isEmpty(team.getApplications())) {
-            throw new InvalidInputException("applications are required");
+            throw new InvalidInputException("Applications are required");
         }
         List<Membership> memberships = team.getMemberships();
         if (!CollectionUtils.isEmpty(memberships)) {
             memberships.forEach(membership -> {
                 if (membership.getPerson() == null) {
-                    throw new InvalidInputException("person of a membership is required");
+                    throw new InvalidInputException("Person of a membership is required");
                 }
                 if (membership.getPerson().getSchacHomeOrganization() == null) {
-                    throw new InvalidInputException("schacHomeOrganization of a person is required");
+                    throw new InvalidInputException("SchacHomeOrganization of a person is required");
                 }
             });
         }

@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.removeAllMappings;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,6 +42,23 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
         Instant instant = Instant.now().plus(100, ChronoUnit.DAYS);
         List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(instant, 0);
         assertEquals(0, userRoles.size());
+    }
+
+    @Test
+    void sweepNonExistentGroupProvider() {
+        UserRole userRole = userRoleRepository.findByRoleName("Mail").get(0);
+        userRole.setEndDate(Instant.now().minus(7, ChronoUnit.DAYS));
+        //Mock 404 from Manage
+        super.stubForManageProviderByIdNotFound(EntityType.OIDC10_RP, "5");
+
+        userRoleRepository.save(userRole);
+
+        roleExpirationNotifier.sweep();
+
+        MimeMessageParser messageParser = super.mailMessage();
+        String htmlContent = messageParser.getHtmlContent();
+        // Assert that an NULL groupedProvider is handled correctly
+        assertTrue(htmlContent.contains("Your Inviter role Mail will expire"));
     }
 
     @Test

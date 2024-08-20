@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import java.net.URISyntaxException;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
@@ -40,7 +39,7 @@ public class DefaultErrorController implements ErrorController {
     }
 
     @RequestMapping("/error")
-    public ResponseEntity error(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
         WebRequest webRequest = new ServletWebRequest(request);
         Map<String, Object> result = this.errorAttributes.getErrorAttributes(
                 webRequest,
@@ -69,7 +68,6 @@ public class DefaultErrorController implements ErrorController {
                 statusCode = annotation != null ? annotation.value() : BAD_REQUEST;
             }
         }
-        result.remove("message");
         result.put("status", statusCode.value());
         return ResponseEntity.status(statusCode).body(result);
     }

@@ -102,8 +102,9 @@ public class MailBox {
         Map<String, Object> variables = new HashMap<>();
         variables.put("title", title);
         variables.put("userRole", userRole);
-        variables.put("groupedProvider", groupedProvider);
-        variables.put("groupedProviders", List.of(groupedProvider));
+        if (groupedProvider != null) {
+            variables.put("groupedProvider", groupedProvider);
+        }
         variables.put("nbrOfDays", nbrOfDays);
         variables.put("contactEmail", contactEmail);
         variables.put("authority", userRole.getAuthority().translate(lang));

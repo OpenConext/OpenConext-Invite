@@ -377,6 +377,14 @@ public abstract class AbstractTest {
     }
 
     @SneakyThrows
+    protected void stubForManageProviderByIdNotFound(EntityType entityType, String id) {
+        String path = String.format("/manage/api/internal/metadata/%s/%s", entityType.name().toLowerCase(), id);
+        stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withStatus(404)));
+    }
+
+    @SneakyThrows
     protected void stubForManagerProvidersByIdIn(EntityType entityType, List<String> identifiers) {
         String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*", entityType.name().toLowerCase());
         List<Map<String, Object>> providers = localManage.providersByIdIn(entityType, identifiers);
