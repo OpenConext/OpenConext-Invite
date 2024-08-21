@@ -1,11 +1,9 @@
 package access.cron;
 
 import access.AbstractMailTest;
-import access.AbstractTest;
 import access.mail.MimeMessageParser;
 import access.manage.EntityType;
 import access.model.UserRole;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,7 +11,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.removeAllMappings;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

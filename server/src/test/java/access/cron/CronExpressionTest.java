@@ -1,12 +1,10 @@
 package access.cron;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.scheduling.support.CronExpression;
 
-import java.util.Locale;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CronExpressionTest {
 

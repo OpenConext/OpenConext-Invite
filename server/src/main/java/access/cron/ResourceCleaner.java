@@ -3,10 +3,10 @@ package access.cron;
 
 import access.model.User;
 import access.model.UserRole;
+import access.provision.ProvisioningService;
+import access.provision.scim.OperationType;
 import access.repository.UserRepository;
 import access.repository.UserRoleRepository;
-import access.provision.scim.OperationType;
-import access.provision.ProvisioningService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

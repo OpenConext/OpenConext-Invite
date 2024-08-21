@@ -1,6 +1,8 @@
 package access.provision;
 
-import access.model.*;
+import access.model.Role;
+import access.model.User;
+import access.model.UserRole;
 import access.provision.graph.GraphResponse;
 import access.provision.scim.OperationType;
 

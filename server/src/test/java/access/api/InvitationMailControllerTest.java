@@ -3,14 +3,11 @@ package access.api;
 import access.AbstractMailTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
-import access.model.AcceptInvitation;
 import access.model.Authority;
 import access.model.Invitation;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
-import static access.AbstractTest.INVITER_SUB;
-import static access.AbstractTest.MANAGE_SUB;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

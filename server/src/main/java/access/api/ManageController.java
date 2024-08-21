@@ -8,7 +8,6 @@ import access.model.Authority;
 import access.model.User;
 import access.repository.ApplicationRepository;
 import access.repository.RoleRepository;
-import access.security.InstitutionAdmin;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

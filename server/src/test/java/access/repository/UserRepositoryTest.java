@@ -2,7 +2,6 @@ package access.repository;
 
 import access.AbstractTest;
 import access.model.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
 

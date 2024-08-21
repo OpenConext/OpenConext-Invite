@@ -1,17 +1,13 @@
 package access.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import jakarta.persistence.*;
-
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Entity(name = "invitation_roles")
 @NoArgsConstructor

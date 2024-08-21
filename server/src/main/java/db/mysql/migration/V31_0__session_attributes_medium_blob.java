@@ -5,8 +5,6 @@ import org.flywaydb.core.api.migration.Context;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 //Only change the column of the table exists, otherwise the CI build fails
 public class V31_0__session_attributes_medium_blob extends BaseJavaMigration {
 

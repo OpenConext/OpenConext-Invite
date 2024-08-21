@@ -1,19 +1,21 @@
 package access.provision;
 
 import access.AbstractTest;
-import access.model.*;
+import access.model.Authority;
+import access.model.RemoteProvisionedUser;
+import access.model.User;
+import access.model.UserRole;
 import access.provision.scim.OperationType;
-import access.provision.scim.UserRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static access.AbstractTest.GUEST_SUB;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProvisioningServiceDefaultTest extends AbstractTest {

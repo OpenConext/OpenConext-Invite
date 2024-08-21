@@ -3,13 +3,9 @@ package access.repository;
 import access.AbstractTest;
 import access.manage.EntityType;
 import access.model.Application;
-import access.model.Role;
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ApplicationRepositoryTest extends AbstractTest {
 

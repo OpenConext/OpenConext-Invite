@@ -10,8 +10,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 
-import static access.AbstractTest.GUEST_SUB;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ResourceCleanerTest extends AbstractTest {
 

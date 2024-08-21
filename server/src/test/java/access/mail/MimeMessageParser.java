@@ -1,34 +1,17 @@
 package access.mail;
 
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
 import jakarta.mail.Part;
-import jakarta.mail.internet.ContentType;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.internet.MimePart;
-import jakarta.mail.internet.MimeUtility;
-import jakarta.mail.internet.ParseException;
+import jakarta.mail.internet.*;
 import jakarta.mail.util.ByteArrayDataSource;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * Parses a MimeMessage and stores the individual parts such a plain text,

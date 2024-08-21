@@ -1,7 +1,5 @@
 package access.validation;
 
-import org.springframework.util.StringUtils;
-
 import java.util.regex.Pattern;
 
 public class URLFormatValidator implements FormatValidator {

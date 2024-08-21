@@ -1,6 +1,9 @@
 package access.lifecycle;
 
+import access.model.User;
+import access.model.UserRole;
 import access.provision.ProvisioningService;
+import access.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import access.model.*;
-import access.repository.*;
 
 import java.util.*;
 
