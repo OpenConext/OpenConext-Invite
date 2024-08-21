@@ -167,9 +167,10 @@ manage:
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret
-  local: False
-# If you want to run the mock Manage against a git ignored file with sensitive data, e.g. manage/provisioning.local.json file
-#  local: True
+# If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
+# are located. This can also be an absolute file path, e.g. file:///opt/openconext/oidc-playground/manage
+  staticManageDirectory: classpath:/manage
+#  staticManageDirectory: file:///usr/local/etc/manage
 
 springdoc:
   pathsToMatch: "/api/external/v1/**"

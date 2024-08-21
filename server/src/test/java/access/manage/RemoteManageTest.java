@@ -18,8 +18,6 @@ class RemoteManageTest extends AbstractTest {
     @Autowired
     private Manage manage;
 
-    private final boolean local = false;
-
     @Override
     protected boolean seedDatabase() {
         return false;
@@ -27,7 +25,6 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void providers() throws JsonProcessingException {
-        LocalManage localManage = new LocalManage(objectMapper, local);
         List<Map<String, Object>> serviceProviders = localManage.providers(EntityType.SAML20_SP);
         String body = objectMapper.writeValueAsString(serviceProviders);
         stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_sp")).willReturn(aResponse()
@@ -39,7 +36,6 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void providerById() throws JsonProcessingException {
-        LocalManage localManage = new LocalManage(objectMapper, local);
         Map<String, Object> provider = localManage.providerById(EntityType.SAML20_SP, "1");
         String body = objectMapper.writeValueAsString(provider);
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
@@ -53,7 +49,6 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void providersByIdIn() throws JsonProcessingException {
-        LocalManage localManage = new LocalManage(objectMapper, local);
         List<Map<String, Object>> providers = localManage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
         String body = objectMapper.writeValueAsString(providers);
         stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()

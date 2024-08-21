@@ -21,7 +21,7 @@ class GraphClientTest {
             "test.eduid.nl",
             new RSAKeyStore(),
             new ObjectMapper());
-    final LocalManage localManage = new LocalManage( ObjectMapperHolder.objectMapper, false);
+    final LocalManage localManage = new LocalManage(ObjectMapperHolder.objectMapper);
 
     @Test
     void newUserRequest() {

@@ -3,8 +3,12 @@ package access.manage;
 import access.exception.NotFoundException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
 import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -17,22 +21,24 @@ import static java.util.Collections.emptyList;
 public final class LocalManage implements Manage {
 
     private final Map<EntityType, List<Map<String, Object>>> allProviders;
-    private final boolean local;
+    private final DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();
 
-    public LocalManage(ObjectMapper objectMapper, boolean local) {
-        this.local = local;
-        this.allProviders = Stream.of(EntityType.values()).collect(Collectors.toMap(
-                entityType -> entityType,
-                entityType -> this.initialize(objectMapper, entityType)));
+    public LocalManage(ObjectMapper objectMapper) {
+        this(objectMapper,  "classpath:/manage");
     }
 
+    public LocalManage(ObjectMapper objectMapper, String staticManageDirectory) {
+        this.allProviders = Stream.of(EntityType.values()).collect(Collectors.toMap(
+                entityType -> entityType,
+                entityType -> this.initialize(objectMapper, entityType, staticManageDirectory)));
+    }
+
+
     @SneakyThrows
-    private List<Map<String, Object>> initialize(ObjectMapper objectMapper, EntityType entityType) {
-        String collectionName = entityType.collectionName();
-        if (this.local && collectionName.equals(EntityType.PROVISIONING.collectionName())) {
-            collectionName += ".local";
-        }
-        return objectMapper.readValue(new ClassPathResource("/manage/" + collectionName + ".json").getInputStream(), new TypeReference<>() {
+    private List<Map<String, Object>> initialize(ObjectMapper objectMapper, EntityType entityType, String staticManageDirectory) {
+        String resourceName = String.format("%s/%s.json", staticManageDirectory, entityType.collectionName());
+        Resource resource = defaultResourceLoader.getResource(resourceName);
+        return objectMapper.readValue(resource.getInputStream(), new TypeReference<>() {
         });
     }
 

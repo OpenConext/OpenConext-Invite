@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
@@ -96,6 +97,9 @@ public abstract class AbstractTest {
     public static final String API_TOKEN_HASH = HashGenerator.generateToken();
     public static final String API_TOKEN_SUPER_USER_HASH = HashGenerator.generateToken();
 
+    @Value("${manage.staticManageDirectory}")
+    private String staticManageDirectory;
+
     @Autowired
     protected ObjectMapper objectMapper;
 
@@ -148,7 +152,7 @@ public abstract class AbstractTest {
             this.doSeed();
         }
         if (this.localManage == null) {
-            this.localManage = new LocalManage(objectMapper, false);
+            this.localManage = new LocalManage(objectMapper, staticManageDirectory);
         }
     }
 

@@ -126,6 +126,7 @@ manage:
   url: "https://manage.dev.openconext.local"
   user: invite
   password: secret
-  local: False
 # If you want to run the mock Manage against a git ignored file with sensitive data, e.g. manage/provisioning.local.json file
 #  local: True
+  staticManageDirectory: classpath:/manage
+
