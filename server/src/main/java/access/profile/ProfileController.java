@@ -48,7 +48,7 @@ public class ProfileController {
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(collabPersonId);
         Set<UserRole> userRoles = optionalUser.map(User::getUserRoles).orElse(Collections.emptySet());
         List<Role> roles = userRoles.stream()
-                .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST))
+                .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(UserRole::getRole).toList();
         return ResponseEntity.ok(
                 manage.addManageMetaData(roles).stream().

@@ -45,6 +45,22 @@ class ProfileControllerTest extends AbstractTest {
     }
 
     @Test
+    void rolesGuestRoleIncluded() {
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+
+        List<UserRoleProfile> roles = given()
+                .when()
+                .auth().preemptive().basic("profile", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("collabPersonId", MANAGE_SUB)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, roles.size());
+    }
+
+        @Test
     void rolesNotExistentUser() {
         List<UserRoleProfile> roles = given()
                 .when()
