@@ -26,4 +26,4 @@ or Selfservice Portal.
 - [Archimate Model](./Archi/?view=id-942fd1b8aeda45388631ddde7877a745)
 - [Swagger](https://invite.test.surfconext.nl/ui/swagger-ui/index.html)
 - [Code](https://github.com/OpenConext/OpenConext-Invite/)
-- [Backlog](https://www.pivotaltracker.com/n/projects/2641889)
+- [Backlog](https://github.com/orgs/OpenConext/projects/5)
