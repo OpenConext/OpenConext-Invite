@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.17 2024-08-27
+
+- Institution admin can now select all applications connected to their IdP
+- Add user search tab for institution admins
+- Applications tab now shows list of applications
+- Bugfix for too many role expiry notifications
+- Bugfix for profile API
+- UI language improvements
+- Logging improvements
+
 ## 0.0.16 2024-07-02
 
 - Super-user tokens
