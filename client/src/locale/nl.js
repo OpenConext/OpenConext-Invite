@@ -178,10 +178,10 @@ const nl = {
             andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."        }
     },
     applications: {
-        title: "Access Roles voor deze applicatie",
-        new: "Nieuwe Access Role",
-        searchPlaceHolder: "Zoek naar applications",
-        name:"Application naam",
+        title: "Toegangsrollen voor deze applicatie",
+        new: "Nieuwe toegangsrol",
+        searchPlaceHolder: "Zoek naar applicaties",
+        name:"Applicatienaam",
         types: {
             saml20_sp: "Service Provider",
             oidc10_rp: "Relying Party"
@@ -191,7 +191,7 @@ const nl = {
         url: "URL",
         roles: "Rollen",
         provisionings: "Provisionings",
-        accessRole: "Access Rol",
+        accessRole: "Toegangsrol",
     },
     applicationRoles: {
         searchPlaceHolder: "Zoek naar Access Rollen",
