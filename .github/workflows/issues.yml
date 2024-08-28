@@ -1,0 +1,41 @@
+name: Update issues on project board
+on:
+  repository_dispatch:
+    types: [status_update]
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PEM }}
+      - name: Read status
+        id: read_status
+        uses: github/update-project-action@v3
+        with:
+          github_token: ${{ steps.generate-token.outputs.token }}
+          organization: OpenConext
+          project_number: 5
+          operation: read
+          content_id: ${{ github.event.client_payload.command.resource.id }}
+      - name: Output status
+        run: |
+          echo "Current status value: ${{ steps.read_status.outputs.field_read_value }}"
+      - name: 'Assign issue to TPM for testing'
+        uses: pozil/auto-assign-issue@v2
+        with:
+          repo-token: ${{ steps.generate-token.outputs.token }}
+          teams: Openconext-Invite-TPM
+          numOfAssignee: 1
+        if: steps.read_status.outputs.field_read_value == 'Testing'
+      - name: 'Assign issue to devs for development'
+        uses: pozil/auto-assign-issue@v2
+        with:
+          repo-token: ${{ steps.generate-token.outputs.token }}
+          teams: Openconext-Invite-Dev
+          numOfAssignee: 1
+        if: steps.read_status.outputs.field_read_value == 'Backlog'
