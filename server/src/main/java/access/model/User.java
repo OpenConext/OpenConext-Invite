@@ -206,16 +206,20 @@ public class User implements Serializable, Provisionable {
 
     @JsonIgnore
     public Map<String, Object> asMap() {
-        //Avoid null-pointers. Minimal requirements are validated in UserRoleProvisioning#validate
-        String notNullIdentifier = StringUtils.hasText(email) ? email : eduPersonPrincipalName;
+        if (!StringUtils.hasText(sub)) {
+            throw new IllegalArgumentException("Sub is empty for User: " + this.getId());
+        }
+        //Avoid null-pointers (at any cost). Minimal requirement is sub as this is a non-null database column
+        String notNullIdentifier = StringUtils.hasText(email) ? email : StringUtils.hasText(eduPersonPrincipalName) ? eduPersonPrincipalName : sub;
+        Instant epochStart = Instant.ofEpochMilli(0);
         return Map.of(
                 //Defensive because of non-persisted users - only in tests
                 "id", Objects.isNull(id) ? 0L : id,
                 "name", StringUtils.hasText(name) ? name : notNullIdentifier,
                 "email", notNullIdentifier,
-                "createdAt", createdAt,
-                "lastActivity", lastActivity,
-                "schacHomeOrganization", schacHomeOrganization,
+                "createdAt", createdAt != null ? createdAt : epochStart,
+                "lastActivity", lastActivity != null ? lastActivity : epochStart,
+                "schacHomeOrganization", StringUtils.hasText(schacHomeOrganization) ? schacHomeOrganization : "Unknown schac",
                 "sub", sub
         );
     }

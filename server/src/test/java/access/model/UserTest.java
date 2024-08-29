@@ -69,6 +69,22 @@ class UserTest {
         assertEquals(2, createdAt.until(Instant.now(), ChronoUnit.DAYS));
     }
 
+    @Test
+    void asMapDefensive() {
+        User user = new User();
+        user.setSub("urn:sub");
+        Map<String, Object> map = user.asMap();
+        assertEquals(user.getSub(), map.get("email"));
+    }
+
+    @Test
+    void asMapSubMissing() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            User user = new User();
+            user.asMap();
+        });
+    }
+
     private void addUserRole(User user, int... pastDays) {
         Instant now = Instant.now();
         Arrays.stream(pastDays).forEach(pastDay -> {
