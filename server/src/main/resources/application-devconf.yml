@@ -84,8 +84,8 @@ config:
   server-url: "https://invite.dev.openconext.local"
   server-welcome-url: "https://welcome.dev.openconext.local"
   eduid-entity-id: "https://login.dev.openconext.local"
-  role-search-required: False
-  past-date-allowed: True
+  role-search-required: false
+  past-date-allowed: true
   eduid-idp-schac-home-organization: "dev.eduid.nl"
 
 # We don't encode in-memory passwords, so we need to prefix them with {noop}
@@ -121,11 +121,11 @@ voot:
   group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
 
 manage:
-#  enabled: True
+  # enabled: True
   enabled: False
   url: "https://manage.dev.openconext.local"
   user: invite
   password: secret
-# If you want to run the mock Manage against a git ignored file with sensitive data, e.g. manage/provisioning.local.json file
-#  local: True
+  # If you want to run the mock Manage against a git ignored file with sensitive data, e.g. manage/provisioning.local.json file
+  #  local: True
   staticManageDirectory: classpath:/manage

@@ -1,3 +1,4 @@
+---
 name: Update issues on project board
 on:
   repository_dispatch:
@@ -15,7 +16,7 @@ jobs:
           app-id: ${{ secrets.GH_APP_ID }}
           private-key: ${{ secrets.GH_APP_PEM }}
           owner: OpenConext
-          repositories: Openconext-Invite          
+          repositories: Openconext-Invite
       - name: Read status
         id: read_status
         uses: github/update-project-action@v3
