@@ -59,6 +59,7 @@ const nl = {
         unknownRoles: "Missing applications",
         expiredUserRoles: "User role expirations",
         pendingInvitations: "Open",
+        allPendingInvitations: "Open uitnodigingen",
         acceptedInvitations: "Geaccepteerd"
     },
     home: {
@@ -220,7 +221,7 @@ const nl = {
         multipleInvitations: "uitnodigingen",
         searchPlaceHolder: "Zoek uitnodiging...",
         noResults: "Geen uitnodigingen gevonden",
-        inviter: "Uitnodiger",
+        inviter: "Uitgenodigd door",
         status: "Status",
         pending: "open",
         open: "Open",
@@ -241,7 +242,7 @@ const nl = {
         roles: "Rollen",
         inviterRoles: "Selecteer de rollen voor de nieuwe uitnodiging",
         rolesPlaceHolder: "Kies een of meer rollen",
-        expiryDate: "Verloopdatum uitnodiging",
+        expiryDate: "Uitnodiging geldig tot",
         acceptedAt: "Datum geaccepteeerd",
         roleExpiryDate: "Verloopdatum rol",
         roleExpiryDateQuestion: "Zet een specifieke verloopdatum voor de rol",

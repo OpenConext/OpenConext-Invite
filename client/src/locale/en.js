@@ -59,6 +59,7 @@ const en = {
         unknownRoles: "Missing applications",
         expiredUserRoles: "User role expirations",
         pendingInvitations: "Pending",
+        allPendingInvitations: "Pending invitations",
         acceptedInvitations: "Accepted"
     },
     home: {

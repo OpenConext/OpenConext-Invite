@@ -73,7 +73,7 @@ export const Role = () => {
                     </Page>,
                     <Page key="invitations"
                           name="invitations"
-                          label={I18n.t("tabs.invitations")}
+                          label={I18n.t("tabs.allPendingInvitations")}
                           Icon={InvitationLogo}>
                         <Invitations role={res[0]}
                                      preloadedInvitations={res[2]}/>
