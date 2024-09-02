@@ -5,7 +5,6 @@ import {Button, Tooltip} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
 import DOMPurify from "dompurify";
-import {stopEvent} from "../utils/Utils";
 import {useNavigate} from "react-router-dom";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 
@@ -23,10 +22,10 @@ export const Inviter = () => {
         },
         [])
 
-    const gotoHistory = e => {
-        stopEvent(e);
-        navigate("/invitations")
-    }
+    // const gotoHistory = e => {
+    //     stopEvent(e);
+    //     navigate("/invitations")
+    // }
 
     const renderUserRole = (role, index) => {
         const applicationMaps = role.applicationMaps;
