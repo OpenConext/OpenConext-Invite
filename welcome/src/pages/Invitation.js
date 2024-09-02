@@ -113,7 +113,7 @@ export const Invitation = ({authenticated}) => {
 
     const handleError = e => {
         e.response.json().then(j => {
-            const reference = j.reference;
+            const reference = j.reference || 999;
             setConfirmation({
                 cancel: null,
                 action: () => setConfirmationOpen(false),

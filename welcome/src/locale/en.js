@@ -53,7 +53,7 @@ const en = {
         more: "More",
         less: "Less",
         error: "You can <a href=\"mailto:support@surfconext.nl\">contact SURFconext Invite</a> for more information.<br/><br/>" +
-            "The reference number for ths exception is {{reference}}."
+            "The reference number for this exception is {{reference}}."
     },
     profile: {
         welcome: "Welcome, {{name}}",
