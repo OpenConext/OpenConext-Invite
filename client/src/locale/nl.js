@@ -145,7 +145,7 @@ const nl = {
         landingPagePlaceHolder: "https://landingspagina.nl",
         defaultExpiryDays: "Verloopdagen",
         endDate: "Einddatum",
-        noEndDate: "Geen einddatum",
+        noEndDate: "-",
         authority: "Autoriteit",
         yourRole: "Jouw rol",
         description: "Omschrijving",
@@ -212,7 +212,7 @@ const nl = {
         updateFlash: "De einddatum van rol {{roleName}} is bijgewerkt",
         deleteConfirmation: "Weet je zeker dat je de rol van deze gebruiker(s) wil verwijderen?",
         deleteFlash: "Gebruikersrol(len) zijn verwijderd",
-        createdAt: "Geaccepteerd op",
+        createdAt: "Datum geaccepteerd",
     },
     invitations: {
         found: "{{count}} {{plural}} gevonden",

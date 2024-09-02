@@ -3,16 +3,17 @@ import I18n from "../locale/I18n";
 import "./UserRoles.scss";
 import {Button, ButtonSize, ButtonType, Checkbox, Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
+import {ReactComponent as AlarmBell} from "../icons/alarm_bell.svg";
 import "./Users.scss";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, futureDate, shortDateFromEpoch} from "../utils/Date";
 import {useNavigate} from "react-router-dom";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {allowedToRenewUserRole, AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
-import {DateField} from "../components/DateField";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {deleteUserRole, updateUserRoleEndData} from "../api";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
+import {MinimalDateField} from "../components/MinimalDateField";
 
 
 export const UserRoles = ({role, guests, userRoles}) => {
@@ -141,20 +142,14 @@ export const UserRoles = ({role, guests, userRoles}) => {
         const allowed = allowedToRenewUserRole(user, userRole);
         if (allowed) {
             return (
-                <div className={"date-field-container"}>
-                    {!userRole.endDate &&
-                        <span className={`no-end-date ${I18n.locale}`}>
-                        {I18n.t("roles.noEndDate")}
-                    </span>}
-                    <DateField
+                <MinimalDateField
                         minDate={futureDate(1)}
-                        value={userRole.endDate ? new Date(userRole.endDate * 1000) : null}
+                        value={userRole.endDate}
                         onChange={date => doUpdateEndDate(userRole, date, true)}
                         pastDatesAllowed={config.pastDateAllowed}
                         allowNull={true}
                         showYearDropdown={true}
                     />
-                </div>
             );
         }
         return dateFromEpoch(userRole.endDate)
@@ -227,16 +222,22 @@ export const UserRoles = ({role, guests, userRoles}) => {
                                       label={I18n.t(`access.${guests ? AUTHORITIES.GUEST: userRole.authority}`)}/>
         },
         {
-            key: "createdAt",
-            header: I18n.t("userRoles.createdAt"),
-            mapper: userRole => shortDateFromEpoch(userRole.createdAt)
+            key: "alarm-bell",
+            nonSortable: true,
+            header: "",
+            mapper: () => <div className={"alarm-bell"}><AlarmBell/></div>
         },
         {
             key: "endDate",
             header: I18n.t("roles.endDate"),
             toolTip: I18n.t("tooltips.roleExpiryDateTooltip"),
             mapper: userRole => displayEndDate(userRole)
-        }];
+        },
+        {
+            key: "createdAt",
+            header: I18n.t("userRoles.createdAt"),
+            mapper: userRole => shortDateFromEpoch(userRole.createdAt)
+        },];
 
     return (<div className="mod-user-roles">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}

@@ -1,0 +1,32 @@
+@import "../styles/vars.scss";
+
+.minimal-date-field {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+
+    .icon svg{
+        width: 18px;
+        height: auto;
+        margin-right: 10px;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--sds--color--blue--500);
+        }
+    }
+    .react-datepicker-wrapper {
+        width: auto;
+    }
+    .react-datepicker__triangle {
+        display: none;
+    }
+    .edit-icon {
+        margin-left: auto;
+
+    }
+
+    .react-datepicker__month {
+        min-height: 195px;
+    }
+}

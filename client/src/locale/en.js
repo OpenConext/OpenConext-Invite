@@ -145,7 +145,7 @@ const en = {
         landingPagePlaceHolder: "https://landingpage.com",
         defaultExpiryDays: "Expiry days",
         endDate: "End date",
-        noEndDate: "No end date",
+        noEndDate: "-",
         authority: "Authority",
         yourRole: "Your role",
         description: "Description",
@@ -213,7 +213,7 @@ const en = {
         updateFlash: "The end date for role {{roleName}} has been updated",
         deleteConfirmation: "Are you sure  you want to remove this role from this user(s)?",
         deleteFlash: "User role(s) have been removed",
-        createdAt: "Accepted at",
+        createdAt: "Date accepted",
     },
     invitations: {
         found: "{{count}} {{plural}} found",

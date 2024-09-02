@@ -8,17 +8,6 @@
             margin-left: auto;
         }
 
-        .no-end-date {
-            position: absolute;
-            z-index: 2;
-            top: 10px;
-            right: 127px;
-            font-size: 14px;
-
-            &.en {
-                right: 157px;
-            }
-        }
     }
 
     table.userRoles {
@@ -31,7 +20,7 @@
                 }
 
                 &.name {
-                    width: 28%;
+                    width: 26%;
                 }
 
                 &.me {
@@ -48,12 +37,11 @@
                 }
 
                 &.createdAt {
-                    width: 12%;
+                    width: 14%;
                 }
 
                 &.endDate {
                     width: 22%;
-                    text-align: right;
                 }
             }
         }
