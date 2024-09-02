@@ -67,6 +67,9 @@ public class Invitation implements Serializable {
     @Column(name = "role_expiry_date")
     private Instant roleExpiryDate;
 
+    @Column(name = "accepted_at")
+    private Instant acceptedAt;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "inviter_id")
     @JsonIgnore

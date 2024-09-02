@@ -6,7 +6,7 @@ import {Entities} from "../components/Entities";
 import "./Users.scss";
 import {shortDateFromEpoch} from "../utils/Date";
 
-import {chipTypeForInvitationStatus, chipTypeForUserRole} from "../utils/Authority";
+import {chipTypeForUserRole, invitationExpiry} from "../utils/Authority";
 import {useNavigate} from "react-router-dom";
 import {allInvitations, deleteInvitation, resendInvitation} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
@@ -269,25 +269,14 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
             </div>
         },
         {
-            key: "status",
-            header: I18n.t("invitations.status"),
-            mapper: invitation => <Chip type={chipTypeForInvitationStatus(invitation)}
-                                        label={I18n.t(`invitations.${invitation.status.toLowerCase()}`)}/>
-        },
-        {
             key: "createdAt",
             header: I18n.t("invitations.createdAt"),
             mapper: invitation => shortDateFromEpoch(invitation.createdAt)
         },
         {
-            key: "expiryDate",
-            header: I18n.t("invitations.expiryDate"),
-            mapper: invitation => shortDateFromEpoch(invitation.expiryDate)
-        },
-        {
-            key: "roleExpiryDate",
-            header: I18n.t("invitations.roleExpiryDate"),
-            mapper: invitation => shortDateFromEpoch(invitation.roleExpiryDate)
+            key: pending ? "expiryDate" : "acceptedAt",
+            header: I18n.t(pending ? "invitations.expiryDate" : "invitations.acceptedAt"),
+            mapper: invitation => pending ? invitationExpiry(invitation) : shortDateFromEpoch(invitation.acceptedAt)
         }];
     const filteredInvitations = filterValue.value === allValue ? invitations.current :
         invitations.current.filter(invitation => invitation.status === filterValue.value ||

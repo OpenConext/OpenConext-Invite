@@ -101,6 +101,7 @@ export const Invitation = ({authenticated}) => {
                     if (config.authenticated) {
                         navigate(`/profile`);
                     } else {
+                        localStorage.removeItem("location");
                         login(config);
                     }
                 } else {

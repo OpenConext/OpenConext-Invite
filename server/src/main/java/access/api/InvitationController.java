@@ -227,6 +227,7 @@ public class InvitationController {
         user.setLastActivity(Instant.now());
 
         invitation.setStatus(Status.ACCEPTED);
+        invitation.setAcceptedAt(Instant.now());
         invitation.setSubInvitee(sub);
         invitationRepository.save(invitation);
         AccessLogger.invitation(LOG, Event.Accepted, invitation);

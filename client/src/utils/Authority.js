@@ -1,6 +1,9 @@
 import {isEmpty} from "./Utils";
-import {ChipType} from "@surfnet/sds";
+import {Chip, ChipType} from "@surfnet/sds";
 import {AUTHORITIES, INVITATION_STATUS} from "./UserRole";
+import {shortDateFromEpoch} from "./Date";
+import I18n from "../locale/I18n";
+import React from "react";
 
 export const chipTypeForUserRole = authority => {
     if (isEmpty(authority)) {
@@ -20,6 +23,16 @@ export const chipTypeForUserRole = authority => {
         default:
             return ChipType.Status_default;
     }
+}
+
+export const invitationExpiry = invitation => {
+    const expired = new Date(invitation.expiryDate * 1000) < new Date();
+    if (expired) {
+        return <Chip
+            type={ChipType.Status_error}
+            label={I18n.t("invitations.statuses.expired")}/>
+    }
+    return shortDateFromEpoch(invitation.expiryDate);
 }
 
 export const chipTypeForInvitationStatus = invitation => {

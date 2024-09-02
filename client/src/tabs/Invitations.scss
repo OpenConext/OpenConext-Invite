@@ -11,38 +11,30 @@
                 }
 
                 &.email {
-                    width: 17%;
+                    width: 20%;
                 }
 
                 &.authority {
-                    width: 12%;
+                    width: 15%;
                     text-align: center;
                 }
 
                 &.intendedRoles {
-                    width: 12%;
+                    width: 15%;
                 }
 
                 &.inviter__name {
-                    width: 17%;
-                }
-
-                &.status {
-                    width: 10%;
-                    text-align: center;
+                    width: 20%;
                 }
 
                 &.createdAt {
-                    width: 10%;
+                    width: 15%;
                 }
 
                 &.expiryDate {
-                    width: 10%;
+                    width: 15%;
                 }
 
-                &.roleExpiryDate {
-                    width: 10%;
-                }
             }
         }
 
