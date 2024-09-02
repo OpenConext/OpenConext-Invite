@@ -282,23 +282,24 @@ export const InvitationForm = () => {
         const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
         return (
             <>
-                {isInviter && <div className="card-containers">
-                    <span className={"label"}>
-                        {I18n.t("invitations.inviterRole.roles")}
-                        <Tooltip tip={I18n.t("tooltips.rolesTooltip")}/>
-                    </span>
-                    {roles.map((role, index) => renderUserRole(role, index, selectedRoles.some(r => r.value === role.value),
-                        (e, value) => {
-                            const checked = e.target.checked;
-                            const roleSelected = roles.find(r => r.value === value);
-                            const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
-                            rolesChanged(newSelectedRoles);
-                        }))
-                    }
-                    {(!initial && isEmpty(selectedRoles)) &&
-                        <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
-                    }
-                </div>}
+                {isInviter &&
+                    <div className="card-containers">
+                        <span className={"label"}>
+                            {I18n.t("invitations.inviterRole.roles")}
+                            <Tooltip tip={I18n.t("tooltips.rolesTooltip")}/>
+                        </span>
+                        {roles.map((role, index) => renderUserRole(role, index, selectedRoles.some(r => r.value === role.value),
+                            (e, value) => {
+                                const checked = e.target.checked;
+                                const roleSelected = roles.find(r => r.value === value);
+                                const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
+                                rolesChanged(newSelectedRoles);
+                            }))
+                        }
+                        {(!initial && isEmpty(selectedRoles)) &&
+                            <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
+                        }
+                    </div>}
                 <InviterContainer isInviter={isInviter}>
                     {renderFormElements(authorityOptions)}
                 </InviterContainer>

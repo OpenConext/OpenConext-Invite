@@ -22,8 +22,9 @@ $min-width-pixels: 620px;
 
 .sds--card--big {
     width: $min-width-pixels;
+
     @media (max-width: 680px) {
-        width: 90vw;
+        width: 100%;
     }
 }
 

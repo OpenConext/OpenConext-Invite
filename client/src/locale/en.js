@@ -250,8 +250,8 @@ const en = {
         expiryDateInfo: "Default an invitation is valid for 1 month",
         withinThreeMonths: "Within 1 month",
         createdAt: "Sent",
-        message: "Message",
-        messagePlaceholder: "Personal message for the invitee included in the invitation",
+        message: "Personal note",
+        messagePlaceholder: "Add a personal note to your invitation",
         invite: "Send invite",
         guestRoleIncluded: "Add the guest role?",
         invalidEmails: "Invalid email addresses removed: {{emails}}.",
@@ -267,7 +267,7 @@ const en = {
             title: "Send new invite",
             roles: "For the following roles",
             to: "To",
-            message: "Add a personal message",
+            message: "Personal note",
             settings: "Advanced invite settings"
         },
         statuses: {

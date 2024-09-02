@@ -39,10 +39,14 @@
 
         .inviter-wrapper {
             margin-top: 25px;
-            padding: 25px;
+            padding: 25px 155px 25px 25px;
             border-radius: 0.175rem;
             border: 1px solid var(--sds--color--gray--400);
             background-color: white;
+
+            @media (max-width: $medium) {
+                padding: 25px;
+            }
         }
 
         .card-containers {

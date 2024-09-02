@@ -249,8 +249,8 @@ const nl = {
         expiryDateInfo: "Standaard verloopt een uitnodiging na 1 maand",
         withinThreeMonths: "Binnen 1 maand",
         createdAt: "Verstuurd",
-        message: "Bericht",
-        messagePlaceholder: "Persoonlijk bericht voor de genodigde dat wordt opgenomen in de uitnodiging",
+        message: "Persoonlijk bericht",
+        messagePlaceholder: "Voeg een persoonlijk bericht toe aan de uitnodiging",
         invite: "Stuur uitnodiging",
         guestRoleIncluded: "Voeg toe als gastgebruiker?",
         invalidEmails: "Ongeldig e-mailadres verwijderd: {{emails}}.",
@@ -266,7 +266,7 @@ const nl = {
             title: "Verstuur nieuwe uitnodiging",
             roles: "Voor de volgende rollen",
             to: "Naar",
-            message: "Voeg een persoonlijke boodschap toe",
+            message: "Persoonlijke bericht",
             settings: "Geavanceerde configuratie uitnodiging"
         },
         statuses: {
