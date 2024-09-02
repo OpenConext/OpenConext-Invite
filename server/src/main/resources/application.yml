@@ -51,16 +51,15 @@ spring:
     properties:
       hibernate:
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
-        dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
     show-sql: false
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost/invite
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mysql://localhost/invite?autoReconnect=true&useSSL=false&permitMysqlScheme=true
     username: invite
     password: secret
   flyway:
-    locations: classpath:db/{vendor}/migration
+    locations: classpath:db/mysql/migration
     fail-on-missing-locations: true
   mail:
     host: localhost

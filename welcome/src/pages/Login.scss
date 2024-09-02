@@ -10,10 +10,11 @@
     background-color: $background;
 
     .mod-login-container {
+        background-color: white;
+
         @media (max-width: $medium) {
             padding: 0 15px;
         }
-        background-color: white;
 
         .header-title {
             margin-bottom: 60px;
@@ -24,14 +25,15 @@
         }
 
         .mod-login {
-            @media (max-width: $medium) {
-                flex-direction: column;
-            }
             margin: 60px auto 0;
             max-width: 768px;
             width: 100%;
             display: flex;
             padding-bottom: 35px;
+
+            @media (max-width: $medium) {
+                flex-direction: column;
+            }
 
             &.reversed {
                 flex-direction: row-reverse;

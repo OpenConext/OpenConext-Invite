@@ -47,12 +47,12 @@ spring:
     open-in-view: false
     show-sql: false
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mariadb/invite
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mysql://mariadb/invite?autoReconnect=true
     username: inviterw
     password: secret
   flyway:
-    locations: classpath:db/{vendor}/migration
+    locations: classpath:db/mysql/migration
     fail-on-missing-locations: true
   mail:
     host: localhost
