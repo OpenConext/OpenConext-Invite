@@ -55,11 +55,11 @@ export const Inviter = () => {
                 <div className={"actions"}>
                     <Button txt={I18n.t("inviter.sendInvite")}
                             onClick={() => navigate("/invitation/new")} />
-                    <div className={"history"}>
-                        <span>{I18n.t("forms.or")}
-                            <a href="/#" onClick={gotoHistory}>{I18n.t("inviter.viewHistory")}</a>
-                        </span>
-                    </div>
+                    {/*<div className={"history"}>*/}
+                    {/*    <span>{I18n.t("forms.or")}*/}
+                    {/*        <a href="/#" onClick={gotoHistory}>{I18n.t("inviter.viewHistory")}</a>*/}
+                    {/*    </span>*/}
+                    {/*</div>*/}
                 </div>
                 <h3 className={"sub-info"}>{I18n.t("inviter.manage")}</h3>
                 {user.userRoles.map((userRole, index) => renderUserRole(userRole.role, index))}
