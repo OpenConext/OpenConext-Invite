@@ -42,10 +42,11 @@ export const App = () => {
                         setLoading(false);
                         const locationStored = localStorage.getItem("location");
                         const pathname = locationStored || window.location.pathname;
-                        if (res.name && !pathname.startsWith("/invitation/accept")) {
+                        const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept");
+                        if (res.name && !pathname.startsWith("/invitation/accept") && !isInvitationAcceptFlow) {
                             navigate("/deadend");
-                        } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept")) {
-                            navigate(pathname);
+                        } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept") || isInvitationAcceptFlow) {
+                            navigate(isInvitationAcceptFlow ? (window.location.pathname + window.location.search) : pathname);
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page
                             login(res);
