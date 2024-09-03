@@ -20,7 +20,7 @@
                 }
 
                 &.name {
-                    width: 26%;
+                    width: 22%;
                 }
 
                 &.me {
@@ -28,21 +28,27 @@
                 }
 
                 &.schacHomeOrganisation {
-                    width: 10%;
+                    width: 14%;
                 }
 
                 &.authority {
-                    width: 20%;
+                    width: 18%;
                     text-align: center;
+                }
+
+                &.expiry-warning {
+                    width: 40px;
+                    text-align: center;
+                }
+
+                &.endDate {
+                    width: 22%;
                 }
 
                 &.createdAt {
                     width: 14%;
                 }
 
-                &.endDate {
-                    width: 22%;
-                }
             }
         }
 
@@ -50,6 +56,33 @@
             td {
                 &.authority {
                     text-align: center;
+                }
+
+                &.expiry-warning {
+                    padding: 0;
+                    text-align: center;
+
+                    .sds--tooltip-container {
+                        width: 100%;
+                    }
+
+                    div.alarm-bell {
+                        background-color: #FEF8D3;
+                        padding: 6px 0;
+                        border-radius: 50%;
+                        display: flex;
+                    }
+
+                    svg {
+                        margin: auto;
+                        width: 22px;
+                        fill: #FEF8D3;
+
+                        path {
+                            stroke: #FFC100;
+                            stroke-width: 2;
+                        }
+                    }
                 }
 
                 &.endDate {

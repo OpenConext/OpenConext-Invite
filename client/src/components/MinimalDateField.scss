@@ -4,15 +4,16 @@
     display: flex;
     position: relative;
     flex-direction: row;
+    align-items: center;
 
-    .icon svg{
-        width: 18px;
+    .icon svg {
+        width: 16px;
         height: auto;
         margin-right: 10px;
         cursor: pointer;
-
+        color: var(--sds--color--gray--500);
         &:hover {
-            color: var(--sds--color--blue--500);
+            color: var(--sds--color--black);
         }
     }
     .react-datepicker-wrapper {
@@ -21,7 +22,8 @@
     .react-datepicker__triangle {
         display: none;
     }
-    .edit-icon {
+
+    .icon.left {
         margin-left: auto;
 
     }

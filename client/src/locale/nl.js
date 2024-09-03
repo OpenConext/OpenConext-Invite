@@ -213,6 +213,7 @@ const nl = {
         deleteConfirmation: "Weet je zeker dat je de rol van deze gebruiker(s) wil verwijderen?",
         deleteFlash: "Gebruikersrol(len) zijn verwijderd",
         createdAt: "Datum geaccepteerd",
+        delete: "Verwijder"
     },
     invitations: {
         found: "{{count}} {{plural}} gevonden",
@@ -403,6 +404,7 @@ const nl = {
         overrideSettingsAllowed: "Indien ingeschakeld kunnen uitnodigingen voor de deze rol de geavanceerde configuratie aanpassen (waaronder of e-mailadres overeen moet komen, alleen accepteren met eduID en de verloop- en einddatum)",
         removeUserRole: "Verwijder alle geselecteerde rollen",
         guestRoleIncludedTooltip: "Wil je dat de uitgenodigden ook gastgebruiker worden als ze de uitnodiging accepteren?",
+        expiredUserRole: "Deze rol gaat verlopen binnen een maand",
     },
     confirmationDialog: {
         title: "Bevestig",

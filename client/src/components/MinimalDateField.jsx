@@ -1,7 +1,7 @@
 import React, {useRef} from "react";
 
 import DatePicker from "react-datepicker";
-import {ReactComponent as BinIcon} from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {ReactComponent as ResetIcon} from "@surfnet/sds/icons/functional-icons/close.svg";
 import {ReactComponent as EditIcon} from "@surfnet/sds/icons/functional-icons/edit.svg";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,6 +9,7 @@ import "./MinimalDateField.scss"
 import {dateFromEpoch, futureDate} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
 import I18n from "../locale/I18n";
+import {Chip, ChipType} from "@surfnet/sds";
 
 export const MinimalDateField = ({
                                      onChange,
@@ -26,9 +27,20 @@ export const MinimalDateField = ({
     const toggle = () => inputRef.current.setOpen(true);
     const minimalDate = minDate || futureDate(1);
     const selectedDate = value || (allowNull ? null : futureDate(16));
+    let expired = false;
+    if (!isEmpty(value)) {
+        const now = new Date();
+        const endDate = new Date(value * 1000);
+        expired = now > endDate;
+    }
     return (
         <div className="minimal-date-field">
-            <span className="value">{!isEmpty(value) ? dateFromEpoch(value) : I18n.t("roles.noEndDate")}</span>
+            {expired && <Chip
+                type={ChipType.Status_error}
+                label={I18n.t("invitations.statuses.expired")}/>}
+            {!expired && <span className="value">
+                {!isEmpty(value) ? dateFromEpoch(value) : I18n.t("roles.noEndDate")}
+            </span>}
             <DatePicker
                 ref={inputRef}
                 name={name}
@@ -47,8 +59,8 @@ export const MinimalDateField = ({
                 maxDate={maxDate}
                 minDate={pastDatesAllowed ? null : minimalDate}
             />
-            <div className="icon edit-icon" onClick={toggle}><EditIcon/></div>
-            {!isEmpty(value) && <div className="icon bin-icon" onClick={() => onChange(null)}><BinIcon/></div>}
+            {!isEmpty(value) && <div className="icon reset-icon left" onClick={() => onChange(null)}><ResetIcon/></div>}
+            <div className={`icon edit-icon ${isEmpty(value) ? "left" : ""}`} onClick={toggle}><EditIcon/></div>
         </div>
     );
 }

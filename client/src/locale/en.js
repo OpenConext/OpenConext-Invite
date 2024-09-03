@@ -214,6 +214,7 @@ const en = {
         deleteConfirmation: "Are you sure  you want to remove this role from this user(s)?",
         deleteFlash: "User role(s) have been removed",
         createdAt: "Date accepted",
+        delete: "Remove"
     },
     invitations: {
         found: "{{count}} {{plural}} found",
@@ -404,6 +405,7 @@ const en = {
         overrideSettingsAllowed: "When checked, invitations for this role can override the advanced settings (e.g. email equality, eduID only and the role expiry end date)",
         removeUserRole: "Remove all selected user roles",
         guestRoleIncludedTooltip: "Do you also want to grant the invitees the guest role when they accept the invitation?",
+        expiredUserRole: "This role will expire soon",
     },
     confirmationDialog: {
         title: "Confirm",

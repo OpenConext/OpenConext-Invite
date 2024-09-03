@@ -15,6 +15,7 @@ import {deleteUserRole, updateUserRoleEndData} from "../api";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {MinimalDateField} from "../components/MinimalDateField";
 
+const oneMonthMillis = 1000 * 60 * 60 * 24 * 30;
 
 export const UserRoles = ({role, guests, userRoles}) => {
     const navigate = useNavigate();
@@ -138,8 +139,34 @@ export const UserRoles = ({role, guests, userRoles}) => {
         }
     };
 
+    const displayExpiryWarning = userRole => {
+        const endDateTime = userRole.endDate;
+        if (endDateTime == null) {
+            return null;
+        }
+        const now = new Date();
+        const endDate = new Date(endDateTime * 1000);
+        if (now > endDate) {
+            //This will be handled by the MinimalDateField
+            return null;
+        }
+        //show waring indication if endDate is within one month
+        if ((now.getTime() + oneMonthMillis) > endDate.getTime()) {
+            return (
+                <Tooltip standalone={true}
+                         children={<div className={"alarm-bell"}><AlarmBell/></div>}
+                         tip={I18n.t("tooltips.expiredUserRole",
+                             {
+                                 date: dateFromEpoch(userRole.endDate)
+                             })}/>
+
+            );
+        }
+        return null;
+    }
+
     const displayEndDate = userRole => {
-        const allowed = allowedToRenewUserRole(user, userRole);
+        const allowed = allowedToRenewUserRole(user, userRole, false);
         if (allowed) {
             return (
                 <MinimalDateField
@@ -173,7 +200,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                                  <Button onClick={() => doDeleteUserRoles(true)}
                                          size={ButtonSize.Small}
                                          type={ButtonType.Secondary}
-                                         txt={I18n.t("invitations.delete")}/>
+                                         txt={I18n.t("userRoles.delete")}/>
                              }/>
                 </div>
             </div>);
@@ -222,10 +249,10 @@ export const UserRoles = ({role, guests, userRoles}) => {
                                       label={I18n.t(`access.${guests ? AUTHORITIES.GUEST: userRole.authority}`)}/>
         },
         {
-            key: "alarm-bell",
+            key: "expiry-warning",
             nonSortable: true,
             header: "",
-            mapper: () => <div className={"alarm-bell"}><AlarmBell/></div>
+            mapper: userRole => displayExpiryWarning(userRole)
         },
         {
             key: "endDate",
