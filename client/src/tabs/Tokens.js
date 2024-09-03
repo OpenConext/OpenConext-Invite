@@ -169,7 +169,6 @@ export const Tokens = () => {
             {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
-                                                     isWarning={confirmation.warning}
                                                      question={confirmation.question}/>}
             {!newToken && <Entities
                 entities={tokens}

@@ -66,7 +66,8 @@ export const UserRoles = ({role, guests, userRoles}) => {
                     roleName: userRole.role.name,
                     userName: userRole.userInfo.name
                 }),
-                confirmationTxt: I18n.t("confirmationDialog.confirm")
+                confirmationTxt: I18n.t("confirmationDialog.confirm"),
+                confirmationHeader: I18n.t("confirmationDialog.title")
             });
             setConfirmationOpen(true);
         } else {
@@ -135,9 +136,26 @@ export const UserRoles = ({role, guests, userRoles}) => {
                         const path = encodeURIComponent(window.location.pathname);
                         navigate(`/refresh-route/${path}`, {replace: true});
                     }
-                })
+                }).catch(handleError);
         }
     };
+
+    const handleError = e => {
+        setLoading(false);
+        e.response.json().then(j => {
+            const reference = j.reference || 999;
+            setConfirmation({
+                cancel: null,
+                action: () => setConfirmationOpen(false),
+                warning: false,
+                error: true,
+                question: I18n.t("forms.error", {reference: reference}),
+                confirmationTxt: I18n.t("forms.ok"),
+                confirmationHeader: I18n.t("confirmationDialog.error")
+            });
+            setConfirmationOpen(true);
+        })
+    }
 
     const displayExpiryWarning = userRole => {
         const endDateTime = userRole.endDate;
@@ -271,7 +289,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                                                  cancel={confirmation.cancel}
                                                  confirm={confirmation.action}
                                                  confirmationTxt={confirmation.confirmationTxt}
-                                                 isWarning={confirmation.warning}
+                                                 confirmationHeader={confirmation.confirmationHeader}
                                                  isError={confirmation.error}
                                                  question={confirmation.question}/>}
 

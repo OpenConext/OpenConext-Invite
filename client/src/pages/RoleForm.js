@@ -422,7 +422,6 @@ export const RoleForm = () => {
                                                      confirm={confirmation.action}
                                                      confirmationTxt={confirmation.confirmationTxt}
                                                      confirmationHeader={confirmation.confirmationHeader}
-                                                     isWarning={confirmation.warning}
                                                      isError={confirmation.error}
                                                      question={confirmation.question}>
                 {!isEmpty(deletedUserRoles) && <div className="consequences">

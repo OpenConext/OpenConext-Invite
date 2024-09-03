@@ -182,7 +182,6 @@ export const Invitation = ({authenticated}) => {
                                                      confirm={confirmation.action}
                                                      confirmationTxt={confirmation.confirmationTxt}
                                                      confirmationHeader={confirmation.confirmationHeader}
-                                                     isWarning={confirmation.warning}
                                                      isError={confirmation.error}
                                                      question={confirmation.question}/>}
             <div className="invitation-container">
