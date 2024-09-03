@@ -130,12 +130,10 @@ public class InvitationController {
         invitationRepository.saveAll(invitations);
 
         List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
-        List<RecipientInvitationURL> recipientInvitationURLs = new ArrayList<>();
-        if (invitationRequest.isInvitationRedeemUrlAPI()) {
-            recipientInvitationURLs.addAll(invitations.stream()
-                    .map(invitation -> new RecipientInvitationURL(invitation.getEmail(), mailBox.inviteMailURL(invitation)))
-                    .toList());
-        } else {
+        List<RecipientInvitationURL> recipientInvitationURLs = invitations.stream()
+                .map(invitation -> new RecipientInvitationURL(invitation.getEmail(), mailBox.inviteMailURL(invitation)))
+                .toList();
+        if (!invitationRequest.isSuppressSendingEmails()) {
             invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders, invitationRequest.getLanguage()));
         }
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));

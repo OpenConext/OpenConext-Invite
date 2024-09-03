@@ -30,7 +30,7 @@ public class InvitationRequest implements Serializable {
 
     private boolean guestRoleIncluded;
 
-    private boolean invitationRedeemUrlAPI;
+    private boolean suppressSendingEmails;
 
     @NotEmpty
     private List<String> invites;

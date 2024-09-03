@@ -99,7 +99,7 @@ class InvitationControllerTest extends AbstractTest {
                 .as(new TypeRef<Map<String, Object>>() {
                 });
         assertEquals(201, results.get("status"));
-        assertFalse(results.containsKey("recipientInvitationURLs"));
+        assertEquals(1, ((List) results.get("recipientInvitationURLs")).size());
     }
 
     @Test
