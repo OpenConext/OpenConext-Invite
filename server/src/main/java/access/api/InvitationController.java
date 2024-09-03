@@ -87,7 +87,7 @@ public class InvitationController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Map<String, Integer>> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
+    public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                               @Parameter(hidden = true) User user) {
         Authority intendedAuthority = invitationRequest.getIntendedAuthority();
         if (!List.of(Authority.INSTITUTION_ADMIN, Authority.SUPER_USER).contains(intendedAuthority)
@@ -130,9 +130,16 @@ public class InvitationController {
         invitationRepository.saveAll(invitations);
 
         List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
-        invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders, invitationRequest.getLanguage()));
+        List<RecipientInvitationURL> recipientInvitationURLs = new ArrayList<>();
+        if (invitationRequest.isInvitationRedeemUrlAPI()) {
+            recipientInvitationURLs.addAll(invitations.stream()
+                    .map(invitation -> new RecipientInvitationURL(invitation.getEmail(), mailBox.inviteMailURL(invitation)))
+                    .toList());
+        } else {
+            invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders, invitationRequest.getLanguage()));
+        }
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
-        return Results.createResult();
+        return ResponseEntity.status(HttpStatus.CREATED).body(new InvitationResponse(HttpStatus.CREATED.value(), recipientInvitationURLs));
     }
 
     @DeleteMapping("/{id}")

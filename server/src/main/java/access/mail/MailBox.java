@@ -92,6 +92,14 @@ public class MailBox {
     }
 
     @SneakyThrows
+    public String inviteMailURL(Invitation invitation) {
+        Authority intendedAuthority = invitation.getIntendedAuthority();
+        String url = intendedAuthority.equals(Authority.GUEST) ? welcomeUrl : clientUrl;
+
+        return String.format("%s/invitation/accept?hash=%s", url, invitation.getHash());
+    }
+
+    @SneakyThrows
     public String sendUserRoleExpirationNotificationMail(UserRole userRole,
                                                          GroupedProviders groupedProvider,
                                                          int nbrOfDays) {

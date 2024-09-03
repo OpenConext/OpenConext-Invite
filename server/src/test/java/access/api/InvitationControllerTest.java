@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Example;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -19,7 +20,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,12 +82,13 @@ class InvitationControllerTest extends AbstractTest {
                 true,
                 false,
                 false,
+                false,
                 List.of("new@new.nl"),
                 roleIdentifiers,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
 
-        given()
+        Map<String, Object> results = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -92,8 +96,10 @@ class InvitationControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .body(invitationRequest)
                 .post("/api/v1/invitations")
-                .then()
-                .statusCode(201);
+                .as(new TypeRef<Map<String, Object>>() {
+                });
+        assertEquals(201, results.get("status"));
+        assertFalse(results.containsKey("recipientInvitationURLs"));
     }
 
     @Test
@@ -107,6 +113,7 @@ class InvitationControllerTest extends AbstractTest {
                 "Message",
                 Language.en,
                 true,
+                false,
                 false,
                 false,
                 List.of("new@new.nl"),
@@ -124,6 +131,52 @@ class InvitationControllerTest extends AbstractTest {
                 .post("/api/v1/invitations")
                 .then()
                 .statusCode(409);
+    }
+
+    @Test
+    void newInvitationWithInvitationUrls() throws Exception {
+//        Role role = roleRepository.search("wiki", 1).get(0);
+//        Application application = role.applicationsUsed().iterator().next();
+//        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+//        super.stubForManageProvisioning(List.of(application.getManageId()));
+
+        List<Long> roleIdentifiers = roleRepository.findByApplicationUsagesApplicationManageId("1").stream()
+                .map(Role::getId)
+                .toList();
+
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.GUEST,
+                "Message",
+                Language.en,
+                true,
+                false,
+                false,
+                true,
+                List.of("new@new.nl"),
+                roleIdentifiers,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        InvitationResponse invitationResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/external/v1/invitations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(201, invitationResponse.getStatus());
+        List<RecipientInvitationURL> recipientInvitationURLs = invitationResponse.getRecipientInvitationURLs();
+        assertEquals(1, recipientInvitationURLs.size());
+        RecipientInvitationURL recipientInvitationURL = recipientInvitationURLs.get(0);
+        assertEquals("new@new.nl", recipientInvitationURL.getRecipient());
+
+        Invitation example = new Invitation();
+        example.setEmail(recipientInvitationURL.getRecipient());
+        Invitation invitation = invitationRepository.findOne(Example.of(example)).get();
+        assertEquals(String.format("http://localhost:4000/invitation/accept?hash=%s", invitation.getHash()), recipientInvitationURL.getInvitationURL());
     }
 
     @Test
