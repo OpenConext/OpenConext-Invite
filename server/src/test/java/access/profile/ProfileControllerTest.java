@@ -82,7 +82,7 @@ class ProfileControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("collabPersonId", "nope")
-                .get("/api/profile")
+                .get("/api/external/v1/profile")
                 .then()
                 .statusCode(403);
     }

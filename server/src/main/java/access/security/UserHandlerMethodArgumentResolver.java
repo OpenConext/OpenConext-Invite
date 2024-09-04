@@ -86,7 +86,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             }
             return user;
         } else {
-            //The user is not authenticated, but that is part of the accept invitation flow. Do not throw any Exception
+            //The user is not authenticated, but that is part of the accept invitation flow or Basic API auth. Do not throw any Exception
             return null;
         }
 

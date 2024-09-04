@@ -444,11 +444,11 @@ class RoleControllerTest extends AbstractTest {
 
         given()
                 .when()
-                .auth().preemptive().basic("voot", "secret")
+                .auth().preemptive().basic("sp_dashboard", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(role)
-                .post("/api/external/v1/roles")
+                .post("/api/external/v1/sp_dashboard/roles")
                 .then()
                 .statusCode(400);
         //TODO

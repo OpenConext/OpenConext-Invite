@@ -22,7 +22,7 @@ class VootControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .get("/api/voot/{sub}")
+                .get("/api/external/v1/voot/{sub}")
                 .as(new TypeRef<>() {
                 });
         List<String> urns = groups.stream().map(m -> m.get("urn")).sorted().toList();
@@ -38,7 +38,7 @@ class VootControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", "nope")
-                .get("/api/voot/{sub}")
+                .get("/api/external/v1/voot/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(0, groups.size());
@@ -52,7 +52,7 @@ class VootControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", MANAGE_SUB)
-                .get("/api/voot/{sub}")
+                .get("/api/external/v1/voot/{sub}")
                 .as(new TypeRef<>() {
                 });
         List<String> urns = groups.stream().map(m -> m.get("urn")).sorted().toList();
@@ -68,7 +68,7 @@ class VootControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", INVITER_SUB)
-                .get("/api/voot/{sub}")
+                .get("/api/external/v1/voot/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(0, groups.size());

@@ -26,7 +26,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
                 .queryParam("SPentityID", "")
-                .get("/api/aa/{sub}")
+                .get("/api/external/v1/aa/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, roles.size());
@@ -43,7 +43,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("sub", MANAGE_SUB)
                 .queryParam("SPentityID", "")
-                .get("/api/aa/{sub}")
+                .get("/api/external/v1/aa/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, roles.size());
@@ -60,7 +60,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("sub", "nope")
                 .queryParam("SPentityID", "")
-                .get("/api/aa/{sub}")
+                .get("/api/external/v1/aa/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(0, roles.size());
@@ -77,7 +77,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
                 .queryParam("SPentityID", "")
-                .get("/api/aa/{sub}")
+                .get("/api/external/v1/aa/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(0, roles.size());
