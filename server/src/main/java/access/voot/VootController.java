@@ -6,6 +6,8 @@ import access.model.User;
 import access.model.UserRole;
 import access.provision.scim.GroupURN;
 import access.repository.UserRepository;
+import access.security.RemoteUser;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +28,7 @@ import java.util.stream.Collectors;
 import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = {"/api/voot", "/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class VootController {
 
@@ -42,7 +45,9 @@ public class VootController {
 
     @GetMapping("/{unspecified_id}")
     @PreAuthorize("hasRole('VOOT')")
-    public ResponseEntity<List<Map<String, String>>> getGroupMemberships(@PathVariable("unspecified_id") String unspecifiedId) {
+    public ResponseEntity<List<Map<String, String>>> getGroupMemberships(
+            @PathVariable("unspecified_id") String unspecifiedId,
+            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(unspecifiedId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();

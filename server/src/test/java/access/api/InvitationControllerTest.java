@@ -135,11 +135,7 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void newInvitationWithInvitationUrls() throws Exception {
-//        Role role = roleRepository.search("wiki", 1).get(0);
-//        Application application = role.applicationsUsed().iterator().next();
-//        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
-//        super.stubForManageProvisioning(List.of(application.getManageId()));
 
         List<Long> roleIdentifiers = roleRepository.findByApplicationUsagesApplicationManageId("1").stream()
                 .map(Role::getId)

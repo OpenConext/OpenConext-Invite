@@ -181,17 +181,13 @@ public class SecurityConfig {
     SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> c.disable())
                 .securityMatcher(
-                        "/api/voot/**",
                         "/api/external/v1/voot/**",
-                        "/api/teams/**",
                         "/api/external/v1/teams/**",
-                        "/api/profile/**",
                         "/api/external/v1/profile/**",
-                        "/api/aa/**",
                         "/api/external/v1/aa/**",
-                        "/api/deprovision/**",
                         "/api/external/v1/deprovision/**",
-                        "/api/external/v1/roles")
+                        "/api/external/v1/sp_dashboard/**"
+                )
                 .sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

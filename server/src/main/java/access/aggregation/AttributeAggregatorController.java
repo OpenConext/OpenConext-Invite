@@ -26,7 +26,7 @@ import java.util.Optional;
 import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = {"/api/aa", "/api/external/v1/aa"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = { "/api/external/v1/aa"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class AttributeAggregatorController {
 

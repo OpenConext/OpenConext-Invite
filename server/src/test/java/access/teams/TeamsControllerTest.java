@@ -53,7 +53,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
-                .put("/api/teams")
+                .put("/api/external/v1/teams")
                 .then()
                 .statusCode(201);
 
@@ -126,7 +126,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
-                .put("/api/teams")
+                .put("/api/external/v1/teams")
                 .then()
                 .statusCode(400);
     }
@@ -148,7 +148,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
-                .put("/api/teams")
+                .put("/api/external/v1/teams")
                 .as(new TypeRef<>() {
                 });
         assertEquals("Applications are required", responseBody.get("message"));
@@ -172,7 +172,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
-                .put("/api/teams")
+                .put("/api/external/v1/teams")
                 .as(new TypeRef<>() {
                 });
         assertEquals("Person of a membership is required", responseBody.get("message"));
@@ -198,7 +198,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(team)
-                .put("/api/teams")
+                .put("/api/external/v1/teams")
                 .as(new TypeRef<>() {
                 });
         assertEquals("SchacHomeOrganization of a person is required", responseBody.get("message"));

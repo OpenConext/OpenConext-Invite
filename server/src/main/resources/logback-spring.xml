@@ -8,7 +8,7 @@
             </Pattern>
         </layout>    </appender>
     <logger name="access" level="DEBUG"/>
-<!--    <logger name="org.springframework" level="TRACE"/>-->
+    <logger name="org.springframework.security" level="TRACE"/>
     <logger name="com.zaxxer.hikari" level="ERROR"/>
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>

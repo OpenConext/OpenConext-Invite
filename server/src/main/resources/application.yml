@@ -3,6 +3,7 @@ logging:
   level:
     root: WARN
     com.zaxxer.hikari: ERROR
+    org.springframework.security: TRACE
     access: DEBUG
   threshold:
     console: WARN

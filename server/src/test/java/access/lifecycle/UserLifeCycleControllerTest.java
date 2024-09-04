@@ -21,7 +21,24 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .get("/api/deprovision/{sub}")
+                .get("/api/external/v1/deprovision/{sub}")
+                .as(new TypeRef<>() {
+                });
+        List<String> memberships = lifeCycleResult.getData().stream().filter(attribute -> attribute.getName().equals("membership"))
+                .map(Attribute::getValue)
+                .sorted().toList();
+        assertEquals(List.of("Research", "Storage", "Wiki"), memberships);
+    }
+
+    @Test
+    void previewWithExternalAPI() {
+        LifeCycleResult lifeCycleResult = given()
+                .when()
+                .auth().preemptive().basic("lifecycle", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", GUEST_SUB)
+                .get("/api/external/v1/deprovision/{sub}")
                 .as(new TypeRef<>() {
                 });
         List<String> memberships = lifeCycleResult.getData().stream().filter(attribute -> attribute.getName().equals("membership"))
@@ -38,7 +55,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .get("/api/deprovision/{sub}")
+                .get("/api/external/v1/deprovision/{sub}")
                 .then()
                 .statusCode(403);
     }
@@ -51,7 +68,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .delete("/api/deprovision/{sub}/dry-run")
+                .delete("/api/external/v1/deprovision/{sub}/dry-run")
                 .as(new TypeRef<>() {
                 });
         List<String> memberships = lifeCycleResult.getData().stream().filter(attribute -> attribute.getName().equals("membership"))
@@ -74,7 +91,7 @@ class UserLifeCycleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .delete("/api/deprovision/{sub}")
+                .delete("/api/external/v1/deprovision/{sub}")
                 .as(new TypeRef<>() {
                 });
         List<String> memberships = lifeCycleResult.getData().stream().filter(attribute -> attribute.getName().equals("membership"))

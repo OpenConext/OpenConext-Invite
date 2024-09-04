@@ -45,11 +45,6 @@ public class AbstractMailTest extends AbstractTest {
         greenMail.purgeEmailFromAllMailboxes();
     }
 
-    @AfterEach
-    void afterEach() {
-//        greenMail.stop();
-    }
-
     @SneakyThrows
     protected MimeMessageParser mailMessage() {
         await().until(() -> greenMail.getReceivedMessages().length != 0);

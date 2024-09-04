@@ -17,20 +17,31 @@ public class UserPermissions {
     }
 
     public static void assertSuperUser(User user) {
+        if (user == null) {
+            throw new UserRestrictionException();
+        }
+
         if (!user.isSuperUser()) {
             throw new UserRestrictionException();
         }
     }
 
     public static void assertInstitutionAdmin(User user) {
-        if (user.isSuperUser() || (user.isInstitutionAdmin() &&
-                StringUtils.hasText(user.getOrganizationGUID()))) {
+        if (user == null) {
+            throw new UserRestrictionException();
+        }
+
+        if (user.isSuperUser() || user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
             return;
         }
         throw new UserRestrictionException();
     }
 
     public static void assertAuthority(User user, Authority authority) {
+        if (user == null) {
+            throw new UserRestrictionException();
+        }
+
         if (user.isInstitutionAdmin() && Authority.INSTITUTION_ADMIN.hasEqualOrHigherRights(authority)) {
             return;
         }
@@ -40,6 +51,10 @@ public class UserPermissions {
     }
 
     public static void assertValidInvitation(User user, Authority intendedAuthority, List<Role> roles) {
+        if (user == null) {
+            throw new UserRestrictionException();
+        }
+
         if (user.isSuperUser()) {
             return;
         }
@@ -58,6 +73,46 @@ public class UserPermissions {
         if (!allowed) {
             throw new UserRestrictionException();
         }
+    }
+
+    public static void assertManagerRole(List<String> manageIdentifiers, User user) {
+        if (user == null) {
+            throw new UserRestrictionException();
+        }
+        if (user.isSuperUser()) {
+            return;
+        }
+        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), manageIdentifiers)) {
+            return;
+        }
+        user.getUserRoles().stream()
+                .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)
+                        && userRole.getRole().applicationIdentifiers().stream().anyMatch(manageIdentifiers::contains))
+                .findFirst()
+                .orElseThrow(UserRestrictionException::new);
+    }
+
+    public static void assertRoleAccess(User user, Role accessRole) {
+        assertRoleAccess(user, accessRole, Authority.MANAGER);
+    }
+
+    public static void assertRoleAccess(User user, Role accessRole, Authority authority) {
+        if (user == null) {
+            throw new UserRestrictionException();
+        }
+        if (user.isSuperUser()) {
+            return;
+        }
+        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), accessRole.applicationIdentifiers())) {
+            return;
+        }
+        user.getUserRoles().stream()
+                .filter(userRole -> (userRole.getRole().getId().equals(accessRole.getId()) &&
+                        userRole.getAuthority().hasEqualOrHigherRights(authority)) ||
+                        (userRole.hasAccessToApplication(accessRole) &&
+                                userRole.getAuthority().hasEqualOrHigherRights(Authority.INSTITUTION_ADMIN)))
+                .findFirst()
+                .orElseThrow(UserRestrictionException::new);
     }
 
     //Does one off the userRoles has Authority.MANAGE and has the same application as the role
@@ -81,40 +136,6 @@ public class UserPermissions {
                 .anyMatch(userRole -> userRole.getAuthority().hasHigherRights(intendedAuthority) &&
                         userRole.getAuthority().hasEqualOrHigherRights(Authority.INVITER) &&
                         userRole.getRole().getId().equals(role.getId()));
-    }
-
-    public static void assertManagerRole(List<String> manageIdentifiers, User user) {
-        if (user.isSuperUser()) {
-            return;
-        }
-        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), manageIdentifiers)) {
-            return;
-        }
-        user.getUserRoles().stream()
-                .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)
-                        && userRole.getRole().applicationIdentifiers().stream().anyMatch(manageIdentifiers::contains))
-                .findFirst()
-                .orElseThrow(UserRestrictionException::new);
-    }
-
-    public static void assertRoleAccess(User user, Role accessRole) {
-        assertRoleAccess(user, accessRole, Authority.MANAGER);
-    }
-
-    public static void assertRoleAccess(User user, Role accessRole, Authority authority) {
-        if (user.isSuperUser()) {
-            return;
-        }
-        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), accessRole.applicationIdentifiers())) {
-            return;
-        }
-        user.getUserRoles().stream()
-                .filter(userRole -> (userRole.getRole().getId().equals(accessRole.getId()) &&
-                        userRole.getAuthority().hasEqualOrHigherRights(authority)) ||
-                        (userRole.hasAccessToApplication(accessRole) &&
-                                userRole.getAuthority().hasEqualOrHigherRights(Authority.INSTITUTION_ADMIN)))
-                .findFirst()
-                .orElseThrow(UserRestrictionException::new);
     }
 
 }
