@@ -93,7 +93,7 @@ external-api-configuration:
   remote-users:
     -
       username: voot
-      password: "{noop}secret"
+      password: "secret"
       scopes:
         - voot
     -
@@ -103,7 +103,7 @@ external-api-configuration:
         - teams
     -
       username: aa
-      password: "{noop}secret"
+      password: "secret"
       scopes:
         - attribute_aggregation
     -
@@ -113,9 +113,14 @@ external-api-configuration:
         - lifecycle
     -
       username: profile
-      password: "{noop}secret"
+      password: "secret"
       scopes:
         - profile
+    -
+      username: sp_dashboard
+      password: "secret"
+      scopes:
+        - sp_dashboard
 
 voot:
   group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl
