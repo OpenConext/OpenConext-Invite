@@ -117,15 +117,15 @@ To become an institution admin in invite, add the following values as `eduPerson
 
 There are several security filters in Invite:
 
-* OAuth2 login where the user logs in with OpenIDConnect. Invite is acting as a backend server and cookies are used to
+- OAuth2 login where the user logs in with OpenIDConnect. Invite is acting as a backend server and cookies are used to
   identify the user in the security context.
-* Access token login where the user has logged in with OpenIDConnect and the client obtained an access token. Invite is
+- Access token login where the user has logged in with OpenIDConnect and the client obtained an access token. Invite is
   acting as a resource server. The API is stateless and for now no token introspects are cached.
-* Basic Authentication for voot, teams, aa, profile, deprovision and sp_dashboard endpoints. The API is stateless and the
-  API users are stored in memory. Endpoints are also secured by scope.
-* API token header (`X-API-TOKEN`) generated for institutional_admins (or super_users) in the GUI. The user stored in the
-  security context is the first user with the same organisational GUID (or super_user) as the user who has generated the
-  token.
+- Basic Authentication for voot, teams, aa, profile, deprovision and sp_dashboard endpoints. The API is stateless and
+  the API users are stored in memory. Endpoints are also secured by scope.
+- API token header (`X-API-TOKEN`) generated for institutional_admins (or super_users) in the GUI. The user stored in
+  the security context is the first user with the same organisational GUID (or super_user) as the user who has generated
+  the token.
 
 ### Provisioning Secrets
 
