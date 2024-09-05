@@ -25,7 +25,7 @@ class ProfileControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("collabPersonId", GUEST_SUB)
-                .get("/api/profile")
+                .get("/api/external/v1/profile")
                 .as(new TypeRef<>() {
                 });
         assertEquals(3, roles.size());
@@ -54,7 +54,7 @@ class ProfileControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("collabPersonId", MANAGE_SUB)
-                .get("/api/profile")
+                .get("/api/external/v1/profile")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, roles.size());
@@ -68,7 +68,7 @@ class ProfileControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .queryParam("collabPersonId", "nope")
-                .get("/api/profile")
+                .get("/api/external/v1/profile")
                 .as(new TypeRef<>() {
                 });
         assertEquals(0, roles.size());

@@ -14,6 +14,8 @@ import access.repository.ApplicationRepository;
 import access.repository.ApplicationUsageRepository;
 import access.repository.RoleRepository;
 import access.security.RemoteUser;
+import access.security.RemoteUserPermissions;
+import access.security.Scope;
 import access.security.UserPermissions;
 import access.validation.URLFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -145,19 +147,37 @@ public class RoleController {
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
                                         @Parameter(hidden = true) User user,
                                         @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
-        //TODO differentiate between RemoteUser and User
-        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        if (user != null) {
+            //OpenID connect login with User
+            UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        } else {
+            //API user with Basic Authentication
+            RemoteUserPermissions.assertScopeAccess(remoteUser, Scope.sp_dashboard);
+        }
+
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
-        LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
-        return saveOrUpdate(role, user);
+        Provisionable provisionable = user != null ? user : remoteUser;
+
+        LOG.debug(String.format("New role '%s' by user %s", role.getName(), provisionable.getName()));
+
+        return saveOrUpdate(role, user, remoteUser);
     }
 
     @PutMapping("")
-    public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role, @Parameter(hidden = true) User user) {
-        UserPermissions.assertAuthority(user, Authority.MANAGER);
+    public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
+                                           @Parameter(hidden = true) User user,
+                                           @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        if (user != null) {
+            //OpenID connect login with User
+            UserPermissions.assertAuthority(user, Authority.MANAGER);
+        } else {
+            //API user with Basic Authentication
+            RemoteUserPermissions.assertScopeAccess(remoteUser, Scope.sp_dashboard);
+        }
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
-        return saveOrUpdate(role, user);
+
+        return saveOrUpdate(role, user, remoteUser);
     }
 
     @DeleteMapping("/{id}")
@@ -175,7 +195,7 @@ public class RoleController {
         return Results.deleteResult();
     }
 
-    private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
+    private ResponseEntity<Role> saveOrUpdate(Role role, User user, RemoteUser remoteUser) {
         if (CollectionUtils.isEmpty(role.getApplicationUsages())) {
             throw new InvalidInputException("applicationUsages are required");
         }
@@ -186,10 +206,12 @@ public class RoleController {
         });
 
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
+        if (user != null) {
+            UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
+        }
         boolean isNew = role.getId() == null;
         List<String> previousApplicationIdentifiers = new ArrayList<>();
-        Optional<UserRole> optionalUserRole = user.userRoleForRole(role);
+        Optional<UserRole> optionalUserRole = user != null ? user.userRoleForRole(role) : Optional.empty();
         boolean immutableApplicationUsages = optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER);
         boolean nameChanged = false;
         if (!isNew) {
@@ -229,7 +251,10 @@ public class RoleController {
         } else {
             provisioningService.updateGroupRequest(previousApplicationIdentifiers, saved, nameChanged);
         }
-        AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
+
+        Provisionable provisionable = user != null ? user : remoteUser;
+        AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, provisionable, role);
+
         return ResponseEntity.ok(saved);
     }
 
