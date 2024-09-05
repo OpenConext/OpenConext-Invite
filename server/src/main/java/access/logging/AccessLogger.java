@@ -13,10 +13,10 @@ public class AccessLogger {
     private AccessLogger() {
     }
 
-    public static void role(Log log, Event event, User user, Role role) {
+    public static void role(Log log, Event event, Provisionable provisionable, Role role) {
         MDC.setContextMap(Map.of(
                 "type", String.format("%s Role", event),
-                "userId", user.getSub(),
+                "userId", provisionable.getName(),
                 "applications", applications(role),
                 "roleId", role.getId().toString()
         ));

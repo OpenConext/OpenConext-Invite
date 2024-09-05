@@ -8,7 +8,7 @@ public class RemoteUserPermissions {
     private RemoteUserPermissions() {
     }
 
-    public static void assertScopeAccess(RemoteUser remoteUser, String... scopes) {
+    public static void assertScopeAccess(RemoteUser remoteUser, Scope... scopes) {
         if (remoteUser == null) {
             throw new UserRestrictionException();
         }

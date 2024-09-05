@@ -1,5 +1,6 @@
 package access.security;
 
+import access.model.Provisionable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,11 +16,11 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RemoteUser implements UserDetails, CredentialsContainer {
+public class RemoteUser implements UserDetails, CredentialsContainer, Provisionable {
 
     private String username;
     private String password;
-    private List<String> scopes;
+    private List<Scope> scopes;
 
     public RemoteUser(RemoteUser remoteUser) {
         this.username = remoteUser.username;
@@ -31,28 +32,13 @@ public class RemoteUser implements UserDetails, CredentialsContainer {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         //Convention dictates upperCase Role names to be used in @PreAuthorize annotations
         return scopes.stream()
-                .map(scope -> new SimpleGrantedAuthority("ROLE_" + scope.toUpperCase()))
+                .map(scope -> new SimpleGrantedAuthority("ROLE_" + scope.name().toUpperCase()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public String getName() {
+        return username;
     }
 
     @Override

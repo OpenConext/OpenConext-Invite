@@ -88,7 +88,7 @@ class TeamsControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", harryDoe.getPerson().getUrn())
-                .get("/api/voot/{sub}")
+                .get("/api/external/v1/voot/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, groups.size());

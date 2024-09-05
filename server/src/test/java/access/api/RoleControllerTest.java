@@ -442,17 +442,16 @@ class RoleControllerTest extends AbstractTest {
         super.stubForManageProvisioning(List.of("1"));
         super.stubForCreateScimRole();
 
-        given()
+        Role newRole = given()
                 .when()
                 .auth().preemptive().basic("sp_dashboard", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(role)
                 .post("/api/external/v1/sp_dashboard/roles")
-                .then()
-                .statusCode(400);
-        //TODO
-//        assertNotNull(result.get("id"));
+                .as(new TypeRef<>() {
+                });
+        assertNotNull(newRole.getId());
     }
 
     @Test
