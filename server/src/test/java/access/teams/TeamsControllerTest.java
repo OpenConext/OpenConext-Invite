@@ -203,4 +203,31 @@ class TeamsControllerTest extends AbstractTest {
                 });
         assertEquals("SchacHomeOrganization of a person is required", responseBody.get("message"));
     }
+
+    @Test
+    void migrateTeamManageUnavailable() {
+        List<Membership> memberships = getMemberships();
+        List<Application> applications = List.of(
+                new Application("1", EntityType.SAML20_SP),
+                new Application("5", EntityType.OIDC10_RP));
+        Team team = new Team(
+                "nl:surfnet:diensten:test",
+                "test migration",
+                "test migration",
+                memberships,
+                applications
+        );
+
+        given()
+                .when()
+                .auth().preemptive().basic("teams", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(team)
+                .put("/api/external/v1/teams")
+                .then()
+                .statusCode(400);
+
+    }
+
 }

@@ -34,6 +34,21 @@ class AttributeAggregatorControllerTest extends AbstractTest {
     }
 
     @Test
+    void getGroupMembershipsManageUnavailable() {
+        List<Map<String, String>> roles = given()
+                .when()
+                .auth().preemptive().basic("aa", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", GUEST_SUB)
+                .queryParam("SPentityID", "")
+                .get("/api/external/v1/aa/{sub}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, roles.size());
+    }
+
+    @Test
     void getGroupMembershipsGuestIncluded() throws JsonProcessingException {
         stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
         List<Map<String, String>> roles = given()

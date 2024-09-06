@@ -3,7 +3,8 @@ logging:
   level:
     root: WARN
     com.zaxxer.hikari: ERROR
-    org.springframework.security: TRACE
+    org.mariadb.jdbc.message.server: ERROR
+    org.springframework.security: INFO
     access: DEBUG
   threshold:
     console: WARN
@@ -173,7 +174,7 @@ manage:
   user: invite
   password: secret
 # If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
-# are located. This can also be an absolute file path, e.g. file:///opt/openconext/oidc-playground/manage
+# are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage
   staticManageDirectory: classpath:/manage
 #  staticManageDirectory: file:///usr/local/etc/manage
 
@@ -203,10 +204,11 @@ management:
       enabled: true
     health:
       enabled: true
+      show-details: always
     mappings:
       enabled: true
     metrics:
-      enabled: true
+      enabled: false
   info:
     git:
       mode: full
