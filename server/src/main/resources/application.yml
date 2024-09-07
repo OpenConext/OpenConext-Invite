@@ -57,7 +57,7 @@ spring:
     show-sql: false
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mysql://localhost/invite?autoReconnect=true&useSSL=false&permitMysqlScheme=true
+    url: jdbc:mysql://localhost/invite?autoReconnect=true&useSSL=false&permitMysqlScheme=true&allowPublicKeyRetrieval=true
     username: invite
     password: secret
   flyway:
