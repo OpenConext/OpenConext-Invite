@@ -7,7 +7,7 @@ import I18n from "../locale/I18n";
 import Logo from "./Logo";
 import {Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
-import {deriveRemoteApplicationAttributes} from "../utils/Manage";
+import {deriveRemoteApplicationAttributes, reduceApplicationFromUserRoles} from "../utils/Manage";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
@@ -71,17 +71,11 @@ export const User = ({user, other, config, currentUser}) => {
             role.description.toLowerCase().indexOf(queryLower) > -1
     };
 
-    const renderUserRole = (userRole, index) => {
-        const role = userRole.role;
+    const renderRoleCard = (application, index) => {
         return (
-            <React.Fragment key={index}>
-                {role.applicationMaps.map((applicationMap, i) =>
-                    <RoleCard role={role}
-                              key={i}
-                              userRole={userRole}
-                              applicationMap={applicationMap}
-                              index={i}/>)}
-            </React.Fragment>
+            <RoleCard
+                application={application}
+                index={index}/>
         )
     }
 
@@ -113,8 +107,12 @@ export const User = ({user, other, config, currentUser}) => {
     user.highestAuthority = I18n.t(`access.${highestAuthority(user, false)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
         ["lastActivity", true]];
-    const filteredUserRoles = user.userRoles.filter(filterUserRole).filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);
+    const filteredUserRoles = user.userRoles
+        .filter(filterUserRole)
+        .filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);
     const filteredApplications = (user.applications || []).filter(filterApplication);
+    const allCardApplications = reduceApplicationFromUserRoles(filteredUserRoles, I18n.locale);
+
     const hasRoles = !isEmpty(user.userRoles.filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser))
 
     return (
@@ -137,8 +135,8 @@ export const User = ({user, other, config, currentUser}) => {
                         </p>
                         {renderSearch(query, setQuery, I18n.t(`roles.searchPlaceHolder`, searchRef))}
                     </div>
-                    {filteredUserRoles
-                        .map((userRole, index) => renderUserRole(userRole, index))}
+                    {allCardApplications
+                        .map((application, index) => renderRoleCard(application, index))}
                     {(filteredUserRoles.length === 0 && hasRoles) &&
                         <p>{I18n.t(`users.noRolesFound`)}</p>}
                 </>}

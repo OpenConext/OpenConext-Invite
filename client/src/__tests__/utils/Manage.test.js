@@ -3,12 +3,12 @@ import applications from "./applications.json";
 import roles from "./roles.json";
 import userRoles from "./userRoles.json";
 
-test("Test mergeProvidersProvisioningsRoles", () => {
+test("mergeProvidersProvisioningsRoles", () => {
     const results = mergeProvidersProvisioningsRoles(applications.providers, applications.provisionings, roles);
     expect(results.length).toEqual(6);
 });
 
-test("Test reduceApplicationFromUserRoles", () => {
+test("reduceApplicationFromUserRoles", () => {
     const results = reduceApplicationFromUserRoles(userRoles, "en");
     const applicationNames = results.map(app => app.applicationName);
     //Sorting alphabetically on applicationName

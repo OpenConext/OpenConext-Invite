@@ -117,11 +117,13 @@ export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles
 }
 
 export const reduceApplicationFromUserRoles = (userRoles, locale) => {
-    //First we need the roleName, roleDescription and applicationName for each userRole.role.applicationMaps
+    //First we need the id, name, description, authority and applicationName for each userRole.role.applicationMaps
     userRoles.forEach(userRole => userRole.role.applicationMaps
         .forEach(app => {
             app.applicationName = applicationName(app, locale);
+            app.roleId = userRole.role.id;
             app.roleName = userRole.role.name;
+            app.authority = userRole.authority;
             app.roleDescription = userRole.role.description;
         }));
     //Now get all applicationMaps flattened and return sorted

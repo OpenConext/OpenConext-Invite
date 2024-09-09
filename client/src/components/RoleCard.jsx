@@ -5,27 +5,25 @@ import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
-import {roleName} from "../utils/Manage";
 
 export const RoleCard = ({
-                             role,
-                             applicationMap,
+                             application,
                              index,
-                             isNew = false,
-                             userRole = null,
+                             isNew = false
                          }) => {
     const navigate = useNavigate();
 
     const children =
         <div key={index} className="user-role" >
-            <Logo src={applicationMap.logo} alt={"provider"} className={"provider"}/>
+            <Logo src={application.logo} alt={"provider"} className={"provider"}/>
             <section className={"user-role-info"}>
-                <p>{role.name} {userRole && <span>- {I18n.t(`access.${userRole.authority}`)}</span>}</p>
-                <h3>{roleName(applicationMap, I18n.locale)}</h3>
-                <MoreLessText txt={role.description} cutOffNumber={80}/>
+                <p>{application.roleName} {application.authority &&
+                    <span>- {I18n.t(`access.${application.authority}`)}</span>}</p>
+                <h3>{application.applicationName}</h3>
+                <MoreLessText txt={application.roleDescription} cutOffNumber={80}/>
             </section>
             <div className="launch">
-                <Button txt={I18n.t("inviter.details")} onClick={() => navigate(`/roles/${role.id}`)}/>
+                <Button txt={I18n.t("inviter.details")} onClick={() => navigate(`/roles/${application.roleId}`)}/>
             </div>
 
         </div>;

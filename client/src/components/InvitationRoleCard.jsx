@@ -21,7 +21,7 @@ export const InvitationRoleCard = ({
 
     const multiApp = applicationMaps.length > 1;
     const application = applicationMaps[0];
-    const logo = multiApp ?<MultipleIcon/> : application.logo;
+    const logo = multiApp ? <MultipleIcon/> : application.logo;
     const name = multiApp ? splitListSemantically(applicationMaps.map(app => roleName(app, I18n.locale)), I18n.t("forms.and")) :
         roleName(application, I18n.locale);
 

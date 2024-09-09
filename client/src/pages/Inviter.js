@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import I18n from "../locale/I18n";
 import "./Inviter.scss";
-import {Button, Tooltip} from "@surfnet/sds";
+import {Button} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
 import DOMPurify from "dompurify";
@@ -22,11 +22,6 @@ export const Inviter = () => {
         },
         [])
 
-    // const gotoHistory = e => {
-    //     stopEvent(e);
-    //     navigate("/invitations")
-    // }
-
     const renderUserRole = (role, index) => {
         const applicationMaps = role.applicationMaps;
         return (
@@ -40,6 +35,10 @@ export const Inviter = () => {
         )
     }
 
+    const sortUserRoles = () => {
+        return [...user.userRoles].sort((ur1, ur2) => ur1.role.name.localeCompare(ur2.role.name));
+    }
+
     return (
         <div className="mod-inviter">
             <div className="inviter-container">
@@ -49,19 +48,13 @@ export const Inviter = () => {
                 <h2>{I18n.t("inviter.welcome", {name: user.name})}</h2>
                 <div className={"info"}>
                     <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("inviter.info"))}}/>
-                    <Tooltip tip={I18n.t("tooltips.inviter")} standalone={true}/>
                 </div>
                 <div className={"actions"}>
                     <Button txt={I18n.t("inviter.sendInvite")}
                             onClick={() => navigate("/invitation/new")} />
-                    {/*<div className={"history"}>*/}
-                    {/*    <span>{I18n.t("forms.or")}*/}
-                    {/*        <a href="/#" onClick={gotoHistory}>{I18n.t("inviter.viewHistory")}</a>*/}
-                    {/*    </span>*/}
-                    {/*</div>*/}
                 </div>
                 <h3 className={"sub-info"}>{I18n.t("inviter.manage")}</h3>
-                {user.userRoles.map((userRole, index) => renderUserRole(userRole.role, index))}
+                {sortUserRoles(user.userRoles).map((userRole, index) => renderUserRole(userRole.role, index))}
             </div>
         </div>);
 };

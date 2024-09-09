@@ -154,7 +154,8 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) 
     })
     return allRoles
         .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
-        .concat(userRoles);
+        .concat(userRoles)
+        .sort((r1,r2) => r1.name.localeCompare(r2.name));
 }
 
 export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
