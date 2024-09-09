@@ -1,10 +1,13 @@
 package access.provision.scim;
 
 
+import access.api.RoleController;
 import access.model.User;
 import access.provision.Provisioning;
 import access.provision.ScimUserIdentifier;
 import lombok.Getter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -13,6 +16,8 @@ import java.util.List;
 
 @Getter
 public class UserRequest implements Serializable {
+
+    private static final Log LOG = LogFactory.getLog(UserRequest.class);
 
     private final List<String> schemas = Collections.singletonList("urn:ietf:params:scim:schemas:core:2.0:User");
     private final String externalId;
@@ -42,12 +47,32 @@ public class UserRequest implements Serializable {
         if (scimUserIdentifier == null) {
             return defaultExternalId;
         }
-        return switch (scimUserIdentifier) {
-            case subject_id -> StringUtils.hasText(user.getSubjectId()) ? user.getSubjectId() : defaultExternalId;
-            case uids -> StringUtils.hasText(user.getUid()) ? user.getUid() : defaultExternalId;
-            case email -> StringUtils.hasText(user.getEmail()) ? user.getEmail() : defaultExternalId;
-            case eduID -> StringUtils.hasText(user.getEduId()) ? user.getEduId() : defaultExternalId;
+        boolean missingScimUserIdentifierValue = false;
+        String externalIdIdentifier = switch (scimUserIdentifier) {
+            case subject_id -> {
+                missingScimUserIdentifierValue = !StringUtils.hasText(user.getSubjectId());
+                yield missingScimUserIdentifierValue ? defaultExternalId : user.getSubjectId();
+            }
+            case uids -> {
+                missingScimUserIdentifierValue = !StringUtils.hasText(user.getUid());
+                yield missingScimUserIdentifierValue ? defaultExternalId : user.getUid();
+            }
+            case email -> {
+                missingScimUserIdentifierValue = !StringUtils.hasText(user.getEmail());
+                yield missingScimUserIdentifierValue ? defaultExternalId : user.getEmail();
+            }
+            case eduID -> {
+                missingScimUserIdentifierValue = !StringUtils.hasText(user.getEduId());
+                yield missingScimUserIdentifierValue ? defaultExternalId : user.getEduId();
+            }
             default -> defaultExternalId;
         };
+        if (missingScimUserIdentifierValue) {
+            LOG.warn(String.format(
+                    "Missing attribute %s for SCIM provisioning to %s for user %s. Return defaultExternalId %s",
+                    scimUserIdentifier, provisioning.getEntityId(), user.getSub(), defaultExternalId)
+            );
+        }
+        return externalIdIdentifier;
     }
 }
