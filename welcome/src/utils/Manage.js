@@ -19,7 +19,7 @@ export const applicationName = (app, locale) => {
 }
 
 export const reduceApplicationFromUserRoles = (userRoles, locale) => {
-    //First we need the roleName, roleDescription and applicationName and for each userRole.role.applicationMaps
+    //First we need the roleName, roleDescription and applicationName for each userRole.role.applicationMaps
     userRoles.forEach(userRole => userRole.role.applicationMaps
         .forEach(app => {
             app.applicationName = applicationName(app, locale);
@@ -30,6 +30,7 @@ export const reduceApplicationFromUserRoles = (userRoles, locale) => {
     const applicationMaps = userRoles
         .map(userRole => userRole.role.applicationMaps)
         .flat()
+        //Applications that do not exist any longer in Manage, are marked as unknown server side
         .filter(applicationMap => !applicationMap.unknown);
     return applicationMaps.sort((app1, app2) =>
         app1.applicationName.localeCompare(app2.applicationName) || app1.roleName.localeCompare(app2.roleName)

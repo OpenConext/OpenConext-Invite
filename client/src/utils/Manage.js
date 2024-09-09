@@ -15,6 +15,14 @@ export const singleProviderToOption = (provider, locale) => {
     };
 }
 
+export const applicationName = (app, locale) => {
+    const name = app[`name:${locale}`] || app["name:en"]
+    const organizationName = app[`OrganizationName:${locale}`] || app["OrganizationName:en"];
+    const organisationValue = isEmpty(organizationName) ? "" : ` (${organizationName})`;
+    return `${name}${organisationValue}`;
+}
+
+
 export const roleName = (app, locale) => {
     const name = app[`name:${locale}`] || app["name:en"]
     const organizationName = app[`OrganizationName:${locale}`] || app["OrganizationName:en"];
@@ -63,18 +71,6 @@ export const deriveRemoteApplicationAttributes = (application, locale) => {
     }
 }
 
-export const providerInfo = provider => {
-    if (isEmpty(provider)) {
-        return {
-            "OrganizationName:en": "",
-            provisioning_type: "",
-            "name:en": "Unknown in Manage",
-            unknownInManage: true
-        }
-    }
-    return provider;
-}
-
 export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles, locale = "en") => {
     /**
      * We want the following structure for the providers, provisionings and roles:
@@ -119,4 +115,24 @@ export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles
             }))
     }))
 }
+
+export const reduceApplicationFromUserRoles = (userRoles, locale) => {
+    //First we need the roleName, roleDescription and applicationName for each userRole.role.applicationMaps
+    userRoles.forEach(userRole => userRole.role.applicationMaps
+        .forEach(app => {
+            app.applicationName = applicationName(app, locale);
+            app.roleName = userRole.role.name;
+            app.roleDescription = userRole.role.description;
+        }));
+    //Now get all applicationMaps flattened and return sorted
+    const applicationMaps = userRoles
+        .map(userRole => userRole.role.applicationMaps)
+        .flat()
+        //Applications that do not exist any longer in Manage, are marked as unknown server side
+        .filter(applicationMap => !applicationMap.unknown);
+    return applicationMaps.sort((app1, app2) =>
+        app1.applicationName.localeCompare(app2.applicationName) || app1.roleName.localeCompare(app2.roleName)
+    );
+}
+
 

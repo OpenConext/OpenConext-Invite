@@ -1,0 +1,156 @@
+{
+  "provisionings": [
+    {
+      "scim_user": "user",
+      "scim_update_role_put_method": true,
+      "entityid": "https://scim",
+      "type": "provisioning",
+      "scim_password": "secret",
+      "name:en": "Scim",
+      "id": "7",
+      "scim_url": "http://localhost:8081/api/scim/v2",
+      "provisioning_type": "scim",
+      "_id": "7",
+      "applications": [
+        {
+          "id": "1",
+          "type": "saml20_sp"
+        },
+        {
+          "id": "5",
+          "type": "oidc10_rp"
+        }
+      ]
+    },
+    {
+      "scim_user": "user",
+      "scim_update_role_put_method": false,
+      "entityid": "https://scim-patch",
+      "type": "provisioning",
+      "scim_password": "secret",
+      "name:en": "Scim-Patch",
+      "id": "8",
+      "scim_url": "http://localhost:8081/api/scim/v2",
+      "scim_user_identifier": "subject_id",
+      "provisioning_type": "scim",
+      "_id": "8",
+      "applications": [
+        {
+          "id": "4",
+          "type": "saml20_sp"
+        }
+      ]
+    },
+    {
+      "graph_client_id": "client_id",
+      "entityid": "https://graph",
+      "type": "provisioning",
+      "graph_tenant": "tenant",
+      "name:en": "graph",
+      "id": "9",
+      "graph_url": "http://localhost:8081/graph/users",
+      "provisioning_type": "graph",
+      "graph_secret": "secret",
+      "_id": "9",
+      "applications": [
+        {
+          "id": "2",
+          "type": "saml20_sp"
+        },
+        {
+          "id": "6",
+          "type": "oidc10_rp"
+        }
+      ]
+    },
+    {
+      "entityid": "https://eva",
+      "type": "provisioning",
+      "name:en": "EVA",
+      "id": "10",
+      "eva_guest_account_duration": 30,
+      "eva_token": "secret",
+      "provisioning_type": "eva",
+      "eva_url": "http://localhost:8081/eva",
+      "_id": "10",
+      "applications": [
+        {
+          "id": "3",
+          "type": "saml20_sp"
+        }
+      ]
+    }
+  ],
+  "providers": [
+    {
+      "entityid": "https://calendar",
+      "type": "oidc10_rp",
+      "url": "https://default-url-calendar.org",
+      "name:nl": "Calendar NL",
+      "institutionGuid": "ad93daef-0911-e511-80d0-005056956c1a",
+      "OrganizationName:en": "SURF bv",
+      "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
+      "name:en": "Calendar EN",
+      "id": "5",
+      "_id": "5"
+    },
+    {
+      "entityid": "https://cloud",
+      "type": "oidc10_rp",
+      "url": "https://default-url-cloud.org",
+      "name:nl": "Cloud NL",
+      "OrganizationName:en": "SURF bv",
+      "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
+      "name:en": "Cloud EN",
+      "id": "6",
+      "_id": "6"
+    },
+    {
+      "entityid": "https://wiki",
+      "type": "saml20_sp",
+      "url": "https://default-url-wiki.org",
+      "name:nl": "Wiki NL",
+      "institutionGuid": "ad93daef-0911-e511-80d0-005056956c1a",
+      "OrganizationName:en": "SURF bv",
+      "name:en": "Wiki EN",
+      "id": "1",
+      "_id": "1"
+    },
+    {
+      "entityid": "https://network",
+      "type": "saml20_sp",
+      "url": "https://default-url-network.org",
+      "name:nl": "Network NL",
+      "institutionGuid": "ad93daef-0911-e511-80d0-005056956c1a",
+      "OrganizationName:en": "SURF bv",
+      "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
+      "name:en": "Network EN",
+      "id": "2",
+      "_id": "2"
+    },
+    {
+      "entityid": "https://storage",
+      "type": "saml20_sp",
+      "url": "https://default-url-storage.org",
+      "name:nl": "Storage NL",
+      "OrganizationName:en": "SURF bv",
+      "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
+      "name:en": "Storage EN",
+      "id": "3",
+      "_id": "3"
+    },
+    {
+      "entityid": "https://research",
+      "type": "saml20_sp",
+      "url": "https://default-url-research.org",
+      "name:nl": "Research NL",
+      "OrganizationName:en": "SURF bv",
+      "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
+      "name:en": "Research EN",
+      "id": "4",
+      "_id": "4"
+    }
+  ]
+}
+
+

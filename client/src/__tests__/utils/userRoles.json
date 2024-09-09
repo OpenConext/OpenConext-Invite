@@ -1,0 +1,73 @@
+[
+  {
+    "role": {
+      "name": "Wiki Another Role (3) - Calendar (1)",
+      "description": "Wiki Another Role (3) - Calendar (1)",
+      "applicationMaps": [
+        {
+          "name:nl": "Wiki NL",
+          "OrganizationName:en": "SURF bv",
+          "name:en": "Wiki EN"
+        },
+        {
+          "name:nl": "Calendar NL",
+          "OrganizationName:en": "SURF bv",
+          "name:en": "Calendar EN"
+        }
+      ]
+    }
+  },
+  {
+    "role": {
+      "name": "Wiki 2 Role",
+      "description": "Wiki 2 Role",
+      "applicationMaps": [
+        {
+          "name:nl": "Wiki NL",
+          "OrganizationName:en": "SURF bv",
+          "name:en": "Wiki EN"
+        }
+      ]
+    },
+    "authority": "INVITER"
+  },
+  {
+    "role": {
+      "name": "Research ABC",
+      "description": "Research ABC Description",
+      "applicationMaps": [
+        {
+          "name:nl": "Research NL",
+          "OrganizationName:en": "SURF bv",
+          "name:en": "Research EN"
+        }
+      ]
+    }
+  },
+  {
+    "role": {
+      "name": "Wiki 1 Role",
+      "description": "Wiki 1 Role",
+      "applicationMaps": [
+        {
+          "name:nl": "Wiki NL",
+          "OrganizationName:en": "SURF bv",
+          "name:en": "Wiki EN"
+        }
+      ]
+    }
+  },
+  {
+    "role": {
+      "name": "Research XYZ",
+      "description": "Research XYZ Description",
+      "applicationMaps": [
+        {
+          "name:nl": "Research NL",
+          "OrganizationName:en": "SURF bv",
+          "name:en": "Research EN"
+        }
+      ]
+    }
+  }
+]
