@@ -183,6 +183,7 @@ const en = {
         title: "Access Roles for this application",
         new: "New Access Role",
         searchPlaceHolder: "Search for applications",
+        noResults: "No applications found...",
         name:"Application name",
         types: {
             saml20_sp: "Service Provider",

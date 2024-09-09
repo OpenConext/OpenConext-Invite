@@ -13,6 +13,8 @@ import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -24,6 +26,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -57,6 +60,7 @@ public class SecurityConfig {
     private final InvitationRepository invitationRepository;
     private final ProvisioningService provisioningService;
     private final ExternalApiConfiguration externalApiConfiguration;
+    private final Environment environment;
 
     private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
 
@@ -65,6 +69,7 @@ public class SecurityConfig {
                           InvitationRepository invitationRepository,
                           ProvisioningService provisioningService,
                           ExternalApiConfiguration externalApiConfiguration,
+                          Environment environment,
                           @Value("${config.eduid-entity-id}") String eduidEntityId,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
@@ -77,6 +82,7 @@ public class SecurityConfig {
         this.clientId = clientId;
         this.secret = secret;
         this.externalApiConfiguration = externalApiConfiguration;
+        this.environment = environment;
     }
 
     @Configuration
@@ -154,7 +160,10 @@ public class SecurityConfig {
                 //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin invitation accept
                 .securityContext(securityContextConfigurer ->
                         securityContextConfigurer.securityContextRepository(this.securityContextRepository()));
-
+        if (environment.acceptsProfiles(Profiles.of("local"))) {
+            //Thus avoiding an oauth2 login for local development
+            http.addFilterBefore(new LocalDevelopmentAuthenticationFilter(), AnonymousAuthenticationFilter.class);
+        }
         return http.build();
     }
 

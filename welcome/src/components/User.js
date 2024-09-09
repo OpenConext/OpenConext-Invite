@@ -3,36 +3,29 @@ import "./User.scss";
 import I18n from "../locale/I18n";
 import {isEmpty} from "../utils/Utils";
 import {RoleCard} from "./RoleCard";
+import {reduceApplicationFromUserRoles} from "../utils/Manage";
 
 export const User = ({user, invitationRoles = []}) => {
 
-    const renderUserRole = (userRole, index) => {
-        const role = userRole.role;
+    const renderApplication = (application, index) => {
         return (
-            <React.Fragment key={index}>
-                {role.applicationMaps
-                    .filter(applicationMap => !applicationMap.unknown)
-                    .map((applicationMap, i) =>
-                    <RoleCard role={role}
-                              key={i}
-                              index={i}
-                              applicationMap={applicationMap}/>)}
-            </React.Fragment>
+            <RoleCard index={index} application={application}/>
         );
     }
+
     const rolesToExclude = invitationRoles.map(invitationRole => invitationRole.role.id);
     const filteredUserRoles = user.userRoles
         .filter(userRole => userRole.authority === "GUEST" || userRole.guestRoleIncluded)
         .filter(userRole => !rolesToExclude.includes(userRole.role.id));
+    const applications = reduceApplicationFromUserRoles(filteredUserRoles, I18n.locale);
     return (
         <>
             {(isEmpty(user.userRoles) && isEmpty(invitationRoles)) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {!isEmpty(user.userRoles) &&
                 <>
-                    {filteredUserRoles
-                        .map((userRole, index) => renderUserRole(userRole, index))}
-                    {(isEmpty(user.userRoles) && isEmpty(invitationRoles)) &&
+                    {applications.map((application, index) => renderApplication(application, index))}
+                    {isEmpty(applications) &&
                         <p>{I18n.t(`users.noRolesFound`)}</p>}
                 </>}
         </>

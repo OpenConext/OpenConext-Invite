@@ -182,6 +182,7 @@ const nl = {
         title: "Toegangsrollen voor deze applicatie",
         new: "Nieuwe toegangsrol",
         searchPlaceHolder: "Zoek naar applicaties",
+        noResults: "Geen applicaties gevonden...",
         name:"Applicatienaam",
         types: {
             saml20_sp: "Service Provider",

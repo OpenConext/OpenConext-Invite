@@ -94,7 +94,7 @@ export const Tokens = () => {
         return (
             <Page className={"page new-token"}>
                 <div className="back-to-tokens-container">
-                    <a href={"/cancel"}
+                    <a href={"/#cancel"}
                        className={"back-to-tokens"}
                        onClick={cancelSideScreen}>
                         <ChevronLeft/>{I18n.t("tokens.backToOverview")}

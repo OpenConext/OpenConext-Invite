@@ -106,7 +106,7 @@ const Applications = () => {
                       defaultSort="name"
                       columns={columns}
                       hideTitle={true}
-                      customNoEntities={I18n.t(`roles.noResults`)}
+                      customNoEntities={I18n.t(`applications.noResults`)}
                       searchAttributes={["name", "organization"]}
                       inputFocus={true}>
             </Entities>

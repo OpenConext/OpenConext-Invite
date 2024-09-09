@@ -1,5 +1,5 @@
 import I18n from "../locale/I18n";
-import {splitListSemantically} from "./Utils";
+import {isEmpty, splitListSemantically} from "./Utils";
 
 export const organisationName = apps => {
     if (apps.length === 1) {
@@ -11,8 +11,27 @@ export const organisationName = apps => {
     }
 }
 
-export const roleName = app => {
-    const name = app[`name:${I18n.locale}`] || app["name:en"]
-    const orgName = app[`OrganizationName:${I18n.locale}`] || app["OrganizationName:en"]
-    return `${name} (${orgName})`;
+export const applicationName = (app, locale) => {
+    const name = app[`name:${locale}`] || app["name:en"]
+    const organizationName = app[`OrganizationName:${locale}`] || app["OrganizationName:en"];
+    const organisationValue = isEmpty(organizationName) ? "" : ` (${organizationName})`;
+    return `${name}${organisationValue}`;
+}
+
+export const reduceApplicationFromUserRoles = (userRoles, locale) => {
+    //First we need the roleName, roleDescription and applicationName and for each userRole.role.applicationMaps
+    userRoles.forEach(userRole => userRole.role.applicationMaps
+        .forEach(app => {
+            app.applicationName = applicationName(app, locale);
+            app.roleName = userRole.role.name;
+            app.roleDescription = userRole.role.description;
+        }));
+    //Now get all applicationMaps flattened and return sorted
+    const applicationMaps = userRoles
+        .map(userRole => userRole.role.applicationMaps)
+        .flat()
+        .filter(applicationMap => !applicationMap.unknown);
+    return applicationMaps.sort((app1, app2) =>
+        app1.applicationName.localeCompare(app2.applicationName) || app1.roleName.localeCompare(app2.roleName)
+    );
 }

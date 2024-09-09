@@ -14,6 +14,7 @@ import {RoleCard} from "../components/RoleCard";
 import {User} from "../components/User";
 import HighFive from "../icons/high-five.svg";
 import {useNavigate} from "react-router-dom";
+import {reduceApplicationFromUserRoles} from "../utils/Manage";
 
 export const Proceed = () => {
 
@@ -62,18 +63,12 @@ export const Proceed = () => {
         logout().then(() => login(config, true));
     }
 
-    const renderInvitationRole = (invitationRole, index, isNew, skipLaunch = false) => {
-        const role = invitationRole.role;
+    const renderApplication = (index, application, isNew, skipLaunch = false) => {
         return (
-            <React.Fragment key={index}>
-                {role.applicationMaps.map((applicationMap, i) =>
-                    <RoleCard role={role}
-                              key={i}
-                              applicationMap={applicationMap}
-                              index={i}
-                              isNew={isNew}
-                              skipLaunch={skipLaunch}/>)}
-            </React.Fragment>
+            <RoleCard index={index}
+                      application={application}
+                      isNew={isNew}
+                      skipLaunch={skipLaunch}/>
         );
     }
 
@@ -83,6 +78,7 @@ export const Proceed = () => {
             <a href="/logout" onClick={doLogin}>{I18n.t("profile.changeThis")}</a>
             <span>)</span>
         </div>
+        const applications = reduceApplicationFromUserRoles(reloadedInvitation.roles, I18n.locale);
         return (
             <>
                 <div className="profile-container">
@@ -99,7 +95,7 @@ export const Proceed = () => {
                     <Toaster toasterType={ToasterType.Info}
                              large={true}
                              children={toasterChildren}/>
-                    {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, true))}
+                    {applications.map((application, index) => renderApplication(index, application, true))}
                     <User user={user} invitationRoles={reloadedInvitation.roles}/>
                 </div>
 
@@ -119,6 +115,7 @@ export const Proceed = () => {
         }
     }
 
+    const reloadedApplications = reduceApplicationFromUserRoles(reloadedInvitation.roles, I18n.locale);
     return (
         <div className="mod-proceed mod-profile">
             {showModal &&
@@ -126,8 +123,8 @@ export const Proceed = () => {
                        confirmationButtonLabel={I18n.t("invitationAccept.continue")}
                        full={true}
                        title={I18n.t("invitationAccept.access")}>
-                    {reloadedInvitation.roles.map((invitationRole, index) => renderInvitationRole(invitationRole, index, false, true))}
-                    <p>{I18n.t(`invitationAccept.applicationInfo${reloadedInvitation.roles.length > 1 ? "Multiple" : ""}`)}</p>
+                    {reloadedApplications.map((application, index) => renderApplication(index, application, false, true))}
+                    <p>{I18n.t(`invitationAccept.applicationInfo${reloadedApplications.length > 1 ? "Multiple" : ""}`)}</p>
                     {inviteRedeemUrl && <p className="invite-url">{I18n.t("invitationAccept.inviteRedeemUrl")}</p>}
                     {errorResponse && <p className="invite-error">{I18n.t("invitationAccept.graphEmailViolation")}</p>}
                 </Modal>}

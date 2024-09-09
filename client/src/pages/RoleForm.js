@@ -77,14 +77,14 @@ export const RoleForm = () => {
                 }
                 let providers;
                 if (user.superUser) {
-                    providers = providersToOptions(res[newRole ? 0 : 1]);
+                    providers = providersToOptions(res[newRole ? 0 : 1], I18n.locale);
                 } else if (user.institutionAdmin) {
                     providers = providersToOptions(distinctValues(user.applications.concat(
                         user.userRoles.map(userRole => userRole.role.applicationMaps).flat()
-                    ), "id"));
+                    ), "id"), I18n.locale);
                 } else {
                     providers = providersToOptions(distinctValues(user.userRoles
-                        .map(userRole => userRole.role.applicationMaps).flat(), "id"));
+                        .map(userRole => userRole.role.applicationMaps).flat(), "id"), I18n.locale);
                 }
                 setProviders(providers);
                 setNewRole(newRole);
@@ -104,7 +104,7 @@ export const RoleForm = () => {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
 
                     res[0].applicationMaps.forEach(m => m.landingPage = (res[0].applicationUsages.find(appUsage => appUsage.application.manageId === m.id) || {}).landingPage);
-                    setApplications(providersToOptions(res[0].applicationMaps));
+                    setApplications(providersToOptions(res[0].applicationMaps, I18n.locale));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});

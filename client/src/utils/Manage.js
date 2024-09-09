@@ -1,14 +1,12 @@
 import {isEmpty, splitListSemantically} from "./Utils";
 import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
 
-export const singleProviderToOption = provider => {
-    const organisation = provider["OrganizationName:en"];
-    const organisationValue = isEmpty(organisation) ? "" : ` (${organisation})`;
+export const singleProviderToOption = (provider, locale) => {
     const manageType = provider.type ? provider.type.toUpperCase() : provider.manageType;
     const manageId = provider.id || provider.manageId;
     return {
         value: manageId,
-        label: `${provider["name:en"]}${organisationValue}`,
+        label: roleName(provider, locale),
         type: manageType,
         manageType: manageType,
         manageId: manageId,
@@ -19,13 +17,14 @@ export const singleProviderToOption = provider => {
 
 export const roleName = (app, locale) => {
     const name = app[`name:${locale}`] || app["name:en"]
-    const orgName = app[`OrganizationName:${locale}`] || app["OrganizationName:en"]
-    return `${name} (${orgName})`;
+    const organizationName = app[`OrganizationName:${locale}`] || app["OrganizationName:en"];
+    const organisationValue = isEmpty(organizationName) ? "" : ` (${organizationName})`;
+    return `${name}${organisationValue}`;
 }
 
-export const providersToOptions = providers => {
+export const providersToOptions = (providers, locale) => {
     return providers
-        .map(provider => singleProviderToOption(provider))
+        .map(provider => singleProviderToOption(provider, locale))
         .sort((r1, r2) => r1.label.toLowerCase().localeCompare(r2.label.toLowerCase()));
 }
 

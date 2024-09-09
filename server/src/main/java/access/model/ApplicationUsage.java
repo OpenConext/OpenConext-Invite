@@ -35,8 +35,4 @@ public class ApplicationUsage implements Serializable {
         this.application = application;
     }
 
-    public Application getApplication() {
-        application.setLandingPage(this.getLandingPage());
-        return application;
-    }
 }
