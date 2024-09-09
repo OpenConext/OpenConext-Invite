@@ -104,11 +104,15 @@ public interface Manage {
         roles.forEach(role -> role.setApplicationMaps(
                 role.getApplicationUsages().stream()
                         .map(applicationUsage -> {
-                            Map<String, Object> applicationMap = transformProvider(remoteApplications.get(applicationUsage.getApplication().getManageId()));
+                            Map<String, Object> applicationMap =
+                                    transformProvider(remoteApplications.get(applicationUsage.getApplication().getManageId()));
                             if (applicationMap == null) {
                                 //If remote manage is not behaving
                                 applicationMap = new HashMap<>();
                                 applicationMap.put("unknown", true);
+                            } else {
+                                //Bugfix for overwrite of map reference value in case roles are linked to same application, need new Map
+                                applicationMap = new HashMap<>(applicationMap);
                             }
                             applicationMap.put("landingPage", applicationUsage.getLandingPage());
                             return applicationMap;
