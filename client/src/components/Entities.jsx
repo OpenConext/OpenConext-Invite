@@ -193,7 +193,7 @@ export const Entities = ({
                             </tbody>
                         </table>
                     </div>}
-                {(!hasEntities && !children && !initial && !customEmptySearch) &&
+                {(!hasEntities && !initial && !customEmptySearch && !loading) &&
                     <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
                 {pagination && <Pagination currentPage={page}
                                            onChange={nbr => setPage(nbr)}

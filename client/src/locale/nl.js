@@ -180,6 +180,7 @@ const nl = {
     },
     applications: {
         title: "Toegangsrollen voor deze applicatie",
+        applicationFound: "Applicaties ({{nbr}})",
         new: "Nieuwe toegangsrol",
         searchPlaceHolder: "Zoek naar applicaties",
         noResults: "Geen applicaties gevonden...",

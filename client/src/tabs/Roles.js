@@ -80,7 +80,6 @@ export const Roles = () => {
 
         setFilterOptions(newFilterOptions.concat(appOptions));
         setFilterValue(newFilterOptions[0]);
-
     }
 
     const openRole = (e, role) => {
@@ -138,6 +137,7 @@ export const Roles = () => {
             </div>
         );
     }
+
     const filter = () => {
         return (
             <div className="roles-filter">
@@ -216,6 +216,7 @@ export const Roles = () => {
             </div>
         )
     }
+
     const filteredRoles = filterValue.value === allValue ? roles :
         roles.filter(role => role.applicationMaps.map(m => m.id).includes(filterValue.value));
 

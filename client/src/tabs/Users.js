@@ -15,7 +15,9 @@ import {dateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
 import SearchSvg from "../icons/undraw_people_search_re_5rre.svg";
 import {chipTypeForUserRole} from "../utils/Authority";
+import Select from "react-select";
 
+const allValue = "all";
 
 export const Users = () => {
 
@@ -26,6 +28,8 @@ export const Users = () => {
     const [moreToShow, setMoreToShow] = useState(false);
     const [initial, setInitial] = useState(true);
     const [noResults, setNoResults] = useState(false);
+    const [filterOptions, setFilterOptions] = useState([]);
+    const [filterValue, setFilterValue] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -53,6 +57,7 @@ export const Users = () => {
             setMoreToShow(false);
             setNoResults(false);
             setUsers([]);
+            initFilterValues([]);
         }
     };
 
@@ -63,6 +68,7 @@ export const Users = () => {
                 setInitial(false);
                 results.forEach(user => user.highestAuthority = highestAuthority(user, false));
                 setUsers(results);
+                initFilterValues(results);
                 setMoreToShow(results.length === 15 && query !== "owl");
                 setNoResults(results.length === 0);
                 setSearching(false);
@@ -74,6 +80,49 @@ export const Users = () => {
             <div className="more-results-available">
                 <span>{I18n.t("users.moreResults")}</span>
             </div>)
+    }
+
+    const initFilterValues = users => {
+        const newFilterOptions = [{
+            label: I18n.t("invitations.statuses.all", {nbr: users.length}),
+            value: allValue
+        }];
+        const reducedRoles = users.reduce((acc, user) => {
+            const option = acc.find(opt => opt.value === user.highestAuthority);
+            if (option) {
+                ++option.nbr;
+            } else {
+                acc.push({value: user.highestAuthority, nbr: 1, name: I18n.t(`access.${user.highestAuthority}`)});
+            }
+            return acc;
+        }, []);
+        const authorityOptions = reducedRoles.map(option => ({
+            label: `${option.name} (${option.nbr})`,
+            value: option.value
+        })).sort((o1, o2) => o1.label.localeCompare(o2.label));
+        setFilterOptions(newFilterOptions.concat(authorityOptions));
+        setFilterValue(newFilterOptions[0]);
+    }
+
+    const filter = () => {
+        return (
+            <div className="users-filter">
+                <Select
+                    className={"users-filter-select"}
+                    value={filterValue}
+                    classNamePrefix={"filter-select"}
+                    onChange={option => setFilterValue(option)}
+                    options={filterOptions}
+                    isSearchable={false}
+                    isClearable={false}
+                />
+            </div>
+        );
+    }
+
+    const filteredUsers = () => {
+        return !filterValue || filterValue.value === allValue ? users :
+            users.filter(user => user.highestAuthority === filterValue.value);
     }
 
     const columns = [
@@ -155,19 +204,19 @@ export const Users = () => {
     }
     return (<div className="mod-users">
         {searching && <Loader/>}
-
-        <Entities entities={users}
+        {moreToShow && moreResultsAvailable()}
+        <Entities entities={filteredUsers(users)}
                   modelName="users"
                   defaultSort="name"
-                  filters={moreToShow && moreResultsAvailable()}
                   columns={columns}
                   title={title}
                   newLabel={currentUser.superUser ? I18n.t("invitations.newInvite") : null}
                   showNew={isUserAllowed(AUTHORITIES.SUPER_USER, currentUser)}
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=true`)}
                   hideTitle={!hasEntities || noResults}
+                  filters={(hasEntities && !noResults) && filter(filterOptions, filterValue)}
                   customNoEntities={I18n.t(`users.noResults`)}
-                  loading={false}
+                  loading={searching}
                   searchAttributes={["name", "email", "schacHomeOrganization"]}
                   inputFocus={true}
                   customSearch={search}
