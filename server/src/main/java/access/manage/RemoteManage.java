@@ -46,17 +46,19 @@ public class RemoteManage implements Manage {
             return emptyList();
         }
         String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(","));
-        String query = URLEncoder.encode(String.format("{ \"id\": { $in: [%s]}}", param), Charset.defaultCharset());
-        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.collectionName(), query);
-        return transformProvider(restTemplate.getForEntity(queryUrl, List.class).getBody());
+        String body = String.format("{ \"id\": { \"$in\": [%s]}}", param);
+        String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, entityType.collectionName());
+        List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
+        return transformProvider(providers);
     }
 
     @Override
     public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
-        String query = URLEncoder.encode(String.format("{\"data.entityid\":\"%s\"}", entityID), Charset.defaultCharset());
-        String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url, entityType.collectionName(), query);
-        List<Map<String, Object>> providers = transformProvider(restTemplate.getForEntity(queryUrl, List.class).getBody());
-        return providers.isEmpty() ? Optional.empty() : Optional.of(providers.get(0));
+        String body = String.format("{\"data.entityid\":\"%s\"}", entityID);
+        String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, entityType.collectionName());
+        List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
+        List<Map<String, Object>> allProviders = transformProvider(providers);
+        return allProviders.isEmpty() ? Optional.empty() : Optional.of(allProviders.get(0));
     }
 
     @Override
@@ -84,13 +86,14 @@ public class RemoteManage implements Manage {
         List<Map< String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
         String split = allowedEntities.stream().map(m -> "\"" + m.get("name") + "\"")
                 .collect(Collectors.joining(","));
-        String queryPart =  URLEncoder.encode(String.format("{\"data.entityid\":{\"$in\":[%s]}}", split), Charset.defaultCharset()) ;
+        String body =  String.format("{\"data.entityid\":{\"$in\":[%s]}}", split) ;
         List<Map<String, Object>> results = new ArrayList<>();
         List.of(EntityType.SAML20_SP, EntityType.OIDC10_RP).forEach(entityType -> {
-            String queryUrl = String.format("%s/manage/api/internal/rawSearch/%s?query=%s", url,
-                    entityType.collectionName(), queryPart);
-            List<Map<String, Object>> providers = transformProvider(restTemplate.getForEntity(queryUrl, List.class).getBody());
-            results.addAll(providers);
+            String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url,
+                    entityType.collectionName());
+            List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
+            List<Map<String, Object>> transformedProviders = transformProvider(providers);
+            results.addAll(transformedProviders);
         });
         return results;
     }
