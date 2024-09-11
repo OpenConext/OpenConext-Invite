@@ -2,12 +2,14 @@ package access.manage;
 
 import access.AbstractTest;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import wiremock.org.apache.commons.io.IOUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.charset.Charset;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,7 +53,7 @@ class RemoteManageTest extends AbstractTest {
     void providersByIdIn() throws JsonProcessingException {
         List<Map<String, Object>> providers = localManage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
         String body = objectMapper.writeValueAsString(providers);
-        stubFor(get(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()
+        stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
         List<Map<String, Object>> remoteProviders =  manage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
@@ -66,7 +68,7 @@ class RemoteManageTest extends AbstractTest {
                 .withHeader("Content-Type", "application/json")
                 .withStatus(404)));
         Map<String, Object> remoteProvider = manage.providerById(EntityType.SAML20_SP, "1");
-        assertNull(remoteProvider);
+        assertEquals(0, remoteProvider.size());
     }
 
 }

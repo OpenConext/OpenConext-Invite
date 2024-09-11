@@ -3,6 +3,7 @@ package access;
 import access.config.HashGenerator;
 import access.manage.EntityType;
 import access.manage.LocalManage;
+import access.manage.Manage;
 import access.model.*;
 import access.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -129,6 +130,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected ApplicationUsageRepository applicationUsageRepository;
+
+    @Autowired
+    protected Manage manage;
 
     protected LocalManage localManage;
 
@@ -363,8 +367,8 @@ public abstract class AbstractTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(objectMapper.writeValueAsString(body))));
             } else {
-                String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*", entityType.name().toLowerCase());
-                stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+                String path = String.format("/manage/api/internal/rawSearch/%s", entityType.name().toLowerCase());
+                stubFor(post(urlPathMatching(path)).willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(objectMapper.writeValueAsString(body))));
             }
@@ -390,19 +394,19 @@ public abstract class AbstractTest {
 
     @SneakyThrows
     protected void stubForManagerProvidersByIdIn(EntityType entityType, List<String> identifiers) {
-        String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*", entityType.name().toLowerCase());
+        String path = String.format("/manage/api/internal/rawSearch/%s", entityType.name().toLowerCase());
         List<Map<String, Object>> providers = localManage.providersByIdIn(entityType, identifiers);
         String body = objectMapper.writeValueAsString(providers);
-        stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+        stubFor(post(urlPathMatching(path)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
     }
 
     protected void stubForManageProviderByEntityID(EntityType entityType, String entityId) throws JsonProcessingException {
-        String path = String.format("/manage/api/internal/rawSearch/%s\\\\?.*", entityType.name().toLowerCase());
+        String path = String.format("/manage/api/internal/rawSearch/%s", entityType.name().toLowerCase());
         Optional<Map<String, Object>> provider = localManage.providerByEntityID(entityType, entityId);
         String body = objectMapper.writeValueAsString(provider.isPresent() ? List.of(provider.get()) : Collections.emptyList());
-        stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+        stubFor(post(urlPathMatching(path)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
     }
