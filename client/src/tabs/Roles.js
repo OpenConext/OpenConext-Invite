@@ -223,8 +223,10 @@ export const Roles = () => {
     return (
         <div className={"mod-roles"}>
             {moreToShow && moreResultsAvailable()}
-            {isGuest && <p className={"guest-only"}
+            {(isGuest && !user.institutionAdmin) && <p className={"guest-only"}
                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
+            {(isGuest && user.institutionAdmin) && <p className={"guest-only"}
+                           dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.noRolesNoApplicationsInstitutionAdmin"))}}/>}
             {!isGuest && <Entities
                 entities={isSuperUser ? filteredRoles : filteredRoles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
                 modelName="roles"

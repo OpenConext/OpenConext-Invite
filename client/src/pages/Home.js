@@ -18,6 +18,7 @@ import {Loader} from "@surfnet/sds";
 import {Tokens} from "../tabs/Tokens";
 import {ApplicationUsers} from "../tabs/ApplicationUsers";
 import Applications from "../tabs/Applications";
+import {isEmpty} from "../utils/Utils";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
@@ -67,7 +68,7 @@ export const Home = () => {
                 </Page>
             );
         }
-        if (user && user.institutionAdmin && user.organizationGUID) {
+        if (user && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) {
             newTabs.push(
                 <Page key="applications"
                       name="applications"
