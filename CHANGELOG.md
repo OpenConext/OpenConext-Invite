@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.19 2024-09-10
+- Bugfix for too long Manage API calls 
+
 ## 0.0.17 2024-08-27
 
 - Institution admin can now select all applications connected to their IdP
