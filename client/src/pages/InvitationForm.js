@@ -259,7 +259,8 @@ export const InvitationForm = () => {
                             value={invitation.message}
                             onChange={e => setInvitation({...invitation, message: e.target.value})}
                             placeholder={I18n.t("invitations.messagePlaceholder")}
-                            large={true}
+                            small={true}
+                            cols={1}
                             multiline={true}/>
 
                 <SelectField

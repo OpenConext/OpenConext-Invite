@@ -38,6 +38,10 @@
     textarea {
         height: 90px;
 
+        &.small {
+            height: 51px;
+        }
+
         &.large {
             height: 170px;
         }

@@ -22,6 +22,7 @@ export default function InputField({
                                        link = null,
                                        externalLink = false,
                                        large = false,
+                                       small = false,
                                        noInput = false,
                                        error = false,
                                        cols = 5,
@@ -68,13 +69,15 @@ export default function InputField({
                               onChange={onChange}
                               onBlur={onBlur}
                               id={name}
-                              className={`${className} sds--text-area ${large ? "large" : ""}`}
+
+                              className={`${className} sds--text-area ${large ? "large" : ""} ${small ? "small" : ""}`}
                               onKeyDown={e => {
                                   if (onEnter && e.keyCode === 13) {//enter
                                       onEnter(e);
                                   }
                               }}
-                              placeholder={placeholder} cols={cols}/>}
+                              placeholder={placeholder}
+                              cols={cols}/>}
                 {button && button}
                 {copyClipBoard && <ClipBoardCopy txt={value} right={true} input={true}/>}
                 {link && <div className="input-field-link" onClick={() => navigate(link)}>
