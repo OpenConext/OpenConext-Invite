@@ -16,3 +16,5 @@ MD013:
 MD033:
   # Allowed elements
   allowed_elements: [br]
+
+MD034: false

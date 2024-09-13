@@ -8,6 +8,46 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.20 2024-09-13
+
+- Update translations
+- Bugfix for institution admin without applications
+- Update javascript dependencies
+- Use POST for Openconext-Manage raw
+- Search to avoid long query URL
+- JS tests for sorting / subsorting applications
+- Migrate to different mariadb library
+- Upgrade pgrade-azure-dependency
+- Scope enum for API users
+- Added sp_dashboard portal user and API
+- Sort roles for institution admins
+- Allow searching for specific role types in users
+- Show correct landingpage for roles in UI and API
+- Fixes issues https://github.com/OpenConext/OpenConext-Invite/issues/231,
+https://github.com/OpenConext/OpenConext-Invite/issues/302,
+https://github.com/OpenConext/OpenConext-Invite/issues/240,
+https://github.com/OpenConext/OpenConext-Invite/issues/298,
+https://github.com/OpenConext/OpenConext-Invite/issues/296,
+https://github.com/OpenConext/OpenConext-Invite/issues/295,
+https://github.com/OpenConext/OpenConext-Invite/issues/297,
+https://github.com/OpenConext/OpenConext-Invite/issues/239,
+https://github.com/OpenConext/OpenConext-Invite/issues/239,
+https://github.com/OpenConext/OpenConext-Invite/issues/241,
+https://github.com/OpenConext/OpenConext-Invite/issues/241,
+https://github.com/OpenConext/OpenConext-Invite/issues/293,
+https://github.com/OpenConext/OpenConext-Invite/issues/235,
+https://github.com/OpenConext/OpenConext-Invite/issues/235,
+https://github.com/OpenConext/OpenConext-Invite/issues/234,
+https://github.com/OpenConext/OpenConext-Invite/issues/232,
+https://github.com/OpenConext/OpenConext-Invite/issues/232,
+https://github.com/OpenConext/OpenConext-Invite/issues/233,
+https://github.com/OpenConext/OpenConext-Invite/issues/233,
+https://github.com/OpenConext/OpenConext-Invite/issues/231,
+https://github.com/OpenConext/OpenConext-Invite/issues/230,
+https://github.com/OpenConext/OpenConext-Invite/issues/227,
+https://github.com/OpenConext/OpenConext-Invite/issues/228,
+https://github.com/OpenConext/OpenConext-Invite/issues/291
+
 ## 0.0.19 2024-09-10
 
 - Bugfix for too long Manage API calls
