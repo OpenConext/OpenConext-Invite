@@ -20,14 +20,9 @@ export const User = ({user, invitationRoles = []}) => {
     const applications = reduceApplicationFromUserRoles(filteredUserRoles, I18n.locale);
     return (
         <>
-            {(isEmpty(user.userRoles) && isEmpty(invitationRoles)) &&
-                <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
-            {!isEmpty(user.userRoles) &&
-                <>
-                    {applications.map((application, index) => renderApplication(application, index))}
-                    {isEmpty(applications) &&
-                        <p>{I18n.t(`users.noRolesFound`)}</p>}
-                </>}
+            {applications.map((application, index) => renderApplication(application, index))}
+            {(isEmpty(applications) && isEmpty(invitationRoles)) &&
+                <p>{I18n.t(`users.noRolesFound`)}</p>}
         </>
     );
 }
