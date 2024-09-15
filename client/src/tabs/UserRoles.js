@@ -185,7 +185,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
 
     const displayEndDate = userRole => {
         const allowed = allowedToRenewUserRole(user, userRole, false);
-        if (allowed) {
+        if (allowed && userRole.authority !== AUTHORITIES.GUEST) {
             return (
                 <MinimalDateField
                         minDate={futureDate(1)}
