@@ -91,6 +91,7 @@ public abstract class AbstractTest {
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
     public static final String INSTITUTION_ADMIN_SUB = "urn:collab:person:example.com:institution_admin";
     public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
+    public static final String INVITER_WIKI_SUB = "urn:collab:person:example.com:inviter_wiki_sub";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
     public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
     public static final String INSTITUTION_ADMIN_INVITATION_HASH = "institution_admin_invitation_hash";
@@ -557,9 +558,11 @@ public abstract class AbstractTest {
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@examole.com");
         User inviter =
                 new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@examole.com");
+        User wikiInviter =
+                new User(false, INVITER_WIKI_SUB, INVITER_WIKI_SUB, "example.com", "James", "Doe", "james.doe@examole.com");
         User guest =
                 new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@examole.com");
-        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, guest);
+        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest);
 
         Role wiki =
                 new Role("Wiki", "Wiki desc",
@@ -594,6 +597,8 @@ public abstract class AbstractTest {
         UserRole wikiManager =
                 new UserRole("system", manager, wiki, Authority.MANAGER);
         wikiManager.setGuestRoleIncluded(true);
+        UserRole wikiInviterUserRole =
+                new UserRole("system", wikiInviter, wiki, Authority.INVITER);
         UserRole calendarInviter =
                 new UserRole("system", inviter, calendar, Authority.INVITER);
         UserRole mailInviter =
@@ -604,7 +609,7 @@ public abstract class AbstractTest {
                 new UserRole("system", guest, wiki, Authority.GUEST);
         UserRole researchGuest =
                 new UserRole("system", guest, research, Authority.GUEST);
-        doSave(this.userRoleRepository, wikiManager, calendarInviter, mailInviter, storageGuest, wikiGuest, researchGuest);
+        doSave(this.userRoleRepository, wikiManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest, wikiGuest, researchGuest);
 
         String message = "Please join..";
         Instant roleExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);

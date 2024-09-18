@@ -195,9 +195,8 @@ export function consequencesRoleDeletion(roleId) {
     return fetchJson(`/api/v1/user_roles//consequences/${roleId}`, {}, {}, true);
 }
 
-
-export function deleteUserRole(userRoleId) {
-    return fetchDelete(`/api/v1/user_roles/${userRoleId}`, false);
+export function deleteUserRole(userRoleId, isGuest) {
+    return fetchDelete(`/api/v1/user_roles/${userRoleId}/${isGuest}`, false);
 }
 //API tokens
 export function apiTokens() {

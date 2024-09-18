@@ -40,7 +40,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .get("/api/v1/user_roles/roles/{roleId}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, userRoles.size());
+        assertEquals(3, userRoles.size());
         assertNotNull(userRoles.get(0).getUserInfo().get("name"));
     }
 
@@ -146,7 +146,8 @@ class UserRoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("userRoleId", guestUserRole.getId())
-                .delete("/api/v1/user_roles/{userRoleId}")
+                .pathParams("isGuest", true)
+                .delete("/api/v1/user_roles/{userRoleId}/{isGuest}")
                 .then()
                 .statusCode(204);
 
@@ -164,7 +165,8 @@ class UserRoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("userRoleId", Integer.MAX_VALUE)
-                .delete("/api/v1/user_roles/{userRoleId}")
+                .pathParams("isGuest", false)
+                .delete("/api/v1/user_roles/{userRoleId}/{isGuest}")
                 .then()
                 .statusCode(404);
     }
@@ -181,7 +183,8 @@ class UserRoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("userRoleId", guestUserRole.getId())
-                .delete("/api/v1/user_roles/{userRoleId}")
+                .pathParams("isGuest", false)
+                .delete("/api/v1/user_roles/{userRoleId}/{isGuest}")
                 .then()
                 .statusCode(403);
     }
@@ -280,7 +283,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .get("/api/v1/user_roles/consequences/{roleId}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, userRoles.size());
+        assertEquals(3, userRoles.size());
     }
 
     @Test
@@ -349,6 +352,84 @@ class UserRoleControllerTest extends AbstractTest {
         assertEquals(expectedSub, savedUser.getSub());
         User user = userRepository.findBySubIgnoreCase(expectedSub).orElseThrow(() -> new NotFoundException("User not found"));
         assertEquals(expectedUserRoleCount, user.getUserRoles().size());
+    }
+
+    @Test
+    void deleteUserRoleWithGuestRoleIncluded() throws Exception {
+        //Inviter in the same wiki role as the Manager with guestRoleIncluded. As Inviter is allowed the guest part
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
+        // Manager role which is also guest included
+        UserRole managerUserRole = userRoles.stream()
+                .filter(userRole -> userRole.isGuestRoleIncluded() && userRole.getAuthority().equals(Authority.MANAGER))
+                .findFirst().get();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("userRoleId", managerUserRole.getId())
+                .pathParams("isGuest", true)
+                .delete("/api/v1/user_roles/{userRoleId}/{isGuest}")
+                .then()
+                .statusCode(204);
+
+        UserRole updatedUserRole = userRoleRepository.findById(managerUserRole.getId()).get();
+        assertFalse(updatedUserRole.isGuestRoleIncluded());
+        assertEquals(Authority.MANAGER, updatedUserRole.getAuthority());
+    }
+
+    @Test
+    void deleteUserRoleWithGuestRoleIncludedNotAllowed() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+
+        List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
+        // Manager role which is also guest included
+        UserRole managerUserRole = userRoles.stream()
+                .filter(userRole -> userRole.isGuestRoleIncluded() && userRole.getAuthority().equals(Authority.MANAGER))
+                .findFirst().get();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("userRoleId", managerUserRole.getId())
+                .pathParams("isGuest", false)
+                .delete("/api/v1/user_roles/{userRoleId}/{isGuest}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void demoteUserRoleWithGuestRoleIncluded() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
+        // Manager role which is also guest included
+        UserRole managerUserRole = userRoles.stream()
+                .filter(userRole -> userRole.isGuestRoleIncluded() && userRole.getAuthority().equals(Authority.MANAGER))
+                .findFirst().get();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("userRoleId", managerUserRole.getId())
+                .pathParams("isGuest", false)
+                .delete("/api/v1/user_roles/{userRoleId}/{isGuest}")
+                .then()
+                .statusCode(204);
+
+        UserRole updatedUserRole = userRoleRepository.findById(managerUserRole.getId()).get();
+        assertFalse(updatedUserRole.isGuestRoleIncluded());
+        assertEquals(Authority.GUEST, updatedUserRole.getAuthority());
     }
 
 }

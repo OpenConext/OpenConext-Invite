@@ -309,7 +309,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, users.size());
+        assertEquals(3, users.size());
     }
 
     @Test
@@ -327,7 +327,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, users.size());
+        assertEquals(3, users.size());
     }
 
     @Test
@@ -383,7 +383,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(5, users.size());
+        assertEquals(6, users.size());
     }
 
     @Test

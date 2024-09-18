@@ -152,16 +152,26 @@ public class UserRoleController {
         return Results.createResult();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
+    @DeleteMapping("/{id}/{isGuest}")
+    public ResponseEntity<Void> deleteUserRole(@PathVariable("id") Long id,
+                                               @PathVariable("isGuest") Boolean isGuest,
+                                               @Parameter(hidden = true) User user) {
         LOG.debug("/deleteUserRole");
         UserRole userRole = userRoleRepository.findById(id).orElseThrow(() -> new NotFoundException("UserRole not found"));
-        UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));
+        UserPermissions.assertValidInvitation(user, isGuest ? Authority.GUEST : userRole.getAuthority(), List.of(userRole.getRole()));
+        if (userRole.isGuestRoleIncluded()) {
+            userRole.setGuestRoleIncluded(false);
+            if (!isGuest) {
+                userRole.setAuthority(Authority.GUEST);
+            }
+            userRoleRepository.save(userRole);
+            AccessLogger.userRole(LOG, Event.Updated, user, userRole);
 
-        provisioningService.updateGroupRequest(userRole, OperationType.Remove);
-        userRoleRepository.deleteUserRoleById(id);
-
-        AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
+        } else {
+            provisioningService.updateGroupRequest(userRole, OperationType.Remove);
+            userRoleRepository.deleteUserRoleById(id);
+            AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
+        }
         return Results.deleteResult();
     }
 

@@ -125,7 +125,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
         } else {
             const identifiers = userRoleIdentifiers();
             const deleteCurrentUserRole = willUpdateCurrentUser();
-            Promise.all(identifiers.map(identifier => deleteUserRole(identifier)))
+            Promise.all(identifiers.map(identifier => deleteUserRole(identifier, guests )))
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.deleteFlash"));
