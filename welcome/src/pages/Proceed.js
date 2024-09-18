@@ -6,7 +6,7 @@ import "../styles/circle.scss";
 import DOMPurify from "dompurify";
 import {Loader, Modal, Toaster, ToasterType, Tooltip} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
-import {isEmpty, sanitizeURL, stopEvent} from "../utils/Utils";
+import {isEmpty, stopEvent} from "../utils/Utils";
 import {getParameterByName} from "../utils/QueryParameters";
 import {invitationByHash, logout} from "../api";
 import {login} from "../utils/Login";
@@ -34,7 +34,7 @@ export const Proceed = () => {
         }
         const inviteRedeemUrlParam = urlSearchParams.get("inviteRedeemUrl");
         if (inviteRedeemUrlParam) {
-            setInviteRedeemUrl(decodeURIComponent(inviteRedeemUrlParam));
+            setInviteRedeemUrl(DOMPurify.sanitize(decodeURIComponent(inviteRedeemUrlParam)));
         }
         setErrorResponse(urlSearchParams.get("errorResponse"));
     }
@@ -111,7 +111,7 @@ export const Proceed = () => {
         if (isEmpty(inviteRedeemUrl)) {
             setShowModal(false);
         } else {
-            window.location.href = sanitizeURL(inviteRedeemUrl);
+            window.location.href = inviteRedeemUrl;
         }
     }
 
