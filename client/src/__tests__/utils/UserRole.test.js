@@ -106,6 +106,23 @@ test("Allowed to renew UserRole", () => {
 
 })
 
+test("Allowed to renew guestIncluded UserRole as Inviter", () => {
+    const calendar = {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "1", applicationUsages: applicationUsagesForManageId("1")}
+    };
+    const user = {userRoles: [calendar]}
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.MANAGER,
+        role: {id: "1", applicationUsages: applicationUsagesForManageId("1")}
+    })).toBeFalsy();
+
+    expect(allowedToRenewUserRole(user, {
+        authority: AUTHORITIES.MANAGER,
+        role: {id: "1", applicationUsages: applicationUsagesForManageId("1")}
+    }, true, true)).toBeTruthy();
+})
+
 test("Allowed to delete Invitation", () => {
     const mail = {authority: AUTHORITIES.INVITER, role: {id: "1", applicationUsages: applicationUsagesForManageId("10")}};
     const research = {authority: AUTHORITIES.INVITER, role: {id: "2", applicationUsages: applicationUsagesForManageId("11")}};

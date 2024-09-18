@@ -90,7 +90,7 @@ export const allowedToDeleteInvitation = (user, invitation) => {
         }))
 }
 
-export const allowedToRenewUserRole = (user, userRole, deleteAction = false) => {
+export const allowedToRenewUserRole = (user, userRole, deleteAction = false, targetGuestRole = false) => {
     if (user.superUser) {
         return true;
     }
@@ -100,7 +100,8 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false) => 
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
         .some(application => roleIsConnectedToApp(userRole.role, application));
     const allowedByApplicationForManager = isApplicationManagerForUserRole(user, userRole);
-    switch (userRole.authority) {
+    const usedAuthority = targetGuestRole ? AUTHORITIES.GUEST : userRole.authority
+    switch (usedAuthority) {
         case AUTHORITIES.SUPER_USER:
             return false;
         case AUTHORITIES.INSTITUTION_ADMIN:

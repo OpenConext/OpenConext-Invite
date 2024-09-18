@@ -39,7 +39,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                     acc[userRole.id] = {
                         selected: false,
                         ref: userRole,
-                        allowed: allowedToRenewUserRole(user, userRole, true)
+                        allowed: allowedToRenewUserRole(user, userRole, true, guests)
                     };
                     return acc;
                 }, {}));
