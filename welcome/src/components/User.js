@@ -9,7 +9,7 @@ export const User = ({user, invitationRoles = []}) => {
 
     const renderApplication = (application, index) => {
         return (
-            <RoleCard index={index} application={application}/>
+            <RoleCard key={index} index={index} application={application}/>
         );
     }
 
