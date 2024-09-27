@@ -72,7 +72,7 @@ const en = {
     },
     missingAttributes: {
         welcome: "Welcome to SURFconext Invite",
-        attributes: "Your institution has not provided all required attributes. The following attributes are missing:",
+        attributes: "Your institution has not provided all required personal data. The following are missing:",
         info: "If you want more information, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Or ",
         login: "login",

@@ -319,7 +319,7 @@ const nl = {
     },
     missingAttributes: {
         welcome: "Welkom bij SURFconext Invite",
-        attributes: "Je instelling gaf niet alle benodigde attributen vrij. De volgende ontbreken:",
+        attributes: "Je instelling gaf niet alle benodigde persoonsgegevens vrij. De volgende ontbreken:",
         info: "Hulp nodig? Neem <a href='mailto:support@surfconext.nl'>contact met ons op</a>.",
         preLogin: "Of ",
         login: "login",
