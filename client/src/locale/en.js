@@ -24,7 +24,7 @@ const en = {
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext authorisation rules, or provisioned as attributes or to external SCIM APIs.</p>", false]
         ],
-        footer: "<p>SURFconext Invite offers access management to SURFconext-connected service providers.</p>" +
+        footer: "<p>SURFconext Invite offers access management to SURFconext-connected application providers.</p>" +
             "<p>Do you want to know more? <a href='https://support.surfconext.nl/invite-en'>Read more</a>.</p>",
     },
     header: {
@@ -393,7 +393,7 @@ const en = {
         invitationIcon: "Invitation for {{email}} sent at {{createdAt}} with expiration date {{expiryDate}}",
         roleShortName: "The unique short name of the role within a provisioning. It is used to format the urn and therefore not all characters are allowed.",
         roleUrn: "The urn of the role. It is based on the sanitized name and the role identifier. It is used as the unique global identifier of this role and therefore not all characters are allowed.",
-        manageService: "The required service from SURFconext, with may have an optional provisioning",
+        manageService: "The required application from SURFconext, with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expire, from the moment a user has accepted the invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with an account with the email address where the invitation was sent to",
         eduIDOnlyTooltip: "When checked the invitees will be required to login with eduID",
