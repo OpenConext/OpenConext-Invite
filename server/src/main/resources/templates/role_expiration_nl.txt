@@ -1,6 +1,9 @@
-Hi, {{user.name}}
+Beste {{user.name}},
 
-Your {{authority}} role {{role.name}} at the application {{groupedProvider.name}} will expire in
-{{nbrOfDays}} days. If you think this is a mistake you can contact <a href="mailto:{{contactEmail}}">{{contactEmail}}</a> to request
-a renewal of your {{authority}} role.
-{{> footer_en.txt}}
+Je {{authority}}-rol {{role.name}}{{#groupedProvider}}
+in de applicatie {{groupedProvider.name}}{{/groupedProvider}}
+zal over {{nbrOfDays}} dagen verlopen. Als je denkt dat dit een vergissing is,
+kun je contact opnemen met je contactpersoon bij je instelling om verlenging
+van je {{authority}}-rol aan te vragen.
+
+{{> footer_nl.txt}}

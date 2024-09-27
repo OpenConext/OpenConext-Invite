@@ -6,4 +6,4 @@ Klik op de link hieronder om de uitnodiging te accepteren.
 Je bent uitgenodigd om {{role}} te worden in SURFconext Invite. Als je niet op deze
 uitnodiging wilt ingaan, kun je dit bericht simpelweg terzijde leggen.
 
-{{> footer_en.txt}}
+{{> footer_nl.txt}}

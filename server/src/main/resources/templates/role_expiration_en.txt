@@ -1,6 +1,8 @@
 Hi, {{user.name}}
 
-Your {{authority}} role {{role.name}} at the application {{groupedProvider.name}} will expire in
-{{nbrOfDays}} days. If you think this is a mistake you can contact <a href="mailto:{{contactEmail}}">{{contactEmail}}</a> to request
-a renewal of your {{authority}} role.
+Your {{authority}} role {{role.name}} at the application {{groupedProvider.name}}
+will expire in {{nbrOfDays}} days. If you think this is a mistake you can reach
+out to your contactperson at your institution for a renewal of your {{authority}}
+role.
+
 {{> footer_en.txt}}

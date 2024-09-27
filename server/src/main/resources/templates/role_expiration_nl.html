@@ -14,10 +14,10 @@
         <p class="title" style="font-weight: 600;font-size: 38px;line-height: 38px; margin: 0;margin-bottom: 10px;">Your {{role.name}} will expire in {{nbrOfDays}} days.</p>
     </div>
     <div class="middle" style="padding: 20px 0 40px 60px;max-width: 600px;">
-        <p>Hi, {{user.name}}</p>
-        <p>Your {{authority}} role {{userRole.role.name}}{{#groupedProvider}} at the application {{groupedProvider.name}}{{/groupedProvider}} will expire in {{nbrOfDays}} days.
-            If you think this is a mistake you can contact <a href="mailto:{{contactEmail}}">{{contactEmail}}</a> to request
-            a renewal of your {{authority}} role.
+        <p>Hi {{user.name}},</p>
+        <p>Je {{authority}}-rol {{userRole.role.name}}{{#groupedProvider}} in de applicatie{{groupedProvider.name}}{{/groupedProvider}}
+            zal over {{nbrOfDays}} dagen verlopen. Als je denkt dat dit een vergissing is, kun je contact
+            opnemen met je contactpersoon bij de instelling om verlenging van je {{authority}}-rol aan te vragen.
             {{#groupedProvider}}
             <table>
                 <thead/>
@@ -34,9 +34,9 @@
             </table>
             {{/groupedProvider}}
         </p>
-        <p>If you don't want to renew your role, just ignore or delete this message.</p>
+        <p>Indien je de rol niet wilt vernieuwen, kun je dit bericht negeren of verwijderen.</p>
     </div>
-    {{> footer_en.html}}
+    {{> footer_nl.html}}
 </div>
 </body>
 </html>
