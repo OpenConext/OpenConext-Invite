@@ -315,7 +315,7 @@ const en = {
         roles: "You don't have any roles.",
         info: "SURFconext Invite is by invitation only. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> with questions.",
         preLogin: "Or ",
-        login: "login",
+        login: "log in",
         postLogin: " again with a different institution",
     },
     missingAttributes: {
@@ -349,7 +349,7 @@ const en = {
         login: "Log in",
         loginWithSub: "Log in",
         emailMismatch: "The inviter has indicated that you must accept this invitation with email address {{email}}, " +
-            "but you have logged in with an account with a different email address. Please login in with a different account."
+            "but you have logged in with an account with a different email address. Please log in in with a different account."
     },
     inviter: {
         welcome: "Welcome, {{name}}",
@@ -396,7 +396,7 @@ const en = {
         manageService: "The required application from SURFconext, with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expire, from the moment a user has accepted the invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with an account with the email address where the invitation was sent to",
-        eduIDOnlyTooltip: "When checked the invitees will be required to login with eduID",
+        eduIDOnlyTooltip: "When checked the invitees will be required to log in with eduID",
         roleExpiryDateTooltip: "The end date of this role. After this date the role is removed from the user.",
         expiryDateTooltip: "The date on which this invitation expires",
         rolesTooltip: "Select all the roles that the invitee will be granted after accepting the invitation",

@@ -314,7 +314,7 @@ const nl = {
         roles: "Je hebt nog geen rollen.",
         info: "SURFconext Invite is op uitnodiging. Neem bij vragen contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Of ",
-        login: "login",
+        login: "log in",
         postLogin: " via een andere instelling",
     },
     missingAttributes: {
@@ -322,7 +322,7 @@ const nl = {
         attributes: "Je instelling gaf niet alle benodigde persoonsgegevens vrij. De volgende ontbreken:",
         info: "Hulp nodig? Neem <a href='mailto:support@surfconext.nl'>contact met ons op</a>.",
         preLogin: "Of ",
-        login: "login",
+        login: "log in",
         postLogin: " via een andere instelling",
         sub: "sub",
         email: "email",
