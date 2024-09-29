@@ -1,0 +1,17 @@
+package access.validation;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class EmailFormatValidatorTest {
+
+    private final EmailFormatValidator emailFormatValidator = new EmailFormatValidator();
+
+    @Test
+    void isValid() {
+        assertTrue(emailFormatValidator.isValid("o@o"));
+        assertTrue(emailFormatValidator.isValid("Frits Voorbeeld <frits.fritsmans@voorbeeld.nl>"));
+
+    }
+}
