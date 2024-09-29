@@ -111,7 +111,7 @@ export const Proceed = () => {
         if (isEmpty(inviteRedeemUrl)) {
             setShowModal(false);
         } else {
-            window.location.href = inviteRedeemUrl;
+            window.location.href = DOMPurify.sanitize(inviteRedeemUrl);
         }
     }
 
