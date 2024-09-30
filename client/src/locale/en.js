@@ -24,7 +24,7 @@ const en = {
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext authorisation rules, or provisioned as attributes or to external SCIM APIs.</p>", false]
         ],
-        footer: "<p>SURFconext Invite offers access management to SURFconext-connected application providers.</p>" +
+        footer: "<p>SURFconext Invite offers access management to SURFconext-connected applications.</p>" +
             "<p>Do you want to know more? <a href='https://support.surfconext.nl/invite-en'>Read more</a>.</p>",
     },
     header: {
