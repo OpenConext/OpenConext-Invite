@@ -110,7 +110,13 @@ public class InvitationController {
         }
 
         List<Invitation> invitations = invitationRequest.getInvites().stream()
-                .filter(emailFormatValidator::isValid)
+                .filter(email -> {
+                    boolean valid = emailFormatValidator.isValid(email);
+                    if (!valid) {
+                        LOG.debug("Not sending invalid email for invitation: " + email);
+                    }
+                    return valid;
+                })
                 .map(invitee -> new Invitation(
                         intendedAuthority,
                         HashGenerator.generateRandomHash(),
