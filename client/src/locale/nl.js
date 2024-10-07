@@ -19,7 +19,7 @@ const nl = {
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
             ["Uitnodigen", "<p>Instellingsbeheerders kunnen rollen aanmaken voor hun applicaties.</p>" +
-            "<p>Applicaties zijn aan SURFconext gekoppelde applicaties.</p>", true],
+            "<p>De applicatielijst bestaat uit aan SURFconext gekoppeld applicaties.</p>", true],
             ["Rollen", "<p>Applicatiebeheerders nodigen collega's uit die op hun beurt gebruikers kunnen uitnodigen.</p>", true],
             ["Word lid", "<p>Uitgenodigde collega's die op de uitnodiging zijn ingegaan, krijgen toegang tot applicaties.</p><br/>", false],
             ["Groepen", "<p>De rollen zijn eigenlijk groepslidmaatschappen die gebruikt kunnen worden in SURFconext-autorisatieregels, doorgegeven als attributen of via externe SCIM API's.</p>", false]
