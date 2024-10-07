@@ -19,7 +19,7 @@ const en = {
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
             ["Invites", "<p>SURF invites institution managers who can create roles for their applications.</p>" +
-            "<p>Applications are services connected to SURFconext.</p>", true],
+            "<p>The application list consists of applications connected to SURFconext.</p>", true],
             ["Roles", "<p>The application managers will invite colleagues for roles who can in turn invite users.</p>", true],
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext authorisation rules, or provisioned as attributes or to external SCIM APIs.</p>", false]
