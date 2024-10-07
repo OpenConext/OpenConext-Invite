@@ -19,7 +19,7 @@ const nl = {
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
             ["Uitnodigen", "<p>Instellingsbeheerders kunnen rollen aanmaken voor hun applicaties.</p>" +
-            "<p>Applicaties zijn aan SURFconext gekoppelde diensten.</p>", true],
+            "<p>De applicatielijst bestaat uit aan SURFconext gekoppeld applicaties.</p>", true],
             ["Rollen", "<p>Applicatiebeheerders nodigen collega's uit die op hun beurt gebruikers kunnen uitnodigen.</p>", true],
             ["Word lid", "<p>Uitgenodigde collega's die op de uitnodiging zijn ingegaan, krijgen toegang tot applicaties.</p><br/>", false],
             ["Groepen", "<p>De rollen zijn eigenlijk groepslidmaatschappen die gebruikt kunnen worden in SURFconext-autorisatieregels, doorgegeven als attributen of via externe SCIM API's.</p>", false]
@@ -314,15 +314,15 @@ const nl = {
         roles: "Je hebt nog geen rollen.",
         info: "SURFconext Invite is op uitnodiging. Neem bij vragen contact op met <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Of ",
-        login: "login",
+        login: "log in",
         postLogin: " via een andere instelling",
     },
     missingAttributes: {
         welcome: "Welkom bij SURFconext Invite",
-        attributes: "Je instelling gaf niet alle benodigde attributen vrij. De volgende ontbreken:",
+        attributes: "Je instelling gaf niet alle benodigde persoonsgegevens vrij. De volgende ontbreken:",
         info: "Hulp nodig? Neem <a href='mailto:support@surfconext.nl'>contact met ons op</a>.",
         preLogin: "Of ",
-        login: "login",
+        login: "log in",
         postLogin: " via een andere instelling",
         sub: "sub",
         email: "email",
@@ -392,7 +392,7 @@ const nl = {
         invitationIcon: "Uitnodiging aan {{email}} verstuurd op {{createdAt}} met verloopdatum {{expiryDate}}",
         roleShortName: "Een unieke korte naam voor de rol binnen een provisioning. Wordt gebruikt in de urn, daarom zijn niet alle tekens toegestaan.",
         roleUrn: "De urn van deze rol. Deze is gebaseerd op de opgeschoonde naam en de rol-identifier. Hij wordt gebruikt als de unieke globale identifier van deze rol en daarom zijn niet alle tekens toegestaan.",
-        manageService: "De vereiste dienst uit SURFconext, die optioneel een provisioning heeft.",
+        manageService: "De vereiste applicatie uit SURFconext, die optioneel een provisioning heeft.",
         defaultExpiryDays: "Het standaardaantal dagen waarna de rol verloopt, gerekend vanaf het moment dat de gebruiker de uitnodiging voor de rol accepteert.",
         enforceEmailEqualityTooltip: "Indien ingeschakeld moet de genodigde de uitnodiging accepteren met een account dat hetzelfde e-mailadres voert als waarheen deze uitnodiging gestuurd is",
         eduIDOnlyTooltip: "Indien ingeschakeld moeten de genodigden eduID gebruiken om in te loggen bij het accepteren",

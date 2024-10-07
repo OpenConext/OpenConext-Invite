@@ -19,12 +19,12 @@ const en = {
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
             ["Invites", "<p>SURF invites institution managers who can create roles for their applications.</p>" +
-            "<p>Applications are services connected to SURFconext.</p>", true],
+            "<p>The application list consists of applications connected to SURFconext.</p>", true],
             ["Roles", "<p>The application managers will invite colleagues for roles who can in turn invite users.</p>", true],
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext authorisation rules, or provisioned as attributes or to external SCIM APIs.</p>", false]
         ],
-        footer: "<p>SURFconext Invite offers access management to SURFconext-connected service providers.</p>" +
+        footer: "<p>SURFconext Invite offers access management to SURFconext-connected applications.</p>" +
             "<p>Do you want to know more? <a href='https://support.surfconext.nl/invite-en'>Read more</a>.</p>",
     },
     header: {
@@ -315,12 +315,12 @@ const en = {
         roles: "You don't have any roles.",
         info: "SURFconext Invite is by invitation only. Please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a> with questions.",
         preLogin: "Or ",
-        login: "login",
+        login: "log in",
         postLogin: " again with a different institution",
     },
     missingAttributes: {
         welcome: "Welcome to SURFconext Invite",
-        attributes: "Your institution has not provided all required attributes. The following attributes are missing:",
+        attributes: "Your institution has not provided all required personal data. The following are missing:",
         info: "If you want more information, please contact <a href='mailto:support@surfconext.nl'>support@surfconext.nl</a>.",
         preLogin: "Or ",
         login: "login",
@@ -349,7 +349,7 @@ const en = {
         login: "Log in",
         loginWithSub: "Log in",
         emailMismatch: "The inviter has indicated that you must accept this invitation with email address {{email}}, " +
-            "but you have logged in with an account with a different email address. Please login in with a different account."
+            "but you have logged in with an account with a different email address. Please log in in with a different account."
     },
     inviter: {
         welcome: "Welcome, {{name}}",
@@ -393,10 +393,10 @@ const en = {
         invitationIcon: "Invitation for {{email}} sent at {{createdAt}} with expiration date {{expiryDate}}",
         roleShortName: "The unique short name of the role within a provisioning. It is used to format the urn and therefore not all characters are allowed.",
         roleUrn: "The urn of the role. It is based on the sanitized name and the role identifier. It is used as the unique global identifier of this role and therefore not all characters are allowed.",
-        manageService: "The required service from SURFconext, with may have an optional provisioning",
+        manageService: "The required application from SURFconext, with may have an optional provisioning",
         defaultExpiryDays: "The default number of days the role will expire, from the moment a user has accepted the invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with an account with the email address where the invitation was sent to",
-        eduIDOnlyTooltip: "When checked the invitees will be required to login with eduID",
+        eduIDOnlyTooltip: "When checked the invitees will be required to log in with eduID",
         roleExpiryDateTooltip: "The end date of this role. After this date the role is removed from the user.",
         expiryDateTooltip: "The date on which this invitation expires",
         rolesTooltip: "Select all the roles that the invitee will be granted after accepting the invitation",
