@@ -129,7 +129,7 @@ public class TeamsController {
             newUser.setName(person.getName());
             newUser.setEmail(person.getEmail());
             newUser.setSchacHomeOrganization(person.getSchacHomeOrganization());
-            newUser.setCreatedAt(now);
+            newUser.setCreatedAt(person.getCreated());
             newUser.setLastActivity(now);
             newUser.nameInvariant();
             return userRepository.save(newUser);
@@ -144,7 +144,7 @@ public class TeamsController {
         userRole.setInviter("teams_migration");
         userRole.setUser(user);
         userRole.setRole(role);
-        userRole.setCreatedAt(now);
+        userRole.setCreatedAt(membership.getCreated());
         userRole.setEndDate(now.plus(DEFAULT_EXPIRY_DAYS, ChronoUnit.DAYS));
         access.teams.Role teamsRole = membership.getRole();
         userRole.setAuthority(mapAuthority(teamsRole));

@@ -11,6 +11,8 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,7 +72,9 @@ class TeamsControllerTest extends AbstractTest {
         users.forEach(user -> assertEquals(team.getName(), user.getUserRoles().iterator().next().getRole().getName()));
         userRoles.forEach((key, teamsRole) -> {
             User user = users.stream().filter(u -> u.getName().equals(key)).findFirst().get();
+            assertTrue(Instant.now().minus(28, ChronoUnit.DAYS).isAfter(user.getCreatedAt()));
             UserRole userRole = user.getUserRoles().stream().findFirst().get();
+            assertTrue(Instant.now().minus(13, ChronoUnit.DAYS).isAfter(userRole.getCreatedAt()));
             Authority authority = userRole.getAuthority();
             assertEquals(mapAuthority(teamsRole), authority);
             if (teamsRole.equals(Role.MEMBER) || teamsRole.equals(Role.OWNER)) {
@@ -104,7 +108,11 @@ class TeamsControllerTest extends AbstractTest {
                                 "urn:collab:person:surfnet.nl:" + entry.getKey().toLowerCase().replaceAll(" ", "."),
                                 entry.getKey(),
                                 entry.getKey().replaceAll(" ", "") + "@example.com",
-                                "example.com"), entry.getValue()))
+                                "example.com",
+                                Instant.now().minus(30, ChronoUnit.DAYS)),
+                        entry.getValue(),
+                        Instant.now().minus(15, ChronoUnit.DAYS)
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -182,7 +190,7 @@ class TeamsControllerTest extends AbstractTest {
     void migrateTeamInvalidSchacHome() {
         List<Application> applications = List.of(new Application("999", EntityType.SAML20_SP));
         Person person = new Person();
-        Membership membership = new Membership(person, Role.MANAGER);
+        Membership membership = new Membership(person, Role.MANAGER, Instant.now());
         List<Membership> memberships = List.of(membership);
         Team team = new Team(
                 "nl:surfnet:diensten:test",

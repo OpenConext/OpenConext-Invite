@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor
@@ -15,4 +16,5 @@ public class Person implements Serializable {
     private String name;
     private String email;
     private String schacHomeOrganization;
+    private Instant created;
 }

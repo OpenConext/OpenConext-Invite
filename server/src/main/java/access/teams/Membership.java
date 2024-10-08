@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor
@@ -13,5 +14,6 @@ public class Membership implements Serializable {
 
     private Person person;
     private Role role;
+    private Instant created;
 
 }
