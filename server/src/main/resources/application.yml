@@ -120,6 +120,9 @@ config:
   past-date-allowed: True
   eduid-idp-schac-home-organization: "test.eduid.nl"
 
+feature:
+  enforce-institution-admin-role-visibility: True
+
 # We don't encode in-memory passwords, so we need to prefix them with {noop}
 external-api-configuration:
   remote-users:

@@ -153,6 +153,10 @@ export function allApplications() {
     return fetchJson("/api/v1/manage/applications")
 }
 
+export function organizationGUIDValidation(organizationGUID) {
+    return fetchJson(`/api/v1/manage/organization-guid-validation/${organizationGUID}`, {}, {}, false);
+}
+
 //Roles
 export function rolesByApplication() {
     return fetchJson("/api/v1/roles");

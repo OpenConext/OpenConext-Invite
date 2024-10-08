@@ -9,6 +9,7 @@ import {
     createRole,
     deleteRole,
     me,
+    organizationGUIDValidation,
     roleByID,
     updateRole,
     validate
@@ -51,6 +52,8 @@ export const RoleForm = () => {
     const [alreadyExists, setAlreadyExists] = useState({});
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
+    const [validOrganizationGUID, setValidOrganizationGUID] = useState(true);
+    const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState(null);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [applications, setApplications] = useState([]);
     const [allowedToEditApplication, setAllowedToEditApplication] = useState(true);
@@ -211,10 +214,26 @@ export const RoleForm = () => {
         }
     };
 
+    const validateOrganizationGUID = e => {
+        const organizationGUID = e.target.value;
+        if (!isEmpty(organizationGUID)) {
+            organizationGUIDValidation(organizationGUID)
+                .then(idp => {
+                    setOrganizationGUIDIdentityProvider(idp);
+                    setValidOrganizationGUID(true);
+                })
+                .catch(() => {
+                    setOrganizationGUIDIdentityProvider(null);
+                    setValidOrganizationGUID(false);
+                })
+        }
+    }
+
     const isValid = () => {
         return required.every(attr => !isEmpty(role[attr]))
             && Object.values(alreadyExists).every(attr => !attr)
             && !isEmpty(applications)
+            && validOrganizationGUID
             && !isEmpty(applications[0])
             && applications.every(app => !app || (!app.invalid && !isEmpty(app.landingPage)))
             && role.defaultExpiryDays > 0;
@@ -267,12 +286,33 @@ export const RoleForm = () => {
                         attribute: I18n.t("roles.name").toLowerCase()
                     })}/>}
 
-                {!isNewRole && <InputField
+                {!isNewRole &&
+                    <InputField
                             name={I18n.t("roles.urn")}
                             value={urnFromRole(config.groupUrnPrefix, role)}
                             disabled={true}
                             toolTip={I18n.t("tooltips.roleUrn")}
                 />}
+
+                {user.superUser &&
+                    <InputField
+                        name={I18n.t("roles.organizationGUID")}
+                        value={role.organizationGUID}
+                        onChange={e => {
+                            setRole({...role, organizationGUID: e.target.value});
+                            setValidOrganizationGUID(true);
+                            setOrganizationGUIDIdentityProvider(null);
+                        }}
+                        onBlur={validateOrganizationGUID}
+                        toolTip={I18n.t("tooltips.organizationGUID")}
+                    />}
+                {!validOrganizationGUID &&
+                    <ErrorIndicator msg={I18n.t("forms.invalid", {
+                        value: role.organizationGUID,
+                        attribute: I18n.t("roles.organizationGUID").toLowerCase()
+                    })}/>}
+                {!isEmpty(organizationGUIDIdentityProvider) &&
+                    <p className="info">{I18n.t("roles.identityProvider", {name: organizationGUIDIdentityProvider["name:en"]})}</p>}
 
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}

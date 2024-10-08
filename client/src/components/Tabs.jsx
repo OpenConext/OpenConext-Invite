@@ -13,7 +13,7 @@ const Tabs = ({children, className, activeTab, tabChanged}) => {
     return (
         <>
             <div className="tabs-container">
-                {<div className={`tabs ${className}`}>
+                {<div className={`tabs ${className || ""}`}>
 
                     {filteredChildren.map(child => {
                         const {label, name, notifier, readOnly} = child.props;

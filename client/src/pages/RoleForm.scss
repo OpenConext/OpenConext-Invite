@@ -72,6 +72,11 @@
             }
         }
 
+        p.info {
+            grid-column-start: first;
+            margin-top: 4px;
+        }
+
         span.label {
             grid-column-start: first;
             font-weight: 600;

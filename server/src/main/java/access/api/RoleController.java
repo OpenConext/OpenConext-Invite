@@ -97,6 +97,8 @@ public class RoleController {
         manageIdentifiers.addAll(roleManageIdentifiers);
 
         List<Role> roles = new ArrayList<>();
+        //TODO feature toggle see application.yml feature.enforce-institution-admin-role-visibility
+        //findByOrganizationGUID_ApplicationUsagesApplicationManageId
         manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
@@ -150,6 +152,8 @@ public class RoleController {
         if (user != null) {
             //OpenID connect login with User
             UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+            //For super_users this is NULL, which is ok
+            role.setOrganizationGUID(user.getOrganizationGUID());
         } else {
             //API user with Basic Authentication
             RemoteUserPermissions.assertScopeAccess(remoteUser, Scope.sp_dashboard);
@@ -157,6 +161,7 @@ public class RoleController {
 
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
+
         Provisionable provisionable = user != null ? user : remoteUser;
 
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), provisionable.getName()));
@@ -216,9 +221,14 @@ public class RoleController {
         boolean nameChanged = false;
         if (!isNew) {
             Role previousRole = roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));
-            //We don't allow shortName or identifier changes after creation
+            //We don't allow shortName, identifier or organizationGUID changes after creation
             role.setShortName(previousRole.getShortName());
             role.setIdentifier(previousRole.getIdentifier());
+            if (user != null && user.isSuperUser()) {
+                role.setOrganizationGUID(role.getOrganizationGUID());
+            } else {
+                role.setOrganizationGUID(previousRole.getOrganizationGUID());
+            }
             previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
             if (immutableApplicationUsages) {
                 role.setApplicationUsages(previousRole.getApplicationUsages());

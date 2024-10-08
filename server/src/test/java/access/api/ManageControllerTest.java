@@ -109,4 +109,44 @@ class ManageControllerTest extends AbstractTest {
         assertEquals(4, result.get("provisionings").size());
     }
 
+    @Test
+    void organizationGUIDValidation() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        String postPath = "/manage/api/internal/search/%s";
+        Map<String, Object> localIdentityProvider = localManage.identityProviderByInstitutionalGUID(ORGANISATION_GUID).get();
+        stubFor(post(urlPathMatching(String.format(postPath, EntityType.SAML20_IDP.collectionName()))).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(List.of(localIdentityProvider)))));
+
+
+        Map<String, Object> identityProvider = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("organizationGUID", ORGANISATION_GUID)
+                .get("/api/v1/manage/organization-guid-validation/{organizationGUID}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(ORGANISATION_GUID, identityProvider.get("institutionGuid"));
+    }
+
+    @Test
+    void organizationGUIDValidationNotAllowed() throws Exception {
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("organizationGUID", ORGANISATION_GUID)
+                .get("/api/v1/manage/organization-guid-validation/{organizationGUID}")
+                .then()
+                        .statusCode(403);
+    }
 }

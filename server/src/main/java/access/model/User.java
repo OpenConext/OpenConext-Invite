@@ -247,6 +247,10 @@ public class User implements Serializable, Provisionable {
         changed = changed || !Objects.equals(this.email, newEmail);
         this.email = newEmail;
 
+        String newSubjectId = (String) attributes.get("subject_id");
+        changed = changed || !Objects.equals(this.subjectId, newSubjectId);
+        this.subjectId = newSubjectId;
+
         this.lastActivity = Instant.now();
 
         String currentName = this.name;

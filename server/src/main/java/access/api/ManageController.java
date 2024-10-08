@@ -1,13 +1,13 @@
 package access.api;
 
 import access.config.Config;
+import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.manage.Manage;
 import access.model.Application;
 import access.model.Authority;
 import access.model.User;
 import access.repository.ApplicationRepository;
-import access.repository.RoleRepository;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,14 +18,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -43,13 +41,11 @@ public class ManageController {
     private static final Log LOG = LogFactory.getLog(ManageController.class);
 
     private final Manage manage;
-    private final RoleRepository roleRepository;
     private final ApplicationRepository applicationRepository;
 
     @Autowired
-    public ManageController(Manage manage, RoleRepository roleRepository, ApplicationRepository applicationRepository) {
+    public ManageController(Manage manage, ApplicationRepository applicationRepository) {
         this.manage = manage;
-        this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
     }
 
@@ -69,6 +65,15 @@ public class ManageController {
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
         List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
         return ResponseEntity.ok(providers);
+    }
+
+    @GetMapping("organization-guid-validation/{organizationGUID}")
+    public ResponseEntity<Map<String, Object>> organizationGUIDValidation(@Parameter(hidden = true) User user,
+                                                                          @PathVariable("organizationGUID") String organizationGUID) {
+        UserPermissions.assertSuperUser(user);
+        Map<String, Object> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGUID)
+                .orElseThrow(() -> new NotFoundException("No identity provider with organizationGUID: " + organizationGUID));
+        return ResponseEntity.ok(identityProvider);
     }
 
     @GetMapping("applications")

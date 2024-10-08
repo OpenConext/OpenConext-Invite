@@ -589,9 +589,13 @@ public abstract class AbstractTest {
         Role calendar =
                 new Role("Calendar", "Calendar desc",
                         application("5", EntityType.OIDC10_RP), 365, false, false);
+        calendar.setOrganizationGUID(ORGANISATION_GUID);
+
         Role mail =
                 new Role("Mail", "Mail desc",
                         application("5", EntityType.OIDC10_RP), 365, false, false);
+        mail.setOrganizationGUID(ORGANISATION_GUID);
+
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 
         UserRole wikiManager =
