@@ -416,6 +416,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     provisioning.getEntityId()));
             return restTemplate.exchange(requestEntity, typeReference).getBody();
         } catch (RestClientException e) {
+            LOG.error(String.format("Error from %s with original stack-trace", provisioning.getEntityId()), e);
+
             String errorMessage = String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
                     api,
                     provisioning.getEntityId(),
