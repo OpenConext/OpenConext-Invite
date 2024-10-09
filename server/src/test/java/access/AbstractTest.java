@@ -78,7 +78,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.url: http://localhost:8081",
-                "manage.enabled: true"
+                "manage.enabled: true",
+                "feature.limit-institution-admin-role-visibility=false"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {
