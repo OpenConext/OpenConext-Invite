@@ -8,6 +8,7 @@ import access.model.Application;
 import access.model.Authority;
 import access.model.User;
 import access.repository.ApplicationRepository;
+import access.repository.RoleRepository;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -44,14 +45,16 @@ public class ManageController {
     private final Manage manage;
     private final ApplicationRepository applicationRepository;
     private final boolean limitInstitutionAdminRoleVisibility;
+    private final RoleRepository roleRepository;
 
     @Autowired
     public ManageController(Manage manage,
                             ApplicationRepository applicationRepository,
-                            @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility) {
+                            @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility, RoleRepository roleRepository) {
         this.manage = manage;
         this.applicationRepository = applicationRepository;
         this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
+        this.roleRepository = roleRepository;
     }
 
     @GetMapping("provider/{type}/{id}")
@@ -86,6 +89,8 @@ public class ManageController {
         UserPermissions.assertInstitutionAdmin(user);
         List<Application> applications = user.isSuperUser() ?
                 applicationRepository.findAll() :
+                //TODO see Applications.js#TODO
+                roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
                 applicationRepository.findByManageIdIn(user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList()));
 
         Map<EntityType, List<Application>> groupedByManageType = applications.stream().collect(Collectors.groupingBy(Application::getManageType));
