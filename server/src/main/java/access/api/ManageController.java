@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,11 +43,15 @@ public class ManageController {
 
     private final Manage manage;
     private final ApplicationRepository applicationRepository;
+    private final boolean limitInstitutionAdminRoleVisibility;
 
     @Autowired
-    public ManageController(Manage manage, ApplicationRepository applicationRepository) {
+    public ManageController(Manage manage,
+                            ApplicationRepository applicationRepository,
+                            @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility) {
         this.manage = manage;
         this.applicationRepository = applicationRepository;
+        this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
     }
 
     @GetMapping("provider/{type}/{id}")

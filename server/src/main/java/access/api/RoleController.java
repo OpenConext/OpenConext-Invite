@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,19 +59,22 @@ public class RoleController {
     private final Manage manage;
     private final ProvisioningService provisioningService;
     private final URLFormatValidator urlFormatValidator = new URLFormatValidator();
+    private final boolean limitInstitutionAdminRoleVisibility;
 
     public RoleController(Config config,
                           RoleRepository roleRepository,
                           ApplicationRepository applicationRepository,
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
-                          ProvisioningService provisioningService) {
+                          ProvisioningService provisioningService,
+                          @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility) {
         this.config = config;
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
         this.manage = manage;
         this.provisioningService = provisioningService;
+        this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
     }
 
     @GetMapping("")
@@ -81,6 +85,12 @@ public class RoleController {
             return ResponseEntity.ok(manage.addManageMetaData(roleRepository.findAll()));
         }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+
+        if (limitInstitutionAdminRoleVisibility) {
+            List<Role> roles = roleRepository.findByOrganizationGUID(user.getOrganizationGUID());
+            return ResponseEntity.ok(manage.addManageMetaData(roles));
+        }
+
         Set<String> manageIdentifiers = new HashSet<>();
         if (user.isInstitutionAdmin()) {
             Set<String> applicationManageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
@@ -97,7 +107,7 @@ public class RoleController {
         manageIdentifiers.addAll(roleManageIdentifiers);
 
         List<Role> roles = new ArrayList<>();
-        //TODO feature toggle see application.yml feature.enforce-institution-admin-role-visibility
+        //TODO feature toggle see application.yml feature.limit-institution-admin-role-visibility
         //findByOrganizationGUID_ApplicationUsagesApplicationManageId
         manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
         return ResponseEntity.ok(manage.addManageMetaData(roles));
@@ -152,7 +162,7 @@ public class RoleController {
         if (user != null) {
             //OpenID connect login with User
             UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-            //For super_users this is NULL, which is ok
+            //For super_users this is NULL, which is ok (unless they are impersonating an institution_admin)
             role.setOrganizationGUID(user.getOrganizationGUID());
         } else {
             //API user with Basic Authentication
@@ -193,6 +203,9 @@ public class RoleController {
 
         manage.addManageMetaData(List.of(role));
         UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
+        if (limitInstitutionAdminRoleVisibility && !user.getOrganizationGUID().equals(role.getOrganizationGUID())) {
+            throw new UserRestrictionException();
+        }
 
         provisioningService.deleteGroupRequest(role);
         roleRepository.delete(role);

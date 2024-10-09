@@ -2,6 +2,7 @@ package access.manage;
 
 import access.model.GroupedProviders;
 import access.model.Role;
+import access.model.User;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;

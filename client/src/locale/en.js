@@ -131,6 +131,7 @@ const en = {
     roles: {
         title: "Access Roles",
         applicationName: "Application",
+        auditable: "Role {{name}} was created by {{createdBy}} at {{createdAt}}",
         roleDetails: "Role details",
         invitationDetails: "Invitation details",
         applicationDetails: "Application(s) this role applies to",

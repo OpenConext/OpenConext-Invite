@@ -19,13 +19,12 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
+import static access.security.InstitutionAdmin.*;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
@@ -81,8 +80,8 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             //Does not make any difference security-wise which user we return
             User user = apiUsers.get(0);
             if (StringUtils.hasText(organizationGUID)) {
-                //The overhead is justified for API usage
-                enrichInstitutionAdmin(user, organizationGUID);
+                //The overhead is needed / justified for API usage as this are stateless
+                addInstitutionAdminAttributes(user, organizationGUID);
             }
             return user;
         } else {
@@ -128,7 +127,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 String organizationGUID = user.getOrganizationGUID();
                 if (validImpersonation.get()) {
                     //The overhead for retrieving data from manage is justified when super_user is impersonating institutionAdmin
-                    enrichInstitutionAdmin(user, organizationGUID);
+                    addInstitutionAdminAttributes(user, organizationGUID);
                 } else {
                     user.updateRemoteAttributes(attributes);
                 }
@@ -138,11 +137,9 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
 
     }
 
-    private void enrichInstitutionAdmin(User user, String organizationGUID) {
-        Optional<Map<String, Object>> optionalIdentityProvider = manage.identityProviderByInstitutionalGUID(organizationGUID);
-        user.setInstitution(optionalIdentityProvider.orElse(null));
-        List<Map<String, Object>> applications = optionalIdentityProvider.map(manage::providersAllowedByIdP).orElse(Collections.emptyList());
-        user.setApplications(applications);
+    private void addInstitutionAdminAttributes(User user, String organizationGUID) {
+        Map<String, Object> attributes = manage.enrichInstitutionAdmin(organizationGUID);
+        user.updateRemoteAttributes(attributes);
     }
 
 }

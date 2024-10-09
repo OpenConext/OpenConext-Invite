@@ -75,7 +75,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
                 try {
                     provisioningService.updateUserRequest(user);
                 } catch (RuntimeException e) {
-                    //We choose to ignore these
+                    //We choose to ignore these, because remote provisioning errors may not prevent login flow
                     LOG.error("Error in updateUserRequest", e);
                 }
 

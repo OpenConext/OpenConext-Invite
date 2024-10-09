@@ -586,15 +586,18 @@ public abstract class AbstractTest {
         Role research =
                 new Role("Research", "Research desc",
                         application("4", EntityType.SAML20_SP), 365, false, false);
+
         Role calendar =
                 new Role("Calendar", "Calendar desc",
                         application("5", EntityType.OIDC10_RP), 365, false, false);
-        calendar.setOrganizationGUID(ORGANISATION_GUID);
 
         Role mail =
                 new Role("Mail", "Mail desc",
                         application("5", EntityType.OIDC10_RP), 365, false, false);
-        mail.setOrganizationGUID(ORGANISATION_GUID);
+
+        //These roles will be accessible for the institution admin based
+        network.setOrganizationGUID(ORGANISATION_GUID);
+        research.setOrganizationGUID(ORGANISATION_GUID);
 
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 

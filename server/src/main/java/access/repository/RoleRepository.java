@@ -17,7 +17,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     List<Role> findByApplicationUsagesApplicationManageId(String manageId);
 
-    List<Role> findByOrganizationGUID_ApplicationUsagesApplicationManageId(String organizationGUID, String manageId);
+    List<Role> findByOrganizationGUID(String organizationGUID);
 
     List<Role> findByName(String name);
 

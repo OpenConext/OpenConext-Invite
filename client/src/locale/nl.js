@@ -131,6 +131,7 @@ const nl = {
     roles: {
         title: "Toegangsrollen",
         applicationName: "Applicatie",
+        auditable: "Rol {{name}} is aangemaakt door {{createdBy}} op {{createdAt}}",
         roleDetails: "Details rol",
         invitationDetails: "Details uitnodiging",
         applicationDetails: "Applicatie(s) voor deze rol",

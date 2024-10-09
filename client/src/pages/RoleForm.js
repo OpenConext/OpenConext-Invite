@@ -60,12 +60,13 @@ export const RoleForm = () => {
     const [deletedUserRoles, setDeletedUserRoles] = useState(null);
 
     useEffect(() => {
-            if (!isUserAllowed(AUTHORITIES.MANAGER, user)) {
+            const newRole = id === "new";
+            //Managers may edit - certain attributes - of roles, but are not allowed to create new ones
+            if (!isUserAllowed(AUTHORITIES.MANAGER, user) || (newRole && !isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user))) {
                 navigate("/404");
                 return;
             }
             setAllowedToEditApplication(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user))
-            const newRole = id === "new";
             const promises = [];
             if (!newRole) {
                 promises.push(roleByID(parseInt(id, 10)));
@@ -269,6 +270,19 @@ export const RoleForm = () => {
                 <h2 className="section-separator">
                     {I18n.t("roles.roleDetails")}
                 </h2>
+
+                {(!isNewRole && user.superUser) &&
+                    <div className="role-auditable">
+                        <p>
+                            {I18n.t("roles.auditable", {
+                                name: role.name,
+                                createdBy: role.auditable.createdBy,
+                                createdAt: dateFromEpoch(role.auditable.createdAt)
+                            })}
+                        </p>
+                    </div>
+                }
+
                 <InputField name={I18n.t("roles.name")}
                             value={role.name || ""}
                             placeholder={I18n.t("roles.namePlaceHolder")}

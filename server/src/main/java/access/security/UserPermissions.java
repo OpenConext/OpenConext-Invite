@@ -123,7 +123,7 @@ public class UserPermissions {
                         userRole.getAuthority().hasEqualOrHigherRights(intendedAuthority));
     }
 
-    //Does the one off the applications has the same application as the role
+    //Does one off the user applications has the same application as the role
     private static boolean mayInviteByInstitutionAdmin(List<Map<String, Object>> applications,
                                                        List<String> manageIdentifiers) {
         return applications.stream()
