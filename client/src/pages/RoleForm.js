@@ -27,6 +27,7 @@ import {providersToOptions} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
 import {dateFromEpoch, displayExpiryDate, futureDate} from "../utils/Date";
+import DOMPurify from "dompurify";
 
 const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
@@ -273,13 +274,13 @@ export const RoleForm = () => {
 
                 {(!isNewRole && user.superUser) &&
                     <div className="role-auditable">
-                        <p>
-                            {I18n.t("roles.auditable", {
+                        <p dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(I18n.t("roles.auditable", {
                                 name: role.name,
                                 createdBy: role.auditable.createdBy,
                                 createdAt: dateFromEpoch(role.auditable.createdAt)
-                            })}
-                        </p>
+                            }))
+                        }}/>
                     </div>
                 }
 
