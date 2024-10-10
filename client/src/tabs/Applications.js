@@ -25,7 +25,6 @@ const Applications = () => {
                 navigate("/404");
                 return;
             }
-            //TODO move the merging to the server, easier to differentiate between super_user and institution_admin
             Promise.all([allApplications(), rolesByApplication()])
                 .then(res => {
                     const mergedApps = mergeProvidersProvisioningsRoles(res[0].providers, res[0].provisionings, res[1]);

@@ -247,7 +247,7 @@ class RoleControllerTest extends AbstractTest {
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, roles.size());
+        assertEquals(2, roles.size());
     }
 
     @Test
@@ -268,7 +268,7 @@ class RoleControllerTest extends AbstractTest {
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, roles.size());
+        assertEquals(2, roles.size());
     }
 
     @Test
@@ -320,13 +320,6 @@ class RoleControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
         Role role = roleRepository.search("wiki", 1).get(0);
-        //Ensure delete provisioning is done
-        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
-        Application application = role.applicationsUsed().iterator().next();
-        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
-        super.stubForManageProvisioning(List.of(application.getManageId()));
-        super.stubForDeleteScimRole();
-
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -336,8 +329,8 @@ class RoleControllerTest extends AbstractTest {
                 .pathParams("id", role.getId())
                 .delete("/api/v1/roles/{id}")
                 .then()
-                .statusCode(204);
-        assertEquals(0, roleRepository.search("wiki", 1).size());
+                .statusCode(403);
+        assertEquals(1, roleRepository.search("wiki", 1).size());
     }
 
     @Test
@@ -408,12 +401,12 @@ class RoleControllerTest extends AbstractTest {
                 .get("/api/external/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, roles.size());
+        assertEquals(2, roles.size());
     }
 
     @Test
     void deleteRoleWithAPI() throws Exception {
-        Role role = roleRepository.search("wiki", 1).get(0);
+        Role role = roleRepository.search("network", 1).get(0);
         //Ensure delete provisioning is done
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
         Application application = role.applicationsUsed().iterator().next();
@@ -431,7 +424,7 @@ class RoleControllerTest extends AbstractTest {
                 .delete("/api/external/v1/roles/{id}")
                 .then()
                 .statusCode(204);
-        assertEquals(0, roleRepository.search("wiki", 1).size());
+        assertEquals(0, roleRepository.search("network", 1).size());
     }
 
     @Test

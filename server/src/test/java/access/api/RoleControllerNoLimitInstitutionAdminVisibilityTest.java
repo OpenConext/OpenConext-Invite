@@ -4,18 +4,14 @@ import access.AbstractTest;
 import access.AccessCookieFilter;
 import access.manage.EntityType;
 import access.model.Application;
-import access.model.ApplicationUsage;
 import access.model.RemoteProvisionedGroup;
 import access.model.Role;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
@@ -34,9 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.url: http://localhost:8081",
                 "manage.enabled: true",
-                "feature.limit-institution-admin-role-visibility=true"
+                "feature.limit-institution-admin-role-visibility=false"
         })
-class RoleControllerLimitInstitutionAdminVisibilityTest extends AbstractTest {
+class RoleControllerNoLimitInstitutionAdminVisibilityTest extends AbstractTest {
     @Test
     void rolesByApplicationInstitutionAdminByAPI() throws Exception {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
@@ -51,7 +47,7 @@ class RoleControllerLimitInstitutionAdminVisibilityTest extends AbstractTest {
                 .get("/api/external/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, roles.size());
+        assertEquals(4, roles.size());
     }
 
     @Test
@@ -72,7 +68,7 @@ class RoleControllerLimitInstitutionAdminVisibilityTest extends AbstractTest {
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, roles.size());
+        assertEquals(4, roles.size());
     }
 
     @Test
@@ -96,7 +92,7 @@ class RoleControllerLimitInstitutionAdminVisibilityTest extends AbstractTest {
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, roles.size());
+        assertEquals(4, roles.size());
     }
 
     @Test

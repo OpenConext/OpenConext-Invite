@@ -121,7 +121,7 @@ config:
   eduid-idp-schac-home-organization: "test.eduid.nl"
 
 feature:
-  limit-institution-admin-role-visibility: False
+  limit-institution-admin-role-visibility: True
 
 # We don't encode in-memory passwords, so we need to prefix them with {noop}
 external-api-configuration:

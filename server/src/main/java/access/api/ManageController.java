@@ -20,12 +20,15 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -87,12 +90,22 @@ public class ManageController {
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         UserPermissions.assertInstitutionAdmin(user);
-        List<Application> applications = user.isSuperUser() ?
-                applicationRepository.findAll() :
-                //TODO see Applications.js#TODO
-                roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
-                applicationRepository.findByManageIdIn(user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList()));
-
+        List<Application> applications;
+        if (user.isSuperUser()) {
+            applications = applicationRepository.findAll();
+        } else {
+            applications = limitInstitutionAdminRoleVisibility ?
+                    roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
+                            .stream()
+                            .map(role -> role.getApplicationUsages())
+                            .flatMap(Set::stream)
+                            .map(applicationUsage -> applicationUsage.getApplication())
+                            .toList()
+                    :
+                    applicationRepository.findByManageIdIn(user.getApplications()
+                            .stream()
+                            .map(application -> (String) application.get("id")).collect(Collectors.toList()));
+        }
         Map<EntityType, List<Application>> groupedByManageType = applications.stream().collect(Collectors.groupingBy(Application::getManageType));
 
         List<Map<String, Object>> providers = groupedByManageType.entrySet().stream()
