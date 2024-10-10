@@ -50,12 +50,13 @@ export const App = () => {
                             navigate("/missingAttributes");
                             return;
                         }
-                        setLoading(false);
                         const pathname = localStorage.getItem("location") || window.location.pathname;
                         const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept");
                         if (res.name && !pathname.startsWith("/invitation/accept") && !isInvitationAcceptFlow) {
+                            setLoading(false);
                             navigate("/deadend");
                         } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept") || isInvitationAcceptFlow) {
+                            setLoading(false);
                             navigate(isInvitationAcceptFlow ? (window.location.pathname + window.location.search) : pathname);
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page
