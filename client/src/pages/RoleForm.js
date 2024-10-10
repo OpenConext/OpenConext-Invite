@@ -264,7 +264,7 @@ export const RoleForm = () => {
 
     const renderForm = () => {
         const valid = isValid();
-        const disabledSubmit = !valid && !initial;
+        const disabledSubmit = (!valid && !initial) || !validOrganizationGUID;
         const filteredProviders = providers.filter(option => !applications.some(app => app && option.value === app.value));
         return (<>
                 <h2 className="section-separator">
