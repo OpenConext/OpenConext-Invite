@@ -10,6 +10,7 @@ import access.provision.Provisioning;
 import access.provision.graph.GraphClient;
 import access.repository.InvitationRepository;
 import access.repository.RemoteProvisionedUserRepository;
+import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.security.UserPermissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -60,6 +61,9 @@ public class UserController {
     private final ObjectMapper objectMapper;
     private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
     private final GraphClient graphClient;
+    private final boolean limitInstitutionAdminRoleVisibility;
+    private final RoleRepository roleRepository;
+
 
     @Autowired
     public UserController(Config config,
@@ -71,14 +75,17 @@ public class UserController {
                           KeyStore keyStore,
                           @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
                           @Value("${config.server-url}") String serverBaseURL,
-                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix,
+                          @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility, RoleRepository roleRepository) {
         this.invitationRepository = invitationRepository;
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
+        this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
         this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
+        this.roleRepository = roleRepository;
     }
 
     @GetMapping("config")
@@ -140,7 +147,17 @@ public class UserController {
         LOG.debug(String.format("/searchByApplication for user %s and query %s", user.getEduPersonPrincipalName(), query));
 
         UserPermissions.assertInstitutionAdmin(user);
-        List<String> manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList());
+        List<String> manageIdentifiers;
+        if (limitInstitutionAdminRoleVisibility) {
+            manageIdentifiers = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
+                    .stream()
+                    .map(role -> role.getApplicationUsages())
+                    .flatMap(Set::stream)
+                    .map(applicationUsage -> applicationUsage.getApplication().getManageId())
+                    .toList();
+        } else {
+            manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList());
+        }
         List<Map<String, Object>> results = query.equals("owl") ?
                 userRepository.searchByApplicationAllUsers(manageIdentifiers) :
                 userRepository.searchByApplication(manageIdentifiers, query.replaceAll("@", " ") + "*", 15);
