@@ -448,6 +448,22 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void updateWithAPIUser() {
+        Role role = roleRepository.findByName("Mail").get(0);
+        role.setDescription("changed");
+        Role newRole = given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(role)
+                .put("/api/external/v1/sp_dashboard/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("changed", newRole.getDescription());
+    }
+
+    @Test
     void rolesByApplicationSuperUserWithAPIToken() {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
         super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));

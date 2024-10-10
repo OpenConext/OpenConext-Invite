@@ -1,6 +1,7 @@
 package access.cron;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
 import java.util.Arrays;
@@ -8,20 +9,20 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class IdPMetaDataResolverTest {
+class IdPMetaDataResolverTest {
 
     @Test
-    public void resolveIdpMetaDataNoException() {
+    void resolveIdpMetaDataNoException() {
         new IdPMetaDataResolver(null).resolveIdpMetaData();
     }
 
     @Test
-    public void resolveIdpMetaDataNoExceptionFileNotFound() {
+    void resolveIdpMetaDataNoExceptionFileNotFound() {
         new IdPMetaDataResolver(new ClassPathResource("metadata/nope")).resolveIdpMetaData();
     }
 
     @Test
-    public void resolveIdentityProvider() {
+    void resolveIdentityProvider() {
         IdPMetaDataResolver metaDataResolver = new IdPMetaDataResolver(new ClassPathResource("metadata/idps-metatdata-prod.xml"));
         List<String> schacHomes = Arrays.asList("student.ahk.nl", "ahknl.onmicrosoft.com", "ahk.nl");
         schacHomes.forEach(schacHome -> {

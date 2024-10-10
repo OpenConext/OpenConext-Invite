@@ -1,6 +1,7 @@
 package access.teams;
 
 import access.AbstractTest;
+import access.exception.InvalidInputException;
 import access.manage.EntityType;
 import access.model.Application;
 import access.model.Authority;
@@ -140,6 +141,29 @@ class TeamsControllerTest extends AbstractTest {
     }
 
     @Test
+    void migrateTeamNonExistentApplications() {
+        List<Membership> memberships = List.of();
+        List<Application> applications = List.of(new Application("999", EntityType.SAML20_SP));
+        Team team = new Team(
+                "nl:surfnet:diensten:test",
+                "test migration",
+                "test migration",
+                memberships,
+                applications
+        );
+
+        given()
+                .when()
+                .auth().preemptive().basic("teams", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(team)
+                .put("/api/external/v1/teams")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
     void migrateTeamEmptyApplications() {
         List<Membership> memberships = List.of(new Membership());
         Team team = new Team(
@@ -235,7 +259,10 @@ class TeamsControllerTest extends AbstractTest {
                 .put("/api/external/v1/teams")
                 .then()
                 .statusCode(400);
-
     }
 
+    @Test
+    void mapAuthorityNull() {
+        assertThrows(InvalidInputException.class, () -> mapAuthority(null));
+    }
 }

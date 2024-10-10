@@ -156,6 +156,9 @@ public class TeamsController {
     }
 
     protected static Authority mapAuthority(access.teams.Role role) {
+        if (role == null) {
+            throw new InvalidInputException("Null membership role");
+        }
         switch (role) {
             case MEMBER -> {
                 return Authority.GUEST;
@@ -166,9 +169,7 @@ public class TeamsController {
             case ADMIN, OWNER -> {
                 return Authority.MANAGER;
             }
-            default -> {
-                throw new InvalidInputException("Unknown membership role: " + role);
-            }
         }
+        throw new InvalidInputException("Unknown membership role: " + role);
     }
 }

@@ -568,4 +568,61 @@ class InvitationControllerTest extends AbstractTest {
                 m -> m);
     }
 
+    @Test
+    void newInvitationInvalidEmail() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+
+        List<Long> roleIdentifiers = roleRepository.search("Calendar",1)
+                .stream()
+                .map(Role::getId)
+                .toList();
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.GUEST,
+                "Message",
+                Language.en,
+                true,
+                false,
+                false,
+                false,
+                List.of("nope"),
+                roleIdentifiers,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/v1/invitations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(201, results.get("status"));
+        assertEquals(0, ((List) results.get("recipientInvitationURLs")).size());
+    }
+
+    @Test
+    void resendInviteMailExpirationDate() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        invitation.setExpiryDate(Instant.now().minus(5, ChronoUnit.DAYS));
+        invitationRepository.save(invitation);
+
+        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("id", invitation.getId())
+                .put("/api/v1/invitations/{id}")
+                .then()
+                .statusCode(201);
+        Invitation savedInvitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        assertTrue(savedInvitation.getExpiryDate().isAfter(Instant.now().plus(13, ChronoUnit.DAYS)));
+    }
+
 }

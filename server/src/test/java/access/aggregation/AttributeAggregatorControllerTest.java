@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static access.manage.EntityType.SAML20_SP;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,7 +19,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
 
     @Test
     void getGroupMemberships() throws JsonProcessingException {
-        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
+        stubForManageProviderByEntityID(SAML20_SP, "https://research");
         List<Map<String, String>> roles = given()
                 .when()
                 .auth().preemptive().basic("aa", "secret")
@@ -50,7 +51,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
 
     @Test
     void getGroupMembershipsGuestIncluded() throws JsonProcessingException {
-        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://wiki");
+        stubForManageProviderByEntityID(SAML20_SP, "https://wiki");
         List<Map<String, String>> roles = given()
                 .when()
                 .auth().preemptive().basic("aa", "secret")
@@ -67,7 +68,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
 
     @Test
     void getGroupMembershipsNonExistingUser() throws JsonProcessingException {
-        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
+        stubForManageProviderByEntityID(SAML20_SP, "https://research");
         List<Map<String, String>> roles = given()
                 .when()
                 .auth().preemptive().basic("aa", "secret")
@@ -83,8 +84,23 @@ class AttributeAggregatorControllerTest extends AbstractTest {
 
     @Test
     void getGroupMembershipsNonExistingProvider() throws JsonProcessingException {
-        stubForManageProviderByEntityID(EntityType.SAML20_SP, "nope");
+        stubForManageProviderByEntityID(SAML20_SP, "nope");
         stubForManageProviderByEntityID(EntityType.OIDC10_RP, "nope");
+        List<Map<String, String>> roles = given()
+                .when()
+                .auth().preemptive().basic("aa", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("sub", GUEST_SUB)
+                .queryParam("SPentityID", "")
+                .get("/api/external/v1/aa/{sub}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, roles.size());
+    }
+
+    @Test
+    void manageDown() {
         List<Map<String, String>> roles = given()
                 .when()
                 .auth().preemptive().basic("aa", "secret")

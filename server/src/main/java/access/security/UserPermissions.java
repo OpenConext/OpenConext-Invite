@@ -103,6 +103,9 @@ public class UserPermissions {
         if (user.isSuperUser()) {
             return;
         }
+        if (accessRole == null) {
+            throw new UserRestrictionException();
+        }
         if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), accessRole.applicationIdentifiers())) {
             return;
         }

@@ -190,7 +190,8 @@ public class RoleController {
             //API user with Basic Authentication
             RemoteUserPermissions.assertScopeAccess(remoteUser, Scope.sp_dashboard);
         }
-        LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
+        String userName = user != null ? user.getEduPersonPrincipalName() : remoteUser.getName();
+        LOG.debug(String.format("Update role '%s' by user %s", role.getName(), userName));
 
         return saveOrUpdate(role, user, remoteUser);
     }

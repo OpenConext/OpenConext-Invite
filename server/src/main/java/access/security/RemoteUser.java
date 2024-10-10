@@ -1,6 +1,7 @@
 package access.security;
 
 import access.model.Provisionable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,11 +18,12 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class RemoteUser implements UserDetails, CredentialsContainer, Provisionable {
 
     private String username;
     private String password;
-    private List<Scope> scopes;
+    private List<Scope> scopes = new ArrayList<>();
 
     public RemoteUser(RemoteUser remoteUser) {
         this.username = remoteUser.username;
