@@ -1,5 +1,7 @@
 package access.provision;
 
+import access.eduid.EduID;
+import access.eduid.EduIDProvision;
 import access.exception.RemoteException;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
@@ -58,6 +60,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     private final GraphClient graphClient;
     private final EvaClient evaClient;
     private final KeyStore keyStore;
+    private final EduID eduID;
 
     @Autowired
     public ProvisioningServiceDefault(UserRoleRepository userRoleRepository,
@@ -66,6 +69,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                       Manage manage,
                                       ObjectMapper objectMapper,
                                       KeyStore keyStore,
+                                      EduID eduID,
                                       @Value("${voot.group_urn_domain}") String groupUrnPrefix,
                                       @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
                                       @Value("${config.server-url}") String serverBaseURL) {
@@ -76,6 +80,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         this.objectMapper = objectMapper;
         this.keyStore = keyStore;
         this.groupUrnPrefix = groupUrnPrefix;
+        this.eduID = eduID;
         this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
         this.evaClient = new EvaClient(keyStore);
         // Otherwise, we can't use method PATCH
@@ -94,7 +99,13 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .filter(provisioning -> this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user)
                         .isEmpty())
                 .forEach(provisioning -> {
-                    String userRequest = prettyJson(new UserRequest(user, provisioning));
+                    UserRequest request = new UserRequest(user, provisioning);
+                    if (provisioning.getScimUserIdentifier().equals(ScimUserIdentifier.eduID) &&
+                            request.getExternalId().equals(user.getEduId())) {
+                        //No fallback for failure
+                        this.eduID.provisionEduid(new EduIDProvision(user.getEduId(), provisioning.getInstitutionGUID()));
+                    }
+                    String userRequest = prettyJson(request);
                     Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, userRequest, user);
                     provisioningResponse.ifPresent(response -> {
                         if (!response.isErrorResponse() && StringUtils.hasText(response.remoteIdentifier())) {

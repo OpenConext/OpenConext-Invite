@@ -24,6 +24,7 @@ public class Provisioning {
     private final String graphClientId;
     private final String graphSecret;
     private final String graphTenant;
+    private final String institutionGUID;
 
     public Provisioning(Map<String, Object> provider) {
         this.id = (String) provider.get("id");
@@ -47,6 +48,7 @@ public class Provisioning {
         this.graphClientId = (String) provider.get("graph_client_id");
         this.graphSecret = (String) provider.get("graph_secret");
         this.graphTenant = (String) provider.getOrDefault("graph_tenant", "common");
+        this.institutionGUID = (String) provider.get("coin:institution_guid");
         this.invariant();
 
     }
@@ -65,6 +67,11 @@ public class Provisioning {
             case graph -> {
                 assert graphClientId != null: "graphClientId is null";
                 assert graphSecret != null: "graphSecret is null";
+            }
+        }
+        switch (this.scimUserIdentifier) {
+            case eduID -> {
+                assert institutionGUID != null : "institutionGUID is null";
             }
         }
     }
