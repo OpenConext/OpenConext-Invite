@@ -10,6 +10,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -112,7 +113,8 @@ class UserRequestTest {
                 "scim_url", "http://localhost",
                 "scim_user", "user",
                 "scim_password", "secret",
-                "scim_user_identifier", scimUserIdentifier.name()
+                "scim_user_identifier", scimUserIdentifier.name(),
+                "coin:institution_guid", UUID.randomUUID().toString()
         ));
     }
 }
