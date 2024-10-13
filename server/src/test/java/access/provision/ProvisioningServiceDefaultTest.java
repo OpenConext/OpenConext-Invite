@@ -1,6 +1,7 @@
 package access.provision;
 
 import access.AbstractTest;
+import access.eduid.EduIDProvision;
 import access.model.Authority;
 import access.model.RemoteProvisionedUser;
 import access.model.User;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ProvisioningServiceDefaultTest extends AbstractTest {
 
     @Autowired
-    private ProvisioningServiceDefault provisioningService;
+    private ProvisioningService provisioningService;
 
     @Test
     void newUserRequest() throws JsonProcessingException {
@@ -29,6 +30,24 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
 
         this.stubForManageProvisioning(List.of("3"));
         String remoteScimIdentifier = this.stubForCreateEvaUser();
+        provisioningService.newUserRequest(user);
+        List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
+        assertEquals(1, remoteProvisionedUsers.size());
+        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+    }
+
+    @Test
+    void newUserRequestWithEduIDProvisioning() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+
+        this.stubForManageProvisioning(List.of("1"));
+
+        EduIDProvision eduIDProvision = new EduIDProvision(user.getEduId(), UUID.randomUUID().toString());
+        stubFor(post(urlPathMatching("/myconext/api/invite/provision-eduid")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(eduIDProvision))));
+
+        String remoteScimIdentifier = this.stubForCreateScimUser();
         provisioningService.newUserRequest(user);
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());

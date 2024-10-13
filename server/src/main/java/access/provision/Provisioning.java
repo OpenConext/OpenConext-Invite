@@ -48,7 +48,7 @@ public class Provisioning {
         this.graphClientId = (String) provider.get("graph_client_id");
         this.graphSecret = (String) provider.get("graph_secret");
         this.graphTenant = (String) provider.getOrDefault("graph_tenant", "common");
-        this.institutionGUID = (String) provider.get("coin:institution_guid");
+        this.institutionGUID = (String) provider.get("institutionGuid");
         this.invariant();
 
     }

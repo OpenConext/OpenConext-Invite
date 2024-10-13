@@ -78,6 +78,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.url: http://localhost:8081",
+                "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
                 "feature.limit-institution-admin-role-visibility=true"
         })
@@ -563,6 +564,7 @@ public abstract class AbstractTest {
                 new User(false, INVITER_WIKI_SUB, INVITER_WIKI_SUB, "example.com", "James", "Doe", "james.doe@examole.com");
         User guest =
                 new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@examole.com");
+        guest.setEduId(UUID.randomUUID().toString());
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest);
 
         Role wiki =

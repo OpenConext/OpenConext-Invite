@@ -114,7 +114,7 @@ class UserRequestTest {
                 "scim_user", "user",
                 "scim_password", "secret",
                 "scim_user_identifier", scimUserIdentifier.name(),
-                "coin:institution_guid", UUID.randomUUID().toString()
+                "institutionGuid", UUID.randomUUID().toString()
         ));
     }
 }
