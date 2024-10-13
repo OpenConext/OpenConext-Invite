@@ -2,10 +2,7 @@ package access.provision;
 
 import access.AbstractTest;
 import access.eduid.EduIDProvision;
-import access.model.Authority;
-import access.model.RemoteProvisionedUser;
-import access.model.User;
-import access.model.UserRole;
+import access.model.*;
 import access.provision.scim.OperationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -14,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProvisioningServiceDefaultTest extends AbstractTest {
 
@@ -107,5 +106,20 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     void updateGroupRequest() {
         //We only provision GUEST users
         provisioningService.updateGroupRequest(new UserRole(Authority.INVITER, null), OperationType.Add);
+    }
+
+    @Test
+    void deleteGroupRequest() throws JsonProcessingException {
+        Role role = roleRepository.findByName("Calendar").get(0);
+
+        RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, UUID.randomUUID().toString(),"7");
+        remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
+
+        this.stubForManageProvisioning(List.of("1"));
+        this.stubForDeleteScimRole();
+
+        provisioningService.deleteGroupRequest(role);
+        Optional<RemoteProvisionedGroup> remoteProvisionedGroupOptional = remoteProvisionedGroupRepository.findByManageProvisioningIdAndRole("7", role);
+        assertTrue(remoteProvisionedGroupOptional.isEmpty());
     }
 }
