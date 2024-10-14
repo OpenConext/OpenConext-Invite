@@ -1,8 +1,10 @@
 <!-- markdownlint-disable MD024 -->
 # SCIM - System for Cross-domain Identity Management
 
-De relevante gebruikers en hun groepslidmaatschappen worden via het SCIM protocol doorgegeven aan de endpoints bij instellingen.
-De invite-applicatie heeft de rol van SCIM client om informatie aan de verschillende Service Providers te sturen.
+De relevante gebruikers en hun groepslidmaatschappen worden via het SCIM
+protocol doorgegeven aan de endpoints bij instellingen. De invite-applicatie
+heeft de rol van SCIM client om informatie aan de verschillende Service
+Providers te sturen.
 
 ## Begrippen
 
@@ -22,7 +24,8 @@ De endpoints bij de instellingen ondersteunen de volgende operaties:
 - Update: PATCH `https://example.com/{v}/{resource}/{id}`
 - Search: GET `https://example.com/{v}/{resource}?ﬁlter={attribute}{op}{value}&sortBy={attributeName}&sortOrder={ascending|descending}`
 
-PUT operaties leveren het complete object; PATCH operaties geven het verschil met het huidige object door. [Zie rfc7644 section-3.5.2](https://datatracker.ietf.org/doc/html/rfc7644#section-3.5.2)
+PUT operaties leveren het complete object; PATCH operaties geven het verschil
+met het huidige object door. [Zie rfc7644 section-3.5.2](https://datatracker.ietf.org/doc/html/rfc7644#section-3.5.2)
 
 ## Identifiers
 
@@ -33,14 +36,16 @@ Er zijn meerdere attributen die een gebruiker of groep identificeren:
 - **userName** : De identifier voor een gebruiker bij de Service Provider,
 in het SCIM protocol de inlognaam voor de gebruiker als deze bij de Service Provider in gaat loggen.
 
-Voor de gebruikers die via de invite-applicatie beheerd worden, gebruiken we de eduPersonPrincipalName (eppn) voor de indentifiers,
-zodat ze ook bij een SAML of oidc authenticatie herkend kunnen worden.
+Voor de gebruikers die via de invite-applicatie beheerd worden, gebruiken we de
+eduPersonPrincipalName (eppn) voor de indentifiers, zodat ze ook bij een SAML
+of oidc authenticatie herkend kunnen worden.
 
 ## Gebruikers
 
 ### Aanmaken gebruiker
 
-Na het accepteren van de eerste uitnodiging van een instelling, moet de gebruiker aangemaakt worden bij de instelling.
+Na het accepteren van de eerste uitnodiging van een instelling, moet de gebruiker aangemaakt
+worden bij de instelling.
 
 #### Request
 

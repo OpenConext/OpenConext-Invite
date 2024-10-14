@@ -1,9 +1,9 @@
 # scimgateway
 
-*Het heeft de voorkeur om SCIM berichten direct en near-realtime af te handelen in 
-een eigen IDM of IAM platform. Als dit niet mogelijk is, kan bijvoorbeeld deze
-[Scimgateway](https://github.com/jelhub/scimgateway) gebruikt worden. Deze 
-software wordt niet gemaakt of ondersteund door SURF.*
+*Het heeft de voorkeur om SCIM berichten direct en near-realtime af te
+handelen in een eigen IDM of IAM platform. Als dit niet mogelijk is, kan
+bijvoorbeeld deze [Scimgateway](https://github.com/jelhub/scimgateway)
+gebruikt worden. Deze software wordt niet gemaakt of ondersteund door SURF.*
 
 ## Wat is scimgateway
 
