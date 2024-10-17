@@ -1,17 +1,20 @@
 package access.internal;
 
-import access.api.AppRepositoryResource;
-import access.api.Results;
-import access.api.RoleOperations;
+import access.api.*;
 import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
+import access.mail.MailBox;
 import access.manage.Manage;
+import access.model.InvitationRequest;
+import access.model.InvitationResponse;
 import access.model.Role;
+import access.model.User;
 import access.provision.ProvisioningService;
 import access.provision.scim.GroupURN;
 import access.repository.ApplicationRepository;
 import access.repository.ApplicationUsageRepository;
+import access.repository.InvitationRepository;
 import access.repository.RoleRepository;
 import access.security.RemoteUser;
 import access.security.RemoteUserPermissions;
@@ -37,32 +40,43 @@ import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 @RequestMapping(value = {"/api/internal/invite", "/api/external/v1/internal/invite"},
         produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
-public class InternalInviteController implements AppRepositoryResource {
+public class InternalInviteController implements AppRepositoryResource, InvitationResource {
     private static final Log LOG = LogFactory.getLog(InternalInviteController.class);
 
+    @Getter
     private final RoleRepository roleRepository;
     @Getter
     private final ApplicationRepository applicationRepository;
     @Getter
     private final ApplicationUsageRepository applicationUsageRepository;
+    @Getter
+    private final MailBox mailBox;
+    @Getter
     private final Manage manage;
+    @Getter
+    private final InvitationRepository invitationRepository;
+
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
+    private final InvitationOperations invitationOperations;
 
     public InternalInviteController(RoleRepository roleRepository,
                                     ApplicationRepository applicationRepository,
-                                    ApplicationUsageRepository applicationUsageRepository,
-                                    Manage manage,
+                                    ApplicationUsageRepository applicationUsageRepository, MailBox mailBox,
+                                    Manage manage, InvitationRepository invitationRepository,
                                     ProvisioningService provisioningService) {
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
+        this.mailBox = mailBox;
         this.manage = manage;
+        this.invitationRepository = invitationRepository;
         this.provisioningService = provisioningService;
-        roleOperations = new RoleOperations(this);
+        this.roleOperations = new RoleOperations(this);
+        this.invitationOperations = new InvitationOperations(this);
     }
 
-    @GetMapping("/role/{id}")
+    @GetMapping("/roles/{id}")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
     public ResponseEntity<Role> role(@PathVariable("id") Long id,
                                      @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
@@ -76,7 +90,7 @@ public class InternalInviteController implements AppRepositoryResource {
         return ResponseEntity.ok(role);
     }
 
-    @PostMapping("/role")
+    @PostMapping("/roles")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
                                         @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
@@ -90,7 +104,7 @@ public class InternalInviteController implements AppRepositoryResource {
         return saveOrUpdate(role, remoteUser);
     }
 
-    @PutMapping("/role")
+    @PutMapping("/roles")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
@@ -99,7 +113,7 @@ public class InternalInviteController implements AppRepositoryResource {
         return saveOrUpdate(role, remoteUser);
     }
 
-    @DeleteMapping("/role/{id}")
+    @DeleteMapping("/roles/{id}")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id,
                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
@@ -116,6 +130,13 @@ public class InternalInviteController implements AppRepositoryResource {
         AccessLogger.role(LOG, Event.Deleted, remoteUser, role);
 
         return Results.deleteResult();
+    }
+
+    @PostMapping("/invitations")
+    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
+                                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        return this.invitationOperations.sendInvitation(invitationRequest, null, remoteUser);
     }
 
     private ResponseEntity<Role> saveOrUpdate(Role role, RemoteUser remoteUser) {

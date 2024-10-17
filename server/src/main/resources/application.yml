@@ -154,6 +154,7 @@ external-api-configuration:
         - profile
     -
       username: sp_dashboard
+      displayName: "SP Dashboard"
       password: "secret"
       scopes:
         - sp_dashboard

@@ -10,6 +10,7 @@ import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,12 +25,14 @@ public class RemoteUser implements UserDetails, CredentialsContainer, Provisiona
 
     private String username;
     private String password;
+    private String displayName;
     private List<Scope> scopes = new ArrayList<>();
     private List<Application> applications = new ArrayList<>();
 
     public RemoteUser(RemoteUser remoteUser) {
         this.username = remoteUser.username;
         this.password = remoteUser.password;
+        this.displayName = remoteUser.displayName;
         this.scopes = remoteUser.scopes;
         this.applications = remoteUser.applications;
     }
@@ -44,7 +47,7 @@ public class RemoteUser implements UserDetails, CredentialsContainer, Provisiona
 
     @Override
     public String getName() {
-        return username;
+        return StringUtils.hasText(displayName) ? displayName : username;
     }
 
     @Override

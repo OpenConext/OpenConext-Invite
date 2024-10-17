@@ -1,7 +1,6 @@
 package access.api;
 
 import access.exception.InvalidInputException;
-import access.internal.InternalInviteController;
 import access.model.Application;
 import access.model.ApplicationUsage;
 import access.model.Role;

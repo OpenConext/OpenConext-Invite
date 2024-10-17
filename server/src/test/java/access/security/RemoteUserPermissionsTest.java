@@ -21,7 +21,7 @@ class RemoteUserPermissionsTest {
 
         RemoteUserPermissions.assertScopeAccess(new RemoteUser());
         RemoteUserPermissions.assertScopeAccess(
-                new RemoteUser("user", "secret", List.of(Scope.profile), List.of()), Scope.profile);
+                new RemoteUser("user", "secret", null, List.of(Scope.profile), List.of()), Scope.profile);
     }
 
     @Test
@@ -34,8 +34,9 @@ class RemoteUserPermissionsTest {
         role.setApplicationUsages(applicationUsages);
         assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(null, role));
         assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(new RemoteUser(), role));
-        RemoteUser remoteUser = new RemoteUser("user", "secret", List.of(), List.of(application));
+        RemoteUser remoteUser = new RemoteUser("user", "secret", null, List.of(), List.of(application));
         RemoteUserPermissions.assertApplicationAccess(remoteUser, role);
+        RemoteUserPermissions.assertApplicationAccess(remoteUser, List.of(role));
     }
 
 }

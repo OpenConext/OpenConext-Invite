@@ -42,10 +42,11 @@ public class AccessLogger {
 
     public static void invitation(Log log, Event event, Invitation invitation) {
         List<Role> roles = invitation.getRoles().stream().map(InvitationRole::getRole).toList();
-        ;
+
+        User inviter = invitation.getInviter();
         MDC.setContextMap(Map.of(
                 "type", String.format("%s Invitation", event),
-                "userId", invitation.getInviter().getSub(),
+                "userId", inviter != null ? inviter.getSub() : invitation.getRemoteApiUser(),
                 "applications", roles.stream().map(AccessLogger::applications).collect(Collectors.joining(", ")),
                 "roles", String.join(",", roles.stream().map(Role::getName).toList())
         ));

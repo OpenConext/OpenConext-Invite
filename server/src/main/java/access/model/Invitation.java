@@ -75,6 +75,9 @@ public class Invitation implements Serializable {
     @JsonIgnore
     private User inviter;
 
+    @Column(name = "remote_api_user")
+    private String remoteApiUser;
+
     @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<InvitationRole> roles = new HashSet<>();
 
@@ -131,11 +134,19 @@ public class Invitation implements Serializable {
     @JsonProperty(value = "inviter", access = JsonProperty.Access.READ_ONLY)
     public Map<String, Object> getInviterEmail() {
         User inviter = this.getInviter();
-        return inviter != null ? Map.of(
-                "email", inviter.getEmail(),
-                "name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail(),
-                    "user_id", inviter.getId())
-                : Collections.emptyMap();
+        if (inviter != null) {
+            return Map.of(
+                    "email", inviter.getEmail(),
+                    "name", StringUtils.hasText(inviter.getName()) ? inviter.getName() : inviter.getEmail(),
+                    "user_id", inviter.getId());
+        }
+        if (remoteApiUser != null) {
+            return Map.of(
+                    "email", remoteApiUser,
+                    "name", remoteApiUser,
+                    "user_id", remoteApiUser);
+        }
+        return Collections.emptyMap();
     }
 
 }

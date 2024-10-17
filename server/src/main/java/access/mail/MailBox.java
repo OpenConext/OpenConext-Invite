@@ -58,17 +58,21 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendInviteMail(User user, Invitation invitation, List<GroupedProviders> groupedProviders, Language language) {
+    public void sendInviteMail(Provisionable provisionable, Invitation invitation, List<GroupedProviders> groupedProviders, Language language) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         String title = String.format(subjects.get(language.name()).get("newInvitation"),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", ")));
         Map<String, Object> variables = new HashMap<>();
         variables.put("groupedProviders", groupedProviders);
         variables.put("title", title);
-        variables.put("institutionName", idPMetaDataResolver
-                .getIdentityProvider(user.getSchacHomeOrganization())
-                .map(idp -> idp.getName())
-                .orElse(user.getSchacHomeOrganization()));
+        if (provisionable instanceof User user) {
+            variables.put("institutionName", idPMetaDataResolver
+                    .getIdentityProvider(user.getSchacHomeOrganization())
+                    .map(idp -> idp.getName())
+                    .orElse(user.getSchacHomeOrganization()));
+        } else {
+            variables.put("institutionName", "SURF");
+        }
         variables.put("roles", splitListSemantically(invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole().getName()).toList()));
         if (StringUtils.hasText(invitation.getMessage())) {
             variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
@@ -76,7 +80,7 @@ public class MailBox {
 
         variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(language.name()));
-        variables.put("user", user);
+        variables.put("user", provisionable);
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }

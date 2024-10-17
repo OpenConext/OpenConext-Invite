@@ -7,13 +7,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+
 class ExtendedInMemoryUserDetailsManagerTest {
 
     private final RemoteUser remoteUser = new RemoteUser(
             "user",
             "password",
+            "SP Dashboard",
             List.of(Scope.profile),
             List.of(new Application("4", EntityType.SAML20_SP)));
 
@@ -26,5 +27,6 @@ class ExtendedInMemoryUserDetailsManagerTest {
 
         RemoteUser user = (RemoteUser) userDetailsManager.loadUserByUsername("user");
         assertNotEquals(remoteUser, user);
+        assertEquals("SP Dashboard", user.getName());
     }
 }
