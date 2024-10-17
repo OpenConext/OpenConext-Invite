@@ -1,6 +1,8 @@
 package access.repository;
 
 import access.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -29,6 +31,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND id > 0 LIMIT ?2",
             nativeQuery = true)
     List<User> search(String keyWord, int limit);
+
+    @Query(value = "SELECT * FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
+            countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
+            nativeQuery = true)
+    Page<User> searchByPage(String keyWord, Pageable pageable );
 
     @Query(value = "SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity, " +
             "ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date " +

@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -292,6 +293,43 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, users.size());
+    }
+
+    @Test
+    void searchPaginated() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        Map<String, Object> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "exam")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 3)
+                .queryParam("sort", "given_name")
+                .queryParam("sortDirection", Sort.Direction.ASC.name())
+                .get("/api/v1/users/search-paginated")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(3, ((List<?>) users.get("content")).size());
+        assertEquals(6, users.get("totalElements"));
+    }
+
+    @Test
+    void searchPaginatedAll() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        Map<String, Object> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "owl")
+                .get("/api/v1/users/search-paginated")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(6, ((List<?>) users.get("content")).size());
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -138,6 +139,25 @@ public class UserController {
         UserPermissions.assertSuperUser(user);
         List<User> users = query.equals("owl") ? userRepository.findAll() :
                 userRepository.search(query.replaceAll("@", " ") + "*", 15);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("search-paginated")
+    public ResponseEntity<Page<User>> searchPaginated(@RequestParam(value = "query") String query,
+                                                      @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                      @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                      @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
+                                                      @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
+                                                      @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/search-paginated for user %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertSuperUser(user);
+        if (query.equals("owl")) {
+            List<User> content = userRepository.findAll();
+            PageRequest pageRequest = PageRequest.of(0, content.size(), Sort.by(Sort.Direction.ASC.name(), "id"));
+            return ResponseEntity.ok(new PageImpl<>(content, pageRequest, content.size()));
+        }
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<User> users = userRepository.searchByPage(query.replaceAll("@", " ") + "*", pageable);
         return ResponseEntity.ok(users);
     }
 
