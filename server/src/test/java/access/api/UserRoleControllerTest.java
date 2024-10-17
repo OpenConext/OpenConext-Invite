@@ -192,8 +192,8 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void userRoleProvisioningEmail() throws Exception {
         List<Long> roleIdentifiers = List.of(
-                roleRepository.findByName("Network").get(0).getId(),
-                roleRepository.findByName("Wiki").get(0).getId()
+                roleRepository.findByName("Network").get().getId(),
+                roleRepository.findByName("Wiki").get().getId()
         );
         doUserRoleProvisioning(new UserRoleProvisioning(
                 roleIdentifiers,
@@ -212,8 +212,8 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void userRoleProvisioningSub() throws Exception {
         List<Long> roleIdentifiers = List.of(
-                roleRepository.findByName("Network").get(0).getId(),
-                roleRepository.findByName("Wiki").get(0).getId()
+                roleRepository.findByName("Network").get().getId(),
+                roleRepository.findByName("Wiki").get().getId()
         );
         doUserRoleProvisioning(new UserRoleProvisioning(
                 roleIdentifiers,
@@ -232,8 +232,8 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void userRoleProvisioningEPPN() throws Exception {
         List<Long> roleIdentifiers = List.of(
-                roleRepository.findByName("Network").get(0).getId(),
-                roleRepository.findByName("Wiki").get(0).getId()
+                roleRepository.findByName("Network").get().getId(),
+                roleRepository.findByName("Wiki").get().getId()
         );
         doUserRoleProvisioning(new UserRoleProvisioning(
                 roleIdentifiers,
@@ -252,8 +252,8 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void userRoleProvisioningExistingUser() throws Exception {
         List<Long> roleIdentifiers = List.of(
-                roleRepository.findByName("Network").get(0).getId(),
-                roleRepository.findByName("Wiki").get(0).getId()
+                roleRepository.findByName("Network").get().getId(),
+                roleRepository.findByName("Wiki").get().getId()
         );
         doUserRoleProvisioning(new UserRoleProvisioning(
                 roleIdentifiers,
@@ -303,8 +303,8 @@ class UserRoleControllerTest extends AbstractTest {
     @Test
     void invalidAPIToken() {
         List<Long> roleIdentifiers = List.of(
-                roleRepository.findByName("Network").get(0).getId(),
-                roleRepository.findByName("Wiki").get(0).getId()
+                roleRepository.findByName("Network").get().getId(),
+                roleRepository.findByName("Wiki").get().getId()
         );
         UserRoleProvisioning userRoleProvisioning = new UserRoleProvisioning(
                 roleIdentifiers,

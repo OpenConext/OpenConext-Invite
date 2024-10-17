@@ -61,6 +61,9 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "organization_guid")
     private String organizationGUID;
 
+    @Column(name = "remote_api_user")
+    private String remoteApiUser;
+
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;
 

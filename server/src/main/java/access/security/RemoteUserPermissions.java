@@ -1,7 +1,11 @@
 package access.security;
 
 import access.exception.UserRestrictionException;
+import access.model.Application;
+import access.model.Role;
 import org.apache.commons.lang3.stream.Streams;
+
+import java.util.List;
 
 public class RemoteUserPermissions {
 
@@ -20,4 +24,17 @@ public class RemoteUserPermissions {
         }
     }
 
+    public static void assertApplicationAccess(RemoteUser remoteUser, Role role) {
+        if (remoteUser == null) {
+            throw new UserRestrictionException();
+        }
+        List<Application> remoteUserApplications = remoteUser.getApplications();
+        boolean hasApplicationAccess = role.applicationsUsed().stream()
+                .allMatch(application -> remoteUserApplications.stream()
+                        .anyMatch(remoteUserApplication -> remoteUserApplication.getManageId().equals(application.getManageId())
+                                && remoteUserApplication.getManageType().equals(application.getManageType())));
+        if (!hasApplicationAccess) {
+            throw new UserRestrictionException();
+        }
+    }
 }

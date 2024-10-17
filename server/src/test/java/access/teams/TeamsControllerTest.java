@@ -60,7 +60,7 @@ class TeamsControllerTest extends AbstractTest {
                 .then()
                 .statusCode(201);
 
-        access.model.Role role = roleRepository.findByName(team.getName()).get(0);
+        access.model.Role role = roleRepository.findByName(team.getName()).get();
         assertEquals(4L, role.getUserRoleCount());
         assertTrue(role.isTeamsOrigin());
         assertEquals(2, role.applicationsUsed().size());

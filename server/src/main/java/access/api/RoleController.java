@@ -13,20 +13,17 @@ import access.provision.scim.GroupURN;
 import access.repository.ApplicationRepository;
 import access.repository.ApplicationUsageRepository;
 import access.repository.RoleRepository;
-import access.security.RemoteUser;
-import access.security.RemoteUserPermissions;
-import access.security.Scope;
 import access.security.UserPermissions;
 import access.validation.URLFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -42,24 +39,26 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @RestController
 @RequestMapping(value = {
         "/api/v1/roles",
-        "/api/external/v1/roles",
-        "/api/external/v1/sp_dashboard/roles"},
+        "/api/external/v1/roles"},
         produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 @EnableConfigurationProperties(Config.class)
-public class RoleController {
+public class RoleController implements AppRepositoryResource {
     private static final Log LOG = LogFactory.getLog(RoleController.class);
 
     private final Config config;
     private final RoleRepository roleRepository;
+    @Getter
     private final ApplicationRepository applicationRepository;
+    @Getter
     private final ApplicationUsageRepository applicationUsageRepository;
     private final Manage manage;
     private final ProvisioningService provisioningService;
     private final URLFormatValidator urlFormatValidator = new URLFormatValidator();
     private final boolean limitInstitutionAdminRoleVisibility;
+    private final RoleOperations roleOperations;
 
     public RoleController(Config config,
                           RoleRepository roleRepository,
@@ -75,6 +74,7 @@ public class RoleController {
         this.manage = manage;
         this.provisioningService = provisioningService;
         this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
+        this.roleOperations = new RoleOperations(this);
     }
 
     @GetMapping("")
@@ -107,8 +107,6 @@ public class RoleController {
         manageIdentifiers.addAll(roleManageIdentifiers);
 
         List<Role> roles = new ArrayList<>();
-        //TODO feature toggle see application.yml feature.limit-institution-admin-role-visibility
-        //findByOrganizationGUID_ApplicationUsagesApplicationManageId
         manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
@@ -157,53 +155,37 @@ public class RoleController {
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
-                                        @Parameter(hidden = true) User user,
-                                        @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
-        if (user != null) {
-            //OpenID connect login with User
-            UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-            //For super_users this is NULL, which is ok (unless they are impersonating an institution_admin)
-            role.setOrganizationGUID(user.getOrganizationGUID());
-        } else {
-            //API user with Basic Authentication
-            RemoteUserPermissions.assertScopeAccess(remoteUser, Scope.sp_dashboard);
-        }
+                                        @Parameter(hidden = true) User user) {
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        //For super_users this is NULL, which is ok (unless they are impersonating an institution_admin)
+        role.setOrganizationGUID(user.getOrganizationGUID());
 
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
 
-        Provisionable provisionable = user != null ? user : remoteUser;
+        LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getName()));
 
-        LOG.debug(String.format("New role '%s' by user %s", role.getName(), provisionable.getName()));
-
-        return saveOrUpdate(role, user, remoteUser);
+        return saveOrUpdate(role, user);
     }
 
     @PutMapping("")
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
-                                           @Parameter(hidden = true) User user,
-                                           @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
-        if (user != null) {
-            //OpenID connect login with User
-            UserPermissions.assertAuthority(user, Authority.MANAGER);
-        } else {
-            //API user with Basic Authentication
-            RemoteUserPermissions.assertScopeAccess(remoteUser, Scope.sp_dashboard);
-        }
-        String userName = user != null ? user.getEduPersonPrincipalName() : remoteUser.getName();
-        LOG.debug(String.format("Update role '%s' by user %s", role.getName(), userName));
-
-        return saveOrUpdate(role, user, remoteUser);
+                                           @Parameter(hidden = true) User user) {
+        UserPermissions.assertAuthority(user, Authority.MANAGER);
+        LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
+        return saveOrUpdate(role, user);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
+    public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id,
+                                           @Parameter(hidden = true) User user) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
 
         LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+
         if (limitInstitutionAdminRoleVisibility && !user.getOrganizationGUID().equals(role.getOrganizationGUID())) {
             throw new UserRestrictionException();
         }
@@ -214,23 +196,14 @@ public class RoleController {
         return Results.deleteResult();
     }
 
-    private ResponseEntity<Role> saveOrUpdate(Role role, User user, RemoteUser remoteUser) {
-        if (CollectionUtils.isEmpty(role.getApplicationUsages())) {
-            throw new InvalidInputException("applicationUsages are required");
-        }
-        role.getApplicationUsages().forEach(applicationUsage -> {
-            if (StringUtils.hasText(applicationUsage.getLandingPage()) && !urlFormatValidator.isValid(applicationUsage.getLandingPage())) {
-                throw new InvalidInputException("Valid landingPage is required");
-            }
-        });
+    private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
+        roleOperations.assertValidRole(role);
 
         manage.addManageMetaData(List.of(role));
-        if (user != null) {
-            UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
-        }
+
         boolean isNew = role.getId() == null;
         List<String> previousApplicationIdentifiers = new ArrayList<>();
-        Optional<UserRole> optionalUserRole = user != null ? user.userRoleForRole(role) : Optional.empty();
+        Optional<UserRole> optionalUserRole = user.userRoleForRole(role);
         boolean immutableApplicationUsages = optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER);
         boolean nameChanged = false;
         if (!isNew) {
@@ -238,7 +211,7 @@ public class RoleController {
             //We don't allow shortName, identifier or organizationGUID changes after creation
             role.setShortName(previousRole.getShortName());
             role.setIdentifier(previousRole.getIdentifier());
-            if (user != null && user.isSuperUser()) {
+            if (user.isSuperUser()) {
                 role.setOrganizationGUID(role.getOrganizationGUID());
             } else {
                 role.setOrganizationGUID(previousRole.getOrganizationGUID());
@@ -250,23 +223,7 @@ public class RoleController {
             nameChanged = !previousRole.getName().equals(role.getName());
         }
         if (!immutableApplicationUsages) {
-            //This is the disadvantage of having to save references from Manage
-            Set<ApplicationUsage> applicationUsages = role.getApplicationUsages().stream()
-                    .map(applicationUsageFromClient -> {
-                        Application application = applicationUsageFromClient.getApplication();
-                        Application applicationFromDB = applicationRepository
-                                .findByManageIdAndManageType(application.getManageId(), application.getManageType())
-                                .orElseGet(() -> applicationRepository.save(application));
-                        ApplicationUsage applicationUsageFromDB = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
-                                role.getId(),
-                                applicationFromDB.getManageId(),
-                                applicationFromDB.getManageType()
-                        ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationUsageFromClient.getLandingPage()));
-                        applicationUsageFromDB.setLandingPage(applicationUsageFromClient.getLandingPage());
-                        return applicationUsageFromDB;
-                    })
-                    .collect(Collectors.toSet());
-            role.setApplicationUsages(applicationUsages);
+            roleOperations.syncRoleApplicationUsages(role);
         }
 
         Role saved = roleRepository.save(role);
@@ -275,11 +232,10 @@ public class RoleController {
         } else {
             provisioningService.updateGroupRequest(previousApplicationIdentifiers, saved, nameChanged);
         }
-
-        Provisionable provisionable = user != null ? user : remoteUser;
-        AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, provisionable, role);
+        AccessLogger.role(LOG, isNew ? Event.Created : Event.Updated, user, role);
 
         return ResponseEntity.ok(saved);
     }
+
 
 }

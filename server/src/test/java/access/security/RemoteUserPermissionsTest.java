@@ -1,9 +1,14 @@
 package access.security;
 
 import access.exception.UserRestrictionException;
+import access.manage.EntityType;
+import access.model.Application;
+import access.model.ApplicationUsage;
+import access.model.Role;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -16,8 +21,21 @@ class RemoteUserPermissionsTest {
 
         RemoteUserPermissions.assertScopeAccess(new RemoteUser());
         RemoteUserPermissions.assertScopeAccess(
-                new RemoteUser("user", "secret", List.of(Scope.profile)), Scope.profile);
+                new RemoteUser("user", "secret", List.of(Scope.profile), List.of()), Scope.profile);
+    }
 
+    @Test
+    void assertApplicationAccess() {
+        Role role = new Role();
+        Application application = new Application("1", EntityType.SAML20_SP);
+        Set<ApplicationUsage> applicationUsages = Set.of(
+                new ApplicationUsage(application, "landingPage")
+        );
+        role.setApplicationUsages(applicationUsages);
+        assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(null, role));
+        assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(new RemoteUser(), role));
+        RemoteUser remoteUser = new RemoteUser("user", "secret", List.of(), List.of(application));
+        RemoteUserPermissions.assertApplicationAccess(remoteUser, role);
     }
 
 }

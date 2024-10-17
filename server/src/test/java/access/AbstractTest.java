@@ -81,8 +81,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
                 "feature.limit-institution-admin-role-visibility=true",
-                "spring.jpa.properties.hibernate.format_sql=true",
-                "spring.jpa.show-sql=true"
+                "spring.jpa.properties.hibernate.format_sql=false",
+                "spring.jpa.show-sql=false"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {

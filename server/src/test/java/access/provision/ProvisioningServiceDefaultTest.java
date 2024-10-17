@@ -110,7 +110,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
 
     @Test
     void deleteGroupRequest() throws JsonProcessingException {
-        Role role = roleRepository.findByName("Calendar").get(0);
+        Role role = roleRepository.findByName("Calendar").get();
 
         RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, UUID.randomUUID().toString(),"7");
         remoteProvisionedGroupRepository.save(remoteProvisionedGroup);

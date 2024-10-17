@@ -15,7 +15,7 @@ class ApplicationUsageRepositoryTest extends AbstractTest {
 
     @Test
     void findByRoleIdAndApplicationManageIdAndApplicationManageType() {
-        Role role = roleRepository.findByName("wiki").get(0);
+        Role role = roleRepository.findByName("wiki").get();
         ApplicationUsage applicationUsage = role.getApplicationUsages().iterator().next();
         Application application = applicationUsage.getApplication();
         Optional<ApplicationUsage> optionalApplicationUsage = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(

@@ -512,7 +512,7 @@ class InvitationControllerTest extends AbstractTest {
     @Test
     void byRole() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
-        Role mail = roleRepository.findByName("Mail").get(0);
+        Role mail = roleRepository.findByName("Mail").get();
         List<Invitation> invitations = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())

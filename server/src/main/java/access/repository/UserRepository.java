@@ -32,11 +32,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     List<User> search(String keyWord, int limit);
 
-    @Query(value = "SELECT * FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
-            countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
-            nativeQuery = true)
-    Page<User> searchByPage(String keyWord, Pageable pageable );
-
     @Query(value = "SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity, " +
             "ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date " +
             "FROM users u " +
@@ -49,6 +44,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LIMIT ?3",
             nativeQuery = true)
     List<Map<String, Object>> searchByApplication(List<String> manageIdentifiers, String keyWord, int limit);
+
+    @Query(value = "SELECT * FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
+            countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
+            nativeQuery = true)
+    Page<User> searchByPage(String keyWord, Pageable pageable );
 
     @Query(value = "SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity, " +
             "ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date " +

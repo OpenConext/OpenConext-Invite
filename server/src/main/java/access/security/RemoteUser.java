@@ -1,5 +1,6 @@
 package access.security;
 
+import access.model.Application;
 import access.model.Provisionable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,11 +25,13 @@ public class RemoteUser implements UserDetails, CredentialsContainer, Provisiona
     private String username;
     private String password;
     private List<Scope> scopes = new ArrayList<>();
+    private List<Application> applications = new ArrayList<>();
 
     public RemoteUser(RemoteUser remoteUser) {
         this.username = remoteUser.username;
         this.password = remoteUser.password;
         this.scopes = remoteUser.scopes;
+        this.applications = remoteUser.applications;
     }
 
     @Override
