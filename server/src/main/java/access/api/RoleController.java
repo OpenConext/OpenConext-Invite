@@ -1,7 +1,6 @@
 package access.api;
 
 import access.config.Config;
-import access.exception.InvalidInputException;
 import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.logging.AccessLogger;
@@ -25,8 +24,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,7 +42,7 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 @EnableConfigurationProperties(Config.class)
-public class RoleController implements AppRepositoryResource {
+public class RoleController implements ApplicationResource {
     private static final Log LOG = LogFactory.getLog(RoleController.class);
 
     private final Config config;

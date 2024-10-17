@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 public class RoleOperations {
 
     private final URLFormatValidator urlFormatValidator = new URLFormatValidator();
-    private final AppRepositoryResource appRepositoryResource;
+    private final ApplicationResource appRepositoryResource;
 
-    public RoleOperations(AppRepositoryResource appRepositoryResource) {
+    public RoleOperations(ApplicationResource appRepositoryResource) {
         this.appRepositoryResource = appRepositoryResource;
     }
 

@@ -15,6 +15,7 @@ import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -40,15 +41,18 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @EnableConfigurationProperties(Config.class)
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
-public class UserRoleController {
+public class UserRoleController implements UserRoleResource {
 
     private static final Log LOG = LogFactory.getLog(UserRoleController.class);
 
+    @Getter
     private final UserRoleRepository userRoleRepository;
+    @Getter
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final ProvisioningService provisioningService;
     private final Config config;
+    private final UserRoleOperations userRoleOperations;
 
     public UserRoleController(UserRoleRepository userRoleRepository,
                               RoleRepository roleRepository,
@@ -60,17 +64,14 @@ public class UserRoleController {
         this.userRepository = userRepository;
         this.provisioningService = provisioningService;
         this.config = config;
+        this.userRoleOperations = new UserRoleOperations(this);
     }
 
     @GetMapping("roles/{roleId}")
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
                                                  @Parameter(hidden = true) User user) {
-        LOG.debug("/me");
-        Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
-        List<UserRole> userRoles = userRoleRepository.findByRole(role);
-        userRoles.forEach(userRole -> userRole.setUserInfo(userRole.getUser().asMap()));
-        return ResponseEntity.ok(userRoles);
+        return this.userRoleOperations.userRolesByRole(roleId,
+                role -> UserPermissions.assertRoleAccess(user, role, Authority.INVITER));
     }
 
     @GetMapping("/consequences/{roleId}")

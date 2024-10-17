@@ -9,13 +9,10 @@ import access.manage.Manage;
 import access.model.InvitationRequest;
 import access.model.InvitationResponse;
 import access.model.Role;
-import access.model.User;
+import access.model.UserRole;
 import access.provision.ProvisioningService;
 import access.provision.scim.GroupURN;
-import access.repository.ApplicationRepository;
-import access.repository.ApplicationUsageRepository;
-import access.repository.InvitationRepository;
-import access.repository.RoleRepository;
+import access.repository.*;
 import access.security.RemoteUser;
 import access.security.RemoteUserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,11 +37,13 @@ import static access.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 @RequestMapping(value = {"/api/internal/invite", "/api/external/v1/internal/invite"},
         produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
-public class InternalInviteController implements AppRepositoryResource, InvitationResource {
+public class InternalInviteController implements ApplicationResource, InvitationResource, UserRoleResource {
     private static final Log LOG = LogFactory.getLog(InternalInviteController.class);
 
     @Getter
     private final RoleRepository roleRepository;
+    @Getter
+    private final UserRoleRepository userRoleRepository;
     @Getter
     private final ApplicationRepository applicationRepository;
     @Getter
@@ -59,19 +58,26 @@ public class InternalInviteController implements AppRepositoryResource, Invitati
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
     private final InvitationOperations invitationOperations;
+    private final UserRoleOperations userRoleOperations;
+
 
     public InternalInviteController(RoleRepository roleRepository,
+                                    UserRoleRepository userRoleRepository,
                                     ApplicationRepository applicationRepository,
-                                    ApplicationUsageRepository applicationUsageRepository, MailBox mailBox,
-                                    Manage manage, InvitationRepository invitationRepository,
+                                    ApplicationUsageRepository applicationUsageRepository,
+                                    MailBox mailBox,
+                                    Manage manage,
+                                    InvitationRepository invitationRepository,
                                     ProvisioningService provisioningService) {
         this.roleRepository = roleRepository;
+        this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
         this.mailBox = mailBox;
         this.manage = manage;
         this.invitationRepository = invitationRepository;
         this.provisioningService = provisioningService;
+        this.userRoleOperations = new UserRoleOperations(this);
         this.roleOperations = new RoleOperations(this);
         this.invitationOperations = new InvitationOperations(this);
     }
@@ -137,6 +143,14 @@ public class InternalInviteController implements AppRepositoryResource, Invitati
     public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                             @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         return this.invitationOperations.sendInvitation(invitationRequest, null, remoteUser);
+    }
+
+    @GetMapping("user_roles/{roleId}")
+    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        return this.userRoleOperations.userRolesByRole(roleId,
+                role -> RemoteUserPermissions.assertApplicationAccess(remoteUser, role));
     }
 
     private ResponseEntity<Role> saveOrUpdate(Role role, RemoteUser remoteUser) {
