@@ -16,6 +16,7 @@ public class GroupURN {
                 .replaceAll(" +", " ")
                 .replaceAll(" ", "_")
                 .replaceAll("[^A-Za-z0-9_.]", "")
+                .replaceAll("_+", "_")
                 .toLowerCase();
     }
 

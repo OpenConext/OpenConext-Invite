@@ -263,10 +263,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
                               "intendedAuthority": "INVITER",
                               "message": "Personal message included in the email",
                               "language": "en",
-                              "enforceEmailEquality": false,
-                              "eduIDOnly": false,
                               "guestRoleIncluded": true,
-                              "suppressSendingEmails": false,
                               "invites": [
                                 "admin@service.org"
                               ],
