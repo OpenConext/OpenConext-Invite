@@ -24,10 +24,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,6 +82,20 @@ public class InternalInviteController implements ApplicationResource, Invitation
         this.userRoleOperations = new UserRoleOperations(this);
         this.roleOperations = new RoleOperations(this);
         this.invitationOperations = new InvitationOperations(this);
+    }
+
+    @GetMapping("/roles")
+    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        LOG.debug(String.format("/roles for user %s", remoteUser.getName()));
+
+        List<Role> roles = remoteUser.getApplications()
+                .stream()
+                .map(application -> roleRepository.findByApplicationUsagesApplicationManageId(application.getManageId()))
+                .flatMap(Collection::stream)
+                .toList();
+        manage.addManageMetaData(roles);
+        return ResponseEntity.ok(roles);
     }
 
     @GetMapping("/roles/{id}")
@@ -147,6 +163,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
 
     @GetMapping("user_roles/{roleId}")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @Transactional
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
                                                  @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         return this.userRoleOperations.userRolesByRole(roleId,

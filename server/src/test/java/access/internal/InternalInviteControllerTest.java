@@ -1,12 +1,8 @@
 package access.internal;
 
 import access.AbstractTest;
-import access.AccessCookieFilter;
 import access.manage.EntityType;
-import access.model.Authority;
-import access.model.InvitationRequest;
-import access.model.Language;
-import access.model.Role;
+import access.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -64,6 +60,20 @@ class InternalInviteControllerTest extends AbstractTest {
 
 
     @Test
+    void roleByApplication() {
+        List<Role> roles = given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/internal/invite/roles")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, roles.size());
+    }
+
+    @Test
     void findRole() {
         Role role = roleRepository.findByName("Research").get();
         Role roleFromDB = given()
@@ -96,7 +106,7 @@ class InternalInviteControllerTest extends AbstractTest {
     }
 
     @Test
-    void newInvitation() throws Exception {
+    void newInvitation() {
         stubForManageProviderById(EntityType.SAML20_SP, "4");
         List<Long> roleIdentifiers = List.of(roleRepository.findByName("Research").get().getId());
 
@@ -124,6 +134,22 @@ class InternalInviteControllerTest extends AbstractTest {
                 });
         assertEquals(201, results.get("status"));
         assertEquals(1, ((List) results.get("recipientInvitationURLs")).size());
+    }
+
+    @Test
+    void userRolesByRole() {
+        Long roleId = roleRepository.findByName("Research").get().getId();
+        List<UserRole> userRoles = given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("roleId", roleId)
+                .get("/api/internal/invite/user_roles/{roleId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, userRoles.size());
     }
 
 }
