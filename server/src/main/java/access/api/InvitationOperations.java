@@ -7,6 +7,7 @@ import access.logging.AccessLogger;
 import access.logging.Event;
 import access.mail.MailBox;
 import access.model.*;
+import access.repository.InvitationRepository;
 import access.security.RemoteUser;
 import access.security.RemoteUserPermissions;
 import access.security.UserPermissions;
@@ -18,9 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -104,6 +107,40 @@ public class InvitationOperations {
         }
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
         return ResponseEntity.status(HttpStatus.CREATED).body(new InvitationResponse(HttpStatus.CREATED.value(), recipientInvitationURLs));
+    }
+
+    public ResponseEntity<Map<String, Integer>> resendInvitation(Long id,
+                                                                 User user,
+                                                                 RemoteUser remoteUser) {
+        String name = user != null ? user.getEduPersonPrincipalName() : remoteUser.getDisplayName();
+
+        LOG.debug(String.format("/resendInvitation/%s by user %s", id, name));
+
+        //We need to assert validations on the roles soo we need to load them
+        InvitationRepository invitationRepository = this.invitationResource.getInvitationRepository();
+
+        Invitation invitation = invitationRepository.findById(id).orElseThrow(() -> new NotFoundException("Invitation not found"));
+        List<Role> requestedRoles = invitation.getRoles().stream()
+                .map(InvitationRole::getRole).toList();
+        Authority intendedAuthority = invitation.getIntendedAuthority();
+        if (user != null) {
+            UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+        } else {
+            RemoteUserPermissions.assertApplicationAccess(remoteUser, requestedRoles);
+        }
+
+        List<GroupedProviders> groupedProviders = this.invitationResource.getManage().getGroupedProviders(requestedRoles);
+        Provisionable provisionable = user != null ? user : remoteUser;
+
+        this.invitationResource.getMailBox().sendInviteMail(provisionable, invitation, groupedProviders, invitation.getLanguage());
+        if (invitation.getExpiryDate().isBefore(Instant.now())) {
+            invitation.setExpiryDate(Instant.now().plus(Period.ofDays(14)));
+            invitationRepository.save(invitation);
+        }
+
+        AccessLogger.invitation(LOG, Event.Resend, invitation);
+
+        return Results.createResult();
     }
 
 }

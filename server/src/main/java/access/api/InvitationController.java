@@ -124,24 +124,7 @@ public class InvitationController implements InvitationResource{
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
                                                                  @Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/resendInvitation/%s by user %s", id, user.getEduPersonPrincipalName()));
-        //We need to assert validations on the roles soo we need to load them
-        Invitation invitation = invitationRepository.findById(id).orElseThrow(() -> new NotFoundException("Invitation not found"));
-        List<Role> requestedRoles = invitation.getRoles().stream()
-                .map(InvitationRole::getRole).toList();
-        Authority intendedAuthority = invitation.getIntendedAuthority();
-        UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
-        List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
-
-        mailBox.sendInviteMail(user, invitation, groupedProviders, invitation.getLanguage());
-        if (invitation.getExpiryDate().isBefore(Instant.now())) {
-            invitation.setExpiryDate(Instant.now().plus(Period.ofDays(14)));
-            invitationRepository.save(invitation);
-        }
-
-        AccessLogger.invitation(LOG, Event.Resend, invitation);
-
-        return Results.createResult();
+        return this.invitationOperations.resendInvitation(id, user, null);
     }
 
     @GetMapping("public")

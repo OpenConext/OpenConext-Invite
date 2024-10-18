@@ -78,7 +78,7 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
 
-        if (user.isSuperUser() && !config.isRoleSearchRequired()) {
+        if (user.isSuperUser()) {
             return ResponseEntity.ok(manage.addManageMetaData(roleRepository.findAll()));
         }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);

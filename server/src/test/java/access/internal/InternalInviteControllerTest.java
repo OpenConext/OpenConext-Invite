@@ -3,6 +3,7 @@ package access.internal;
 import access.AbstractTest;
 import access.manage.EntityType;
 import access.model.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,8 @@ class InternalInviteControllerTest extends AbstractTest {
 
     @Test
     void createWithAPIUser() throws Exception {
-        Role role = new Role("New", "New desc", application("4", EntityType.SAML20_SP), 365, false, false);
+        Role role = new Role("Required role name", "Required role description", application("4", EntityType.SAML20_SP),
+                365, false, false);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("4"));
         super.stubForManageProvisioning(List.of("1"));
@@ -40,6 +42,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertNotNull(newRole.getId());
+        System.out.println(objectMapper.writeValueAsString(newRole));
     }
 
     @Test
@@ -137,6 +140,43 @@ class InternalInviteControllerTest extends AbstractTest {
     }
 
     @Test
+    void resendInvitation() {
+        // This invitation is for the application Research
+        Invitation invitation = invitationRepository.findByHash(Authority.MANAGER.name()).get();
+        invitation.setExpiryDate(Instant.now().minus(5, ChronoUnit.DAYS));
+        invitationRepository.save(invitation);
+
+        given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("id", invitation.getId())
+                .put("/api/internal/invite/invitations/{id}")
+                .then()
+                .statusCode(201);
+
+        Invitation savedInvitation = invitationRepository.findByHash(Authority.MANAGER.name()).get();
+        assertTrue(savedInvitation.getExpiryDate().isAfter(Instant.now().plus(13, ChronoUnit.DAYS)));
+    }
+
+    @Test
+    void resendInvitationNotAllowed() {
+        // This invitation is for the application Research
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+
+        given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("id", invitation.getId())
+                .put("/api/internal/invite/invitations/{id}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
     void userRolesByRole() {
         Long roleId = roleRepository.findByName("Research").get().getId();
         List<UserRole> userRoles = given()
@@ -148,8 +188,17 @@ class InternalInviteControllerTest extends AbstractTest {
                 .get("/api/internal/invite/user_roles/{roleId}")
                 .as(new TypeRef<>() {
                 });
-
         assertEquals(1, userRoles.size());
+    }
+
+    @Test
+    void delme() throws JsonProcessingException {
+        InvitationResponse invitationResponse = new InvitationResponse(
+                201,
+                List.of(new RecipientInvitationURL("admin@service.nl", "https://invite.test.surfconext.nl/invitation/accept?{hash}"))
+        );
+        String json = objectMapper.writeValueAsString(invitationResponse);
+        System.out.println(json);
     }
 
 }
