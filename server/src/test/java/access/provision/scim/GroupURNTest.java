@@ -11,8 +11,10 @@ class GroupURNTest {
 
     @Test
     void sanitizeRoleShortName() {
-        assertEquals("expected_short_name_yep",
-                GroupURN.sanitizeRoleShortName("expected   SHORT  name &&^*&%&^* yep"));
+        String sanitizedRoleShortName = GroupURN.sanitizeRoleShortName("expected   SHORT  name &&^*&%&^* yep");
+        assertEquals("expected_short_name_yep", sanitizedRoleShortName);
+        //idempotency check
+        assertEquals("expected_short_name_yep", GroupURN.sanitizeRoleShortName(sanitizedRoleShortName));
     }
 
     @Test
