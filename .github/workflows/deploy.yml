@@ -8,7 +8,7 @@ on:
       - "*"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -33,15 +33,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: "${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}"
           restore-keys: |
             ${{ runner.os }}-maven-
 
       - name: Determine the version
-        run: echo "version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)" >> $GITHUB_OUTPUT
+        run: |
+          echo "version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)" >> $GITHUB_OUTPUT
         id: versioncheck
 
-      - name: Exit when workflow_dispatch is triggered, and the version does not contain SNAPSHOT in it's name
+      - name: "Exit when workflow_dispatch is triggered, and the version does not contain SNAPSHOT in it's name"
         run: |
           echo "Only SNAPSHOT releases can be triggered with the workflow_dispatch"
           exit 1
