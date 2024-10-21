@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
@@ -42,6 +43,108 @@ class UserRoleControllerTest extends AbstractTest {
                 });
         assertEquals(3, userRoles.size());
         assertNotNull(userRoles.get(0).getUserInfo().get("name"));
+    }
+
+    @Test
+    void searchGuestsByPage() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        Role role = roleRepository.findByName("Wiki").get();
+        Map<String, Object> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParams(Map.of(
+                        "pageNumber", 0,
+                        "pageSize", 1,
+                        "sort", "end_date",
+                        "sortDirection", Sort.Direction.DESC
+                ))
+                .pathParams("roleId", role.getId())
+                .pathParams("guests", true)
+                .get("/api/v1/user_roles/search/{roleId}/{guests}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, userRoles.get("totalElements"));
+        assertEquals(1, ((List<?>) userRoles.get("content")).size());
+    }
+
+    @Test
+    void searchNonGuestsByPage() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        Role role = roleRepository.findByName("Wiki").get();
+        Map<String, Object> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParams(Map.of(
+                        "pageNumber", 0,
+                        "pageSize", 1,
+                        "sort", "end_date",
+                        "sortDirection", Sort.Direction.DESC
+                ))
+                .pathParams("roleId", role.getId())
+                .pathParams("guests", false)
+                .get("/api/v1/user_roles/search/{roleId}/{guests}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, userRoles.get("totalElements"));
+        assertEquals(1, ((List<?>) userRoles.get("content")).size());
+    }
+
+    @Test
+    void searchGuestsByPageWithKeyword() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        Role role = roleRepository.findByName("Wiki").get();
+        Map<String, Object> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParams(Map.of(
+                        "query", "mary",
+                        "pageNumber", 0,
+                        "pageSize", 1,
+                        "sort", "end_date",
+                        "sortDirection", Sort.Direction.DESC
+                ))
+                .pathParams("roleId", role.getId())
+                .pathParams("guests", true)
+                .get("/api/v1/user_roles/search/{roleId}/{guests}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, userRoles.get("totalElements"));
+        assertEquals(1, ((List<?>) userRoles.get("content")).size());
+    }
+
+    @Test
+    void searchNonGuestsByPageWithKeyword() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        Role role = roleRepository.findByName("Wiki").get();
+        Map<String, Object> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParams(Map.of(
+                        "query", "doe",
+                        "pageNumber", 0,
+                        "pageSize", 1,
+                        "sort", "end_date",
+                        "sortDirection", Sort.Direction.DESC
+                ))
+                .pathParams("roleId", role.getId())
+                .pathParams("guests", false)
+                .get("/api/v1/user_roles/search/{roleId}/{guests}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, userRoles.get("totalElements"));
+        assertEquals(1, ((List<?>) userRoles.get("content")).size());
     }
 
     @Test

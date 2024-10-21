@@ -45,10 +45,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     List<Map<String, Object>> searchByApplication(List<String> manageIdentifiers, String keyWord, int limit);
 
-    @Query(value = "SELECT * FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
+    @Query(value = """
+             select u.name, u.email, u.schac_home_organization, u.sub, u.super_user, u.institution_admin,
+                (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority from users u
+            """,
+            countQuery = "SELECT count(*) FROM users",
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPage(Pageable pageable );
+
+    @Query(value = """
+             select u.name, u.email, u.schac_home_organization, u.sub, u.super_user, u.institution_admin,
+                (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
+             from users u WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)
+            """,
             countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
             nativeQuery = true)
-    Page<User> searchByPage(String keyWord, Pageable pageable );
+    Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable );
 
     @Query(value = "SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity, " +
             "ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date " +

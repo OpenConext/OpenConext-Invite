@@ -143,12 +143,12 @@ public class UserController {
     }
 
     @GetMapping("search-paginated")
-    public ResponseEntity<Page<User>> searchPaginated(@RequestParam(value = "query") String query,
-                                                      @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
-                                                      @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-                                                      @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
-                                                      @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
-                                                      @Parameter(hidden = true) User user) {
+    public ResponseEntity<Page<?>> searchPaginated(@RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                                     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                                     @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                                     @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
+                                                                     @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
+                                                                     @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/search-paginated for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         if (query.equals("owl")) {
@@ -157,8 +157,10 @@ public class UserController {
             return ResponseEntity.ok(new PageImpl<>(content, pageRequest, content.size()));
         }
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<User> users = userRepository.searchByPage(query.replaceAll("@", " ") + "*", pageable);
-        return ResponseEntity.ok(users);
+        Page<Map<String, Object>> page = StringUtils.hasText(query) ?
+                userRepository.searchByPage(pageable) :
+                userRepository.searchByPageWithKeyword(query.replaceAll("@", " ") + "*", pageable) ;
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping("search-by-application")

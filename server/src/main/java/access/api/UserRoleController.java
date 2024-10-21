@@ -19,6 +19,10 @@ import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +95,34 @@ public class UserRoleController implements UserRoleResource {
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/search/{roleId}/{guests}")
+    public ResponseEntity<Page<?>> searchPaginated(@PathVariable("roleId") Long roleId,
+                                                   @PathVariable("guests") boolean guests,
+                                                   @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                   @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                   @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                   @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
+                                                   @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
+                                                   @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
 
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
+
+        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<Map<String, Object>> page;
+        if (StringUtils.hasText(query)) {
+            page = guests ?
+                    userRoleRepository.searchGuestsByPageWithKeyword(roleId, query, pageable) :
+                    userRoleRepository.searchNonGuestsByPageWithKeyword(roleId, query, pageable);
+        } else {
+            page = guests ?
+                    userRoleRepository.searchGuestsByPage(roleId, pageable) :
+                    userRoleRepository.searchNonGuestsByPage(roleId, pageable);
+        }
+        return ResponseEntity.ok(page);
+    }
 
     @PostMapping("user_role_provisioning")
     @Operation(summary = "Add Role to a User", description = "Provision the User if the User is unknown and add the Role(s)")
@@ -175,6 +206,5 @@ public class UserRoleController implements UserRoleResource {
         }
         return Results.deleteResult();
     }
-
 
 }

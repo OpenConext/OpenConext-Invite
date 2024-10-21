@@ -255,7 +255,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     @PostMapping("/invitations")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
     @Operation(summary = "Invite member for existing Role",
-            description = "Invite a member for an existing role. An invitation email will be send",
+            description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set <guestRoleIncluded> to <true>",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     useParameterTypeSchema = true,
                     content = {@Content(examples = {@ExampleObject(value = """
