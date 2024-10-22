@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.22 2024-10-22
+
 ## 0.0.20 2024-09-13
 
 - Update translations
