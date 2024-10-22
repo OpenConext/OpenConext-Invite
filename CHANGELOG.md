@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased - YYYY-MM-DD
 
 ## 0.0.22 2024-10-22
+- Update texts to match other Openconext projects
+- Limit the roles seen by institution admins
+- Improve mobile view
+- Avoid short 404 before login redirect
+- Add API endpoints for Openconext-spdashboard integration
+- Add API endpoints for Openconext-myconext integration
+- Fixes https://github.com/OpenConext/OpenConext-Invite/issues/307,
+https://github.com/OpenConext/OpenConext-Invite/issues/312,
+https://github.com/OpenConext/OpenConext-Invite/issues/320,
+https://github.com/OpenConext/OpenConext-Invite/issues/240,
+https://github.com/OpenConext/OpenConext-Invite/issues/310
+  
 
 ## 0.0.20 2024-09-13
 
