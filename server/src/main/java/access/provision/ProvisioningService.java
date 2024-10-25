@@ -15,6 +15,10 @@ public interface ProvisioningService {
 
     void updateUserRequest(User user);
 
+    void updateUserRoleRequest(UserRole userRole);
+
+    void deleteUserRoleRequest(UserRole userRole);
+
     void deleteUserRequest(User user);
 
     void newGroupRequest(Role role);

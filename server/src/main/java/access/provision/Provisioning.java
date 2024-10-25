@@ -1,9 +1,14 @@
 package access.provision;
 
+import access.manage.EntityType;
+import access.manage.ManageIdentifier;
 import lombok.Getter;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.emptyList;
 
 @Getter
 @SuppressWarnings("unchecked")
@@ -19,12 +24,12 @@ public class Provisioning {
     private final String evaToken;
     private final boolean scimUpdateRolePutMethod;
     private final String evaUrl;
-    private final int evaGuestAccountDuration;
     private final String graphUrl;
     private final String graphClientId;
     private final String graphSecret;
     private final String graphTenant;
     private final String institutionGUID;
+    private final List<ManageIdentifier> remoteApplications;
 
     public Provisioning(Map<String, Object> provider) {
         this.id = (String) provider.get("id");
@@ -42,13 +47,13 @@ public class Provisioning {
         this.scimUpdateRolePutMethod = updateRolePutMethod != null && (boolean) updateRolePutMethod;
         this.evaUrl = (String) provider.get("eva_url");
         this.evaToken = (String) provider.get("eva_token");
-        Object guestAccountDuration = provider.get("eva_guest_account_duration");
-        this.evaGuestAccountDuration = guestAccountDuration != null ? (int) guestAccountDuration : 30;
         this.graphUrl = (String) provider.get("graph_url");
         this.graphClientId = (String) provider.get("graph_client_id");
         this.graphSecret = (String) provider.get("graph_secret");
         this.graphTenant = (String) provider.getOrDefault("graph_tenant", "common");
         this.institutionGUID = (String) provider.get("institutionGuid");
+        List<Map<String, String>> applicationMaps = (List<Map<String, String>>) provider.getOrDefault("applications", emptyList());
+        this.remoteApplications = applicationMaps.stream().map(m -> new ManageIdentifier(m.get("id"), EntityType.valueOf(m.get("type").toUpperCase()))).toList();
         this.invariant();
 
     }
@@ -80,5 +85,8 @@ public class Provisioning {
         return ProvisioningType.scim.equals(this.provisioningType);
     }
 
+    public boolean isApplicableForUserRoleRequests() {
+        return ProvisioningType.eva.equals(this.provisioningType);
+    }
 }
 

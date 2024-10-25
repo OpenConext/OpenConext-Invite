@@ -82,7 +82,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         this.groupUrnPrefix = groupUrnPrefix;
         this.eduID = eduID;
         this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
-        this.evaClient = new EvaClient(keyStore);
+        this.evaClient = new EvaClient(keyStore, remoteProvisionedUserRepository);
         // Otherwise, we can't use method PATCH
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(1, TimeUnit.MINUTES);
@@ -134,6 +134,31 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 String userRequest = prettyJson(new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier()));
                 this.updateRequest(provisioning, userRequest, USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
             });
+        });
+    }
+
+    @Override
+    public void updateUserRoleRequest(UserRole userRole) {
+        List<Provisioning> provisionings = getProvisionings(userRole.getUser())
+                .stream()
+                .filter(provisioning -> provisioning.isApplicableForUserRoleRequests())
+                .toList();
+        provisionings.forEach(provisioning -> {
+            RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, userRole.getUser());
+            doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+        });
+
+    }
+
+    @Override
+    public void deleteUserRoleRequest(UserRole userRole) {
+        List<Provisioning> provisionings = getProvisionings(userRole.getUser())
+                .stream()
+                .filter(provisioning -> provisioning.isApplicableForUserRoleRequests())
+                .toList();
+        provisionings.forEach(provisioning -> {
+            RequestEntity requestEntity = this.evaClient.deleteUserRequest(provisioning, userRole.getUser());
+            doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
         });
     }
 
@@ -398,8 +423,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
-            String url = provisioning.getEvaUrl() + "/api/v1/guest/disable/" + remoteIdentifier;
-            requestEntity = new RequestEntity(httpHeaders(provisioning), HttpMethod.POST, URI.create(url));
+            requestEntity = this.evaClient.deleteUserRequest(provisioning, (User) provisionable);
         } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             HttpHeaders headers = this.httpHeaders(provisioning);

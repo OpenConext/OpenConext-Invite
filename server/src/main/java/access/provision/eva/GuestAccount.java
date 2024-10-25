@@ -1,5 +1,6 @@
 package access.provision.eva;
 
+import access.model.RemoteProvisionedUser;
 import access.model.User;
 import access.provision.Provisioning;
 import access.provision.ProvisioningType;
@@ -10,7 +11,8 @@ import org.springframework.util.MultiValueMap;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.List;
 
 
 public class GuestAccount {
@@ -21,7 +23,11 @@ public class GuestAccount {
     public GuestAccount(User user, Provisioning provisioning) {
         assert provisioning.getProvisioningType().equals(ProvisioningType.eva) : "Must be eva provisioning";
         Instant now = Instant.now();
-        Instant dateTill = now.plus(provisioning.getEvaGuestAccountDuration(), ChronoUnit.DAYS);
+        Instant dateTill = user.userRolesForProvisioning(provisioning)
+                .stream()
+                .map(userRole -> userRole.getEndDate())
+                .max(Comparator.naturalOrder())
+                .orElseThrow(() -> new AssertionError("No userRoles found for provisioning:" + provisioning.getEntityId()));
         String language = LocaleContextHolder.getLocale().getLanguage();
         request = new LinkedMultiValueMap<>();
         request.add("name", user.getName());
@@ -32,6 +38,10 @@ public class GuestAccount {
         request.add("notifyByEmail", Boolean.TRUE.toString());
         request.add("notifyBySms", Boolean.FALSE.toString());
         request.add("preferredLanguage", language);
+    }
+
+    public static String dateFrom(RemoteProvisionedUser remoteProvisionedUser) {
+        return new SimpleDateFormat(EVA_DATE_PATTERN).format(Date.from(remoteProvisionedUser.getCreatedAt()));
     }
 
     public MultiValueMap<String, String> getRequest() {

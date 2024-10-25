@@ -87,6 +87,48 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     }
 
     @Test
+    void deleteUserRoleRequest() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+
+        //Mock that this user was provisioned earlier
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, UUID.randomUUID().toString(), "10");
+        remoteProvisionedUserRepository.save(remoteProvisionedUser);
+
+        this.stubForManageProvisioning(List.of("3"));
+        this.stubForDeleteEvaUser();
+
+        UserRole userRole = user.getUserRoles().stream().filter(ur -> ur.getRole().getName().equals("Storage"))
+                .findFirst()
+                .get();
+        provisioningService.deleteUserRoleRequest(userRole);
+        List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
+        assertEquals(0, remoteProvisionedUsers.size());
+    }
+
+    @Test
+    void updateUserRoleRequest() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+
+        //Mock that this user was provisioned earlier
+        String id = UUID.randomUUID().toString();
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, id, "10");
+        remoteProvisionedUserRepository.save(remoteProvisionedUser);
+
+        this.stubForManageProvisioning(List.of("3"));
+        this.stubForUpdateEvaUser();
+
+        UserRole userRole = user.getUserRoles().stream().filter(ur -> ur.getRole().getName().equals("Storage"))
+                .findFirst()
+                .get();
+        provisioningService.updateUserRoleRequest(userRole);
+        List<LoggedRequest> loggedRequests = findAll(postRequestedFor(urlPathMatching("/eva/api/v1/guest/create")));
+        assertEquals(1, loggedRequests.size());
+        assertTrue(loggedRequests.get(0).getBodyAsString().contains(id));
+
+    }
+
+
+    @Test
     void deleteGraphUserRequest() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
 

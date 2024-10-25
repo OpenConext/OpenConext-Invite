@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 
 @Entity(name = "remote_provisioned_users")
@@ -30,10 +31,14 @@ public class RemoteProvisionedUser implements Serializable, RemoteIdentifier {
     @NotNull
     private String manageProvisioningId;
 
+    @Column(name = "created_at")
+    private Instant createdAt;
+
     public RemoteProvisionedUser(User user, @NotNull String remoteScimIdentifier, @NotNull String manageProvisioningId) {
         this.user = user;
         this.remoteScimIdentifier = remoteScimIdentifier;
         this.manageProvisioningId = manageProvisioningId;
+        this.createdAt = Instant.now();
     }
 
     @Override

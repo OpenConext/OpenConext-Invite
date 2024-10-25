@@ -470,6 +470,12 @@ public abstract class AbstractTest {
         return value;
     }
 
+    protected void stubForUpdateEvaUser() throws JsonProcessingException {
+        stubFor(post(urlPathMatching("/eva/api/v1/guest/create"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")));
+    }
+
     protected String stubForCreateGraphUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
         String body = objectMapper.writeValueAsString(Map.of(

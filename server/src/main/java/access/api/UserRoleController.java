@@ -7,11 +7,13 @@ import access.logging.AccessLogger;
 import access.logging.Event;
 import access.model.*;
 import access.provision.ProvisioningService;
+import access.provision.eva.EvaClient;
 import access.provision.scim.OperationType;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.repository.UserRoleRepository;
 import access.security.UserPermissions;
+import crypto.KeyStore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -181,6 +183,8 @@ public class UserRoleController implements UserRoleResource {
         UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));
         userRole.setEndDate(updateUserRole.getEndDate());
         userRoleRepository.save(userRole);
+        //If there is a EVA provisioning, then update the account
+        provisioningService.updateUserRoleRequest(userRole);
         return Results.createResult();
     }
 
@@ -201,6 +205,7 @@ public class UserRoleController implements UserRoleResource {
 
         } else {
             provisioningService.updateGroupRequest(userRole, OperationType.Remove);
+            provisioningService.deleteUserRoleRequest(userRole);
             userRoleRepository.deleteUserRoleById(id);
             AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
         }

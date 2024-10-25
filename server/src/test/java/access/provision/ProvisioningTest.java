@@ -24,7 +24,7 @@ class ProvisioningTest {
         this.assertInvariant(this.provisioningMap(ProvisioningType.eva));
         this.assertInvariant(this.provisioningMap(ProvisioningType.eva, "eva_url"));
         Provisioning provisioning = new Provisioning(this.provisioningMap(ProvisioningType.eva, "eva_url", "eva_token"));
-        assertEquals(30, provisioning.getEvaGuestAccountDuration());
+        assertEquals("eva_token", provisioning.getEvaToken());
     }
 
     @Test

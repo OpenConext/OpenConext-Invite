@@ -1,6 +1,7 @@
 package access.model;
 
 import access.manage.ManageIdentifier;
+import access.provision.Provisioning;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -282,5 +283,17 @@ public class User implements Serializable, Provisionable {
     @JsonIgnore
     public Optional<UserRole> userRoleForRole(Role role) {
         return this.userRoles.stream().filter(userRole -> userRole.getRole().getId().equals(role.getId())).findFirst();
+    }
+
+    @JsonIgnore
+    public List<UserRole> userRolesForProvisioning(Provisioning provisioning) {
+        List<ManageIdentifier> remoteApplications = provisioning.getRemoteApplications();
+        return userRoles.stream()
+                .filter(userRole -> userRole.getRole().getApplicationUsages()
+                        .stream().anyMatch(applicationUsage -> remoteApplications.contains(
+                                new ManageIdentifier(applicationUsage.getApplication().getManageId(),
+                                        applicationUsage.getApplication().getManageType())
+                        )))
+                .toList();
     }
 }
