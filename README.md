@@ -8,14 +8,14 @@
 
 ### [System Requirements](#system-requirements)
 
-- Java 17
+- Java 21
 - Maven 3
 
-First install Java 17 with a package manager
+First install Java 21 with a package manager
 and then export the correct the `JAVA_HOME`. For example on macOS:
 
 ```bash
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home/
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 ```
 
 Then create the MySQL database:
