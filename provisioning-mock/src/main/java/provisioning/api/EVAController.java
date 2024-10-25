@@ -39,7 +39,7 @@ public class EVAController {
     }
 
     @PostMapping(value = "/api/v1/guest/create", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Map<String, Object>> createUser(GuestAccount guestAccount) throws JsonProcessingException {
+    public ResponseEntity<Map<String, Object>> createUser(GuestAccount guestAccount) {
         LOG.info("eva/api/v1/guest/create POST " + guestAccount);
 
         String id = UUID.randomUUID().toString();
