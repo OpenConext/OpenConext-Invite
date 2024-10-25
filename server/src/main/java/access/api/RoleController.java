@@ -183,7 +183,8 @@ public class RoleController implements ApplicationResource {
         manage.addManageMetaData(List.of(role));
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
 
-        if (limitInstitutionAdminRoleVisibility && !user.getOrganizationGUID().equals(role.getOrganizationGUID())) {
+        if (limitInstitutionAdminRoleVisibility && !user.isSuperUser() &&
+                !Objects.equals(user.getOrganizationGUID(), role.getOrganizationGUID())) {
             throw new UserRestrictionException();
         }
 
