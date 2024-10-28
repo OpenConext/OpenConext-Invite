@@ -25,8 +25,10 @@ export const MinimalDateField = ({
     const inputRef = useRef(null);
 
     const toggle = () => inputRef.current.setOpen(true);
+
     const minimalDate = minDate || futureDate(1);
-    const selectedDate = value || (allowNull ? null : futureDate(16));
+    const selectedDate = isEmpty(value) ? futureDate(16) : new Date(value * 1000);
+
     let expired = false;
     if (!isEmpty(value)) {
         const now = new Date();
@@ -46,7 +48,7 @@ export const MinimalDateField = ({
                 name={name}
                 id={name}
                 customInput={<div className={"dummy"}/>}
-                selected={!isEmpty(selectedDate) ? new Date(selectedDate * 1000) : null}
+                selected={selectedDate}
                 preventOpenOnFocus={true}
                 dateFormat={"dd/MM/yyyy"}
                 onChange={onChange}
@@ -59,8 +61,15 @@ export const MinimalDateField = ({
                 maxDate={maxDate}
                 minDate={pastDatesAllowed ? null : minimalDate}
             />
-            {!isEmpty(value) && <div className="icon reset-icon left" onClick={() => onChange(null)}><ResetIcon/></div>}
-            <div className={`icon edit-icon ${isEmpty(value) ? "left" : ""}`} onClick={toggle}><EditIcon/></div>
+            {(!isEmpty(value) && allowNull) &&
+                <div className="icon reset-icon left"
+                     onClick={() => onChange(null)}>
+                    <ResetIcon/>
+                </div>}
+            <div className={`icon edit-icon ${isEmpty(value) || !allowNull ? "left" : ""}`}
+                 onClick={toggle}>
+                <EditIcon/>
+            </div>
         </div>
     );
 }

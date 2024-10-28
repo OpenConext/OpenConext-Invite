@@ -185,14 +185,14 @@ export const UserRoles = ({role, guests, userRoles}) => {
 
     const displayEndDate = userRole => {
         const allowed = allowedToRenewUserRole(user, userRole, false);
-        if (allowed && !guests) {
+        if (allowed) {
             return (
                 <MinimalDateField
                         minDate={futureDate(1)}
                         value={userRole.endDate}
                         onChange={date => doUpdateEndDate(userRole, date, true)}
                         pastDatesAllowed={config.pastDateAllowed}
-                        allowNull={true}
+                        allowNull={!guests}
                         showYearDropdown={true}
                     />
             );
