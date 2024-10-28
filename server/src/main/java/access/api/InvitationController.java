@@ -154,7 +154,9 @@ public class InvitationController implements InvitationResource{
                                                                       Authentication authentication,
                                                                       HttpServletRequest servletRequest,
                                                                       HttpServletResponse servletResponse) {
-        Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash()).orElseThrow(() -> new NotFoundException("Invitation not found"));
+        Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash())
+                .orElseThrow(() -> new NotFoundException("Invitation not found"));
+
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
             throw new NotFoundException("Invitation not found");
         }
