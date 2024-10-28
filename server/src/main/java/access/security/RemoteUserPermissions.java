@@ -33,6 +33,9 @@ public class RemoteUserPermissions {
         if (remoteUser == null) {
             throw new UserRestrictionException();
         }
+        if (remoteUser.isLocalDevMode()) {
+            return;
+        }
         List<Application> remoteUserApplications = remoteUser.getApplications();
         boolean hasApplicationAccess = roles.stream().map(role -> role.applicationsUsed())
                 .flatMap(Collection::stream)

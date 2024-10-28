@@ -16,7 +16,8 @@ class ExtendedInMemoryUserDetailsManagerTest {
             "password",
             "SP Dashboard",
             List.of(Scope.profile),
-            List.of(new Application("4", EntityType.SAML20_SP)));
+            List.of(new Application("4", EntityType.SAML20_SP)),
+            false);
 
     private final ExtendedInMemoryUserDetailsManager userDetailsManager =
             new ExtendedInMemoryUserDetailsManager(List.of(remoteUser));

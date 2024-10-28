@@ -28,6 +28,7 @@ public class RemoteUser implements UserDetails, CredentialsContainer, Provisiona
     private String displayName;
     private List<Scope> scopes = new ArrayList<>();
     private List<Application> applications = new ArrayList<>();
+    private boolean localDevMode;
 
     public RemoteUser(RemoteUser remoteUser) {
         this.username = remoteUser.username;
@@ -35,6 +36,7 @@ public class RemoteUser implements UserDetails, CredentialsContainer, Provisiona
         this.displayName = remoteUser.displayName;
         this.scopes = remoteUser.scopes;
         this.applications = remoteUser.applications;
+        this.localDevMode = remoteUser.localDevMode;
     }
 
     @Override

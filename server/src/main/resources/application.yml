@@ -161,6 +161,16 @@ external-api-configuration:
       applications:
         - manageId: "4"
           manageType: SAML20_SP
+    -
+      username: sp_dashboard_local_dev_mode
+      displayName: "SP Dashboard"
+      password: "secret"
+      scopes:
+        - sp_dashboard
+      applications:
+        - manageId: "4"
+          manageType: SAML20_SP
+      localDevMode: true
 
 voot:
   group_urn_domain: urn:mace:surf.nl:test.surfaccess.nl

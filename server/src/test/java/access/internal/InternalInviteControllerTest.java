@@ -42,7 +42,24 @@ class InternalInviteControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertNotNull(newRole.getId());
-        System.out.println(objectMapper.writeValueAsString(newRole));
+    }
+
+    @Test
+    void createWithAPIUserNotAllowed() {
+        Role role = new Role("Required role name", "Required role description", application("3", EntityType.SAML20_SP),
+                365, false, false);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("3"));
+
+        given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/internal/invite/roles")
+                .then()
+                        .statusCode(403);
     }
 
     @Test
@@ -189,16 +206,6 @@ class InternalInviteControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, userRoles.size());
-    }
-
-    @Test
-    void delme() throws JsonProcessingException {
-        InvitationResponse invitationResponse = new InvitationResponse(
-                201,
-                List.of(new RecipientInvitationURL("admin@service.nl", "https://invite.test.surfconext.nl/invitation/accept?{hash}"))
-        );
-        String json = objectMapper.writeValueAsString(invitationResponse);
-        System.out.println(json);
     }
 
 }
