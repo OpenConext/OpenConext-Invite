@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.0.23 2024-10-29
 
 - Allow extending eVa role enddates
+- Migrated to JDK21
 
 ## 0.0.22 2024-10-22
 
