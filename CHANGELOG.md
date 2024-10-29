@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.23 2024-10-29
+
+- Allow extending eVa role enddates
+
 ## 0.0.22 2024-10-22
 
 - Update texts to match other Openconext projects
