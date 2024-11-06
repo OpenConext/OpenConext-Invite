@@ -15,6 +15,7 @@ import access.security.RemoteUserPermissions;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -234,6 +235,38 @@ public class InternalInviteController implements ApplicationResource, Invitation
 
     @DeleteMapping("/roles/{id}")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @Operation(summary = "Delete existing Role",
+            description = "Delete an existing role. The path parameter id is the id returned when creating the role.",
+            parameters = {@Parameter(name = "id", in = ParameterIn.PATH, description = "Unique database id of the role", required = true)},
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "No content"),
+                    @ApiResponse(responseCode = "400", description = "BadRequest",
+                            content = {@Content(schema = @Schema(implementation = StatusResponse.class),
+                                    examples = {@ExampleObject(value = """
+                                            {
+                                              "timestamp": 1717672263253,
+                                              "status": 400,
+                                              "error": "BadRequest",
+                                              "exception": "access.exception.UserRestrictionException",
+                                              "message": "No access to role",
+                                              "path": "/api/internal/roles/999"
+                                            }
+                                            """
+                                    )})}),
+                    @ApiResponse(responseCode = "404", description = "Role not found",
+                            content = {@Content(schema = @Schema(implementation = StatusResponse.class),
+                                    examples = {@ExampleObject(value = """
+                                            {
+                                              "timestamp": 1717672263253,
+                                              "status": 404,
+                                              "error": "Not found",
+                                              "exception": "access.exception.NotFoundException",
+                                              "message": "Role not found",
+                                              "path": "/api/internal/roles/999"
+                                            }
+                                            """
+                                    )})})})
+
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id,
                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
@@ -254,7 +287,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     @PostMapping("/invitations")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
     @Operation(summary = "Invite member for existing Role",
-            description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set <guestRoleIncluded> to <true>",
+            description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     useParameterTypeSchema = true,
                     content = {@Content(examples = {@ExampleObject(value = """
