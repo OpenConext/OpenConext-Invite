@@ -53,8 +53,7 @@ import static java.util.stream.Collectors.toSet;
 @RestController
 @RequestMapping(value = {
         "/api/v1/invitations",
-        "/api/external/v1/invitations",
-        "/api/external/v1/sp_dashboard/invitations"}
+        "/api/external/v1/invitations"}
         , produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})

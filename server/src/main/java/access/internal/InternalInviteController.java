@@ -234,7 +234,6 @@ public class InternalInviteController implements ApplicationResource, Invitation
 
     @DeleteMapping("/roles/{id}")
     @PreAuthorize("hasRole('SP_DASHBOARD')")
-    @Hidden
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id,
                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
