@@ -256,7 +256,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                 <Chip label={I18n.t("forms.you")} type={ChipType.Status_info}/> : null
         },
         {
-            key: "schacHomeOrganisation",
+            key: "userInfo__schacHomeOrganization",
             header: I18n.t("users.schacHomeOrganization"),
             mapper: userRole => <span>{userRole.userInfo.schacHomeOrganization}</span>
         },
