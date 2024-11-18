@@ -296,6 +296,22 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void searchWithAtSign() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        List<User> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "james.doe@example.com")
+                .get("/api/v1/users/search")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, users.size());
+    }
+
+    @Test
     void searchPaginated() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 

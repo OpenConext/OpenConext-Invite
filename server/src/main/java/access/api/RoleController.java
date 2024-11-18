@@ -146,7 +146,7 @@ public class RoleController implements ApplicationResource {
                                              @Parameter(hidden = true) User user) {
         LOG.debug("/search");
         UserPermissions.assertSuperUser(user);
-        List<Role> roles = roleRepository.search(query + "*", 15);
+        List<Role> roles = roleRepository.search(FullSearchQueryParser.parse(query), 15);
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
@@ -202,7 +202,7 @@ public class RoleController implements ApplicationResource {
         boolean isNew = role.getId() == null;
         List<String> previousApplicationIdentifiers = new ArrayList<>();
         Optional<UserRole> optionalUserRole = user.userRoleForRole(role);
-        boolean immutableApplicationUsages = !user.isSuperUser() && 
+        boolean immutableApplicationUsages = !user.isSuperUser() &&
                 optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER);
         boolean nameChanged = false;
         if (!isNew) {

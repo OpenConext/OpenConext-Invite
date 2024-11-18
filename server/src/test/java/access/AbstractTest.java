@@ -557,21 +557,21 @@ public abstract class AbstractTest {
         this.apiTokenRepository.deleteAllInBatch();
 
         User superUser =
-                new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@examole.com");
+                new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
         User institutionAdmin =
-                new User(false, INSTITUTION_ADMIN_SUB, INSTITUTION_ADMIN_SUB, "example.com", "Carl", "Doe", "carl.doe@examole.com");
+                new User(false, INSTITUTION_ADMIN_SUB, INSTITUTION_ADMIN_SUB, "example.com", "Carl", "Doe", "carl.doe@example.com");
         institutionAdmin.setInstitutionAdmin(true);
         institutionAdmin.setInstitutionAdminByInvite(true);
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
 
         User manager =
-                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@examole.com");
+                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         User inviter =
-                new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@examole.com");
+                new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@example.com");
         User wikiInviter =
-                new User(false, INVITER_WIKI_SUB, INVITER_WIKI_SUB, "example.com", "James", "Doe", "james.doe@examole.com");
+                new User(false, INVITER_WIKI_SUB, INVITER_WIKI_SUB, "example.com", "James", "Doe", "james.doe@example.com");
         User guest =
-                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@examole.com");
+                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@example.com");
         guest.setEduId(UUID.randomUUID().toString());
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest);
 

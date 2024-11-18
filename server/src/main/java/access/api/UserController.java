@@ -138,7 +138,7 @@ public class UserController {
         LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         List<User> users = query.equals("owl") ? userRepository.findAll() :
-                userRepository.search(query.replaceAll("@", " ") + "*", 15);
+                userRepository.search(FullSearchQueryParser.parse(query), 15);
         return ResponseEntity.ok(users);
     }
 
@@ -159,7 +159,7 @@ public class UserController {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> page = StringUtils.hasText(query) ?
                 userRepository.searchByPage(pageable) :
-                userRepository.searchByPageWithKeyword(query.replaceAll("@", " ") + "*", pageable) ;
+                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) ;
         return ResponseEntity.ok(page);
     }
 
@@ -182,7 +182,7 @@ public class UserController {
         }
         List<Map<String, Object>> results = query.equals("owl") ?
                 userRepository.searchByApplicationAllUsers(manageIdentifiers) :
-                userRepository.searchByApplication(manageIdentifiers, query.replaceAll("@", " ") + "*", 15);
+                userRepository.searchByApplication(manageIdentifiers, FullSearchQueryParser.parse(query), 15);
         //There are duplicate users in the results, need to group by ID
         Map<Long, List<Map<String, Object>>> groupedBy = results.stream().collect(Collectors.groupingBy(map -> (Long) map.get("id")));
         List<UserRoles> userRoles = groupedBy.values().stream()

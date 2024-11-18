@@ -100,7 +100,7 @@ public class UserRoleController implements UserRoleResource {
     @GetMapping("/search/{roleId}/{guests}")
     public ResponseEntity<Page<?>> searchPaginated(@PathVariable("roleId") Long roleId,
                                                    @PathVariable("guests") boolean guests,
-                                                   @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                   @RequestParam(value = "query") String query,
                                                    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                                                    @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
                                                    @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
@@ -114,6 +114,7 @@ public class UserRoleController implements UserRoleResource {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> page;
+        query = FullSearchQueryParser.parse(query);
         if (StringUtils.hasText(query)) {
             page = guests ?
                     userRoleRepository.searchGuestsByPageWithKeyword(roleId, query, pageable) :
