@@ -55,7 +55,6 @@ public class Provisioning {
         List<Map<String, String>> applicationMaps = (List<Map<String, String>>) provider.getOrDefault("applications", emptyList());
         this.remoteApplications = applicationMaps.stream().map(m -> new ManageIdentifier(m.get("id"), EntityType.valueOf(m.get("type").toUpperCase()))).toList();
         this.invariant();
-
     }
 
     private void invariant() {

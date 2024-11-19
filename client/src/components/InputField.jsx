@@ -31,7 +31,8 @@ export default function InputField({
                                        displayLabel = true,
                                        button = null,
                                        isInteger = false,
-                                       isUrl = false
+                                       isUrl = false,
+                                       customClassName = ""
                                    }) {
     const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
@@ -40,8 +41,10 @@ export default function InputField({
         className += "error ";
     }
     const validExternalLink = externalLink && !isEmpty(value) && validUrlRegExp.test(value);
+    const isError = error ? "sds--text-field--status-error" : "";
+    const topClassName = `input-field sds--text-field ${isError} ${customClassName}`;
     return (
-        <div className={`input-field sds--text-field ${error ? "sds--text-field--status-error" : ""}`}>
+        <div className={topClassName}>
             {(name && displayLabel) && <label htmlFor={name}>{name}
                 {toolTip && <Tooltip tip={toolTip}/>}
             </label>}

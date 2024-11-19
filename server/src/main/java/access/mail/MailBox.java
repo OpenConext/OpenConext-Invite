@@ -73,7 +73,15 @@ public class MailBox {
         } else {
             variables.put("institutionName", "SURF");
         }
-        variables.put("roles", splitListSemantically(invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole().getName()).toList()));
+        variables.put("roles", splitListSemantically(invitation.getRoles().stream()
+                .map(invitationRole -> invitationRole.getRole().getName()).toList()));
+        if (invitation.getRoles().stream()
+                .anyMatch(invitationRole -> StringUtils.hasText(invitationRole.getRole().getInviterDisplayName()))) {
+            variables.put("displaySenderName", splitListSemantically(invitation.getRoles().stream()
+                    .map(invitationRole -> invitationRole.getRole().getInviterDisplayName()).toList()));
+        } else  {
+            variables.put("displaySenderName", provisionable.getName());
+        }
         if (StringUtils.hasText(invitation.getMessage())) {
             variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
         }

@@ -578,9 +578,12 @@ public abstract class AbstractTest {
         Role wiki =
                 new Role("Wiki", "Wiki desc",
                         application("1", EntityType.SAML20_SP), 365, false, false);
+        wiki.setInviterDisplayName("wiki@university.com");
+
         Role network =
                 new Role("Network", "Network desc",
                         application("2", EntityType.SAML20_SP), 365, false, false);
+
 
         Set<Application> applications = Set.of(
                         new Application("3", EntityType.SAML20_SP),

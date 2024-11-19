@@ -56,6 +56,7 @@ export const RoleForm = () => {
     const [validOrganizationGUID, setValidOrganizationGUID] = useState(true);
     const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState(null);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
+    const [customInviterDisplayName, setCustomInviterDisplayName] = useState(false);
     const [applications, setApplications] = useState([]);
     const [allowedToEditApplication, setAllowedToEditApplication] = useState(true);
     const [deletedUserRoles, setDeletedUserRoles] = useState(null);
@@ -79,6 +80,7 @@ export const RoleForm = () => {
                 if (!newRole) {
                     setRole(res[0]);
                     setCustomRoleExpiryDate(res[0].defaultExpiryDays !== DEFAULT_EXPIRY_DAYS)
+                    setCustomInviterDisplayName(!isEmpty(res[0].inviterDisplayName))
                 }
                 let providers;
                 if (user.superUser) {
@@ -238,7 +240,8 @@ export const RoleForm = () => {
             && validOrganizationGUID
             && !isEmpty(applications[0])
             && applications.every(app => !app || (!app.invalid && !isEmpty(app.landingPage)))
-            && role.defaultExpiryDays > 0;
+            && role.defaultExpiryDays > 0
+            && (!isEmpty(role.inviterDisplayName) || !customInviterDisplayName);
     }
 
     const changeApplication = (index, application) => {
@@ -424,6 +427,7 @@ export const RoleForm = () => {
                              info={I18n.t("invitations.roleExpiryDateInfo", {
                                  expiry: displayExpiryDate(futureDate(role.defaultExpiryDays, new Date()))
                              })}
+                             last={customRoleExpiryDate}
                 />
                 {customRoleExpiryDate && <InputField name={I18n.t("roles.defaultExpiryDays")}
                                                      value={role.defaultExpiryDays || 0}
@@ -435,12 +439,38 @@ export const RoleForm = () => {
                                                              {...role, defaultExpiryDays: defaultExpiryDays})
                                                      }}
                                                      toolTip={I18n.t("tooltips.defaultExpiryDays")}
+                                                     customClassName="inner-switch"
                 />}
 
                 {(!initial && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.defaultExpiryDays").toLowerCase()
                     })}/>}
+
+                <SwitchField name={"customInviterDisplayName"}
+                             value={customInviterDisplayName}
+                             onChange={() => {
+                                 setCustomInviterDisplayName(!customInviterDisplayName);
+                                 setRole(
+                                     {...role, inviterDisplayName: null})
+                             }}
+                             last={customInviterDisplayName}
+                             label={I18n.t("invitations.customInviterDisplayNameQuestion")}
+                             info={I18n.t(`invitations.${customInviterDisplayName ? "customInviterDisplayNameInfo" : "customInviterDisplayNameInfoDefault"}`)}
+                />
+                {customInviterDisplayName && <InputField name={I18n.t("invitations.inviterDisplayName")}
+                                                         value={role.inviterDisplayName || ""}
+                                                         error={!initial && isEmpty(role.inviterDisplayName) && customInviterDisplayName}
+                                                         onChange={e => {
+                                                             setRole(
+                                                                 {...role, inviterDisplayName: e.target.value})
+                                                         }}
+                                                         placeholder={I18n.t("invitations.inviterDisplayNamePlaceholder")}
+                                                         toolTip={I18n.t("tooltips.inviterDisplayName")}
+                                                         customClassName="inner-switch"
+                />}
+                {(!initial && isEmpty(role.inviterDisplayName) && customInviterDisplayName) &&
+                    <ErrorIndicator msg={I18n.t("invitations.inviterDisplayNameError")}/>}
 
                 <SwitchField name={"overrideSettingsAllowed"}
                              value={role.overrideSettingsAllowed}

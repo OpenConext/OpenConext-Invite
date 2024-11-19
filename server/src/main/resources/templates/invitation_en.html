@@ -16,7 +16,7 @@
         </p>
         {{/environment}}
         <p class="title" style="">Hello,</p>
-        <p><strong>{{user.name}}</strong> (from <strong>{{institutionName}}</strong>) has invited you for one or
+        <p><strong>{{displaySenderName}}</strong> (from <strong>{{institutionName}}</strong>) has invited you for one or
             more
             applications or systems that they use.</p>
 
@@ -31,7 +31,7 @@
         </ul>
         {{/invitation.anyRoles}}
         {{#message}}
-        <p style="margin: 20px 0 0 0;">Personal message from {{user.name}}</p>
+        <p style="margin: 20px 0 0 0;">Personal message from {{displaySenderName}}</p>
         <div class="head" style="background-color: #f5f5f5;padding: 20px;margin:5px 0 15px 0;font-style: italic;">
             <p style="margin: 0;">
                 {{{message}}}

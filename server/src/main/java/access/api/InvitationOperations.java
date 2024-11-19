@@ -49,7 +49,8 @@ public class InvitationOperations {
         }
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
-                .map(id -> invitationResource.getRoleRepository().findById(id).orElseThrow(() -> new NotFoundException("Role not found"))).toList();
+                .map(id -> invitationResource.getRoleRepository().findById(id)
+                        .orElseThrow(() -> new NotFoundException("Role not found"))).toList();
 
         if (user != null) {
             UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);

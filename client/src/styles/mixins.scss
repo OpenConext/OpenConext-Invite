@@ -35,6 +35,12 @@
 
     .input-field, .select-field, .date-field, .sds--checkbox-container {
         margin-top: 20px;
+
+        &.inner-switch {
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--sds--color--gray--200);
+        }
     }
 
     .user-role .sds--checkbox-container {
