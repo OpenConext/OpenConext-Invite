@@ -81,12 +81,5 @@ public class Provisioning {
         }
     }
 
-    public boolean isApplicableForGroupRequest() {
-        return ProvisioningType.scim.equals(this.provisioningType);
-    }
-
-    public boolean isApplicableForUserRoleRequests() {
-        return ProvisioningType.eva.equals(this.provisioningType);
-    }
 }
 

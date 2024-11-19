@@ -100,7 +100,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                         .isEmpty())
                 .forEach(provisioning -> {
                     UserRequest request = new UserRequest(user, provisioning);
-                    if (provisioning.getScimUserIdentifier().equals(ScimUserIdentifier.eduID) &&
+                    if (ScimUserIdentifier.eduID.equals(provisioning.getScimUserIdentifier()) &&
                             request.getExternalId().equals(user.getEduId())) {
                         //No fallback for failure
                         this.eduID.provisionEduid(new EduIDProvision(user.getEduId(), provisioning.getInstitutionGUID()));
@@ -124,41 +124,45 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     public void updateUserRequest(User user) {
         List<Provisioning> userProvisionings = getProvisionings(user);
         List<Provisioning> provisionings = userProvisionings.stream()
-                .filter(provisioning -> provisioning.getProvisioningType().equals(ProvisioningType.scim))
                 .toList();
         //Provision the user to all provisionings in Manage where the user is known
         provisionings.forEach(provisioning -> {
-            Optional<RemoteProvisionedUser> provisionedUserOptional =
-                    this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
-            provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
-                String userRequest = prettyJson(new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier()));
-                this.updateRequest(provisioning, userRequest, USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
-            });
+            if (this.hasEvaHook(provisioning)) {
+                RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, user);
+                this.doExchange(requestEntity, USER_API, mapParameterizedTypeReference, provisioning);
+            } else if (this.hasScimHook(provisioning)) {
+                Optional<RemoteProvisionedUser> provisionedUserOptional =
+                        this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
+                provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
+                    String userRequest = prettyJson(new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier()));
+                    this.updateRequest(provisioning, userRequest, USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
+                });
+            }
         });
     }
 
     @Override
     public void updateUserRoleRequest(UserRole userRole) {
-        List<Provisioning> provisionings = getProvisionings(userRole.getUser())
-                .stream()
-                .filter(provisioning -> provisioning.isApplicableForUserRoleRequests())
-                .toList();
+        List<Provisioning> provisionings = getProvisionings(userRole.getUser());
         provisionings.forEach(provisioning -> {
-            RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, userRole.getUser());
-            doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+            if (this.hasEvaHook(provisioning)) {
+                RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, userRole.getUser());
+                doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+            }
+            //For now only eva is eligible for update's for the userRole (e.g. new end date)
         });
 
     }
 
     @Override
     public void deleteUserRoleRequest(UserRole userRole) {
-        List<Provisioning> provisionings = getProvisionings(userRole.getUser())
-                .stream()
-                .filter(provisioning -> provisioning.isApplicableForUserRoleRequests())
-                .toList();
+        List<Provisioning> provisionings = getProvisionings(userRole.getUser());
         provisionings.forEach(provisioning -> {
-            RequestEntity requestEntity = this.evaClient.deleteUserRequest(provisioning, userRole.getUser());
-            doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+            if (this.hasEvaHook(provisioning)) {
+                RequestEntity requestEntity = this.evaClient.deleteUserRequest(provisioning, userRole.getUser());
+                doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+            }
+            //For now only eva is eligible for update's for the userRole (e.g. new end date)
         });
     }
 
@@ -208,36 +212,38 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         }
         Role role = userRole.getRole();
         List<Provisioning> provisionings = getProvisionings(role).stream()
-                .filter(Provisioning::isApplicableForGroupRequest)
                 .toList();
         provisionings.forEach(provisioning -> {
-            Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
-                    .findByManageProvisioningIdAndRole(provisioning.getId(), role);
-            provisionedGroupOptional.ifPresentOrElse(provisionedGroup -> {
-                        List<UserRole> userRoles = new ArrayList<>();
-                        if (provisioning.isScimUpdateRolePutMethod()) {
-                            //We need all userRoles for a PUT and we only provision guests
-                            userRoles = userRoleRepository.findByRole(userRole.getRole())
-                                    .stream()
-                                    .filter(userRoleDB -> userRoleDB.getAuthority().equals(Authority.GUEST) || userRoleDB.isGuestRoleIncluded())
-                                    .collect(Collectors.toCollection(ArrayList::new));
-                            boolean userRolePresent = userRoles.stream().anyMatch(dbUserRole -> dbUserRole.getId().equals(userRole.getId()));
-                            if (operationType.equals(OperationType.Add) && !userRolePresent) {
-                                userRoles.add(userRole);
-                            } else if (operationType.equals(OperationType.Remove) && userRolePresent) {
-                                userRoles = userRoles.stream()
-                                        .filter(dbUserRole -> !dbUserRole.getId().equals(userRole.getId()))
+            if (this.hasScimHook(provisioning)) {
+                Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
+                        .findByManageProvisioningIdAndRole(provisioning.getId(), role);
+                provisionedGroupOptional.ifPresentOrElse(provisionedGroup -> {
+                            List<UserRole> userRoles = new ArrayList<>();
+                            if (provisioning.isScimUpdateRolePutMethod()) {
+                                //We need all userRoles for a PUT and we only provision guests
+                                userRoles = userRoleRepository.findByRole(userRole.getRole())
+                                        .stream()
+                                        .filter(userRoleDB -> userRoleDB.getAuthority().equals(Authority.GUEST) || userRoleDB.isGuestRoleIncluded())
                                         .collect(Collectors.toCollection(ArrayList::new));
+                                boolean userRolePresent = userRoles.stream().anyMatch(dbUserRole -> dbUserRole.getId().equals(userRole.getId()));
+                                if (operationType.equals(OperationType.Add) && !userRolePresent) {
+                                    userRoles.add(userRole);
+                                } else if (operationType.equals(OperationType.Remove) && userRolePresent) {
+                                    userRoles = userRoles.stream()
+                                            .filter(dbUserRole -> !dbUserRole.getId().equals(userRole.getId()))
+                                            .collect(Collectors.toCollection(ArrayList::new));
+                                }
+                            } else {
+                                userRoles.add(userRole);
                             }
-                        } else {
-                            userRoles.add(userRole);
+                            sendGroupPutRequest(provisioning, provisionedGroup, userRoles, role, operationType);
+                        }, () -> {
+                            this.newGroupRequest(role);
+                            this.updateGroupRequest(userRole, operationType);
                         }
-                        sendGroupPutRequest(provisioning, provisionedGroup, userRoles, role, operationType);
-                    }, () -> {
-                        this.newGroupRequest(role);
-                        this.updateGroupRequest(userRole, operationType);
-                    }
-            );
+                );
+            }
+            //For now only scim is eligible for update's for the groups (e.g. role name / members have changed)
         });
     }
 

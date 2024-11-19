@@ -5,6 +5,7 @@ import access.eduid.EduIDProvision;
 import access.model.*;
 import access.provision.scim.OperationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     @Test
     void newUserRequest() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
-
+        //See server/src/main/resources/manage/provisioning.json, applicationId="3"
         this.stubForManageProvisioning(List.of("3"));
         String remoteScimIdentifier = this.stubForCreateEvaUser();
         provisioningService.newUserRequest(user);
@@ -164,4 +165,29 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         Optional<RemoteProvisionedGroup> remoteProvisionedGroupOptional = remoteProvisionedGroupRepository.findByManageProvisioningIdAndRole("7", role);
         assertTrue(remoteProvisionedGroupOptional.isEmpty());
     }
+
+    @Test
+    void updateEvaUserRequest() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        //See server/src/main/resources/manage/provisioning.json, applicationId="3"
+        this.stubForManageProvisioning(List.of("3"));
+        String remoteScimIdentifier = this.stubForCreateEvaUser();
+        provisioningService.newUserRequest(user);
+
+        //Change the name and do update
+        user.setName("Ely Doe");
+        provisioningService.updateUserRequest(user);
+
+        List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
+        assertEquals(1, remoteProvisionedUsers.size());
+        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+
+        List<LoggedRequest> requests = findAll(postRequestedFor(urlPathMatching("/eva/api/v1/guest/create")));
+        assertEquals(2, requests.size());
+        String updateRequest = requests.getLast().getBodyAsString();
+        //After URLEncoding
+        assertTrue(updateRequest.contains("name=Ely+Doe"));
+        assertTrue(updateRequest.contains(String.format("id=%s", remoteScimIdentifier)));
+    }
+
 }

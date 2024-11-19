@@ -470,7 +470,7 @@ public abstract class AbstractTest {
         return value;
     }
 
-    protected void stubForUpdateEvaUser() throws JsonProcessingException {
+    protected void stubForUpdateEvaUser() {
         stubFor(post(urlPathMatching("/eva/api/v1/guest/create"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")));
