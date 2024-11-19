@@ -1,0 +1,20 @@
+@import "../styles/mixins";
+
+.mod-performance-seed-container {
+    background-color: white;
+
+    .mod-performance-seed {
+        @include page;
+        padding: 20px 0;
+
+        .actions {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        code.results {
+            margin-top: 20px;
+        }
+    }
+}

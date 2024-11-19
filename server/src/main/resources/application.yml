@@ -119,10 +119,12 @@ config:
   eduid-entity-id: "https://login.test2.eduid.nl"
   role-search-required: False
   past-date-allowed: True
+  performance-seed-allowed: True
   eduid-idp-schac-home-organization: "test.eduid.nl"
 
 feature:
   limit-institution-admin-role-visibility: True
+  enable-performance-seed: False
 
 # We don't encode in-memory passwords, so we need to prefix them with {noop}
 external-api-configuration:

@@ -10,6 +10,7 @@ import access.model.UserRole;
 import access.repository.RoleRepository;
 import access.repository.UserRoleRepository;
 import access.security.UserPermissions;
+import access.seed.PerformanceSeed;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,17 +46,20 @@ public class SystemController {
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final Manage manage;
+    private final PerformanceSeed performanceSeed;
 
     public SystemController(ResourceCleaner resourceCleaner,
                             RoleExpirationNotifier roleExpirationNotifier,
                             RoleRepository roleRepository,
                             UserRoleRepository userRoleRepository,
-                            Manage manage) {
+                            Manage manage,
+                            PerformanceSeed performanceSeed) {
         this.resourceCleaner = resourceCleaner;
         this.roleExpirationNotifier = roleExpirationNotifier;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.manage = manage;
+        this.performanceSeed = performanceSeed;
     }
 
     @GetMapping("/cron/cleanup")
@@ -89,6 +94,13 @@ public class SystemController {
         List<Role> roles = manage.addManageMetaData(roleRepository.findAll());
         List<Role> unknownManageRoles = roles.stream().filter(role -> role.getApplicationMaps().stream().anyMatch(applicationMap -> applicationMap.containsKey("unknown"))).toList();
         return ResponseEntity.ok(unknownManageRoles);
+    }
+
+    @PutMapping("/performance-seed")
+    public ResponseEntity<Map<String, Object>> performanceSeed(@Parameter(hidden = true) User user) {
+        LOG.debug("/performance-seed");
+        UserPermissions.assertSuperUser(user);
+        return ResponseEntity.ok(performanceSeed.go());
     }
 
 }

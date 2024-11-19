@@ -45,7 +45,6 @@ import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 public class RoleController implements ApplicationResource {
     private static final Log LOG = LogFactory.getLog(RoleController.class);
 
-    private final Config config;
     private final RoleRepository roleRepository;
     @Getter
     private final ApplicationRepository applicationRepository;
@@ -57,14 +56,12 @@ public class RoleController implements ApplicationResource {
     private final boolean limitInstitutionAdminRoleVisibility;
     private final RoleOperations roleOperations;
 
-    public RoleController(Config config,
-                          RoleRepository roleRepository,
+    public RoleController(RoleRepository roleRepository,
                           ApplicationRepository applicationRepository,
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
                           @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility) {
-        this.config = config;
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;

@@ -20,6 +20,7 @@ public class Config {
     private String eduidEntityId;
     private boolean roleSearchRequired;
     private boolean pastDateAllowed;
+    private boolean performanceSeedAllowed;
     private String groupUrnPrefix;
     private boolean authenticated;
     private String name;
@@ -33,6 +34,7 @@ public class Config {
         this.serverWelcomeUrl = base.serverWelcomeUrl;
         this.eduidEntityId = base.eduidEntityId;
         this.pastDateAllowed = base.pastDateAllowed;
+        this.performanceSeedAllowed = base.performanceSeedAllowed;
         this.roleSearchRequired = base.roleSearchRequired;
         this.groupUrnPrefix = base.groupUrnPrefix;
         this.eduidIdpSchacHomeOrganization = base.eduidIdpSchacHomeOrganization;

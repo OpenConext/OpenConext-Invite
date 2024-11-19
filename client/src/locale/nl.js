@@ -60,7 +60,8 @@ const nl = {
         expiredUserRoles: "User role expirations",
         pendingInvitations: "Open",
         allPendingInvitations: "Open uitnodigingen",
-        acceptedInvitations: "Geaccepteerd"
+        acceptedInvitations: "Geaccepteerd",
+        performanceSeed: "Seed"
     },
     home: {
         access: "SURFconext Invite",
@@ -497,7 +498,9 @@ const nl = {
         clear: "Clear",
         cronInfo: "Roep de cron job aan die resources opruimt, zoals verlopen gebruikersrollen, verweesde gebruikers en inactieve gebruikers",
         cronNotificationsInfo: "Roep de cron job aan die notificatie mails verstuurd voor gebruikersrollen die verlopen in X dagen",
-        noMails: "Geen notificatie mails zijn vertstuurd voor bijna verlopen gebruikersrollen"
+        noMails: "Geen notificatie mails zijn vertstuurd voor bijna verlopen gebruikersrollen",
+        performanceSeedInfo: "The performance seed is dummy / generated data to test the performance of the system. It is deleted when you run the tests.",
+        performanceSeed: "Insert performance seed"
     },
     unknownRoles: {
         title: "Rollen gekoppeld aan applicaties die verwijderd zijn in Manage",

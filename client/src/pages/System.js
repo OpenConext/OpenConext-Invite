@@ -4,18 +4,17 @@ import "./System.scss";
 import {Loader} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
-import {ReactComponent as CronLogo} from "@surfnet/sds/icons/illustrative-icons/database-check.svg";
-import {ReactComponent as RoleLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
 import {Cron} from "../tabs/Cron";
 import {RolesUnknownInManage} from "../tabs/RolesUnknownInManage";
 import {Invitations} from "../tabs/Invitations";
-import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {ExpiredUserRoles} from "../tabs/ExpiredUserRoles";
+import {PerformanceSeed} from "../tabs/PerformanceSeed";
 
 
 export const System = () => {
+    const {config} = useAppStore(state => state);
     const navigate = useNavigate();
     const {tab = "cron"} = useParams();
     const [loading, setLoading] = useState(false);
@@ -34,33 +33,39 @@ export const System = () => {
                 <Page key="cron"
                       name="cron"
                       label={I18n.t("tabs.cron")}
-                      Icon={CronLogo}>
+                >
                     <Cron/>
                 </Page>,
                 <Page key="invitations"
                       name="invitations"
                       label={I18n.t("tabs.invitations")}
-                      Icon={InvitationLogo}>
+                >
                     <Invitations standAlone={true}/>
                 </Page>,
                 <Page key="unknownRoles"
                       name="unknownRoles"
                       label={I18n.t("tabs.unknownRoles")}
-                      Icon={RoleLogo}>
+                >
                     <RolesUnknownInManage/>
                 </Page>,
                 <Page key="expiredUserRoles"
                       name="expiredUserRoles"
                       label={I18n.t("tabs.expiredUserRoles")}
-                      Icon={RoleLogo}>
+                >
                     <ExpiredUserRoles/>
-                </Page>
-
-            ];
+                </Page>,
+                config.performanceSeedAllowed ?
+                    <Page key="seed"
+                          name="seed"
+                          label={I18n.t("tabs.performanceSeed")}
+                    >
+                        <PerformanceSeed/>
+                    </Page> : null
+            ].filter(t => Boolean(t));
             setTabs(newTabs);
             setLoading(false);
         },
-        [currentTab])
+        [currentTab, config.performanceSeedAllowed])
 
     const tabChanged = (name) => {
         setCurrentTab(name);

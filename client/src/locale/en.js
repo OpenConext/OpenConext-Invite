@@ -60,7 +60,8 @@ const en = {
         expiredUserRoles: "User role expirations",
         pendingInvitations: "Pending",
         allPendingInvitations: "Pending invitations",
-        acceptedInvitations: "Accepted"
+        acceptedInvitations: "Accepted",
+        performanceSeed: "Seed"
     },
     home: {
         access: "SURFconext Invite",
@@ -498,7 +499,10 @@ const en = {
         clear: "Clear",
         cronInfo: "Trigger the cron job to cleanup resources like expired user-roles, orphaned users and in-active users",
         cronNotificationsInfo: "Trigger the cron job to send notification mails for user-roles that will expire in X days",
-        noMails: "No notification mails for user-role expirations were send"
+        noMails: "No notification mails for user-role expirations were send",
+        performanceSeedInfo: "The performance seed is dummy / generated data to test the performance of the system. It is deleted when you run the tests.",
+        performanceSeed: "Insert performance seed",
+        performanceMillis: "Inserted following number in {{millis}} ms"
     },
     unknownRoles: {
         title: "Roles linked to applications unknown in Manage",

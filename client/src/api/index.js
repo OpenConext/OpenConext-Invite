@@ -239,6 +239,10 @@ export function expiryUserRoles() {
     return fetchJson("/api/v1/system/expiry-user-roles")
 }
 
+export function performanceSeed() {
+    return postPutJson("/api/v1/system/performance-seed", {}, "PUT")
+}
+
 export function rolesUnknownInManage() {
     return fetchJson("/api/v1/system/unknown-roles")
 }

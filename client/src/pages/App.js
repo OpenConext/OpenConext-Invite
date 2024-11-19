@@ -22,10 +22,10 @@ import {RoleForm} from "./RoleForm";
 import {InvitationForm} from "./InvitationForm";
 import {isEmpty} from "../utils/Utils";
 import {MissingAttributes} from "./MissingAttributes";
-import {System} from "./System";
 import {Inviter} from "./Inviter";
 import {InvitationOverview} from "./InvitationOverview";
 import {Application} from "./Application";
+import {System} from "./System";
 
 
 export const App = () => {
@@ -33,6 +33,7 @@ export const App = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const {impersonator, authenticated, reload} = useAppStore(state => state);
+    const {user} = useAppStore(state => state);
 
     useEffect(() => {
         setLoading(true);
@@ -107,7 +108,9 @@ export const App = () => {
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>
                         <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
-                        <Route path="system/:tab?" element={<System/>}/>
+                        {(user && user.superUser) &&
+                            <Route path="system/:tab?" element={<System/>}/>
+                        }
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>}
                 {/*  <Route path="invitations" element={<Invitation user={user}/>}/>*/}
