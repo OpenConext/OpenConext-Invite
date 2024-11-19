@@ -221,6 +221,7 @@ export const Users = () => {
                   inputFocus={true}
                   customSearch={search}
                   rowLinkMapper={openUser}
+                  searchAutoFocus={!searching}
                   busy={searching}>
             {initial && <div className={"image-container"}>
                 <img src={SearchSvg} alt="search"/>

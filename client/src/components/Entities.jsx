@@ -51,10 +51,10 @@ export const Entities = ({
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (displaySearch && searchRef && searchRef.current) {
+        if ((displaySearch || searchAutoFocus) && searchRef && searchRef.current) {
             searchRef.current.focus();
         }
-    }, [displaySearch])
+    }, [displaySearch, searchAutoFocus])
 
     const newEntity = () => {
         if (newEntityFunc) {
