@@ -2,6 +2,8 @@ package access.manage;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.CollectionUtils;
@@ -9,8 +11,6 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,6 +19,8 @@ import static java.util.Collections.emptyList;
 
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
+
+    private static final Log LOG = LogFactory.getLog(RemoteManage.class);
 
     private final String url;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -35,6 +37,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providers(EntityType... entityTypes) {
+        LOG.debug("Providers for entityTypes: " + List.of(entityTypes));
         return Stream.of(entityTypes).map(entityType -> this.getRemoteMetaData(entityType.collectionName()))
                 .flatMap(List::stream)
                 .toList();
@@ -42,6 +45,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
+        LOG.debug("providersByIdIn: " + entityType);
         if (CollectionUtils.isEmpty(identifiers)) {
             return emptyList();
         }
@@ -54,6 +58,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
+        LOG.debug("providerByEntityID: " + entityType);
         String body = String.format("{\"data.entityid\":\"%s\"}", entityID);
         String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, entityType.collectionName());
         List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
@@ -63,6 +68,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public Map<String, Object> providerById(EntityType entityType, String id) {
+        LOG.debug("providerById: " + entityType);
         String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.collectionName(), id);
         return transformProvider(restTemplate.getForEntity(queryUrl, Map.class).getBody());
     }
@@ -70,6 +76,8 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> provisioning(Collection<String> ids) {
+        LOG.debug("provisioning for : " + ids);
+
         if (CollectionUtils.isEmpty(ids)) {
             return emptyList();
         }
@@ -79,6 +87,8 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
+        LOG.debug("providersAllowedByIdP for : " + identityProvider.get("type"));
+
         Boolean allowedAll = (Boolean) identityProvider.getOrDefault("allowedall", Boolean.FALSE);
         if (allowedAll) {
             return this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
@@ -100,6 +110,8 @@ public class RemoteManage implements Manage {
 
     @Override
     public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
+        LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);
+
         Map<String, Object> baseQuery = getBaseQuery();
         baseQuery.put("metaDataFields.coin:institution_guid", organisationGUID);
 

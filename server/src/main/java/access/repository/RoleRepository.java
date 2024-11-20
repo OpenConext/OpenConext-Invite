@@ -21,8 +21,9 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
 
     @Query(value = """
-            SELECT r.id, r.name, r.description, a.manage_id, a.manage_type,
-                (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount
+            SELECT r.id as id, r.name as name, r.description as description,
+                               a.manage_id as manage_id, a.manage_type as manage_type,
+                (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as user_role_count
             FROM roles r INNER JOIN application_usages au on au.role_id = r.id
                 INNER JOIN applications a on au.application_id = a.id
             """,
@@ -33,8 +34,9 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Page<Map<String, Object>> searchByPage(Pageable pageable);
 
     @Query(value = """
-            SELECT r.id, r.name, r.description, a.manage_id, a.manage_type,
-                (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount
+            SELECT r.id as id, r.name as name, r.description as description,
+                               a.manage_id as manage_id, a.manage_type as manage_type,
+                (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as user_role_count
             FROM roles r INNER JOIN application_usages au on au.role_id = r.id
                 INNER JOIN applications a on au.application_id = a.id
             WHERE MATCH (name, description) against (?1 IN BOOLEAN MODE)

@@ -103,7 +103,7 @@ public class UserRoleController implements UserRoleResource {
                                                    @RequestParam(value = "query") String query,
                                                    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                                                    @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-                                                   @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
+                                                   @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
                                                    @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
                                                    @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));

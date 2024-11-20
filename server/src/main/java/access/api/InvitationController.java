@@ -141,7 +141,7 @@ public class InvitationController implements InvitationResource{
         LOG.debug("/all invitations");
         UserPermissions.assertAuthority(user, Authority.INVITER);
         if (user.isSuperUser()) {
-            return ResponseEntity.ok(invitationRepository.findAll());//findByStatus(Status.OPEN));
+            return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN));
         }
         List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
         return ResponseEntity.ok(invitationRepository.findByRoles_roleIsIn(roles));

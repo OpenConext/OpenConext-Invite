@@ -19,6 +19,8 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
 
     Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);
 
+    List<Invitation> findByStatus(Status status);
+
     List<Invitation> findByStatusAndRoles_role(Status status, Role role);
 
     List<Invitation> findByRoles_roleIsIn(List<Role> roles);

@@ -81,6 +81,7 @@ public class ManageController {
     @GetMapping("organization-guid-validation/{organizationGUID}")
     public ResponseEntity<Map<String, Object>> organizationGUIDValidation(@Parameter(hidden = true) User user,
                                                                           @PathVariable("organizationGUID") String organizationGUID) {
+        LOG.debug("/organization-guid-validation");
         UserPermissions.assertSuperUser(user);
         Map<String, Object> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGUID)
                 .orElseThrow(() -> new NotFoundException("No identity provider with organizationGUID: " + organizationGUID));
@@ -89,6 +90,7 @@ public class ManageController {
 
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
+        LOG.debug("/applications");
         UserPermissions.assertInstitutionAdmin(user);
         List<Application> applications;
         if (user.isSuperUser()) {

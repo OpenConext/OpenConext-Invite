@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.cron.ResourceCleaner;
 import access.cron.RoleExpirationNotifier;
+import access.exception.NotAllowedException;
 import access.manage.Manage;
 import access.model.Role;
 import access.model.User;
@@ -47,19 +48,22 @@ public class SystemController {
     private final UserRoleRepository userRoleRepository;
     private final Manage manage;
     private final PerformanceSeed performanceSeed;
+    private final Config config;
 
     public SystemController(ResourceCleaner resourceCleaner,
                             RoleExpirationNotifier roleExpirationNotifier,
                             RoleRepository roleRepository,
                             UserRoleRepository userRoleRepository,
                             Manage manage,
-                            PerformanceSeed performanceSeed) {
+                            PerformanceSeed performanceSeed,
+                            Config config) {
         this.resourceCleaner = resourceCleaner;
         this.roleExpirationNotifier = roleExpirationNotifier;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.manage = manage;
         this.performanceSeed = performanceSeed;
+        this.config = config;
     }
 
     @GetMapping("/cron/cleanup")
@@ -99,6 +103,9 @@ public class SystemController {
     @PutMapping("/performance-seed")
     public ResponseEntity<Map<String, Object>> performanceSeed(@Parameter(hidden = true) User user) {
         LOG.debug("/performance-seed");
+        if (!config.isPerformanceSeedAllowed()) {
+            throw new NotAllowedException("performance-seed not allowed");
+        }
         UserPermissions.assertSuperUser(user);
         return ResponseEntity.ok(performanceSeed.go());
     }

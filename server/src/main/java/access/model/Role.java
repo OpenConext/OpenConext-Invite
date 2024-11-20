@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
+import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
 import java.util.*;
@@ -82,6 +83,19 @@ public class Role implements Serializable, Provisionable {
     @Transient
     private List<Map<String, Object>> applicationMaps;
 
+    private Role(Long id,
+                 String name,
+                 String description,
+                 Long userRoleCount,
+                 Set<ApplicationUsage> applicationUsages) {
+        //Only used after native query and returned for Role overview in the GUI
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.applicationUsages = applicationUsages;
+        this.userRoleCount = userRoleCount;
+    }
+
     public Role(String name,
                 String description,
                 Set<ApplicationUsage> applicationUsages,
@@ -130,6 +144,28 @@ public class Role implements Serializable, Provisionable {
         this.applicationUsages = applicationUsages;
         this.applicationUsages.forEach(applicationUsage -> applicationUsage.setRole(this));
     }
+
+    //See RoleRepository#searchByPage
+    public static List<Role> roleFromQuery(Page<Map<String, Object>> rolesPage) {
+        Map<Long, List<Map<String, Object>>> groupedById = rolesPage.getContent().stream()
+                .collect(Collectors.groupingBy(m -> (Long) m.get("id")));
+        groupedById.entrySet().stream().map(entry ->
+                new Role(entry.getKey(),
+                        //We can use the first because name, description and user_role_count will be the same
+                        (String)entry.getValue().getFirst().get("name"),
+                (String)entry.getValue().getFirst().get("description"),
+                        (Long)entry.getValue().getFirst().get("user_role_count"),
+                        entry.getValue().stream()
+                                .map(m -> new ApplicationUsage())
+                        )
+
+                        )
+        Role role = new Role();
+        role.setId((Long) queryResults.get("id"));
+        role.setName((String) queryResults.get("name"));
+        return null;
+    }
+
 
 
 }

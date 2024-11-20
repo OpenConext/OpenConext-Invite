@@ -143,7 +143,7 @@ public class UserController {
     }
 
     @GetMapping("search-paginated")
-    public ResponseEntity<Page<?>> searchPaginated(@RequestParam(value = "query", required = false, defaultValue = "") String query,
+    public ResponseEntity<Page<Map<String, Object>>> searchPaginated(@RequestParam(value = "query", required = false, defaultValue = "") String query,
                                                                      @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                                                                      @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
                                                                      @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
@@ -151,11 +151,6 @@ public class UserController {
                                                                      @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/search-paginated for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
-        if (query.equals("owl")) {
-            List<User> content = userRepository.findAll();
-            PageRequest pageRequest = PageRequest.of(0, content.size(), Sort.by(Sort.Direction.ASC.name(), "id"));
-            return ResponseEntity.ok(new PageImpl<>(content, pageRequest, content.size()));
-        }
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> page = StringUtils.hasText(query) ?
                 userRepository.searchByPage(pageable) :

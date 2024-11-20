@@ -540,13 +540,13 @@ public abstract class AbstractTest {
       };
     }
 
-    public Set<ApplicationUsage> application(String manageId, EntityType entityType) {
+    protected Set<ApplicationUsage> application(String manageId, EntityType entityType) {
         Application application = applicationRepository.findByManageIdAndManageType(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
         return Set.of(new ApplicationUsage(application, "http://landingpage.com"));
     }
 
-    public void doSeed() {
+    private void doSeed() {
         this.invitationRepository.deleteAllInBatch();
         this.remoteProvisionedGroupRepository.deleteAllInBatch();
         this.remoteProvisionedUserRepository.deleteAllInBatch();

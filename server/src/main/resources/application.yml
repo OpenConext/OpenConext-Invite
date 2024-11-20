@@ -69,11 +69,11 @@ spring:
     port: 1025
 
 crypto:
-  development-mode: True
-  private-key-location: classpath:nope
+#  development-mode: True
+#  private-key-location: classpath:nope
 #  Use the commented lines when you want to test against a remote manage. Do not add the private_key to git
-#  development-mode: False
-#  private-key-location: classpath:/private_key_pkcs8.pem
+  development-mode: False
+  private-key-location: classpath:/private_key_pkcs8.pem
 
 cron:
   node-cron-job-responsible: true
@@ -193,8 +193,8 @@ email:
 # configure real users / passwords and test against those. See server/src/main/java/access/manage/ManageConf.java
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
-#  enabled: True
-  enabled: False
+  enabled: True
+#  enabled: False
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret

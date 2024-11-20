@@ -3,15 +3,14 @@ package access.seed;
 import access.manage.EntityType;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
-import access.model.Application;
-import access.model.ApplicationUsage;
-import access.model.Role;
-import access.model.User;
+import access.model.*;
 import access.repository.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,7 +27,6 @@ public class PerformanceSeed {
     private final InvitationRepository invitationRepository;
     private final Manage manage;
     private final JdbcTemplate jdbcTemplate;
-
 
     public PerformanceSeed(UserRepository userRepository,
                            RoleRepository roleRepository,
@@ -47,32 +45,36 @@ public class PerformanceSeed {
     }
 
     public Map<String, Object> go() {
+        int numberOfRoles = 500;
+        int numberOfUsers = 150 * numberOfRoles;
+        return this.go(numberOfRoles, numberOfUsers);
+    }
+
+    public Map<String, Object> go(int numberOfRoles, int numberOfUsers) {
         List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
 
-//        int numberOfUsers = 500_000;
-//        int numberOfRoles = 75_000;
-        int numberOfUsers = 500;
-        int numberOfRoles = 75;
-        int[] numberOfUserRolesRange = new int[]{1, 5};
-        int userRolesCreated = 0;
 
-        IntStream.range(1, numberOfUsers)
-                .forEach(i -> userRepository.save(createUser()));
-
-        IntStream.range(1, numberOfRoles)
+        IntStream.range(1, numberOfRoles + 1)
                 .forEach(i -> {
                     Role role = createRole(providers);
-                    try {
-                        roleRepository.save(role);
-                    } catch (Exception e) {
-                        System.out.println(role);
-                    }
+                    roleRepository.save(role);
+                });
 
+        long minRoleId = this.minId("roles");
+        long maxRoleId = this.maxId("roles");
+
+        IntStream.range(1, numberOfUsers + 1)
+                .forEach(i -> {
+                    User user = userRepository.save(createUser());
+                    long roleId = random.nextLong(minRoleId, maxRoleId + 1L);
+                    Role role = roleRepository.findById(roleId).get();
+                    userRoleRepository.save(this.createUserRole(user, role));
+                    invitationRepository.save(this.createInvitation(user, role));
                 });
 
         return Map.of("users", numberOfUsers,
                 "roles", numberOfRoles,
-                "userRoles", userRolesCreated);
+                "userRoles", numberOfUsers);
     }
 
     private User createUser() {
@@ -80,8 +82,8 @@ public class PerformanceSeed {
         String givenName = NameGenerator.generate();
         //For testing pagination, it's a Doe
         String familyName = "Doe"; //NameGenerator.generate();
-        String schacHome = NameGenerator.generate() + ".org";
-        String eppn = String.format("%s.%s@%s", givenName.toLowerCase(), familyName.toLowerCase(), schacHome.toLowerCase());
+        String schacHome = NameGenerator.generate().toLowerCase() + ".org";
+        String eppn = String.format("%s.%s@%s", givenName.toLowerCase(), familyName.toLowerCase(), schacHome);
         return new User(false,
                 eppn,
                 uuid,
@@ -89,6 +91,33 @@ public class PerformanceSeed {
                 givenName,
                 familyName,
                 eppn);
+    }
+
+    private UserRole createUserRole(User user, Role role) {
+        Authority authority = getAuthority();
+        return new UserRole("performance-seed", user, role, authority);
+    }
+
+    private static Authority getAuthority() {
+        double randomDouble = Math.random();
+        return randomDouble > 0.8 ? Authority.MANAGER : randomDouble < 0.2 ? Authority.INVITER : Authority.GUEST;
+    }
+
+    private Invitation createInvitation(User inviter, Role role) {
+        Set<InvitationRole> roles = Set.of(new InvitationRole(role));
+        return new Invitation(
+                getAuthority(),
+                UUID.randomUUID().toString(),
+                String.format("%s@example.com", NameGenerator.generate()),
+                false,
+                false,
+                false,
+                "Auto generated",
+                Language.en,
+                inviter,
+                Instant.now().plus(30, ChronoUnit.DAYS),
+                Instant.now().plus(365 * 5, ChronoUnit.DAYS),
+                roles);
     }
 
     private Role createRole(List<Map<String, Object>> providers) {
@@ -119,17 +148,31 @@ public class PerformanceSeed {
                 false);
     }
 
-    public Application application(ManageIdentifier manageIdentifier) {
+    private Application application(ManageIdentifier manageIdentifier) {
         String manageId = manageIdentifier.manageId();
         EntityType entityType = manageIdentifier.manageType();
         return applicationRepository.findByManageIdAndManageType(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
     }
 
-
     private Long randomId(String tableName) {
         return jdbcTemplate.query(String.format("SELECT id FROM %s ORDER BY RAND() LIMIT 1", tableName), rs -> {
+            rs.next();
             return rs.getLong("id");
+        });
+    }
+
+    private Long minId(String tableName) {
+        return jdbcTemplate.query(String.format("SELECT min(id) as minId FROM %s ", tableName), rs -> {
+            rs.next();
+            return rs.getLong("minId");
+        });
+    }
+
+    private Long maxId(String tableName) {
+        return jdbcTemplate.query(String.format("SELECT max(id) as maxId FROM %s ", tableName), rs -> {
+            rs.next();
+            return rs.getLong("maxId");
         });
     }
 }

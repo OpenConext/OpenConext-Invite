@@ -21,9 +21,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,11 +74,29 @@ public class RoleController implements ApplicationResource {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user) {
+    public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user,
+                                                         @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                         @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                         @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                         @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                         @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
 
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<Map<String, Object>> page;
+
+
         if (user.isSuperUser()) {
-            return ResponseEntity.ok(manage.addManageMetaData(roleRepository.findAll()));
+            Page<Map<String, Object>> rolesPage = StringUtils.hasText(query) ?
+                    roleRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+                            roleRepository.searchByPage( pageable);
+            //Because of the one-to-many relation between Role and ApplicationUsage we need to group by
+            Map<Long, List<Map<String, Object>>> groupById = rolesPage.getContent().stream()
+                    .collect(Collectors.groupingBy(m -> (Long) m.get("id")));
+
+
+//            manage.addManageMetaDataAfterRawSearch(roles.getContent())
+            return null;//ResponseEntity.ok();
         }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
 

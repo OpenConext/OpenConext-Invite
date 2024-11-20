@@ -61,7 +61,8 @@ const en = {
         pendingInvitations: "Pending",
         allPendingInvitations: "Pending invitations",
         acceptedInvitations: "Accepted",
-        performanceSeed: "Seed"
+        performanceSeed: "Seed",
+        seed: "Seed"
     },
     home: {
         access: "SURFconext Invite",
