@@ -6,81 +6,51 @@ import I18n from "../locale/I18n";
 import {Button, ButtonSize, Chip, Loader, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
-import {rolesByApplication, searchRoles} from "../api";
+import {rolesByApplication} from "../api";
 import {distinctValues, isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
-import Select from "react-select";
 import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import DOMPurify from "dompurify";
-
-const allValue = "all";
+import {extractPageResultFromServerResult, pageCount} from "../utils/Pagination";
 
 export const Roles = () => {
     const {user, config} = useAppStore(state => state);
-    const {roleSearchRequired} = useAppStore(state => state.config);
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
     const [searching, setSearching] = useState(false);
     const [roles, setRoles] = useState([]);
-    const [moreToShow, setMoreToShow] = useState(false);
-    const [noResults, setNoResults] = useState(false);// eslint-disable-line no-unused-vars
-    const [filterOptions, setFilterOptions] = useState([]);
-    const [filterValue, setFilterValue] = useState(null);
+    const [paginationQueryParams, setPaginationQueryParams] = useState({
+        query: "",
+        pageNumber: 0,
+        pageSize: pageCount,
+        sort: "name",
+        sortDirect: "ASC"
+    });
+    const [pageResult, setPageResult] = useState({});
 
     useEffect(() => {
         if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
-            if (roleSearchRequired) {
-                setLoading(false);
-            } else {
-                rolesByApplication()
+            rolesByApplication(false, paginationQueryParams)
                     .then(res => {
                         const newRoles = markAndFilterRoles(
                             user,
-                            distinctValues(res, "id"),
+                            distinctValues(res.content, "id"),
                             I18n.locale,
                             I18n.t("roles.multiple"),
                             I18n.t("forms.and"));
                         setRoles(newRoles);
-                        initFilterValues(newRoles);
                         setLoading(false);
+                        setPageResult(extractPageResultFromServerResult(res));
                     })
-            }
         } else {
             const newRoles = markAndFilterRoles(user, [], I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
             setRoles(newRoles);
-            initFilterValues(newRoles);
             setLoading(false);
         }
-    }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
-
-    const initFilterValues = res => {
-        const userRoles = res.filter(role => !(role.isUserRole && role.authority === "GUEST"));
-        const newFilterOptions = [{
-            label: I18n.t("invitations.statuses.all", {nbr: userRoles.length}),
-            value: allValue
-        }];
-        const reducedRoles = userRoles.reduce((acc, role) => {
-            const manageIdentifiers = role.applicationMaps.map(m => m.id);
-            const option = acc.find(opt => manageIdentifiers.includes(opt.manageId));
-            if (option) {
-                ++option.nbr;
-            } else {
-                role.applicationMaps
-                    .forEach(app => acc.push({manageId: app.id, nbr: 1, name: app[`name:${I18n.locale}`] || app["name:en"]}))
-            }
-            return acc;
-        }, []);
-        const appOptions = reducedRoles.map(option => ({
-            label: `${option.name} (${option.nbr})`,
-            value: option.manageId
-        })).sort((o1, o2) => o1.label.localeCompare(o2.label));
-
-        setFilterOptions(newFilterOptions.concat(appOptions));
-        setFilterValue(newFilterOptions[0]);
-    }
+    }, [user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const openRole = (e, role) => {
         const id = role.isUserRole ? role.role.id : role.id;
@@ -93,35 +63,23 @@ export const Roles = () => {
         }
     };
 
-    const search = query => {
+    const search = (query, sorted, reverse, page) => {
         if (!isEmpty(query) && query.trim().length > 2) {
             setSearching(true);
-            delayedAutocomplete(query);
-        }
-        if (isEmpty(query)) {
-            setSearching(false);
-            setMoreToShow(false);
-            setNoResults(false);
-            setRoles([]);
+            delayedAutocomplete(query, sorted, reverse, page);
         }
     };
 
-    const delayedAutocomplete = debounce(query => {
-        searchRoles(query)
-            .then(res => {
-                setRoles(markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and")));
-                setMoreToShow(res.length === 15);
-                setNoResults(res.length === 0);
-                setSearching(false);
-            });
-    }, 500);
-
-    const moreResultsAvailable = () => {
-        return (
-            <div className="more-results-available">
-                <span>{I18n.t("users.moreResults")}</span>
-            </div>)
-    }
+    const delayedAutocomplete = debounce((query, sorted, reverse, page) => {
+        //this will trigger a new search
+        setPaginationQueryParams({
+            query: query,
+            pageNumber: page,
+            pageSize: pageCount,
+            sort: sorted,
+            sortDirect: reverse ? "ASC" : "DESC"
+        })
+    }, 375);
 
     const noRolesInstitutionAdmin = () => {
         const institution = user.institution;
@@ -138,22 +96,6 @@ export const Roles = () => {
         );
     }
 
-    const filter = () => {
-        return (
-            <div className="roles-filter">
-                <Select
-                    className={"roles-filter-select"}
-                    value={filterValue}
-                    classNamePrefix={"filter-select"}
-                    onChange={option => setFilterValue(option)}
-                    options={filterOptions}
-                    isSearchable={false}
-                    isClearable={false}
-                />
-            </div>
-        );
-    }
-
     const columns = [
         {
             nonSortable: true,
@@ -165,6 +107,7 @@ export const Roles = () => {
                 </div>
         },
         {
+            nonSortable: true,
             key: "applicationName",
             header: I18n.t("roles.applicationName"),
             mapper: role => role.unknownInManage ?
@@ -187,6 +130,7 @@ export const Roles = () => {
             mapper: role => <span className={"cut-of-lines"}>{role.description}</span>
         },
         {
+            nonSortable: true,
             key: "authority",
             header: I18n.t("roles.authority"),
             mapper: role => <Chip type={chipTypeForUserRole(role.authority)}
@@ -217,18 +161,14 @@ export const Roles = () => {
         )
     }
 
-    const filteredRoles = filterValue.value === allValue ? roles :
-        roles.filter(role => role.applicationMaps.map(m => m.id).includes(filterValue.value));
-
     return (
         <div className={"mod-roles"}>
-            {moreToShow && moreResultsAvailable()}
             {(isGuest && !user.institutionAdmin) && <p className={"guest-only"}
                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
             {(isGuest && user.institutionAdmin) && <p className={"guest-only"}
                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.noRolesNoApplicationsInstitutionAdmin"))}}/>}
             {!isGuest && <Entities
-                entities={isSuperUser ? filteredRoles : filteredRoles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
+                entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
                 modelName="roles"
                 showNew={isManager}
                 newLabel={I18n.t("roles.new")}
@@ -240,11 +180,12 @@ export const Roles = () => {
                 loading={false}
                 inputFocus={true}
                 hideTitle={false}
-                filters={filter(filterOptions, filterValue)}
-                customSearch={roleSearchRequired && isSuperUser ? search : null}
+                customSearch={isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN) ? search : null}
+                pagination={}
                 rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                 rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
-                busy={searching}/>}
+                busy={searching}
+            />}
         </div>
     );
 

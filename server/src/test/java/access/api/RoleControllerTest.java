@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.DefaultPage;
 import access.manage.EntityType;
 import access.model.Application;
 import access.model.ApplicationUsage;
@@ -10,6 +11,7 @@ import access.model.Role;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -227,27 +229,20 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
-    void rolesByApplication() throws Exception {
-        //Because the user is changed and provisionings are queried
-        stubForManageProvisioning(List.of());
-        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
-        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
-        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+    void rolesByApplicationInstitutionAdminByAPI() throws Exception {
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
-
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
-
-        List<Role> roles = given()
+        DefaultPage<Role> page = given()
                 .when()
-                .filter(accessCookieFilter.cookieFilter())
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
                 .accept(ContentType.JSON)
-                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .get("/api/v1/roles")
+                .get("/api/external/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, roles.size());
+        assertEquals(2, page.getTotalElements());
     }
 
     @Test
@@ -259,34 +254,124 @@ class RoleControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
-        List<Role> roles = given()
+
+        DefaultPage<Role> page = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", true)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
+        assertEquals(2, page.getTotalElements());
+        List<Role> roles = page.getContent();
         assertEquals(2, roles.size());
+        roles.forEach(role -> assertEquals(ORGANISATION_GUID, role.getOrganizationGUID()));
     }
 
     @Test
     void rolesByApplicationSuperUser() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
-        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
+        //Because the user is changed and provisionings are queried
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
 
-        List<Role> roles = given()
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Role> page = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", true)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(6, roles.size());
+        assertEquals(roleRepository.count(), page.getTotalElements());
+    }
+
+    @Test
+    void rolesByApplicationSuperUserPagination() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Role> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", false)
+                .queryParam("query", "desc")
+                .queryParam("pageNumber", 2)
+                .queryParam("pageSize", 2)
+                .queryParam("sort", "description")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(roleRepository.count(), page.getTotalElements());
+        assertEquals(2, page.getPageable().getPageSize());
+        assertEquals(2, page.getPageable().getPageNumber());
+        List<Role> roles = page.getContent();
+        assertEquals(List.of("Mail","Network"), roles.stream().map(Role::getName).sorted().toList());
+        Role network = roles.stream().filter(r -> r.getName().equals("Network")).findFirst().get();
+        assertEquals("https://default-url-network.org", network.getApplicationMaps().getFirst().get("url"));
+    }
+
+    @Test
+    void rolesByApplicationSuperUserPaginationMultipleApplications() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Role> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", false)
+                .queryParam("query", "stora")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 10)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, page.getTotalElements());
+        assertEquals(10, page.getPageable().getPageSize());
+        assertEquals(0, page.getPageable().getPageNumber());
+        assertEquals(2, page.getContent().getFirst().getApplicationMaps().size());
+    }
+
+    @Test
+    void deleteRoleWithAPI() throws Exception {
+        Role role = roleRepository.search("network", 1).get(0);
+        //Ensure delete provisioning is done
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
+        Application application = role.applicationsUsed().iterator().next();
+        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        super.stubForManageProvisioning(List.of(application.getManageId()));
+        super.stubForDeleteScimRole();
+
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .contentType(ContentType.JSON)
+                .pathParams("id", role.getId())
+                .delete("/api/external/v1/roles/{id}")
+                .then()
+                .statusCode(204);
+        assertEquals(0, roleRepository.search("network", 1).size());
     }
 
     @Test
@@ -334,25 +419,6 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
-    void search() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
-        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
-
-        List<Role> roles = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
-                .contentType(ContentType.JSON)
-                .queryParam("query", "desc")
-                .get("/api/v1/roles/search")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(6, roles.size());
-    }
-
-    @Test
     void roleByIdForbidden() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
@@ -388,51 +454,11 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
-    void rolesByApplicationInstitutionAdminByAPI() throws Exception {
-        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
-        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
-        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
-
-        List<Role> roles = given()
-                .when()
-                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .get("/api/external/v1/roles")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(2, roles.size());
-    }
-
-    @Test
-    void deleteRoleWithAPI() throws Exception {
-        Role role = roleRepository.search("network", 1).get(0);
-        //Ensure delete provisioning is done
-        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
-        Application application = role.applicationsUsed().iterator().next();
-        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
-        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
-        super.stubForManageProvisioning(List.of(application.getManageId()));
-        super.stubForDeleteScimRole();
-
-        given()
-                .when()
-                .accept(ContentType.JSON)
-                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
-                .contentType(ContentType.JSON)
-                .pathParams("id", role.getId())
-                .delete("/api/external/v1/roles/{id}")
-                .then()
-                .statusCode(204);
-        assertEquals(0, roleRepository.search("network", 1).size());
-    }
-
-    @Test
     void rolesByApplicationSuperUserWithAPIToken() {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
         super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
 
-        List<Role> roles = given()
+        DefaultPage<Role> page = given()
                 .when()
                 .accept(ContentType.JSON)
                 .header(API_TOKEN_HEADER, API_TOKEN_SUPER_USER_HASH)
@@ -440,7 +466,7 @@ class RoleControllerTest extends AbstractTest {
                 .get("/api/external/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(6, roles.size());
+        assertEquals(6, page.getTotalElements());
     }
 
     @Test

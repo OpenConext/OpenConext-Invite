@@ -25,7 +25,7 @@ const Applications = () => {
                 navigate("/404");
                 return;
             }
-            Promise.all([allApplications(), rolesByApplication()])
+            Promise.all([allApplications(), rolesByApplication(true)])
                 .then(res => {
                     const mergedApps = mergeProvidersProvisioningsRoles(res[0].providers, res[0].provisionings, res[1]);
                     setApplications(mergedApps);

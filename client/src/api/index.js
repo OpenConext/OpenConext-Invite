@@ -1,6 +1,7 @@
 import {isEmpty} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import {useAppStore} from "../stores/AppStore";
+import {paginationQueryParams} from "../utils/Pagination";
 
 //Internal API
 function validateResponse(showErrorDialog) {
@@ -158,8 +159,10 @@ export function organizationGUIDValidation(organizationGUID) {
 }
 
 //Roles
-export function rolesByApplication() {
-    return fetchJson("/api/v1/roles");
+export function rolesByApplication(force=true, pagination={}) {
+    const queryPart = paginationQueryParams({force: !!force}, pagination)
+    debugger;
+    return fetchJson(`/api/v1/roles?${queryPart}`);
 }
 
 export function rolesPerApplicationManageId(manageId) {
@@ -180,10 +183,6 @@ export function updateRole(role) {
 
 export function deleteRole(role) {
     return fetchDelete(`/api/v1/roles/${role.id}`, false);
-}
-
-export function searchRoles(query) {
-    return fetchJson(`/api/v1/roles/search?query=${query}`);
 }
 
 //User roles

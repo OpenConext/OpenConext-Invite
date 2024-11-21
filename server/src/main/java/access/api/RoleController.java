@@ -13,15 +13,16 @@ import access.repository.ApplicationRepository;
 import access.repository.ApplicationUsageRepository;
 import access.repository.RoleRepository;
 import access.security.UserPermissions;
-import access.validation.URLFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,27 +55,24 @@ public class RoleController implements ApplicationResource {
     private final ApplicationUsageRepository applicationUsageRepository;
     private final Manage manage;
     private final ProvisioningService provisioningService;
-    private final URLFormatValidator urlFormatValidator = new URLFormatValidator();
-    private final boolean limitInstitutionAdminRoleVisibility;
     private final RoleOperations roleOperations;
 
     public RoleController(RoleRepository roleRepository,
                           ApplicationRepository applicationRepository,
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
-                          ProvisioningService provisioningService,
-                          @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility) {
+                          ProvisioningService provisioningService) {
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
         this.manage = manage;
         this.provisioningService = provisioningService;
-        this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
         this.roleOperations = new RoleOperations(this);
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) User user,
+    public ResponseEntity<Page<Role>> rolesByApplication(@Parameter(hidden = true) User user,
+                                                         @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
                                                          @RequestParam(value = "query", required = false, defaultValue = "") String query,
                                                          @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                                                          @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
@@ -83,51 +81,27 @@ public class RoleController implements ApplicationResource {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> page;
-
-
         if (user.isSuperUser()) {
+            if (force) {
+                List<Role> roles = manage.addManageMetaData(roleRepository.findAll());
+                return Pagination.of(roles, sortDirection, sort);
+            }
             Page<Map<String, Object>> rolesPage = StringUtils.hasText(query) ?
                     roleRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
                             roleRepository.searchByPage( pageable);
-            //Because of the one-to-many relation between Role and ApplicationUsage we need to group by
-            Map<Long, List<Map<String, Object>>> groupById = rolesPage.getContent().stream()
-                    .collect(Collectors.groupingBy(m -> (Long) m.get("id")));
-
-
-//            manage.addManageMetaDataAfterRawSearch(roles.getContent())
-            return null;//ResponseEntity.ok();
+            List<Role> roles = manage.addManageMetaData(Role.roleFromQuery(rolesPage));
+            return Pagination.of(rolesPage, roles);
         }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-
-        if (limitInstitutionAdminRoleVisibility) {
-            List<Role> roles = roleRepository.findByOrganizationGUID(user.getOrganizationGUID());
-            return ResponseEntity.ok(manage.addManageMetaData(roles));
-        }
-
-        Set<String> manageIdentifiers = new HashSet<>();
-        if (user.isInstitutionAdmin()) {
-            Set<String> applicationManageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
-            manageIdentifiers.addAll(applicationManageIdentifiers);
-        }
-
-        Set<String> roleManageIdentifiers = user.getUserRoles().stream()
-                //If the user has an userRole as Inviter, then we must exclude those
-                .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
-                .map(userRole -> userRole.getRole().applicationsUsed())
-                .flatMap(Collection::stream)
-                .map(Application::getManageId)
-                .collect(Collectors.toSet());
-        manageIdentifiers.addAll(roleManageIdentifiers);
-
-        List<Role> roles = new ArrayList<>();
-        manageIdentifiers.forEach(manageId -> roles.addAll(roleRepository.findByApplicationUsagesApplicationManageId(manageId)));
-        return ResponseEntity.ok(manage.addManageMetaData(roles));
+        //We don't use the actual pagination here, as the result is limited enough
+        List<Role> roles = manage.addManageMetaData(roleRepository.findByOrganizationGUID(user.getOrganizationGUID()));
+        return Pagination.of(roles, sortDirection, sort);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<Role> role(@PathVariable("id") Long id,@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
+
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         manage.addManageMetaData(List.of(role));
@@ -137,6 +111,7 @@ public class RoleController implements ApplicationResource {
     @GetMapping("/application/{manageId}")
     public ResponseEntity<List<Role>> rolesPerApplicationId(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/rolesPerApplicationId for user %s", user.getEduPersonPrincipalName()));
+
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
 
         if (!user.isSuperUser()) {
@@ -157,15 +132,6 @@ public class RoleController implements ApplicationResource {
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
-
-    @GetMapping("search")
-    public ResponseEntity<List<Role>> search(@RequestParam(value = "query") String query,
-                                             @Parameter(hidden = true) User user) {
-        LOG.debug("/search");
-        UserPermissions.assertSuperUser(user);
-        List<Role> roles = roleRepository.search(FullSearchQueryParser.parse(query), 15);
-        return ResponseEntity.ok(manage.addManageMetaData(roles));
-    }
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
@@ -200,7 +166,7 @@ public class RoleController implements ApplicationResource {
         manage.addManageMetaData(List.of(role));
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
 
-        if (limitInstitutionAdminRoleVisibility && !user.isSuperUser() &&
+        if (!user.isSuperUser() &&
                 !Objects.equals(user.getOrganizationGUID(), role.getOrganizationGUID())) {
             throw new UserRestrictionException();
         }

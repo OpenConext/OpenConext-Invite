@@ -123,7 +123,6 @@ config:
   eduid-idp-schac-home-organization: "test.eduid.nl"
 
 feature:
-  limit-institution-admin-role-visibility: True
   enable-performance-seed: False
 
 # We don't encode in-memory passwords, so we need to prefix them with {noop}

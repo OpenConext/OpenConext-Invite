@@ -26,7 +26,7 @@ export const Entities = ({
                              hideTitle,
                              onHover,
                              actionHeader = "",
-                             pagination = true,
+                             pagination = {},
                              showActionsAlways,
                              displaySearch = true,
                              searchCallback,
@@ -67,14 +67,7 @@ export const Entities = ({
     const queryChanged = e => {
         const newQuery = e.target.value;
         setQuery(newQuery);
-        if (customSearch) {
-            customSearch(newQuery);
-            setInitial(false);
-        }
-        if (searchCallback) {
-            const searchResult = filterEntities(newQuery);
-            searchCallback(searchResult);
-        }
+        callCustomSearch(newQuery, sorted, reverse, pagination.currentPage);
     }
 
     const renderSearch = () => {
@@ -125,7 +118,20 @@ export const Entities = ({
     const setSortedKey = key => {
         const reversed = (sorted === key ? !reverse : false);
         setSorted(key);
-        setReverse(reversed)
+        setReverse(reversed);
+        callCustomSearch(query, key, reversed, pagination.currentPage);
+    }
+
+    const callCustomSearch = (newQuery, newSorted, newReversed, newPage) => {
+        if (customSearch) {
+            customSearch(newQuery, newSorted, newReversed, newPage);
+            setInitial(false);
+        }
+        if (searchCallback) {
+            const searchResult = filterEntities(query);
+            searchCallback(searchResult);
+        }
+
     }
 
     const getEntityValue = (entity, column) => {
@@ -160,10 +166,8 @@ export const Entities = ({
         const hasEntities = !isEmpty(sortedEntities);
         const customEmptySearch = customSearch && (isEmpty(query) || query.trim().length < 3);
         const total = sortedEntities.length;
-        if (pagination) {
-            const minimalPage = Math.min(page, Math.ceil(sortedEntities.length / pageCount));
-            sortedEntities = sortedEntities.slice((minimalPage - 1) * pageCount, minimalPage * pageCount);
-        }
+        const minimalPage = Math.min(page, Math.ceil(sortedEntities.length / pageCount));
+        sortedEntities = sortedEntities.slice((minimalPage - 1) * pageCount, minimalPage * pageCount);
         return (
             <section className="entities-list">
                 {(actions && (showActionsAlways || hasEntities)) && <div className={`actions-header ${actionHeader}`}>
@@ -195,10 +199,16 @@ export const Entities = ({
                     </div>}
                 {(!hasEntities && !initial && !customEmptySearch && !loading) &&
                     <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
-                {pagination && <Pagination currentPage={page}
-                                           onChange={nbr => setPage(nbr)}
-                                           total={total}
-                                           pageCount={pageCount}/>}
+                <Pagination currentPage={isEmpty(pagination) ? page : pagination.currentPage + 1}
+                            onChange={nbr => {
+                                if (isEmpty(pagination)) {
+                                    setPage(nbr);
+                                } else {
+                                    callCustomSearch(query, sorted, reverse, nbr);
+                                }
+                            }}
+                            total={pagination.total || total}
+                            pageCount={pagination.pageCount || pageCount}/>
             </section>
         );
     };

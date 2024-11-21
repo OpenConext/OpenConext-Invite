@@ -25,7 +25,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,7 +65,6 @@ public class UserController {
     private final ObjectMapper objectMapper;
     private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
     private final GraphClient graphClient;
-    private final boolean limitInstitutionAdminRoleVisibility;
     private final RoleRepository roleRepository;
 
 
@@ -77,14 +79,13 @@ public class UserController {
                           @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
                           @Value("${config.server-url}") String serverBaseURL,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix,
-                          @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility, RoleRepository roleRepository) {
+                          RoleRepository roleRepository) {
         this.invitationRepository = invitationRepository;
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
-        this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
         this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
         this.roleRepository = roleRepository;
     }
@@ -164,17 +165,12 @@ public class UserController {
         LOG.debug(String.format("/searchByApplication for user %s and query %s", user.getEduPersonPrincipalName(), query));
 
         UserPermissions.assertInstitutionAdmin(user);
-        List<String> manageIdentifiers;
-        if (limitInstitutionAdminRoleVisibility) {
-            manageIdentifiers = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
+        List<String> manageIdentifiers = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
                     .stream()
                     .map(role -> role.getApplicationUsages())
                     .flatMap(Set::stream)
                     .map(applicationUsage -> applicationUsage.getApplication().getManageId())
                     .toList();
-        } else {
-            manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList());
-        }
         List<Map<String, Object>> results = query.equals("owl") ?
                 userRepository.searchByApplicationAllUsers(manageIdentifiers) :
                 userRepository.searchByApplication(manageIdentifiers, FullSearchQueryParser.parse(query), 15);

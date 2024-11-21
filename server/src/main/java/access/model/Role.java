@@ -1,5 +1,6 @@
 package access.model;
 
+import access.manage.EntityType;
 import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -147,25 +148,27 @@ public class Role implements Serializable, Provisionable {
 
     //See RoleRepository#searchByPage
     public static List<Role> roleFromQuery(Page<Map<String, Object>> rolesPage) {
-        Map<Long, List<Map<String, Object>>> groupedById = rolesPage.getContent().stream()
+        Map<Long, List<Map<String, Object>>> groupedById = rolesPage
+                .getContent()
+                .stream()
                 .collect(Collectors.groupingBy(m -> (Long) m.get("id")));
-        groupedById.entrySet().stream().map(entry ->
-                new Role(entry.getKey(),
-                        //We can use the first because name, description and user_role_count will be the same
-                        (String)entry.getValue().getFirst().get("name"),
-                (String)entry.getValue().getFirst().get("description"),
-                        (Long)entry.getValue().getFirst().get("user_role_count"),
-                        entry.getValue().stream()
-                                .map(m -> new ApplicationUsage())
+        //We can use the first because name, description and user_role_count will be the same
+        return groupedById.entrySet().stream()
+                .map(entry ->
+                        new Role(entry.getKey(),
+                                //We can use the first because name, description and user_role_count will be the same
+                                (String) entry.getValue().getFirst().get("name"),
+                                (String) entry.getValue().getFirst().get("description"),
+                                (Long) entry.getValue().getFirst().get("user_role_count"),
+                                entry.getValue().stream()
+                                        .map(m -> new ApplicationUsage(
+                                                new Application(
+                                                        (String) m.get("manage_id"),
+                                                        EntityType.valueOf((String) m.get("manage_type"))),
+                                                null))
+                                        .collect(Collectors.toSet())
                         )
-
-                        )
-        Role role = new Role();
-        role.setId((Long) queryResults.get("id"));
-        role.setName((String) queryResults.get("name"));
-        return null;
+                ).toList();
     }
-
-
 
 }

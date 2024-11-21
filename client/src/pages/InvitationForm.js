@@ -66,7 +66,7 @@ export const InvitationForm = () => {
             return;
         }
         if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
-            rolesByApplication()
+            rolesByApplication(true)
                 .then(res => {
                     const markedRoles = markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
                     setInitialRole(markedRoles);

@@ -47,16 +47,14 @@ public class ManageController {
 
     private final Manage manage;
     private final ApplicationRepository applicationRepository;
-    private final boolean limitInstitutionAdminRoleVisibility;
     private final RoleRepository roleRepository;
 
     @Autowired
     public ManageController(Manage manage,
                             ApplicationRepository applicationRepository,
-                            @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility, RoleRepository roleRepository) {
+                            RoleRepository roleRepository) {
         this.manage = manage;
         this.applicationRepository = applicationRepository;
-        this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
         this.roleRepository = roleRepository;
     }
 
@@ -91,22 +89,18 @@ public class ManageController {
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         LOG.debug("/applications");
+
         UserPermissions.assertInstitutionAdmin(user);
         List<Application> applications;
         if (user.isSuperUser()) {
             applications = applicationRepository.findAll();
         } else {
-            applications = limitInstitutionAdminRoleVisibility ?
-                    roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
+            applications = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
                             .stream()
                             .map(role -> role.getApplicationUsages())
                             .flatMap(Set::stream)
                             .map(applicationUsage -> applicationUsage.getApplication())
-                            .toList()
-                    :
-                    applicationRepository.findByManageIdIn(user.getApplications()
-                            .stream()
-                            .map(application -> (String) application.get("id")).collect(Collectors.toList()));
+                            .toList();
         }
         Map<EntityType, List<Application>> groupedByManageType = applications.stream().collect(Collectors.groupingBy(Application::getManageType));
 
