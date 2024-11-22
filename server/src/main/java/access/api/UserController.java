@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.model.UserRoles.timeStampToInstant;
 
 @RestController
 @RequestMapping(value = {"/api/v1/users", "/api/external/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -149,8 +150,7 @@ public class UserController {
     }
 
     @GetMapping("search-by-application")
-    public ResponseEntity<List<UserRoles>> searchByApplication(@Parameter(hidden = true) User user,
-                                                               @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
+    public ResponseEntity<Page<UserRoles>> searchByApplication(@Parameter(hidden = true) User user,
                                                                @RequestParam(value = "query", required = false, defaultValue = "") String query,
                                                                @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                                                                @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
@@ -161,25 +161,12 @@ public class UserController {
         UserPermissions.assertInstitutionAdmin(user);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ?
-                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-                userRepository.searchByPage(pageable);
-
-
-        List<String> manageIdentifiers = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
-                    .stream()
-                    .map(role -> role.getApplicationUsages())
-                    .flatMap(Set::stream)
-                    .map(applicationUsage -> applicationUsage.getApplication().getManageId())
-                    .toList();
-        List<Map<String, Object>> = userRepository.searchByApplicationAllUsers(manageIdentifiers) :
-                userRepository.searchByApplication(manageIdentifiers, FullSearchQueryParser.parse(query), 15);
-        //There are duplicate users in the results, need to group by ID, but keep the results ordered
-
-        Map<Long, List<Map<String, Object>>> groupedBy = results.stream().collect(Collectors.groupingBy(map -> (Long) map.get("id")));
-        List<UserRoles> userRoles = groupedBy.values().stream()
-                .map(UserRoles::new)
-                .toList();
-        return ResponseEntity.ok(userRoles);
+                userRepository.searchByPageRoleUsersWithKeyWord(user.getOrganizationGUID(), FullSearchQueryParser.parse(query), pageable) :
+                userRepository.searchByPageRoleUsers(user.getOrganizationGUID(), pageable);
+        List<Long> userIdentifiers = usersPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
+        List<Map<String, Object>> userRoles = userRepository.findUserRoles(userIdentifiers);
+        List<UserRoles> userRoleList = this.userRoleFromQuery(usersPage, userRoles);
+        return Pagination.of(usersPage, userRoleList);
     }
 
     @GetMapping("login")
@@ -252,6 +239,28 @@ public class UserController {
         if (!missingAttributes.isEmpty()) {
             result.withMissingAttributes(missingAttributes);
         }
+    }
+
+    //See UserRepository#
+    private List<UserRoles> userRoleFromQuery(Page<Map<String, Object>> usersPage, List<Map<String, Object>> userRoles) {
+        List<UserRoles> userRoleList = usersPage.getContent().stream().map(UserRoles::new).toList();
+        //Now add all applications, note that we need to preserve ordering of the roles
+        Map<Long, List<Map<String, Object>>> userRolesGroupedByUser =
+                userRoles.stream().collect(Collectors.groupingBy(m -> (Long) m.get("user_id")));
+
+        userRoleList.forEach(userRole -> {
+            //Find all userRoles with this user id
+            List<RoleSummary> roleSummaries = userRolesGroupedByUser.get(userRole.getId()).stream()
+                    .map(m -> new RoleSummary(
+                            (Long)m.get("id"),
+                            (String) m.get("name"),
+                            (String) m.get("authority"),
+                            timeStampToInstant(m,"end_date")
+                    ))
+                    .toList();
+            userRole.setRoleSummaries(roleSummaries);
+        });
+        return userRoleList;
     }
 
 

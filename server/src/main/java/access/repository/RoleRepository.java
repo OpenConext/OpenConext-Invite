@@ -46,10 +46,23 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageWithKeyword(String keyword, Pageable pageable);
 
+
+    @Query(value = """
+            SELECT r.id as id, r.name as name, r.description as description,
+                (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount
+            FROM roles r WHERE r.organization_guid = ?1
+            """,
+            countQuery = """
+                    SELECT COUNT(r.id) FROM roles r WHERE r.organization_guid = ?1
+                    """,
+            queryRewriter = RoleRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPageAndOrganizationGUID(String organizationGUID, Pageable pageable);
+
     @Query(value = """
             SELECT r.id as role_id, a.manage_id as manage_id, a.manage_type as manage_type
             FROM applications a INNER JOIN application_usages au on au.application_id = a.id
-            INNER JOIN roles r on au.role_id = r.id WHERE r.id in ?1 
+            INNER JOIN roles r on au.role_id = r.id WHERE r.id in ?1
             """,
             nativeQuery = true)
     List<Map<String, Object>> findApplications(List<Long> roleIdentifiers);

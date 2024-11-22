@@ -55,14 +55,5 @@ class UserRepositoryTest extends AbstractTest {
         assertEquals(1, users.getContent().size());
     }
 
-    @Test
-    void searchByApplication() {
-        List<String> manageIdentifiers = IntStream.range(1, 7).boxed().map(String::valueOf).collect(Collectors.toList());
-        List<Map<String, Object>> results = userRepository.searchByApplication(manageIdentifiers, "exam*", 3);
-        assertEquals(3, results.size());
-        List<Map<String, Object>> converted = objectMapper.convertValue(results, new TypeReference<>() {
-        });
-        assertEquals(3, converted.size());
-    }
 
 }

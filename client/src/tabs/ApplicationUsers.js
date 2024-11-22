@@ -17,9 +17,7 @@ export const ApplicationUsers = () => {
 
     const [searching, setSearching] = useState(false);
     const [users, setUsers] = useState([]);
-    const [moreToShow, setMoreToShow] = useState(false);
-    const [initial, setInitial] = useState(true);
-    const [noResults, setNoResults] = useState(false);
+    const [totalElements, setTotalElements] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,39 +32,25 @@ export const ApplicationUsers = () => {
     }
 
     const search = query => {
-        if (!isEmpty(query) && query.trim().length > 0) {
+        if (isEmpty(query) || query.trim().length > 2) {
             delayedAutocomplete(query);
-        }
-        if (isEmpty(query)) {
-            setSearching(false);
-            setMoreToShow(false);
-            setNoResults(false);
-            setUsers([]);
         }
     };
 
     const delayedAutocomplete = useMemo(() => debounce(query => {
         setSearching(true);
         searchUsersByApplication(query)
-            .then(results => {
+            .then(page => {
                 setInitial(false);
+                const results = page.content;
                 results.forEach(user => user.endDate = user.roleSummaries
                     .reduce((acc, rs) => Math.min(rs.endDate || Number.MAX_VALUE, acc), Number.MAX_VALUE));
                 results.forEach(user => user.roleSummaries
                     .sort((r1, r2) => (r1.endDate || Number.MAX_VALUE) - (r2.endDate || Number.MAX_VALUE)));
                 setUsers(results);
-                setMoreToShow(results.length === 15);
-                setNoResults(results.length === 0);
                 setSearching(false);
             });
     }, 500), []);
-
-    const moreResultsAvailable = () => {
-        return (
-            <div className="more-results-available">
-                <span>{I18n.t("users.moreResults")}</span>
-            </div>)
-    }
 
     const columns = [
         {
@@ -137,21 +121,12 @@ export const ApplicationUsers = () => {
         <Entities entities={users}
                   modelName="users"
                   defaultSort="name"
-                  filters={moreToShow && moreResultsAvailable()}
                   columns={columns}
                   title={title}
-                  hideTitle={!hasEntities || noResults}
-                  customNoEntities={I18n.t(`users.noResults`)}
-                  loading={false}
-                  searchAttributes={["name", "email", "schacHomeOrganization"]}
+                  totalElements={totalElements}
                   inputFocus={true}
                   customSearch={search}
-            // rowLinkMapper={openUser}
-                  busy={searching}>
-            {initial && <div className={"image-container"}>
-                <img src={SearchSvg} alt="search"/>
-            </div>}
-        </Entities>
+                  busy={searching}/>
     </div>)
 
 }

@@ -611,6 +611,7 @@ public abstract class AbstractTest {
         //These roles will be accessible for the institution admin based
         network.setOrganizationGUID(ORGANISATION_GUID);
         research.setOrganizationGUID(ORGANISATION_GUID);
+        wiki.setOrganizationGUID(ORGANISATION_GUID);
 
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 

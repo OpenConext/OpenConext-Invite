@@ -99,8 +99,9 @@ export function searchUsers(query) {
     return fetchJson(`/api/v1/users/search?query=${query}`);
 }
 
-export function searchUsersByApplication(query) {
-    return fetchJson(`/api/v1/users/search-by-application?query=${query}`);
+export function searchUsersByApplication(pagination={}) {
+    const queryPart = paginationQueryParams(pagination, {})
+    return fetchJson(`/api/v1/users/search-by-application?${queryPart}`);
 }
 
 export function csrf() {

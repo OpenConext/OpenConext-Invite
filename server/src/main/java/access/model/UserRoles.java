@@ -1,6 +1,8 @@
 package access.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -16,27 +18,20 @@ public class UserRoles {
     private final String schacHomeOrganization;
     private final Instant createdAt;
     private final Instant lastActivity;
-    private final List<RoleSummary> roleSummaries;
+    @Setter
+    private List<RoleSummary> roleSummaries;
 
-    public UserRoles(List<Map<String, Object>> roles) {
-        assert !roles.isEmpty();
-        Map<String, Object> map = roles.get(0);
-        this.id = (Long) map.get("id");
-        this.name = (String) map.get("name");
-        this.email = (String) map.get("email");
-        this.schacHomeOrganization = (String) map.get("schac_home_organization");
-        this.createdAt = timeStampToInstant(map, "created_at");
-        this.lastActivity = timeStampToInstant(map, "last_activity");
-        this.roleSummaries = roles.stream()
-                .map(summary -> new RoleSummary(
-                        (Long) summary.get("role_id"),
-                        (String) summary.get("role_name"),
-                        (String) summary.get("authority"),
-                        timeStampToInstant(summary, "end_date"))
-                ).toList();
+    public UserRoles(Map<String, Object> userMap) {
+        this.id = (Long) userMap.get("id");
+        this.name = (String) userMap.get("name");
+        this.email = (String) userMap.get("email");
+        this.schacHomeOrganization = (String) userMap.get("schac_home_organization");
+        this.createdAt = timeStampToInstant(userMap, "created_at");
+        this.lastActivity = timeStampToInstant(userMap, "last_activity");
     }
 
-    private Instant timeStampToInstant(Map<String, Object> map, String key) {
+    @JsonIgnore
+    public static Instant timeStampToInstant(Map<String, Object> map, String key) {
         Timestamp timeStamp = (Timestamp) map.get(key);
         return timeStamp != null ? timeStamp.toInstant() : null;
     }

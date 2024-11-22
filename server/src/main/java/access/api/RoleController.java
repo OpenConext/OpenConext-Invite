@@ -81,8 +81,8 @@ public class RoleController implements ApplicationResource {
                                                          @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
 
+        Page<Map<String, Object>> rolesPage;
         if (user.isSuperUser()) {
-            Page<Map<String, Object>> rolesPage;
             if (force) {
                 Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.fromString(sortDirection), sort));
                 rolesPage = roleRepository.searchByPage( pageable);
@@ -92,15 +92,16 @@ public class RoleController implements ApplicationResource {
                         roleRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
                         roleRepository.searchByPage( pageable);
             }
-            List<Long> roleIdentifiers = rolesPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
-            List<Map<String, Object>> applications = roleRepository.findApplications(roleIdentifiers);
-            List<Role> roles = manage.addManageMetaData(this.roleFromQuery(rolesPage, applications));
-            return Pagination.of(rolesPage, roles);
+        } else {
+            UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+            Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+            rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
+
         }
-        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-        //We don't use the actual pagination here, as the result is limited enough
-        List<Role> roles = manage.addManageMetaData(roleRepository.findByOrganizationGUID(user.getOrganizationGUID()));
-        return Pagination.of(roles, sortDirection, sort);
+        List<Long> roleIdentifiers = rolesPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
+        List<Map<String, Object>> applications = roleRepository.findApplications(roleIdentifiers);
+        List<Role> roles = manage.addManageMetaData(this.roleFromQuery(rolesPage, applications));
+        return Pagination.of(rolesPage, roles);
     }
 
     @GetMapping("{id}")

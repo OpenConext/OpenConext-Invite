@@ -5,7 +5,10 @@ import access.AccessCookieFilter;
 import access.DefaultPage;
 import access.exception.NotFoundException;
 import access.manage.EntityType;
-import access.model.*;
+import access.model.Authority;
+import access.model.RemoteProvisionedUser;
+import access.model.User;
+import access.model.UserRole;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -336,16 +339,20 @@ class UserControllerTest extends AbstractTest {
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
-        List<Map<String, Object>> users = given()
+        DefaultPage<Map<String, Object>> usersPage = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .queryParam("query", "Doe")
+                .queryParam("query", "doe")
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, users.size());
+        assertEquals(3, usersPage.getTotalElements());
+        assertEquals(3, usersPage.getContent().size());
+        //Sorted by name default
+        List<String> names = usersPage.getContent().stream().map(m -> (String) m.get("name")).toList();
+        assertEquals(List.of("Ann Doe", "James Doe", "Mary Doe"), names);
     }
 
     @Test
@@ -354,16 +361,17 @@ class UserControllerTest extends AbstractTest {
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
-        List<Map<String, Object>> users = given()
+        DefaultPage<Map<String, Object>> usersPage = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .queryParam("query", "owl")
+                .queryParam("pageSize", 1)
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, users.size());
+        assertEquals(4, usersPage.getTotalElements());
+        assertEquals(1, usersPage.getContent().size());
     }
 
     @Test
@@ -404,21 +412,6 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/other/{id}")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    void searchOwl() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-
-        List<User> users = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .get("/api/v1/users/search")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(6, users.size());
     }
 
     @Test

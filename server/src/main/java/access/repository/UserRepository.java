@@ -27,22 +27,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByLastActivityBefore(Instant instant);
 
-    @Query(value = "SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity, " +
-            "ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date " +
-            "FROM users u " +
-            "INNER JOIN user_roles ur ON ur.user_id = u.id " +
-            "INNER JOIN roles r ON r.id = ur.role_id " +
-            "INNER JOIN application_usages au ON au.role_id = r.id " +
-            "INNER JOIN applications a ON a.id = au.application_id " +
-            "WHERE a.manage_id in ?1 AND " +
-            "MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE)",
-            nativeQuery = true)
-    List<Map<String, Object>> searchByApplication(List<String> manageIdentifiers, String keyWord);
-
     @Query(value = """
              SELECT u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
-                u.created_at, u.last_activity, ur.authority FROM users u
-                INNER JOIN user_roles ur ON ur.user_id = u.id) 
+                u.created_at, u.last_activity,
+                (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
+                FROM users u
             """,
             countQuery = "SELECT count(*) FROM users",
             nativeQuery = true)
@@ -50,50 +39,44 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = """
              SELECT u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
-                u.created_at, u.last_activity, ur.authority
-                          FROM users u INNER JOIN user_roles ur on ur.user_id = u.id
-                          WHERE MATCH (given_name, family_name, email) against (?3  IN BOOLEAN MODE);
-             
+                u.created_at, u.last_activity,
+            (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
+              FROM users u WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)
             """,
             countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable );
 
     @Query(value = """
-            SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity,  +
-            ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date  +
-            FROM users u  +
-            INNER JOIN user_roles ur ON ur.user_id = u.id  +
-            INNER JOIN roles r ON r.id = ur.role_id  +
-            INNER JOIN application_usages au ON au.role_id = r.id  +
-            INNER JOIN applications a ON a.id = au.application_id  +
-            WHERE a.manage_id in ?1
-            """ ,
-            nativeQuery = true)
-    Page<Map<String, Object>> searchByApplicationAllUsers(List<String> manageIdentifiers, Pageable pageable);
-
-    @Query(value = """
-            SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity,  +
-            ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date  +
-            FROM users u  +
-            INNER JOIN user_roles ur ON ur.user_id = u.id  +
-            INNER JOIN roles r ON r.id = ur.role_id  +
+            SELECT distinct(u.id), u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity
+            FROM users u
+            INNER JOIN user_roles ur ON ur.user_id = u.id
+            INNER JOIN roles r ON r.id = ur.role_id
             WHERE r.organization_guid = ?1
             """ ,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByPageRoleUsers(Pageable pageable);
+    Page<Map<String, Object>> searchByPageRoleUsers(String organisationGUID, Pageable pageable);
 
     @Query(value = """
-            SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity,  +
-            ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date  +
-            FROM users u  +
-            INNER JOIN user_roles ur ON ur.user_id = u.id  +
-            INNER JOIN roles r ON r.id = ur.role_id  +
+            SELECT distinct(u.id), u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity
+            FROM users u
+            INNER JOIN user_roles ur ON ur.user_id = u.id
+            INNER JOIN roles r ON r.id = ur.role_id
             WHERE r.organization_guid = ?1 AND
             MATCH (given_name, family_name, email) against (?2  IN BOOLEAN MODE)
             """ ,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByPageRoleUsersWithKeyWord(Pageable pageable);
+    Page<Map<String, Object>> searchByPageRoleUsersWithKeyWord(String organisationGUID, String query, Pageable pageable);
+
+    @Query(value = """
+            SELECT ur.user_id, ur.authority, ur.end_date, r.name, r.id
+            FROM user_roles ur INNER JOIN roles r ON r.id = ur.role_id
+            WHERE ur.user_id in ?1
+            """,
+            nativeQuery = true)
+    List<Map<String, Object>> findUserRoles(List<Long> userIdentifiers);
+
+
 
     @Query(value = "SELECT * FROM users u WHERE super_user = 0 AND institution_admin = 0 " +
             "AND NOT EXISTS (SELECT ur.id FROM user_roles ur WHERE ur.user_id = u.id)",
