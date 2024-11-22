@@ -5,6 +5,7 @@ import access.exception.NotFoundException;
 import access.exception.UserRestrictionException;
 import access.logging.AccessLogger;
 import access.logging.Event;
+import access.manage.EntityType;
 import access.manage.Manage;
 import access.model.*;
 import access.provision.ProvisioningService;
@@ -80,16 +81,20 @@ public class RoleController implements ApplicationResource {
                                                          @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         if (user.isSuperUser()) {
+            Page<Map<String, Object>> rolesPage;
             if (force) {
-                List<Role> roles = manage.addManageMetaData(roleRepository.findAll());
-                return Pagination.of(roles, sortDirection, sort);
+                Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+                rolesPage = roleRepository.searchByPage( pageable);
+            } else {
+                Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+                rolesPage = StringUtils.hasText(query) ?
+                        roleRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+                        roleRepository.searchByPage( pageable);
             }
-            Page<Map<String, Object>> rolesPage = StringUtils.hasText(query) ?
-                    roleRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-                            roleRepository.searchByPage( pageable);
-            List<Role> roles = manage.addManageMetaData(Role.roleFromQuery(rolesPage));
+            List<Long> roleIdentifiers = rolesPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
+            List<Map<String, Object>> applications = roleRepository.findApplications(roleIdentifiers);
+            List<Role> roles = manage.addManageMetaData(this.roleFromQuery(rolesPage, applications));
             return Pagination.of(rolesPage, roles);
         }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
@@ -219,5 +224,30 @@ public class RoleController implements ApplicationResource {
         return ResponseEntity.ok(saved);
     }
 
+    //See RoleRepository#searchByPage
+    private List<Role> roleFromQuery(Page<Map<String, Object>> rolesPage, List<Map<String, Object>> applications) {
+        List<Role> roles = rolesPage.getContent().stream().map(m -> new Role(
+                (Long) m.get("id"),
+                (String) m.get("name"),
+                (String) m.get("description"),
+                (Long) m.get("userRoleCount")
+        )).toList();
+        //Now add all applications, note that we need to preserve ordering of the roles
+        Map<Long, List<Map<String, Object>>> applicationGroupedByRoleId =
+                applications.stream().collect(Collectors.groupingBy(m -> (Long) m.get("role_id")));
+        roles.forEach(role -> {
+            //Find all applications with this role id
+            Set<ApplicationUsage> applicationUsages = applicationGroupedByRoleId.get(role.getId()).stream()
+                    .map(m -> new ApplicationUsage(
+                            new Application(
+                                    (String) m.get("manage_id"),
+                                    EntityType.valueOf((String) m.get("manage_type"))),
+                            null))
+                    .collect(Collectors.toSet());
+            ;
+            role.setApplicationUsages(applicationUsages);
+        });
+        return roles;
+    }
 
 }

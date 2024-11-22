@@ -7,19 +7,19 @@ import {Button, ButtonSize, Chip, Loader, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication} from "../api";
-import {distinctValues, isEmpty, stopEvent} from "../utils/Utils";
+import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
 import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import DOMPurify from "dompurify";
-import {extractPageResultFromServerResult, pageCount} from "../utils/Pagination";
+import {pageCount} from "../utils/Pagination";
 
 export const Roles = () => {
     const {user, config} = useAppStore(state => state);
     const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [searching, setSearching] = useState(false);
     const [roles, setRoles] = useState([]);
     const [paginationQueryParams, setPaginationQueryParams] = useState({
@@ -27,26 +27,36 @@ export const Roles = () => {
         pageNumber: 0,
         pageSize: pageCount,
         sort: "name",
-        sortDirect: "ASC"
+        sortDirection: "ASC"
     });
-    const [pageResult, setPageResult] = useState({});
+    const [totalElements, setTotalElements] = useState(0);
 
     useEffect(() => {
         if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
             rolesByApplication(false, paginationQueryParams)
-                    .then(res => {
+                .then(page => {
                         const newRoles = markAndFilterRoles(
                             user,
-                            distinctValues(res.content, "id"),
+                            page.content,
                             I18n.locale,
                             I18n.t("roles.multiple"),
-                            I18n.t("forms.and"));
+                            I18n.t("forms.and"),
+                            paginationQueryParams.sort,
+                            paginationQueryParams.sortDirection === "DESC");
                         setRoles(newRoles);
+                        setTotalElements(page.totalElements);
+                        setSearching(false);
                         setLoading(false);
-                        setPageResult(extractPageResultFromServerResult(res));
                     })
         } else {
-            const newRoles = markAndFilterRoles(user, [], I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
+            const newRoles = markAndFilterRoles(
+                user,
+                [],
+                I18n.locale,
+                I18n.t("roles.multiple"),
+                I18n.t("forms.and"),
+                "name",
+                false);
             setRoles(newRoles);
             setLoading(false);
         }
@@ -64,20 +74,20 @@ export const Roles = () => {
     };
 
     const search = (query, sorted, reverse, page) => {
-        if (!isEmpty(query) && query.trim().length > 2) {
-            setSearching(true);
+        if (isEmpty(query) || query.trim().length > 2) {
             delayedAutocomplete(query, sorted, reverse, page);
         }
     };
 
     const delayedAutocomplete = debounce((query, sorted, reverse, page) => {
+        setSearching(true);
         //this will trigger a new search
         setPaginationQueryParams({
             query: query,
             pageNumber: page,
             pageSize: pageCount,
             sort: sorted,
-            sortDirect: reverse ? "ASC" : "DESC"
+            sortDirection: reverse ? "DESC" : "ASC"
         })
     }, 375);
 
@@ -178,10 +188,10 @@ export const Roles = () => {
                 searchAttributes={["name", "description", "applicationName"]}
                 customNoEntities={I18n.t(`roles.noResults`)}
                 loading={false}
-                inputFocus={true}
+                inputFocus={!searching}
                 hideTitle={false}
-                customSearch={isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN) ? search : null}
-                pagination={}
+                customSearch={isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user) ? search : null}
+                totalElements={totalElements}
                 rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                 rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
                 busy={searching}

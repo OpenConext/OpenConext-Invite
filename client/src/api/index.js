@@ -160,8 +160,7 @@ export function organizationGUIDValidation(organizationGUID) {
 
 //Roles
 export function rolesByApplication(force=true, pagination={}) {
-    const queryPart = paginationQueryParams({force: !!force}, pagination)
-    debugger;
+    const queryPart = paginationQueryParams(pagination, {force: !!force})
     return fetchJson(`/api/v1/roles?${queryPart}`);
 }
 

@@ -111,7 +111,7 @@ public interface Manage {
                         .map(applicationUsage -> {
                             Map<String, Object> applicationMap =
                                     transformProvider(remoteApplications.get(applicationUsage.getApplication().getManageId()));
-                            if (applicationMap == null) {
+                            if (CollectionUtils.isEmpty(applicationMap)) {
                                 //If remote manage is not behaving
                                 applicationMap = new HashMap<>();
                                 applicationMap.put("unknown", true);

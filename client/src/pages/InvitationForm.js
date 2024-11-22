@@ -67,14 +67,16 @@ export const InvitationForm = () => {
         }
         if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
             rolesByApplication(true)
-                .then(res => {
-                    const markedRoles = markAndFilterRoles(user, res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
+                .then(page => {
+                    const markedRoles = markAndFilterRoles(user, page.content, I18n.locale,
+                        I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
                     setInitialRole(markedRoles);
                     setRoles(markedRoles);
                     setLoading(false);
                 })
         } else {
-            const markedRoles = markAndFilterRoles(user, [], I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"));
+            const markedRoles = markAndFilterRoles(user, [], I18n.locale,
+                I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
             setInitialRole(markedRoles);
             setRoles(markedRoles)
             setLoading(false);

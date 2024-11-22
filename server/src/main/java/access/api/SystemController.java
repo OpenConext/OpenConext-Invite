@@ -94,6 +94,7 @@ public class SystemController {
     @GetMapping("/unknown-roles")
     public ResponseEntity<List<Role>> unknownRoles(@Parameter(hidden = true) User user) {
         LOG.debug("/unknown-roles");
+
         UserPermissions.assertSuperUser(user);
         List<Role> roles = manage.addManageMetaData(roleRepository.findAll());
         List<Role> unknownManageRoles = roles.stream().filter(role -> role.getApplicationMaps().stream().anyMatch(applicationMap -> applicationMap.containsKey("unknown"))).toList();

@@ -41,22 +41,24 @@ export const deriveApplicationAttributes = (role, locale, multiple, separator) =
     if (!isEmpty(applications)) {
         if (applications.length === 1) {
             const firstApplication = applications[0];
-            if (firstApplication.unknown) {
+            if (isEmpty(firstApplication) || firstApplication.unknown) {
                 role.unknownInManage = true;
+            } else {
+                role.applicationName = firstApplication[`name:${locale}`] || firstApplication["name:en"];
+                role.applicationNames = role.applicationName;
+                role.applicationOrganizationName = firstApplication[`OrganizationName:${locale}`] || firstApplication["OrganizationName:en"];
+                role.logo = firstApplication.logo;
             }
-            role.applicationName = firstApplication[`name:${locale}`] || firstApplication["name:en"];
-            role.applicationNames = role.applicationName;
-            role.applicationOrganizationName = firstApplication[`OrganizationName:${locale}`] || firstApplication["OrganizationName:en"];
-            role.logo = firstApplication.logo;
         } else {
             role.applicationName = multiple;
-            if (applications.every(app => app.unknown)) {
+            if (applications.some(app => isEmpty(app) || app.unknown)) {
                 role.unknownInManage = true;
             }
-            const appNames = new Set(applications
+            const filteredApplications = applications.filter(app => !isEmpty(app));
+            const appNames = new Set(filteredApplications
                 .map(app => app[`name:${locale}`] || app["name:en"]));
             role.applicationNames = splitListSemantically([...appNames], separator);
-            const orgNames = new Set(applications
+            const orgNames = new Set(filteredApplications
                 .map(app => app[`OrganizationName:${locale}`] || app["OrganizationName:en"]));
             role.applicationOrganizationName = splitListSemantically([...orgNames], separator);
             role.logo = <MultipleIcon/>;

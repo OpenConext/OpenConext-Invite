@@ -53,9 +53,9 @@ spring:
     properties:
       hibernate:
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
-        format_sql: false
+        format_sql: true
     open-in-view: false
-    show-sql: false
+    show-sql: true
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mysql://localhost/invite?autoReconnect=true&useSSL=false&permitMysqlScheme=true&allowPublicKeyRetrieval=true

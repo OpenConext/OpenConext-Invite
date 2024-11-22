@@ -134,13 +134,21 @@ public class UserController {
     }
 
     @GetMapping("search")
-    public ResponseEntity<List<User>> search(@RequestParam(value = "query") String query,
-                                             @Parameter(hidden = true) User user) {
+    public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
+                                                            @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                            @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                            @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                            @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
+
         UserPermissions.assertSuperUser(user);
-        List<User> users = query.equals("owl") ? userRepository.findAll() :
-                userRepository.search(FullSearchQueryParser.parse(query), 15);
-        return ResponseEntity.ok(users);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ?
+                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+                userRepository.searchByPage(pageable);
+        return ResponseEntity.ok(usersPage);
     }
 
     @GetMapping("search-paginated")
@@ -174,7 +182,8 @@ public class UserController {
         List<Map<String, Object>> results = query.equals("owl") ?
                 userRepository.searchByApplicationAllUsers(manageIdentifiers) :
                 userRepository.searchByApplication(manageIdentifiers, FullSearchQueryParser.parse(query), 15);
-        //There are duplicate users in the results, need to group by ID
+        //There are duplicate users in the results, need to group by ID, but keep the results ordered
+
         Map<Long, List<Map<String, Object>>> groupedBy = results.stream().collect(Collectors.groupingBy(map -> (Long) map.get("id")));
         List<UserRoles> userRoles = groupedBy.values().stream()
                 .map(UserRoles::new)

@@ -1,6 +1,6 @@
 import {isEmpty} from "./Utils";
 
-export const pageCount = 15;
+export const pageCount = 3;
 
 //https://gist.github.com/kottenator/9d936eb3e4e3c3e02598
 export const pagination = (page, totalResults) => {
@@ -42,20 +42,20 @@ export const extractPageResultFromServerResult = (page, sorted, sortDirection) =
 }
 
 export const paginationQueryParams = (page, queryParams = {}) => {
-    if (isEmpty(page)) {
-        if (isEmpty(page.query)) {
+    if (!isEmpty(page)) {
+        if (!isEmpty(page.query)) {
             queryParams.query = encodeURIComponent(page.query);
         }
-        if (isEmpty(page.pageNumber)) {
+        if (!isEmpty(page.pageNumber)) {
             queryParams.pageNumber = page.pageNumber;
         }
-        if (isEmpty(page.pageSize)) {
+        if (!isEmpty(page.pageSize)) {
             queryParams.pageSize = page.pageSize;
         }
-        if (isEmpty(page.sort)) {
+        if (!isEmpty(page.sort)) {
             queryParams.sort = page.sort;
         }
-        if (isEmpty(page.sortDirection)) {
+        if (!isEmpty(page.sortDirection)) {
             queryParams.sortDirection = page.sortDirection;
         }
     }

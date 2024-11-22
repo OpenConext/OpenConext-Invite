@@ -6,11 +6,8 @@ import {ButtonType, Loader, Tooltip} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
-import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import {ReactComponent as WebsiteIcon} from "../icons/network-information.svg";
 import {ReactComponent as PersonIcon} from "../icons/persons.svg";
-import {ReactComponent as GuestLogo} from "@surfnet/sds/icons/illustrative-icons/hr.svg";
-import {ReactComponent as InvitationLogo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {allowedToEditRole, AUTHORITIES, highestAuthority, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
@@ -65,7 +62,7 @@ export const Role = () => {
                     <Page key="guests"
                           name="guests"
                           label={I18n.t("tabs.guestRoles")}
-                          Icon={GuestLogo}>
+                    >
                         <UserRoles role={res[0]}
                                    guests={true}
                                    userRoles={res[1].filter(userRole => userRole.authority === AUTHORITIES.GUEST ||
@@ -74,14 +71,14 @@ export const Role = () => {
                     <Page key="invitations"
                           name="invitations"
                           label={I18n.t("tabs.allPendingInvitations")}
-                          Icon={InvitationLogo}>
+                    >
                         <Invitations role={res[0]}
                                      preloadedInvitations={res[2]}/>
                     </Page>,
                     <Page key="maintainers"
                           name="maintainers"
                           label={I18n.t("tabs.userRoles")}
-                          Icon={UserLogo}>
+                    >
                         <UserRoles role={res[0]}
                                    guests={false}
                                    userRoles={res[1].filter(userRole => userRole.authority !== AUTHORITIES.GUEST)}/>

@@ -31,6 +31,9 @@ export function valueForSort(attribute, obj) {
     if (!isEmpty(val)) {
         return val;
     }
+    if (attribute.indexOf("__") === -1) {
+        return val;
+    }
     const parts = attribute.replace(/__/g, ".").split(".");
     const res = parts.reduce((acc, e) => {
         if (isEmpty(acc)) {

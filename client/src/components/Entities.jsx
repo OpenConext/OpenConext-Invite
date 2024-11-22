@@ -26,7 +26,7 @@ export const Entities = ({
                              hideTitle,
                              onHover,
                              actionHeader = "",
-                             pagination = {},
+                             totalElements = null,
                              showActionsAlways,
                              displaySearch = true,
                              searchCallback,
@@ -37,7 +37,7 @@ export const Entities = ({
                              newEntityFunc,
                              defaultSort,
                              rowClassNameResolver,
-                             searchAutoFocus = false,
+                             inputFocus = false,
                              busy = false
                          }) => {
 
@@ -51,10 +51,10 @@ export const Entities = ({
     const navigate = useNavigate();
 
     useEffect(() => {
-        if ((displaySearch || searchAutoFocus) && searchRef && searchRef.current) {
+        if ((displaySearch || inputFocus) && searchRef && searchRef.current) {
             searchRef.current.focus();
         }
-    }, [displaySearch, searchAutoFocus])
+    }, [displaySearch, inputFocus])
 
     const newEntity = () => {
         if (newEntityFunc) {
@@ -67,14 +67,14 @@ export const Entities = ({
     const queryChanged = e => {
         const newQuery = e.target.value;
         setQuery(newQuery);
-        callCustomSearch(newQuery, sorted, reverse, pagination.currentPage);
+        callCustomSearch(newQuery, sorted, reverse, page);
     }
 
     const renderSearch = () => {
         const filterClassName = (!hideTitle && filters) ? "filters-with-title" : `${modelName}-search-filters`;
         return (
             <section className="entities-search">
-                {!hideTitle && <h2>{title || `${I18n.t(`${modelName}.title`)} (${entities.length})`}</h2>}
+                {!hideTitle && <h2>{title || `${I18n.t(`${modelName}.title`)} (${totalElements || entities.length})`}</h2>}
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
@@ -116,15 +116,16 @@ export const Entities = ({
     };
 
     const setSortedKey = key => {
-        const reversed = (sorted === key ? !reverse : false);
+        const newReserve = (sorted === key ? !reverse : false);
         setSorted(key);
-        setReverse(reversed);
-        callCustomSearch(query, key, reversed, pagination.currentPage);
+        setReverse(newReserve);
+        callCustomSearch(query, key, newReserve, page);
     }
 
     const callCustomSearch = (newQuery, newSorted, newReversed, newPage) => {
         if (customSearch) {
-            customSearch(newQuery, newSorted, newReversed, newPage);
+            //Adjust page, as serverSide is zero-based
+            customSearch(newQuery, newSorted, newReversed, newPage - 1);
             setInitial(false);
         }
         if (searchCallback) {
@@ -199,16 +200,13 @@ export const Entities = ({
                     </div>}
                 {(!hasEntities && !initial && !customEmptySearch && !loading) &&
                     <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
-                <Pagination currentPage={isEmpty(pagination) ? page : pagination.currentPage + 1}
+                <Pagination currentPage={page}
                             onChange={nbr => {
-                                if (isEmpty(pagination)) {
-                                    setPage(nbr);
-                                } else {
-                                    callCustomSearch(query, sorted, reverse, nbr);
-                                }
+                                setPage(nbr);
+                                callCustomSearch(query, sorted, reverse, nbr);
                             }}
-                            total={pagination.total || total}
-                            pageCount={pagination.pageCount || pageCount}/>
+                            total={totalElements || total}
+                            pageCount={pageCount}/>
             </section>
         );
     };
@@ -217,12 +215,11 @@ export const Entities = ({
         return <Loader/>;
     }
     const filteredEntities = filterEntities(query);
-    const sortedEntities = sortObjects(filteredEntities, sorted, reverse);
+    const sortedEntities = customSearch ? filteredEntities : sortObjects(filteredEntities, sorted, reverse);
     return (
         <div className={`mod-entities ${className}`}>
             {displaySearch && renderSearch()}
-            {!busy && renderEntities(sortedEntities)}
-            {busy && <Loader/>}
+            {renderEntities(sortedEntities)}
             <div>{children}</div>
         </div>);
 }

@@ -218,10 +218,9 @@ export const Users = () => {
                   customNoEntities={I18n.t(`users.noResults`)}
                   loading={searching}
                   searchAttributes={["name", "email", "schacHomeOrganization"]}
-                  inputFocus={true}
                   customSearch={search}
                   rowLinkMapper={openUser}
-                  searchAutoFocus={!searching}
+                  inputFocus={!searching}
                   busy={searching}>
             {initial && <div className={"image-container"}>
                 <img src={SearchSvg} alt="search"/>
