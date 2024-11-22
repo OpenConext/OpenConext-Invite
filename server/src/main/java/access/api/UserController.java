@@ -122,10 +122,7 @@ public class UserController {
         if (!user.isSuperUser()) {
             UserPermissions.assertInstitutionAdmin(user);
             //We need to ensure the institution admin has access to at least one of the roles
-            List<String> manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).toList();
-            boolean allowedByManage = roles.stream()
-                    .anyMatch(role -> role.getApplicationUsages().stream()
-                            .anyMatch(applicationUsage -> manageIdentifiers.contains(applicationUsage.getApplication().getManageId())));
+            boolean allowedByManage = roles.stream().anyMatch(role -> user.getOrganizationGUID().equals(role.getOrganizationGUID()));
             if (!allowedByManage) {
                 throw new UserRestrictionException();
             }
@@ -151,36 +148,30 @@ public class UserController {
         return ResponseEntity.ok(usersPage);
     }
 
-    @GetMapping("search-paginated")
-    public ResponseEntity<Page<Map<String, Object>>> searchPaginated(@RequestParam(value = "query", required = false, defaultValue = "") String query,
-                                                                     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
-                                                                     @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-                                                                     @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
-                                                                     @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
-                                                                     @Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/search-paginated for user %s", user.getEduPersonPrincipalName()));
-        UserPermissions.assertSuperUser(user);
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> page = StringUtils.hasText(query) ?
-                userRepository.searchByPage(pageable) :
-                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) ;
-        return ResponseEntity.ok(page);
-    }
-
     @GetMapping("search-by-application")
-    public ResponseEntity<List<UserRoles>> searchByApplication(@RequestParam(value = "query") String query,
-                                                               @Parameter(hidden = true) User user) {
+    public ResponseEntity<List<UserRoles>> searchByApplication(@Parameter(hidden = true) User user,
+                                                               @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
+                                                               @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                               @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                               @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                               @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                               @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/searchByApplication for user %s and query %s", user.getEduPersonPrincipalName(), query));
 
         UserPermissions.assertInstitutionAdmin(user);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ?
+                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+                userRepository.searchByPage(pageable);
+
+
         List<String> manageIdentifiers = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
                     .stream()
                     .map(role -> role.getApplicationUsages())
                     .flatMap(Set::stream)
                     .map(applicationUsage -> applicationUsage.getApplication().getManageId())
                     .toList();
-        List<Map<String, Object>> results = query.equals("owl") ?
-                userRepository.searchByApplicationAllUsers(manageIdentifiers) :
+        List<Map<String, Object>> = userRepository.searchByApplicationAllUsers(manageIdentifiers) :
                 userRepository.searchByApplication(manageIdentifiers, FullSearchQueryParser.parse(query), 15);
         //There are duplicate users in the results, need to group by ID, but keep the results ordered
 

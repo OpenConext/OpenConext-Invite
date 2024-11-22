@@ -35,25 +35,24 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "INNER JOIN application_usages au ON au.role_id = r.id " +
             "INNER JOIN applications a ON a.id = au.application_id " +
             "WHERE a.manage_id in ?1 AND " +
-            "MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE) " +
-            "LIMIT ?3",
+            "MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE)",
             nativeQuery = true)
-    List<Map<String, Object>> searchByApplication(List<String> manageIdentifiers, String keyWord, int limit);
+    List<Map<String, Object>> searchByApplication(List<String> manageIdentifiers, String keyWord);
 
     @Query(value = """
-             select u.name, u.email, u.schac_home_organization, u.sub, u.super_user, u.institution_admin,
-                (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority from users u
+             SELECT u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
+                u.created_at, u.last_activity, ur.authority FROM users u
+                INNER JOIN user_roles ur ON ur.user_id = u.id) 
             """,
             countQuery = "SELECT count(*) FROM users",
             nativeQuery = true)
     Page<Map<String, Object>> searchByPage(Pageable pageable );
 
     @Query(value = """
-             SELECT u.name, u.email, u.schac_home_organization, u.sub, u.super_user, u.institution_admin,
-                  ur.authority as authority, ur.guest_role_included
+             SELECT u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
+                u.created_at, u.last_activity, ur.authority
                           FROM users u INNER JOIN user_roles ur on ur.user_id = u.id
-                          WHERE (ur.authority = ?1 or ur.guest_role_included = ?2)
-                          AND MATCH (given_name, family_name, email) against (?3  IN BOOLEAN MODE);
+                          WHERE MATCH (given_name, family_name, email) against (?3  IN BOOLEAN MODE);
              
             """,
             countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
@@ -71,7 +70,31 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE a.manage_id in ?1
             """ ,
             nativeQuery = true)
-    List<Map<String, Object>> searchByApplicationAllUsers(List<String> manageIdentifiers);
+    Page<Map<String, Object>> searchByApplicationAllUsers(List<String> manageIdentifiers, Pageable pageable);
+
+    @Query(value = """
+            SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity,  +
+            ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date  +
+            FROM users u  +
+            INNER JOIN user_roles ur ON ur.user_id = u.id  +
+            INNER JOIN roles r ON r.id = ur.role_id  +
+            WHERE r.organization_guid = ?1
+            """ ,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPageRoleUsers(Pageable pageable);
+
+    @Query(value = """
+            SELECT u.id, u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity,  +
+            ur.authority, r.name AS role_name, r.id AS role_id, ur.end_date  +
+            FROM users u  +
+            INNER JOIN user_roles ur ON ur.user_id = u.id  +
+            INNER JOIN roles r ON r.id = ur.role_id  +
+            WHERE r.organization_guid = ?1 AND
+            MATCH (given_name, family_name, email) against (?2  IN BOOLEAN MODE)
+            """ ,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPageRoleUsersWithKeyWord(Pageable pageable);
+
     @Query(value = "SELECT * FROM users u WHERE super_user = 0 AND institution_admin = 0 " +
             "AND NOT EXISTS (SELECT ur.id FROM user_roles ur WHERE ur.user_id = u.id)",
             nativeQuery = true)

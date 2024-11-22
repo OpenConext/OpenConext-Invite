@@ -35,8 +35,8 @@ class UserRepositoryTest extends AbstractTest {
 
     @Test
     void search() {
-        List<User> users = userRepository.search("exam*", 3);
-        assertEquals(3, users.size());
+        Page<Map<String, Object>> usersPage = userRepository.searchByPage(PageRequest.of(1, 3, Sort.by(Sort.Direction.ASC, "name")));
+        assertEquals(3, usersPage.getContent().size());
     }
 
     @Test
