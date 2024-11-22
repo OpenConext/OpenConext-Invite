@@ -26,7 +26,7 @@ class RoleRepositoryTest extends AbstractTest {
         Page<Map<String, Object>> page = roleRepository.searchByPage(pageRequest);
         assertEquals(6L, page.getTotalElements());
         assertEquals(1, page.getContent().size());
-        assertEquals("Research", page.getContent().get(0).get("name"));
+        assertEquals("Network", page.getContent().get(0).get("name"));
     }
 
     @Test
@@ -37,7 +37,7 @@ class RoleRepositoryTest extends AbstractTest {
         assertEquals(3, page.getContent().size());
         List<String> names = page.getContent().stream().map(m -> (String) m.get("name")).toList();
         //Sorted by name in descending order
-        assertEquals(List.of("Research", "Network", "Mail"), names);
+        assertEquals(List.of("Network", "Mail", "Calendar"), names);
     }
 
     @Test
@@ -45,10 +45,8 @@ class RoleRepositoryTest extends AbstractTest {
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "name"));
         //See AbstractTest#seed Storage has two applications linked
         Page<Map<String, Object>> page = roleRepository.searchByPageWithKeyword("Storage", pageRequest);
-        assertEquals(2L, page.getTotalElements());
-        assertEquals(2, page.getContent().size());
-        //We would only expect one, but we decided to group by in the controller
-        assertEquals(page.getContent().getFirst().get("id"), page.getContent().getLast().get("id"));
+        assertEquals(1, page.getTotalElements());
+        assertEquals(1, page.getContent().size());
     }
 
     @Test

@@ -29,12 +29,13 @@ class UserPermissionsTest extends WithApplicationTest {
     void assertValidInvitationSuperUser() {
         assertThrows(UserRestrictionException.class, () ->
                 UserPermissions.assertValidInvitation(new User(new HashMap<>()),Authority.SUPER_USER, new ArrayList<>()));
+        String organizationGUID = UUID.randomUUID().toString();
         User user = new User();
         user.setInstitutionAdmin(true);
-        user.setApplications(List.of(Map.of("id", "1")));
+        user.setOrganizationGUID(organizationGUID);
 
         Role role = new Role();
-        role.getApplicationUsages().add(new ApplicationUsage(new Application("1", EntityType.SAML20_SP),"https://landing.com") );
+        role.setOrganizationGUID(organizationGUID);
         UserPermissions.assertValidInvitation(user, Authority.MANAGER, List.of(role));
     }
 
@@ -108,18 +109,7 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertValidInvitation(user, Authority.GUEST, roles));
     }
 
-    @Test
-    void assertRoleAccessInstitutionAdminApplications() {
-        User user = new User();
-        user.setInstitutionAdmin(true);
-        user.setApplications(List.of(Map.of("id", "1")));
-
-
-        Role role = new Role();
-        role.getApplicationUsages().add(new ApplicationUsage(new Application("1", EntityType.SAML20_SP),"https://landing.com") );
-        UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
-    }
-    @Test
+        @Test
     void assertRoleAccess() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.GUEST, identifier);

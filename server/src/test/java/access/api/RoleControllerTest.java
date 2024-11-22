@@ -242,7 +242,7 @@ class RoleControllerTest extends AbstractTest {
                 .get("/api/external/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, page.getTotalElements());
+        assertEquals(3, page.getTotalElements());
     }
 
     @Test
@@ -265,10 +265,10 @@ class RoleControllerTest extends AbstractTest {
                 .get("/api/v1/roles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, page.getTotalElements());
+        assertEquals(3, page.getTotalElements());
         List<Role> roles = page.getContent();
-        assertEquals(2, roles.size());
-        roles.forEach(role -> assertEquals(ORGANISATION_GUID, role.getOrganizationGUID()));
+        assertEquals(3, roles.size());
+        roles.forEach(role -> assertEquals(ORGANISATION_GUID, roleRepository.findById(role.getId()).get().getOrganizationGUID()));
     }
 
     @Test
@@ -318,10 +318,9 @@ class RoleControllerTest extends AbstractTest {
         assertEquals(roleRepository.count(), page.getTotalElements());
         assertEquals(2, page.getPageable().getPageSize());
         assertEquals(2, page.getPageable().getPageNumber());
+        assertEquals(6, page.getTotalElements());
         List<Role> roles = page.getContent();
-        assertEquals(List.of("Mail","Network"), roles.stream().map(Role::getName).sorted().toList());
-        Role network = roles.stream().filter(r -> r.getName().equals("Network")).findFirst().get();
-        assertEquals("https://default-url-network.org", network.getApplicationMaps().getFirst().get("url"));
+        assertEquals(List.of("Calendar","Mail"), roles.stream().map(Role::getName).sorted().toList());
     }
 
     @Test
@@ -404,7 +403,7 @@ class RoleControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
-        Role role = roleRepository.search("wiki", 1).get(0);
+        Role role = roleRepository.search("storage", 1).get(0);
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -415,7 +414,7 @@ class RoleControllerTest extends AbstractTest {
                 .delete("/api/v1/roles/{id}")
                 .then()
                 .statusCode(403);
-        assertEquals(1, roleRepository.search("wiki", 1).size());
+        assertEquals(1, roleRepository.search("storage", 1).size());
     }
 
     @Test

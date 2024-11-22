@@ -132,7 +132,7 @@ class ManageControllerTest extends AbstractTest {
         spRequest = objectMapper.readValue(loggedRequestsForSP.get(1).getBody(), Map.class);
         inSPParameter = (Map<String, List<String>>) spRequest.get("id");
         //Only two, because of the limited visibility for institution admin
-        assertEquals(2, inSPParameter.get("$in").size());
+        assertEquals(3, inSPParameter.get("$in").size());
 
         List<LoggedRequest> loggedRequestsForRP = findAll(postRequestedFor(urlPathMatching("/manage/api/internal/rawSearch/oidc10_rp")));
         assertEquals(1, loggedRequestsForRP.size());
