@@ -66,3 +66,14 @@ export const paginationQueryParams = (page, queryParams = {}) => {
     return queryPart;
 
 }
+
+export const defaultPagination = () => {
+    const dp = {
+        query: "",
+        pageNumber: 0,
+        pageSize: pageCount,
+        sort: "name",
+        sortDirection: "ASC"
+    };
+    return {...dp};
+}

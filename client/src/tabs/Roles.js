@@ -13,7 +13,7 @@ import {chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
 import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import DOMPurify from "dompurify";
-import {pageCount} from "../utils/Pagination";
+import {defaultPagination, pageCount} from "../utils/Pagination";
 
 export const Roles = () => {
     const {user, config} = useAppStore(state => state);
@@ -22,13 +22,7 @@ export const Roles = () => {
     const [loading, setLoading] = useState(false);
     const [searching, setSearching] = useState(false);
     const [roles, setRoles] = useState([]);
-    const [paginationQueryParams, setPaginationQueryParams] = useState({
-        query: "",
-        pageNumber: 0,
-        pageSize: pageCount,
-        sort: "name",
-        sortDirection: "ASC"
-    });
+    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
     const [totalElements, setTotalElements] = useState(0);
 
     useEffect(() => {
