@@ -6,6 +6,9 @@ import java.util.Random;
 
 public class NameGenerator {
 
+    private NameGenerator() {
+    }
+
     private static final Random random = new Random();
 
     private static final String[] consonants = new String[]{

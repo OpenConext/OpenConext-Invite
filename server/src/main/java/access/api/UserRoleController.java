@@ -80,6 +80,15 @@ public class UserRoleController implements UserRoleResource {
                 role -> UserPermissions.assertRoleAccess(user, role, Authority.INVITER));
     }
 
+    @GetMapping("managers/{roleId}")
+    public ResponseEntity<List<String>> managersByRole(@PathVariable("roleId") Long roleId,
+                                                 @Parameter(hidden = true) User user) {
+        Role role = this.roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
+        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+        List<UserRole> userRoles = userRoleRepository.findByRoleAndAuthorityIn(role, List.of(Authority.MANAGER, Authority.INSTITUTION_ADMIN));
+        return ResponseEntity.ok(userRoles.stream().map(userRole -> userRole.getUser().getEmail()).toList());
+    }
+
     @GetMapping("/consequences/{roleId}")
     public ResponseEntity<List<Map<String, Object>>> consequencesDeleteRole(@PathVariable("roleId") Long roleId,
                                                                             @Parameter(hidden = true) User user) {
@@ -100,7 +109,7 @@ public class UserRoleController implements UserRoleResource {
     @GetMapping("/search/{roleId}/{guests}")
     public ResponseEntity<Page<?>> searchPaginated(@PathVariable("roleId") Long roleId,
                                                    @PathVariable("guests") boolean guests,
-                                                   @RequestParam(value = "query") String query,
+                                                   @RequestParam(value = "query", required = false, defaultValue = "") String query,
                                                    @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
                                                    @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
                                                    @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
@@ -114,8 +123,8 @@ public class UserRoleController implements UserRoleResource {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> page;
-        query = FullSearchQueryParser.parse(query);
         if (StringUtils.hasText(query)) {
+            query = FullSearchQueryParser.parse(query);
             page = guests ?
                     userRoleRepository.searchGuestsByPageWithKeyword(roleId, query, pageable) :
                     userRoleRepository.searchNonGuestsByPageWithKeyword(roleId, query, pageable);

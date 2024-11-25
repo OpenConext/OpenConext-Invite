@@ -10,8 +10,10 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SystemControllerTest extends AbstractTest {
@@ -77,4 +79,22 @@ class SystemControllerTest extends AbstractTest {
         assertTrue(roles.isEmpty());
     }
 
+    @Test
+    void performanceSeed() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("numberOfRole", 1)
+                .queryParam("numberOfUsers", 1)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/system/performance-seed")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, results.get("users"));
+        assertEquals(1, results.get("users"));
+        assertEquals(1, results.get("users"));
+    }
 }

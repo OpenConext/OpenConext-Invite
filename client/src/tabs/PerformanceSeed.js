@@ -7,8 +7,8 @@ import {performanceSeed} from "../api";
 
 export const PerformanceSeed = () => {
     const [seed, setSeed] = useState(null);
-    const [millis, setMillis] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [millis, setMillis] = useState(0);
 
     if (loading) {
         return <Loader/>
@@ -16,11 +16,11 @@ export const PerformanceSeed = () => {
 
     const doPerformanceSeed = () => {
         setLoading(true);
-        setMillis(new Date().getTime())
+        const start = new Date().getTime();
         performanceSeed().then(res => {
             setSeed(res);
             setLoading(false);
-            setMillis(new Date().getTime() - millis);
+            setMillis(new Date().getTime() - start);
         })
     }
 

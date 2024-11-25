@@ -9,19 +9,19 @@ export const futureDate = (daysAhead, fromDate = new Date()) => {
     return new Date(time);
 }
 
-export const shortDateFromEpoch = epoch => {
+export const shortDateFromEpoch = (epoch, needsMultiplier = true) => {
     const options = {month: "short", day: "numeric", year: "numeric"};
     const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, options)
-    return dateTimeFormat.format(new Date(epoch * 1000));
+    return dateTimeFormat.format(new Date(needsMultiplier ? epoch * 1000 : epoch));
 }
 
-export const dateFromEpoch = epoch => {
+export const dateFromEpoch = (epoch, needsMultiplier = true) => {
     if (isEmpty(epoch)) {
         return "-";
     }
     const options = {month: "long", day: "numeric", year: "numeric"};
     const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, options)
-    return dateTimeFormat.format(new Date(epoch * 1000));
+    return dateTimeFormat.format(new Date(needsMultiplier ? epoch * 1000 : epoch));
 }
 
 export const languageSwitched = () => {

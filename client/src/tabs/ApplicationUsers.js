@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
 import {Loader, Tooltip} from "@surfnet/sds";
@@ -9,39 +9,21 @@ import "./ApplicationUsers.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
-import SearchSvg from "../icons/undraw_people_search_re_5rre.svg";
 import {useNavigate} from "react-router-dom";
+import {defaultPagination, pageCount} from "../utils/Pagination";
 
 
 export const ApplicationUsers = () => {
 
+    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
     const [searching, setSearching] = useState(false);
     const [users, setUsers] = useState([]);
     const [totalElements, setTotalElements] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        return () => {
-            delayedAutocomplete.cancel();
-        };
-    });
-
-    const gotoRole = (e, roleId) => {
-        stopEvent(e);
-        navigate(`/roles/${roleId}`)
-    }
-
-    const search = query => {
-        if (isEmpty(query) || query.trim().length > 2) {
-            delayedAutocomplete(query);
-        }
-    };
-
-    const delayedAutocomplete = useMemo(() => debounce(query => {
-        setSearching(true);
-        searchUsersByApplication(query)
+        searchUsersByApplication(paginationQueryParams)
             .then(page => {
-                setInitial(false);
                 const results = page.content;
                 results.forEach(user => user.endDate = user.roleSummaries
                     .reduce((acc, rs) => Math.min(rs.endDate || Number.MAX_VALUE, acc), Number.MAX_VALUE));
@@ -49,8 +31,33 @@ export const ApplicationUsers = () => {
                     .sort((r1, r2) => (r1.endDate || Number.MAX_VALUE) - (r2.endDate || Number.MAX_VALUE)));
                 setUsers(results);
                 setSearching(false);
+                setTotalElements(page.totalElements);
+                setSearching(false);
             });
-    }, 500), []);
+    }, [paginationQueryParams]);
+
+    const gotoRole = (e, roleId) => {
+        stopEvent(e);
+        navigate(`/roles/${roleId}`)
+    }
+
+    const search = (query, sorted, reverse, page) => {
+        if (isEmpty(query) || query.trim().length > 2) {
+            delayedAutocomplete(query, sorted, reverse, page);
+        }
+    };
+
+    const delayedAutocomplete = debounce((query, sorted, reverse, page) => {
+        setSearching(true);
+        //this will trigger a new search
+        setPaginationQueryParams({
+            query: query,
+            pageNumber: page,
+            pageSize: pageCount,
+            sort: sorted,
+            sortDirection: reverse ? "DESC" : "ASC"
+        })
+    }, 375);
 
     const columns = [
         {
@@ -123,8 +130,8 @@ export const ApplicationUsers = () => {
                   defaultSort="name"
                   columns={columns}
                   title={title}
-                  totalElements={totalElements}
                   inputFocus={true}
+                  totalElements={totalElements}
                   customSearch={search}
                   busy={searching}/>
     </div>)

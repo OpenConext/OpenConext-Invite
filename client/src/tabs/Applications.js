@@ -27,7 +27,8 @@ const Applications = () => {
             }
             Promise.all([allApplications(), rolesByApplication(true)])
                 .then(res => {
-                    const mergedApps = mergeProvidersProvisioningsRoles(res[0].providers, res[0].provisionings, res[1]);
+                    const mergedApps = mergeProvidersProvisioningsRoles(
+                        res[0].providers, res[0].provisionings, res[1].content);
                     setApplications(mergedApps);
                     setLoading(false);
                 })

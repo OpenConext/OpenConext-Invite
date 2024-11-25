@@ -95,7 +95,7 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
     if (user.superUser) {
         return true;
     }
-    if (deleteAction && user.id === userRole.userInfo?.id) {
+    if (deleteAction && (user.id === userRole.userInfo?.id || user.id === userRole.user_id)) {
         return true;
     }
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])

@@ -66,8 +66,14 @@ export const Entities = ({
 
     const queryChanged = e => {
         const newQuery = e.target.value;
+        const currentQuery = query;
         setQuery(newQuery);
-        callCustomSearch(newQuery, sorted, reverse, page);
+        //When the user change the query text we reset the page number
+        const queryChanged = currentQuery !== newQuery;
+        if (queryChanged) {
+            setPage(1);
+        }
+        callCustomSearch(newQuery, sorted, reverse, queryChanged ? 1 : page);
     }
 
     const renderSearch = () => {

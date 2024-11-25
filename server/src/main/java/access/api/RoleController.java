@@ -84,7 +84,7 @@ public class RoleController implements ApplicationResource {
         Page<Map<String, Object>> rolesPage;
         if (user.isSuperUser()) {
             if (force) {
-                Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+                Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
                 rolesPage = roleRepository.searchByPage( pageable);
             } else {
                 Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
@@ -94,7 +94,7 @@ public class RoleController implements ApplicationResource {
             }
         } else {
             UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-            Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+            Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
             rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
 
         }
@@ -238,15 +238,19 @@ public class RoleController implements ApplicationResource {
                 applications.stream().collect(Collectors.groupingBy(m -> (Long) m.get("role_id")));
         roles.forEach(role -> {
             //Find all applications with this role id
-            Set<ApplicationUsage> applicationUsages = applicationGroupedByRoleId.get(role.getId()).stream()
-                    .map(m -> new ApplicationUsage(
-                            new Application(
-                                    (String) m.get("manage_id"),
-                                    EntityType.valueOf((String) m.get("manage_type"))),
-                            null))
-                    .collect(Collectors.toSet());
-            ;
-            role.setApplicationUsages(applicationUsages);
+            List<Map<String, Object>> applicationsForRole = applicationGroupedByRoleId.get(role.getId());
+            if (applicationsForRole != null) {
+                Set<ApplicationUsage> applicationUsages = applicationsForRole.stream()
+                        .map(m -> new ApplicationUsage(
+                                new Application(
+                                        (String) m.get("manage_id"),
+                                        EntityType.valueOf((String) m.get("manage_type"))),
+                                null))
+                        .collect(Collectors.toSet());
+                role.setApplicationUsages(applicationUsages);
+            } else {
+                System.out.println("error");
+            }
         });
         return roles;
     }

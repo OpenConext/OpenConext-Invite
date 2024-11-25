@@ -1,6 +1,6 @@
 import {isEmpty} from "./Utils";
 
-export const pageCount = 3;
+export const pageCount = 10;
 
 //https://gist.github.com/kottenator/9d936eb3e4e3c3e02598
 export const pagination = (page, totalResults) => {
@@ -67,13 +67,13 @@ export const paginationQueryParams = (page, queryParams = {}) => {
 
 }
 
-export const defaultPagination = () => {
+export const defaultPagination = (sort= "name", sortDirection= "ASC") => {
     const dp = {
         query: "",
         pageNumber: 0,
         pageSize: pageCount,
-        sort: "name",
-        sortDirection: "ASC"
+        sort: sort,
+        sortDirection: sortDirection
     };
     return {...dp};
 }

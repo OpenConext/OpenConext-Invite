@@ -39,7 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = """
              SELECT u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
-                u.created_at, u.last_activity,
+                u.created_at as createdAt, u.last_activity as lastActivity,
             (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
               FROM users u WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)
             """,

@@ -22,6 +22,7 @@ public class UserRoleOperations {
     public ResponseEntity<List<UserRole>> userRolesByRole(Long roleId,
                                                           RoleValidator roleValidator) {
         LOG.debug("/userRolesByRole/");
+
         Role role = this.roleResource.getRoleRepository().findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         roleValidator.validate(role);
         List<UserRole> userRoles = this.roleResource.getUserRoleRepository().findByRole(role);

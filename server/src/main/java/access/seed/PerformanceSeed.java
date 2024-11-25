@@ -1,10 +1,13 @@
 package access.seed;
 
+import access.api.APITokenController;
 import access.manage.EntityType;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
 import access.model.*;
 import access.repository.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +20,8 @@ import java.util.stream.IntStream;
 
 @Component
 public class PerformanceSeed {
+
+    private static final Log LOG = LogFactory.getLog(APITokenController.class);
 
     private static final Random random = new Random();
 
@@ -44,20 +49,16 @@ public class PerformanceSeed {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public Map<String, Object> go() {
-        int numberOfRoles = 500;
-        int numberOfUsers = 150 * numberOfRoles;
-        return this.go(numberOfRoles, numberOfUsers);
-    }
-
     public Map<String, Object> go(int numberOfRoles, int numberOfUsers) {
         List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
-
 
         IntStream.range(1, numberOfRoles + 1)
                 .forEach(i -> {
                     Role role = createRole(providers);
                     roleRepository.save(role);
+                    if (i % 100 == 0) {
+                        LOG.debug(String.format("Created %s from %s roles", i, numberOfRoles));
+                    }
                 });
 
         long minRoleId = this.minId("roles");
@@ -70,6 +71,9 @@ public class PerformanceSeed {
                     Role role = roleRepository.findById(roleId).get();
                     userRoleRepository.save(this.createUserRole(user, role));
                     invitationRepository.save(this.createInvitation(user, role));
+                    if (i % 1000 == 0) {
+                        LOG.debug(String.format("Created %s from %s users", i, numberOfUsers));
+                    }
                 });
 
         return Map.of("users", numberOfUsers,
@@ -123,8 +127,8 @@ public class PerformanceSeed {
     private Role createRole(List<Map<String, Object>> providers) {
         String name = NameGenerator.generate();
 
-        int i = random.nextInt(15);
-        int numberOfApplications = i == 14 ? 1 : Math.min(i, 5);
+        int i = random.nextInt(1,15);
+        int numberOfApplications = i > 13 ? 1 : i;
         Set<ManageIdentifier> manageIdentifiers = IntStream.range(0, numberOfApplications)
                 .mapToObj(j -> {
                     Map<String, Object> provider = providers.get(random.nextInt(providers.size()));

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {invitationsByRoleId, roleByID, userRolesByRoleId} from "../api";
+import {managersByRoleId, roleByID} from "../api";
 import I18n from "../locale/I18n";
 import "./Role.scss";
 import {ButtonType, Loader, Tooltip} from "@surfnet/sds";
@@ -16,7 +16,6 @@ import {Invitations} from "../tabs/Invitations";
 import ClipBoardCopy from "../components/ClipBoardCopy";
 import {deriveApplicationAttributes} from "../utils/Manage";
 import DOMPurify from "dompurify";
-import {isEmpty} from "../utils/Utils";
 import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
 
 export const Role = () => {
@@ -53,49 +52,44 @@ export const Role = () => {
             navigate("/404");
             return;
         }
-        Promise.all([roleByID(id, false), userRolesByRoleId(id), invitationsByRoleId(id)])
+        roleByID(id, false)
             .then(res => {
-                deriveApplicationAttributes(res[0], I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"))
-                setRole(res[0]);
-                setUserRole(res[1].find(userRole => userRole.role.id === res[0].id && userRole.userInfo.id === user.id));
+                deriveApplicationAttributes(res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"))
+                setRole(res);
+                const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
+                if (isInviter) {
+                    managersByRoleId(id).then(emails => setManagerEmails(emails));
+                }
                 const newTabs = [
                     <Page key="guests"
                           name="guests"
                           label={I18n.t("tabs.guestRoles")}
                     >
-                        <UserRoles role={res[0]}
+                        <UserRoles role={res}
                                    guests={true}
-                                   userRoles={res[1].filter(userRole => userRole.authority === AUTHORITIES.GUEST ||
-                                                            userRole.guestRoleIncluded)}/>
+                        />
                     </Page>,
                     <Page key="invitations"
                           name="invitations"
                           label={I18n.t("tabs.allPendingInvitations")}
                     >
-                        <Invitations role={res[0]}
-                                     preloadedInvitations={res[2]}/>
+                        <Invitations role={res}/>
                     </Page>,
                     <Page key="maintainers"
                           name="maintainers"
                           label={I18n.t("tabs.userRoles")}
                     >
-                        <UserRoles role={res[0]}
+                        <UserRoles role={res}
                                    guests={false}
-                                   userRoles={res[1].filter(userRole => userRole.authority !== AUTHORITIES.GUEST)}/>
+                        />
                     </Page>
                 ];
                 setTabs(newTabs.filter(tab => tab !== null));
-                let managers = res[1].filter(userRole => userRole.authority === AUTHORITIES.MANAGER)
-                    .map(userRole => userRole.userInfo.email);
-                if (isEmpty((managers))) {
-                    managers = res[1].filter(userRole => userRole.authority === AUTHORITIES.INSTITUTION_ADMIN)
-                        .map(userRole => userRole.userInfo.email);
-                }
-                setManagerEmails(managers);
-                if (res[0].unknownInManage) {
+                if (res.unknownInManage) {
                     setFlash(I18n.t("roles.unknownInManageDisabled"), "error");
                 }
                 setLoading(false);
+                setUserRole((user.userRoles || []).find(ur => ur.role.id === res.id));
 
             })
             .catch(() => navigate("/"))
@@ -140,7 +134,9 @@ export const Role = () => {
     return (
         <div className="mod-role">
             {isInviter &&
-                <UnitHeaderInviter role={role} userRole={userRole} managerEmails={managerEmails}/> }
+                <UnitHeaderInviter role={role}
+                                   userRole={userRole}
+                                   managerEmails={managerEmails}/>}
             {!isInviter &&
                 <UnitHeader obj={({...role, logo: logo})}
                     displayDescription={true}

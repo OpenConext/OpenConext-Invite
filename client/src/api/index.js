@@ -95,8 +95,9 @@ export function other(id) {
     return fetchJson(`/api/v1/users/other/${id}`, {}, {}, false);
 }
 
-export function searchUsers(query) {
-    return fetchJson(`/api/v1/users/search?query=${query}`);
+export function searchUsers(pagination={}) {
+    const queryPart = paginationQueryParams(pagination, {})
+    return fetchJson(`/api/v1/users/search?query=${queryPart}`);
 }
 
 export function searchUsersByApplication(pagination={}) {
@@ -186,8 +187,13 @@ export function deleteRole(role) {
 }
 
 //User roles
-export function userRolesByRoleId(roleId) {
-    return fetchJson(`/api/v1/user_roles/roles/${roleId}`, {}, {}, false);
+export function managersByRoleId(roleId) {
+    return fetchJson(`/api/v1/user_roles/managers/${roleId}`, {}, {}, false);
+}
+
+export function searchUserRolesByRoleId(roleId, isGuests, pagination = {}) {
+    const queryPart = paginationQueryParams(pagination, {})
+    return fetchJson(`/api/v1/user_roles/search/${roleId}/${isGuests}?${queryPart}`, {}, {}, false);
 }
 
 export function updateUserRoleEndData(userRoleId, endDate) {

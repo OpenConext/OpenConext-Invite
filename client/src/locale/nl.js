@@ -502,7 +502,7 @@ const nl = {
         noMails: "Geen notificatie mails zijn vertstuurd voor bijna verlopen gebruikersrollen",
         performanceSeedInfo: "The performance seed is dummy / generated data to test the performance of the system. It is deleted when you run the tests.",
         performanceSeed: "Insert performance seed",
-        performanceMillis: "Inserted following number in {{millis}} ms"
+        performanceMillis: "Inserted following entities in {{millis}} ms"
     },
     unknownRoles: {
         title: "Rollen gekoppeld aan applicaties die verwijderd zijn in Manage",
