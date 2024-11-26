@@ -149,7 +149,7 @@ export const Users = () => {
 
     if (hasEntities) {
         title = I18n.t(`users.found`, {
-            count: totalElements,
+            count: totalElements.toLocaleString(),
             plural: I18n.t(`users.${totalElements === 1 ? "singleUser" : "multipleUsers"}`)
         })
     }

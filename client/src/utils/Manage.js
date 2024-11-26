@@ -108,7 +108,9 @@ export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles
                 id: role.id,
                 name: role.name,
                 landingPage: role.applicationUsages.find(appUsage => appUsage.application.manageId === provider.id).landingPage
-            })),
+            }))
+            .sort((r1, r2) => r1.name.localeCompare(r2.name))
+        ,
         provisionings: provisionings
             .filter(prov => prov.applications.some(app => app.id === provider.id))
             .map(prov => ({

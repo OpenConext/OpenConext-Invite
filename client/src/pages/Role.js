@@ -17,6 +17,7 @@ import ClipBoardCopy from "../components/ClipBoardCopy";
 import {deriveApplicationAttributes} from "../utils/Manage";
 import DOMPurify from "dompurify";
 import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
+import {isEmpty} from "../utils/Utils";
 
 export const Role = () => {
     const {id, tab = "users"} = useParams();
@@ -96,6 +97,34 @@ export const Role = () => {
 
     }, [id]);// eslint-disable-line react-hooks/exhaustive-deps
 
+    const separator = (role, index) => {
+        const l = role.applicationMaps.length;
+        if (index === (l - 1)) {
+            return "";
+        }
+        if (index === (l - 2)) {
+            return ` ${I18n.t("forms.and")} `
+        }
+        return ", ";
+    }
+
+    const landingPages = role => {
+        return role.applicationMaps
+            .filter(m => !isEmpty(m) && !m.unknown)
+            .map((m, index) => {
+                const name = m[`name:${I18n.locale}`] || m["name:en"];
+                const orgName = m[`OrganizationName:${I18n.locale}`] || m["OrganizationName:en"];
+                const landingPage = role.applicationUsages.find(au => au.application.manageId === m.id).landingPage;
+                return (
+                    <span>
+                        <a href={landingPage} target="_blank" rel="noreferrer">{`${name}`}</a>
+                        {`${orgName ? " (" + orgName + ")" : ""}`}
+                        {separator(role, index)}
+                    </span>
+                );
+            })
+    }
+
     const getActions = () => {
         const actions = [];
         if (allowedToEditRole(user, role)) {
@@ -158,11 +187,7 @@ export const Role = () => {
                 {!role.unknownInManage &&
                 <div className={"meta-data-row"}>
                     <WebsiteIcon/>
-                    <a href={role.applicationUsages[0].landingPage}
-                       rel="noreferrer"
-                       target="_blank">
-                        <span className={"application-name"}>{`${role.applicationNames}`}</span>
-                    </a>{role.applicationOrganizationName && <span>{` (${role.applicationOrganizationName})`}</span>}
+                    <div>{landingPages(role)}</div>
                 </div>}
                 {role.unknownInManage &&
                     <div className="meta-data-row unknown-in-manage">

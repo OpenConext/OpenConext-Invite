@@ -126,7 +126,7 @@ export const Application = () => {
                 <Entities
                     entities={roles}
                     modelName="applicationRoles"
-                    title={I18n.t("applications.title")}
+                    title={I18n.t("applications.title", {nbr: roles.length})}
                     showNew={true}
                     newLabel={I18n.t("applications.new")}
                     newEntityFunc={() => navigate("/role/new", {state: application.id})}

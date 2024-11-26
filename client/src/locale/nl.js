@@ -186,7 +186,7 @@ const nl = {
             andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."        }
     },
     applications: {
-        title: "Toegangsrollen voor deze applicatie",
+        title: "Toegangsrollen voor deze applicatie ({{nbr}})",
         applicationFound: "Applicaties ({{nbr}})",
         new: "Nieuwe toegangsrol",
         searchPlaceHolder: "Zoek naar applicaties",

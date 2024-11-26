@@ -192,8 +192,8 @@ email:
 # configure real users / passwords and test against those. See server/src/main/java/access/manage/ManageConf.java
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
-#  enabled: True
-  enabled: False
+  enabled: True
+#  enabled: False
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret

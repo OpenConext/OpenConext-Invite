@@ -187,7 +187,7 @@ const en = {
         }
     },
     applications: {
-        title: "Access Roles for this application",
+        title: "Access Roles for this application ({{nbr}})",
         applicationFound: "Applications ({{nbr}})",
         new: "New Access Role",
         searchPlaceHolder: "Search for applications",
