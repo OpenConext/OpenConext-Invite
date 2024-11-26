@@ -18,7 +18,8 @@ export const ExpiredUserRoles = () => {
     useEffect(() => {
             expiryUserRoles().then(res => {
                 setUserRoles(res);
-                setLoading(false);
+                //we need to avoid flickerings
+                setTimeout(() => setLoading(false), 75);
             });
 
         },
@@ -83,7 +84,7 @@ export const ExpiredUserRoles = () => {
                       columns={columns}
                       showNew={false}
                       customNoEntities={I18n.t(`expiredUserRoles.noResults`)}
-                      loading={false}
+                      loading={loading}
                       rowLinkMapper={openRole}
                       title={I18n.t("expiredUserRoles.title")}
                       searchAttributes={["name", "email", "schacHomeOrganization"]}

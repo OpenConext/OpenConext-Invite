@@ -46,6 +46,26 @@ class UserRoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void managersByRole() throws Exception {
+//        //Because the user is changed and provisionings are queried
+//        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        Role role = roleRepository.search("wiki", 1).get(0);
+        List<String> emails = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("roleId", role.getId())
+                .get("/api/v1/user_roles/managers/{roleId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, emails.size());
+        assertEquals("mary.doe@example.com", emails.getFirst());
+    }
+
+    @Test
     void searchGuestsByPage() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
 

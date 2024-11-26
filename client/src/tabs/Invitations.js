@@ -8,7 +8,7 @@ import {shortDateFromEpoch} from "../utils/Date";
 
 import {chipTypeForUserRole, invitationExpiry} from "../utils/Authority";
 import {useNavigate} from "react-router-dom";
-import {allInvitations, deleteInvitation, resendInvitation} from "../api";
+import {allInvitations, deleteInvitation, invitationsByRoleId, resendInvitation} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
@@ -19,7 +19,14 @@ import Select from "react-select";
 const allValue = "all";
 const mineValue = "mine";
 
-export const Invitations = ({role, preloadedInvitations, standAlone = false, history = false, pending = true}) => {
+export const Invitations = ({
+                                role,
+                                preloadedInvitations,
+                                standAlone = false,
+                                systemView = false,
+                                history = false,
+                                pending = true
+                            }) => {
     const navigate = useNavigate();
     const {user, setFlash} = useAppStore(state => state);
     const invitations = useRef();
@@ -33,7 +40,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
     const [filterValue, setFilterValue] = useState(null);
 
     useEffect(() => {
-            const promise = standAlone ? allInvitations() : Promise.resolve(preloadedInvitations);
+            const promise = systemView ? allInvitations() : (isEmpty(role) ? Promise.resolve(preloadedInvitations) : invitationsByRoleId(role.id));
             if (history) {
                 useAppStore.setState({
                     breadcrumbPath: [
@@ -84,7 +91,8 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                 setFilterValue(newFilterOptions[0]);
 
                 setResultAfterSearch(res);
-                setLoading(false);
+                //we need to avoid flickerings
+                setTimeout(() => setLoading(false), 75);
             })
         },
         [invitations, user]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -250,7 +258,7 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
             mapper: invitation => <span>{invitation.email}</span>
         },
         {
-            key: "authority",
+            key: "intendedAuthority",
             header: I18n.t("users.authority"),
             mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intendedAuthority)}
                                         label={I18n.t(`access.${invitation.intendedAuthority}`)}/>
@@ -310,7 +318,8 @@ export const Invitations = ({role, preloadedInvitations, standAlone = false, his
                   showNew={!!role && (isUserAllowed(AUTHORITIES.MANAGER, user) || standAlone) && !role.unknownInManage}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
-                  loading={false}
+                  loading={loading}
+                  hideTitle={loading}
                   filters={filter(filterOptions, filterValue)}
                   actions={actionButtons()}
                   searchCallback={searchCallback}

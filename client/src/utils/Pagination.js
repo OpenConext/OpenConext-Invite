@@ -1,4 +1,6 @@
-export const pageCount = 25;
+import {isEmpty} from "./Utils";
+
+export const pageCount = 10;
 
 //https://gist.github.com/kottenator/9d936eb3e4e3c3e02598
 export const pagination = (page, totalResults) => {
@@ -27,4 +29,51 @@ export const pagination = (page, totalResults) => {
         l = i;
     }
     return rangeWithDots;
+}
+
+export const extractPageResultFromServerResult = (page, sorted, sortDirection) => {
+    return {
+        total: page.totalElements,
+        pageCount: page.pageable.pageSize,
+        currentPage: page.pageable.pageNumber,
+        sort: sorted,
+        sortDirection: sortDirection
+    }
+}
+
+export const paginationQueryParams = (page, queryParams = {}) => {
+    if (!isEmpty(page)) {
+        if (!isEmpty(page.query)) {
+            queryParams.query = encodeURIComponent(page.query);
+        }
+        if (!isEmpty(page.pageNumber)) {
+            queryParams.pageNumber = page.pageNumber;
+        }
+        if (!isEmpty(page.pageSize)) {
+            queryParams.pageSize = page.pageSize;
+        }
+        if (!isEmpty(page.sort)) {
+            queryParams.sort = page.sort;
+        }
+        if (!isEmpty(page.sortDirection)) {
+            queryParams.sortDirection = page.sortDirection;
+        }
+    }
+    const queryPart = Object.entries(queryParams).reduce((acc, entry) => {
+        acc += `${entry[0]}=${encodeURIComponent(entry[1])}&`
+        return acc;
+    }, "");
+    return queryPart;
+
+}
+
+export const defaultPagination = (sort= "name", sortDirection= "ASC") => {
+    const dp = {
+        query: "",
+        pageNumber: 0,
+        pageSize: pageCount,
+        sort: sort,
+        sortDirection: sortDirection
+    };
+    return {...dp};
 }

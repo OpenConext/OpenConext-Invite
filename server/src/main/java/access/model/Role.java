@@ -1,5 +1,6 @@
 package access.model;
 
+import access.manage.EntityType;
 import access.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
+import org.springframework.data.domain.Page;
 
 import java.io.Serializable;
 import java.util.*;
@@ -82,6 +84,17 @@ public class Role implements Serializable, Provisionable {
     @Transient
     private List<Map<String, Object>> applicationMaps;
 
+    public Role(Long id,
+                 String name,
+                 String description,
+                 Long userRoleCount) {
+        //Only used after native query and returned for Role overview in the GUI
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.userRoleCount = userRoleCount;
+    }
+
     public Role(String name,
                 String description,
                 Set<ApplicationUsage> applicationUsages,
@@ -130,6 +143,5 @@ public class Role implements Serializable, Provisionable {
         this.applicationUsages = applicationUsages;
         this.applicationUsages.forEach(applicationUsage -> applicationUsage.setRole(this));
     }
-
 
 }

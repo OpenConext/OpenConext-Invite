@@ -1,5 +1,6 @@
 import {isEmpty} from "./Utils";
 import {deriveApplicationAttributes} from "./Manage";
+import {sortObjects} from "./Sort";
 
 export const INVITATION_STATUS = {
     OPEN: "OPEN",
@@ -94,7 +95,7 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
     if (user.superUser) {
         return true;
     }
-    if (deleteAction && user.id === userRole.userInfo?.id) {
+    if (deleteAction && (user.id === userRole.userInfo?.id || user.id === userRole.user_id)) {
         return true;
     }
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
@@ -125,7 +126,7 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
 
 export const urnFromRole = (groupUrnPrefix, role) => role.teamsOrigin ? role.urn : `${groupUrnPrefix}:${role.identifier}:${role.shortName}`;
 
-export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) => {
+export const markAndFilterRoles = (user, allRoles, locale, multiple, separator, sort, reversed) => {
     allRoles.forEach(role => {
         role.isUserRole = false;
         role.label = role.name;
@@ -153,10 +154,10 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator) 
         userRole.logo = role.logo;
         userRole.userRoleCount = role.userRoleCount;
     })
-    return allRoles
+    const filteredRoles = allRoles
         .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
         .concat(userRoles)
-        .sort((r1,r2) => r1.name.localeCompare(r2.name));
+    return sortObjects(filteredRoles, sort, reversed);
 }
 
 export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {

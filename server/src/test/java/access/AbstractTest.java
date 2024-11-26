@@ -80,7 +80,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.url: http://localhost:8081",
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
-                "feature.limit-institution-admin-role-visibility=true",
                 "spring.jpa.properties.hibernate.format_sql=false",
                 "spring.jpa.show-sql=false"
         })
@@ -540,13 +539,13 @@ public abstract class AbstractTest {
       };
     }
 
-    public Set<ApplicationUsage> application(String manageId, EntityType entityType) {
+    protected Set<ApplicationUsage> application(String manageId, EntityType entityType) {
         Application application = applicationRepository.findByManageIdAndManageType(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
         return Set.of(new ApplicationUsage(application, "http://landingpage.com"));
     }
 
-    public void doSeed() {
+    private void doSeed() {
         this.invitationRepository.deleteAllInBatch();
         this.remoteProvisionedGroupRepository.deleteAllInBatch();
         this.remoteProvisionedUserRepository.deleteAllInBatch();
@@ -612,6 +611,7 @@ public abstract class AbstractTest {
         //These roles will be accessible for the institution admin based
         network.setOrganizationGUID(ORGANISATION_GUID);
         research.setOrganizationGUID(ORGANISATION_GUID);
+        wiki.setOrganizationGUID(ORGANISATION_GUID);
 
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 

@@ -27,12 +27,12 @@ export const MinimalDateField = ({
     const toggle = () => inputRef.current.setOpen(true);
 
     const minimalDate = minDate || futureDate(1);
-    const selectedDate = isEmpty(value) ? futureDate(16) : new Date(value * 1000);
+    const selectedDate = isEmpty(value) ? futureDate(16) : new Date(value);
 
     let expired = false;
     if (!isEmpty(value)) {
         const now = new Date();
-        const endDate = new Date(value * 1000);
+        const endDate = new Date(value);
         expired = now > endDate;
     }
     return (
@@ -41,7 +41,7 @@ export const MinimalDateField = ({
                 type={ChipType.Status_error}
                 label={I18n.t("invitations.statuses.expired")}/>}
             {!expired && <span className="value">
-                {!isEmpty(value) ? dateFromEpoch(value) : I18n.t("roles.noEndDate")}
+                {!isEmpty(value) ? dateFromEpoch(value, false) : I18n.t("roles.noEndDate")}
             </span>}
             <DatePicker
                 ref={inputRef}

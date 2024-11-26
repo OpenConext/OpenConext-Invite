@@ -104,7 +104,9 @@ public class InvitationOperations {
                         mailBox.inviteMailURL(invitation)))
                 .toList();
         if (!invitationRequest.isSuppressSendingEmails()) {
-            invitations.forEach(invitation -> mailBox.sendInviteMail(user, invitation, groupedProviders, invitationRequest.getLanguage()));
+            invitations.forEach(invitation ->
+                    mailBox.sendInviteMail(user == null ? remoteUser : user,
+                            invitation, groupedProviders, invitationRequest.getLanguage()));
         }
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
         return ResponseEntity.status(HttpStatus.CREATED).body(new InvitationResponse(HttpStatus.CREATED.value(), recipientInvitationURLs));

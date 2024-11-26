@@ -19,23 +19,23 @@ class UserPermissionsTest extends WithApplicationTest {
     @Test
     void assertSuperUser() {
         User user = new User(true, Map.of());
-        UserPermissions.assertManagerRole(List.of(), user);
         UserPermissions.assertSuperUser(user);
         UserPermissions.assertValidInvitation(user, Authority.SUPER_USER, List.of());
         UserPermissions.assertAuthority(user, Authority.MANAGER);
-        UserPermissions.assertRoleAccess(user, null);
+        UserPermissions.assertRoleAccess(user, null, null);
     }
 
     @Test
     void assertValidInvitationSuperUser() {
         assertThrows(UserRestrictionException.class, () ->
                 UserPermissions.assertValidInvitation(new User(new HashMap<>()),Authority.SUPER_USER, new ArrayList<>()));
+        String organizationGUID = UUID.randomUUID().toString();
         User user = new User();
         user.setInstitutionAdmin(true);
-        user.setApplications(List.of(Map.of("id", "1")));
+        user.setOrganizationGUID(organizationGUID);
 
         Role role = new Role();
-        role.getApplicationUsages().add(new ApplicationUsage(new Application("1", EntityType.SAML20_SP),"https://landing.com") );
+        role.setOrganizationGUID(organizationGUID);
         UserPermissions.assertValidInvitation(user, Authority.MANAGER, List.of(role));
     }
 
@@ -109,51 +109,11 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertValidInvitation(user, Authority.GUEST, roles));
     }
 
-    @Test
-    void assertManagerRole() {
-        String identifier = UUID.randomUUID().toString();
-        User user = userWithRole(Authority.MANAGER, identifier);
-        UserPermissions.assertManagerRole(List.of(identifier), user);
-    }
-
-    @Test
-    void assertNotManagerRole() {
-        String identifier = UUID.randomUUID().toString();
-        User user = userWithRole(Authority.INVITER, identifier);
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(List.of(identifier), user));
-    }
-
-    @Test
-    void assertManagerRoleNotProvisioning() {
-        User user = userWithRole(Authority.MANAGER, "identifier");
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(List.of("nope"), user));
-    }
-
-    @Test
-    void assertManagerRoleInstitutionAdmin() {
-        User user = new User();
-        user.setInstitutionAdmin(true);
-        user.setApplications(List.of(Map.of("id", "1")));
-
-        UserPermissions.assertManagerRole(List.of("1"), user);
-    }
-
-    @Test
-    void assertRoleAccessInstitutionAdminApplications() {
-        User user = new User();
-        user.setInstitutionAdmin(true);
-        user.setApplications(List.of(Map.of("id", "1")));
-
-
-        Role role = new Role();
-        role.getApplicationUsages().add(new ApplicationUsage(new Application("1", EntityType.SAML20_SP),"https://landing.com") );
-        UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
-    }
-    @Test
+        @Test
     void assertRoleAccess() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.GUEST, identifier);
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole()));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole(), Authority.INVITER));
     }
 
     @Test()
@@ -162,16 +122,18 @@ class UserPermissionsTest extends WithApplicationTest {
         User user = userWithRole(Authority.MANAGER, identifier);
         Role role = new Role("name", "description", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role, Authority.MANAGER));
     }
 
     @Test
     void assertRoleAccessInstitutionAdmin() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.INSTITUTION_ADMIN, identifier);
+        user.setOrganizationGUID(identifier);
         Role role = new Role("name", "description", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
-        UserPermissions.assertRoleAccess(user, role);
+        role.setOrganizationGUID(identifier);
+        UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
     }
 
     @Test
@@ -180,7 +142,7 @@ class UserPermissionsTest extends WithApplicationTest {
         User user = userWithRole(Authority.GUEST, identifier);
         Role role = new Role("name", "description", application(identifier, EntityType.SAML20_SP), 365, false, false);
         role.setId(random.nextLong());
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role, Authority.INVITER));
     }
 
     @Test
@@ -190,7 +152,6 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertInstitutionAdmin(new User()));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertAuthority(null, Authority.GUEST));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertValidInvitation(null, Authority.GUEST, emptyList()));
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertManagerRole(emptyList(), null));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess( null, null,Authority.GUEST));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess( new User(), null,Authority.GUEST));
     }

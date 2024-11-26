@@ -2,10 +2,6 @@ import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import React, {useEffect, useState} from "react";
 import {ReactComponent as Logo} from "../icons/Owl_Emblem.svg";
-import {ReactComponent as RoleLogo} from "@surfnet/sds/icons/illustrative-icons/hierarchy-2.svg";
-import {ReactComponent as ApplicationLogo} from "@surfnet/sds/icons/illustrative-icons/database-refresh.svg";
-import {ReactComponent as UserLogo} from "@surfnet/sds/icons/functional-icons/id-2.svg";
-import {ReactComponent as TokenLogo} from "@surfnet/sds/icons/illustrative-icons/database-hand.svg";
 import Tabs from "../components/Tabs";
 import "./Home.scss";
 import {UnitHeader} from "../components/UnitHeader";
@@ -47,7 +43,7 @@ export const Home = () => {
             <Page key="roles"
                   name="roles"
                   label={I18n.t("tabs.roles")}
-                  Icon={RoleLogo}>
+            >
                 <Roles/>
             </Page>
         ];
@@ -56,14 +52,14 @@ export const Home = () => {
                 <Page key="users"
                       name="users"
                       label={I18n.t("tabs.users")}
-                      Icon={UserLogo}>
+                >
                     <Users/>
                 </Page>);
             newTabs.push(
                 <Page key="applications"
                       name="applications"
                       label={I18n.t("tabs.applications")}
-                      Icon={ApplicationLogo}>
+                >
                     <Applications/>
                 </Page>
             );
@@ -73,7 +69,7 @@ export const Home = () => {
                 <Page key="applications"
                       name="applications"
                       label={I18n.t("tabs.applications")}
-                      Icon={ApplicationLogo}>
+                >
                     <Applications/>
                 </Page>
             );
@@ -81,7 +77,7 @@ export const Home = () => {
                 <Page key="applicationUsers"
                       name="applicationUsers"
                       label={I18n.t("tabs.applicationUsers")}
-                      Icon={UserLogo}>
+                >
                     <ApplicationUsers/>
                 </Page>);
         }
@@ -89,8 +85,7 @@ export const Home = () => {
             newTabs.push(
                 <Page key="tokens"
                       name="tokens"
-                      label={I18n.t("tabs.tokens")}
-                      Icon={TokenLogo}>
+                      label={I18n.t("tabs.tokens")}>
                     <Tokens/>
                 </Page>);
         }

@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.DefaultPage;
 import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.model.Authority;
@@ -283,7 +284,7 @@ class UserControllerTest extends AbstractTest {
     void search() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
-        List<User> users = given()
+        DefaultPage<User> page = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -292,14 +293,14 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, users.size());
+        assertEquals(1, page.getTotalElements());
     }
 
     @Test
     void searchWithAtSign() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
-        List<User> users = given()
+        DefaultPage<User> page = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -308,14 +309,14 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, users.size());
+        assertEquals(1, page.getTotalElements());
     }
 
     @Test
     void searchPaginated() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
-        Map<String, Object> users = given()
+        DefaultPage<Map<String, Object>> page = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -325,27 +326,11 @@ class UserControllerTest extends AbstractTest {
                 .queryParam("pageSize", 3)
                 .queryParam("sort", "given_name")
                 .queryParam("sortDirection", Sort.Direction.ASC.name())
-                .get("/api/v1/users/search-paginated")
+                .get("/api/v1/users/search")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(3, ((List<?>) users.get("content")).size());
-        assertEquals(6, users.get("totalElements"));
-    }
-
-    @Test
-    void searchPaginatedAll() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-
-        Map<String, Object> users = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .queryParam("query", "owl")
-                .get("/api/v1/users/search-paginated")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(6, ((List<?>) users.get("content")).size());
+        assertEquals(3, page.getContent().size());
+        assertEquals(6, page.getTotalElements());
     }
 
     @Test
@@ -354,16 +339,20 @@ class UserControllerTest extends AbstractTest {
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
-        List<Map<String, Object>> users = given()
+        DefaultPage<Map<String, Object>> usersPage = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .queryParam("query", "Doe")
+                .queryParam("query", "doe")
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, users.size());
+        assertEquals(3, usersPage.getTotalElements());
+        assertEquals(3, usersPage.getContent().size());
+        //Sorted by name default
+        List<String> names = usersPage.getContent().stream().map(m -> (String) m.get("name")).toList();
+        assertEquals(List.of("Ann Doe", "James Doe", "Mary Doe"), names);
     }
 
     @Test
@@ -372,16 +361,17 @@ class UserControllerTest extends AbstractTest {
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
-        List<Map<String, Object>> users = given()
+        DefaultPage<Map<String, Object>> usersPage = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .queryParam("query", "owl")
+                .queryParam("pageSize", 1)
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, users.size());
+        assertEquals(4, usersPage.getTotalElements());
+        assertEquals(1, usersPage.getContent().size());
     }
 
     @Test
@@ -422,22 +412,6 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/other/{id}")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    void searchOwl() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-
-        List<User> users = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .queryParam("query", "owl")
-                .get("/api/v1/users/search")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(6, users.size());
     }
 
     @Test

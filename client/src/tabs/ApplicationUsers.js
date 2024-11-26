@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
 import {Loader, Tooltip} from "@surfnet/sds";
@@ -9,64 +9,56 @@ import "./ApplicationUsers.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
-import SearchSvg from "../icons/undraw_people_search_re_5rre.svg";
 import {useNavigate} from "react-router-dom";
+import {defaultPagination, pageCount} from "../utils/Pagination";
 
 
 export const ApplicationUsers = () => {
 
-    const [searching, setSearching] = useState(false);
+    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
+    const [searching, setSearching] = useState(true);
     const [users, setUsers] = useState([]);
-    const [moreToShow, setMoreToShow] = useState(false);
-    const [initial, setInitial] = useState(true);
-    const [noResults, setNoResults] = useState(false);
+    const [totalElements, setTotalElements] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        return () => {
-            delayedAutocomplete.cancel();
-        };
-    });
+        searchUsersByApplication(paginationQueryParams)
+            .then(page => {
+                const results = page.content;
+                results.forEach(user => user.endDate = user.roleSummaries
+                    .reduce((acc, rs) => Math.min(rs.endDate || Number.MAX_VALUE, acc), Number.MAX_VALUE));
+                results.forEach(user => user.roleSummaries
+                    .sort((r1, r2) => (r1.endDate || Number.MAX_VALUE) - (r2.endDate || Number.MAX_VALUE)));
+                setUsers(results);
+                //we need to avoid flickerings
+                setTimeout(() => setSearching(false), 75);
+                setTotalElements(page.totalElements);
+                setSearching(false);
+            });
+    }, [paginationQueryParams]);
 
     const gotoRole = (e, roleId) => {
         stopEvent(e);
         navigate(`/roles/${roleId}`)
     }
 
-    const search = query => {
-        if (!isEmpty(query) && query.trim().length > 0) {
-            delayedAutocomplete(query);
-        }
-        if (isEmpty(query)) {
-            setSearching(false);
-            setMoreToShow(false);
-            setNoResults(false);
-            setUsers([]);
+    const search = (query, sorted, reverse, page) => {
+        if (isEmpty(query) || query.trim().length > 2) {
+            delayedAutocomplete(query, sorted, reverse, page);
         }
     };
 
-    const delayedAutocomplete = useMemo(() => debounce(query => {
+    const delayedAutocomplete = debounce((query, sorted, reverse, page) => {
         setSearching(true);
-        searchUsersByApplication(query)
-            .then(results => {
-                setInitial(false);
-                results.forEach(user => user.endDate = user.roleSummaries
-                    .reduce((acc, rs) => Math.min(rs.endDate || Number.MAX_VALUE, acc), Number.MAX_VALUE));
-                results.forEach(user => user.roleSummaries
-                    .sort((r1, r2) => (r1.endDate || Number.MAX_VALUE) - (r2.endDate || Number.MAX_VALUE)));
-                setUsers(results);
-                setMoreToShow(results.length === 15);
-                setNoResults(results.length === 0);
-                setSearching(false);
-            });
-    }, 500), []);
-
-    const moreResultsAvailable = () => {
-        return (
-            <div className="more-results-available">
-                <span>{I18n.t("users.moreResults")}</span>
-            </div>)
-    }
+        //this will trigger a new search
+        setPaginationQueryParams({
+            query: query,
+            pageNumber: page,
+            pageSize: pageCount,
+            sort: sorted,
+            sortDirection: reverse ? "DESC" : "ASC"
+        })
+    }, 375);
 
     const columns = [
         {
@@ -94,7 +86,7 @@ export const ApplicationUsers = () => {
                 </div>)
         },
         {
-            key: "schac_home_organisation",
+            key: "schac_home_organization",
             header: I18n.t("users.schacHomeOrganization"),
             mapper: user => <span>{user.schacHomeOrganization}</span>
         },
@@ -121,37 +113,24 @@ export const ApplicationUsers = () => {
         },
     ];
 
-    const countUsers = users.length;
-    const hasEntities = countUsers > 0;
-    let title = "";
-
-    if (hasEntities) {
-        title = I18n.t(`users.found`, {
-            count: countUsers,
-            plural: I18n.t(`users.${countUsers === 1 ? "singleUser" : "multipleUsers"}`)
+    const title = I18n.t(`users.found`, {
+        count: totalElements,
+        plural: I18n.t(`users.${totalElements === 1 ? "singleUser" : "multipleUsers"}`)
         })
-    }
+
     return (<div className="mod-application-users">
         {searching && <Loader/>}
 
         <Entities entities={users}
                   modelName="users"
                   defaultSort="name"
-                  filters={moreToShow && moreResultsAvailable()}
                   columns={columns}
                   title={title}
-                  hideTitle={!hasEntities || noResults}
-                  customNoEntities={I18n.t(`users.noResults`)}
-                  loading={false}
-                  searchAttributes={["name", "email", "schacHomeOrganization"]}
                   inputFocus={true}
+                  totalElements={totalElements}
                   customSearch={search}
-            // rowLinkMapper={openUser}
-                  busy={searching}>
-            {initial && <div className={"image-container"}>
-                <img src={SearchSvg} alt="search"/>
-            </div>}
-        </Entities>
+                  hideTitle={searching}
+                  busy={searching}/>
     </div>)
 
 }

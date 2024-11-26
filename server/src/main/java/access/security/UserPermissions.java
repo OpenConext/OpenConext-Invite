@@ -61,39 +61,19 @@ public class UserPermissions {
         if (intendedAuthority.equals(Authority.SUPER_USER)) {
             throw new UserRestrictionException();
         }
-        //For all roles verify that the user has a higher authority then the one requested for all off the roles
         Set<UserRole> userRoles = user.getUserRoles();
+        //Institution admin needs to own all roles
         if (user.isInstitutionAdmin() && roles.stream()
-                .allMatch(role -> mayInviteByInstitutionAdmin(user.getApplications(), role.applicationIdentifiers()))) {
+                .allMatch(role -> user.getOrganizationGUID().equals(role.getOrganizationGUID()))) {
             return;
         }
+        //For all roles verify that the user has a higher authority then the one requested for all off the roles
         boolean allowed = roles.stream()
                 .allMatch(role -> mayInviteByApplication(userRoles, intendedAuthority, role) ||
                         mayInviteByAuthority(userRoles, intendedAuthority, role));
         if (!allowed) {
             throw new UserRestrictionException();
         }
-    }
-
-    public static void assertManagerRole(List<String> manageIdentifiers, User user) {
-        if (user == null) {
-            throw new UserRestrictionException();
-        }
-        if (user.isSuperUser()) {
-            return;
-        }
-        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), manageIdentifiers)) {
-            return;
-        }
-        user.getUserRoles().stream()
-                .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER)
-                        && userRole.getRole().applicationIdentifiers().stream().anyMatch(manageIdentifiers::contains))
-                .findFirst()
-                .orElseThrow(UserRestrictionException::new);
-    }
-
-    public static void assertRoleAccess(User user, Role accessRole) {
-        assertRoleAccess(user, accessRole, Authority.MANAGER);
     }
 
     public static void assertRoleAccess(User user, Role accessRole, Authority authority) {
@@ -106,7 +86,7 @@ public class UserPermissions {
         if (accessRole == null) {
             throw new UserRestrictionException();
         }
-        if (user.isInstitutionAdmin() && mayInviteByInstitutionAdmin(user.getApplications(), accessRole.applicationIdentifiers())) {
+        if (user.isInstitutionAdmin() && user.getOrganizationGUID().equals(accessRole.getOrganizationGUID())) {
             return;
         }
         user.getUserRoles().stream()
@@ -124,13 +104,6 @@ public class UserPermissions {
                 .anyMatch(userRole -> userRole.hasAccessToApplication(role) &&
                         userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER) &&
                         userRole.getAuthority().hasEqualOrHigherRights(intendedAuthority));
-    }
-
-    //Does one off the user applications has the same application as the role
-    private static boolean mayInviteByInstitutionAdmin(List<Map<String, Object>> applications,
-                                                       List<String> manageIdentifiers) {
-        return applications.stream()
-                .anyMatch(application -> manageIdentifiers.contains(application.get("id")));
     }
 
     //Does one the userRoles has at least the Authority higher than the intendedAuthority and NOT Guest

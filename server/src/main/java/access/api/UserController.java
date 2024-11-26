@@ -25,7 +25,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,6 +47,7 @@ import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static access.model.UserRoles.timeStampToInstant;
 
 @RestController
 @RequestMapping(value = {"/api/v1/users", "/api/external/v1/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,7 +66,6 @@ public class UserController {
     private final ObjectMapper objectMapper;
     private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
     private final GraphClient graphClient;
-    private final boolean limitInstitutionAdminRoleVisibility;
     private final RoleRepository roleRepository;
 
 
@@ -77,14 +80,13 @@ public class UserController {
                           @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
                           @Value("${config.server-url}") String serverBaseURL,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix,
-                          @Value("${feature.limit-institution-admin-role-visibility}") boolean limitInstitutionAdminRoleVisibility, RoleRepository roleRepository) {
+                          RoleRepository roleRepository) {
         this.invitationRepository = invitationRepository;
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
-        this.limitInstitutionAdminRoleVisibility = limitInstitutionAdminRoleVisibility;
         this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
         this.roleRepository = roleRepository;
     }
@@ -121,10 +123,7 @@ public class UserController {
         if (!user.isSuperUser()) {
             UserPermissions.assertInstitutionAdmin(user);
             //We need to ensure the institution admin has access to at least one of the roles
-            List<String> manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).toList();
-            boolean allowedByManage = roles.stream()
-                    .anyMatch(role -> role.getApplicationUsages().stream()
-                            .anyMatch(applicationUsage -> manageIdentifiers.contains(applicationUsage.getApplication().getManageId())));
+            boolean allowedByManage = roles.stream().anyMatch(role -> user.getOrganizationGUID().equals(role.getOrganizationGUID()));
             if (!allowedByManage) {
                 throw new UserRestrictionException();
             }
@@ -133,62 +132,41 @@ public class UserController {
     }
 
     @GetMapping("search")
-    public ResponseEntity<List<User>> search(@RequestParam(value = "query") String query,
-                                             @Parameter(hidden = true) User user) {
+    public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
+                                                            @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                            @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                            @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                            @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/search for user %s", user.getEduPersonPrincipalName()));
-        UserPermissions.assertSuperUser(user);
-        List<User> users = query.equals("owl") ? userRepository.findAll() :
-                userRepository.search(FullSearchQueryParser.parse(query), 15);
-        return ResponseEntity.ok(users);
-    }
 
-    @GetMapping("search-paginated")
-    public ResponseEntity<Page<?>> searchPaginated(@RequestParam(value = "query", required = false, defaultValue = "") String query,
-                                                                     @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
-                                                                     @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-                                                                     @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
-                                                                     @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection,
-                                                                     @Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/search-paginated for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
-        if (query.equals("owl")) {
-            List<User> content = userRepository.findAll();
-            PageRequest pageRequest = PageRequest.of(0, content.size(), Sort.by(Sort.Direction.ASC.name(), "id"));
-            return ResponseEntity.ok(new PageImpl<>(content, pageRequest, content.size()));
-        }
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> page = StringUtils.hasText(query) ?
-                userRepository.searchByPage(pageable) :
-                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) ;
-        return ResponseEntity.ok(page);
+        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ?
+                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
+                userRepository.searchByPage(pageable);
+        return ResponseEntity.ok(usersPage);
     }
 
     @GetMapping("search-by-application")
-    public ResponseEntity<List<UserRoles>> searchByApplication(@RequestParam(value = "query") String query,
-                                                               @Parameter(hidden = true) User user) {
+    public ResponseEntity<Page<UserRoles>> searchByApplication(@Parameter(hidden = true) User user,
+                                                               @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                               @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                               @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                               @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                               @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/searchByApplication for user %s and query %s", user.getEduPersonPrincipalName(), query));
 
         UserPermissions.assertInstitutionAdmin(user);
-        List<String> manageIdentifiers;
-        if (limitInstitutionAdminRoleVisibility) {
-            manageIdentifiers = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
-                    .stream()
-                    .map(role -> role.getApplicationUsages())
-                    .flatMap(Set::stream)
-                    .map(applicationUsage -> applicationUsage.getApplication().getManageId())
-                    .toList();
-        } else {
-            manageIdentifiers = user.getApplications().stream().map(application -> (String) application.get("id")).collect(Collectors.toList());
-        }
-        List<Map<String, Object>> results = query.equals("owl") ?
-                userRepository.searchByApplicationAllUsers(manageIdentifiers) :
-                userRepository.searchByApplication(manageIdentifiers, FullSearchQueryParser.parse(query), 15);
-        //There are duplicate users in the results, need to group by ID
-        Map<Long, List<Map<String, Object>>> groupedBy = results.stream().collect(Collectors.groupingBy(map -> (Long) map.get("id")));
-        List<UserRoles> userRoles = groupedBy.values().stream()
-                .map(UserRoles::new)
-                .toList();
-        return ResponseEntity.ok(userRoles);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ?
+                userRepository.searchByPageRoleUsersWithKeyWord(user.getOrganizationGUID(), FullSearchQueryParser.parse(query), pageable) :
+                userRepository.searchByPageRoleUsers(user.getOrganizationGUID(), pageable);
+        List<Long> userIdentifiers = usersPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
+        List<Map<String, Object>> userRoles = userRepository.findUserRoles(userIdentifiers);
+        List<UserRoles> userRoleList = this.userRoleFromQuery(usersPage, userRoles);
+        return Pagination.of(usersPage, userRoleList);
     }
 
     @GetMapping("login")
@@ -261,6 +239,28 @@ public class UserController {
         if (!missingAttributes.isEmpty()) {
             result.withMissingAttributes(missingAttributes);
         }
+    }
+
+    //See UserRepository#
+    private List<UserRoles> userRoleFromQuery(Page<Map<String, Object>> usersPage, List<Map<String, Object>> userRoles) {
+        List<UserRoles> userRoleList = usersPage.getContent().stream().map(UserRoles::new).toList();
+        //Now add all applications, note that we need to preserve ordering of the roles
+        Map<Long, List<Map<String, Object>>> userRolesGroupedByUser =
+                userRoles.stream().collect(Collectors.groupingBy(m -> (Long) m.get("user_id")));
+
+        userRoleList.forEach(userRole -> {
+            //Find all userRoles with this user id
+            List<RoleSummary> roleSummaries = userRolesGroupedByUser.get(userRole.getId()).stream()
+                    .map(m -> new RoleSummary(
+                            (Long)m.get("id"),
+                            (String) m.get("name"),
+                            (String) m.get("authority"),
+                            timeStampToInstant(m,"end_date")
+                    ))
+                    .toList();
+            userRole.setRoleSummaries(roleSummaries);
+        });
+        return userRoleList;
     }
 
 

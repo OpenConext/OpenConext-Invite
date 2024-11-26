@@ -11,41 +11,68 @@ import {useNavigate} from "react-router-dom";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {allowedToRenewUserRole, AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
 import ConfirmationDialog from "../components/ConfirmationDialog";
-import {deleteUserRole, updateUserRoleEndData} from "../api";
+import {deleteUserRole, searchUserRolesByRoleId, updateUserRoleEndData} from "../api";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {MinimalDateField} from "../components/MinimalDateField";
+import {defaultPagination, pageCount} from "../utils/Pagination";
+import debounce from "lodash.debounce";
 
 const oneMonthMillis = 1000 * 60 * 60 * 24 * 30;
 
-export const UserRoles = ({role, guests, userRoles}) => {
+export const UserRoles = ({role, guests}) => {
     const navigate = useNavigate();
     const {user, setFlash, config} = useAppStore(state => state);
 
+    const [userRoles, setUserRoles] = useState({});
     const [selectedUserRoles, setSelectedUserRoles] = useState({});
     const [allSelected, setAllSelected] = useState(false);
-    const [resultAfterSearch, setResultAfterSearch] = useState(userRoles);
+    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
+    const [totalElements, setTotalElements] = useState(0);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
+    const [searching, setSearching] = useState(true);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-            userRoles.forEach(userRole => {
-                userRole.name = userRole.userInfo.name;
-                userRole.email = userRole.userInfo.email;
-                userRole.schacHomeOrganization = userRole.userInfo.schacHomeOrganization;
-            });
-            setSelectedUserRoles(userRoles
-                .reduce((acc, userRole) => {
-                    acc[userRole.id] = {
-                        selected: false,
-                        ref: userRole,
-                        allowed: allowedToRenewUserRole(user, userRole, true, guests)
-                    };
-                    return acc;
-                }, {}));
-            setLoading(false);
+            searchUserRolesByRoleId(role.id, guests, paginationQueryParams)
+                .then(page => {
+                    //We don't get the role from the server anymore due to custom pagination queries
+                    page.content.forEach(userRole => userRole.role = role);
+                    setUserRoles(page.content);
+                    setSelectedUserRoles(page.content
+                        .reduce((acc, userRole) => {
+                            acc[userRole.id] = {
+                                selected: false,
+                                ref: userRole,
+                                allowed: allowedToRenewUserRole(user, userRole, true, guests)
+                            };
+                            return acc;
+                        }, {}));
+                    setTotalElements(page.totalElements);
+                    //we need to avoid flickerings
+                    setTimeout(() => setSearching(false), 75);
+                    setLoading(false);
+                });
         },
-        [userRoles, guests, user])
+        [guests, user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    const search = (query, sorted, reverse, page) => {
+        if (isEmpty(query) || query.trim().length > 2) {
+            delayedAutocomplete(query, sorted, reverse, page);
+        }
+    };
+
+    const delayedAutocomplete = debounce((query, sorted, reverse, page) => {
+        setSearching(true);
+        //this will trigger a new search
+        setPaginationQueryParams({
+            query: query,
+            pageNumber: page,
+            pageSize: pageCount,
+            sort: sorted,
+            sortDirection: reverse ? "DESC" : "ASC"
+        })
+    }, 375);
 
     if (loading) {
         return <Loader/>
@@ -64,7 +91,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                 action: () => doUpdateEndDate(userRole, newEndDate, false),
                 question: I18n.t(`userRoles.${isEmpty(newEndDate) ? "updateConfirmationRemoveEndDate" : "updateConfirmation"}`, {
                     roleName: userRole.role.name,
-                    userName: userRole.userInfo.name
+                    userName: userRole.name
                 }),
                 confirmationTxt: I18n.t("confirmationDialog.confirm"),
                 confirmationHeader: I18n.t("confirmationDialog.title")
@@ -102,15 +129,13 @@ export const UserRoles = ({role, guests, userRoles}) => {
     const userRoleIdentifiers = () => {
         return Object.entries(selectedUserRoles)
             .filter(entry => (entry[1].selected) && entry[1].allowed)
-            .map(entry => parseInt(entry[0]))
-            .filter(id => resultAfterSearch.some(res => res.id === id));
+            .map(entry => parseInt(entry[0]));
     }
 
     const willUpdateCurrentUser = () => {
         return Object.entries(selectedUserRoles)
-            .filter(entry => (entry[1].selected) && entry[1].allowed && entry[1]?.ref?.userInfo?.id === user.id)
-            .map(entry => parseInt(entry[0]))
-            .some(id => resultAfterSearch.some(res => res.id === id));
+            .filter(entry => (entry[1].selected) && entry[1].allowed && entry[1]?.ref?.user_id === user.id)
+            .map(entry => parseInt(entry[0]));
     }
 
     const doDeleteUserRoles = showConfirmation => {
@@ -129,12 +154,11 @@ export const UserRoles = ({role, guests, userRoles}) => {
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.deleteFlash"));
-                    if (deleteCurrentUserRole) {
+                    if (isEmpty(deleteCurrentUserRole)) {
+                        setPaginationQueryParams({...paginationQueryParams});
+                    } else {
                         useAppStore.setState(() => ({reload: true}));
                         navigate("/home", {replace: true});
-                    } else {
-                        const path = encodeURIComponent(window.location.pathname);
-                        navigate(`/refresh-route/${path}`, {replace: true});
                     }
                 }).catch(handleError);
         }
@@ -175,7 +199,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                          children={<div className={"alarm-bell"}><AlarmBell/></div>}
                          tip={I18n.t("tooltips.expiredUserRole",
                              {
-                                 date: dateFromEpoch(userRole.endDate)
+                                 date: dateFromEpoch(userRole.endDate, false)
                              })}/>
 
             );
@@ -197,11 +221,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
                     />
             );
         }
-        return dateFromEpoch(userRole.endDate)
-    }
-
-    const searchCallback = afterSearch => {
-        setResultAfterSearch(afterSearch);
+        return dateFromEpoch(userRole.endDate, false)
     }
 
     const actionButtons = () => {
@@ -244,21 +264,21 @@ export const UserRoles = ({role, guests, userRoles}) => {
             header: I18n.t("users.name_email"),
             mapper: userRole => (
                 <div className="user-name-email">
-                    <span className="name">{userRole.userInfo.name}</span>
-                    <span className="email">{userRole.userInfo.email}</span>
+                    <span className="name">{userRole.name}</span>
+                    <span className="email">{userRole.email}</span>
                 </div>)
         },
         {
             key: "me",
             nonSortable: true,
             header: "",
-            mapper: userRole => userRole.userInfo.id === user.id ?
+            mapper: userRole => userRole.user_id === user.id ?
                 <Chip label={I18n.t("forms.you")} type={ChipType.Status_info}/> : null
         },
         {
-            key: "userInfo__schacHomeOrganization",
+            key: "schac_home_organization",
             header: I18n.t("users.schacHomeOrganization"),
-            mapper: userRole => <span>{userRole.userInfo.schacHomeOrganization}</span>
+            mapper: userRole => <span>{userRole.schac_home_organization}</span>
         },
         {
             key: "authority",
@@ -281,7 +301,7 @@ export const UserRoles = ({role, guests, userRoles}) => {
         {
             key: "createdAt",
             header: I18n.t("userRoles.createdAt"),
-            mapper: userRole => shortDateFromEpoch(userRole.createdAt)
+            mapper: userRole => shortDateFromEpoch(userRole.createdAt, false)
         },];
 
     return (<div className="mod-user-roles">
@@ -302,12 +322,15 @@ export const UserRoles = ({role, guests, userRoles}) => {
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=${guests === false}`, {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}
                   loading={false}
-                  title={I18n.t(guests ? "userRoles.guestRoles" : "userRoles.managerRoles", {count: userRoles.length})}
+                  title={I18n.t(guests ? "userRoles.guestRoles" : "userRoles.managerRoles", {count: totalElements})}
                   actions={actionButtons()}
-                  searchCallback={searchCallback}
-                  searchAttributes={["name", "email", "schacHomeOrganization"]}
-                  inputFocus={true}>
-        </Entities>
+                  customSearch={search}
+                  totalElements={totalElements}
+                  inputFocus={!searching}
+                  hideTitle={searching}
+                  busy={searching}
+        />
+
     </div>)
 
 }

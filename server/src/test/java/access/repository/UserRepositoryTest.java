@@ -35,8 +35,8 @@ class UserRepositoryTest extends AbstractTest {
 
     @Test
     void search() {
-        List<User> users = userRepository.search("exam*", 3);
-        assertEquals(3, users.size());
+        Page<Map<String, Object>> usersPage = userRepository.searchByPage(PageRequest.of(1, 3, Sort.by(Sort.Direction.ASC, "name")));
+        assertEquals(3, usersPage.getContent().size());
     }
 
     @Test
@@ -55,14 +55,5 @@ class UserRepositoryTest extends AbstractTest {
         assertEquals(1, users.getContent().size());
     }
 
-    @Test
-    void searchByApplication() {
-        List<String> manageIdentifiers = IntStream.range(1, 7).boxed().map(String::valueOf).collect(Collectors.toList());
-        List<Map<String, Object>> results = userRepository.searchByApplication(manageIdentifiers, "exam*", 3);
-        assertEquals(3, results.size());
-        List<Map<String, Object>> converted = objectMapper.convertValue(results, new TypeReference<>() {
-        });
-        assertEquals(3, converted.size());
-    }
 
 }

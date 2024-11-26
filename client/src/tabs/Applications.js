@@ -2,7 +2,6 @@ import "./Applications.scss";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Loader} from "@surfnet/sds";
 import {allApplications, rolesByApplication} from "../api";
 import {stopEvent} from "../utils/Utils";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
@@ -17,7 +16,7 @@ const Applications = () => {
     const user = useAppStore(state => state.user);
     const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
+    const [searching, setSearching] = useState(true);
     const [applications, setApplications] = useState([]);
 
     useEffect(() => {
@@ -25,18 +24,16 @@ const Applications = () => {
                 navigate("/404");
                 return;
             }
-            Promise.all([allApplications(), rolesByApplication()])
+            Promise.all([allApplications(), rolesByApplication(true)])
                 .then(res => {
-                    const mergedApps = mergeProvidersProvisioningsRoles(res[0].providers, res[0].provisionings, res[1]);
+                    const mergedApps = mergeProvidersProvisioningsRoles(
+                        res[0].providers, res[0].provisionings, res[1].content);
                     setApplications(mergedApps);
-                    setLoading(false);
+                    //we need to avoid flickerings
+                    setTimeout(() => setSearching(false), 75);
                 })
         },
         []) // eslint-disable-line react-hooks/exhaustive-deps
-
-    if (loading) {
-        return <Loader/>
-    }
 
     const openRole = (e, role) => {
         const path = `/roles/${role.id}`
@@ -105,6 +102,8 @@ const Applications = () => {
                       modelName="applications"
                       defaultSort="name"
                       columns={columns}
+                      busy={searching}
+                      hideTitle={searching}
                       title={I18n.t("applications.applicationFound", {nbr: applications.length})}
                       customNoEntities={I18n.t(`applications.noResults`)}
                       searchAttributes={["name", "organization"]}

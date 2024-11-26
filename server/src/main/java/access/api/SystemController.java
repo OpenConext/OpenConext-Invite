@@ -3,6 +3,7 @@ package access.api;
 import access.config.Config;
 import access.cron.ResourceCleaner;
 import access.cron.RoleExpirationNotifier;
+import access.exception.NotAllowedException;
 import access.manage.Manage;
 import access.model.Role;
 import access.model.User;
@@ -19,10 +20,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -47,19 +45,22 @@ public class SystemController {
     private final UserRoleRepository userRoleRepository;
     private final Manage manage;
     private final PerformanceSeed performanceSeed;
+    private final Config config;
 
     public SystemController(ResourceCleaner resourceCleaner,
                             RoleExpirationNotifier roleExpirationNotifier,
                             RoleRepository roleRepository,
                             UserRoleRepository userRoleRepository,
                             Manage manage,
-                            PerformanceSeed performanceSeed) {
+                            PerformanceSeed performanceSeed,
+                            Config config) {
         this.resourceCleaner = resourceCleaner;
         this.roleExpirationNotifier = roleExpirationNotifier;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.manage = manage;
         this.performanceSeed = performanceSeed;
+        this.config = config;
     }
 
     @GetMapping("/cron/cleanup")
@@ -90,6 +91,7 @@ public class SystemController {
     @GetMapping("/unknown-roles")
     public ResponseEntity<List<Role>> unknownRoles(@Parameter(hidden = true) User user) {
         LOG.debug("/unknown-roles");
+
         UserPermissions.assertSuperUser(user);
         List<Role> roles = manage.addManageMetaData(roleRepository.findAll());
         List<Role> unknownManageRoles = roles.stream().filter(role -> role.getApplicationMaps().stream().anyMatch(applicationMap -> applicationMap.containsKey("unknown"))).toList();
@@ -97,10 +99,15 @@ public class SystemController {
     }
 
     @PutMapping("/performance-seed")
-    public ResponseEntity<Map<String, Object>> performanceSeed(@Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, Object>> performanceSeed(@Parameter(hidden = true) User user,
+                                                               @RequestParam(value = "numberOfRole", required = false, defaultValue = "500") int numberOfRole,
+                                                               @RequestParam(value = "numberOfUsers", required = false, defaultValue = "75000") int numberOfUsers) {
         LOG.debug("/performance-seed");
+        if (!config.isPerformanceSeedAllowed()) {
+            throw new NotAllowedException("performance-seed not allowed");
+        }
         UserPermissions.assertSuperUser(user);
-        return ResponseEntity.ok(performanceSeed.go());
+        return ResponseEntity.ok(performanceSeed.go(numberOfRole,numberOfUsers ));
     }
 
 }
