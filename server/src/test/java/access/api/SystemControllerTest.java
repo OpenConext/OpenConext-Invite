@@ -82,6 +82,9 @@ class SystemControllerTest extends AbstractTest {
     @Test
     void performanceSeed() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        super.stubForManageAllProviders(EntityType.SAML20_SP, EntityType.OIDC10_RP, EntityType.SAML20_IDP);
+
         Map<String, Object> results = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
@@ -90,11 +93,11 @@ class SystemControllerTest extends AbstractTest {
                 .queryParam("numberOfRole", 1)
                 .queryParam("numberOfUsers", 1)
                 .contentType(ContentType.JSON)
-                .get("/api/v1/system/performance-seed")
+                .put("/api/v1/system/performance-seed")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, results.get("users"));
-        assertEquals(1, results.get("users"));
-        assertEquals(1, results.get("users"));
+        assertEquals(1, results.get("roles"));
+        assertEquals(1, results.get("userRoles"));
     }
 }

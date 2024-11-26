@@ -60,6 +60,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -346,7 +347,7 @@ public abstract class AbstractTest {
 
     protected void stubForManageProvisioning(List<String> identifiers) throws JsonProcessingException {
         List<Map<String, Object>> providers = localManage.provisioning(identifiers);
-        String body = objectMapper.writeValueAsString(providers);
+        String body = writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/provisioning"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
                         .withBody(body)
@@ -400,10 +401,29 @@ public abstract class AbstractTest {
     protected void stubForManagerProvidersByIdIn(EntityType entityType, List<String> identifiers) {
         String path = String.format("/manage/api/internal/rawSearch/%s", entityType.name().toLowerCase());
         List<Map<String, Object>> providers = localManage.providersByIdIn(entityType, identifiers);
-        String body = objectMapper.writeValueAsString(providers);
+        String body = writeValueAsString(providers);
         stubFor(post(urlPathMatching(path)).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
+    }
+
+    @SneakyThrows
+    protected void stubForManageAllProviders(EntityType... entityTypes) {
+        Stream.of(entityTypes).forEach(entityType -> {
+            String path = String.format("/manage/api/internal/search/%s", entityType.name().toLowerCase());
+            List<Map<String, Object>> providers = localManage.providers(entityType);
+            String s = writeValueAsString(providers);
+            String body = s;
+            stubFor(post(urlPathMatching(path)).willReturn(aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(body)));
+
+        });
+    }
+
+    @SneakyThrows
+    private String writeValueAsString(List<Map<String, Object>> providers) {
+        return objectMapper.writeValueAsString(providers);
     }
 
     protected void stubForManageProviderByEntityID(EntityType entityType, String entityId) throws JsonProcessingException {
