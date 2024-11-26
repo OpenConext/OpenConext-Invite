@@ -97,7 +97,7 @@ export function other(id) {
 
 export function searchUsers(pagination={}) {
     const queryPart = paginationQueryParams(pagination, {})
-    return fetchJson(`/api/v1/users/search?query=${queryPart}`);
+    return fetchJson(`/api/v1/users/search?${queryPart}`);
 }
 
 export function searchUsersByApplication(pagination={}) {

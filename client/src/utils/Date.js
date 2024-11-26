@@ -11,7 +11,7 @@ export const futureDate = (daysAhead, fromDate = new Date()) => {
 
 export const shortDateFromEpoch = (epoch, needsMultiplier = true) => {
     const options = {month: "short", day: "numeric", year: "numeric"};
-    const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, options)
+    const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, options);
     return dateTimeFormat.format(new Date(needsMultiplier ? epoch * 1000 : epoch));
 }
 

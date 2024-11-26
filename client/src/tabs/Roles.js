@@ -20,7 +20,7 @@ export const Roles = () => {
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
-    const [searching, setSearching] = useState(false);
+    const [searching, setSearching] = useState(true);
     const [roles, setRoles] = useState([]);
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
     const [totalElements, setTotalElements] = useState(0);
@@ -39,7 +39,8 @@ export const Roles = () => {
                             paginationQueryParams.sortDirection === "DESC");
                         setRoles(newRoles);
                         setTotalElements(page.totalElements);
-                        setSearching(false);
+                        //we need to avoid flickerings
+                        setTimeout(() => setSearching(false), 75);
                         setLoading(false);
                     })
         } else {
@@ -52,6 +53,7 @@ export const Roles = () => {
                 "name",
                 false);
             setRoles(newRoles);
+            setSearching(false);
             setLoading(false);
         }
     }, [user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -157,7 +159,7 @@ export const Roles = () => {
     const isManager = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
     const isInstitutionAdmin = highestAuthority(user) === AUTHORITIES.INSTITUTION_ADMIN;
     const isGuest = highestAuthority(user) === AUTHORITIES.GUEST;
-    if (isInstitutionAdmin && !isEmpty(user.institution) && roles.length === 0) {
+    if (isInstitutionAdmin && !isEmpty(user.institution) && roles.length === 0 && !searching) {
         return (
             <div className={"mod-roles"}>
                 {noRolesInstitutionAdmin()}
@@ -183,9 +185,9 @@ export const Roles = () => {
                 customNoEntities={I18n.t(`roles.noResults`)}
                 loading={false}
                 inputFocus={!searching}
-                hideTitle={false}
-                customSearch={isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user) ? search : null}
-                totalElements={totalElements}
+                hideTitle={searching}
+                customSearch={user.superUser ? search : null}
+                totalElements={user.superUser ? totalElements : null}
                 rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
                 rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
                 busy={searching}

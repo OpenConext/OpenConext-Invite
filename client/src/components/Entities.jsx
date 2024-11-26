@@ -80,7 +80,8 @@ export const Entities = ({
         const filterClassName = (!hideTitle && filters) ? "filters-with-title" : `${modelName}-search-filters`;
         return (
             <section className="entities-search">
-                {!hideTitle && <h2>{title || `${I18n.t(`${modelName}.title`)} (${totalElements || entities.length})`}</h2>}
+                {(!hideTitle) && <h2>{title || `${I18n.t(`${modelName}.title`)} (${totalElements || entities.length})`}</h2>}
+                {(loading || hideTitle) && <Loader/>}
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {(!isEmpty(searchAttributes) || customSearch) &&
@@ -204,7 +205,7 @@ export const Entities = ({
                             </tbody>
                         </table>
                     </div>}
-                {(!hasEntities && !initial && !customEmptySearch && !loading) &&
+                {(!hasEntities && !initial && !customEmptySearch && !loading && !hideTitle)  &&
                     <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
                 <Pagination currentPage={page}
                             onChange={nbr => {

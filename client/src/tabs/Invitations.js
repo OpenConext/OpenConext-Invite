@@ -91,7 +91,8 @@ export const Invitations = ({
                 setFilterValue(newFilterOptions[0]);
 
                 setResultAfterSearch(res);
-                setLoading(false);
+                //we need to avoid flickerings
+                setTimeout(() => setLoading(false), 75);
             })
         },
         [invitations, user]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -257,7 +258,7 @@ export const Invitations = ({
             mapper: invitation => <span>{invitation.email}</span>
         },
         {
-            key: "authority",
+            key: "intendedAuthority",
             header: I18n.t("users.authority"),
             mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intendedAuthority)}
                                         label={I18n.t(`access.${invitation.intendedAuthority}`)}/>
@@ -317,7 +318,8 @@ export const Invitations = ({
                   showNew={!!role && (isUserAllowed(AUTHORITIES.MANAGER, user) || standAlone) && !role.unknownInManage}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
-                  loading={false}
+                  loading={loading}
+                  hideTitle={loading}
                   filters={filter(filterOptions, filterValue)}
                   actions={actionButtons()}
                   searchCallback={searchCallback}

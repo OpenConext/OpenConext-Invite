@@ -16,7 +16,7 @@ import {defaultPagination, pageCount} from "../utils/Pagination";
 export const ApplicationUsers = () => {
 
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
-    const [searching, setSearching] = useState(false);
+    const [searching, setSearching] = useState(true);
     const [users, setUsers] = useState([]);
     const [totalElements, setTotalElements] = useState(true);
     const navigate = useNavigate();
@@ -30,7 +30,8 @@ export const ApplicationUsers = () => {
                 results.forEach(user => user.roleSummaries
                     .sort((r1, r2) => (r1.endDate || Number.MAX_VALUE) - (r2.endDate || Number.MAX_VALUE)));
                 setUsers(results);
-                setSearching(false);
+                //we need to avoid flickerings
+                setTimeout(() => setSearching(false), 75);
                 setTotalElements(page.totalElements);
                 setSearching(false);
             });
@@ -85,7 +86,7 @@ export const ApplicationUsers = () => {
                 </div>)
         },
         {
-            key: "schac_home_organisation",
+            key: "schac_home_organization",
             header: I18n.t("users.schacHomeOrganization"),
             mapper: user => <span>{user.schacHomeOrganization}</span>
         },
@@ -112,16 +113,11 @@ export const ApplicationUsers = () => {
         },
     ];
 
-    const countUsers = users.length;
-    const hasEntities = countUsers > 0;
-    let title = "";
-
-    if (hasEntities) {
-        title = I18n.t(`users.found`, {
-            count: countUsers,
-            plural: I18n.t(`users.${countUsers === 1 ? "singleUser" : "multipleUsers"}`)
+    const title = I18n.t(`users.found`, {
+        count: totalElements,
+        plural: I18n.t(`users.${totalElements === 1 ? "singleUser" : "multipleUsers"}`)
         })
-    }
+
     return (<div className="mod-application-users">
         {searching && <Loader/>}
 
@@ -133,6 +129,7 @@ export const ApplicationUsers = () => {
                   inputFocus={true}
                   totalElements={totalElements}
                   customSearch={search}
+                  hideTitle={searching}
                   busy={searching}/>
     </div>)
 

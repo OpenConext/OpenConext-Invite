@@ -8,8 +8,8 @@ export function sortObjects(objects, attribute, reverse) {
         if (typeof val1 === "number" && typeof val2 === "number") {
             return (val1 - val2) * (reverse ? -1 : 1);
         }
-        const aS = val1.toString();
-        const bS = val2.toString();
+        const aS = val1 ? val1.toString() : "";
+        const bS = val2 ? val2.toString() : "";
         if (aS.length === 0) {
             return (reverse ? -1 : 1);
         }

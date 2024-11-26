@@ -49,7 +49,8 @@ export const UserRoles = ({role, guests}) => {
                             return acc;
                         }, {}));
                     setTotalElements(page.totalElements);
-                    setSearching(false);
+                    //we need to avoid flickerings
+                    setTimeout(() => setSearching(false), 75);
                     setLoading(false);
                 });
         },
@@ -90,7 +91,7 @@ export const UserRoles = ({role, guests}) => {
                 action: () => doUpdateEndDate(userRole, newEndDate, false),
                 question: I18n.t(`userRoles.${isEmpty(newEndDate) ? "updateConfirmationRemoveEndDate" : "updateConfirmation"}`, {
                     roleName: userRole.role.name,
-                    userName: userRole.userInfo.name
+                    userName: userRole.name
                 }),
                 confirmationTxt: I18n.t("confirmationDialog.confirm"),
                 confirmationHeader: I18n.t("confirmationDialog.title")
@@ -133,7 +134,7 @@ export const UserRoles = ({role, guests}) => {
 
     const willUpdateCurrentUser = () => {
         return Object.entries(selectedUserRoles)
-            .filter(entry => (entry[1].selected) && entry[1].allowed && entry[1]?.ref?.userInfo?.id === user.id)
+            .filter(entry => (entry[1].selected) && entry[1].allowed && entry[1]?.ref?.user_id === user.id)
             .map(entry => parseInt(entry[0]));
     }
 
@@ -153,12 +154,11 @@ export const UserRoles = ({role, guests}) => {
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.deleteFlash"));
-                    if (deleteCurrentUserRole) {
+                    if (isEmpty(deleteCurrentUserRole)) {
+                        setPaginationQueryParams({...paginationQueryParams});
+                    } else {
                         useAppStore.setState(() => ({reload: true}));
                         navigate("/home", {replace: true});
-                    } else {
-                        const path = encodeURIComponent(window.location.pathname);
-                        navigate(`/refresh-route/${path}`, {replace: true});
                     }
                 }).catch(handleError);
         }
@@ -327,6 +327,7 @@ export const UserRoles = ({role, guests}) => {
                   customSearch={search}
                   totalElements={totalElements}
                   inputFocus={!searching}
+                  hideTitle={searching}
                   busy={searching}
         />
 

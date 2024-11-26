@@ -51,10 +51,15 @@ public class PerformanceSeed {
 
     public Map<String, Object> go(int numberOfRoles, int numberOfUsers) {
         List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
-
+        List<Map<String, Object>> identityProviders = manage.providers(EntityType.SAML20_IDP);
+        List<String> institutionGuids = identityProviders.stream()
+                .map(m -> (String) m.get("institutionGuid"))
+                .filter(s -> s != null)
+                .toList();
         IntStream.range(1, numberOfRoles + 1)
                 .forEach(i -> {
-                    Role role = createRole(providers);
+                    String institutionGuid = institutionGuids.get(random.nextInt(institutionGuids.size()));
+                    Role role = createRole(providers, institutionGuid);
                     roleRepository.save(role);
                     if (i % 100 == 0) {
                         LOG.debug(String.format("Created %s from %s roles", i, numberOfRoles));
@@ -66,10 +71,13 @@ public class PerformanceSeed {
 
         IntStream.range(1, numberOfUsers + 1)
                 .forEach(i -> {
-                    User user = userRepository.save(createUser());
+                    String institutionGuid = institutionGuids.get(random.nextInt(institutionGuids.size()));
+                    User user = userRepository.save(createUser(institutionGuid));
                     long roleId = random.nextLong(minRoleId, maxRoleId + 1L);
                     Role role = roleRepository.findById(roleId).get();
-                    userRoleRepository.save(this.createUserRole(user, role));
+                    if (!user.isInstitutionAdmin()) {
+                        userRoleRepository.save(this.createUserRole(user, role));
+                    }
                     invitationRepository.save(this.createInvitation(user, role));
                     if (i % 1000 == 0) {
                         LOG.debug(String.format("Created %s from %s users", i, numberOfUsers));
@@ -81,20 +89,27 @@ public class PerformanceSeed {
                 "userRoles", numberOfUsers);
     }
 
-    private User createUser() {
+    private User createUser(String institutionGuid) {
         String uuid = UUID.randomUUID().toString();
         String givenName = NameGenerator.generate();
         //For testing pagination, it's a Doe
         String familyName = "Doe"; //NameGenerator.generate();
         String schacHome = NameGenerator.generate().toLowerCase() + ".org";
         String eppn = String.format("%s.%s@%s", givenName.toLowerCase(), familyName.toLowerCase(), schacHome);
-        return new User(false,
+        User user = new User(false,
                 eppn,
                 uuid,
                 schacHome,
                 givenName,
                 familyName,
                 eppn);
+        int i = random.nextInt(15);
+        //We also need institution-admin
+        if (i == 9) {
+            user.setInstitutionAdmin(true);
+            user.setOrganizationGUID(institutionGuid);
+        }
+        return user;
     }
 
     private UserRole createUserRole(User user, Role role) {
@@ -124,7 +139,7 @@ public class PerformanceSeed {
                 roles);
     }
 
-    private Role createRole(List<Map<String, Object>> providers) {
+    private Role createRole(List<Map<String, Object>> providers, String institutionGuid) {
         String name = NameGenerator.generate();
 
         int i = random.nextInt(1,15);
@@ -144,12 +159,14 @@ public class PerformanceSeed {
                                 this.application(manageIdentifier),
                                 "http://landingpage.com"
                         )).collect(Collectors.toSet());
-        return new Role(name,
+        Role role = new Role(name,
                 name,
                 applicationUsages,
                 365 * 5,
                 false,
                 false);
+        role.setOrganizationGUID(institutionGuid);
+        return role;
     }
 
     private Application application(ManageIdentifier manageIdentifier) {
@@ -157,13 +174,6 @@ public class PerformanceSeed {
         EntityType entityType = manageIdentifier.manageType();
         return applicationRepository.findByManageIdAndManageType(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
-    }
-
-    private Long randomId(String tableName) {
-        return jdbcTemplate.query(String.format("SELECT id FROM %s ORDER BY RAND() LIMIT 1", tableName), rs -> {
-            rs.next();
-            return rs.getLong("id");
-        });
     }
 
     private Long minId(String tableName) {

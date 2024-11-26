@@ -92,6 +92,7 @@ const en = {
         name: "Name",
         email: "Email",
         highestAuthority: "Role",
+        createdAt: "Created",
         schacHomeOrganization: "Institution",
         lastActivity: "Last activity",
         eduPersonPrincipalName: "EPPN",

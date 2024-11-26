@@ -42,6 +42,16 @@
             }
 
         }
+
+        .sds--loading-container {
+            flex-direction: row;
+            align-items: flex-start;
+            margin-right: auto;
+            .sds--loading {
+                position: inherit;
+            }
+        }
+
         .search-filter {
             display: flex;
             width: 290px;

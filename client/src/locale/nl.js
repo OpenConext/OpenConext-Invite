@@ -92,6 +92,7 @@ const nl = {
         name: "Naam",
         email: "E-mail",
         highestAuthority: "Rol",
+        createdAt: "Aangemaakt op",
         schacHomeOrganization: "Instelling",
         lastActivity: "Laatst actief",
         eduPersonPrincipalName: "EPPN",

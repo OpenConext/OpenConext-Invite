@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
+import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
@@ -12,17 +12,16 @@ import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
-import {AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
+import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 
-const allValue = "all";
 
 export const Users = () => {
 
     const {user: currentUser, startImpersonation, setFlash} = useAppStore(state => state);
 
-    const [searching, setSearching] = useState(false);
+    const [searching, setSearching] = useState(true);
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
     const [totalElements, setTotalElements] = useState(0);
     const [users, setUsers] = useState([]);
@@ -31,9 +30,15 @@ export const Users = () => {
     useEffect(() => {
             searchUsers(paginationQueryParams)
                 .then(page => {
-                    setUsers(page.content);
+                    setUsers(page.content.map(user => {
+                        if (!user.authority) {
+                            user.authority = user.superUser ? AUTHORITIES.SUPER_USER : AUTHORITIES.INSTITUTION_ADMIN;
+                        }
+                        return user;
+                    }));
                     setTotalElements(page.totalElements);
-                    setSearching(false);
+                    //we need to avoid flickerings
+                    setTimeout(() => setSearching(false), 75);
                 });
         },
         [currentUser, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -92,12 +97,12 @@ export const Users = () => {
                 </div>)
         },
         {
-            key: "schac_home_organisation",
+            key: "schac_home_organization",
             header: I18n.t("users.schacHomeOrganization"),
-            mapper: user => <span>{user.schac_home_organisation}</span>
+            mapper: user => <span>{user.schac_home_organization}</span>
         },
         {
-            key: "highestAuthority",
+            key: "authority",
             header: I18n.t("users.highestAuthority"),
             mapper: user => <Chip type={chipTypeForUserRole(user.authority)}
                                   label={I18n.t(`access.${user.authority}`)}/>
@@ -148,26 +153,25 @@ export const Users = () => {
             plural: I18n.t(`users.${totalElements === 1 ? "singleUser" : "multipleUsers"}`)
         })
     }
-    return (<div className="mod-users">
-        {searching && <Loader/>}
-        <Entities entities={users}
-                  modelName="users"
-                  defaultSort="name"
-                  columns={columns}
-                  title={title}
-                  newLabel={currentUser.superUser ? I18n.t("invitations.newInvite") : null}
-                  showNew={isUserAllowed(AUTHORITIES.SUPER_USER, currentUser)}
-                  newEntityFunc={() => navigate(`/invitation/new?maintainer=true`)}
-                  hideTitle={!hasEntities}
-                  customNoEntities={I18n.t(`users.noResults`)}
-                  loading={searching}
-                  searchAttributes={["name", "email", "schacHomeOrganization"]}
-                  customSearch={search}
-                  rowLinkMapper={openUser}
-                  totalElements={totalElements}
-                  inputFocus={!searching}
-                  busy={searching}>
-        </Entities>
-    </div>)
+    return (
+        <div className="mod-users">
+            <Entities entities={users}
+                      modelName="users"
+                      defaultSort="name"
+                      columns={columns}
+                      title={title}
+                      newLabel={currentUser.superUser ? I18n.t("invitations.newInvite") : null}
+                      showNew={isUserAllowed(AUTHORITIES.SUPER_USER, currentUser)}
+                      newEntityFunc={() => navigate(`/invitation/new?maintainer=true`)}
+                      hideTitle={searching}
+                      customNoEntities={I18n.t(`users.noResults`)}
+                      searchAttributes={["name", "email", "schacHomeOrganization"]}
+                      customSearch={search}
+                      rowLinkMapper={openUser}
+                      totalElements={totalElements}
+                      inputFocus={!searching}
+                      busy={searching}/>
+        </div>
+    );
 
 }
