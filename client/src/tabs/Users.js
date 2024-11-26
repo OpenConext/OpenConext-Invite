@@ -104,8 +104,11 @@ export const Users = () => {
         {
             key: "authority",
             header: I18n.t("users.highestAuthority"),
-            mapper: user => <Chip type={chipTypeForUserRole(user.authority)}
-                                  label={I18n.t(`access.${user.authority}`)}/>
+            mapper: user => {
+                const authority = isEmpty(user.authority) ? null : user.authority.split(",")[0];
+                return <Chip type={chipTypeForUserRole(authority)}
+                             label={I18n.t(`access.${authority}`)}/>
+            }
         },
         {
             key: "createdAt",
