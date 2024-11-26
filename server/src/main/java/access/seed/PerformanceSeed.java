@@ -8,7 +8,6 @@ import access.model.*;
 import access.repository.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -31,7 +30,6 @@ public class PerformanceSeed {
     private final UserRoleRepository userRoleRepository;
     private final InvitationRepository invitationRepository;
     private final Manage manage;
-    private final JdbcTemplate jdbcTemplate;
 
     public PerformanceSeed(UserRepository userRepository,
                            RoleRepository roleRepository,
@@ -46,7 +44,6 @@ public class PerformanceSeed {
         this.userRoleRepository = userRoleRepository;
         this.invitationRepository = invitationRepository;
         this.manage = manage;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public Map<String, Object> go(int numberOfRoles, int numberOfUsers) {
@@ -56,31 +53,35 @@ public class PerformanceSeed {
                 .map(m -> (String) m.get("institutionGuid"))
                 .filter(s -> s != null)
                 .toList();
+        List<Long> roleIdentifiers = new ArrayList<>();
         IntStream.range(1, numberOfRoles + 1)
                 .forEach(i -> {
                     String institutionGuid = institutionGuids.get(random.nextInt(institutionGuids.size()));
                     Role role = createRole(providers, institutionGuid);
-                    roleRepository.save(role);
+                    role = roleRepository.save(role);
+                    roleIdentifiers.add(role.getId());
                     if (i % 100 == 0) {
                         LOG.debug(String.format("Created %s from %s roles", i, numberOfRoles));
                     }
                 });
 
-        long minRoleId = this.minId("roles");
-        long maxRoleId = this.maxId("roles");
-
         IntStream.range(1, numberOfUsers + 1)
                 .forEach(i -> {
                     String institutionGuid = institutionGuids.get(random.nextInt(institutionGuids.size()));
                     User user = userRepository.save(createUser(institutionGuid));
-                    long roleId = random.nextLong(minRoleId, maxRoleId + 1L);
-                    Role role = roleRepository.findById(roleId).get();
-                    if (!user.isInstitutionAdmin()) {
-                        userRoleRepository.save(this.createUserRole(user, role));
-                    }
-                    invitationRepository.save(this.createInvitation(user, role));
-                    if (i % 1000 == 0) {
-                        LOG.debug(String.format("Created %s from %s users", i, numberOfUsers));
+                    long roleId = roleIdentifiers.get(random.nextInt(roleIdentifiers.size()));
+                    Optional<Role> optionalRole = roleRepository.findById(roleId);
+                    if (optionalRole.isEmpty()) {
+                        LOG.debug("Hitting empty role: " + roleId);
+                    } else {
+                        Role role = optionalRole.get();
+                        if (!user.isInstitutionAdmin()) {
+                            userRoleRepository.save(this.createUserRole(user, role));
+                        }
+                        invitationRepository.save(this.createInvitation(user, role));
+                        if (i % 1000 == 0) {
+                            LOG.debug(String.format("Created %s from %s users", i, numberOfUsers));
+                        }
                     }
                 });
 
@@ -176,17 +177,4 @@ public class PerformanceSeed {
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
     }
 
-    private Long minId(String tableName) {
-        return jdbcTemplate.query(String.format("SELECT min(id) as minId FROM %s ", tableName), rs -> {
-            rs.next();
-            return rs.getLong("minId");
-        });
-    }
-
-    private Long maxId(String tableName) {
-        return jdbcTemplate.query(String.format("SELECT max(id) as maxId FROM %s ", tableName), rs -> {
-            rs.next();
-            return rs.getLong("maxId");
-        });
-    }
 }
