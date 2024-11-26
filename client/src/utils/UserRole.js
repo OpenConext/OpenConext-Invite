@@ -133,7 +133,7 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator, 
         role.value = role.id;
         deriveApplicationAttributes(role, locale, multiple, separator);
     });
-    if (!user.superUser){
+    if (!isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)){
         const userRoles = user.userRoles;
         userRoles.forEach(userRole => {
             userRole.isUserRole = true;
