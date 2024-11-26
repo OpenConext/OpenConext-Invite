@@ -389,6 +389,7 @@ const en = {
         secretValue: "One-way hashed token",
         secretTooltip: "The value to use in the X-API-TOKEN header",
         description: "Description",
+        superUserToken: "Super User token",
         descriptionPlaceHolder: "Description for this API token",
         descriptionTooltip: "A description explaining the use of this API token",
         deleteFlash: "API token has been deleted",

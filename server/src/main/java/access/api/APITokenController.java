@@ -45,7 +45,7 @@ public class APITokenController {
     public ResponseEntity<List<APIToken>> apiTokensByInstitution(@Parameter(hidden = true) User user) {
         LOG.debug("/tokens");
         UserPermissions.assertInstitutionAdmin(user);
-        List<APIToken> apiTokens = user.isSuperUser() ? apiTokenRepository.findBySuperUserTokenTrue() : apiTokenRepository.findByOrganizationGUID(user.getOrganizationGUID());
+        List<APIToken> apiTokens = user.isSuperUser() ? apiTokenRepository.findAll() : apiTokenRepository.findByOrganizationGUID(user.getOrganizationGUID());
         return ResponseEntity.ok(apiTokens);
     }
 

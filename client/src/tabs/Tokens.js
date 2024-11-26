@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useCallback, useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
+import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {apiTokens, createToken, deleteToken, generateToken} from "../api";
 import {dateFromEpoch} from "../utils/Date";
@@ -140,9 +140,16 @@ export const Tokens = () => {
         },
         {
             key: "description",
+            class: `description ${user.superUser ? "small" : ""} `,
             header: I18n.t("tokens.description"),
             mapper: token => <span className={"cut-of-lines"}>{token.description}</span>
         },
+        user.superUser ?
+        {
+            key: "superUserToken",
+            header: I18n.t("tokens.superUserToken"),
+            mapper: token => <div className="container"><Checkbox value={token.superUserToken} name={""} onChange={() => true} readOnly={true}/></div>
+        } : null,
         {
             key: "created_at",
             header: I18n.t("tokens.createdAt"),
@@ -157,7 +164,7 @@ export const Tokens = () => {
                     <TrashIcon/>
                 </span>
         },
-    ]
+    ].filter(column => column !== null)
 
     if (loading) {
         return <Loader/>

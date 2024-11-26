@@ -7,11 +7,20 @@ div.mod-tokens {
         thead {
             th {
                 &.secret, &.hashed_token {
-                    width: 30%;
+                    width: 20%;
                 }
 
                 &.description {
-                    width: 40%;
+                    width: 50%;
+
+                    &.small {
+                        width: 25%;
+                    }
+                }
+
+                &.superUserToken {
+                    width: 25%;
+                    text-align: center;
                 }
 
                 &.created_at {
@@ -23,6 +32,20 @@ div.mod-tokens {
                 }
 
             }
+        }
+
+        tbody {
+            td.superUserToken {
+                text-align: center;
+                .container {
+                    display: flex;
+                    .sds--checkbox-container {
+                        margin: auto;
+                    }
+                }
+            }
+
+
         }
     }
 
