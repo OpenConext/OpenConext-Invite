@@ -388,6 +388,7 @@ const nl = {
         secretValue: "One-way hashed token",
         secretTooltip: "De waarde die je gebruikt in de X-API-TOKEN header",
         description: "Omschrijving",
+        superUserToken: "Super User token",
         descriptionPlaceHolder: "Omschrijving voor dit API-token",
         descriptionTooltip: "Een omschrijving die de reden voor dit API-token omschrijft",
         deleteFlash: "API-token is verwijderd",
