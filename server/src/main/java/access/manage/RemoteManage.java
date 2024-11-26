@@ -76,7 +76,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> provisioning(Collection<String> ids) {
-        LOG.debug("provisioning for : " + ids);
+        LOG.debug("provisionings for identifiers");
 
         if (CollectionUtils.isEmpty(ids)) {
             return emptyList();
