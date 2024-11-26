@@ -133,31 +133,34 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator, 
         role.value = role.id;
         deriveApplicationAttributes(role, locale, multiple, separator);
     });
-    const userRoles = user.userRoles;
-    userRoles.forEach(userRole => {
-        userRole.isUserRole = true;
-        const role = userRole.role;
-        deriveApplicationAttributes(role, locale, multiple, separator);
-        userRole.name = role.name;
-        userRole.label = role.name;
-        userRole.value = role.id;
-        userRole.landingPage = role.landingPage;
-        userRole.description = role.description;
-        userRole.defaultExpiryDays = role.defaultExpiryDays;
-        userRole.eduIDOnly = role.eduIDOnly;
-        userRole.enforceEmailEquality = role.enforceEmailEquality;
-        userRole.overrideSettingsAllowed = role.overrideSettingsAllowed;
-        userRole.applicationName = role.applicationName;
-        userRole.applicationOrganizationName = role.applicationOrganizationName;
-        userRole.applicationMaps = role.applicationMaps;
-        userRole.applications = role.applications;
-        userRole.logo = role.logo;
-        userRole.userRoleCount = role.userRoleCount;
-    })
-    const filteredRoles = allRoles
-        .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
-        .concat(userRoles)
-    return sortObjects(filteredRoles, sort, reversed);
+    if (!user.superUser){
+        const userRoles = user.userRoles;
+        userRoles.forEach(userRole => {
+            userRole.isUserRole = true;
+            const role = userRole.role;
+            deriveApplicationAttributes(role, locale, multiple, separator);
+            userRole.name = role.name;
+            userRole.label = role.name;
+            userRole.value = role.id;
+            userRole.landingPage = role.landingPage;
+            userRole.description = role.description;
+            userRole.defaultExpiryDays = role.defaultExpiryDays;
+            userRole.eduIDOnly = role.eduIDOnly;
+            userRole.enforceEmailEquality = role.enforceEmailEquality;
+            userRole.overrideSettingsAllowed = role.overrideSettingsAllowed;
+            userRole.applicationName = role.applicationName;
+            userRole.applicationOrganizationName = role.applicationOrganizationName;
+            userRole.applicationMaps = role.applicationMaps;
+            userRole.applications = role.applications;
+            userRole.logo = role.logo;
+            userRole.userRoleCount = role.userRoleCount;
+        })
+        const filteredRoles = allRoles
+            .filter(role => userRoles.every(userRole => userRole.role.id !== role.id))
+            .concat(userRoles)
+        return sortObjects(filteredRoles, sort, reversed);
+    }
+    return sortObjects(allRoles, sort, reversed);
 }
 
 export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
