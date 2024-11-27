@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +32,9 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
 
         MimeMessageParser messageParser = super.mailMessage();
         String htmlContent = messageParser.getHtmlContent();
-        assertTrue(htmlContent.contains("Your Inviter role Mail at the application Calendar EN will expire"));
+        //Due to html formatting we can't be sure of the line breaks
+        Stream.of("Your Inviter role Mail at the application Calendar EN will expire in 5 days".split(" "))
+                        .forEach(s -> assertTrue(htmlContent.contains(s)));
 
         userRole = userRoleRepository.findByRoleName("Mail").get(0);
         assertEquals(1, userRole.getExpiryNotifications());
