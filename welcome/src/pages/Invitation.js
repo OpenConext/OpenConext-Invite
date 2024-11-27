@@ -57,10 +57,11 @@ export const Invitation = ({authenticated}) => {
                                             user: userWithRoles,
                                             authenticated: true
                                         }));
-                                        const inviteRedeemUrlQueryParam = res.inviteRedeemUrl && !res.errorResponse ? `&inviteRedeemUrl=${encodeURIComponent(res.inviteRedeemUrl)}` : "";
+                                        const inviteRedeemUrlQueryParam = (res.inviteRedeemUrl && !res.errorResponse) ? `&inviteRedeemUrl=${encodeURIComponent(res.inviteRedeemUrl)}` : "";
                                         const errorResponseQueryParam = res.errorResponse ? "&errorResponse=true" : "";
+                                        const userWaitTimeQueryParam = res.userWaitTime ? `&userWaitTime=${encodeURIComponent(res.userWaitTime)}&role=${encodeURIComponent(res.role)}` : "";
                                         localStorage.removeItem("location");
-                                        navigate(`/proceed?hash=${hashParam}${inviteRedeemUrlQueryParam}${errorResponseQueryParam}`);
+                                        navigate(`/proceed?hash=${hashParam}${inviteRedeemUrlQueryParam}${errorResponseQueryParam}${userWaitTimeQueryParam}`);
                                     })
                             })
                             .catch(e => {

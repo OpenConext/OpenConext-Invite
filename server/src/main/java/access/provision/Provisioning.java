@@ -30,6 +30,7 @@ public class Provisioning {
     private final String graphTenant;
     private final String institutionGUID;
     private final List<ManageIdentifier> remoteApplications;
+    private final Integer userWaitTime;
 
     public Provisioning(Map<String, Object> provider) {
         this.id = (String) provider.get("id");
@@ -52,6 +53,7 @@ public class Provisioning {
         this.graphSecret = (String) provider.get("graph_secret");
         this.graphTenant = (String) provider.getOrDefault("graph_tenant", "common");
         this.institutionGUID = (String) provider.get("institutionGuid");
+        this.userWaitTime = (Integer) provider.get("user_wait_time");
         List<Map<String, String>> applicationMaps = (List<Map<String, String>>) provider.getOrDefault("applications", emptyList());
         this.remoteApplications = applicationMaps.stream().map(m -> new ManageIdentifier(m.get("id"), EntityType.valueOf(m.get("type").toUpperCase()))).toList();
         this.invariant();

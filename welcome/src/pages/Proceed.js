@@ -15,6 +15,7 @@ import {User} from "../components/User";
 import HighFive from "../icons/high-five.svg";
 import {useNavigate} from "react-router-dom";
 import {reduceApplicationFromUserRoles} from "../utils/Manage";
+import {relativeUserWaitTime} from "../utils/Date";
 
 export const Proceed = () => {
 
@@ -25,6 +26,8 @@ export const Proceed = () => {
     const [showModal, setShowModal] = useState(true);
     const [inviteRedeemUrl, setInviteRedeemUrl] = useState(null);
     const [errorResponse, setErrorResponse] = useState(null);
+    const [userWaitTime, setUserWaitTime] = useState(null);
+    const [role, setRole] = useState(null);
 
     function invariantParams() {
         const urlSearchParams = new URLSearchParams(window.location.search);
@@ -37,6 +40,8 @@ export const Proceed = () => {
             setInviteRedeemUrl(DOMPurify.sanitize(decodeURIComponent(inviteRedeemUrlParam)));
         }
         setErrorResponse(urlSearchParams.get("errorResponse"));
+        setUserWaitTime(urlSearchParams.get("userWaitTime"));
+        setRole(urlSearchParams.get("role"))
     }
 
     useEffect(() => {
@@ -123,10 +128,16 @@ export const Proceed = () => {
                        confirmationButtonLabel={I18n.t("invitationAccept.continue")}
                        full={true}
                        title={I18n.t("invitationAccept.access")}>
-                    {reloadedApplications.map((application, index) => renderApplication(index, application, false, true))}
+                    {inviteRedeemUrl && <p className="invite-feedback">{I18n.t("invitationAccept.inviteRedeemUrl")}</p>}
+                    {errorResponse &&
+                        <p className="invite-feedback">{I18n.t("invitationAccept.graphEmailViolation")}</p>}
+                    {userWaitTime && <p className="invite-feedback">{I18n.t("invitationAccept.userWaitTime",
+                        {
+                            role: role,
+                            waitTime: relativeUserWaitTime(userWaitTime)
+                        })}</p>}
                     <p>{I18n.t(`invitationAccept.applicationInfo${reloadedApplications.length > 1 ? "Multiple" : ""}`)}</p>
-                    {inviteRedeemUrl && <p className="invite-url">{I18n.t("invitationAccept.inviteRedeemUrl")}</p>}
-                    {errorResponse && <p className="invite-error">{I18n.t("invitationAccept.graphEmailViolation")}</p>}
+                    {reloadedApplications.map((application, index) => renderApplication(index, application, false, true))}
                 </Modal>}
             <div className="proceed-container">
                 {renderProceedStep()}

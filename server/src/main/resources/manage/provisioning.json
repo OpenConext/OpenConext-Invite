@@ -14,7 +14,8 @@
         "scim_password": "secret",
         "scim_update_role_put_method": true,
         "scim_user_identifier": "eduID",
-        "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a"
+        "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
+        "user_wait_time": 300
       },
       "applications": [
         {

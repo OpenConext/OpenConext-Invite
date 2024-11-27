@@ -4,17 +4,6 @@ import {isEmpty} from "./Utils";
 
 let timeAgoInitialized = false;
 
-export const futureDate = (daysAhead, fromDate = new Date()) => {
-    const time = fromDate.getTime() + (1000 * 60 * 60 * 24 * daysAhead);
-    return new Date(time);
-}
-
-export const shortDateFromEpoch = epoch => {
-    const options = {month: "short", day: "numeric"};
-    const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, options)
-    return dateTimeFormat.format(new Date(epoch * 1000));
-}
-
 export const dateFromEpoch = epoch => {
     if (isEmpty(epoch)) {
         return "-";
@@ -24,28 +13,14 @@ export const dateFromEpoch = epoch => {
     return dateTimeFormat.format(new Date(epoch * 1000));
 }
 
-export const formatDate = date => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    return `${day}/${month}/${date.getFullYear()}`;
-}
-
-export const isInvitationExpired = invitation => {
-    if (!invitation.expiry_date) {
-        return false;
-    }
-    const today = Date.now();
-    const inp = new Date(invitation.expiry_date * 1000);
-    return today > inp;
-}
-
 export const languageSwitched = () => {
     timeAgoInitialized = false;
 }
 
 const TIME_AGO_LOCALE = "time-ago-locale";
 const LAST_ACTIVITY_LOCALE = "last-activity-locale";
-const relativeTimeNotation = (expiryEpoch, translations) => {
+
+const relativeTimeNotation = (date, translations) => {
     if (!timeAgoInitialized) {
         const timeAgoLocale = (number, index) => {
             return [
@@ -87,29 +62,11 @@ const relativeTimeNotation = (expiryEpoch, translations) => {
         register(LAST_ACTIVITY_LOCALE, lastActivityLocale);
         timeAgoInitialized = true;
     }
-    const expiryDate = new Date(expiryEpoch * 1000);
-    const expired = expiryDate < new Date();
-    const relativeTime = format(expiryDate, translations);
-    return {expired, relativeTime};
+    return format(date, translations);
 }
 
-export const displayExpiryDate = expiryEpoch => {
-    if (!expiryEpoch) {
-        return I18n.t("expirations.never");
-    }
-    const {expired, relativeTime} = relativeTimeNotation(expiryEpoch, TIME_AGO_LOCALE);
-    return I18n.t(`expirations.${expired ? "expired" : "expires"}`, {relativeTime: relativeTime})
-}
-
-export const displayMembershipExpiryDate = expiryEpoch => {
-    if (!expiryEpoch) {
-        return I18n.t("expirations.never");
-    }
-    const {relativeTime} = relativeTimeNotation(expiryEpoch, TIME_AGO_LOCALE);
-    return relativeTime;
-}
-
-export const displayLastActivityDate = expiryEpoch => {
-    const {relativeTime} = relativeTimeNotation(expiryEpoch, LAST_ACTIVITY_LOCALE);
-    return relativeTime;
+export const relativeUserWaitTime = userWaitTime => {
+    const date = new Date();
+    date.setSeconds(date.getSeconds() + parseInt(userWaitTime, 10));
+    return relativeTimeNotation(date, TIME_AGO_LOCALE);
 }

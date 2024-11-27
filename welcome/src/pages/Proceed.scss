@@ -9,12 +9,11 @@
         padding: 0 15px;
     }
 
-    p.invite-url {
+    p.invite-feedback{
         font-weight: 600;
-    }
-
-    p.invite-error {
-        font-weight: 600;
+        padding: 25px;
+        background-color: var(--sds--color--blue--100);
+        border-radius: 4px;
         word-break: break-word;
         max-width: 620px;
     }

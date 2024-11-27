@@ -9,6 +9,7 @@ import access.logging.Event;
 import access.mail.MailBox;
 import access.manage.Manage;
 import access.model.*;
+import access.provision.Provisioning;
 import access.provision.ProvisioningService;
 import access.provision.graph.GraphResponse;
 import access.provision.scim.OperationType;
@@ -38,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -145,10 +145,10 @@ public class InvitationController implements InvitationResource {
 
 
     @PostMapping("accept")
-    public ResponseEntity<Map<String, ? extends Serializable>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
-                                                                      Authentication authentication,
-                                                                      HttpServletRequest servletRequest,
-                                                                      HttpServletResponse servletResponse) {
+    public ResponseEntity<Map<String, Object>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
+                                                      Authentication authentication,
+                                                      HttpServletRequest servletRequest,
+                                                      HttpServletResponse servletResponse) {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash())
                 .orElseThrow(() -> new NotFoundException("Invitation not found"));
 
@@ -230,19 +230,51 @@ public class InvitationController implements InvitationResource {
         userRepository.save(user);
         AccessLogger.user(LOG, Event.Created, user);
 
+        //Only interact with the provisioning service if there is a guest role
+        boolean isGuest = user.getUserRoles().stream()
+                .anyMatch(userRole -> userRole.isGuestRoleIncluded() || userRole.getAuthority().equals(Authority.GUEST));
         //Already provisioned users in the remote systems are ignored / excluded
-        Optional<GraphResponse> graphResponse = provisioningService.newUserRequest(user);
-        newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
-
+        Optional<GraphResponse> optionalGraphResponse = isGuest ? provisioningService.newUserRequest(user) : Optional.empty();
+        if (isGuest) {
+            newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
+        }
         LOG.info(String.format("User %s accepted invitation with role(s) %s",
                 user.getEduPersonPrincipalName(),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", "))));
 
-        Map<String, ? extends Serializable> body = graphResponse
-                .map(graph -> graph.isErrorResponse() ?
-                        Map.of("errorResponse", Boolean.TRUE) :
-                        Map.of("inviteRedeemUrl", graph.inviteRedeemUrl())).
-                orElse(Map.of("status", "ok"));
+        //Must be mutable, because of possible userWaitTime
+        Map<String, Object> body = new HashMap<>();
+        optionalGraphResponse.ifPresentOrElse(graphResponse -> {
+            if (graphResponse.isErrorResponse()) {
+                body.put("errorResponse", Boolean.TRUE);
+            } else {
+                body.put("inviteRedeemUrl", graphResponse.inviteRedeemUrl());
+            }
+        }, () -> body.put("status", "ok"));
+
+        if (!isGuest) {
+            //We are done then
+            return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        }
+        // See if there is a userWaitTime on of the provisionings
+        List<Provisioning> provisionings = provisioningService.getProvisionings(newUserRoles);
+        provisionings.stream()
+                .filter(provisioning -> provisioning.getUserWaitTime() != null)
+                .max(Comparator.comparingInt(Provisioning::getUserWaitTime))
+                .ifPresent(provisioning -> {
+                    Set<String> manageIdentifiers = provisioning.getRemoteApplications().stream()
+                            .map(app -> app.manageId()).collect(Collectors.toSet());
+                    newUserRoles.stream()
+                            .filter(userRole -> userRole.getRole().getApplicationUsages().stream()
+                                    .anyMatch(appUsage -> manageIdentifiers.contains(appUsage.getApplication().getManageId())))
+                            .map(userRole -> userRole.getRole())
+                            .findFirst()
+                            .ifPresent(role -> {
+                                body.put("userWaitTime", provisioning.getUserWaitTime());
+                                body.put("role", role.getName());
+                            });
+                });
+
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 

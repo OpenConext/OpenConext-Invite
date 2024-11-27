@@ -106,7 +106,9 @@ const en = {
         emailMismatch: "The inviter has indicated that you must accept this invitation with the email {{email}}, " +
             "but you have logged in with an account with a different email. Please log in in with a different account.",
         inviteRedeemUrl: "Your new role requires a microsoft account. Please press Continue to register one.",
-        graphEmailViolation: "Your new role requires a microsoft account, however microsoft does not support your email. We can not create a microsoft account."
+        graphEmailViolation: "Your new role requires a microsoft account, however microsoft does not support your email. We can not create a microsoft account.",
+        // userWaitTime: "Your new role {{role}} requires external provisioning. You will receive a mail when this is done (estimation ~{{waitTime}})."
+        userWaitTime: "Before you can use your new application, your account for {{role}} first needs to created. You will receive a mail when this is done (expected {{waitTime}})."
     },
     proceed: {
         info: "Congrats! You have accepted the {{plural}} {{roles}} and you now can go to the application",

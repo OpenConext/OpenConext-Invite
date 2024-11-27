@@ -29,4 +29,7 @@ public interface ProvisioningService {
 
     void deleteGroupRequest(Role role);
 
+    List<Provisioning> getProvisionings(List<UserRole> userRoles);
+
+
 }

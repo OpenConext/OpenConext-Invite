@@ -333,6 +333,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         deleteGroupRequest(role, provisionings);
     }
 
+    @Override
+    public List<Provisioning> getProvisionings(List<UserRole> userRoles) {
+        Set<String> manageIdentifiers = userRoles.stream()
+                .map(userRole -> this.getManageIdentifiers(userRole.getRole()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+        return manage.provisioning(manageIdentifiers).stream().map(Provisioning::new).toList();
+    }
+
     private void deleteGroupRequest(Role role, List<Provisioning> provisionings) {
         //Delete the group to all provisionings in Manage where the group is known
         provisionings.forEach(provisioning ->

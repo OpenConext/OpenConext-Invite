@@ -72,7 +72,8 @@ public interface Manage {
                     "graph_url",
                     "graph_client_id",
                     "graph_secret",
-                    "graph_tenant"
+                    "graph_tenant",
+                    "user_wait_time"
             ).forEach(attribute -> application.put(attribute, metaDataFields.get(attribute)));
         }
         application.put("type", provider.get("type"));

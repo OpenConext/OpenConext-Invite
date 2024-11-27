@@ -400,6 +400,33 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
+    void acceptInvitationUserTimeOut() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "inviter@new.com");
+        String hash = Authority.INVITER.name();
+        Invitation invitation = invitationRepository.findByHash(hash).get();
+
+        stubForCreateScimUser();
+        stubForCreateScimRole();
+        stubForUpdateScimRole();
+
+        super.stubForManageProvisioning(List.of("5"));
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
+        Map<String, Object > results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(300, results.get("userWaitTime"));
+        assertEquals("Mail", results.get("role"));
+    }
+
+    @Test
     void acceptPatch() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "new@prov.com");
         Map res = given()
