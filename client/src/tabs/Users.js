@@ -13,7 +13,7 @@ import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
-import {chipTypeForUserRole} from "../utils/Authority";
+import {authorityForUserOverview, chipTypeForUserRole} from "../utils/Authority";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 
 
@@ -30,12 +30,7 @@ export const Users = () => {
     useEffect(() => {
             searchUsers(paginationQueryParams)
                 .then(page => {
-                    setUsers(page.content.map(user => {
-                        if (!user.authority) {
-                            user.authority = user.superUser ? AUTHORITIES.SUPER_USER : AUTHORITIES.INSTITUTION_ADMIN;
-                        }
-                        return user;
-                    }));
+                    setUsers(page.content);
                     setTotalElements(page.totalElements);
                     //we need to avoid flickerings
                     setTimeout(() => setSearching(false), 75);
@@ -105,7 +100,7 @@ export const Users = () => {
             key: "authority",
             header: I18n.t("users.highestAuthority"),
             mapper: user => {
-                const authority = isEmpty(user.authority) ? null : user.authority.split(",")[0];
+                const authority = authorityForUserOverview(user);
                 return <Chip type={chipTypeForUserRole(authority)}
                              label={I18n.t(`access.${authority}`)}/>
             }

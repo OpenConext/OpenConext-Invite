@@ -5,6 +5,16 @@ import {shortDateFromEpoch} from "./Date";
 import I18n from "../locale/I18n";
 import React from "react";
 
+export const authorityForUserOverview = user => {
+    if (user.super_user) {
+        return AUTHORITIES.SUPER_USER;
+    }
+    if (user.institution_admin) {
+        return AUTHORITIES.INSTITUTION_ADMIN;
+    }
+    return isEmpty(user.authority) ? null : user.authority.split(",")[0];
+}
+
 export const chipTypeForUserRole = authority => {
     if (isEmpty(authority)) {
         return ChipType.Status_warning;
@@ -33,18 +43,4 @@ export const invitationExpiry = invitation => {
             label={I18n.t("invitations.statuses.expired")}/>
     }
     return shortDateFromEpoch(invitation.expiryDate);
-}
-
-export const chipTypeForInvitationStatus = invitation => {
-    const status = invitation.status;
-    switch (status) {
-        case INVITATION_STATUS.OPEN:
-            return ChipType.Status_info;
-        case INVITATION_STATUS.ACCEPTED:
-            return ChipType.Status_success;
-        case INVITATION_STATUS.EXPIRED:
-            return ChipType.Status_error;
-        default:
-            return ChipType.Status_default;
-    }
 }
