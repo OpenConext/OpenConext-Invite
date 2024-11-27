@@ -1,6 +1,6 @@
 import {isEmpty} from "./Utils";
 import {Chip, ChipType} from "@surfnet/sds";
-import {AUTHORITIES, INVITATION_STATUS} from "./UserRole";
+import {AUTHORITIES} from "./UserRole";
 import {shortDateFromEpoch} from "./Date";
 import I18n from "../locale/I18n";
 import React from "react";
