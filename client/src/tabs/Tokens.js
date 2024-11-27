@@ -156,6 +156,11 @@ export const Tokens = () => {
             mapper: token => dateFromEpoch(token.createdAt)
         },
         {
+            key: "organizationGUID",
+            header: I18n.t("tokens.organizationGUID"),
+            mapper: token => token.organizationGUID
+        },
+        {
             nonSortable: true,
             key: "trash",
             header: "",

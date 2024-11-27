@@ -62,7 +62,7 @@ class APITokenControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertNull(apiToken.getHashedValue());
-        assertNull(apiToken.getOrganizationGUID());
+        assertEquals(ORGANISATION_GUID, apiToken.getOrganizationGUID());
         assertEquals("test", apiToken.getDescription());
 
         APIToken apiTokenFromDB = apiTokenRepository.findById(apiToken.getId()).get();
@@ -160,8 +160,10 @@ class APITokenControllerTest extends AbstractTest {
                 .get("/api/v1/tokens")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, tokens.size());
-        assertTrue(tokens.get(0).isSuperUserToken());
+        
+        assertEquals(2, tokens.size());
+        assertEquals(1L, tokens.stream().filter(token -> token.isSuperUserToken()).count());
+        assertEquals(1L, tokens.stream().filter(token -> token.getOrganizationGUID() != null).count());
     }
 
     @Test

@@ -21,7 +21,6 @@ public class APIToken implements Serializable {
     private Long id;
 
     @Column(name = "organization_guid")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String organizationGUID;
 
     @Column(name = "hashed_value")

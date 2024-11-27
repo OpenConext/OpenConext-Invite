@@ -11,7 +11,7 @@ div.mod-tokens {
                 }
 
                 &.description {
-                    width: 50%;
+                    width: 35%;
 
                     &.small {
                         width: 25%;
@@ -19,12 +19,16 @@ div.mod-tokens {
                 }
 
                 &.superUserToken {
-                    width: 25%;
+                    width: 15%;
                     text-align: center;
                 }
 
-                &.created_at {
+                &.organizationGUID {
                     width: 25%;
+                }
+
+                &.created_at {
+                    width: 15%;
                 }
 
                 &.trash {
@@ -43,6 +47,9 @@ div.mod-tokens {
                         margin: auto;
                     }
                 }
+            }
+            td.trash {
+                text-align: center;
             }
 
 
