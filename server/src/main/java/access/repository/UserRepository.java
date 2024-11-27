@@ -38,7 +38,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             countQuery = "SELECT count(*) FROM users",
             queryRewriter = UserRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByPage(Pageable pageable );
+    Page<Map<String, Object>> searchByPage(Pageable pageable);
 
     @Query(value = """
              SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
@@ -49,7 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
             queryRewriter = UserRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable );
+    Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable);
 
     @Query(value = """
             SELECT distinct(u.id), u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity
@@ -57,7 +57,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             INNER JOIN user_roles ur ON ur.user_id = u.id
             INNER JOIN roles r ON r.id = ur.role_id
             WHERE r.organization_guid = ?1
-            """ ,
+            """,
             queryRewriter = UserRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageRoleUsers(String organisationGUID, Pageable pageable);
@@ -69,7 +69,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             INNER JOIN roles r ON r.id = ur.role_id
             WHERE r.organization_guid = ?1 AND
             MATCH (given_name, family_name, email) against (?2  IN BOOLEAN MODE)
-            """ ,
+            """,
             queryRewriter = UserRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageRoleUsersWithKeyWord(String organisationGUID, String query, Pageable pageable);
@@ -81,7 +81,6 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             """,
             nativeQuery = true)
     List<Map<String, Object>> findUserRoles(List<Long> userIdentifiers);
-
 
 
     @Query(value = "SELECT * FROM users u WHERE super_user = 0 AND institution_admin = 0 " +

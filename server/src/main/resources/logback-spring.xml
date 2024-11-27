@@ -6,7 +6,8 @@
             <Pattern>
                 %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
             </Pattern>
-        </layout>    </appender>
+        </layout>
+    </appender>
     <logger name="access" level="DEBUG"/>
     <logger name="org.springframework.security" level="INFO"/>
     <logger name="org.mariadb.jdbc.message.server" level="ERROR"/>

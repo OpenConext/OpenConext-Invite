@@ -85,12 +85,12 @@ public class RoleController implements ApplicationResource {
         if (user.isSuperUser()) {
             if (force) {
                 Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-                rolesPage = roleRepository.searchByPage( pageable);
+                rolesPage = roleRepository.searchByPage(pageable);
             } else {
                 Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
                 rolesPage = StringUtils.hasText(query) ?
                         roleRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-                        roleRepository.searchByPage( pageable);
+                        roleRepository.searchByPage(pageable);
             }
         } else {
             UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
@@ -105,7 +105,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Role> role(@PathVariable("id") Long id,@Parameter(hidden = true) User user) {
+    public ResponseEntity<Role> role(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
 
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
@@ -248,7 +248,7 @@ public class RoleController implements ApplicationResource {
                                 null))
                         .collect(Collectors.toSet());
                 role.setApplicationUsages(applicationUsages);
-            } 
+            }
         });
         return roles;
     }

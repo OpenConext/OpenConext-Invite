@@ -1,7 +1,9 @@
 package access.api;
 
-import access.config.HashGenerator;
-import access.exception.*;
+import access.exception.InvitationEmailMatchingException;
+import access.exception.InvitationExpiredException;
+import access.exception.InvitationStatusException;
+import access.exception.NotFoundException;
 import access.logging.AccessLogger;
 import access.logging.Event;
 import access.mail.MailBox;
@@ -15,7 +17,6 @@ import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.security.SuperAdmin;
 import access.security.UserPermissions;
-import access.validation.EmailFormatValidator;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,20 +35,16 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
-import static java.util.stream.Collectors.toSet;
 
 @RestController
 @RequestMapping(value = {
@@ -59,7 +55,7 @@ import static java.util.stream.Collectors.toSet;
 @SecurityRequirement(name = OPEN_ID_SCHEME_NAME, scopes = {"openid"})
 @SecurityRequirement(name = API_TOKENS_SCHEME_NAME)
 @EnableConfigurationProperties(SuperAdmin.class)
-public class InvitationController implements InvitationResource{
+public class InvitationController implements InvitationResource {
 
     private static final Log LOG = LogFactory.getLog(InvitationController.class);
 
@@ -98,7 +94,7 @@ public class InvitationController implements InvitationResource{
 
     @PostMapping("")
     public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
-                                                              @Parameter(hidden = true) User user) {
+                                                            @Parameter(hidden = true) User user) {
         return this.invitationOperations.sendInvitation(invitationRequest, user, null);
     }
 

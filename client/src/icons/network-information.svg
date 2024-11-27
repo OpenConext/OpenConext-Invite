@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <defs>
-        <style>.ani{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}</style>
+        <style>.ani{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}
+        </style>
     </defs>
     <circle class="ani" cx="17.25" cy="17.25" r="6"/>
     <line class="ani" x1="17.25" y1="20.25" x2="17.25" y2="17.25"/>

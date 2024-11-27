@@ -78,7 +78,7 @@ const relativeTimeNotation = (date, translations) => {
 }
 
 export const displayExpiryDate = date => {
-    const oneDayAhead = futureDate(1 , date);
+    const oneDayAhead = futureDate(1, date);
     const {relativeTime} = relativeTimeNotation(oneDayAhead, TIME_AGO_LOCALE);
     return relativeTime;
 }

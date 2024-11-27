@@ -1,14 +1,11 @@
 package access.model;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -19,5 +16,5 @@ public class InvitationResponse implements Serializable {
 
     private int status;
 
-    private List<RecipientInvitationURL> recipientInvitationURLs ;
+    private List<RecipientInvitationURL> recipientInvitationURLs;
 }

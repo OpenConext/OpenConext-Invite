@@ -107,7 +107,7 @@ public class SystemController {
             throw new NotAllowedException("performance-seed not allowed");
         }
         UserPermissions.assertSuperUser(user);
-        return ResponseEntity.ok(performanceSeed.go(numberOfRole,numberOfUsers ));
+        return ResponseEntity.ok(performanceSeed.go(numberOfRole, numberOfUsers));
     }
 
 }

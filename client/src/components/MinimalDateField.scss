@@ -12,13 +12,16 @@
         margin-right: 10px;
         cursor: pointer;
         color: var(--sds--color--gray--500);
+
         &:hover {
             color: var(--sds--color--black);
         }
     }
+
     .react-datepicker-wrapper {
         width: auto;
     }
+
     .react-datepicker__triangle {
         display: none;
     }

@@ -124,8 +124,14 @@ test("Allowed to renew guestIncluded UserRole as Inviter", () => {
 })
 
 test("Allowed to delete Invitation", () => {
-    const mail = {authority: AUTHORITIES.INVITER, role: {id: "1", applicationUsages: applicationUsagesForManageId("10")}};
-    const research = {authority: AUTHORITIES.INVITER, role: {id: "2", applicationUsages: applicationUsagesForManageId("11")}};
+    const mail = {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "1", applicationUsages: applicationUsagesForManageId("10")}
+    };
+    const research = {
+        authority: AUTHORITIES.INVITER,
+        role: {id: "2", applicationUsages: applicationUsagesForManageId("11")}
+    };
     const user = {userRoles: [mail, research]}
     const invitation = {intendedAuthority: AUTHORITIES.GUEST, roles: [mail, research]};
     expect(allowedToDeleteInvitation(user, invitation)).toBeTruthy();

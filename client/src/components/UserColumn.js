@@ -1,7 +1,7 @@
 import React from "react";
 import I18n from "../locale/I18n";
 import "./UserColumn.scss";
-import {ChipType, Chip, Tooltip} from "@surfnet/sds";
+import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {dateFromEpoch} from "../utils/Date";
 
 export const UserColumn = ({entity, currentUser, gotoInvitation, hideEmail = false, showMe = true}) => {
@@ -26,15 +26,15 @@ export const UserColumn = ({entity, currentUser, gotoInvitation, hideEmail = fal
                          <div className="user-name-email">
                              <span className="name">{entity.invite ? "-" : entity.user && entity.user.name}</span>
                              {entity.invite &&
-                             <span className="email">
+                                 <span className="email">
                     {gotoInvitation && <a href="/invite" onClick={gotoInvitation(entity)}>{entity.invitee_email}</a>}
-                                 {!gotoInvitation && <span>{entity.invitee_email}</span>}
+                                     {!gotoInvitation && <span>{entity.invitee_email}</span>}
                 </span>}
                              {(!entity.invite && !hideEmail) &&
-                             <span className="email">{entity.user && entity.user.email}</span>}
+                                 <span className="email">{entity.user && entity.user.email}</span>}
                          </div>}/>
             {(showMe && !entity.invite && entity.user.id === currentUser.id) &&
-                <Chip type={ChipType.Main_400} label={I18n.t("models.users.me")} />}
+                <Chip type={ChipType.Main_400} label={I18n.t("models.users.me")}/>}
         </div>
     );
 }

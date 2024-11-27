@@ -21,17 +21,19 @@ export const BreadCrumb = () => {
                 {paths
                     .filter(p => !isEmpty(p))
                     .map((p, i) =>
-                    <li key={i}>
-                        {i !== 0 && <ArrowRight/>}
-                        {((i + 1) !== paths.length && p.path) &&
-                        <Link to={p.path} onClick={() => clearFlash()}>
-                            {<span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
-                        </Link>}
-                        {((i + 1) !== paths.length && !p.path) &&
-                        <span className={"last"} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
-                        {(i + 1) === paths.length &&
-                        <span className={"last"} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
-                    </li>)}
+                        <li key={i}>
+                            {i !== 0 && <ArrowRight/>}
+                            {((i + 1) !== paths.length && p.path) &&
+                                <Link to={p.path} onClick={() => clearFlash()}>
+                                    {<span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
+                                </Link>}
+                            {((i + 1) !== paths.length && !p.path) &&
+                                <span className={"last"}
+                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
+                            {(i + 1) === paths.length &&
+                                <span className={"last"}
+                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(p.value)}}/>}
+                        </li>)}
             </ol>
 
         </nav>

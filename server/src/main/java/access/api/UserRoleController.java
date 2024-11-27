@@ -7,13 +7,11 @@ import access.logging.AccessLogger;
 import access.logging.Event;
 import access.model.*;
 import access.provision.ProvisioningService;
-import access.provision.eva.EvaClient;
 import access.provision.scim.OperationType;
 import access.repository.RoleRepository;
 import access.repository.UserRepository;
 import access.repository.UserRoleRepository;
 import access.security.UserPermissions;
-import crypto.KeyStore;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -41,6 +39,7 @@ import java.util.Optional;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+
 @RestController
 @RequestMapping(value = {"/api/v1/user_roles", "/api/external/v1/user_roles"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
@@ -82,7 +81,7 @@ public class UserRoleController implements UserRoleResource {
 
     @GetMapping("managers/{roleId}")
     public ResponseEntity<List<String>> managersByRole(@PathVariable("roleId") Long roleId,
-                                                 @Parameter(hidden = true) User user) {
+                                                       @Parameter(hidden = true) User user) {
         Role role = this.roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         List<UserRole> userRoles = userRoleRepository.findByRoleAndAuthorityIn(role, List.of(Authority.MANAGER, Authority.INSTITUTION_ADMIN));
@@ -139,7 +138,7 @@ public class UserRoleController implements UserRoleResource {
     @PostMapping("user_role_provisioning")
     @Operation(summary = "Add Role to a User", description = "Provision the User if the User is unknown and add the Role(s)")
     public ResponseEntity<User> userRoleProvisioning(@Validated @RequestBody UserRoleProvisioning userRoleProvisioning,
-                                                                     @Parameter(hidden = true) User apiUser) {
+                                                     @Parameter(hidden = true) User apiUser) {
         userRoleProvisioning.validate();
         UserPermissions.assertInstitutionAdmin(apiUser);
         List<Role> roles = userRoleProvisioning.roleIdentifiers.stream()
@@ -160,16 +159,16 @@ public class UserRoleController implements UserRoleResource {
 
         List<UserRole> newUserRoles = roles.stream()
                 .map(role ->
-                    user.getUserRoles().stream()
-                            .noneMatch(userRole -> userRole.getRole().getId().equals(role.getId())) ?
-                        user.addUserRole(new UserRole(
-                                apiUser.getName(),
-                                user,
-                                role,
-                                userRoleProvisioning.intendedAuthority,
-                                userRoleProvisioning.guestRoleIncluded,
-                                Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS)))
-                        : null)
+                        user.getUserRoles().stream()
+                                .noneMatch(userRole -> userRole.getRole().getId().equals(role.getId())) ?
+                                user.addUserRole(new UserRole(
+                                        apiUser.getName(),
+                                        user,
+                                        role,
+                                        userRoleProvisioning.intendedAuthority,
+                                        userRoleProvisioning.guestRoleIncluded,
+                                        Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS)))
+                                : null)
                 .filter(Objects::nonNull)
                 .toList();
 

@@ -60,7 +60,7 @@ class ProfileControllerTest extends AbstractTest {
         assertEquals(1, roles.size());
     }
 
-        @Test
+    @Test
     void rolesNotExistentUser() {
         List<UserRoleProfile> roles = given()
                 .when()

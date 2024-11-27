@@ -1,4 +1,3 @@
-import React from "react";
 import {useAppStore} from "../../stores/AppStore";
 
 test("Store outside functional component", () => {

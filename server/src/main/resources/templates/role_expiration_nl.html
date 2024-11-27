@@ -11,28 +11,30 @@
             This mail is from the {{environment}} environment
         </p>
         {{/environment}}
-        <p class="title" style="font-weight: 600;font-size: 38px;line-height: 38px; margin: 0;margin-bottom: 10px;">Your {{role.name}} will expire in {{nbrOfDays}} days.</p>
+        <p class="title" style="font-weight: 600;font-size: 38px;line-height: 38px; margin: 0;margin-bottom: 10px;">Your
+            {{role.name}} will expire in {{nbrOfDays}} days.</p>
     </div>
     <div class="middle" style="padding: 20px 0 40px 60px;max-width: 600px;">
         <p>Hi {{user.name}},</p>
-        <p>Je {{authority}}-rol {{userRole.role.name}}{{#groupedProvider}} in de applicatie{{groupedProvider.name}}{{/groupedProvider}}
+        <p>Je {{authority}}-rol {{userRole.role.name}}{{#groupedProvider}} in de
+            applicatie{{groupedProvider.name}}{{/groupedProvider}}
             zal over {{nbrOfDays}} dagen verlopen. Als je denkt dat dit een vergissing is, kun je contact
             opnemen met je contactpersoon bij de instelling om verlenging van je {{authority}}-rol aan te vragen.
             {{#groupedProvider}}
-            <table>
-                <thead/>
-                <tbody>
-                <tr>
-                    <td>{{#groupedProvider.logo}}
-                        <img src="cid:{{groupedProvider.logoName}}" alt="logo"/>
-                        {{/groupedProvider.logo}}
-                    </td>
-                    <td>{{groupedProvider.name}} ({{groupedProvider.organisation}})</td>
-                    <td>{{groupedProvider.rolesDisplay}}</td>
-                </tr>
-                </tbody>
-            </table>
-            {{/groupedProvider}}
+        <table>
+            <thead/>
+            <tbody>
+            <tr>
+                <td>{{#groupedProvider.logo}}
+                    <img src="cid:{{groupedProvider.logoName}}" alt="logo"/>
+                    {{/groupedProvider.logo}}
+                </td>
+                <td>{{groupedProvider.name}} ({{groupedProvider.organisation}})</td>
+                <td>{{groupedProvider.rolesDisplay}}</td>
+            </tr>
+            </tbody>
+        </table>
+        {{/groupedProvider}}
         </p>
         <p>Indien je de rol niet wilt vernieuwen, kun je dit bericht negeren of verwijderen.</p>
     </div>

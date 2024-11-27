@@ -9,6 +9,7 @@ div.mod-applications {
                 &.logo {
                     width: 5%;
                 }
+
                 &.name {
                     width: 20%;
                 }
@@ -30,11 +31,13 @@ div.mod-applications {
                 }
             }
         }
+
         tbody {
             td {
                 a {
                     font-weight: normal;
                 }
+
                 &.logo {
                     img {
                         width: 40px;

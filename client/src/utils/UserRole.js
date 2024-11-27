@@ -88,7 +88,7 @@ export const allowedToDeleteInvitation = (user, invitation) => {
             .every(invitationRole => allowedToRenewUserRole(user, {
                 ...invitationRole,
                 authority: invitation.intendedAuthority
-        }))
+            }))
 }
 
 export const allowedToRenewUserRole = (user, userRole, deleteAction = false, targetGuestRole = false) => {
@@ -133,7 +133,7 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator, 
         role.value = role.id;
         deriveApplicationAttributes(role, locale, multiple, separator);
     });
-    if (!isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)){
+    if (!isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
         const userRoles = user.userRoles;
         userRoles.forEach(userRole => {
             userRole.isUserRole = true;

@@ -63,7 +63,7 @@ class UserTest {
     void latestUserRole() {
         User user = new User();
         assertTrue(user.latestUserRole().isEmpty());
-        addUserRole(user, 5,8,2);
+        addUserRole(user, 5, 8, 2);
 
         Instant createdAt = user.latestUserRole().get().getCreatedAt();
         assertEquals(2, createdAt.until(Instant.now(), ChronoUnit.DAYS));

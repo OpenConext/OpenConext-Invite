@@ -25,7 +25,7 @@ public final class LocalManage implements Manage {
     private final DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();
 
     public LocalManage(ObjectMapper objectMapper) {
-        this(objectMapper,  "classpath:/manage");
+        this(objectMapper, "classpath:/manage");
     }
 
     public LocalManage(ObjectMapper objectMapper, String staticManageDirectory) {

@@ -150,7 +150,7 @@ export const UserRoles = ({role, guests}) => {
         } else {
             const identifiers = userRoleIdentifiers();
             const deleteCurrentUserRole = willUpdateCurrentUser();
-            Promise.all(identifiers.map(identifier => deleteUserRole(identifier, guests )))
+            Promise.all(identifiers.map(identifier => deleteUserRole(identifier, guests)))
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.deleteFlash"));
@@ -212,13 +212,13 @@ export const UserRoles = ({role, guests}) => {
         if (allowed) {
             return (
                 <MinimalDateField
-                        minDate={futureDate(1)}
-                        value={userRole.endDate}
-                        onChange={date => doUpdateEndDate(userRole, date, true)}
-                        pastDatesAllowed={config.pastDateAllowed}
-                        allowNull={!guests}
-                        showYearDropdown={true}
-                    />
+                    minDate={futureDate(1)}
+                    value={userRole.endDate}
+                    onChange={date => doUpdateEndDate(userRole, date, true)}
+                    pastDatesAllowed={config.pastDateAllowed}
+                    allowNull={!guests}
+                    showYearDropdown={true}
+                />
             );
         }
         return dateFromEpoch(userRole.endDate, false)
@@ -283,8 +283,8 @@ export const UserRoles = ({role, guests}) => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: userRole => <Chip type={chipTypeForUserRole(guests ? AUTHORITIES.GUEST: userRole.authority)}
-                                      label={I18n.t(`access.${guests ? AUTHORITIES.GUEST: userRole.authority}`)}/>
+            mapper: userRole => <Chip type={chipTypeForUserRole(guests ? AUTHORITIES.GUEST : userRole.authority)}
+                                      label={I18n.t(`access.${guests ? AUTHORITIES.GUEST : userRole.authority}`)}/>
         },
         {
             key: "expiry-warning",

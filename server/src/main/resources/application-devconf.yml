@@ -94,33 +94,27 @@ feature:
 # We don't encode in-memory passwords, so we need to prefix them with {noop}
 external-api-configuration:
   remote-users:
-    -
-      username: voot
+    - username: voot
       password: "secret"
       scopes:
         - voot
-    -
-      username: teams
+    - username: teams
       password: "secret"
       scopes:
         - teams
-    -
-      username: aa
+    - username: aa
       password: "secret"
       scopes:
         - attribute_aggregation
-    -
-      username: lifecycle
+    - username: lifecycle
       password: "secret"
       scopes:
         - lifecycle
-    -
-      username: profile
+    - username: profile
       password: "secret"
       scopes:
         - profile
-    -
-      username: sp_dashboard
+    - username: sp_dashboard
       password: "secret"
       scopes:
         - sp_dashboard

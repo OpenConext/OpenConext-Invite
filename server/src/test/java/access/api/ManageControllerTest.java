@@ -7,7 +7,6 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Map;
@@ -180,6 +179,6 @@ class ManageControllerTest extends AbstractTest {
                 .pathParam("organizationGUID", ORGANISATION_GUID)
                 .get("/api/v1/manage/organization-guid-validation/{organizationGUID}")
                 .then()
-                        .statusCode(403);
+                .statusCode(403);
     }
 }

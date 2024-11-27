@@ -29,20 +29,20 @@ export const Roles = () => {
         if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
             rolesByApplication(false, paginationQueryParams)
                 .then(page => {
-                        const newRoles = markAndFilterRoles(
-                            user,
-                            page.content,
-                            I18n.locale,
-                            I18n.t("roles.multiple"),
-                            I18n.t("forms.and"),
-                            paginationQueryParams.sort,
-                            paginationQueryParams.sortDirection === "DESC");
-                        setRoles(newRoles);
-                        setTotalElements(page.totalElements);
-                        //we need to avoid flickerings
-                        setTimeout(() => setSearching(false), 75);
-                        setLoading(false);
-                    })
+                    const newRoles = markAndFilterRoles(
+                        user,
+                        page.content,
+                        I18n.locale,
+                        I18n.t("roles.multiple"),
+                        I18n.t("forms.and"),
+                        paginationQueryParams.sort,
+                        paginationQueryParams.sortDirection === "DESC");
+                    setRoles(newRoles);
+                    setTotalElements(page.totalElements);
+                    //we need to avoid flickerings
+                    setTimeout(() => setSearching(false), 75);
+                    setLoading(false);
+                })
         } else {
             const newRoles = markAndFilterRoles(
                 user,
@@ -108,7 +108,8 @@ export const Roles = () => {
             key: "logo",
 
             header: "",
-            mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> : <div className="role-icon">
+            mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> :
+                <div className="role-icon">
                     {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
                 </div>
         },
@@ -170,9 +171,9 @@ export const Roles = () => {
     return (
         <div className={"mod-roles"}>
             {(isGuest && !user.institutionAdmin) && <p className={"guest-only"}
-                           dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
+                                                       dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
             {(isGuest && user.institutionAdmin) && <p className={"guest-only"}
-                           dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.noRolesNoApplicationsInstitutionAdmin"))}}/>}
+                                                      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.noRolesNoApplicationsInstitutionAdmin"))}}/>}
             {!isGuest && <Entities
                 entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
                 modelName="roles"

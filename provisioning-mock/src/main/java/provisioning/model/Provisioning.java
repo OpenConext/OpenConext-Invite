@@ -1,13 +1,11 @@
 package provisioning.model;
 
 
-import provisioning.model.ProvisioningType;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 import java.io.Serializable;
 import java.time.Instant;

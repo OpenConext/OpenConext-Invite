@@ -70,10 +70,12 @@ div.email-field {
                 position: absolute;
                 right: -8px;
                 top: -8px;
+
                 svg {
                     width: 10px;
                     height: auto;
                 }
+
                 &:hover {
                     color: var(--sds--color--red--400);
                 }

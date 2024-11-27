@@ -26,7 +26,7 @@ export const paginationQueryParams = (page, queryParams = {}) => {
     }, "");
 }
 
-export const defaultPagination = (sort= "name", sortDirection= "ASC") => {
+export const defaultPagination = (sort = "name", sortDirection = "ASC") => {
     const dp = {
         query: "",
         pageNumber: 0,

@@ -132,7 +132,7 @@ public class User implements Serializable, Provisionable {
         this.createdAt = Instant.now();
         this.lastActivity = this.createdAt;
         this.nameInvariant(Map.of(
-                "name", StringUtils.hasText(this.name)? this.name : "",
+                "name", StringUtils.hasText(this.name) ? this.name : "",
                 "preferred_username", ""
         ));
     }
@@ -201,7 +201,7 @@ public class User implements Serializable, Provisionable {
                 .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(userRole -> userRole.getRole().getApplicationUsages())
                 .flatMap(Collection::stream)
-                .map(applicationUsage -> new ManageIdentifier(applicationUsage.getApplication().getManageId(),applicationUsage.getApplication().getManageType()))
+                .map(applicationUsage -> new ManageIdentifier(applicationUsage.getApplication().getManageId(), applicationUsage.getApplication().getManageType()))
                 .collect(Collectors.toSet());
     }
 

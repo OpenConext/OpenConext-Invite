@@ -21,7 +21,7 @@ public class EvaClient {
     private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
 
     public EvaClient(KeyStore keyStore, RemoteProvisionedUserRepository remoteProvisionedUserRepository) {
-        this.keyStore= keyStore;
+        this.keyStore = keyStore;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
     }
 

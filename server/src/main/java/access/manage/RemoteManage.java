@@ -93,10 +93,10 @@ public class RemoteManage implements Manage {
         if (allowedAll) {
             return this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
         }
-        List<Map< String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
+        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
         String split = allowedEntities.stream().map(m -> "\"" + m.get("name") + "\"")
                 .collect(Collectors.joining(","));
-        String body =  String.format("{\"data.entityid\":{\"$in\":[%s]}}", split) ;
+        String body = String.format("{\"data.entityid\":{\"$in\":[%s]}}", split);
         List<Map<String, Object>> results = new ArrayList<>();
         List.of(EntityType.SAML20_SP, EntityType.OIDC10_RP).forEach(entityType -> {
             String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url,
@@ -119,7 +119,7 @@ public class RemoteManage implements Manage {
         requestedAttributes.add("allowedEntities");
         requestedAttributes.add("allowedall");
 
-        List<Map<String, Object> > identityProviders = restTemplate.postForObject(
+        List<Map<String, Object>> identityProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_IDP.collectionName()),
                 baseQuery, List.class);
         return identityProviders.isEmpty() ? Optional.empty() : Optional.of(transformProvider(identityProviders.get(0)));

@@ -95,12 +95,12 @@ export function other(id) {
     return fetchJson(`/api/v1/users/other/${id}`, {}, {}, false);
 }
 
-export function searchUsers(pagination={}) {
+export function searchUsers(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
     return fetchJson(`/api/v1/users/search?${queryPart}`);
 }
 
-export function searchUsersByApplication(pagination={}) {
+export function searchUsersByApplication(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
     return fetchJson(`/api/v1/users/search-by-application?${queryPart}`);
 }
@@ -161,7 +161,7 @@ export function organizationGUIDValidation(organizationGUID) {
 }
 
 //Roles
-export function rolesByApplication(force=true, pagination={}) {
+export function rolesByApplication(force = true, pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {force: !!force})
     return fetchJson(`/api/v1/roles?${queryPart}`);
 }
@@ -170,8 +170,8 @@ export function rolesPerApplicationManageId(manageId) {
     return fetchJson(`/api/v1/roles/application/${manageId}`);
 }
 
-export function roleByID(roleID, showErrorDialog=true) {
-    return fetchJson(`/api/v1/roles/${roleID}`,{},{},showErrorDialog);
+export function roleByID(roleID, showErrorDialog = true) {
+    return fetchJson(`/api/v1/roles/${roleID}`, {}, {}, showErrorDialog);
 }
 
 export function createRole(role) {
@@ -207,6 +207,7 @@ export function consequencesRoleDeletion(roleId) {
 export function deleteUserRole(userRoleId, isGuest) {
     return fetchDelete(`/api/v1/user_roles/${userRoleId}/${isGuest}`, false);
 }
+
 //API tokens
 export function apiTokens() {
     return fetchJson("/api/v1/tokens");

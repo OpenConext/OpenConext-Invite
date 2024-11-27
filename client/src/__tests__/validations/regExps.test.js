@@ -1,5 +1,4 @@
-import React from "react";
-import {constructShortName,   validEmailRegExp} from "../../validations/regExps";
+import {constructShortName, validEmailRegExp} from "../../validations/regExps";
 
 test("Sanitize URN", () => {
     const urn = constructShortName(" !@#$%^&*(9IIOO   UU  plp ")

@@ -5,17 +5,17 @@ import "./CreatableField.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 
 export const CreatableField = ({
-                                           onChange,
-                                           name,
-                                           value,
-                                           values,
-                                           addValue,
-                                           removeValue,
-                                           toolTip = null,
-                                           placeHolder = null,
-                                           error = false,
-                                           disabled = false
-                                       }) => {
+                                   onChange,
+                                   name,
+                                   value,
+                                   values,
+                                   addValue,
+                                   removeValue,
+                                   toolTip = null,
+                                   placeHolder = null,
+                                   error = false,
+                                   disabled = false
+                               }) => {
 
     return (
         <div className={`creatable-field ${error ? "error" : ""}`}>

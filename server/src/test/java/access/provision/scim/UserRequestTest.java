@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserRequestTest {
 
-    private  User user;
+    private User user;
 
     @BeforeEach
     void beforeEach() {
-        this.user =  new User(Map.of(
+        this.user = new User(Map.of(
                 "sub", "sub",
                 "eduperson_principal_name", "eduperson_principal_name",
                 "schac_home_organization", "schac_home_organization",

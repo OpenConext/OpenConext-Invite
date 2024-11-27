@@ -15,7 +15,7 @@ class DefaultErrorControllerTest {
 
     @Test
     void error() {
-        MockHttpServletRequest request= new MockHttpServletRequest();
+        MockHttpServletRequest request = new MockHttpServletRequest();
         ResponseEntity<Map<String, Object>> responseEntity = errorController.error(request);
         Map<String, Object> body = responseEntity.getBody();
         assertEquals(500, body.get("status"));

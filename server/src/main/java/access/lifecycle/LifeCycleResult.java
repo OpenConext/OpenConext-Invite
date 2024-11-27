@@ -10,11 +10,11 @@ import java.util.List;
 @Getter
 public class LifeCycleResult {
 
-  private final String status = "OK";
-  private final String name = "OpenConext-invite-server";
-  private List<Attribute> data = new ArrayList<>();
+    private final String status = "OK";
+    private final String name = "OpenConext-invite-server";
+    private List<Attribute> data = new ArrayList<>();
 
-  public void setData(List<Attribute> data) {
-    this.data = data;
-  }
+    public void setData(List<Attribute> data) {
+        this.data = data;
+    }
 }

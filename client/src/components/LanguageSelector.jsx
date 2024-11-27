@@ -16,7 +16,7 @@ export const LanguageSelector = () => {
         window.location.search = replaceQueryParameter(window.location.search, "lang", locale);
     };
 
-    const  renderLocaleChooser = locale => {
+    const renderLocaleChooser = locale => {
         return (
             <a href={"locale"} className={`${I18n.locale === locale ? "is-active" : ""}`}
                title={I18n.t("select_locale")}
@@ -26,16 +26,16 @@ export const LanguageSelector = () => {
         );
     }
 
-        return (
-            <nav className="sds--language-switcher sds--text--body--small" aria-label="Language">
-                <ul>
-                    <li>{renderLocaleChooser("nl")}
-                        <span className="sds--language-sds--divider">|</span>
-                    </li>
-                    <li>
-                        {renderLocaleChooser("en")}
-                    </li>
-                </ul>
-            </nav>
-        );
+    return (
+        <nav className="sds--language-switcher sds--text--body--small" aria-label="Language">
+            <ul>
+                <li>{renderLocaleChooser("nl")}
+                    <span className="sds--language-sds--divider">|</span>
+                </li>
+                <li>
+                    {renderLocaleChooser("en")}
+                </li>
+            </ul>
+        </nav>
+    );
 }

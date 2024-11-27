@@ -79,7 +79,7 @@ class UserRoleControllerTest extends AbstractTest {
                         "pageNumber", 0,
                         "pageSize", 1,
                         "sort", "end_date",
-                        "query","example.com",
+                        "query", "example.com",
                         "sortDirection", Sort.Direction.DESC
                 ))
                 .pathParams("roleId", role.getId())
@@ -104,7 +104,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .queryParams(Map.of(
                         "pageNumber", 0,
                         "pageSize", 1,
-                        "query","example",
+                        "query", "example",
                         "sort", "end_date",
                         "sortDirection", Sort.Direction.DESC
                 ))

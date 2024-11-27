@@ -20,7 +20,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -469,7 +468,7 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(1, requests.size());
 
         Map<String, Object> request = objectMapper.readValue(requests.get(0).getBodyAsString(), new TypeReference<>() {
-        }) ;
+        });
         assertEquals(externalId, request.get("externalId"));
     }
 
@@ -572,7 +571,7 @@ class InvitationControllerTest extends AbstractTest {
     void newInvitationInvalidEmail() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
 
-        List<Long> roleIdentifiers = roleRepository.search("Calendar",1)
+        List<Long> roleIdentifiers = roleRepository.search("Calendar", 1)
                 .stream()
                 .map(Role::getId)
                 .toList();

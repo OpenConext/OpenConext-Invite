@@ -549,14 +549,14 @@ public abstract class AbstractTest {
     }
 
     protected UnaryOperator<Map<String, Object>> institutionalAdminEntitlementOperator(String organisationGuid) {
-      return m -> {
-          m.put("eduperson_entitlement",
-                  List.of(
-                          "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
-                          "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisationGuid
-                  ));
-          return m;
-      };
+        return m -> {
+            m.put("eduperson_entitlement",
+                    List.of(
+                            "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke",
+                            "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisationGuid
+                    ));
+            return m;
+        };
     }
 
     protected Set<ApplicationUsage> application(String manageId, EntityType entityType) {
@@ -658,18 +658,18 @@ public abstract class AbstractTest {
 
         Invitation superUserInvitation =
                 new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, false, message, Language.en,
-                        inviter,expiryDate, roleExpiryDate, Set.of());
+                        inviter, expiryDate, roleExpiryDate, Set.of());
         Invitation managerInvitation =
                 new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, false, message, Language.en,
-                        inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(research)));
+                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(research)));
         Invitation inviterInvitation =
                 new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, true, message, Language.en,
-                        inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)));
+                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)));
         inviterInvitation.setEnforceEmailEquality(true);
         Invitation guestInvitation =
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com",
                         false, false, false, message, Language.en,
-                        inviter, expiryDate,roleExpiryDate, Set.of(new InvitationRole(mail)));
+                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)));
         guestInvitation.setEduIDOnly(true);
         //To test graph callback
         guestInvitation.setSubInvitee(GUEST_SUB);
@@ -682,7 +682,7 @@ public abstract class AbstractTest {
         Invitation graphInvitation =
                 new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com",
                         false, false, false, message, Language.en,
-                        inviter,expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));
+                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)));
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation,
                 institutionAdminInvitation, graphInvitation);
 
@@ -696,7 +696,6 @@ public abstract class AbstractTest {
     private <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
         repository.saveAll(Arrays.asList(entities));
     }
-
 
 
 }

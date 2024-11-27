@@ -80,7 +80,8 @@ export const Entities = ({
         const filterClassName = (!hideTitle && filters) ? "filters-with-title" : `${modelName}-search-filters`;
         return (
             <section className="entities-search">
-                {(!hideTitle) && <h2>{title || `${I18n.t(`${modelName}.title`)} (${totalElements || entities.length})`}</h2>}
+                {(!hideTitle) &&
+                    <h2>{title || `${I18n.t(`${modelName}.title`)} (${totalElements || entities.length})`}</h2>}
                 {(loading || hideTitle) && <Loader/>}
                 {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
@@ -116,7 +117,7 @@ export const Entities = ({
         }
         const queryLower = newQuery.toLowerCase();
         return entities.filter(entity => searchAttributes.some(attr => {
-                const val = valueForSort(attr, entity);
+            const val = valueForSort(attr, entity);
             //When the application is unknown in Manage then the val is a React span child object
             return (isEmpty(val) || typeof val !== "string" || val.toLowerCase === undefined) ? false : val.toLowerCase().indexOf(queryLower) > -1;
         }));
@@ -158,7 +159,7 @@ export const Entities = ({
     const entityRow = (entity, index) => {
         const additionalClassName = isEmpty(rowClassNameResolver) ? "" : rowClassNameResolver(entity);
         return <tr key={`tr_${entity.id}_${index}`}
-                   className={`${typeof rowLinkMapper === "function"  ? "clickable" : ""} ${onHover ? "hoverable" : ""} ${additionalClassName}`}>
+                   className={`${typeof rowLinkMapper === "function" ? "clickable" : ""} ${onHover ? "hoverable" : ""} ${additionalClassName}`}>
             {columns.map((column, i) =>
                 <td key={`td_${column.key}_${i}`}
                     onClick={e => (column.key !== "check" && !column.hasLink) ?
@@ -192,7 +193,7 @@ export const Entities = ({
                                                className={`${column.key} ${column.class || ""} ${column.nonSortable ? "" : "sortable"} ${showHeader ? "" : "hide"}`}
                                                onClick={() => !column.nonSortable && setSortedKey(column.key)}>
                                         {column.header}
-                                        {column.toolTip && <Tooltip tip={column.toolTip}/> }
+                                        {column.toolTip && <Tooltip tip={column.toolTip}/>}
                                         {headerIcon(column, sorted, reverse)}
                                     </th>
                                 })}
@@ -205,7 +206,7 @@ export const Entities = ({
                             </tbody>
                         </table>
                     </div>}
-                {(!hasEntities && !initial && !customEmptySearch && !loading && !hideTitle)  &&
+                {(!hasEntities && !initial && !customEmptySearch && !loading && !hideTitle) &&
                     <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
                 <Pagination currentPage={page}
                             onChange={nbr => {

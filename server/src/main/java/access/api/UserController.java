@@ -190,7 +190,7 @@ public class UserController {
     public View msAcceptReturn(@PathVariable("manageId") String manageId, @PathVariable("userId") Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
-        LOG.info(String.format("Return from MS accept. User %s",user.getEduPersonPrincipalName()));
+        LOG.info(String.format("Return from MS accept. User %s", user.getEduPersonPrincipalName()));
 
         Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, manageId);
         Provisioning provisioning = new Provisioning(provisioningMap);
@@ -252,10 +252,10 @@ public class UserController {
             //Find all userRoles with this user id
             List<RoleSummary> roleSummaries = userRolesGroupedByUser.get(userRole.getId()).stream()
                     .map(m -> new RoleSummary(
-                            (Long)m.get("id"),
+                            (Long) m.get("id"),
                             (String) m.get("name"),
                             (String) m.get("authority"),
-                            timeStampToInstant(m,"end_date")
+                            timeStampToInstant(m, "end_date")
                     ))
                     .toList();
             userRole.setRoleSummaries(roleSummaries);

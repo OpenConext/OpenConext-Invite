@@ -309,7 +309,8 @@ export const InvitationForm = () => {
 
                 <InviterContainer isInviter={isInviter}>
                     {!displayAdvancedSettings &&
-                        <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
+                        <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#"
+                           onClick={e => toggleDisplayAdvancedSettings(e)}>
                             {I18n.t("roles.showAdvancedSettings")}
                             <DownIcon/>
                         </a>
@@ -317,7 +318,8 @@ export const InvitationForm = () => {
 
                     {displayAdvancedSettings &&
                         <div className="advanced-settings-container">
-                            <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#" onClick={e => toggleDisplayAdvancedSettings(e)}>
+                            <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#"
+                               onClick={e => toggleDisplayAdvancedSettings(e)}>
                                 {I18n.t("roles.hideAdvancedSettings")}
                                 <UpIcon/>
                             </a>

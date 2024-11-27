@@ -24,7 +24,7 @@ class ExtendedInMemoryUserDetailsManagerTest {
 
     @Test
     void loadUserByUsername() {
-        assertThrows(UsernameNotFoundException.class, () ->  userDetailsManager.loadUserByUsername("nope"));
+        assertThrows(UsernameNotFoundException.class, () -> userDetailsManager.loadUserByUsername("nope"));
 
         RemoteUser user = (RemoteUser) userDetailsManager.loadUserByUsername("user");
         assertNotEquals(remoteUser, user);

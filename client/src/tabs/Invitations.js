@@ -196,17 +196,17 @@ export const Invitations = ({
                              }/>
                 </div>
                 {pending &&
-                <div>
-                    <Tooltip standalone={true}
-                             anchorId={"remove-members"}
-                             tip={I18n.t("tooltips.resendInvitation")}
-                             children={
-                                 <Button onClick={() => doResendInvitations(true)}
-                                         size={ButtonSize.Small}
-                                         type={ButtonType.Secondary}
-                                         txt={I18n.t("invitations.resend")}/>
-                             }/>
-                </div>}
+                    <div>
+                        <Tooltip standalone={true}
+                                 anchorId={"remove-members"}
+                                 tip={I18n.t("tooltips.resendInvitation")}
+                                 children={
+                                     <Button onClick={() => doResendInvitations(true)}
+                                             size={ButtonSize.Small}
+                                             type={ButtonType.Secondary}
+                                             txt={I18n.t("invitations.resend")}/>
+                                 }/>
+                    </div>}
             </div>);
     }
 

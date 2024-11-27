@@ -183,7 +183,8 @@ const nl = {
         consequences: {
             info: "De volgende gebruikers verliezen toegang tot deze rol:",
             userInfo: "{{name}} ({{authority}}), laatste activiteit {{lastActivity}}",
-            andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."        }
+            andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."
+        }
     },
     applications: {
         title: "Toegangsrollen voor deze applicatie ({{nbr}})",
@@ -191,12 +192,12 @@ const nl = {
         new: "Nieuwe toegangsrol",
         searchPlaceHolder: "Zoek naar applicaties",
         noResults: "Geen applicaties gevonden...",
-        name:"Applicatienaam",
+        name: "Applicatienaam",
         types: {
             saml20_sp: "Service Provider",
             oidc10_rp: "Relying Party"
         },
-        type:"Type",
+        type: "Type",
         organization: "Organisatie",
         url: "URL",
         roles: "Rollen",

@@ -2,18 +2,15 @@ package access.manage;
 
 import access.AbstractTest;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import wiremock.org.apache.commons.io.IOUtils;
 
-import java.nio.charset.Charset;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RemoteManageTest extends AbstractTest {
 
@@ -51,12 +48,12 @@ class RemoteManageTest extends AbstractTest {
 
     @Test
     void providersByIdIn() throws JsonProcessingException {
-        List<Map<String, Object>> providers = localManage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
+        List<Map<String, Object>> providers = localManage.providersByIdIn(EntityType.SAML20_SP, List.of("1", "3", "4"));
         String body = objectMapper.writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));
-        List<Map<String, Object>> remoteProviders =  manage.providersByIdIn(EntityType.SAML20_SP,List.of("1","3","4"));
+        List<Map<String, Object>> remoteProviders = manage.providersByIdIn(EntityType.SAML20_SP, List.of("1", "3", "4"));
         providers.forEach(provider -> provider.values().removeIf(Objects::isNull));
         remoteProviders.forEach(provider -> provider.values().removeIf(Objects::isNull));
         assertEquals(providers, remoteProviders);

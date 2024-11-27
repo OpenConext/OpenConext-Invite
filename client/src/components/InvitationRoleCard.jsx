@@ -28,9 +28,9 @@ export const InvitationRoleCard = ({
     const children =
         <div key={index} className="user-role">
             {!isEmpty(invitationSelected) &&
-            <Checkbox name={`invitationSelected-${index}-${role.value}`}
-                      value={invitationSelected}
-                      onChange={e => invitationSelectCallback(e, role.value)}/>
+                <Checkbox name={`invitationSelected-${index}-${role.value}`}
+                          value={invitationSelected}
+                          onChange={e => invitationSelectCallback(e, role.value)}/>
             }
 
             <Logo src={logo} alt={"provider"} className={"provider"}/>

@@ -559,7 +559,7 @@ class UserControllerTest extends AbstractTest {
     void meUpdateScim() throws Exception {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         String remoteScimIdentifier = UUID.randomUUID().toString();
-        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier,"7");
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier, "7");
         remoteProvisionedUserRepository.save(remoteProvisionedUser);
 
         super.stubForManageProvisioning(List.of("1", "4", "5"));

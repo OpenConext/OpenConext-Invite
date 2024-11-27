@@ -41,13 +41,16 @@ div.mod-tokens {
         tbody {
             td.superUserToken {
                 text-align: center;
+
                 .container {
                     display: flex;
+
                     .sds--checkbox-container {
                         margin: auto;
                     }
                 }
             }
+
             td.trash {
                 text-align: center;
             }

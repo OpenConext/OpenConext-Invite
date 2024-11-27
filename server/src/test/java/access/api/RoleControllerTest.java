@@ -180,8 +180,8 @@ class RoleControllerTest extends AbstractTest {
 
         Role roleDB = roleRepository.search("Wiki", 1).get(0);
         roleDB.setApplicationUsages(Set.of(
-                new ApplicationUsage( new Application("1", EntityType.SAML20_SP) ,"https://landingpage.com"),
-                new ApplicationUsage( new Application("4", EntityType.SAML20_SP) ,"https://landingpage.com"))
+                new ApplicationUsage(new Application("1", EntityType.SAML20_SP), "https://landingpage.com"),
+                new ApplicationUsage(new Application("4", EntityType.SAML20_SP), "https://landingpage.com"))
         );
         String body = super.objectMapper.writeValueAsString(roleDB);
         Role updated = given()
@@ -211,8 +211,8 @@ class RoleControllerTest extends AbstractTest {
         Role roleDB = roleRepository.search("Wiki", 1).get(0);
         assertEquals(1, roleDB.getApplicationUsages().size());
         roleDB.setApplicationUsages(Set.of(
-                new ApplicationUsage( new Application("1", EntityType.SAML20_SP) ,"https://landingpage.com"),
-                new ApplicationUsage( new Application("4", EntityType.SAML20_SP) ,"https://landingpage.com"))
+                new ApplicationUsage(new Application("1", EntityType.SAML20_SP), "https://landingpage.com"),
+                new ApplicationUsage(new Application("4", EntityType.SAML20_SP), "https://landingpage.com"))
         );
         String body = super.objectMapper.writeValueAsString(roleDB);
         Role updated = given()
@@ -320,7 +320,7 @@ class RoleControllerTest extends AbstractTest {
         assertEquals(2, page.getPageable().getPageNumber());
         assertEquals(6, page.getTotalElements());
         List<Role> roles = page.getContent();
-        assertEquals(List.of("Calendar","Mail"), roles.stream().map(Role::getName).sorted().toList());
+        assertEquals(List.of("Calendar", "Mail"), roles.stream().map(Role::getName).sorted().toList());
     }
 
     @Test

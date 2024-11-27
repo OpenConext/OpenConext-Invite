@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class APITokenControllerTest extends AbstractTest {
 
@@ -57,7 +58,7 @@ class APITokenControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(Map.of("description","test"))
+                .body(Map.of("description", "test"))
                 .post("/api/v1/tokens")
                 .as(new TypeRef<>() {
                 });
@@ -160,7 +161,7 @@ class APITokenControllerTest extends AbstractTest {
                 .get("/api/v1/tokens")
                 .as(new TypeRef<>() {
                 });
-        
+
         assertEquals(2, tokens.size());
         assertEquals(1L, tokens.stream().filter(token -> token.isSuperUserToken()).count());
         assertEquals(1L, tokens.stream().filter(token -> token.getOrganizationGUID() != null).count());

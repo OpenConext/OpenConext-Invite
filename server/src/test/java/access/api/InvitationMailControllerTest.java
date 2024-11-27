@@ -5,17 +5,14 @@ import access.AccessCookieFilter;
 import access.mail.MimeMessageParser;
 import access.manage.EntityType;
 import access.model.*;
-import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InvitationMailControllerTest extends AbstractMailTest {

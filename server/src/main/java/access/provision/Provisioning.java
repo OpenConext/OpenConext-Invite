@@ -69,8 +69,8 @@ public class Provisioning {
                 assert scimPassword != null : "scimPassword is null";
             }
             case graph -> {
-                assert graphClientId != null: "graphClientId is null";
-                assert graphSecret != null: "graphSecret is null";
+                assert graphClientId != null : "graphClientId is null";
+                assert graphSecret != null : "graphSecret is null";
             }
         }
         switch (this.scimUserIdentifier) {

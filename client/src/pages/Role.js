@@ -168,39 +168,40 @@ export const Role = () => {
                                    managerEmails={managerEmails}/>}
             {!isInviter &&
                 <UnitHeader obj={({...role, logo: logo})}
-                    displayDescription={true}
-                    actions={getActions()}>
-            <div className={"urn-container"}>
-                <span>{I18n.t("role.copyUrn")}</span>
-                <ClipBoardCopy txt={urn} transparentBackground={true}/>
-            </div>
-            <div className={"meta-data"}>
-                <div className={"meta-data-row"}>
-                    <PersonIcon/>
-                    <span dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(I18n.t("role.userInfo", {
-                            nbr: role.userRoleCount,
-                            valid: role.defaultExpiryDays
-                        }))
-                    }}/>
-                </div>
-                {!role.unknownInManage &&
-                <div className={"meta-data-row"}>
-                    <WebsiteIcon/>
-                    <div>{landingPages(role)}</div>
-                </div>}
-                {role.unknownInManage &&
-                    <div className="meta-data-row unknown-in-manage">
-                        <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")} </span>
-                        <Tooltip tip={I18n.t("roles.unknownInManageToolTip")} standalone={true} clickable={true}/>
-                    </div>}
-            </div>
+                            displayDescription={true}
+                            actions={getActions()}>
+                    <div className={"urn-container"}>
+                        <span>{I18n.t("role.copyUrn")}</span>
+                        <ClipBoardCopy txt={urn} transparentBackground={true}/>
+                    </div>
+                    <div className={"meta-data"}>
+                        <div className={"meta-data-row"}>
+                            <PersonIcon/>
+                            <span dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(I18n.t("role.userInfo", {
+                                    nbr: role.userRoleCount,
+                                    valid: role.defaultExpiryDays
+                                }))
+                            }}/>
+                        </div>
+                        {!role.unknownInManage &&
+                            <div className={"meta-data-row"}>
+                                <WebsiteIcon/>
+                                <div>{landingPages(role)}</div>
+                            </div>}
+                        {role.unknownInManage &&
+                            <div className="meta-data-row unknown-in-manage">
+                                <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")} </span>
+                                <Tooltip tip={I18n.t("roles.unknownInManageToolTip")} standalone={true}
+                                         clickable={true}/>
+                            </div>}
+                    </div>
                 </UnitHeader>}
             <div className="mod-role">
-            <Tabs activeTab={currentTab}
-                  tabChanged={tabChanged}>
-                {tabs}
-            </Tabs>
-        </div>
-    </div>);
+                <Tabs activeTab={currentTab}
+                      tabChanged={tabChanged}>
+                    {tabs}
+                </Tabs>
+            </div>
+        </div>);
 };

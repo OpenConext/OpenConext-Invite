@@ -116,7 +116,7 @@ export const ApplicationUsers = () => {
     const title = I18n.t(`users.found`, {
         count: totalElements,
         plural: I18n.t(`users.${totalElements === 1 ? "singleUser" : "multipleUsers"}`)
-        })
+    })
 
     return (<div className="mod-application-users">
         {searching && <Loader/>}

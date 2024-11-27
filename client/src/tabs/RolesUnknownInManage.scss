@@ -2,6 +2,7 @@
 
 div.mod-unknown-roles {
     background: white;
+
     table.unknown-roles {
 
         thead {
@@ -39,6 +40,7 @@ div.mod-unknown-roles {
             .unknown-in-manage {
                 color: var(--sds--color--red--500);
                 font-weight: 600;
+
                 svg {
                     margin-left: 15px;
                 }

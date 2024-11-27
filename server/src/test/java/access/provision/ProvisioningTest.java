@@ -30,7 +30,7 @@ class ProvisioningTest {
     @Test
     void provisioningGraph() {
         this.assertInvariant(this.provisioningMap(ProvisioningType.graph));
-        this.assertInvariant(this.provisioningMap(ProvisioningType.graph,"graph_client_id"));
+        this.assertInvariant(this.provisioningMap(ProvisioningType.graph, "graph_client_id"));
         this.provisioningMap(ProvisioningType.graph, "graph_client_id", "graph_secret");
     }
 

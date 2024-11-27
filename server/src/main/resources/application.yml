@@ -70,9 +70,9 @@ spring:
 
 crypto:
   development-mode: True
-#  private-key-location: classpath:nope
-#  Use the commented lines when you want to test against a remote manage. Do not add the private_key to git
-#  development-mode: False
+  #  private-key-location: classpath:nope
+  #  Use the commented lines when you want to test against a remote manage. Do not add the private_key to git
+  #  development-mode: False
   private-key-location: classpath:/private_key_pkcs8.pem
 
 cron:
@@ -128,33 +128,27 @@ feature:
 # We don't encode in-memory passwords, so we need to prefix them with {noop}
 external-api-configuration:
   remote-users:
-    -
-      username: voot
+    - username: voot
       password: "secret"
       scopes:
         - voot
-    -
-      username: teams
+    - username: teams
       password: "secret"
       scopes:
         - teams
-    -
-      username: aa
+    - username: aa
       password: "secret"
       scopes:
         - attribute_aggregation
-    -
-      username: lifecycle
+    - username: lifecycle
       password: "secret"
       scopes:
         - lifecycle
-    -
-      username: profile
+    - username: profile
       password: "secret"
       scopes:
         - profile
-    -
-      username: sp_dashboard
+    - username: sp_dashboard
       displayName: "SP Dashboard"
       password: "secret"
       scopes:
@@ -162,8 +156,7 @@ external-api-configuration:
       applications:
         - manageId: "4"
           manageType: SAML20_SP
-    -
-      username: sp_dashboard_local_dev_mode
+    - username: sp_dashboard_local_dev_mode
       displayName: "SP Dashboard"
       password: "secret"
       scopes:
@@ -193,12 +186,12 @@ email:
 # and server/src/main/java/access/manage/LocalManage.java to see how it works.
 manage:
   enabled: True
-#  enabled: False
+  #  enabled: False
   url: "https://manage.test2.surfconext.nl"
   user: invite
   password: secret
-# If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
-# are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage
+  # If manage is disabled (e.g. enabled: False) the staticManageDirectory is the directory where the {metadata_type}.json files
+  # are located. This can also be an absolute file path, e.g. file:///opt/openconext/invite/manage
   staticManageDirectory: classpath:/manage
 #  staticManageDirectory: file:///usr/local/etc/manage
 

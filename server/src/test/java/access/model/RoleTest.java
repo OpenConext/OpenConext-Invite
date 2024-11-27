@@ -17,8 +17,8 @@ class RoleTest extends WithApplicationTest {
     @Test
     void groupBy() {
         List<Role> roles = List.of(
-                new Role("cloud", "cloud",  application("1", EntityType.OIDC10_RP), 365, false, false),
-                new Role("mail", "mail",  application("1", EntityType.OIDC10_RP), 365, false, false),
+                new Role("cloud", "cloud", application("1", EntityType.OIDC10_RP), 365, false, false),
+                new Role("mail", "mail", application("1", EntityType.OIDC10_RP), 365, false, false),
                 new Role("wiki", "wiki", application("2", EntityType.SAML20_SP), 365, false, false)
         );
         Set<ManageIdentifier> rolesByApplication = roles.stream()

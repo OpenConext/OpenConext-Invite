@@ -192,12 +192,12 @@ const en = {
         new: "New Access Role",
         searchPlaceHolder: "Search for applications",
         noResults: "No applications found...",
-        name:"Application name",
+        name: "Application name",
         types: {
             saml20_sp: "Service Provider",
             oidc10_rp: "Relying Party"
         },
-        type:"Type",
+        type: "Type",
         organization: "Organization",
         url: "URL",
         roles: "Roles",

@@ -17,19 +17,19 @@ export default function SelectField({
                 {toolTip && <Tooltip tip={toolTip}/>}
             </label>
             {creatable &&
-            <CreatableSelect
-                className={`input-select-inner creatable`}
-                classNamePrefix={"select-inner"}
-                value={value}
-                isMulti={true}
-                placeholder={placeholder}
-                isSearchable={true}
-                onInputChange={onInputChange}
-                isClearable={clearable}
-                isDisabled={disabled}
-                onChange={onChange}
-                options={options}
-            />}
+                <CreatableSelect
+                    className={`input-select-inner creatable`}
+                    classNamePrefix={"select-inner"}
+                    value={value}
+                    isMulti={true}
+                    placeholder={placeholder}
+                    isSearchable={true}
+                    onInputChange={onInputChange}
+                    isClearable={clearable}
+                    isDisabled={disabled}
+                    onChange={onChange}
+                    options={options}
+                />}
             {!creatable && <Select
                 className={`input-select-inner ${small ? " small" : ""}`}
                 classNamePrefix={"select-inner"}

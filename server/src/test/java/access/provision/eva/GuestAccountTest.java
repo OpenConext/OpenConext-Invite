@@ -1,6 +1,5 @@
 package access.provision.eva;
 
-import access.model.Role;
 import access.model.User;
 import access.provision.Provisioning;
 import access.provision.ProvisioningType;

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+
 @Configuration
 public class ManageConf {
 
@@ -20,7 +21,7 @@ public class ManageConf {
                          @Value("${manage.password}") String password,
                          @Value("${manage.enabled}") boolean enabled,
                          @Value("${manage.staticManageDirectory}") String staticManageDirectory,
-                                 ObjectMapper objectMapper) throws IOException {
+                         ObjectMapper objectMapper) throws IOException {
         return enabled ? new RemoteManage(url, user, password, objectMapper) : new LocalManage(objectMapper, staticManageDirectory);
     }
 

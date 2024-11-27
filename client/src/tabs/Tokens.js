@@ -145,11 +145,12 @@ export const Tokens = () => {
             mapper: token => <span className={"cut-of-lines"}>{token.description}</span>
         },
         user.superUser ?
-        {
-            key: "superUserToken",
-            header: I18n.t("tokens.superUserToken"),
-            mapper: token => <div className="container"><Checkbox value={token.superUserToken} name={""} onChange={() => true} readOnly={true}/></div>
-        } : null,
+            {
+                key: "superUserToken",
+                header: I18n.t("tokens.superUserToken"),
+                mapper: token => <div className="container"><Checkbox value={token.superUserToken} name={""}
+                                                                      onChange={() => true} readOnly={true}/></div>
+            } : null,
         {
             key: "created_at",
             header: I18n.t("tokens.createdAt"),

@@ -143,7 +143,7 @@ public class PerformanceSeed {
     private Role createRole(List<Map<String, Object>> providers, String institutionGuid) {
         String name = NameGenerator.generate();
 
-        int i = random.nextInt(1,15);
+        int i = random.nextInt(1, 15);
         int numberOfApplications = i > 13 ? 1 : i;
         Set<ManageIdentifier> manageIdentifiers = IntStream.range(0, numberOfApplications)
                 .mapToObj(j -> {

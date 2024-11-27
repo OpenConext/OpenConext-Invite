@@ -306,11 +306,11 @@ export const RoleForm = () => {
 
                 {!isNewRole &&
                     <InputField
-                            name={I18n.t("roles.urn")}
-                            value={urnFromRole(config.groupUrnPrefix, role)}
-                            disabled={true}
-                            toolTip={I18n.t("tooltips.roleUrn")}
-                />}
+                        name={I18n.t("roles.urn")}
+                        value={urnFromRole(config.groupUrnPrefix, role)}
+                        disabled={true}
+                        toolTip={I18n.t("tooltips.roleUrn")}
+                    />}
 
                 {user.superUser &&
                     <InputField
@@ -351,15 +351,15 @@ export const RoleForm = () => {
                 {applications.map((application, index) =>
                     <div className="application-container" key={index}>
                         <div className="select-field-container">
-                        <SelectField name={I18n.t("roles.manage")}
-                                     value={application}
-                                     placeholder={I18n.t("roles.applicationPlaceholder")}
-                                     options={filteredProviders}
-                                     onChange={option => changeApplication(index, option)}
-                                     searchable={true}
-                                     clearable={false}
-                                     disabled={!allowedToEditApplication}
-                        />
+                            <SelectField name={I18n.t("roles.manage")}
+                                         value={application}
+                                         placeholder={I18n.t("roles.applicationPlaceholder")}
+                                         options={filteredProviders}
+                                         onChange={option => changeApplication(index, option)}
+                                         searchable={true}
+                                         clearable={false}
+                                         disabled={!allowedToEditApplication}
+                            />
                             {(!initial && isEmpty(application) && index === 0) &&
                                 <ErrorIndicator msg={I18n.t("forms.required", {
                                     attribute: I18n.t("roles.manage").toLowerCase()
@@ -373,7 +373,7 @@ export const RoleForm = () => {
                                         placeholder={I18n.t("roles.landingPagePlaceHolder")}
                                         onBlur={e => validateApplication(index, e.target.value)}
                                         onChange={e => changeApplicationLandingPage(index, e)}
-                        />
+                            />
                             {(!initial && application?.landingPage && application.invalid) &&
                                 <ErrorIndicator msg={I18n.t("forms.invalid", {
                                     attribute: I18n.t("roles.landingPage").toLowerCase(),
@@ -384,7 +384,7 @@ export const RoleForm = () => {
                                     attribute: I18n.t("roles.landingPage").toLowerCase()
                                 })}/>}
                         </div>
-                        {(index !== 0 && allowedToEditApplication)&&
+                        {(index !== 0 && allowedToEditApplication) &&
                             <Button type={ButtonType.Delete}
                                     onClick={() => deleteApplication(index)}/>
                         }
@@ -395,11 +395,11 @@ export const RoleForm = () => {
                         attribute: I18n.t("roles.manage").toLowerCase()
                     })}/>}
                 {allowedToEditApplication &&
-                <div className="application-actions">
-                    <Button txt={I18n.t("roles.addApplication")}
-                            disabled={providers.length === applications.length || isEmpty(applications[0])}
-                            onClick={addApplication}/>
-                </div>
+                    <div className="application-actions">
+                        <Button txt={I18n.t("roles.addApplication")}
+                                disabled={providers.length === applications.length || isEmpty(applications[0])}
+                                onClick={addApplication}/>
+                    </div>
                 }
 
                 <h2 className="section-separator">

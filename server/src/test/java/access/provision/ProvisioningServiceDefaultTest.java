@@ -5,7 +5,6 @@ import access.eduid.EduIDProvision;
 import access.model.*;
 import access.provision.scim.OperationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         //Need to ensure the user is updated therefore the remote needs to exists and provisioning is scimn
         String remoteScimIdentifier = UUID.randomUUID().toString();
-        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier,"7");
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier, "7");
         remoteProvisionedUserRepository.save(remoteProvisionedUser);
         this.stubForManageProvisioning(List.of("1", "4", "5"));
         this.stubForUpdateScimUser();
@@ -155,7 +154,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     void deleteGroupRequest() throws JsonProcessingException {
         Role role = roleRepository.findByName("Calendar").get();
 
-        RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, UUID.randomUUID().toString(),"7");
+        RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7");
         remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
 
         this.stubForManageProvisioning(List.of("1"));

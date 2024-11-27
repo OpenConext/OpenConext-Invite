@@ -51,7 +51,7 @@ export const Inviter = () => {
                 </div>
                 <div className={"actions"}>
                     <Button txt={I18n.t("inviter.sendInvite")}
-                            onClick={() => navigate("/invitation/new")} />
+                            onClick={() => navigate("/invitation/new")}/>
                 </div>
                 <h3 className={"sub-info"}>{I18n.t("inviter.manage")}</h3>
                 {sortUserRoles(user.userRoles).map((userRole, index) => renderUserRole(userRole.role, index))}

@@ -1,8 +1,6 @@
 package provisioning.api;
 
 
-import provisioning.model.ProvisioningType;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
@@ -14,10 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import provisioning.model.GuestAccount;
-import provisioning.model.HttpMethod;
-import provisioning.model.Provisioning;
-import provisioning.model.ResourceType;
+import provisioning.model.*;
 import provisioning.repository.ProvisioningRepository;
 
 import java.util.Map;

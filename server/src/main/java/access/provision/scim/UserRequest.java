@@ -1,7 +1,6 @@
 package access.provision.scim;
 
 
-import access.api.RoleController;
 import access.model.User;
 import access.provision.Provisioning;
 import access.provision.ScimUserIdentifier;

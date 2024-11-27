@@ -79,7 +79,7 @@ public class MailBox {
                 .anyMatch(invitationRole -> StringUtils.hasText(invitationRole.getRole().getInviterDisplayName()))) {
             variables.put("displaySenderName", splitListSemantically(invitation.getRoles().stream()
                     .map(invitationRole -> invitationRole.getRole().getInviterDisplayName()).toList()));
-        } else  {
+        } else {
             variables.put("displaySenderName", provisionable.getName());
         }
         if (StringUtils.hasText(invitation.getMessage())) {

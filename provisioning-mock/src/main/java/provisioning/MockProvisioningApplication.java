@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class MockProvisioningApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MockProvisioningApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MockProvisioningApplication.class, args);
+    }
 
 }

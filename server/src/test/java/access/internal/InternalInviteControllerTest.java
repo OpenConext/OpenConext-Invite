@@ -3,7 +3,6 @@ package access.internal;
 import access.AbstractTest;
 import access.manage.EntityType;
 import access.model.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -59,7 +58,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .body(role)
                 .post("/api/internal/invite/roles")
                 .then()
-                        .statusCode(403);
+                .statusCode(403);
     }
 
     @Test

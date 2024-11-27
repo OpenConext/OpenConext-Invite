@@ -18,7 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-public class RoleExpirationNotifier  {
+public class RoleExpirationNotifier {
 
     private static final Log LOG = LogFactory.getLog(RoleExpirationNotifier.class);
 

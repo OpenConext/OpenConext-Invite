@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static access.security.InstitutionAdmin.*;
+import static access.security.InstitutionAdmin.INSTITUTION_ADMIN;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 
 public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {

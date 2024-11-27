@@ -14,7 +14,7 @@ export const RoleCard = ({
     const navigate = useNavigate();
 
     const children =
-        <div key={index} className="user-role" >
+        <div key={index} className="user-role">
             <Logo src={application.logo} alt={"provider"} className={"provider"}/>
             <section className={"user-role-info"}>
                 <p>{application.roleName} {application.authority &&
