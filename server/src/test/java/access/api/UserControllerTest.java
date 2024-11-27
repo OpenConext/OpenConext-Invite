@@ -334,6 +334,27 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void searchPaginatedSortedAuthority() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "exam")
+                .queryParam("pageNumber", 1)
+                .queryParam("pageSize", 2)
+                .queryParam("sort", "authority")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .get("/api/v1/users/search")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, page.getContent().size());
+        assertEquals(6, page.getTotalElements());
+    }
+
+    @Test
     void searchByApplication() throws Exception {
         //Institution admin is enriched with Manage information
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
@@ -372,6 +393,29 @@ class UserControllerTest extends AbstractTest {
                 });
         assertEquals(4, usersPage.getTotalElements());
         assertEquals(1, usersPage.getContent().size());
+    }
+
+    @Test
+    void searchUsersByApplicationSortEndDate() throws Exception {
+        //Institution admin is enriched with Manage information
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        DefaultPage<Map<String, Object>> usersPage = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "exam")
+                .queryParam("pageNumber", 1)
+                .queryParam("pageSize", 2)
+                .queryParam("sort", "endDate")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .get("/api/v1/users/search-by-application")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(4, usersPage.getTotalElements());
+        assertEquals(2, usersPage.getContent().size());
     }
 
     @Test

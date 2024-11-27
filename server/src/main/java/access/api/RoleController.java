@@ -248,9 +248,7 @@ public class RoleController implements ApplicationResource {
                                 null))
                         .collect(Collectors.toSet());
                 role.setApplicationUsages(applicationUsages);
-            } else {
-                System.out.println("error");
-            }
+            } 
         });
         return roles;
     }

@@ -170,6 +170,58 @@ class UserRoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void searchNonGuestsByPageWithKeywordSortName() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        Role role = roleRepository.findByName("Wiki").get();
+        Map<String, Object> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParams(Map.of(
+                        "query", "doe",
+                        "pageNumber", 0,
+                        "pageSize", 1,
+                        "sort", "name",
+                        "sortDirection", Sort.Direction.DESC
+                ))
+                .pathParams("roleId", role.getId())
+                .pathParams("guests", false)
+                .get("/api/v1/user_roles/search/{roleId}/{guests}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, userRoles.get("totalElements"));
+        assertEquals(1, ((List<?>) userRoles.get("content")).size());
+    }
+
+    @Test
+    void searchNonGuestsByPageWithKeywordSortSchacHomeOrganization() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+
+        Role role = roleRepository.findByName("Wiki").get();
+        Map<String, Object> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParams(Map.of(
+                        "query", "doe",
+                        "pageNumber", 0,
+                        "pageSize", 1,
+                        "sort", "schac_home_organization",
+                        "sortDirection", Sort.Direction.ASC
+                ))
+                .pathParams("roleId", role.getId())
+                .pathParams("guests", false)
+                .get("/api/v1/user_roles/search/{roleId}/{guests}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(2, userRoles.get("totalElements"));
+        assertEquals(1, ((List<?>) userRoles.get("content")).size());
+    }
+
+    @Test
     void byRoleNotFound() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
         given()
