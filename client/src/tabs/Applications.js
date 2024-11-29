@@ -71,11 +71,6 @@ const Applications = () => {
                 <a onClick={e => openApplication(e, application)} href="/#">{application.name}</a>
         },
         {
-            key: "type",
-            header: I18n.t("applications.type"),
-            mapper: application => I18n.t(`applications.types.${application.type}`)
-        },
-        {
             key: "organization",
             header: I18n.t("applications.organization"),
             mapper: application => application.organization
