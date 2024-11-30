@@ -267,7 +267,9 @@ public class InvitationController implements InvitationResource {
                     newUserRoles.stream()
                             .filter(userRole -> userRole.getRole().getApplicationUsages().stream()
                                     .anyMatch(appUsage -> manageIdentifiers.contains(appUsage.getApplication().getManageId())))
+
                             .map(userRole -> userRole.getRole())
+                            .sorted(Comparator.comparing(Role::getName))
                             .findFirst()
                             .ifPresent(role -> {
                                 body.put("userWaitTime", provisioning.getUserWaitTime());

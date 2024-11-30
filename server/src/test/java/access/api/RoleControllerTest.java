@@ -550,4 +550,26 @@ class RoleControllerTest extends AbstractTest {
         assertEquals(2, roles.get(0).getApplicationUsages().size());
     }
 
+    @Test
+    void createWithToken() throws Exception {
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        stubForManageProvisioning(List.of());
+
+        stubForCreateScimRole();
+
+        Role role = new Role("#333", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
+
+        Map result = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/external/v1/roles")
+                .as(Map.class);
+        assertNotNull(result.get("id"));
+        assertEquals(String.format("urn:mace:surf.nl:test.surfaccess.nl:%s:333", result.get("identifier")), result.get("urn"));
+    }
+
+
 }

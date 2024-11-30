@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,18 +58,21 @@ public class RoleController implements ApplicationResource {
     private final Manage manage;
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
+    private final String groupUrnPrefix;
 
     public RoleController(RoleRepository roleRepository,
                           ApplicationRepository applicationRepository,
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
-                          ProvisioningService provisioningService) {
+                          ProvisioningService provisioningService,
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
         this.manage = manage;
         this.provisioningService = provisioningService;
         this.roleOperations = new RoleOperations(this);
+        this.groupUrnPrefix = groupUrnPrefix;
     }
 
     @GetMapping("")
@@ -148,6 +152,7 @@ public class RoleController implements ApplicationResource {
 
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
+        role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
 
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getName()));
 

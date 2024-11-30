@@ -21,7 +21,7 @@ public class GroupURN {
     }
 
     public static String urnFromRole(String groupUrnPrefix, Role role) {
-        return String.format("%s:%s:%s",
+        return role.isTeamsOrigin() ? role.getUrn() :String.format("%s:%s:%s",
                 groupUrnPrefix,
                 role.getIdentifier(),
                 role.getShortName());

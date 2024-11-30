@@ -83,7 +83,7 @@ public class AttributeAggregatorController {
 
     private Map<String, String> parseUserRole(UserRole userRole) {
         Role role = userRole.getRole();
-        String urn = role.isTeamsOrigin() ? role.getUrn() : GroupURN.urnFromRole(groupUrnPrefix, role);
+        String urn = GroupURN.urnFromRole(groupUrnPrefix, role);
         return Map.of("id", urn);
     }
 

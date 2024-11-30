@@ -423,7 +423,7 @@ class InvitationControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(300, results.get("userWaitTime"));
-        assertEquals("Mail", results.get("role"));
+        assertEquals("Calendar", results.get("role"));
     }
 
     @Test
