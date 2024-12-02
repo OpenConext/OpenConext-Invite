@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased - YYYY-MM-DD
 
 ## 0.0.24 2024-12-05
+
 - Load and display lists paginated
 - Repair sorting role guests on institution
 - Repair searching for emails
