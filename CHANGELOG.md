@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.24 2024-12-05
+- Load and display lists paginated
+- Repair sorting role guests on institution
+- Repair searching for emails
+- Provision changed EVA user attributes
+
 ## 0.0.23 2024-10-29
 
 - Allow extending eVa role enddates
