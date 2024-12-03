@@ -30,7 +30,7 @@ public class DatabaseEventListener {
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.query("SELECT id, identifier,short_name FROM roles WHERE urn IS NULL AND teams_origin = 0", rs -> {
+        jdbcTemplate.query("SELECT id, identifier, short_name FROM roles WHERE urn IS NULL AND teams_origin = 0", rs -> {
             long roleId = rs.getLong("id");
             String shortName = rs.getString("short_name");
             String identifier = rs.getString("identifier");
