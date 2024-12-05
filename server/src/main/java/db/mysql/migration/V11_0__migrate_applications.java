@@ -27,7 +27,7 @@ public class V11_0__migrate_applications extends BaseJavaMigration {
             Set<Application> applications = Set.of(new Application(manageId, EntityType.valueOf(manageType)));
             String jsonNode;
             try {
-                jsonNode =  ObjectMapperHolder.objectMapper.writeValueAsString(applications);
+                jsonNode = ObjectMapperHolder.objectMapper.writeValueAsString(applications);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

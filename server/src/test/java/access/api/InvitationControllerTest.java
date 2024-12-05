@@ -412,7 +412,7 @@ class InvitationControllerTest extends AbstractTest {
         super.stubForManageProvisioning(List.of("5"));
 
         AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
-        Map<String, Object > results = given()
+        Map<String, Object> results = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)

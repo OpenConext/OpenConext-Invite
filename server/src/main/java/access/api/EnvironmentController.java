@@ -10,7 +10,6 @@ import java.io.IOException;
 @RestController
 public class EnvironmentController {
 
-
     private final String disclaimerBackgroundColor;
     private final String disclaimerContent;
 
