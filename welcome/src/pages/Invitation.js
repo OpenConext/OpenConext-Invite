@@ -11,7 +11,7 @@ import {getParameterByName} from "../utils/QueryParameters";
 import {DateTime} from "luxon";
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
-import {splitListSemantically} from "../utils/Utils";
+import {isEmpty, splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {organisationName} from "../utils/Manage";
 import HighFive from "../icons/high-five.svg";
@@ -141,11 +141,14 @@ export const Invitation = ({authenticated}) => {
     }
 
     const renderLoginStep = () => {
+        const rolesWithInviterDisplayName = invitation.roles
+            .map(invitationRole => invitationRole.role)
+            .find(role => !isEmpty(role.inviterDisplayName));
         let html = DOMPurify.sanitize(I18n.t("invitationAccept.invited", {
             type: I18n.t("invitationAccept.role"),
             roles: splitListSemantically(invitation.roles
                 .map(invitationRole => `<strong>${invitationRole.role.name}</strong>${organisationName(invitationRole.role.applicationMaps)}`), I18n.t("forms.and")),
-            inviter: invitation.inviter.name,
+            inviter: isEmpty(rolesWithInviterDisplayName) ? invitation.inviter.name : rolesWithInviterDisplayName.inviterDisplayName,
             plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
             email: invitation.inviter.email
         }));
