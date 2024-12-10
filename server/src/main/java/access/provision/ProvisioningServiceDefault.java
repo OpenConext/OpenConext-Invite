@@ -2,6 +2,7 @@ package access.provision;
 
 import access.eduid.EduID;
 import access.eduid.EduIDProvision;
+import access.exception.InvalidInputException;
 import access.exception.RemoteException;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
@@ -146,10 +147,16 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         List<Provisioning> provisionings = getProvisionings(userRole.getUser());
         provisionings.forEach(provisioning -> {
             if (this.hasEvaHook(provisioning)) {
-                RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, userRole.getUser());
-                doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+                try {
+                    //For now only eva is eligible for update's for the userRole (e.g. new end date)
+                    RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, userRole.getUser());
+                    doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+                } catch (InvalidInputException e) {
+                    //Can't be helped and won't happen on production
+                    LOG.error("Error from evaClient", e);
+                }
             }
-            //For now only eva is eligible for update's for the userRole (e.g. new end date)
+
         });
 
     }

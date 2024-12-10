@@ -1,9 +1,12 @@
 package access.provision.eva;
 
+import access.exception.InvalidInputException;
 import access.model.RemoteProvisionedUser;
 import access.model.User;
 import access.provision.Provisioning;
 import access.provision.ProvisioningType;
+import lombok.Getter;
+import org.hibernate.AssertionFailure;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -11,12 +14,15 @@ import org.springframework.util.MultiValueMap;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 
 
+@Getter
 public class GuestAccount {
 
-    private static final String EVA_DATE_PATTERN = "yyyy-MM-dd";
+    protected static final String EVA_DATE_PATTERN = "yyyy-MM-dd";
+
     private final MultiValueMap<String, String> request;
 
     public GuestAccount(User user, Provisioning provisioning) {
@@ -25,8 +31,12 @@ public class GuestAccount {
         Instant dateTill = user.userRolesForProvisioning(provisioning)
                 .stream()
                 .map(userRole -> userRole.getEndDate())
+                .filter(date -> date != null)
                 .max(Comparator.naturalOrder())
                 .orElseThrow(() -> new AssertionError("No userRoles found for provisioning:" + provisioning.getEntityId()));
+        if (dateTill.isBefore(now)) {
+            throw new InvalidInputException(String.format("dateTill %s is before now %s. No EVA provisioning possible", dateTill, now));
+        }
         String language = LocaleContextHolder.getLocale().getLanguage();
         request = new LinkedMultiValueMap<>();
         request.add("name", user.getName());
@@ -39,11 +49,4 @@ public class GuestAccount {
         request.add("preferredLanguage", language);
     }
 
-    public static String dateFrom(RemoteProvisionedUser remoteProvisionedUser) {
-        return new SimpleDateFormat(EVA_DATE_PATTERN).format(Date.from(remoteProvisionedUser.getCreatedAt()));
-    }
-
-    public MultiValueMap<String, String> getRequest() {
-        return request;
-    }
 }

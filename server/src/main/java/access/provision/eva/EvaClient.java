@@ -1,5 +1,6 @@
 package access.provision.eva;
 
+import access.model.RemoteProvisionedUser;
 import access.model.User;
 import access.provision.Provisioning;
 import access.repository.RemoteProvisionedUserRepository;
@@ -13,6 +14,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("unchecked")
 public class EvaClient {
@@ -66,11 +68,10 @@ public class EvaClient {
         }
         MultiValueMap<String, String> map = new GuestAccount(user, provisioning).getRequest();
         if (requestType.equals(RequestType.update)) {
-            this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user)
-                    .ifPresent(remoteProvisionedUser -> {
-                        map.add("id", remoteProvisionedUser.getRemoteIdentifier());
-                        map.replace("dateFrom", List.of(GuestAccount.dateFrom(remoteProvisionedUser)));
-                    });
+            Optional<RemoteProvisionedUser> optionalRemoteProvisionedUser = this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
+            optionalRemoteProvisionedUser
+                    .ifPresent(remoteProvisionedUser ->
+                            map.add("id", remoteProvisionedUser.getRemoteIdentifier()));
         }
         return new RequestEntity(map, headers, HttpMethod.POST, URI.create(url));
     }

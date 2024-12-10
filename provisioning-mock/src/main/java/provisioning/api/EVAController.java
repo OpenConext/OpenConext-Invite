@@ -44,7 +44,7 @@ public class EVAController {
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.eva,
                 objectMapper.valueToTree(user),
-                HttpMethod.DELETE,
+                HttpMethod.POST,
                 ResourceType.USERS,
                 "eva/api/v1/guest/create"
         ));
