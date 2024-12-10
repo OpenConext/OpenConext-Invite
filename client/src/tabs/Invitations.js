@@ -15,6 +15,8 @@ import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {allowedToDeleteInvitation, AUTHORITIES, INVITATION_STATUS, isUserAllowed} from "../utils/UserRole";
 import {UnitHeader} from "../components/UnitHeader";
 import Select from "react-select";
+import {ReactComponent as TrashIcon} from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {ReactComponent as ResendIcon} from "@surfnet/sds/icons/functional-icons/go-to-other-website.svg";
 
 const allValue = "all";
 const mineValue = "mine";
@@ -149,6 +151,24 @@ export const Invitations = ({
         }
     };
 
+    const doResendInvitationsFromActionLink = (invitation, showConfirmation) => {
+        if (showConfirmation) {
+            setConfirmation({
+                cancel: () => setConfirmationOpen(false),
+                action: () => doResendInvitationsFromActionLink(invitation, false),
+                question: I18n.t("invitations.resendConfirmationOne"),
+                confirmationTxt: I18n.t("confirmationDialog.confirm")
+            });
+            setConfirmationOpen(true);
+        } else {
+            resendInvitation(invitation.id)
+                .then(() => {
+                    setConfirmationOpen(false);
+                    setFlash(I18n.t("invitations.resendFlash"));
+                })
+        }
+    }
+
     const doDeleteInvitations = showConfirmation => {
         if (showConfirmation) {
             setConfirmation({
@@ -161,6 +181,26 @@ export const Invitations = ({
         } else {
             const identifiers = invitationIdentifiers();
             Promise.all(identifiers.map(identifier => deleteInvitation(identifier)))
+                .then(() => {
+                    setConfirmationOpen(false);
+                    setFlash(I18n.t("invitations.deleteFlash"));
+                    const path = encodeURIComponent(window.location.pathname);
+                    navigate(`/refresh-route/${path}`, {replace: true});
+                })
+        }
+    };
+
+    const doDeleteInvitationsFromActionLink = (invitation, showConfirmation) => {
+        if (showConfirmation) {
+            setConfirmation({
+                cancel: () => setConfirmationOpen(false),
+                action: () => doDeleteInvitationsFromActionLink(invitation, false),
+                question: I18n.t("invitations.deleteOneConfirmation"),
+                confirmationTxt: I18n.t("confirmationDialog.confirm")
+            });
+            setConfirmationOpen(true);
+        } else {
+            deleteInvitation(invitation.id)
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("invitations.deleteFlash"));
@@ -226,6 +266,29 @@ export const Invitations = ({
         );
     }
 
+    const actionIcons = invitation => {
+        return (
+            <div className="admin-icons">
+                {pending && <div onClick={() => doResendInvitationsFromActionLink(invitation, true)}>
+                    <Tooltip standalone={true}
+                             anchorId={"remove-members"}
+                             tip={I18n.t("tooltips.resendOneInvitation")}
+                             children={
+                                 <ResendIcon/>
+                             }/>
+                </div>}
+                <div onClick={() => doDeleteInvitationsFromActionLink(invitation, true)}>
+                    <Tooltip standalone={true}
+                             anchorId={"remove-members"}
+                             tip={I18n.t("tooltips.removeOneInvitation")}
+                             children={
+                                 <TrashIcon/>
+                             }/>
+                </div>
+            </div>);
+    }
+
+
     const getActions = () => {
         const actions = [];
         actions.push({
@@ -285,6 +348,12 @@ export const Invitations = ({
             key: pending ? "expiryDate" : "acceptedAt",
             header: I18n.t(pending ? "invitations.expiryDate" : "invitations.acceptedAt"),
             mapper: invitation => pending ? invitationExpiry(invitation) : shortDateFromEpoch(invitation.acceptedAt)
+        },
+        {
+            key: "adminIcons",
+            nonSortable: true,
+            header: "",
+            mapper: invitation => actionIcons(invitation)
         }];
     const filteredInvitations = filterValue.value === allValue ? invitations.current :
         invitations.current.filter(invitation => invitation.status === filterValue.value ||
@@ -319,6 +388,7 @@ export const Invitations = ({
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={loading}
+                  onHover={true}
                   hideTitle={loading}
                   filters={filter(filterOptions, filterValue)}
                   actions={actionButtons()}

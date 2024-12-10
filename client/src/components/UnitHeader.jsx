@@ -82,7 +82,7 @@ export const UnitHeader = ({
                         }
                         {showChevronAction &&
                             <div tabIndex={1}
-                                 onBlur={() => setTimeout(() => setShowDropDown(false), 250)}>
+                                 onBlur={() => setTimeout(() => setShowDropDown(false), 125)}>
                                 <MenuButton txt={I18n.t("home.otherOptions")}
                                             isOpen={showDropDown}
                                             toggle={() => setShowDropDown(!showDropDown)}

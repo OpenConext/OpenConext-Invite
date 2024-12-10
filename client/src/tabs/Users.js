@@ -102,7 +102,7 @@ export const Users = () => {
             mapper: user => {
                 const authority = authorityForUserOverview(user);
                 return <Chip type={chipTypeForUserRole(authority)}
-                             label={I18n.t(`access.${authority}`)}/>
+                             label={I18n.t(`access.${authority || "No member"}`)}/>
             }
         },
         {

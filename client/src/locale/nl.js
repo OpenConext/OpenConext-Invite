@@ -221,6 +221,7 @@ const nl = {
         updateConfirmationRemoveEndDate: "Weet je zeker dat je de einddatum wil verwijderen van rol {{roleName}} voor {{userName}}?",
         updateFlash: "De einddatum van rol {{roleName}} is bijgewerkt",
         deleteConfirmation: "Weet je zeker dat je de rol van deze gebruiker(s) wil verwijderen?",
+        deleteOneConfirmation: "Weet je zeker dat je de rol van deze gebruiker wil verwijderen?",
         deleteFlash: "Gebruikersrol(len) zijn verwijderd",
         createdAt: "Datum geaccepteerd",
         delete: "Verwijder"
@@ -279,7 +280,9 @@ const nl = {
         notAllowed: "Je kunt deze uitnodiging niet opnieuw versturen of intrekken vanwege ontbrekende rollen",
         deleteFlash: "Uitnodiging(en) ingetrokken",
         deleteConfirmation: "Weet je zeker dat je deze uitnodiging(en) wil intrekken?",
+        deleteOneConfirmation: "Weet je zeker dat je deze uitnodiging wil intrekken?",
         resendConfirmation: "Weet je zeker dat je deze uitnodiging(en) opnieuw wil versturen?",
+        resendConfirmationOne: "Weet je zeker dat je deze uitnodiging opnieuw wil versturen?",
         resendFlash: "Uitnodiging(en) opnieuw verstuurd.",
         inviterRole: {
             title: "Verstuur nieuwe uitnodiging",
@@ -419,10 +422,13 @@ const nl = {
         intendedAuthorityTooltip: "De autoriteit geeft de rechten aan die de genodigde verwerft na het accepteren van de uitnodiging",
         inviteesTooltip: "Geef e-mailadressen op, gescheiden door komma, spatie of puntkomma, of op een eigen regel. Je kunt ook een csv-bestand plakken met daarin op elke regel een e-mailadres.",
         removeInvitation: "Verwijder alle geselecteerde uitnodigingen",
+        removeOneInvitation: "Verwijder deze uitnodiging",
         resendInvitation: "Verstuur al de geselecteerde uitnodigingen opnieuw",
+        resendOneInvitation: "Verstuur deze uitnodiging opnieuw",
         inviter: "Verstuur uitnodigingen naar gebruikers die - na accepteren - en rol krijgen voor de applicatie",
         overrideSettingsAllowed: "Indien ingeschakeld kunnen uitnodigingen voor de deze rol de geavanceerde configuratie aanpassen (waaronder of e-mailadres overeen moet komen, alleen accepteren met eduID en de verloop- en einddatum)",
         removeUserRole: "Verwijder alle geselecteerde rollen",
+        removeOneUserRole: "Verwijder deze rol",
         guestRoleIncludedTooltip: "Wil je dat de uitgenodigden ook gebruiker worden als ze de uitnodiging accepteren?",
         expiredUserRole: "Deze rol gaat verlopen binnen een maand",
     },
@@ -506,7 +512,7 @@ const nl = {
         noMails: "Geen notificatie mails zijn vertstuurd voor bijna verlopen gebruikersrollen",
         performanceSeedInfo: "The performance seed is dummy / generated data to test the performance of the system. It is deleted when you run the tests.",
         performanceSeed: "Insert performance seed",
-        performanceMillis: "Inserted following entities in {{millis}} ms"
+        performanceLoadTime: "Inserted following entities in ~{{minutes}} minutes"
     },
     unknownRoles: {
         title: "Rollen gekoppeld aan applicaties die verwijderd zijn in Manage",

@@ -349,7 +349,7 @@ class UserRoleControllerTest extends AbstractTest {
     }
 
     @Test
-    void deleteUserRoleNotAllowed() throws Exception {
+    void deleteUserRoleAllowedForOwnUser() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
         List<UserRole> userRoles = userRoleRepository.findByRoleName("Calendar");
         UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.INVITER)).findFirst().get();
@@ -363,7 +363,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .pathParams("isGuest", false)
                 .delete("/api/v1/user_roles/{userRoleId}/{isGuest}")
                 .then()
-                .statusCode(403);
+                .statusCode(204);
     }
 
     @Test

@@ -221,6 +221,7 @@ const en = {
         updateConfirmationRemoveEndDate: "Are you sure you want to remove the end date of role {{roleName}} for {{userName}}?",
         updateFlash: "The end date for role {{roleName}} has been updated",
         deleteConfirmation: "Are you sure  you want to remove this role from this user(s)?",
+        deleteOneConfirmation: "Are you sure  you want to remove this role from this user?",
         deleteFlash: "User role(s) have been removed",
         createdAt: "Date accepted",
         delete: "Remove"
@@ -279,7 +280,9 @@ const en = {
         notAllowed: "You're not allowed to delete or resend this invitation because of missing roles",
         deleteFlash: "Invitation(s) have been revoke",
         deleteConfirmation: "Are you sure you want to revoke these invitations?",
+        deleteOneConfirmation: "Are you sure you want to revoke this invitation?",
         resendConfirmation: "Are you sure you want to resend these invitations?",
+        resendConfirmationOne: "Are you sure you want to resend this invitation?",
         resendFlash: "Invitation(s) have been resent",
         inviterRole: {
             title: "Send new invite",
@@ -419,10 +422,13 @@ const en = {
         intendedAuthorityTooltip: "The authority determines the rights the invitee will be granted on accepting the invitation",
         inviteesTooltip: "Add email addresses separated by comma, space or semi-colon or on seperate lines. You can also paste a csv file with line-separated email addresses.",
         removeInvitation: "Delete all selected invitations",
+        removeOneInvitation: "Delete this invitation",
         resendInvitation: "Resend all selected invitations",
+        resendOneInvitation: "Resend this invitation",
         inviter: "Send invitations to persons who will - once accepted - gain user access to the application",
         overrideSettingsAllowed: "When checked, invitations for this role can override the advanced settings (e.g. email equality, eduID only and the role expiry end date)",
         removeUserRole: "Remove all selected user roles",
+        removeOneUserRole: "Remove this user role",
         guestRoleIncludedTooltip: "Do you also want to grant the invitees the user role when they accept the invitation?",
         expiredUserRole: "This role will expire soon",
     },
@@ -506,7 +512,7 @@ const en = {
         noMails: "No notification mails for user-role expirations were send",
         performanceSeedInfo: "The performance seed is dummy / generated data to test the performance of the system. It is deleted when you run the tests.",
         performanceSeed: "Insert performance seed",
-        performanceMillis: "Inserted following entities in {{millis}} ms"
+        performanceLoadTime: "Inserted following entities in ~{{minutes}} minutes"
     },
     unknownRoles: {
         title: "Roles linked to applications unknown in Manage",

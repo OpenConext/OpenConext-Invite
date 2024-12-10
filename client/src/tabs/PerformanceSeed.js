@@ -35,7 +35,7 @@ export const PerformanceSeed = () => {
                 </div>
                 {seed &&
                     <div className="results">
-                        <p>{I18n.t("system.performanceMillis", {millis: millis})}</p>
+                        <p>{I18n.t("system.performanceLoadTime", {minutes: Math.round(millis / (60 * 60 * 1000)) })}</p>
                         <code className="results">
                             {JSON.stringify(seed, null, 4)}
                         </code>

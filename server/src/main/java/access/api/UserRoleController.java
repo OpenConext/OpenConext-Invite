@@ -203,7 +203,10 @@ public class UserRoleController implements UserRoleResource {
                                                @Parameter(hidden = true) User user) {
         LOG.debug("/deleteUserRole");
         UserRole userRole = userRoleRepository.findById(id).orElseThrow(() -> new NotFoundException("UserRole not found"));
-        UserPermissions.assertValidInvitation(user, isGuest ? Authority.GUEST : userRole.getAuthority(), List.of(userRole.getRole()));
+        // Users are allowed to remove themselves from a role
+        if (!userRole.getUser().getId().equals(user.getId())) {
+            UserPermissions.assertValidInvitation(user, isGuest ? Authority.GUEST : userRole.getAuthority(), List.of(userRole.getRole()));
+        }
         if (userRole.isGuestRoleIncluded()) {
             userRole.setGuestRoleIncluded(false);
             if (!isGuest) {

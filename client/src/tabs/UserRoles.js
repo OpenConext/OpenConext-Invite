@@ -16,6 +16,7 @@ import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {MinimalDateField} from "../components/MinimalDateField";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import debounce from "lodash.debounce";
+import {ReactComponent as TrashIcon} from "@surfnet/sds/icons/functional-icons/bin.svg";
 
 const oneMonthMillis = 1000 * 60 * 60 * 24 * 30;
 
@@ -23,6 +24,7 @@ export const UserRoles = ({role, guests}) => {
     const navigate = useNavigate();
     const {user, setFlash, config} = useAppStore(state => state);
 
+    const [removeNotAllowed, setRemoveNotAllowed] = useState({});
     const [userRoles, setUserRoles] = useState({});
     const [selectedUserRoles, setSelectedUserRoles] = useState({});
     const [allSelected, setAllSelected] = useState(false);
@@ -34,6 +36,7 @@ export const UserRoles = ({role, guests}) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+            setRemoveNotAllowed(highestAuthority(user) === AUTHORITIES.INVITER && !guests);
             searchUserRolesByRoleId(role.id, guests, paginationQueryParams)
                 .then(page => {
                     //We don't get the role from the server anymore due to custom pagination queries
@@ -48,6 +51,7 @@ export const UserRoles = ({role, guests}) => {
                             };
                             return acc;
                         }, {}));
+                    setAllSelected(false);
                     setTotalElements(page.totalElements);
                     //we need to avoid flickerings
                     setTimeout(() => setSearching(false), 75);
@@ -149,16 +153,42 @@ export const UserRoles = ({role, guests}) => {
             setConfirmationOpen(true);
         } else {
             const identifiers = userRoleIdentifiers();
-            const deleteCurrentUserRole = willUpdateCurrentUser();
+
             Promise.all(identifiers.map(identifier => deleteUserRole(identifier, guests)))
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.deleteFlash"));
-                    if (isEmpty(deleteCurrentUserRole)) {
-                        setPaginationQueryParams({...paginationQueryParams});
-                    } else {
+                    const deleteCurrentUserRole = willUpdateCurrentUser();
+                    if (deleteCurrentUserRole && !isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
                         useAppStore.setState(() => ({reload: true}));
                         navigate("/home", {replace: true});
+                    } else {
+                        setPaginationQueryParams({...paginationQueryParams});
+                    }
+                }).catch(handleError);
+        }
+    };
+
+    const doDeleteUserRolesFromActionLink = (showConfirmation, userRole) => {
+        if (showConfirmation) {
+            setConfirmation({
+                cancel: () => setConfirmationOpen(false),
+                action: () => doDeleteUserRolesFromActionLink(false, userRole),
+                question: I18n.t("userRoles.deleteOneConfirmation"),
+                confirmationTxt: I18n.t("confirmationDialog.confirm")
+            });
+            setConfirmationOpen(true);
+        } else {
+            deleteUserRole(userRole.id, guests)
+                .then(() => {
+                    setConfirmationOpen(false);
+                    setFlash(I18n.t("userRoles.deleteFlash"));
+                    const deleteCurrentUserRole = userRole.user_id === user.id;
+                    if (deleteCurrentUserRole && !isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
+                        useAppStore.setState(() => ({reload: true}));
+                        navigate("/home", {replace: true});
+                    } else {
+                        setPaginationQueryParams({...paginationQueryParams});
                     }
                 }).catch(handleError);
         }
@@ -224,6 +254,23 @@ export const UserRoles = ({role, guests}) => {
         return dateFromEpoch(userRole.endDate, false)
     }
 
+    const actionIcons = userRole => {
+        if (!selectedUserRoles[userRole.id].allowed) {
+            return null;
+        }
+        return (
+            <div className="admin-icons">
+                <div onClick={() => doDeleteUserRolesFromActionLink(true, userRole)}>
+                    <Tooltip standalone={true}
+                             anchorId={"remove-members"}
+                             tip={I18n.t("tooltips.removeOneUserRole")}
+                             children={
+                                 <TrashIcon/>
+                             }/>
+                </div>
+            </div>);
+    }
+
     const actionButtons = () => {
         if (isEmpty(userRoleIdentifiers())) {
             return null;
@@ -243,21 +290,25 @@ export const UserRoles = ({role, guests}) => {
                 </div>
             </div>);
     }
-    const hideCheckbox = highestAuthority(user) === AUTHORITIES.INVITER && !guests;
     const columns = [
         {
             nonSortable: true,
             key: "check",
-            header: (!hideCheckbox && showCheckAllHeader()) ?
+            header: (!removeNotAllowed && showCheckAllHeader()) ?
                 <Checkbox value={allSelected}
                           name={"allSelected"}
                           onChange={selectAll}/> : null,
-            mapper: userRole => <div className="check">
-                {selectedUserRoles[userRole.id].allowed ? <Checkbox name={pseudoGuid()}
-                                                                    onChange={onCheck(userRole)}
-                                                                    value={selectedUserRoles[userRole.id].selected}/> :
-                    (hideCheckbox ? null : <Tooltip tip={I18n.t("userRoles.notAllowed")}/>)}
-            </div>
+            mapper: userRole => {
+                const allowed = selectedUserRoles[userRole.id].allowed;
+                return (
+                    <div className="check">
+                        {allowed ? <Checkbox name={pseudoGuid()}
+                                             onChange={onCheck(userRole)}
+                                             value={selectedUserRoles[userRole.id].selected}/> : null
+                        }
+                    </div>
+                );
+            }
         },
         {
             key: "name",
@@ -302,7 +353,14 @@ export const UserRoles = ({role, guests}) => {
             key: "createdAt",
             header: I18n.t("userRoles.createdAt"),
             mapper: userRole => shortDateFromEpoch(userRole.createdAt, false)
-        },];
+        },
+        {
+            key: "adminIcons",
+            nonSortable: true,
+            header: "",
+            mapper: userRole => actionIcons(userRole)
+        },
+    ];
 
     return (<div className="mod-user-roles">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
@@ -322,6 +380,7 @@ export const UserRoles = ({role, guests}) => {
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=${guests === false}`, {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}
                   loading={false}
+                  onHover={true}
                   title={I18n.t(guests ? "userRoles.guestRoles" : "userRoles.managerRoles", {count: totalElements})}
                   actions={actionButtons()}
                   customSearch={search}

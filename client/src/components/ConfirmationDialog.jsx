@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {Modal,} from "@surfnet/sds";
 import I18n from "../locale/I18n";
 
@@ -15,12 +15,17 @@ export default function ConfirmationDialog({
                                                largeWidth = false,
                                                confirmationHeader = I18n.t("confirmationDialog.title")
                                            }) {
+    const [busy, setBusy] = useState(false);
+
     if (!isOpen) {
         return null;
     }
     return (
         <Modal
-            confirm={confirm}
+            confirm={() => {
+                setBusy(true);
+                confirm();
+            }}
             cancel={cancel}
             alertType={null}
             question={question}
@@ -29,7 +34,7 @@ export default function ConfirmationDialog({
             title={confirmationHeader}
             cancelButtonLabel={I18n.t("confirmationDialog.cancel")}
             confirmationButtonLabel={confirmationTxt}
-            confirmDisabled={disabledConfirm}
+            confirmDisabled={disabledConfirm || (busy && cancel)}
             subTitle={null}
             full={largeWidth}/>
     );

@@ -9,7 +9,7 @@ import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "
 import {rolesByApplication} from "../api";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
-import {chipTypeForUserRole} from "../utils/Authority";
+import {authorityForRole, chipTypeForUserRole} from "../utils/Authority";
 import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
 import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import DOMPurify from "dompurify";
@@ -140,9 +140,11 @@ export const Roles = () => {
             nonSortable: true,
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: role => <Chip type={chipTypeForUserRole(role.authority)}
-                                  label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
-                                      I18n.t("roles.noMember")}/>
+            mapper: role => {
+                const authority = authorityForRole(user, role);
+                const label = authority ? I18n.t(`access.${authority}`) : I18n.t("roles.noMember");
+                return <Chip type={chipTypeForUserRole(authority)}
+                                  label={label}/>}
         },
         {
             key: "userRoleCount",

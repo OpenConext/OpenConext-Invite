@@ -44,3 +44,11 @@ export const invitationExpiry = invitation => {
     }
     return shortDateFromEpoch(invitation.expiryDate);
 }
+
+export const authorityForRole = (user, role) => {
+    if (role.isUserRole && role.authority) {
+        return role.authority;
+    }
+    const userRole = (user.userRoles || []).find(userRole => userRole.role.id === role.id);
+    return userRole ? userRole.authority : null;
+}

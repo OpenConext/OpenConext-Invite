@@ -57,7 +57,7 @@ export const UserMenu = ({user, config, actions}) => {
     return (
         <div className="user-menu"
              tabIndex={1}
-             onBlur={() => setTimeout(() => setDropDownActive(false), 250)}>
+             onBlur={() => setTimeout(() => setDropDownActive(false), 125)}>
             <UserInfo isOpen={dropDownActive}
                       children={renderMenu(adminLinks)}
                       organisationName={I18n.t(`access.${highestAuthority(user, false)}`)}

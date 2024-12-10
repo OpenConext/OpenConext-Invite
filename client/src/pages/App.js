@@ -113,8 +113,6 @@ export const App = () => {
                         }
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>}
-                {/*  <Route path="invitations" element={<Invitation user={user}/>}/>*/}
-                {/*  <Route path="institution/:institutionId" element={<InstitutionForm user={user}/>}/>*/}
                 {!authenticated &&
                     <Routes>
                         <Route path="/" element={<Navigate replace to="login"/>}/>
