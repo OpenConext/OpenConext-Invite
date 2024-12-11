@@ -267,6 +267,9 @@ export const Invitations = ({
     }
 
     const actionIcons = invitation => {
+        if (!selectedInvitations[invitation.id].allowed) {
+            return null;
+        }
         return (
             <div className="admin-icons">
                 {pending && <div onClick={() => doResendInvitationsFromActionLink(invitation, true)}>
