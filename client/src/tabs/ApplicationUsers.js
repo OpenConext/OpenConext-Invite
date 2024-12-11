@@ -113,24 +113,19 @@ export const ApplicationUsers = () => {
         },
     ];
 
-    const title = I18n.t(`users.found`, {
-        count: totalElements,
-        plural: I18n.t(`users.${totalElements === 1 ? "singleUser" : "multipleUsers"}`)
-    })
-
-    return (<div className="mod-application-users">
-        {searching && <Loader/>}
-
-        <Entities entities={users}
-                  modelName="users"
-                  defaultSort="name"
-                  columns={columns}
-                  title={title}
-                  inputFocus={true}
-                  totalElements={totalElements}
-                  customSearch={search}
-                  hideTitle={searching}
-                  busy={searching}/>
-    </div>)
+    return (
+        <div className="mod-application-users">
+            {searching && <Loader/>}
+            <Entities entities={users}
+                      modelName="users"
+                      defaultSort="name"
+                      columns={columns}
+                      inputFocus={true}
+                      totalElements={totalElements}
+                      customSearch={search}
+                      hideTitle={searching}
+                      busy={searching}/>
+        </div>
+    );
 
 }
