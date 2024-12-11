@@ -566,17 +566,16 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
-    void allByInviter() throws Exception {
+    void allByInviterNotAllowed() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
-        List<Invitation> invitations = given()
+        given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .get("/api/v1/invitations/all")
-                .as(new TypeRef<>() {
-                });
-        assertEquals(2, invitations.size());
+                .then()
+                .statusCode(403);
     }
 
     @Test

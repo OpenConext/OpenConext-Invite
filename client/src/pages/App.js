@@ -23,7 +23,6 @@ import {InvitationForm} from "./InvitationForm";
 import {isEmpty} from "../utils/Utils";
 import {MissingAttributes} from "./MissingAttributes";
 import {Inviter} from "./Inviter";
-import {InvitationOverview} from "./InvitationOverview";
 import {Application} from "./Application";
 import {System} from "./System";
 
@@ -100,7 +99,6 @@ export const App = () => {
                         <Route path="profile/:id?" element={<Profile/>}/>
                         <Route path="role/:id" element={<RoleForm/>}/>
                         <Route path="invitation/:id" element={<InvitationForm/>}/>
-                        <Route path="invitations/:tab?" element={<InvitationOverview/>}/>
                         <Route path="inviter" element={<Inviter/>}/>
                         <Route path="roles/:id/:tab?" element={<Role/>}/>
                         <Route path="applications/:manageId" element={<Application/>}/>

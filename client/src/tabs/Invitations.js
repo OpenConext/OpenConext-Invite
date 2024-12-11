@@ -23,7 +23,6 @@ const mineValue = "mine";
 
 export const Invitations = ({
                                 role,
-                                preloadedInvitations,
                                 standAlone = false,
                                 systemView = false,
                                 history = false,
@@ -42,7 +41,7 @@ export const Invitations = ({
     const [filterValue, setFilterValue] = useState(null);
 
     useEffect(() => {
-            const promise = systemView ? allInvitations() : (isEmpty(role) ? Promise.resolve(preloadedInvitations) : invitationsByRoleId(role.id));
+            const promise = systemView ? allInvitations() : invitationsByRoleId(role.id);
             if (history) {
                 useAppStore.setState({
                     breadcrumbPath: [
