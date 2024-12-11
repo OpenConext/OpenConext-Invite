@@ -18,8 +18,13 @@ export const RoleCard = ({index, application, isNew = false, skipLaunch = false}
             </section>
             {(!skipLaunch && !isEmpty(application.landingPage)) &&
                 <div className={"launch"}>
-                    <Button txt={I18n.t("proceed.launch")} onClick={() => {
-                        window.location.href = sanitizeURL(application.landingPage);
+                    <Button txt={I18n.t("proceed.launch")} onClick={e => {
+                        const href = sanitizeURL(application.landingPage);
+                        if (e.metaKey || e.ctrlKey) {
+                            window.open(href, '_blank');
+                        } else {
+                            window.location.href = href;
+                        }
                     }}/>
                 </div>
             }

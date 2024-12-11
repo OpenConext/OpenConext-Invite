@@ -30,7 +30,6 @@ export const Inviter = () => {
                                 applicationMaps={applicationMaps}
                                 key={index}
                                 isNew={false}
-
             />
         )
     }

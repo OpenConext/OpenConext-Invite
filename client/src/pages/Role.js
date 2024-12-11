@@ -116,7 +116,7 @@ export const Role = () => {
                 const orgName = m[`OrganizationName:${I18n.locale}`] || m["OrganizationName:en"];
                 const landingPage = role.applicationUsages.find(au => au.application.manageId === m.id).landingPage;
                 return (
-                    <span>
+                    <span key={index}>
                         <a href={landingPage} target="_blank" rel="noreferrer">{`${name}`}</a>
                         {`${orgName ? " (" + orgName + ")" : ""}`}
                         {separator(role, index)}

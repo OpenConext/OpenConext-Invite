@@ -34,9 +34,10 @@ export const UserMenu = ({user, config, actions}) => {
     const renderMenu = adminLinks => {
         return (<>
                 <ul>
-                    {user.superUser && adminLinks.map(l => <li key={l}>
-                        <Link onClick={toggleUserMenu} to={`/${l}`}>{I18n.t(`header.links.${l}`)}</Link>
-                    </li>)}
+                    {user.superUser && adminLinks.map(l =>
+                        <li key={l}>
+                            <Link onClick={toggleUserMenu} to={`/${l}`}>{I18n.t(`header.links.${l}`)}</Link>
+                        </li>)}
                     <li>
                         <Link onClick={toggleUserMenu} to={`/profile`}>{I18n.t(`header.links.profile`)}</Link>
                     </li>
@@ -57,7 +58,7 @@ export const UserMenu = ({user, config, actions}) => {
     return (
         <div className="user-menu"
              tabIndex={1}
-             onBlur={() => setTimeout(() => setDropDownActive(false), 125)}>
+             onBlur={() => setTimeout(() => setDropDownActive(false), 325)}>
             <UserInfo isOpen={dropDownActive}
                       children={renderMenu(adminLinks)}
                       organisationName={I18n.t(`access.${highestAuthority(user, false)}`)}

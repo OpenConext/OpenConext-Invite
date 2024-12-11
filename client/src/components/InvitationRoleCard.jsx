@@ -46,16 +46,15 @@ export const InvitationRoleCard = ({
         </div>;
 
     const inviterCard = invitationSelected ? "inviter-selected" : "inviter"
-    const className = `card-container ${isNew ? "is-new" : ""} ${inviterCard}`;
+    const className = `card-container ${isNew ? "is-new" : ""} ${inviterCard} ${invitationSelectCallback ? "pointer" : ""}`;
     return (
         <div className={className}>
             {isNew &&
                 <Chip label={I18n.t("proceed.new")} type={ChipType.Status_error}/>
             }
-            {isEmpty(inviterCard) && <Card key={index} cardType={CardType.Big} children={children}/>}
-            {!isEmpty(inviterCard) &&
-                <label htmlFor={`invitationSelected-${index}-${role.value}`}> <Card key={index} cardType={CardType.Big}
-                                                                                    children={children}/></label>}
+                <label htmlFor={`invitationSelected-${index}-${role.value}`}>
+                    <Card key={index} cardType={CardType.Big}  children={children}/>
+                </label>
         </div>
     );
 }

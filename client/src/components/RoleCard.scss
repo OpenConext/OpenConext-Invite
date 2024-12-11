@@ -9,11 +9,13 @@
     &.inviter-selected .sds--card {
         border-color: var(--sds--color--green--300);
         background-color: var(--sds--color--green--100);
-        cursor: pointer;
     }
 
     &.inviter .sds--card {
         background-color: var(--sds--color--gray--100);
+    }
+
+    &.pointer .sds--card {
         cursor: pointer;
     }
 
