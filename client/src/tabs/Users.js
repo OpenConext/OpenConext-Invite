@@ -142,22 +142,12 @@ export const Users = () => {
                 : <Chip type={ChipType.Main_400} label={I18n.t("forms.you")}/>
         })
     }
-    const hasEntities = totalElements > 0;
-    let title = "";
-
-    if (hasEntities) {
-        title = I18n.t(`users.found`, {
-            count: totalElements.toLocaleString(),
-            plural: I18n.t(`users.${totalElements === 1 ? "singleUser" : "multipleUsers"}`)
-        })
-    }
     return (
         <div className="mod-users">
             <Entities entities={users}
                       modelName="users"
                       defaultSort="name"
                       columns={columns}
-                      title={title}
                       newLabel={currentUser.superUser ? I18n.t("invitations.newInvite") : null}
                       showNew={isUserAllowed(AUTHORITIES.SUPER_USER, currentUser)}
                       newEntityFunc={() => navigate(`/invitation/new?maintainer=true`)}
