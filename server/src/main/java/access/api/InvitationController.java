@@ -26,6 +26,10 @@ import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +40,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -261,18 +266,15 @@ public class InvitationController implements InvitationResource {
                     Set<String> manageIdentifiers = provisioning.getRemoteApplications().stream()
                             .map(app -> app.manageId()).collect(Collectors.toSet());
                     newUserRoles.stream()
-                            .filter(userRole -> userRole.getRole().getApplicationUsages().stream()
-                                    .anyMatch(appUsage -> manageIdentifiers.contains(appUsage.getApplication().getManageId())))
-
                             .map(userRole -> userRole.getRole())
-                            .sorted(Comparator.comparing(Role::getName))
-                            .findFirst()
+                            .filter(role -> role.getApplicationUsages().stream()
+                                    .anyMatch(appUsage -> manageIdentifiers.contains(appUsage.getApplication().getManageId())))
+                            .min(Comparator.comparing(Role::getName))
                             .ifPresent(role -> {
                                 body.put("userWaitTime", provisioning.getUserWaitTime());
                                 body.put("role", role.getName());
                             });
                 });
-
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
@@ -305,11 +307,58 @@ public class InvitationController implements InvitationResource {
     @GetMapping("roles/{roleId}")
     public ResponseEntity<List<Invitation>> byRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/roles/%s by user %s", roleId, user.getEduPersonPrincipalName()));
+
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
         List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
         return ResponseEntity.ok(invitations);
     }
+
+    @GetMapping("search")
+    public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
+                                                            @RequestParam(value = "roleId", required = false) Long roleId,
+                                                            @RequestParam(value = "query", required = false, defaultValue = "") String query,
+                                                            @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,
+                                                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                            @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                                                            @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
+        LOG.debug(String.format("/search for invitations %s", user.getEduPersonPrincipalName()));
+
+        Page<Map<String, Object>> invitationsPage;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+
+        if (roleId == null) {
+            UserPermissions.assertSuperUser(user);
+            invitationsPage = StringUtils.hasText(query) ?
+                    invitationRepository.searchByStatusPageWithKeyword(Status.OPEN, FullSearchQueryParser.parse(query), pageable) :
+                    invitationRepository.searchByStatusPage(Status.OPEN, pageable);
+        } else {
+            Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
+            UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+            invitationsPage = StringUtils.hasText(query) ?
+                    invitationRepository.searchByStatusAndRoleWithKeywordPage(Status.OPEN, role.getId(), FullSearchQueryParser.parse(query), pageable) :
+                    invitationRepository.searchByStatusAndRolePage(Status.OPEN, role.getId(), pageable);
+        }
+        if (invitationsPage.getTotalElements() == 0L) {
+            return ResponseEntity.ok(invitationsPage);
+        }
+        List<Long> invitationIdentifiers = invitationsPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
+        Map<Long, List<Map<String, Object>>> groupedRoleNames = invitationRepository
+                .findRoles(invitationIdentifiers)
+                .stream()
+                .collect(Collectors.groupingBy(m -> (Long) m.get("id")));
+        List<Map<String, Object>> invitations = invitationsPage.getContent()
+                .stream()
+                //Must copy to avoid java.lang.UnsupportedOperationException: A TupleBackedMap cannot be modified
+                .map(invitationMap -> {
+                    Map<String, Object> copy = new HashMap<>(invitationMap);
+                    copy.put("roles", groupedRoleNames.get((Long) invitationMap.get("id")));
+                    return copy;
+                })
+                .toList();
+        return Pagination.of(invitationsPage, invitations);
+    }
+
 
     private void checkEmailEquality(User user, Invitation invitation) {
         if (invitation.isEnforceEmailEquality() && !invitation.getEmail().equalsIgnoreCase(user.getEmail())) {

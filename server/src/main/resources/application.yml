@@ -6,7 +6,11 @@ logging:
     org.mariadb.jdbc.message.server: ERROR
     org.springframework.security: INFO
     access: DEBUG
+#    sql: DEBUG
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    org.hibernate.orm.jdbc.bind: TRACE
   threshold:
+#    console: TRACE
     console: WARN
 
 server:
@@ -53,9 +57,7 @@ spring:
     properties:
       hibernate:
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
-        format_sql: false
     open-in-view: false
-    show-sql: false
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mysql://localhost/invite?autoReconnect=true&useSSL=false&permitMysqlScheme=true&allowPublicKeyRetrieval=true

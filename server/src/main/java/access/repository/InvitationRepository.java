@@ -29,14 +29,11 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     List<Invitation> findByStatusAndRoles_role(Status status, Role role);
 
-
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
-            u.name, u.email,
-            (SELECT GROUP_CONCAT(DISTINCT r.name) FROM roles r WHERE r.id = ir.role_id) as role_names
-            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
-            INNER JOIN roles r ON r.id = ir.role_id
-            WHERE i.status = ?1            
+            u.name, u.email as inviter_email
+            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
+            WHERE i.status = ?1
             """,
             countQuery = "SELECT count(*) FROM invitations WHERE status = ?1",
             queryRewriter = InvitationRepository.class,
@@ -45,28 +42,69 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
-            u.name, u.email,
-            (SELECT GROUP_CONCAT(DISTINCT r.name) FROM roles r WHERE r.id = ir.role_id) as role_names
+            u.name, u.email as inviter_email
+            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
+            WHERE i.status = ?1 AND
+            (MATCH(i.email) AGAINST(?2 IN BOOLEAN MODE)
+             OR MATCH (u.given_name, u.family_name, u.email) against (?2  IN BOOLEAN MODE))
+            """,
+            countQuery = """
+                     SELECT count(*) FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
+                     WHERE status = ?1 AND
+                     (MATCH(i.email) AGAINST(?2 IN BOOLEAN MODE)
+                     OR MATCH (u.given_name, u.family_name, u.email) against (?2 IN BOOLEAN MODE))
+                    """,
+            queryRewriter = InvitationRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByStatusPageWithKeyword(Status status, String keyWord, Pageable pageable);
+
+    @Query(value = """
+            SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
+            u.name, u.email as inviter_email
             FROM invitations i INNER JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2
             """,
             countQuery = """
-                    SELECT count(*) FROM invitations
+                    SELECT count(*) FROM invitations i
                     INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
                     INNER JOIN roles r ON r.id = ir.role_id
-                    WHERE status = ?1 and role_id = ?1
+                    WHERE status = ?1 and role_id = ?2
                     """,
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByStatusAndRolePage(Status status, Long roleId, Pageable pageable);
 
+    @Query(value = """
+            SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
+            u.name, u.email as inviter_email
+            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
+            INNER JOIN roles r ON r.id = ir.role_id
+            WHERE i.status = ?1 AND r.id = ?2 AND
+            (MATCH(i.email) AGAINST(?3 IN BOOLEAN MODE)
+             OR MATCH (u.given_name, u.family_name, u.email) against (?3 IN BOOLEAN MODE))
+            """,
+            countQuery = """
+                    SELECT count(*) FROM invitations i
+                    INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
+                    INNER JOIN roles r ON r.id = ir.role_id
+                    INNER JOIN users u ON u.id = i.inviter_id
+                    WHERE status = ?1 and role_id = ?2 AND
+                    (MATCH(i.email) AGAINST(?3 IN BOOLEAN MODE)
+                     OR MATCH (u.given_name, u.family_name, u.email) against (?3 IN BOOLEAN MODE))
+                    """,
+            queryRewriter = InvitationRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByStatusAndRoleWithKeywordPage(Status status, Long roleId, String keyWord, Pageable pageable);
+
+    @Query(value = """
+                SELECT i.id, r.name FROM roles r INNER JOIN invitation_roles ir ON ir.role_id = r.id
+                INNER JOIN invitations i ON i.id = ir.invitation_id WHERE i.id IN ?1
+            """, nativeQuery = true)
+    List<Map<String, Object>> findRoles(List<Long> invitationIdentifiers);
+
     @Override
     default String rewrite(String query, Sort sort) {
-        Sort.Order roleNameSort = sort.getOrderFor("role_names");
-        if (roleNameSort != null) {
-            return query.replace("order by i.role_names", "order by role_names");
-        }
         Sort.Order nameSort = sort.getOrderFor("name");
         if (nameSort != null) {
             return query.replace("order by i.name", "order by u.name");

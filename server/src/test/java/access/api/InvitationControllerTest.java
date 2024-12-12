@@ -2,6 +2,7 @@ package access.api;
 
 import access.AbstractTest;
 import access.AccessCookieFilter;
+import access.DefaultPage;
 import access.exception.NotFoundException;
 import access.manage.EntityType;
 import access.model.*;
@@ -12,6 +13,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -649,5 +651,156 @@ class InvitationControllerTest extends AbstractTest {
         Invitation savedInvitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
         assertTrue(savedInvitation.getExpiryDate().isAfter(Instant.now().plus(13, ChronoUnit.DAYS)));
     }
+
+    @Test
+    void invitationsSearchSuperUser() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 3)
+                .queryParam("sort", "email")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(6, page.getTotalElements());
+        assertEquals(3, page.getContent().size());
+    }
+
+    @Test
+    void invitationsSearchSuperUserWithKeyword() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("query", "invite")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 3)
+                .queryParam("sort", "created_at")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, page.getTotalElements());
+        List<Map<String, Object>> invitations = page.getContent();
+        Map<String, Object> invitation = invitations.getFirst();
+        List<String> actual = ((List<Map<String, Object>>) invitation.get("roles"))
+                .stream()
+                .map(m -> (String) m.get("name"))
+                .sorted()
+                .toList();
+        assertEquals(List.of("Calendar", "Mail"), actual);
+        assertEquals("inviter@new.com", invitation.get("email"));
+        assertEquals("paul.doe@example.com", invitation.get("inviter_email"));
+    }
+
+    @Test
+    void invitationsSearchInviter() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Role role = roleRepository.findByName("Calendar").get();
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("roleId", role.getId())
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 1)
+                .queryParam("sort", "email")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, page.getTotalElements());
+        List<Map<String, Object>> invitations = page.getContent();
+        assertEquals(1, invitations.size());
+
+        Map<String, Object> invitation = invitations.getFirst();
+        List<String> actual = ((List<Map<String, Object>>) invitation.get("roles"))
+                .stream()
+                .map(m -> (String) m.get("name"))
+                .sorted()
+                .toList();
+        assertEquals(List.of("Calendar", "Mail"), actual);
+    }
+
+    @Test
+    void invitationsSearchInviterWithKeyword() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Role role = roleRepository.findByName("Calendar").get();
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("roleId", role.getId())
+                .queryParam("query", "john")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 3)
+                .queryParam("sort", "name")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, page.getTotalElements());
+    }
+
+    @Test
+    void invitationsSearchInviterWithKeywordNoResults() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Role role = roleRepository.findByName("Calendar").get();
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("roleId", role.getId())
+                .queryParam("query", "NOPE")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 3)
+                .queryParam("sort", "name")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(0, page.getTotalElements());
+    }
+
+    @Test
+    void invitationsSearchInviterWithKeyword404() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("roleId", 999)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .then()
+                .statusCode(404);
+    }
+
 
 }
