@@ -227,10 +227,7 @@ const en = {
         delete: "Remove"
     },
     invitations: {
-        found: "{{count}} {{plural}} found",
-        foundWithStatus: "{{count}} {{status}} {{plural}}",
-        singleInvitation: "invitation",
-        multipleInvitations: "invitations",
+        title: "Invitations",
         searchPlaceHolder: "Search for invitation...",
         noResults: "No invitation where found",
         inviter: "Invited by",
@@ -254,7 +251,7 @@ const en = {
         roles: "Roles",
         inviterRoles: "Select the roles for the new invitation",
         rolesPlaceHolder: "Choose one or more roles",
-        expiryDate: "Invite valid till",
+        expiryDate: "Valid till",
         acceptedAt: "Date accepted",
         roleExpiryDate: "Role expiry date",
         roleExpiryDateQuestion: "Set a custom role expiration period",

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./Invitations.scss";
 import {Button, ButtonSize, ButtonType, Checkbox, Chip, Loader, Tooltip} from "@surfnet/sds";
@@ -8,18 +8,17 @@ import {shortDateFromEpoch} from "../utils/Date";
 
 import {chipTypeForUserRole, invitationExpiry} from "../utils/Authority";
 import {useNavigate} from "react-router-dom";
-import {allInvitations, deleteInvitation, invitationsByRoleId, resendInvitation} from "../api";
+import {deleteInvitation, resendInvitation, searchInvitations} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {allowedToDeleteInvitation, AUTHORITIES, INVITATION_STATUS, isUserAllowed} from "../utils/UserRole";
 import {UnitHeader} from "../components/UnitHeader";
-import Select from "react-select";
 import {ReactComponent as TrashIcon} from "@surfnet/sds/icons/functional-icons/bin.svg";
 import {ReactComponent as ResendIcon} from "@surfnet/sds/icons/functional-icons/go-to-other-website.svg";
+import {defaultPagination, pageCount} from "../utils/Pagination";
+import debounce from "lodash.debounce";
 
-const allValue = "all";
-const mineValue = "mine";
 
 export const Invitations = ({
                                 role,
@@ -30,73 +29,72 @@ export const Invitations = ({
                             }) => {
     const navigate = useNavigate();
     const {user, setFlash} = useAppStore(state => state);
-    const invitations = useRef();
+    const [invitations, setInvitations] = useState([]);
     const [selectedInvitations, setSelectedInvitations] = useState({});
     const [allSelected, setAllSelected] = useState(false);
-    const [resultAfterSearch, setResultAfterSearch] = useState([])
-    const [loading, setLoading] = useState(true);
+    const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination("email"));
+    const [totalElements, setTotalElements] = useState(0);
+    const [searching, setSearching] = useState(true);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
-    const [filterOptions, setFilterOptions] = useState([]);
-    const [filterValue, setFilterValue] = useState(null);
 
     useEffect(() => {
-            const promise = systemView ? allInvitations() : invitationsByRoleId(role.id);
-            if (history) {
-                useAppStore.setState({
-                    breadcrumbPath: [
-                        {path: "/inviter", value: I18n.t("tabs.home")},
-                        {value: I18n.t("tabs.invitations")}
-                    ]
-                });
-            }
-            promise.then(res => {
-                res.forEach(invitation => {
-                    invitation.intendedRoles = invitation.roles
-                        .sort((r1, r2) => r1.role.name.localeCompare(r2.role.name))
-                        .map(role => role.role.name).join(", ");
-                    const now = new Date();
-                    invitation.status = new Date(invitation.expiryDate * 1000) < now ? INVITATION_STATUS.EXPIRED : invitation.status;
-                });
-                setSelectedInvitations(res
-                    .reduce((acc, invitation) => {
-                        acc[invitation.id] = {
-                            selected: false,
-                            ref: invitation,
-                            allowed: allowedToDeleteInvitation(user, invitation)
-                        };
-                        return acc;
-                    }, {}));
-                invitations.current = res;
-                const newFilterOptions = [{
-                    label: I18n.t("invitations.statuses.all", {nbr: res.length}),
-                    value: allValue
-                }];
-                const statusOptions = res.reduce((acc, invitation) => {
-                    const option = acc.find(opt => opt.status === invitation.status);
-                    if (option) {
-                        ++option.nbr;
-                    } else {
-                        acc.push({status: invitation.status, nbr: 1})
-                    }
-                    return acc;
-                }, []).map(option => ({
-                    label: `${I18n.t("invitations.statuses." + option.status.toLowerCase())} (${option.nbr})`,
-                    value: option.status
-                })).concat({
-                    label: `${I18n.t("invitations.statuses.mine")} (${res.filter(inv => inv.inviter.email === user.email).length})`,
-                    value: mineValue
-                }).sort((o1, o2) => o1.label.localeCompare(o2.label));
+        if (history) {
+            useAppStore.setState({
+                breadcrumbPath: [
+                    {path: "/inviter", value: I18n.t("tabs.home")},
+                    {value: I18n.t("tabs.invitations")}
+                ]
+            });
+        }
+    }, [history])
 
-                setFilterOptions(newFilterOptions.concat(statusOptions));
-                setFilterValue(newFilterOptions[0]);
-
-                setResultAfterSearch(res);
-                //we need to avoid flickerings
-                setTimeout(() => setLoading(false), 75);
-            })
+    useEffect(() => {
+            searchInvitations(systemView ? null : role.id, paginationQueryParams)
+                .then(page => {
+                    const content = page.content;
+                    content.forEach(invitation => {
+                        invitation.intendedRoles = (invitation.roles || [])
+                            .sort((r1, r2) => r1.name.localeCompare(r2.name))
+                            .map(role => role.name).join(", ");
+                        const now = new Date();
+                        invitation.status = new Date(invitation.expiryDate * 1000) < now ? INVITATION_STATUS.EXPIRED : invitation.status;
+                    });
+                    setInvitations(content);
+                    setSelectedInvitations(content
+                        .reduce((acc, invitation) => {
+                            acc[invitation.id] = {
+                                selected: false,
+                                ref: invitation,
+                                allowed: allowedToDeleteInvitation(user, invitation)
+                            };
+                            return acc;
+                        }, {}));
+                    setAllSelected(false);
+                    setTotalElements(page.totalElements);
+                    //we need to avoid flickerings
+                    setTimeout(() => setSearching(false), 75);
+                })
         },
-        [invitations, user]) // eslint-disable-line react-hooks/exhaustive-deps
+        [user, paginationQueryParams]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const search = (query, sorted, reverse, page) => {
+        if (isEmpty(query) || query.trim().length > 2) {
+            delayedAutocomplete(query, sorted, reverse, page);
+        }
+    };
+
+    const delayedAutocomplete = debounce((query, sorted, reverse, page) => {
+        setSearching(true);
+        //this will trigger a new search
+        setPaginationQueryParams({
+            query: query,
+            pageNumber: page,
+            pageSize: pageCount,
+            sort: sorted,
+            sortDirection: reverse ? "DESC" : "ASC"
+        })
+    }, 375);
 
     const onCheck = invitation => e => {
         const checked = e.target.checked;
@@ -119,8 +117,8 @@ export const Invitations = ({
     const invitationIdentifiers = () => {
         return Object.entries(selectedInvitations)
             .filter(entry => (entry[1].selected) && entry[1].allowed)
-            .map(entry => parseInt(entry[0]))
-            .filter(id => resultAfterSearch.some(res => res.id === id));
+            .map(entry => parseInt(entry[0]));
+
     }
 
     const showCheckAllHeader = () => {
@@ -209,14 +207,6 @@ export const Invitations = ({
         }
     };
 
-    if (loading) {
-        return <Loader/>
-    }
-
-    const searchCallback = afterSearch => {
-        setResultAfterSearch(afterSearch);
-    }
-
     const actionButtons = () => {
         if (isEmpty(invitationIdentifiers())) {
             return null;
@@ -234,7 +224,7 @@ export const Invitations = ({
                                          txt={I18n.t("invitations.delete")}/>
                              }/>
                 </div>
-                {pending &&
+
                     <div>
                         <Tooltip standalone={true}
                                  anchorId={"remove-members"}
@@ -245,24 +235,8 @@ export const Invitations = ({
                                              type={ButtonType.Secondary}
                                              txt={I18n.t("invitations.resend")}/>
                                  }/>
-                    </div>}
+                    </div>
             </div>);
-    }
-
-    const filter = () => {
-        return (
-            <div className="invitations-filter">
-                <Select
-                    className={"invitations-filter-select"}
-                    value={filterValue}
-                    classNamePrefix={"filter-select"}
-                    onChange={option => setFilterValue(option)}
-                    options={filterOptions}
-                    isSearchable={false}
-                    isClearable={false}
-                />
-            </div>
-        );
     }
 
     const actionIcons = invitation => {
@@ -271,14 +245,14 @@ export const Invitations = ({
         }
         return (
             <div className="admin-icons">
-                {pending && <div onClick={() => doResendInvitationsFromActionLink(invitation, true)}>
+                <div onClick={() => doResendInvitationsFromActionLink(invitation, true)}>
                     <Tooltip standalone={true}
                              anchorId={"remove-members"}
                              tip={I18n.t("tooltips.resendOneInvitation")}
                              children={
                                  <ResendIcon/>
                              }/>
-                </div>}
+                </div>
                 <div onClick={() => doDeleteInvitationsFromActionLink(invitation, true)}>
                     <Tooltip standalone={true}
                              anchorId={"remove-members"}
@@ -323,33 +297,34 @@ export const Invitations = ({
             mapper: invitation => <span>{invitation.email}</span>
         },
         {
-            key: "intendedAuthority",
+            key: "intended_authority",
             header: I18n.t("users.authority"),
-            mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intendedAuthority)}
-                                        label={I18n.t(`access.${invitation.intendedAuthority}`)}/>
+            mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intended_authority)}
+                                        label={I18n.t(`access.${invitation.intended_authority}`)}/>
         },
         {
             key: "intendedRoles",
+            nonSortable: true,
             header: I18n.t("invitations.intendedRoles"),
             mapper: invitation => invitation.intendedRoles
         },
         {
-            key: "inviter__name",
+            key: "name",
             header: I18n.t("invitations.inviter"),
             mapper: invitation => <div className="user-name-email">
-                <span className="name">{invitation.inviter.name}</span>
-                <span className="email">{invitation.inviter.email}</span>
+                <span className="name">{invitation.name}</span>
+                <span className="email">{invitation.inviter_email}</span>
             </div>
         },
         {
-            key: "createdAt",
+            key: "created_at",
             header: I18n.t("invitations.createdAt"),
-            mapper: invitation => shortDateFromEpoch(invitation.createdAt)
+            mapper: invitation => shortDateFromEpoch(invitation.created_at, false)
         },
         {
-            key: pending ? "expiryDate" : "acceptedAt",
-            header: I18n.t(pending ? "invitations.expiryDate" : "invitations.acceptedAt"),
-            mapper: invitation => pending ? invitationExpiry(invitation) : shortDateFromEpoch(invitation.acceptedAt)
+            key: "expiry_date",
+            header: I18n.t("invitations.expiryDate"),
+            mapper: invitation => invitationExpiry(invitation)
         },
         {
             key: "adminIcons",
@@ -357,21 +332,6 @@ export const Invitations = ({
             header: "",
             mapper: invitation => actionIcons(invitation)
         }];
-    const filteredInvitations = filterValue.value === allValue ? invitations.current :
-        invitations.current.filter(invitation => invitation.status === filterValue.value ||
-            (filterValue.value === mineValue && invitation.inviter.email === user.email)
-        );
-    const countInvitations = filteredInvitations.length;
-    const hasEntities = countInvitations > 0;
-    let title = " ";
-
-    if (hasEntities) {
-        title = I18n.t(`invitations.${standAlone ? "found" : "foundWithStatus"}`, {
-            count: countInvitations,
-            status: pending ? I18n.t("invitations.pending") : I18n.t("invitations.accepted").toLowerCase(),
-            plural: I18n.t(`invitations.${countInvitations === 1 ? "singleInvitation" : "multipleInvitations"}`)
-        })
-    }
 
     return (<div className="mod-invitations">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
@@ -380,23 +340,24 @@ export const Invitations = ({
                                                  confirmationTxt={confirmation.confirmationTxt}
                                                  question={confirmation.question}/>}
         {history && <UnitHeader obj={{name: I18n.t("inviter.history")}} actions={getActions()}/>}
-        <Entities entities={filteredInvitations}
+        <Entities entities={invitations}
                   modelName="invitations"
                   defaultSort="email"
                   columns={columns}
-                  title={title}
                   newLabel={I18n.t("invitations.newInvite")}
                   showNew={!!role && (isUserAllowed(AUTHORITIES.MANAGER, user) || standAlone) && !role.unknownInManage}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
-                  loading={loading}
+                  loading={false}
                   onHover={true}
-                  hideTitle={loading}
-                  filters={filter(filterOptions, filterValue)}
                   actions={actionButtons()}
-                  searchCallback={searchCallback}
                   searchAttributes={["name", "email", "schacHomeOrganization", "inviter__email", "inviter__name"]}
-                  inputFocus={true}>
+                  customSearch={search}
+                  totalElements={totalElements}
+                  inputFocus={!searching}
+                  hideTitle={searching}
+                  busy={searching}
+        >
         </Entities>
     </div>)
 

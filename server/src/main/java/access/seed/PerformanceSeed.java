@@ -5,9 +5,11 @@ import access.manage.EntityType;
 import access.manage.Manage;
 import access.manage.ManageIdentifier;
 import access.model.*;
+import access.provision.scim.GroupURN;
 import access.repository.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -30,6 +32,7 @@ public class PerformanceSeed {
     private final UserRoleRepository userRoleRepository;
     private final InvitationRepository invitationRepository;
     private final Manage manage;
+    private final String groupUrnPrefix;
 
     public PerformanceSeed(UserRepository userRepository,
                            RoleRepository roleRepository,
@@ -37,13 +40,14 @@ public class PerformanceSeed {
                            UserRoleRepository userRoleRepository,
                            InvitationRepository invitationRepository,
                            Manage manage,
-                           DataSource dataSource) {
+                           @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.userRoleRepository = userRoleRepository;
         this.invitationRepository = invitationRepository;
         this.manage = manage;
+        this.groupUrnPrefix = groupUrnPrefix;
     }
 
     public Map<String, Object> go(int numberOfRoles, int numberOfUsers) {
@@ -167,6 +171,7 @@ public class PerformanceSeed {
                 false,
                 false);
         role.setOrganizationGUID(institutionGuid);
+        role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
         return role;
     }
 

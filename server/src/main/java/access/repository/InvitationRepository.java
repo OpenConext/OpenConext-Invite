@@ -31,7 +31,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
-            u.name, u.email as inviter_email
+            u.id as user_id, u.name, u.email as inviter_email
             FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
             WHERE i.status = ?1
             """,
@@ -42,7 +42,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
-            u.name, u.email as inviter_email
+            u.id as user_id, u.name, u.email as inviter_email
             FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
             WHERE i.status = ?1 AND
             (MATCH(i.email) AGAINST(?2 IN BOOLEAN MODE)
@@ -60,7 +60,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
-            u.name, u.email as inviter_email
+            u.id as user_id, u.name, u.email as inviter_email
             FROM invitations i INNER JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2
@@ -77,7 +77,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
-            u.name, u.email as inviter_email
+            u.id as user_id, u.name, u.email as inviter_email
             FROM invitations i INNER JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2 AND
