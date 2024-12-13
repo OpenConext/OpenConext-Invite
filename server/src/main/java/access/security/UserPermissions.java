@@ -41,11 +41,15 @@ public class UserPermissions {
             throw new UserRestrictionException();
         }
 
+        if (user.isSuperUser()) {
+            return;
+        }
+
         if (user.isInstitutionAdmin() && Authority.INSTITUTION_ADMIN.hasEqualOrHigherRights(authority)) {
             return;
         }
-        if (!user.isSuperUser() && user.getUserRoles().stream()
-                .noneMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(authority)))
+        if (user.getUserRoles().stream()
+                        .noneMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(authority)))
             throw new UserRestrictionException();
     }
 

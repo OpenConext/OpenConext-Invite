@@ -15,6 +15,9 @@ class FullSearchQueryParserTest {
 
         String emailParsed = FullSearchQueryParser.parse("brand+ms@play.com");
         assertEquals("+brand +ms +play*", emailParsed);
+
+        String strippedWhiteSpace = FullSearchQueryParser.parse(" Leitndhireedisvea@example.com  ");
+        assertEquals("+Leitndhireedisvea +example*", strippedWhiteSpace);
     }
 
     @Test
