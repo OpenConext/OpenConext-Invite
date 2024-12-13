@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, ButtonSize, Chip, Loader, Tooltip} from "@surfnet/sds";
+import {Button, ButtonSize, Chip, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication} from "../api";
@@ -19,7 +19,6 @@ export const Roles = () => {
     const {user, config} = useAppStore(state => state);
     const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
     const [searching, setSearching] = useState(true);
     const [roles, setRoles] = useState([]);
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
@@ -39,9 +38,7 @@ export const Roles = () => {
                         paginationQueryParams.sortDirection === "DESC");
                     setRoles(newRoles);
                     setTotalElements(page.totalElements);
-                    //we need to avoid flickerings
-                    setTimeout(() => setSearching(false), 75);
-                    setLoading(false);
+                    setSearching(false);
                 })
         } else {
             const newRoles = markAndFilterRoles(
@@ -54,7 +51,6 @@ export const Roles = () => {
                 false);
             setRoles(newRoles);
             setSearching(false);
-            setLoading(false);
         }
     }, [user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -144,7 +140,8 @@ export const Roles = () => {
                 const authority = authorityForRole(user, role);
                 const label = authority ? I18n.t(`access.${authority}`) : I18n.t("roles.noMember");
                 return <Chip type={chipTypeForUserRole(authority)}
-                                  label={label}/>}
+                             label={label}/>
+            }
         },
         {
             key: "userRoleCount",
@@ -153,10 +150,6 @@ export const Roles = () => {
         }
 
     ];
-
-    if (loading) {
-        return <Loader/>
-    }
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
     const isManager = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);

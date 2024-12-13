@@ -3,7 +3,7 @@ import {rolesPerApplicationManageId} from "../api";
 import I18n from "../locale/I18n";
 import "./Application.scss";
 import {ReactComponent as WebsiteIcon} from "../icons/network-information.svg";
-import {Chip, Loader} from "@surfnet/sds";
+import {Chip} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
@@ -18,7 +18,7 @@ export const Application = () => {
     const {manageId} = useParams();
     const navigate = useNavigate();
     const {user} = useAppStore(state => state);
-    const [roles, setRoles] = useState({});
+    const [roles, setRoles] = useState([]);
     const [application, setApplication] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -40,7 +40,6 @@ export const Application = () => {
                     app.name = I18n.locale === "en" ? app["name:en"] || app["name:nl"] : app["name:nl"] || app["name:en"];
                     app.description = I18n.locale === "en" ? app["OrganizationName:en"] || app["OrganizationName:nl"] : app["OrganizationName:nl"] || app["OrganizationName:en"];
                     setApplication(app);
-                    setLoading(false);
                     const paths = [
                         {path: "/home", value: I18n.t("tabs.home")},
                         {path: "/home/applications", value: I18n.t("tabs.applications")},
@@ -49,16 +48,12 @@ export const Application = () => {
                     useAppStore.setState({
                         breadcrumbPath: paths
                     });
+                    // setTimeout(() => setLoading(false), 40);
                     setLoading(false);
                 })
                 .catch(() => navigate("/"))
         },
         [user]); // eslint-disable-line react-hooks/exhaustive-deps
-
-
-    if (loading) {
-        return <Loader/>
-    }
 
     const openRole = (e, role) => {
         const path = `/roles/${role.id}`
@@ -128,6 +123,8 @@ export const Application = () => {
                     modelName="applicationRoles"
                     title={I18n.t("applications.title", {nbr: roles.length})}
                     showNew={true}
+                    busy={loading}
+                    loading={false}
                     newLabel={I18n.t("applications.new")}
                     newEntityFunc={() => navigate("/role/new", {state: application.id})}
                     defaultSort="name"

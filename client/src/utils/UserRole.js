@@ -87,7 +87,8 @@ export const allowedToDeleteInvitation = (user, invitation) => {
         invitation.roles
             .every(invitationRole => allowedToRenewUserRole(user, {
                 ...invitationRole,
-                authority: invitation.intendedAuthority
+                authority: invitation.intended_authority,
+                user_id: invitation.user_id
             }))
 }
 
@@ -98,6 +99,7 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
     if (deleteAction && (user.id === userRole.userInfo?.id || user.id === userRole.user_id)) {
         return true;
     }
+
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
         .some(application => roleIsConnectedToApp(userRole.role, application));
     const allowedByApplicationForManager = isApplicationManagerForUserRole(user, userRole);

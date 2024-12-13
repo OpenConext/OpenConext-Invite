@@ -30,10 +30,8 @@ export const ApplicationUsers = () => {
                 results.forEach(user => user.roleSummaries
                     .sort((r1, r2) => (r1.endDate || Number.MAX_VALUE) - (r2.endDate || Number.MAX_VALUE)));
                 setUsers(results);
-                //we need to avoid flickerings
-                setTimeout(() => setSearching(false), 75);
-                setTotalElements(page.totalElements);
                 setSearching(false);
+                setTotalElements(page.totalElements);
             });
     }, [paginationQueryParams]);
 

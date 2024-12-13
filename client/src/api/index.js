@@ -147,6 +147,14 @@ export function allInvitations() {
     return fetchJson(`/api/v1/invitations/all`, {}, {}, false);
 }
 
+export function searchInvitations(roleId, pagination = {}) {
+    if (roleId) {
+        pagination.roleId = roleId;
+    }
+    const queryPart = paginationQueryParams(pagination, {})
+    return fetchJson(`/api/v1/invitations/search?${queryPart}`, {}, {}, false);
+}
+
 //Manage
 export function allProviders() {
     return fetchJson("/api/v1/manage/providers");

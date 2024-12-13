@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./UserRoles.scss";
-import {Button, ButtonSize, ButtonType, Checkbox, Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
+import {Button, ButtonSize, ButtonType, Checkbox, Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {ReactComponent as AlarmBell} from "../icons/alarm_bell.svg";
 import "./Users.scss";
@@ -25,7 +25,7 @@ export const UserRoles = ({role, guests}) => {
     const {user, setFlash, config} = useAppStore(state => state);
 
     const [removeNotAllowed, setRemoveNotAllowed] = useState({});
-    const [userRoles, setUserRoles] = useState({});
+    const [userRoles, setUserRoles] = useState([]);
     const [selectedUserRoles, setSelectedUserRoles] = useState({});
     const [allSelected, setAllSelected] = useState(false);
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
@@ -33,7 +33,6 @@ export const UserRoles = ({role, guests}) => {
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
     const [searching, setSearching] = useState(true);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
             setRemoveNotAllowed(highestAuthority(user) === AUTHORITIES.INVITER && !guests);
@@ -54,8 +53,7 @@ export const UserRoles = ({role, guests}) => {
                     setAllSelected(false);
                     setTotalElements(page.totalElements);
                     //we need to avoid flickerings
-                    setTimeout(() => setSearching(false), 75);
-                    setLoading(false);
+                    setSearching(false);
                 });
         },
         [guests, user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -77,10 +75,6 @@ export const UserRoles = ({role, guests}) => {
             sortDirection: reverse ? "DESC" : "ASC"
         })
     }, 375);
-
-    if (loading) {
-        return <Loader/>
-    }
 
     const showCheckAllHeader = () => {
         return Object.entries(selectedUserRoles)
@@ -106,8 +100,7 @@ export const UserRoles = ({role, guests}) => {
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.updateFlash", {roleName: userRole.role.name}));
-                    const path = encodeURIComponent(window.location.pathname);
-                    navigate(`/refresh-route/${path}`, {replace: true});
+                    setPaginationQueryParams({...paginationQueryParams});
                 })
         }
     };
@@ -195,7 +188,7 @@ export const UserRoles = ({role, guests}) => {
     };
 
     const handleError = e => {
-        setLoading(false);
+        setSearching(false);
         e.response.json().then(j => {
             const reference = j.reference || 999;
             setConfirmation({

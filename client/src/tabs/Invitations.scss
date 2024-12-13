@@ -14,7 +14,7 @@
                     width: 20%;
                 }
 
-                &.intendedAuthority {
+                &.intended_authority {
                     width: 15%;
                     text-align: center;
                 }
@@ -23,17 +23,18 @@
                     width: 15%;
                 }
 
-                &.inviter__name {
-                    width: 20%;
+                &.name {
+                    width: 26%;
                 }
 
-                &.createdAt {
-                    width: 15%;
+                &.created_at {
+                    width: 12%;
                 }
 
-                &.expiryDate {
-                    width: 15%;
+                &.expiry_date {
+                    width: 12%;
                 }
+
                 &.adminIcons {
                     width: 80px;
                 }
@@ -51,19 +52,7 @@
                     text-align: center;
                 }
 
-                &.enforceEmailEquality {
-                    text-align: center;
-                }
-
-                &.eduIDOnly {
-                    text-align: center;
-                }
-
-                &.intendedAuthority {
-                    text-align: center;
-                }
-
-                &.status {
+                &.intended_authority {
                     text-align: center;
                 }
 

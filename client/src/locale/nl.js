@@ -227,10 +227,7 @@ const nl = {
         delete: "Verwijder"
     },
     invitations: {
-        found: "{{count}} {{plural}} gevonden",
-        foundWithStatus: "{{count}} {{status}} {{plural}}",
-        singleInvitation: "uitnodiging",
-        multipleInvitations: "uitnodigingen",
+        title: "Uitnodigingen",
         searchPlaceHolder: "Zoek uitnodiging...",
         noResults: "Geen uitnodigingen gevonden",
         inviter: "Uitgenodigd door",
@@ -254,7 +251,7 @@ const nl = {
         roles: "Rollen",
         inviterRoles: "Selecteer de rollen voor de nieuwe uitnodiging",
         rolesPlaceHolder: "Kies een of meer rollen",
-        expiryDate: "Uitnodiging geldig tot",
+        expiryDate: "Geldig tot",
         acceptedAt: "Datum geaccepteeerd",
         roleExpiryDate: "Verloopdatum rol",
         roleExpiryDateQuestion: "Zet een specifieke verloopdatum voor de rol",
