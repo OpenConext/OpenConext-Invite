@@ -255,19 +255,6 @@ export const Invitations = ({
             </div>);
     }
 
-
-    const getActions = () => {
-        const actions = [];
-        actions.push({
-            buttonType: ButtonType.Primary,
-            name: I18n.t("inviter.sendInvite"),
-            perform: () => {
-                navigate(`/invitation/new`)
-            }
-        });
-        return actions;
-    }
-
     const columns = [
         {
             nonSortable: true,
