@@ -13,7 +13,6 @@ import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {allowedToDeleteInvitation, AUTHORITIES, INVITATION_STATUS, isUserAllowed} from "../utils/UserRole";
-import {UnitHeader} from "../components/UnitHeader";
 import {ReactComponent as TrashIcon} from "@surfnet/sds/icons/functional-icons/bin.svg";
 import {ReactComponent as ResendIcon} from "@surfnet/sds/icons/functional-icons/go-to-other-website.svg";
 import {defaultPagination, pageCount} from "../utils/Pagination";
@@ -22,10 +21,7 @@ import debounce from "lodash.debounce";
 
 export const Invitations = ({
                                 role,
-                                standAlone = false,
-                                systemView = false,
-                                history = false,
-                                pending = true
+                                systemView = false
                             }) => {
     const navigate = useNavigate();
     const {user, setFlash} = useAppStore(state => state);
@@ -39,17 +35,6 @@ export const Invitations = ({
     const [confirmationOpen, setConfirmationOpen] = useState(false);
 
     useEffect(() => {
-        if (history) {
-            useAppStore.setState({
-                breadcrumbPath: [
-                    {path: "/inviter", value: I18n.t("tabs.home")},
-                    {value: I18n.t("tabs.invitations")}
-                ]
-            });
-        }
-    }, [history])
-
-    useEffect(() => {
             searchInvitations(systemView ? null : role.id, paginationQueryParams)
                 .then(page => {
                     const content = page.content;
@@ -59,6 +44,16 @@ export const Invitations = ({
                             .map(role => role.name).join(", ");
                         const now = new Date();
                         invitation.status = new Date(invitation.expiryDate * 1000) < now ? INVITATION_STATUS.EXPIRED : invitation.status;
+                        //We don't get the invitation.user_roles.role.applicationUsages from the server anymore due to custom pagination queries
+                        (invitation.roles || []).forEach(invitationRole => {
+                            invitationRole.role = {
+                                id: invitationRole.id,
+                                applicationUsages: invitationRole.manageIdentifiers.map(mi => ({application: {manageId: mi}})),
+                                user_id: invitationRole.user_id,
+                                authority: invitationRole.intended_authority
+                            }
+                        });
+
                     });
                     setInvitations(content);
                     setSelectedInvitations(content
@@ -141,8 +136,7 @@ export const Invitations = ({
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("invitations.resendFlash"));
-                    const path = encodeURIComponent(window.location.pathname);
-                    navigate(`/refresh-route/${path}`, {replace: true});
+                    setPaginationQueryParams({...paginationQueryParams});
                 })
         }
     };
@@ -180,8 +174,7 @@ export const Invitations = ({
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("invitations.deleteFlash"));
-                    const path = encodeURIComponent(window.location.pathname);
-                    navigate(`/refresh-route/${path}`, {replace: true});
+                    setPaginationQueryParams({...paginationQueryParams});
                 })
         }
     };
@@ -200,8 +193,7 @@ export const Invitations = ({
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("invitations.deleteFlash"));
-                    const path = encodeURIComponent(window.location.pathname);
-                    navigate(`/refresh-route/${path}`, {replace: true});
+                    setPaginationQueryParams({...paginationQueryParams});
                 })
         }
     };
@@ -338,13 +330,12 @@ export const Invitations = ({
                                                  confirm={confirmation.action}
                                                  confirmationTxt={confirmation.confirmationTxt}
                                                  question={confirmation.question}/>}
-        {history && <UnitHeader obj={{name: I18n.t("inviter.history")}} actions={getActions()}/>}
         <Entities entities={invitations}
                   modelName="invitations"
                   defaultSort="email"
                   columns={columns}
                   newLabel={I18n.t("invitations.newInvite")}
-                  showNew={!!role && (isUserAllowed(AUTHORITIES.MANAGER, user) || standAlone) && !role.unknownInManage}
+                  showNew={!!role && isUserAllowed(AUTHORITIES.MANAGER, user) && !role.unknownInManage}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={false}

@@ -133,10 +133,10 @@ test("Allowed to delete Invitation", () => {
         role: {id: "2", applicationUsages: applicationUsagesForManageId("11")}
     };
     const user = {userRoles: [mail, research]}
-    const invitation = {intendedAuthority: AUTHORITIES.GUEST, roles: [mail, research]};
+    const invitation = {intended_authority: AUTHORITIES.GUEST, roles: [mail, research]};
     expect(allowedToDeleteInvitation(user, invitation)).toBeTruthy();
 
-    invitation.intendedAuthority = AUTHORITIES.INVITER;
+    invitation.intended_authority = AUTHORITIES.INVITER;
     expect(allowedToDeleteInvitation(user, invitation)).toBeFalsy();
 });
 

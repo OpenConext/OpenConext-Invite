@@ -40,7 +40,7 @@ export const System = () => {
                       name="invitations"
                       label={I18n.t("tabs.invitations")}
                 >
-                    <Invitations standAlone={true} systemView={true}/>
+                    <Invitations systemView={true}/>
                 </Page>,
                 <Page key="unknownRoles"
                       name="unknownRoles"

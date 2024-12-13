@@ -76,10 +76,6 @@ export const UserRoles = ({role, guests}) => {
         })
     }, 375);
 
-    // if (loading) {
-    //     return <Loader/>
-    // }
-
     const showCheckAllHeader = () => {
         return Object.entries(selectedUserRoles)
             .filter(entry => entry[1].allowed)
@@ -104,8 +100,7 @@ export const UserRoles = ({role, guests}) => {
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.updateFlash", {roleName: userRole.role.name}));
-                    const path = encodeURIComponent(window.location.pathname);
-                    navigate(`/refresh-route/${path}`, {replace: true});
+                    setPaginationQueryParams({...paginationQueryParams});
                 })
         }
     };

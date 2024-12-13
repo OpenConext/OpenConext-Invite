@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, ButtonSize, Chip, Loader, Tooltip} from "@surfnet/sds";
+import {Button, ButtonSize, Chip, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication} from "../api";
@@ -140,7 +140,8 @@ export const Roles = () => {
                 const authority = authorityForRole(user, role);
                 const label = authority ? I18n.t(`access.${authority}`) : I18n.t("roles.noMember");
                 return <Chip type={chipTypeForUserRole(authority)}
-                                  label={label}/>}
+                             label={label}/>
+            }
         },
         {
             key: "userRoleCount",
