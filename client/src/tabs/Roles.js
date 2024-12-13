@@ -19,7 +19,6 @@ export const Roles = () => {
     const {user, config} = useAppStore(state => state);
     const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
     const [searching, setSearching] = useState(true);
     const [roles, setRoles] = useState([]);
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
@@ -39,9 +38,7 @@ export const Roles = () => {
                         paginationQueryParams.sortDirection === "DESC");
                     setRoles(newRoles);
                     setTotalElements(page.totalElements);
-                    //we need to avoid flickerings
-                    setTimeout(() => setSearching(false), 75);
-                    setLoading(false);
+                    setSearching(false);
                 })
         } else {
             const newRoles = markAndFilterRoles(
@@ -54,7 +51,6 @@ export const Roles = () => {
                 false);
             setRoles(newRoles);
             setSearching(false);
-            setLoading(false);
         }
     }, [user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -153,10 +149,6 @@ export const Roles = () => {
         }
 
     ];
-
-    if (loading) {
-        return <Loader/>
-    }
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
     const isManager = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);

@@ -671,7 +671,12 @@ class InvitationControllerTest extends AbstractTest {
                 });
 
         assertEquals(6, page.getTotalElements());
-        assertEquals(3, page.getContent().size());
+
+        List<Map<String, Object>> content = page.getContent();
+        assertEquals(3, content.size());
+        List<Map<String, Object>> invitations = content.stream().filter(m -> ((List<Map<String, Object>>) m.get("roles")).size() == 2)
+                .toList();
+        assertEquals(1, invitations.size());
     }
 
     @Test

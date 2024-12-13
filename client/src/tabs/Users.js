@@ -32,8 +32,7 @@ export const Users = () => {
                 .then(page => {
                     setUsers(page.content);
                     setTotalElements(page.totalElements);
-                    //we need to avoid flickerings
-                    setTimeout(() => setSearching(false), 75);
+                    setSearching(false);
                 });
         },
         [currentUser, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps

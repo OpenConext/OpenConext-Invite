@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +48,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static access.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static access.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
+import static java.util.Collections.emptyList;
 
 @RestController
 @RequestMapping(value = {
@@ -342,17 +345,38 @@ public class InvitationController implements InvitationResource {
         if (invitationsPage.getTotalElements() == 0L) {
             return ResponseEntity.ok(invitationsPage);
         }
-        List<Long> invitationIdentifiers = invitationsPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
-        Map<Long, List<Map<String, Object>>> groupedRoleNames = invitationRepository
-                .findRoles(invitationIdentifiers)
+        List<Long> invitationIdentifiers = invitationsPage.getContent().stream()
+                .map(m -> (Long) m.get("id")).toList();
+        //The rolesAndManageIdentifiers is a cartesian product, but the relationship between invitation, role and application is mainly 1-1-1
+        List<Map<String, Object>> rolesAndManageIdentifiers = invitationRepository.findRoles(invitationIdentifiers);
+        Map<Long, List<Map<String, Object>>> rolesGroupedByInvitation = rolesAndManageIdentifiers
                 .stream()
                 .collect(Collectors.groupingBy(m -> (Long) m.get("id")));
+        //We need to add all roles, but also a list of manageIdentifiers for each role
         List<Map<String, Object>> invitations = invitationsPage.getContent()
                 .stream()
                 //Must copy to avoid java.lang.UnsupportedOperationException: A TupleBackedMap cannot be modified
                 .map(invitationMap -> {
                     Map<String, Object> copy = new HashMap<>(invitationMap);
-                    copy.put("roles", groupedRoleNames.get((Long) invitationMap.get("id")));
+                    List<Map<String, Object>> aggregatedRoles = rolesGroupedByInvitation.get((Long) invitationMap.get("id"));
+                    //For Invitations for SuperUsers and InstitutionAdmins have no userRoles
+                    if (CollectionUtils.isEmpty(aggregatedRoles)) {
+                        copy.put("roles", emptyList());
+                        return copy;
+                    }
+                    Map<Long, List<Map<String, Object>>> rolesGroupedByRole = aggregatedRoles
+                            .stream()
+                            .collect(Collectors.groupingBy(m -> (Long) m.get("role_id")));
+                    List<Map<String, Object>> roles = rolesGroupedByRole
+                            .entrySet()
+                            .stream()
+                            .map(entry -> Map.of(
+                                    "id", entry.getKey(),
+                                    "name", entry.getValue().getFirst().get("name"),
+                                    "manageIdentifiers", entry.getValue().stream().map(m -> m.get("manage_id")).toList()
+                            ))
+                            .toList();
+                    copy.put("roles", roles);
                     return copy;
                 })
                 .toList();

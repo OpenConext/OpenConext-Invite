@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./Invitations.scss";
-import {Button, ButtonSize, ButtonType, Checkbox, Chip, Loader, Tooltip} from "@surfnet/sds";
+import {Button, ButtonSize, ButtonType, Checkbox, Chip, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import "./Users.scss";
 import {shortDateFromEpoch} from "../utils/Date";
@@ -72,8 +72,7 @@ export const Invitations = ({
                         }, {}));
                     setAllSelected(false);
                     setTotalElements(page.totalElements);
-                    //we need to avoid flickerings
-                    setTimeout(() => setSearching(false), 75);
+                    setSearching(false);
                 })
         },
         [user, paginationQueryParams]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -225,17 +224,17 @@ export const Invitations = ({
                              }/>
                 </div>
 
-                    <div>
-                        <Tooltip standalone={true}
-                                 anchorId={"remove-members"}
-                                 tip={I18n.t("tooltips.resendInvitation")}
-                                 children={
-                                     <Button onClick={() => doResendInvitations(true)}
-                                             size={ButtonSize.Small}
-                                             type={ButtonType.Secondary}
-                                             txt={I18n.t("invitations.resend")}/>
-                                 }/>
-                    </div>
+                <div>
+                    <Tooltip standalone={true}
+                             anchorId={"remove-members"}
+                             tip={I18n.t("tooltips.resendInvitation")}
+                             children={
+                                 <Button onClick={() => doResendInvitations(true)}
+                                         size={ButtonSize.Small}
+                                         type={ButtonType.Secondary}
+                                         txt={I18n.t("invitations.resend")}/>
+                             }/>
+                </div>
             </div>);
     }
 

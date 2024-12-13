@@ -98,8 +98,11 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     Page<Map<String, Object>> searchByStatusAndRoleWithKeywordPage(Status status, Long roleId, String keyWord, Pageable pageable);
 
     @Query(value = """
-                SELECT i.id, r.name FROM roles r INNER JOIN invitation_roles ir ON ir.role_id = r.id
-                INNER JOIN invitations i ON i.id = ir.invitation_id WHERE i.id IN ?1
+                SELECT ir.invitation_id as id, r.name, r.id as role_id, a.manage_id
+                FROM roles r INNER JOIN invitation_roles ir ON ir.role_id = r.id
+                INNER JOIN application_usages au ON au.role_id = r.id
+                INNER JOIN applications a ON a.id = au.application_id
+                WHERE ir.invitation_id IN ?1
             """, nativeQuery = true)
     List<Map<String, Object>> findRoles(List<Long> invitationIdentifiers);
 

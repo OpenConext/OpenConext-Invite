@@ -29,8 +29,7 @@ const Applications = () => {
                     const mergedApps = mergeProvidersProvisioningsRoles(
                         res[0].providers, res[0].provisionings, res[1].content);
                     setApplications(mergedApps);
-                    //we need to avoid flickerings
-                    setTimeout(() => setSearching(false), 75);
+                    setSearching(false);
                 })
         },
         []) // eslint-disable-line react-hooks/exhaustive-deps
