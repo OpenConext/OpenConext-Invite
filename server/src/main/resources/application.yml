@@ -6,7 +6,11 @@ logging:
     org.mariadb.jdbc.message.server: ERROR
     org.springframework.security: INFO
     access: DEBUG
+#    sql: DEBUG
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    org.hibernate.orm.jdbc.bind: TRACE
   threshold:
+#    console: TRACE
     console: WARN
 
 server:
