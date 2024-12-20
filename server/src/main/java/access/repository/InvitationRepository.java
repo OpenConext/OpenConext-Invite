@@ -2,7 +2,6 @@ package access.repository;
 
 import access.model.Invitation;
 import access.model.Role;
-import access.model.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,9 +24,9 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);
 
-    List<Invitation> findByStatus(Status status);
+    List<Invitation> findByStatus(String status);
 
-    List<Invitation> findByStatusAndRoles_role(Status status, Role role);
+    List<Invitation> findByStatusAndRoles_role(String status, Role role);
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
@@ -38,7 +37,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
             countQuery = "SELECT count(*) FROM invitations WHERE status = ?1",
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByStatusPage(Status status, Pageable pageable);
+    Page<Map<String, Object>> searchByStatusPage(String status, Pageable pageable);
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
@@ -56,7 +55,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
                     """,
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByStatusPageWithKeyword(Status status, String keyWord, Pageable pageable);
+    Page<Map<String, Object>> searchByStatusPageWithKeyword(String status, String keyWord, Pageable pageable);
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
@@ -73,7 +72,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
                     """,
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByStatusAndRolePage(Status status, Long roleId, Pageable pageable);
+    Page<Map<String, Object>> searchByStatusAndRolePage(String status, Long roleId, Pageable pageable);
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
@@ -95,7 +94,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
                     """,
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByStatusAndRoleWithKeywordPage(Status status, Long roleId, String keyWord, Pageable pageable);
+    Page<Map<String, Object>> searchByStatusAndRoleWithKeywordPage(String status, Long roleId, String keyWord, Pageable pageable);
 
     @Query(value = """
                 SELECT ir.invitation_id as id, r.name, r.id as role_id, a.manage_id

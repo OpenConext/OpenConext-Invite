@@ -144,7 +144,7 @@ public class InvitationController implements InvitationResource {
     public ResponseEntity<List<Invitation>> all(@Parameter(hidden = true) User user) {
         LOG.debug("/all invitations");
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
-        return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN));
+        return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN.name()));
     }
 
 
@@ -313,7 +313,7 @@ public class InvitationController implements InvitationResource {
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
-        List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
+        List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN.name(), role);
         return ResponseEntity.ok(invitations);
     }
 
@@ -333,14 +333,14 @@ public class InvitationController implements InvitationResource {
         if (roleId == null) {
             UserPermissions.assertSuperUser(user);
             invitationsPage = StringUtils.hasText(query) ?
-                    invitationRepository.searchByStatusPageWithKeyword(Status.OPEN, FullSearchQueryParser.parse(query), pageable) :
-                    invitationRepository.searchByStatusPage(Status.OPEN, pageable);
+                    invitationRepository.searchByStatusPageWithKeyword(Status.OPEN.name(), FullSearchQueryParser.parse(query), pageable) :
+                    invitationRepository.searchByStatusPage(Status.OPEN.name(), pageable);
         } else {
             Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
             UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
             invitationsPage = StringUtils.hasText(query) ?
-                    invitationRepository.searchByStatusAndRoleWithKeywordPage(Status.OPEN, role.getId(), FullSearchQueryParser.parse(query), pageable) :
-                    invitationRepository.searchByStatusAndRolePage(Status.OPEN, role.getId(), pageable);
+                    invitationRepository.searchByStatusAndRoleWithKeywordPage(Status.OPEN.name(), role.getId(), FullSearchQueryParser.parse(query), pageable) :
+                    invitationRepository.searchByStatusAndRolePage(Status.OPEN.name(), role.getId(), pageable);
         }
         if (invitationsPage.getTotalElements() == 0L) {
             return ResponseEntity.ok(invitationsPage);
