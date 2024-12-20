@@ -290,8 +290,11 @@ export const Invitations = ({
             key: "name",
             header: I18n.t("invitations.inviter"),
             mapper: invitation => <div className="user-name-email">
-                <span className="name">{invitation.name}</span>
-                <span className="email">{invitation.inviter_email}</span>
+                {invitation.inviter_email ? <>
+                    <span className="name">{invitation.name}</span>
+                    <span className="email">{invitation.inviter_email}</span>
+                </> : <span className="name">{invitation.remote_api_user}</span>}
+
             </div>
         },
         {

@@ -30,9 +30,9 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     List<Invitation> findByStatusAndRoles_role(Status status, Role role);
 
     @Query(value = """
-            SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
+            SELECT i.id, i.email, i.remote_api_user, i.intended_authority, i.created_at, i.expiry_date,
             u.id as user_id, u.name, u.email as inviter_email
-            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
+            FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id
             WHERE i.status = ?1
             """,
             countQuery = "SELECT count(*) FROM invitations WHERE status = ?1",
@@ -41,15 +41,15 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     Page<Map<String, Object>> searchByStatusPage(String status, Pageable pageable);
 
     @Query(value = """
-            SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
+            SELECT i.id, i.email, i.remote_api_user, i.intended_authority,i.created_at, i.expiry_date,
             u.id as user_id, u.name, u.email as inviter_email
-            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
+            FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id
             WHERE i.status = ?1 AND
             (MATCH(i.email) AGAINST(?2 IN BOOLEAN MODE)
              OR MATCH (u.given_name, u.family_name, u.email) against (?2  IN BOOLEAN MODE))
             """,
             countQuery = """
-                     SELECT count(*) FROM invitations i INNER JOIN users u ON u.id = i.inviter_id
+                     SELECT count(*) FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id
                      WHERE status = ?1 AND
                      (MATCH(i.email) AGAINST(?2 IN BOOLEAN MODE)
                      OR MATCH (u.given_name, u.family_name, u.email) against (?2 IN BOOLEAN MODE))
@@ -59,9 +59,9 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     Page<Map<String, Object>> searchByStatusPageWithKeyword(String status, String keyWord, Pageable pageable);
 
     @Query(value = """
-            SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
+            SELECT i.id, i.email, i.remote_api_user, i.intended_authority,i.created_at, i.expiry_date,
             u.id as user_id, u.name, u.email as inviter_email
-            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
+            FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2
             """,
@@ -76,9 +76,9 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     Page<Map<String, Object>> searchByStatusAndRolePage(String status, Long roleId, Pageable pageable);
 
     @Query(value = """
-            SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
+            SELECT i.id, i.email, i.remote_api_user, i.intended_authority,i.created_at, i.expiry_date,
             u.id as user_id, u.name, u.email as inviter_email
-            FROM invitations i INNER JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
+            FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2 AND
             (MATCH(i.email) AGAINST(?3 IN BOOLEAN MODE)
@@ -88,7 +88,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
                     SELECT count(*) FROM invitations i
                     INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
                     INNER JOIN roles r ON r.id = ir.role_id
-                    INNER JOIN users u ON u.id = i.inviter_id
+                    LEFT JOIN users u ON u.id = i.inviter_id
                     WHERE status = ?1 and role_id = ?2 AND
                     (MATCH(i.email) AGAINST(?3 IN BOOLEAN MODE)
                      OR MATCH (u.given_name, u.family_name, u.email) against (?3 IN BOOLEAN MODE))
