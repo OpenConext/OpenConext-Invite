@@ -144,7 +144,7 @@ public class InvitationController implements InvitationResource {
     public ResponseEntity<List<Invitation>> all(@Parameter(hidden = true) User user) {
         LOG.debug("/all invitations");
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
-        return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN.name()));
+        return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN));
     }
 
 
@@ -313,7 +313,7 @@ public class InvitationController implements InvitationResource {
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
-        List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN.name(), role);
+        List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
         return ResponseEntity.ok(invitations);
     }
 

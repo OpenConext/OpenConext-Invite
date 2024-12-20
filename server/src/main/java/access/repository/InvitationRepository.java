@@ -2,6 +2,7 @@ package access.repository;
 
 import access.model.Invitation;
 import access.model.Role;
+import access.model.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,9 +25,9 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);
 
-    List<Invitation> findByStatus(String status);
+    List<Invitation> findByStatus(Status status);
 
-    List<Invitation> findByStatusAndRoles_role(String status, Role role);
+    List<Invitation> findByStatusAndRoles_role(Status status, Role role);
 
     @Query(value = """
             SELECT i.id, i.email, i.intended_authority,i.created_at, i.expiry_date,
