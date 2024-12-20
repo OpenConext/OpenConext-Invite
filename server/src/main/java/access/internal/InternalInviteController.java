@@ -132,9 +132,10 @@ public class InternalInviteController implements ApplicationResource, Invitation
                               "shortName": "Required short name - may be copy of name",
                               "description": "Required role description",
                               "defaultExpiryDays": 365,
+                              "inviterDisplayName": "Free format field used in the invitation emails for this role (can be email address)"
                               "applicationUsages": [
                                 {
-                                  "landingPage": "http://landingpage.com",
+                                  "landingPage": "https://landingpage.com",
                                   "application": {
                                     "manageId": "4",
                                     "manageType": "SAML20_SP"
