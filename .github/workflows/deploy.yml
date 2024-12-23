@@ -172,7 +172,8 @@ jobs:
         with:
           context: ${{ matrix.app }}
           file: ${{ matrix.app }}/docker/Dockerfile
-          platforms: "${{ matrix.architecture }}"
+          platforms: linux/amd64
+#          platforms: "${{ matrix.architecture }}"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
