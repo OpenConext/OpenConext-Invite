@@ -292,6 +292,7 @@ export const RoleForm = () => {
                             placeholder={I18n.t("roles.namePlaceHolder")}
                             error={alreadyExists.name || (!initial && isEmpty(role.name))}
                             onRef={nameRef}
+                            required={true}
                             onChange={e => {
                                 const shortName = isNewRole ? constructShortName(e.target.value) : role.shortName;
                                 setRole(
@@ -337,6 +338,7 @@ export const RoleForm = () => {
                             placeholder={I18n.t("roles.descriptionPlaceHolder")}
                             error={!initial && isEmpty(role.description)}
                             multiline={true}
+                            required={true}
                             onChange={e => setRole(
                                 {...role, description: e.target.value})}
                 />
@@ -358,6 +360,7 @@ export const RoleForm = () => {
                                          onChange={option => changeApplication(index, option)}
                                          searchable={true}
                                          clearable={false}
+                                         required={index === 0}
                                          disabled={!allowedToEditApplication}
                             />
                             {(!initial && isEmpty(application) && index === 0) &&

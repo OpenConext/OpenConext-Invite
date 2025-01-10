@@ -32,3 +32,8 @@ section.actions {
     padding: 30px 0;
     position: relative;
 }
+
+sup.required {
+    color: var(--sds--color--red--500);
+}
+

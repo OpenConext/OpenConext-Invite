@@ -267,7 +267,7 @@ const en = {
         withinThreeMonths: "Within 1 month",
         createdAt: "Sent",
         message: "Personal note",
-        messagePlaceholder: "Add a personal note to your invitation",
+        messagePlaceholder: "Add an optional personal note to your invitation",
         invite: "Send invite",
         guestRoleIncluded: "Add the user role?",
         invalidEmails: "Invalid email addresses removed: {{emails}}.",

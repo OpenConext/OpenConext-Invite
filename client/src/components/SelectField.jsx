@@ -9,11 +9,11 @@ export default function SelectField({
                                         onChange, name, value, options, placeholder = "", disabled = false,
                                         toolTip = null, searchable = false, small = false,
                                         clearable = false, isMulti = false, creatable = false,
-                                        onInputChange = null
+                                        onInputChange = null, required = false
                                     }) {
     return (
         <div className="select-field">
-            <label htmlFor={name}>{name}
+            <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
                 {toolTip && <Tooltip tip={toolTip}/>}
             </label>
             {creatable &&

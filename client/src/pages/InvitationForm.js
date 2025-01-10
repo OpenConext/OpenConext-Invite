@@ -225,6 +225,7 @@ export const InvitationForm = () => {
                     isAdmin={false}
                     pinnedEmails={[]}
                     removeMail={removeMail}
+                    required={true}
                     error={!initial && isEmpty(invitation.invites)}/>
 
                 {(!initial && isEmpty(invitation.invites)) &&
@@ -247,6 +248,7 @@ export const InvitationForm = () => {
                                  name={I18n.t("invitations.roles")}
                                  toolTip={I18n.t("tooltips.rolesTooltip")}
                                  isMulti={true}
+                                 required={true}
                                  error={!initial && isEmpty(selectedRoles)}
                                  searchable={true}
                                  placeholder={I18n.t("invitations.rolesPlaceHolder")}

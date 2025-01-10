@@ -32,7 +32,8 @@ export default function InputField({
                                        button = null,
                                        isInteger = false,
                                        isUrl = false,
-                                       customClassName = ""
+                                       customClassName = "",
+                                       required = false
                                    }) {
     const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
@@ -45,7 +46,7 @@ export default function InputField({
     const topClassName = `input-field sds--text-field ${isError} ${customClassName}`;
     return (
         <div className={topClassName}>
-            {(name && displayLabel) && <label htmlFor={name}>{name}
+            {(name && displayLabel) && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
                 {toolTip && <Tooltip tip={toolTip}/>}
             </label>}
             <div className="inner-input-field">

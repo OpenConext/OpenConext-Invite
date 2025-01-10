@@ -13,6 +13,7 @@ import access.provision.scim.GroupURN;
 import access.repository.ApplicationRepository;
 import access.repository.ApplicationUsageRepository;
 import access.repository.RoleRepository;
+import access.security.InstitutionAdmin;
 import access.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -147,9 +148,10 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
                                         @Parameter(hidden = true) User user) {
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-        //For super_users this is NULL, which is ok (unless they are impersonating an institution_admin)
-        role.setOrganizationGUID(user.getOrganizationGUID());
-
+        //For super_users we allow an organization GUID from the input form
+        if (InstitutionAdmin.isInstitutionAdmin(user)) {
+            role.setOrganizationGUID(user.getOrganizationGUID());
+        }
         role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
         role.setIdentifier(UUID.randomUUID().toString());
         role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));

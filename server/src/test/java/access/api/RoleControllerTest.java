@@ -14,10 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
@@ -27,11 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class RoleControllerTest extends AbstractTest {
 
     @Test
-    void create() throws Exception {
+    void createBySuperUser() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
+        role.setOrganizationGUID("ad93daef-0911-e511-80d0-005056956c1a");
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
@@ -47,6 +45,35 @@ class RoleControllerTest extends AbstractTest {
                 .post("/api/v1/roles")
                 .as(Map.class);
         assertNotNull(result.get("id"));
+        Role roleFromDB = roleRepository.findById(Long.valueOf((Integer) result.get("id"))).get();
+        assertEquals(role.getOrganizationGUID(), roleFromDB.getOrganizationGUID());
+    }
+
+    @Test
+    void createByInstitutionAdmin() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
+        role.setOrganizationGUID(UUID.randomUUID().toString());
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManageProvisioning(List.of("1"));
+        super.stubForCreateScimRole();
+
+        Map result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/v1/roles")
+                .as(Map.class);
+        assertNotNull(result.get("id"));
+        Role roleFromDB = roleRepository.findById(Long.valueOf((Integer) result.get("id"))).get();
+        assertEquals(ORGANISATION_GUID, roleFromDB.getOrganizationGUID());
     }
 
     @Test
