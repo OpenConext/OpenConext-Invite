@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.25 2025-01-14
+
+- Change contact information for inviters
+- eVA enddate and user data changeable
+- Load data paginated server side
+- Update SP-dashboard API paths
+- Fixed for super-user
+- Return role-identifier when creating a role using the API
+
 ## 0.0.24 2024-12-05
 
 - Load and display lists paginated
