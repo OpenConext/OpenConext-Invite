@@ -387,7 +387,7 @@ export const RoleForm = () => {
                                     attribute: I18n.t("roles.landingPage").toLowerCase()
                                 })}/>}
                         </div>
-                        {(index !== 0 && allowedToEditApplication) &&
+                        {(applications.length !== 1 && allowedToEditApplication) &&
                             <Button type={ButtonType.Delete}
                                     onClick={() => deleteApplication(index)}/>
                         }
