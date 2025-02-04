@@ -24,25 +24,15 @@ const Applications = () => {
                 navigate("/404");
                 return;
             }
-            Promise.all([allApplications(), rolesByApplication(true)])
+            allApplications()
                 .then(res => {
                     const mergedApps = mergeProvidersProvisioningsRoles(
-                        res[0].providers, res[0].provisionings, res[1].content);
+                        res.providers, res.provisionings);
                     setApplications(mergedApps);
                     setSearching(false);
                 })
         },
         []) // eslint-disable-line react-hooks/exhaustive-deps
-
-    const openRole = (e, role) => {
-        const path = `/roles/${role.id}`
-        if (e.metaKey || e.ctrlKey) {
-            window.open(path, '_blank');
-        } else {
-            stopEvent(e);
-            navigate(path);
-        }
-    };
 
     const openApplication = (e, application) => {
         const path = `/applications/${application.id}`
@@ -77,9 +67,7 @@ const Applications = () => {
         {
             key: "roles",
             header: I18n.t("applications.roles"),
-            mapper: application => <ul>{application.roles.map((role, index) => <li key={index}>
-                <a href="/" onClick={e => openRole(e, role)}>{role.name}</a>
-            </li>)}</ul>
+            mapper: application => application.roleCount
         },
         {
             key: "provisionings",

@@ -1,10 +1,9 @@
 import {mergeProvidersProvisioningsRoles, reduceApplicationFromUserRoles} from "../../utils/Manage";
 import applications from "./applications.json";
-import roles from "./roles.json";
 import userRoles from "./userRoles.json";
 
 test("mergeProvidersProvisioningsRoles", () => {
-    const results = mergeProvidersProvisioningsRoles(applications.providers, applications.provisionings, roles);
+    const results = mergeProvidersProvisioningsRoles(applications.providers, applications.provisionings);
     expect(results.length).toEqual(6);
 });
 

@@ -91,6 +91,7 @@
       "OrganizationName:en": "SURF bv",
       "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
       "name:en": "Calendar EN",
+      "roleCount": 3,
       "id": "5",
       "_id": "5"
     },
@@ -102,6 +103,7 @@
       "OrganizationName:en": "SURF bv",
       "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
       "name:en": "Cloud EN",
+      "roleCount": 3,
       "id": "6",
       "_id": "6"
     },
@@ -113,6 +115,7 @@
       "institutionGuid": "ad93daef-0911-e511-80d0-005056956c1a",
       "OrganizationName:en": "SURF bv",
       "name:en": "Wiki EN",
+      "roleCount": 3,
       "id": "1",
       "_id": "1"
     },
@@ -125,6 +128,7 @@
       "OrganizationName:en": "SURF bv",
       "logo": "https://static.surfconext.nl/media/idp/surfconext.png",
       "name:en": "Network EN",
+      "roleCount": 3,
       "id": "2",
       "_id": "2"
     },

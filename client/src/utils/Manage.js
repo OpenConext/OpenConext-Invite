@@ -73,7 +73,7 @@ export const deriveRemoteApplicationAttributes = (application, locale) => {
     }
 }
 
-export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles, locale = "en") => {
+export const mergeProvidersProvisioningsRoles = (providers, provisionings, locale = "en") => {
     /**
      * We want the following structure for the providers, provisionings and roles:
      *
@@ -84,11 +84,7 @@ export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles
      *         "type": "oidc10_rp",
      *         "organization": "SURF bv",
      *         "url": "https://default-url-calendar.org",
-     *         "roles": [
-     *              "id": 3920,
-     *              "name": "Mail",
-     *              "landingPage": "https://landingpage.com"
-     *         ],
+     *         "roleCount": 5,
      *         "provisionings": [
      *             "name": "SCIM Hardewijk"
      *             "provisioningType": "scim",
@@ -102,15 +98,7 @@ export const mergeProvidersProvisioningsRoles = (providers, provisionings, roles
         type: provider.type,
         organization: locale === "en" ? provider["OrganizationName:en"] || provider["OrganizationName:nl"] : provider["OrganizationName:nl"] || provider["OrganizationName:en"],
         url: provider.url,
-        roles: roles
-            .filter(role => role.applicationUsages.some(appUsage => appUsage.application.manageId === provider.id))
-            .map(role => ({
-                id: role.id,
-                name: role.name,
-                landingPage: role.applicationUsages.find(appUsage => appUsage.application.manageId === provider.id).landingPage
-            }))
-            .sort((r1, r2) => r1.name.localeCompare(r2.name))
-        ,
+        roleCount: provider.roleCount,
         provisionings: provisionings
             .filter(prov => prov.applications.some(app => app.id === provider.id))
             .map(prov => ({

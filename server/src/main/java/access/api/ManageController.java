@@ -109,6 +109,13 @@ public class ManageController {
                         entry.getValue().stream().map(Application::getManageId).collect(Collectors.toList())))
                 .flatMap(Collection::stream)
                 .toList();
+        //Convert to map with key = manage_id and value = role_count
+        Map<String, Long> applicationsPerManageId = applicationRepository.countByApplications().stream()
+                .collect(Collectors.toMap(m -> (String) m.get("manage_id"), m -> (Long) m.get("role_count")));
+        providers.forEach(provider -> {
+            Long roleCount = applicationsPerManageId.getOrDefault(provider.get("id"), 0L);
+            provider.put("roleCount", roleCount);
+        });
         List<Map<String, Object>> provisionings = manage.provisioning(applications.stream()
                 .map(Application::getManageId)
                 .toList());
