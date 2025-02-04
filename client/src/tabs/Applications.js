@@ -65,7 +65,7 @@ const Applications = () => {
             mapper: application => application.organization
         },
         {
-            key: "roles",
+            key: "roleCount",
             header: I18n.t("applications.roles"),
             mapper: application => application.roleCount
         },
