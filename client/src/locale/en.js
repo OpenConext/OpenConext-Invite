@@ -107,7 +107,7 @@ const en = {
         noRolesInfo: "You have no roles (which means you must be super-user)",
         noRolesInstitutionAdmin: "You are an institution admin and you have no roles (but you might have access to applications)",
         noRolesNoApplicationsInstitutionAdmin: "You are an institution admin, but you have no roles and apparently your institution has also no access to applications",
-        guestRoleOnly: "You are not an administrator. Are you looking for <a href='{{welcomeUrl}}'>for the apps you can access</a>?",
+        guestRoleOnly: "You are not an administrator. Are you looking for <a href='{{welcomeUrl}}'>the apps you can access</a>?",
         rolesInfo: "You have the following roles",
         applicationsInfo: "You have access to the following applications",
         noRolesFound: "No roles are found.",
