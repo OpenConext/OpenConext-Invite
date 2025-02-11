@@ -29,5 +29,21 @@
         "coin:application_url": "https://default-url-cloud.org"
       }
     }
+  },
+  {
+    "_id": "7",
+    "version": 1,
+    "type": "oidc10_rp",
+    "data": {
+      "entityid": "https://unused",
+      "metaDataFields": {
+        "name:en": "Unused EN",
+        "name:nl": "Unused NL",
+        "OrganizationName:en": "SURF bv",
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png",
+        "coin:application_url": "https://default-url-unused.org"
+      }
+    }
   }
+
 ]

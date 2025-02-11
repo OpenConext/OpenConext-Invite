@@ -16,9 +16,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static access.teams.TeamsController.mapAuthority;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,6 +103,42 @@ class TeamsControllerTest extends AbstractTest {
         Map<String, String> group = groups.get(0);
         assertEquals("nl:surfnet:diensten:test", group.get("urn"));
         assertEquals(team.getName(), group.get("name"));
+    }
+
+    @Test
+    void migrateTeamObjectOptimisticLockingFailureException() throws JsonProcessingException {
+        List<Membership> memberships = getMemberships();
+        String manageId = UUID.randomUUID().toString();
+        Application application = new Application(manageId, EntityType.OIDC10_RP);
+        application.setId(Long.MAX_VALUE - 1);
+
+        List<Application> applications = List.of(application);
+        Team team = new Team(
+                "nl:surfnet:diensten:test",
+                "test migration",
+                "test migration",
+                memberships,
+                applications
+        );
+        String path = String.format("/manage/api/internal/metadata/%s/%s",
+                application.getManageType().name().toLowerCase(), manageId);
+        String body = objectMapper.writeValueAsString(localManage.providerById(application.getManageType(), "7"));
+        stubFor(get(urlPathMatching(path)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+
+        super.stubForManageProvisioning(List.of());
+
+        given()
+                .when()
+                .auth().preemptive().basic("teams", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(team)
+                .put("/api/external/v1/teams")
+                .then()
+                .statusCode(201);
+
     }
 
     private List<Membership> getMemberships() {

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openconext</groupId>
         <artifactId>access</artifactId>
-        <version>0.0.27-SNAPSHOT</version>
+        <version>0.0.27</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>access-server</artifactId>
@@ -23,10 +23,11 @@
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-jdbc</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.hypersistence/hypersistence-utils-hibernate-63 -->
         <dependency>
             <groupId>io.hypersistence</groupId>
-            <artifactId>hypersistence-utils-hibernate-60</artifactId>
-            <version>3.8.2</version>
+            <artifactId>hypersistence-utils-hibernate-63</artifactId>
+            <version>3.9.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

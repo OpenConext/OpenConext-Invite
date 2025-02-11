@@ -94,9 +94,14 @@ public class TeamsController {
         //This is the disadvantage of having to save references from Manage
         Set<ApplicationUsage> applicationUsages = team.getApplications().stream()
                 .map(applicationFromTeams -> {
-                    Application applicationFromDB = applicationRepository
-                            .findByManageIdAndManageType(applicationFromTeams.getManageId(), applicationFromTeams.getManageType())
-                            .orElseGet(() -> applicationRepository.save(applicationFromTeams));
+                    Optional<Application> optionalApplication = applicationRepository
+                            .findByManageIdAndManageType(applicationFromTeams.getManageId(), applicationFromTeams.getManageType());
+                    Application applicationFromDB = optionalApplication
+                            .orElseGet(() -> {
+                                // ID is also serialized from database teams object, need to prevent StaleObjectStateException
+                                applicationFromTeams.setId(null);
+                                return applicationRepository.save(applicationFromTeams);
+                            });
                     return new ApplicationUsage(applicationFromDB, applicationFromTeams.getLandingPage());
                 })
                 .collect(Collectors.toSet());

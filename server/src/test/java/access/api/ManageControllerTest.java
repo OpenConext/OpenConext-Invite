@@ -78,7 +78,7 @@ class ManageControllerTest extends AbstractTest {
                 .get("/api/v1/manage/providers")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(6, result.size());
+        assertEquals(7, result.size());
     }
 
     @Test
