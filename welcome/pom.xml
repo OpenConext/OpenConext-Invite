@@ -9,7 +9,7 @@
     </parent>
     <artifactId>access-welcome</artifactId>
     <packaging>pom</packaging>
-    <name>access-welcome</name>
+    <name>invite-welcome</name>
     <build>
         <plugins>
             <plugin>

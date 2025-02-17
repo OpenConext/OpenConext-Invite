@@ -9,7 +9,7 @@
     </parent>
     <artifactId>access-server</artifactId>
     <packaging>jar</packaging>
-    <name>access-server</name>
+    <name>invite-server</name>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

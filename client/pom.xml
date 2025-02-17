@@ -9,7 +9,7 @@
     </parent>
     <artifactId>access-client</artifactId>
     <packaging>pom</packaging>
-    <name>access-client</name>
+    <name>invite-client</name>
     <build>
         <plugins>
             <plugin>
