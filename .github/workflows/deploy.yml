@@ -168,7 +168,7 @@ jobs:
             type=sha
 
       - name: Build and push the ${{ matrix.app }} image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.app }}
           file: ${{ matrix.app }}/docker/Dockerfile
