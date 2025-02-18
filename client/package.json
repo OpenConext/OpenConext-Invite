@@ -30,7 +30,7 @@
     "@testing-library/user-event": "^14.6.1",
     "http-proxy-middleware": "^3.0.3",
     "nth-check": "^2.1.1",
-    "react-json-view-lite": "^1.5.0",
+    "react-json-view-lite": "^2.3.0",
     "react-scripts": "5.0.1",
     "sass": "^1.85.0"
   },
