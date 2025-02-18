@@ -62,6 +62,7 @@ jobs:
           echo "branch coverage = ${{ steps.jacoco.outputs.branches }}"
 
       - name: Commit the badge (if it changed)
+        if: github.ref == 'refs/heads/main'
         run: |
           if [[ `git status --porcelain` ]]; then
             git config --global user.name 'Okke Harsta'
