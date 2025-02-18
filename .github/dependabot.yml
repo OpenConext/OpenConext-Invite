@@ -1,14 +1,68 @@
 ---
-
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: "/**"
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directories: 
+     - "/client/docker/"
+     - "/server/docker/"
+     - "/welcome/docker/"
     schedule:
-      interval: "weekly"
-    allow:
-      - dependency-type: "production"
+      interval: "daily"
+    groups:
+      docker:
+        applies-to: version-updates
+        patterns:
+          - "*"
+  # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns:
+          - "*"
+  # Maintain dependencies for npm
+  - package-ecosystem: "npm"
+    directories:
+      - "/client/"
+      - "/welcome/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 25
+    groups:
+      frontends-prod:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - "minor"
+          - "patch"
+      frontends-dev:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - "minor"
+          - "patch"
+  # Maintain dependencies for server
+  - package-ecosystem: "maven"
+    directories: 
+     - "/**"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 25
+    groups:
+      backend-prod:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - "minor"
+          - "patch"
+      backend-dev:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - "minor"
+          - "patch"
+
