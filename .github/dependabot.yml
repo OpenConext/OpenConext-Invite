@@ -3,10 +3,10 @@ version: 2
 updates:
   # Enable version updates for Docker
   - package-ecosystem: "docker"
-    directories: 
-     - "/client/docker/"
-     - "/server/docker/"
-     - "/welcome/docker/"
+    directories:
+      - "/client/docker/"
+      - "/server/docker/"
+      - "/welcome/docker/"
     schedule:
       interval: "daily"
     groups:
@@ -47,8 +47,8 @@ updates:
           - "patch"
   # Maintain dependencies for server
   - package-ecosystem: "maven"
-    directories: 
-     - "/**"
+    directories:
+      - "/**"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 25
@@ -65,4 +65,3 @@ updates:
         update-types:
           - "minor"
           - "patch"
-
