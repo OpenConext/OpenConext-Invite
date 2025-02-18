@@ -8242,10 +8242,10 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react-json-view-lite@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/react-json-view-lite/-/react-json-view-lite-1.5.0.tgz#377cc302821717ac79a1b6d099e1891df54c8662"
-  integrity sha512-nWqA1E4jKPklL2jvHWs6s+7Na0qNgw9HCP6xehdQJeg6nPBTFZgGwyko9Q0oj+jQWKTTVRS30u0toM5wiuL3iw==
+react-json-view-lite@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-json-view-lite/-/react-json-view-lite-2.3.0.tgz#872e36202c00711bf3f8582e0ae6c5cf63bbaac0"
+  integrity sha512-btGE+nynBIPRPLWMkE7ASOeF7QzzG6S3bTOTL0FLFNvprMsODmv8eUMFCUK9SOJqV8GCOW/avCpDJnMSchTafQ==
 
 react-onclickoutside@^6.13.0:
   version "6.13.1"
