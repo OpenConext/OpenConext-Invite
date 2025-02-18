@@ -71,3 +71,4 @@ jobs:
             git pull -r
             git push
           fi
+        if: github.event_name != 'pull_request'
