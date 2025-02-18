@@ -19,7 +19,7 @@
     "react-select": "^5.8.0",
     "react-tooltip": "^5.28.0",
     "timeago.js": "^4.0.2",
-    "tough-cookie": "^4.1.4",
+    "tough-cookie": "^5.1.1",
     "word-wrap": "^1.2.5",
     "zustand": "^4.5.5"
   },
