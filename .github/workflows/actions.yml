@@ -62,7 +62,7 @@ jobs:
           echo "branch coverage = ${{ steps.jacoco.outputs.branches }}"
 
       - name: Commit the badge (if it changed)
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           if [[ `git status --porcelain` ]]; then
             git config --global user.name 'Okke Harsta'
@@ -72,4 +72,3 @@ jobs:
             git pull -r
             git push
           fi
-        if: github.event_name != 'pull_request'
