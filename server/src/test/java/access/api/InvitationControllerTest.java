@@ -26,6 +26,7 @@ import java.util.Map;
 import static access.security.SecurityConfig.API_TOKEN_HEADER;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
@@ -86,6 +87,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 List.of("new@new.nl"),
                 roleIdentifiers,
+                null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
 
@@ -118,7 +120,8 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 false,
                 List.of("new@new.nl"),
-                Collections.emptyList(),
+                emptyList(),
+                null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
 
@@ -152,6 +155,7 @@ class InvitationControllerTest extends AbstractTest {
                 true,
                 List.of("new@new.nl"),
                 roleIdentifiers,
+                null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
 
@@ -613,6 +617,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 List.of("nope"),
                 roleIdentifiers,
+                null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
 
@@ -805,6 +810,65 @@ class InvitationControllerTest extends AbstractTest {
                 .get("/api/v1/invitations/search")
                 .then()
                 .statusCode(404);
+    }
+
+    @Test
+    void newInvitationInstitutionAdmin() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
+
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.INSTITUTION_ADMIN,
+                "Message",
+                Language.en,
+                false,
+                false,
+                false,
+                false,
+                List.of("new@new.nl"),
+                emptyList(),
+                ORGANISATION_GUID,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/v1/invitations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(201, results.get("status"));
+        List recipientInvitationURLs = (List) results.get("recipientInvitationURLs");
+        assertEquals(1, recipientInvitationURLs.size());
+        //Now Accept the invitation with a new user
+        String invitationURL = ((Map<String, String>) recipientInvitationURLs.getFirst()).get("invitationURL");
+        MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(invitationURL).build().getQueryParams();
+        String hash = queryParams.getFirst("hash");
+        Invitation invitation = invitationRepository.findByHash(hash).get();
+
+        AccessCookieFilter guestAccessCookieFilter = openIDConnectFlow("/api/v1/users/login", "user@dodo.com");
+        AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
+        given()
+                .when()
+                .filter(guestAccessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(guestAccessCookieFilter.csrfToken().getHeaderName(), guestAccessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+
+        User user = userRepository.findBySubIgnoreCase("user@dodo.com").get();
+        assertTrue(user.isInstitutionAdmin());
+        assertTrue(user.isInstitutionAdminByInvite());
     }
 
 

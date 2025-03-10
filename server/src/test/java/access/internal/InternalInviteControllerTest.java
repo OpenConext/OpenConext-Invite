@@ -139,6 +139,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 false,
                 List.of("new@new.nl"),
                 roleIdentifiers,
+                null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
 
