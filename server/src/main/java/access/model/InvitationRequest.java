@@ -37,6 +37,8 @@ public class InvitationRequest implements Serializable {
 
     private List<Long> roleIdentifiers;
 
+    private String organizationGUID;
+
     private Instant roleExpiryDate;
 
     @NotNull

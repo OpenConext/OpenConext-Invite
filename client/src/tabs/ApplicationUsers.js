@@ -11,9 +11,13 @@ import debounce from "lodash.debounce";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
 import {useNavigate} from "react-router-dom";
 import {defaultPagination, pageCount} from "../utils/Pagination";
+import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
+import {useAppStore} from "../stores/AppStore";
 
 
 export const ApplicationUsers = () => {
+
+    const {user: currentUser} = useAppStore(state => state);
 
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
     const [searching, setSearching] = useState(true);
@@ -121,6 +125,9 @@ export const ApplicationUsers = () => {
                       inputFocus={true}
                       totalElements={totalElements}
                       customSearch={search}
+                      newLabel={I18n.t("invitations.newInvite")}
+                      showNew={isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, currentUser)}
+                      newEntityFunc={() => navigate(`/invitation/new?institution=true`)}
                       hideTitle={searching}
                       busy={searching}/>
         </div>

@@ -167,9 +167,9 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator, 
 
 export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     if (user.superUser) {
-        return Object.keys(AUTHORITIES)
-            //The superuser has no organization guid
-            .filter(authority => authority !== AUTHORITIES.INSTITUTION_ADMIN);
+        //The superuser has no organization guid, but is allowed to add one
+        return Object.keys(AUTHORITIES);
+
     }
     if (user.institutionAdmin && !isEmpty(user.applications)) {
         return Object.keys(AUTHORITIES)

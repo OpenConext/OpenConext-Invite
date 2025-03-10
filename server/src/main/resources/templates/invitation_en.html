@@ -16,13 +16,20 @@
         </p>
         {{/environment}}
         <p class="title" style="">Hello,</p>
+
+        {{#invitation.institutionAdminInvitation}}
+        <p><strong>{{displaySenderName}}</strong> (from <strong>{{institutionName}}</strong>) has invited you to become
+            an institution admin for institution {{idpName}} to manage the applications of this institution.</p>
+        {{/invitation.institutionAdminInvitation}}
+
+        {{#invitation.anyRoles}}
+
         <p><strong>{{displaySenderName}}</strong> (from <strong>{{institutionName}}</strong>) has invited you for one or
             more
             applications or systems that they use.</p>
 
         <p>You have been invited for:</p>
 
-        {{#invitation.anyRoles}}
         <ul>
             {{#groupedProviders}}
             <li style="margin-bottom: 4px;"><strong>{{name}}</strong> ({{organisation}}) - as
@@ -38,7 +45,6 @@
             </p>
         </div>
         {{/message}}
-
         {{#useEduID}}
         <p>For access to these applications eduID is used. Do you not have an eduID account yet?
             No worries, you can create one in less than 30 seconds.</p>

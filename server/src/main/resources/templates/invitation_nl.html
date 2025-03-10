@@ -16,13 +16,20 @@
         </p>
         {{/environment}}
         <p class="title" style="">Hallo,</p>
+
+        {{#invitation.institutionAdminInvitation}}
+        <p><strong>{{displaySenderName}}</strong> (van <strong>{{institutionName}}</strong>) heeft je uitgenodigd om
+            een instellings-admin te worden van instelling {{idpName}} om de applicaties van deze instelling te beheren.</p>
+        {{/invitation.institutionAdminInvitation}}
+
+        {{#invitation.anyRoles}}
+
         <p><strong>{{displaySenderName}}</strong> (van <strong>{{institutionName}}</strong>) heeft je uitgenodigd voor
             één of meer
             applicaties en systemen die zij gebruiken.</p>
 
         <p>Je bent uitgenodigd voor:</p>
 
-        {{#invitation.anyRoles}}
         <ul>
             {{#groupedProviders}}
             <li style="margin-bottom: 4px;"><strong>{{name}}</strong> ({{organisation}}) - als
@@ -38,7 +45,6 @@
             </p>
         </div>
         {{/message}}
-
         {{#useEduID}}
         <p>Voor de toegang tot deze applicatie(s) wordt gebruik gemaakt van eduID. Heb je nog geen eduID account? Geen
             probleem,

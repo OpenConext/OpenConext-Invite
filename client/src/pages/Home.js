@@ -66,6 +66,13 @@ export const Home = () => {
         }
         if (user && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) {
             newTabs.push(
+                <Page key="applicationUsers"
+                      name="applicationUsers"
+                      label={I18n.t("tabs.applicationUsers")}
+                >
+                    <ApplicationUsers/>
+                </Page>);
+            newTabs.push(
                 <Page key="applications"
                       name="applications"
                       label={I18n.t("tabs.applications")}
@@ -73,13 +80,6 @@ export const Home = () => {
                     <Applications/>
                 </Page>
             );
-            newTabs.push(
-                <Page key="applicationUsers"
-                      name="applicationUsers"
-                      label={I18n.t("tabs.applicationUsers")}
-                >
-                    <ApplicationUsers/>
-                </Page>);
         }
         if (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) {
             newTabs.push(

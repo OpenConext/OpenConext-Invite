@@ -13,7 +13,7 @@ import {
 import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
-import {newInvitation, rolesByApplication} from "../api";
+import {newInvitation, organizationGUIDValidation, rolesByApplication} from "../api";
 import {Button, ButtonType, Loader, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
@@ -50,6 +50,10 @@ export const InvitationForm = () => {
         invites: [],
         intendedAuthority: AUTHORITIES.GUEST
     });
+
+    const [validOrganizationGUID, setValidOrganizationGUID] = useState(true);
+    const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState(null);
+
     const [displayAdvancedSettings, setDisplayAdvancedSettings] = useState(false);
     const [loading, setLoading] = useState(true);
     const [customExpiryDate, setCustomExpiryDate] = useState(false);
@@ -152,7 +156,8 @@ export const InvitationForm = () => {
 
     const isValid = () => {
         return required.every(attr => !isEmpty(invitation[attr])) &&
-            (!isEmpty(selectedRoles) || [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority));
+            (!isEmpty(selectedRoles) || [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority))
+            && (invitation.intendedAuthority !== AUTHORITIES.INSTITUTION_ADMIN || !user.superUser || validOrganizationGUID);
     }
 
     const addEmails = emails => {
@@ -173,6 +178,21 @@ export const InvitationForm = () => {
             return futureDate(isEmpty(allDefaultExpiryDays) ? 365 : allDefaultExpiryDays[0]);
         }
         return invitation.roleExpiryDate;
+    }
+
+    const validateOrganizationGUID = e => {
+        const organizationGUID = e.target.value;
+        if (!isEmpty(organizationGUID)) {
+            organizationGUIDValidation(organizationGUID)
+                .then(idp => {
+                    setOrganizationGUIDIdentityProvider(idp);
+                    setValidOrganizationGUID(true);
+                })
+                .catch(() => {
+                    setOrganizationGUIDIdentityProvider(null);
+                    setValidOrganizationGUID(false);
+                })
+        }
     }
 
     const rolesChanged = selectedOptions => {
@@ -199,7 +219,6 @@ export const InvitationForm = () => {
             intendedAuthority: option.value,
             roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
         });
-
     }
 
     const renderUserRole = (role, index, invitationSelected, invitationSelectCallback) => {
@@ -216,6 +235,7 @@ export const InvitationForm = () => {
     }
 
     const renderFormElements = authorityOptions => {
+        const skipRoles = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority);
         return (
             <>
                 <EmailField
@@ -242,7 +262,34 @@ export const InvitationForm = () => {
                     toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
                     clearable={false}
                 />}
-                {!isInviter && <>
+
+                {(user.superUser && AUTHORITIES.INSTITUTION_ADMIN === invitation.intendedAuthority) &&
+                    <InputField
+                        name={I18n.t("roles.organizationGUID")}
+                        value={invitation.organizationGUID}
+                        onChange={e => {
+                            setInvitation({
+                                ...invitation,
+                                organizationGUID: e.target.value
+                            });
+                            setValidOrganizationGUID(true);
+                            setOrganizationGUIDIdentityProvider(null);
+                        }}
+                        onBlur={validateOrganizationGUID}
+                        toolTip={I18n.t("tooltips.organizationGUID")}
+                    />}
+                {!validOrganizationGUID &&
+                    <ErrorIndicator msg={I18n.t("forms.invalid", {
+                        value: invitation.organizationGUID,
+                        attribute: I18n.t("roles.organizationGUID").toLowerCase()
+                    })}/>}
+                {!isEmpty(organizationGUIDIdentityProvider) &&
+                    <p className="info">{I18n.t("roles.identityProvider", {name: organizationGUIDIdentityProvider["name:en"]})}</p>}
+                {(!initial && isEmpty(invitation.organizationGUID) &&
+                        invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && user.superUser) &&
+                    <ErrorIndicator msg={I18n.t("invitations.requiredOrganizationGUID")}/>}
+
+                {(!isInviter && !skipRoles) && <>
                     <SelectField value={selectedRoles}
                                  options={roles.filter(role => !selectedRoles.find(r => r.value === role.value))}
                                  name={I18n.t("invitations.roles")}
@@ -254,7 +301,7 @@ export const InvitationForm = () => {
                                  placeholder={I18n.t("invitations.rolesPlaceHolder")}
                                  onChange={rolesChanged}/>
                     {(!initial && isEmpty(selectedRoles) &&
-                            ![AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority)) &&
+                            !skipRoles) &&
                         <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
                 </>}
 
@@ -285,6 +332,7 @@ export const InvitationForm = () => {
         const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
             .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
         const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
+        const skipRoles = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority)
         return (
             <>
                 {isInviter &&
@@ -342,7 +390,8 @@ export const InvitationForm = () => {
                                              info={I18n.t("tooltips.eduIDOnlyTooltip")}
                                 />}
 
-                            {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter) &&
+                            {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter &&
+                                    !skipRoles) &&
                                 <SwitchField name={"guestRoleIncluded"}
                                              value={invitation.guestRoleIncluded || false}
                                              onChange={val => setInvitation({...invitation, guestRoleIncluded: val})}
@@ -350,7 +399,7 @@ export const InvitationForm = () => {
                                              info={I18n.t("tooltips.guestRoleIncludedTooltip")}
                                 />
                             }
-                            {overrideSettingsAllowed &&
+                            {(overrideSettingsAllowed && !skipRoles) &&
                                 <SwitchField name={"roleExpiryDate"}
                                              value={customRoleExpiryDate}
                                              onChange={() => {

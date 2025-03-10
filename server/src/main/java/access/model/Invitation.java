@@ -70,6 +70,9 @@ public class Invitation implements Serializable {
     @Column(name = "accepted_at")
     private Instant acceptedAt;
 
+    @Column(name = "organization_guid")
+    private String organizationGUID;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "inviter_id")
     @JsonIgnore
@@ -129,6 +132,12 @@ public class Invitation implements Serializable {
     @JsonIgnore
     public List<String> anyRoles() {
         return CollectionUtils.isEmpty(this.roles) ? Collections.emptyList() : Arrays.asList("will-iterate-once");
+    }
+
+    //used in the mustache templates
+    @JsonIgnore
+    public List<String> institutionAdminInvitation() {
+        return CollectionUtils.isEmpty(this.roles) && intendedAuthority.equals(Authority.INSTITUTION_ADMIN) ? Arrays.asList("will-iterate-once") : Collections.emptyList();
     }
 
     @JsonProperty(value = "inviter", access = JsonProperty.Access.READ_ONLY)

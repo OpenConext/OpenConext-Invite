@@ -225,7 +225,12 @@ public class InvitationController implements InvitationResource {
         if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
             user.setInstitutionAdmin(true);
             user.setInstitutionAdminByInvite(true);
-            user.setOrganizationGUID(inviter.getOrganizationGUID());
+            //Might be that a super-user has invited the institution admin or a different institution admin
+            if (inviter.isSuperUser()) {
+                user.setOrganizationGUID(invitation.getOrganizationGUID());
+            } else {
+                user.setOrganizationGUID(inviter.getOrganizationGUID());
+            }
             //Rare case - a new institution admin has logged in, but was not yet enriched by the CustomOidcUserService
             if (optionalUser.isEmpty()) {
                 saveOAuth2AuthenticationToken(authentication, user, servletRequest, servletResponse);

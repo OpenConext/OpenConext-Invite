@@ -24,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -95,6 +96,12 @@ public class InvitationOperations {
         if (user == null) {
             invitations.forEach(invitation -> invitation.setRemoteApiUser(remoteUser.getName()));
         }
+        if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
+            invitations.forEach(invitation -> invitation.setOrganizationGUID(
+                    user.isSuperUser() ? invitationRequest.getOrganizationGUID() : user.getOrganizationGUID())
+            );
+        }
+
         this.invitationResource.getInvitationRepository().saveAll(invitations);
 
         List<GroupedProviders> groupedProviders = this.invitationResource.getManage().getGroupedProviders(requestedRoles);
@@ -103,10 +110,19 @@ public class InvitationOperations {
                 .map(invitation -> new RecipientInvitationURL(invitation.getEmail(),
                         mailBox.inviteMailURL(invitation)))
                 .toList();
+
+
         if (!invitationRequest.isSuppressSendingEmails()) {
-            invitations.forEach(invitation ->
-                    mailBox.sendInviteMail(user == null ? remoteUser : user,
-                            invitation, groupedProviders, invitationRequest.getLanguage()));
+
+            invitations.forEach(invitation -> {
+                Optional<String> idpName = Optional.ofNullable(invitation.getOrganizationGUID())
+                        .map(organisationGUID -> this.invitationResource.getManage().identityProviderByInstitutionalGUID(organisationGUID))
+                        .flatMap(optional -> optional)
+                        .map(idp -> (String) idp.get("name:en"));
+
+                mailBox.sendInviteMail(user == null ? remoteUser : user,
+                        invitation, groupedProviders, invitationRequest.getLanguage(), idpName);
+            });
         }
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
         return ResponseEntity.status(HttpStatus.CREATED).body(new InvitationResponse(HttpStatus.CREATED.value(), recipientInvitationURLs));
@@ -134,8 +150,17 @@ public class InvitationOperations {
 
         List<GroupedProviders> groupedProviders = this.invitationResource.getManage().getGroupedProviders(requestedRoles);
         Provisionable provisionable = user != null ? user : remoteUser;
+        Optional<String> idpName = Optional.ofNullable(invitation.getOrganizationGUID())
+                .map(organisationGUID -> this.invitationResource.getManage().identityProviderByInstitutionalGUID(organisationGUID))
+                .flatMap(optional -> optional)
+                .map(idp -> (String) idp.get("name:en"));
 
-        this.invitationResource.getMailBox().sendInviteMail(provisionable, invitation, groupedProviders, invitation.getLanguage());
+        this.invitationResource.getMailBox()
+                .sendInviteMail(provisionable,
+                        invitation,
+                        groupedProviders,
+                        invitation.getLanguage(),
+                        idpName);
         if (invitation.getExpiryDate().isBefore(Instant.now())) {
             invitation.setExpiryDate(Instant.now().plus(Period.ofDays(14)));
             invitationRepository.save(invitation);

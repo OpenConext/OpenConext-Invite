@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -64,7 +65,7 @@ class MailBoxTest extends AbstractMailTest {
                         localManage.providerById(EntityType.SAML20_SP, "2"),
                         invitation.getRoles().stream().map(InvitationRole::getRole).toList(),
                         UUID.randomUUID().toString())
-        ), Language.en);
+        ), Language.en, Optional.empty());
         MimeMessageParser mimeMessageParser = super.mailMessage();
         return mimeMessageParser.getHtmlContent();
     }

@@ -21,6 +21,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -58,7 +59,9 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendInviteMail(Provisionable provisionable, Invitation invitation, List<GroupedProviders> groupedProviders, Language language) {
+    public void sendInviteMail(Provisionable provisionable, Invitation invitation,
+                               List<GroupedProviders> groupedProviders, Language language,
+                               Optional<String> optionalIdpName) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         String title = String.format(subjects.get(language.name()).get("newInvitation"),
                 invitation.getRoles().stream().map(role -> role.getRole().getName()).collect(Collectors.joining(", ")));
@@ -73,6 +76,7 @@ public class MailBox {
         } else {
             variables.put("institutionName", "SURF");
         }
+        optionalIdpName.ifPresent(idpName -> variables.put("idpName", idpName));
         variables.put("roles", splitListSemantically(invitation.getRoles().stream()
                 .map(invitationRole -> invitationRole.getRole().getName()).toList()));
         if (invitation.getRoles().stream()
@@ -85,7 +89,6 @@ public class MailBox {
         if (StringUtils.hasText(invitation.getMessage())) {
             variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
         }
-
         variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(language.name()));
         variables.put("user", provisionable);

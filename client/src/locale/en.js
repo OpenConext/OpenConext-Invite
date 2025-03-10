@@ -247,6 +247,7 @@ const en = {
         inviteesPlaceholder: "Invitee email addresses",
         requiredEmail: "At least one email address is required",
         requiredRole: "At least one role is required for an invitation",
+        requiredOrganizationGUID: "A valid Organization GUID is required for an institution admin invitation",
         intendedAuthority: "Authority",
         roles: "Roles",
         inviterRoles: "Select the roles for the new invitation",

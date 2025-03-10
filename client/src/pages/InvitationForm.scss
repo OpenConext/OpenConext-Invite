@@ -37,6 +37,11 @@
             grid-column-start: first;
         }
 
+        p.info {
+            grid-column-start: first;
+            margin-top: 4px;
+        }
+
         .inviter-wrapper {
             margin-top: 25px;
             padding: 25px 155px 25px 25px;
