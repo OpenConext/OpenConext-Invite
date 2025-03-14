@@ -21,11 +21,6 @@ public class ResilientErrorHandler implements ResponseErrorHandler {
     }
 
     @Override
-    public void handleError(ClientHttpResponse response) throws IOException {
-        this.handleError(null, null, response);
-    }
-
-    @Override
     public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
         //ignore
         LOG.warn(String.format("Error from Manage: %s, %s, %s, %s",

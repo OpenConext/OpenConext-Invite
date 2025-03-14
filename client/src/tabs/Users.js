@@ -35,7 +35,7 @@ export const Users = () => {
                     setSearching(false);
                 });
         },
-        [currentUser, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+        [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const openUser = (e, user) => {
         const path = `/profile/${user.id}`
@@ -120,8 +120,7 @@ export const Users = () => {
     const impersonate = user => {
         startImpersonation(user);
         setFlash(I18n.t("impersonate.flash.startedImpersonation", {name: user.name}));
-        const path = encodeURIComponent(window.location.pathname);
-        navigate(`/refresh-route/${path}`, {replace: true});
+        navigate("/", {replace: true});
     }
 
     if (showImpersonation) {

@@ -95,6 +95,7 @@ const nl = {
         createdAt: "Aangemaakt op",
         schacHomeOrganization: "Instelling",
         lastActivity: "Laatst actief",
+        organizationGUID: "Organisatie GUID",
         eduPersonPrincipalName: "EPPN",
         sub: "Sub",
         singleUser: "gebruiker",

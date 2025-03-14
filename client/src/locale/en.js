@@ -95,6 +95,7 @@ const en = {
         createdAt: "Created",
         schacHomeOrganization: "Institution",
         lastActivity: "Last activity",
+        organizationGUID: "Organization GUID",
         eduPersonPrincipalName: "EPPN",
         sub: "Sub",
         singleUser: "user",
