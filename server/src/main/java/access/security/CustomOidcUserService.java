@@ -83,8 +83,6 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             userRepository.save(user);
         });
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
-        oidcUser = new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
-        return oidcUser;
-
+        return new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
     }
 }

@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class LocalDevelopmentAuthenticationFilter implements Filter {
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
