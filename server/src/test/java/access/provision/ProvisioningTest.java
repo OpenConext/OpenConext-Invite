@@ -17,6 +17,7 @@ class ProvisioningTest {
         this.assertInvariant(this.provisioningMap(ProvisioningType.scim, "scim_url"));
         this.assertInvariant(this.provisioningMap(ProvisioningType.scim, "scim_url", "scim_user"));
         new Provisioning(this.provisioningMap(ProvisioningType.scim, "scim_url", "scim_user", "scim_password"));
+        new Provisioning(this.provisioningMap(ProvisioningType.scim, "scim_url", "scim_bearer_token"));
     }
 
     @Test

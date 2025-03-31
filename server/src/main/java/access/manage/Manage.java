@@ -64,6 +64,7 @@ public interface Manage {
                     "scim_url",
                     "scim_user",
                     "scim_password",
+                    "scim_bearer_token",
                     "scim_update_role_put_method",
                     "scim_user_identifier",
                     "eva_url",

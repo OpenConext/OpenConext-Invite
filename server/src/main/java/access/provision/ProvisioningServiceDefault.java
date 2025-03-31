@@ -449,7 +449,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         } else if (hasScimHook(provisioning)) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             HttpHeaders headers = this.httpHeaders(provisioning);
-            headers.setBasicAuth(provisioning.getScimUser(), this.decryptScimPassword(provisioning));
+            if (StringUtils.hasText(provisioning.getScimPassword())) {
+                headers.setBasicAuth(provisioning.getScimUser(), this.decryptScimPassword(provisioning));
+            } else if (StringUtils.hasText(provisioning.getScimBearerToken())) {
+                headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", provisioning.getScimBearerToken()));
+            }
             requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
         } else if (hasGraphHook(provisioning) && isUser) {
             this.graphClient.deleteUser((User) provisionable, provisioning, remoteIdentifier);
@@ -513,6 +517,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     private String decryptScimPassword(Provisioning provisioning) {
         String scimPassword = provisioning.getScimPassword();
         return keyStore.isEncryptedSecret(scimPassword) ? keyStore.decodeAndDecrypt(scimPassword) : scimPassword;
+    }
+
+    private String decryptScimBearerToken(Provisioning provisioning) {
+        String scimBearerToken = provisioning.getScimBearerToken();
+        return keyStore.isEncryptedSecret(scimBearerToken) ? keyStore.decodeAndDecrypt(scimBearerToken) : scimBearerToken;
     }
 
     private HttpHeaders httpHeaders(Provisioning provisioning) {

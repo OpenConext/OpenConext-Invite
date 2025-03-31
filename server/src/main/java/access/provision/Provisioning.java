@@ -20,6 +20,7 @@ public class Provisioning {
     private final String scimUrl;
     private final String scimUser;
     private final String scimPassword;
+    private final String scimBearerToken;
     private final ScimUserIdentifier scimUserIdentifier;
     private final String evaToken;
     private final boolean scimUpdateRolePutMethod;
@@ -41,6 +42,7 @@ public class Provisioning {
         this.scimUrl = (String) provider.get("scim_url");
         this.scimUser = (String) provider.get("scim_user");
         this.scimPassword = (String) provider.get("scim_password");
+        this.scimBearerToken = (String) provider.get("scim_bearer_token");
         String optionalScimUserIdentifier = (String) provider.get("scim_user_identifier");
         this.scimUserIdentifier = StringUtils.hasText(optionalScimUserIdentifier) ? ScimUserIdentifier.valueOf(optionalScimUserIdentifier) :
                 ScimUserIdentifier.eduperson_principal_name;
@@ -67,8 +69,10 @@ public class Provisioning {
             }
             case scim -> {
                 assert scimUrl != null : "scimUrl is null";
-                assert scimUser != null : "scimUser is null";
-                assert scimPassword != null : "scimPassword is null";
+                if (scimBearerToken == null) {
+                    assert scimUser != null: "scimUser is null";
+                    assert scimPassword != null: "scimPassword or scimBearerToken is null";
+                }
             }
             case graph -> {
                 assert graphClientId != null : "graphClientId is null";
