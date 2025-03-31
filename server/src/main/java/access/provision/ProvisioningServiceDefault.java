@@ -452,7 +452,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             if (StringUtils.hasText(provisioning.getScimPassword())) {
                 headers.setBasicAuth(provisioning.getScimUser(), this.decryptScimPassword(provisioning));
             } else if (StringUtils.hasText(provisioning.getScimBearerToken())) {
-                headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", provisioning.getScimBearerToken()));
+                headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", this.decryptScimBearerToken(provisioning)));
             }
             requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
         } else if (hasGraphHook(provisioning) && isUser) {
