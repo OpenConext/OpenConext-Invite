@@ -7,6 +7,7 @@ const nl = {
         languageTooltip: "Kies de taal van de uitnodigingse-mail",
         en: "Engels",
         nl: "Nederlands",
+        pt: "Portuguese",
     },
     landing: {
         header: {

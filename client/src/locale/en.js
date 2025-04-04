@@ -7,6 +7,7 @@ const en = {
         languageTooltip: "Choose the language of the invitation mail",
         en: "English",
         nl: "Dutch",
+        pt: "Portuguese",
     },
     landing: {
         header: {

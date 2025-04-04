@@ -1,5 +1,6 @@
 import en from "./en";
 import nl from "./nl";
+import pt from "./pt";
 
 import {I18n as I18nRemote} from "i18n-js";
 
@@ -12,6 +13,7 @@ import {useAppStore} from "../stores/AppStore";
 const I18n = new I18nRemote({
     en: en,
     nl: nl,
+    pt: pt,
 });
 
 // DetermineLanguage based on parameter, cookie and finally navigator
@@ -24,7 +26,7 @@ if (isEmpty(parameterByName)) {
 if (isEmpty(parameterByName)) {
     parameterByName = navigator.language.toLowerCase().substring(0, 2);
 }
-if (["nl", "en"].indexOf(parameterByName) === -1) {
+if (["nl", "en", "pt"].indexOf(parameterByName) === -1) {
     parameterByName = "en";
 }
 I18n.locale = parameterByName;
