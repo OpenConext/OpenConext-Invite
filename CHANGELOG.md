@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.28
+
+- Upped dependencies
+- Userflow for adding an institution admin
+- Add support for Bearer token authentication in SCIM provisionings
+
+## 0.0.27 2025-02-11
+
+- Also allow to remove the top application from a role
+- Redesign overviewlist for applications, for apps that are included in many roles
+- Update Spring versions
+
 ## 0.0.25 2025-01-14
 
 - Change contact information for inviters
