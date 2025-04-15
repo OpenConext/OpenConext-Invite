@@ -33,7 +33,12 @@ public record GroupedProviders(Map<String, Object> provider, List<Role> roles, S
 
     private String[] preferredLanguageWithFallback() {
         String language = LocaleContextHolder.getLocale().getLanguage();
-        return new String[]{language, language.equals("en") ? "nl" : "en"};
+        return switch (language) {
+            case "en" -> new String[]{"en", "nl"};
+            case "nl" -> new String[]{"nl", "en"};
+            case "pt" -> new String[]{"pt", "en"};
+            default -> new String[]{"en", "nl"};
+        };
     }
 
 }

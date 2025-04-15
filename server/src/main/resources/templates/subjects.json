@@ -6,5 +6,9 @@
   "nl": {
     "newInvitation": "Uitnodiging voor %s bij SURFconext Invite",
     "roleExpirationNotification": "%s rol %s verloopt"
+  },
+  "pt": {
+    "newInvitation": "Convite para %s no SURFconext Invite",
+    "roleExpirationNotification": "Notificação de expiração do papel %s de %s"
   }
 }

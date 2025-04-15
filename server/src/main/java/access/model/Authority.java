@@ -7,11 +7,11 @@ public enum Authority {
     SUPER_USER(4), INSTITUTION_ADMIN(3), MANAGER(2), INVITER(1), GUEST(0);
 
     private Map<String, Map<String, String>> translations = Map.of(
-            "SUPER_USER", Map.of("en", "Super user", "nl", "Super user"),
-            "INSTITUTION_ADMIN", Map.of("en", "Institution admin", "nl", "Instellings-admin"),
-            "MANAGER", Map.of("en", "Manager", "nl", "Beheerder"),
-            "INVITER", Map.of("en", "Inviter", "nl", "Uitnodiger"),
-            "GUEST", Map.of("en", "Guest", "nl", "Gast")
+            "SUPER_USER", Map.of("en", "Super user", "nl", "Super user", "pt", "Super Utilizador"),
+            "INSTITUTION_ADMIN", Map.of("en", "Institution admin", "nl", "Instellings-admin", "pt", "Administrador da Instituição"),
+            "MANAGER", Map.of("en", "Manager", "nl", "Beheerder", "pt", "Gestor"),
+            "INVITER", Map.of("en", "Inviter", "nl", "Uitnodiger", "pt", "Convidador"),
+            "GUEST", Map.of("en", "Guest", "nl", "Gast", "pt", "Convidado")
     );
 
     private final int rights;

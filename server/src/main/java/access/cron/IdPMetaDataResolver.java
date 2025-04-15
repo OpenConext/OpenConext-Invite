@@ -24,7 +24,7 @@ import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 public class IdPMetaDataResolver {
 
     private static final Log LOG = LogFactory.getLog(IdPMetaDataResolver.class);
-    private static final List<String> languages = List.of("nl", "en");
+    private static final List<String> languages = List.of("pt", "nl", "en");
 
     private final Resource metaDataResource;
     private Map<String, IdentityProvider> identityProviderMap = new HashMap<>();
@@ -68,10 +68,10 @@ public class IdPMetaDataResolver {
                                 String lang = this.getAttributeValue(reader, "lang");
                                 String displayName = reader.getElementText();
                                 if (languages.contains(lang)) {
-                                    if ("en".equals(lang)) {
-                                        displayNameEn = displayName;
-                                    } else {
-                                        displayNameNl = displayName;
+                                    switch (lang) {
+                                        case "en" -> displayNameEn = displayName;
+                                        case "nl" -> displayNameNl = displayName;
+                                        case "pt" -> displayNameEn = displayName; // Handle PT as well
                                     }
                                 }
                                 break;

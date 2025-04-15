@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+</head>
+<body>
+<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
+    <div class="header" style="background-color: #0077C8;padding:10px 40px;">
+        {{> logo-surf.svg}}
+        <span style="display: inline-block;color:white;margin-left: 10px;font-size: 18px;">Bem-vindo</span>
+    </div>
+    <div class="head" style="padding: 30px 40px 20px 40px;">
+        {{#environment}}
+        <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
+            Este email é do ambiente {{environment}}
+        </p>
+        {{/environment}}
+        <p class="title" style="">Olá,</p>
+
+        {{#invitation.institutionAdminInvitation}}
+        <p><strong>{{displaySenderName}}</strong> (de <strong>{{institutionName}}</strong>) convidou você para se tornar
+            um administrador da instituição {{idpName}} para gerenciar as aplicações desta instituição.</p>
+        {{/invitation.institutionAdminInvitation}}
+
+        {{#invitation.anyRoles}}
+
+        <p><strong>{{displaySenderName}}</strong> (de <strong>{{institutionName}}</strong>) convidou você para uma ou
+            mais aplicações ou sistemas que eles utilizam.</p>
+
+        <p>Você foi convidado para:</p>
+
+        <ul>
+            {{#groupedProviders}}
+            <li style="margin-bottom: 4px;"><strong>{{name}}</strong> ({{organisation}}) - como
+                <strong>{{rolesDisplay}}</strong></li>
+            {{/groupedProviders}}
+        </ul>
+        {{/invitation.anyRoles}}
+        {{#message}}
+        <p style="margin: 20px 0 0 0;">Mensagem pessoal de {{displaySenderName}}</p>
+        <div class="head" style="background-color: #f5f5f5;padding: 20px;margin:5px 0 15px 0;font-style: italic;">
+            <p style="margin: 0;">
+                {{{message}}}
+            </p>
+        </div>
+        {{/message}}
+        {{#useEduID}}
+        <p>Para acessar essas aplicações, é utilizado o eduID. Ainda não tem uma conta eduID?
+            Não se preocupe, você pode criar uma em menos de 30 segundos.</p>
+        <div style="display: flex;">
+            <a class="button" href="{{{ url }}}"
+               style="border-radius: 4px;color: white;display: flex;width: 300px;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 26px;">
+                {{> eduid-logo.svg}}
+                <span style="color: white;margin: auto 0 auto 25px;">Aceitar convite com eduID</span>
+            </a>
+        </div>
+        {{/useEduID}}
+        {{^useEduID}}
+        <p>Para acessar essas aplicações, utilizamos o SURFconext.</p>
+        <div style="display: flex;">
+            <a class="button" href="{{{ url }}}"
+               style="border-radius: 4px;color: white;width: 300px;display:flex;background-color: #0077c8;text-decoration: none;margin: 15px auto;cursor:pointer;padding: 14px 56px;font-size: 18px;">
+                <span style="color: white;margin: auto;">Aceitar convite</span>
+            </a>
+        </div>
+        {{/useEduID}}
+    </div>
+    {{#useEduID}}
+    <div class="eduid-info" style="background-color: #f3f2f2;padding: 20px 40px 20px 40px; color: #9b9b9b">
+        <p style="font-size: 18px;margin:20px 0 15px 0;">Por que preciso de uma conta eduID?</p>
+        <p>Um eduID é uma conta para usuários da comunidade educacional e de pesquisa holandesa. É sua e existe
+            independentemente de uma instituição educacional.
+            Com o eduID, você pode acessar várias aplicações, mesmo que não tenha uma conta institucional. Você pode
+            usar o eduID, por exemplo,
+            se quiser fazer cursos em diferentes instituições ou após se formar.</p>
+        <p style="font-weight: bold;margin: 15px 0 0 0;">
+            Solicitar eduID
+        </p>
+        <p style="margin: 5px 0 10px 0;">Solicitar um eduID é gratuito e você pode fazer isso agora. Tudo o que você
+            precisa é de um endereço de email.</p>
+    </div>
+    {{/useEduID}}
+
+    {{> footer_pt.html}}
+
+</div>
+</body>
+</html>
