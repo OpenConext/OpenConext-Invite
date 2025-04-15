@@ -11,12 +11,16 @@ class IdentityProviderTest {
 
     @Test
     void getName() {
-        IdentityProvider identityProvider = new IdentityProvider(null, "nl", "logo");
+        IdentityProvider identityProvider = new IdentityProvider(null, "nl", null, "logo");
         assertEquals("nl", identityProvider.getName());
 
         LocaleContextHolder.setLocale(Locale.forLanguageTag("nl"));
-        identityProvider = new IdentityProvider("en", "nl", "logo");
+        identityProvider = new IdentityProvider("en", "nl", "pt", "logo");
         assertEquals("nl", identityProvider.getName());
+
+        LocaleContextHolder.setLocale(Locale.forLanguageTag("pt"));
+        identityProvider = new IdentityProvider("en", "nl", "pt", "logo");
+        assertEquals("pt", identityProvider.getName());
         //Put back the locale, otherwise the mail tests become flakey
         LocaleContextHolder.setLocale(Locale.ENGLISH);
     }

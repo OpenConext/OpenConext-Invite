@@ -41,6 +41,7 @@ public class IdPMetaDataResolver {
         Map<String, IdentityProvider> newIdentityProviderMap = new HashMap<>();
         String displayNameEn = null;
         String displayNameNl = null;
+        String displayNamePt = null; // Add PT support
         String logoUrl = null;
         List<String> domainNames = new ArrayList<>();
         try {
@@ -55,6 +56,7 @@ public class IdPMetaDataResolver {
                                 domainNames.clear();
                                 displayNameEn = null;
                                 displayNameNl = null;
+                                displayNamePt = null;
                                 logoUrl = null;
                                 break;
                             case "Scope":
@@ -71,7 +73,7 @@ public class IdPMetaDataResolver {
                                     switch (lang) {
                                         case "en" -> displayNameEn = displayName;
                                         case "nl" -> displayNameNl = displayName;
-                                        case "pt" -> displayNameEn = displayName; // Handle PT as well
+                                        case "pt" -> displayNamePt = displayName;
                                     }
                                 }
                                 break;
@@ -83,7 +85,7 @@ public class IdPMetaDataResolver {
                     case END_ELEMENT:
                         localName = reader.getLocalName();
                         if (localName.equals("IDPSSODescriptor")) {
-                            IdentityProvider identityProvider = new IdentityProvider(displayNameEn, displayNameNl, logoUrl);
+                            IdentityProvider identityProvider = new IdentityProvider(displayNameEn, displayNameNl, displayNamePt, logoUrl);
                             for (String domainName : domainNames) {
                                 newIdentityProviderMap.put(domainName, identityProvider);
                             }
