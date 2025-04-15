@@ -37,7 +37,7 @@ export const InvitationForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const languageOptions = ["en", "nl"].map(lang => ({label: I18n.t(`languages.${lang}`), value: lang}))
+    const languageOptions = ["en", "nl", "pt"].map(lang => ({label: I18n.t(`languages.${lang}`), value: lang}))
     const {user, setFlash, config} = useAppStore(state => state);
 
     const [guest, setGuest] = useState(false);

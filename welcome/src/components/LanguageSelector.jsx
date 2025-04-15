@@ -32,9 +32,10 @@ export const LanguageSelector = () => {
                     <li>{renderLocaleChooser("nl")}
                         <span className="sds--language-sds--divider">|</span>
                     </li>
-                    <li>
-                        {renderLocaleChooser("en")}
+                    <li>{renderLocaleChooser("en")}
+                        <span className="sds--language-sds--divider">|</span>
                     </li>
+                    <li>{renderLocaleChooser("pt")}</li>
                 </ul>
             </nav>
         );
