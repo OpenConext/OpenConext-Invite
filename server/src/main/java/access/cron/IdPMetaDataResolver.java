@@ -24,7 +24,7 @@ import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 public class IdPMetaDataResolver {
 
     private static final Log LOG = LogFactory.getLog(IdPMetaDataResolver.class);
-    private static final List<String> languages = List.of("nl", "en");
+    private static final List<String> languages = List.of("pt", "nl", "en");
 
     private final Resource metaDataResource;
     private Map<String, IdentityProvider> identityProviderMap = new HashMap<>();
@@ -41,6 +41,7 @@ public class IdPMetaDataResolver {
         Map<String, IdentityProvider> newIdentityProviderMap = new HashMap<>();
         String displayNameEn = null;
         String displayNameNl = null;
+        String displayNamePt = null; // Add PT support
         String logoUrl = null;
         List<String> domainNames = new ArrayList<>();
         try {
@@ -55,6 +56,7 @@ public class IdPMetaDataResolver {
                                 domainNames.clear();
                                 displayNameEn = null;
                                 displayNameNl = null;
+                                displayNamePt = null;
                                 logoUrl = null;
                                 break;
                             case "Scope":
@@ -68,10 +70,10 @@ public class IdPMetaDataResolver {
                                 String lang = this.getAttributeValue(reader, "lang");
                                 String displayName = reader.getElementText();
                                 if (languages.contains(lang)) {
-                                    if ("en".equals(lang)) {
-                                        displayNameEn = displayName;
-                                    } else {
-                                        displayNameNl = displayName;
+                                    switch (lang) {
+                                        case "en" -> displayNameEn = displayName;
+                                        case "nl" -> displayNameNl = displayName;
+                                        case "pt" -> displayNamePt = displayName;
                                     }
                                 }
                                 break;
@@ -83,7 +85,7 @@ public class IdPMetaDataResolver {
                     case END_ELEMENT:
                         localName = reader.getLocalName();
                         if (localName.equals("IDPSSODescriptor")) {
-                            IdentityProvider identityProvider = new IdentityProvider(displayNameEn, displayNameNl, logoUrl);
+                            IdentityProvider identityProvider = new IdentityProvider(displayNameEn, displayNameNl, displayNamePt, logoUrl);
                             for (String domainName : domainNames) {
                                 newIdentityProviderMap.put(domainName, identityProvider);
                             }

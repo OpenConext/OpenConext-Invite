@@ -1,0 +1,9 @@
+Foi convidado para o SURFconext Invite.
+Clique no link abaixo para aceitar o convite.
+
+{{url}}
+
+Foi convidado para se tornar um {{role}} no SURFconext Invite. Se não quiser aceitar este
+            convite, basta ignorar ou apagar esta mensagem.
+
+{{> footer_pt.txt}}
