@@ -1,7 +1,7 @@
 Je bent uitgenodigd voor SURFconext Invite.
 Klik op de link hieronder om de uitnodiging te accepteren.
 
-{{url}}
+{{{url}}}
 
 Je bent uitgenodigd om {{role}} te worden in SURFconext Invite. Als je niet op deze
 uitnodiging wilt ingaan, kun je dit bericht simpelweg terzijde leggen.
