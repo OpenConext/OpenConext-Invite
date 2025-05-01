@@ -151,8 +151,8 @@ export const UserRoles = ({role, guests}) => {
                 .then(() => {
                     setConfirmationOpen(false);
                     setFlash(I18n.t("userRoles.deleteFlash"));
-                    const deleteCurrentUserRole = willUpdateCurrentUser();
-                    if (deleteCurrentUserRole && !isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
+                    const deleteCurrentUserRole = !isEmpty(willUpdateCurrentUser());
+                    if (deleteCurrentUserRole) {
                         useAppStore.setState(() => ({reload: true}));
                         navigate("/home", {replace: true});
                     } else {
