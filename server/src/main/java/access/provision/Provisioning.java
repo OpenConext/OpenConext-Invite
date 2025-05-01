@@ -24,6 +24,7 @@ public class Provisioning {
     private final ScimUserIdentifier scimUserIdentifier;
     private final String evaToken;
     private final boolean scimUpdateRolePutMethod;
+    private final boolean scimUserProvisioningOnly;
     private final String evaUrl;
     private final String graphUrl;
     private final String graphClientId;
@@ -48,6 +49,8 @@ public class Provisioning {
                 ScimUserIdentifier.eduperson_principal_name;
         Object updateRolePutMethod = provider.get("scim_update_role_put_method");
         this.scimUpdateRolePutMethod = updateRolePutMethod != null && (boolean) updateRolePutMethod;
+        Object userProvisioningOnly = provider.get("scim_user_provisioning_only");
+        this.scimUserProvisioningOnly = userProvisioningOnly != null && (boolean) userProvisioningOnly;
         this.evaUrl = (String) provider.get("eva_url");
         this.evaToken = (String) provider.get("eva_token");
         this.graphUrl = (String) provider.get("graph_url");

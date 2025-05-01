@@ -56,7 +56,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     @Test
     void updateUserRequest() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
-        //Need to ensure the user is updated therefore the remote needs to exists and provisioning is scimn
+        //Need to ensure the user is updated, therefore the remote needs to exists and provisioning is scimn
         String remoteScimIdentifier = UUID.randomUUID().toString();
         RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier, "7");
         remoteProvisionedUserRepository.save(remoteProvisionedUser);

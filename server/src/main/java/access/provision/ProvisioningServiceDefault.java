@@ -221,7 +221,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         List<Provisioning> provisionings = getProvisionings(role).stream()
                 .toList();
         provisionings.forEach(provisioning -> {
-            if (this.hasScimHook(provisioning)) {
+            if (this.hasScimHook(provisioning) && !provisioning.isScimUserProvisioningOnly()) {
                 Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
                         .findByManageProvisioningIdAndRole(provisioning.getId(), role);
                 provisionedGroupOptional.ifPresentOrElse(provisionedGroup -> {
@@ -391,7 +391,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             LOG.info(String.format("Provisioning new eva account for user %s and provisioning %s",
                     ((User) provisionable).getEmail(), provisioning.getEntityId()));
             requestEntity = this.evaClient.newUserRequest(provisioning, (User) provisionable);
-        } else if (hasScimHook(provisioning)) {
+        } else if (hasScimHook(provisioning) && (isUser || !provisioning.isScimUserProvisioningOnly())) {
             LOG.info(String.format("Provisioning new SCIM account for provisionable %s and provisioning %s",
                     provisionable.getName(), provisioning.getEntityId()));
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
@@ -415,7 +415,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                String apiType,
                                String remoteIdentifier,
                                HttpMethod httpMethod) {
-        if (hasScimHook(provisioning)) {
+        if (hasScimHook(provisioning) && (USER_API.equals(apiType) || !provisioning.isScimUserProvisioningOnly())) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             RequestEntity<String> requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), httpMethod, uri);
             doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
@@ -446,7 +446,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
             requestEntity = this.evaClient.deleteUserRequest(provisioning, (User) provisionable);
-        } else if (hasScimHook(provisioning)) {
+        } else if (hasScimHook(provisioning) && (isUser || provisioning.isScimUserProvisioningOnly())) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             HttpHeaders headers = this.httpHeaders(provisioning);
             if (StringUtils.hasText(provisioning.getScimPassword())) {

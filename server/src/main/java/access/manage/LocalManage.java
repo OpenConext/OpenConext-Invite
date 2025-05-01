@@ -34,7 +34,6 @@ public final class LocalManage implements Manage {
                 entityType -> this.initialize(objectMapper, entityType, staticManageDirectory)));
     }
 
-
     @SneakyThrows
     private List<Map<String, Object>> initialize(ObjectMapper objectMapper, EntityType entityType, String staticManageDirectory) {
         String resourceName = String.format("%s/%s.json", staticManageDirectory, entityType.collectionName());

@@ -189,7 +189,7 @@ public class User implements Serializable, Provisionable {
 
     @JsonIgnore
     public void removeUserRole(UserRole role) {
-        //This is required by Hibernate - children can't be de-referenced
+        //This is required by Hibernate - children can't be dereferenced
         Set<UserRole> newRoles = userRoles.stream().filter(ur -> !ur.getId().equals(role.getId())).collect(Collectors.toSet());
         userRoles.clear();
         userRoles.addAll(newRoles);
@@ -210,7 +210,7 @@ public class User implements Serializable, Provisionable {
         if (!StringUtils.hasText(sub)) {
             throw new IllegalArgumentException("Sub is empty for User: " + this.getId());
         }
-        //Avoid null-pointers (at any cost). Minimal requirement is sub as this is a non-null database column
+        //Avoid null-pointers (at any cost). The minimal requirement is sub, as this is a non-null database column
         String notNullIdentifier = StringUtils.hasText(email) ? email : StringUtils.hasText(eduPersonPrincipalName) ? eduPersonPrincipalName : sub;
         Instant epochStart = Instant.ofEpochMilli(0);
         return Map.of(
