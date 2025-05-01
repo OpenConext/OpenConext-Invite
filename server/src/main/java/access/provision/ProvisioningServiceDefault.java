@@ -167,7 +167,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         provisionings.forEach(provisioning -> {
             if (this.hasEvaHook(provisioning)) {
                 RequestEntity requestEntity = this.evaClient.deleteUserRequest(provisioning, userRole.getUser());
-                doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+                if (requestEntity != null) {
+                    doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+                }
             }
             //For now only eva is eligible for update's for the userRole (e.g. new end date)
         });
