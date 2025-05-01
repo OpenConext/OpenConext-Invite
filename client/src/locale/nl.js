@@ -77,9 +77,9 @@ const nl = {
         },
     },
     access: {
-        SUPER_USER: "Super User",
-        INSTITUTION_ADMIN: "Instellingsmanager",
-        MANAGER: "Manager",
+        SUPER_USER: "Superuser",
+        INSTITUTION_ADMIN: "Instellingsadmin",
+        MANAGER: "Rolmanager",
         INVITER: "Uitnodiger",
         GUEST: "Gebruiker",
         "No member": "Geen lid"
@@ -106,8 +106,8 @@ const nl = {
         roles: "Rollen",
         applications: "Applicaties",
         noRolesInfo: "Je hebt geen rollen (je bent een super-user)",
-        noRolesInstitutionAdmin: "Je bent instellingsmanager, maar hebt nog geen rollen (maar je hebt wel toegang tot je applicaties)",
-        noRolesNoApplicationsInstitutionAdmin: "Je bent instellingsmanager, maar je hebt geen rollen en je instelling heeft blijkbaar ook geen toegang tot applicaties.",
+        noRolesInstitutionAdmin: "Je bent instellingsadmin, maar hebt nog geen rollen (maar je hebt wel toegang tot je applicaties)",
+        noRolesNoApplicationsInstitutionAdmin: "Je bent instellingsadmin, maar je hebt geen rollen en je instelling heeft blijkbaar ook geen toegang tot applicaties.",
         guestRoleOnly: "Je bent geen admin. Ben je op zoek naar de <a href='{{welcomeUrl}}'>applicaties waar je toegang to hebt</a>?",
         rolesInfo: "Je hebt de volgende rollen",
         applicationsInfo: "Je hebt toegang tot de volgende applicaties",
@@ -130,7 +130,7 @@ const nl = {
         userInfo: "{{nbr}} leden & geldig voor {{valid}} dagen",
         roleInfo: "Rol geldig voor <strong>{{days}} dagen</strong>",
         roleInfoNoEndDate: "Rol heeft <strong>geen einddatum</strong>",
-        contactAdmin: "Contact manager(s)"
+        contactAdmin: "Contact rolmanager(s)"
     },
     roles: {
         title: "Toegangsrollen",
@@ -239,7 +239,7 @@ const nl = {
         expired: "Verlopen",
         enforceEmailEquality: "E-mailadres moet overeenkomen",
         eduIDOnly: "Uitsluitend eduID",
-        new: "Nodig manager of uitnodiger uit",
+        new: "Nodig rolmanager of uitnodiger uit",
         newInvitation: "Nodig uitnodiger uit",
         newInvite: "Nieuwe uitnodiging",
         newGuest: "Gebruiker uitnodigen",
@@ -375,7 +375,7 @@ const nl = {
         history: "Geschiedenis van uitnodigingen"
     },
     institutionAdmin: {
-        welcome: "Welkom instellingsadmin van {{name}}! Je kan nu je eerste rol aanmaken en managers daarvoor uitnodigen.",
+        welcome: "Welkom instellingsadmin van {{name}}! Je kan nu je eerste rol aanmaken en rolmanagers daarvoor uitnodigen.",
         create: "Rol aanmaken"
     },
     tokens: {

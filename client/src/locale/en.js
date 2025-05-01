@@ -18,9 +18,9 @@ const en = {
         adminFunction: "admin function",
         info: [
             //Arrays of titles and info blocks and if a function is an admin function
-            ["Invites", "<p>SURF invites institution managers who can create roles for their applications.</p>" +
+            ["Invites", "<p>SURF invites institution admins who can create roles for their applications.</p>" +
             "<p>The application list consists of applications connected to SURFconext.</p>", true],
-            ["Roles", "<p>The application managers will invite colleagues for roles who can in turn invite users.</p>", true],
+            ["Roles", "<p>The role managers will invite colleagues for roles who can in turn invite users.</p>", true],
             ["Join", "<p>Invited colleagues who accept the invitation are granted access rights for the applications.</p><br/>", false],
             ["Groups", "<p>The roles are actually group memberships that can be used in SURFconext authorisation rules, or provisioned as attributes or to external SCIM APIs.</p>", false]
         ],
@@ -77,9 +77,9 @@ const en = {
         },
     },
     access: {
-        SUPER_USER: "Super User",
+        SUPER_USER: "Superuser",
         INSTITUTION_ADMIN: "Institution admin",
-        MANAGER: "Manager",
+        MANAGER: "Role manager",
         INVITER: "Inviter",
         GUEST: "User",
         "No member": "No member"
@@ -130,7 +130,7 @@ const en = {
         userInfo: "{{nbr}} member(s) & valid for {{valid}} days",
         roleInfo: "Role valid for <strong>{{days}} days</strong>",
         roleInfoNoEndDate: "Role has <strong>no end date</strong>",
-        contactAdmin: "Contact manager(s)"
+        contactAdmin: "Contact role manager(s)"
     },
     roles: {
         title: "Access Roles",
@@ -375,7 +375,7 @@ const en = {
         history: "Invitation history"
     },
     institutionAdmin: {
-        welcome: "Welcome institution administrator of {{name}}! You can start with creating your first role and subsequently invite managers.",
+        welcome: "Welcome institution administrator of {{name}}! You can start with creating your first role and subsequently invite role managers.",
         create: "Create access role"
     },
     tokens: {
