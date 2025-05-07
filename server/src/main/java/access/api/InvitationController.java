@@ -103,6 +103,7 @@ public class InvitationController implements InvitationResource {
     @PostMapping("")
     public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                             @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("New invitation request by user %s", user.getEduPersonPrincipalName()));
         return this.invitationOperations.sendInvitation(invitationRequest, user, null);
     }
 
@@ -127,11 +128,13 @@ public class InvitationController implements InvitationResource {
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
                                                                  @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("ResendInvitation with id %s by user %s ", id, user.getEduPersonPrincipalName()));
         return this.invitationOperations.resendInvitation(id, user, null);
     }
 
     @GetMapping("public")
     public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
+        LOG.debug(String.format("getInvitation with hash %s", hash));
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(() -> new NotFoundException("Invitation not found"));
         if (!invitation.getStatus().equals(Status.OPEN)) {
             throw new InvitationStatusException("Invitation is not OPEN anymore");
@@ -142,7 +145,7 @@ public class InvitationController implements InvitationResource {
 
     @GetMapping("all")
     public ResponseEntity<List<Invitation>> all(@Parameter(hidden = true) User user) {
-        LOG.debug("/all invitations");
+        LOG.debug("GET /all invitations");
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
         return ResponseEntity.ok(invitationRepository.findByStatus(Status.OPEN));
     }
@@ -156,6 +159,8 @@ public class InvitationController implements InvitationResource {
         Invitation invitation = invitationRepository.findByHash(acceptInvitation.hash())
                 .orElseThrow(() -> new NotFoundException("Invitation not found"));
 
+        LOG.debug("POST /accept invitation");
+
         if (!invitation.getId().equals(acceptInvitation.invitationId())) {
             throw new NotFoundException("Invitation not found");
         }
@@ -168,6 +173,9 @@ public class InvitationController implements InvitationResource {
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         Map<String, Object> attributes = token.getPrincipal().getAttributes();
         String sub = (String) attributes.get("sub");
+
+        LOG.info(String.format("Accept invitation with id %s by user %s", invitation.getId(), sub));
+
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         Authority intendedAuthority = invitation.getIntendedAuthority();
         User user = optionalUser.orElseGet(() -> {
@@ -314,7 +322,7 @@ public class InvitationController implements InvitationResource {
 
     @GetMapping("roles/{roleId}")
     public ResponseEntity<List<Invitation>> byRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/roles/%s by user %s", roleId, user.getEduPersonPrincipalName()));
+        LOG.debug(String.format("GET /roles/%s by user %s", roleId, user.getEduPersonPrincipalName()));
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
@@ -330,7 +338,7 @@ public class InvitationController implements InvitationResource {
                                                             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
                                                             @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
                                                             @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
-        LOG.debug(String.format("/search for invitations %s", user.getEduPersonPrincipalName()));
+        LOG.debug(String.format("GET /search for invitations %s", user.getEduPersonPrincipalName()));
 
         Page<Map<String, Object>> invitationsPage;
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
