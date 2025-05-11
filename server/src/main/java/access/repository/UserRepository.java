@@ -92,7 +92,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
     default String rewrite(String query, Sort sort) {
         Sort.Order authoritySort = sort.getOrderFor("authority");
         if (authoritySort != null) {
-            //Spring can not sort on aggregated columns
+            //Spring cannot sort on aggregated columns
             return query.replace("order by u.authority", "order by authority");
         }
         Sort.Order endDateSort = sort.getOrderFor("endDate");
