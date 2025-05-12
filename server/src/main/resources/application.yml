@@ -158,6 +158,14 @@ external-api-configuration:
       applications:
         - manageId: "4"
           manageType: SAML20_SP
+    - username: access
+      displayName: "Access"
+      password: "secret"
+      scopes:
+        - access
+      applications:
+        - manageId: "6"
+          manageType: OIDC10_RP
     - username: sp_dashboard_local_dev_mode
       displayName: "SP Dashboard"
       password: "secret"
