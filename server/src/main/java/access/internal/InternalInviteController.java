@@ -91,7 +91,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @GetMapping("/roles")
-    @PreAuthorize("hasAnyRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Hidden
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         LOG.debug(String.format("/roles for user %s", remoteUser.getName()));
@@ -106,7 +106,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @GetMapping("/roles/{id}")
-    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Hidden
     public ResponseEntity<Role> role(@PathVariable("id") Long id,
                                      @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
@@ -121,7 +121,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @PostMapping("/roles")
-    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Operation(summary = "Create a Role",
             description = "Create a Role linked to a SP in Manage. Note that the required application object needs to be pre-configured during deployment.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -225,7 +225,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @PutMapping("/roles")
-    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Hidden
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
@@ -235,7 +235,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @DeleteMapping("/roles/{id}")
-    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Operation(summary = "Delete existing Role",
             description = "Delete an existing role. The path parameter id is the id returned when creating the role.",
             parameters = {@Parameter(name = "id", in = ParameterIn.PATH, description = "Unique database id of the role", required = true)},
@@ -286,7 +286,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @PostMapping("/invitations")
-    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Operation(summary = "Invite member for existing Role",
             description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -356,7 +356,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @PutMapping("/invitations/{id}")
-    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Hidden
     public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
                                                                  @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
@@ -364,7 +364,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     }
 
     @GetMapping("user_roles/{roleId}")
-    @PreAuthorize("hasRole('SP_DASHBOARD')")
+    @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Transactional
     @Hidden
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
