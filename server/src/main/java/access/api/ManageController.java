@@ -61,7 +61,7 @@ public class ManageController {
     public ResponseEntity<Map<String, Object>> providerById(@PathVariable("type") EntityType type,
                                                             @PathVariable("id") String id,
                                                             @Parameter(hidden = true) User user) {
-        LOG.debug("/provider");
+        LOG.debug(String.format("GET /manage/provider type: %s, id: %s for user %s", type, id, user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         Map<String, Object> provider = manage.providerById(type, id);
         return ResponseEntity.ok(provider);
@@ -69,7 +69,7 @@ public class ManageController {
 
     @GetMapping("providers")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
-        LOG.debug("/providers");
+        LOG.debug(String.format("GET /manage/providers for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
         List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
         return ResponseEntity.ok(providers);
@@ -78,7 +78,8 @@ public class ManageController {
     @GetMapping("organization-guid-validation/{organizationGUID}")
     public ResponseEntity<Map<String, Object>> organizationGUIDValidation(@Parameter(hidden = true) User user,
                                                                           @PathVariable("organizationGUID") String organizationGUID) {
-        LOG.debug("/organization-guid-validation");
+        LOG.debug(String.format("GET /manage/organization-guid-validation guid: %s for user %s", organizationGUID, user.getEduPersonPrincipalName()));
+
         UserPermissions.assertSuperUser(user);
         Map<String, Object> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGUID)
                 .orElseThrow(() -> new NotFoundException("No identity provider with organizationGUID: " + organizationGUID));
@@ -88,6 +89,7 @@ public class ManageController {
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         LOG.debug("/applications");
+        LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
 
         UserPermissions.assertInstitutionAdmin(user);
         List<Application> applications;

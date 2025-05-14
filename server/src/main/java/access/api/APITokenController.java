@@ -43,7 +43,7 @@ public class APITokenController {
 
     @GetMapping("")
     public ResponseEntity<List<APIToken>> apiTokensByInstitution(@Parameter(hidden = true) User user) {
-        LOG.debug("/tokens");
+        LOG.debug(String.format("GET /tokens for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertInstitutionAdmin(user);
         List<APIToken> apiTokens = user.isSuperUser() ? apiTokenRepository.findAll() : apiTokenRepository.findByOrganizationGUID(user.getOrganizationGUID());
         return ResponseEntity.ok(apiTokens);
@@ -52,7 +52,7 @@ public class APITokenController {
     @GetMapping("generate-token")
     public ResponseEntity<Map<String, String>> generateToken(@Parameter(hidden = true) User user,
                                                              @Parameter(hidden = true) HttpServletRequest request) {
-        LOG.debug("/generateToken");
+        LOG.debug(String.format("GET /tokens/generateToken for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertInstitutionAdmin(user);
         String token = HashGenerator.generateToken();
         request.getSession().setAttribute(TOKEN_KEY, token);
@@ -63,7 +63,7 @@ public class APITokenController {
     public ResponseEntity<APIToken> create(@Validated @RequestBody APIToken apiTokenRequest,
                                            @Parameter(hidden = true) User user,
                                            @Parameter(hidden = true) HttpServletRequest request) {
-        LOG.debug("/create");
+        LOG.debug(String.format("POST /tokens/create for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertInstitutionAdmin(user);
         String token = (String) request.getSession().getAttribute(TOKEN_KEY);
         if (!StringUtils.hasText(token)) {
@@ -79,7 +79,7 @@ public class APITokenController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteToken(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
-        LOG.debug("/deleteToken");
+        LOG.debug(String.format("DETELE /tokens/deleteToken with id %s for user %s", id.toString(), user.getEduPersonPrincipalName()));
         UserPermissions.assertInstitutionAdmin(user);
         APIToken apiToken = apiTokenRepository.findById(id).orElseThrow(() -> new NotFoundException("API token not found"));
         if (apiToken.isSuperUserToken() && !user.isSuperUser()) {

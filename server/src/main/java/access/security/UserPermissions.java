@@ -1,17 +1,20 @@
 package access.security;
 
+import access.api.RoleController;
 import access.exception.UserRestrictionException;
 import access.model.Authority;
 import access.model.Role;
 import access.model.User;
 import access.model.UserRole;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Set;
 
 public class UserPermissions {
-
+    private static final Log LOG = LogFactory.getLog(UserPermissions.class);
     private UserPermissions() {
     }
 
@@ -40,12 +43,15 @@ public class UserPermissions {
         if (user == null) {
             throw new UserRestrictionException();
         }
+        LOG.debug(String.format("assertAuthority for user %s", user.getEduPersonPrincipalName()));
 
         if (user.isSuperUser()) {
+            LOG.debug(String.format("user %s is superuser", user.getEduPersonPrincipalName()));
             return;
         }
 
         if (user.isInstitutionAdmin() && Authority.INSTITUTION_ADMIN.hasEqualOrHigherRights(authority)) {
+            LOG.debug(String.format("user %s is InstitutionAdmin", user.getEduPersonPrincipalName()));
             return;
         }
         if (user.getUserRoles().stream()
@@ -57,6 +63,7 @@ public class UserPermissions {
         if (user == null) {
             throw new UserRestrictionException();
         }
+        LOG.debug(String.format("assertValidInvitation for user %s", user.getEduPersonPrincipalName()));
 
         if (user.isSuperUser()) {
             return;
@@ -83,6 +90,8 @@ public class UserPermissions {
         if (user == null) {
             throw new UserRestrictionException();
         }
+        LOG.debug(String.format("assertRoleAccess for user %s", user.getEduPersonPrincipalName()));
+
         if (user.isSuperUser()) {
             return;
         }
