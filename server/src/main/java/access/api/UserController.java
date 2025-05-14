@@ -94,7 +94,7 @@ public class UserController {
     @GetMapping("config")
     public ResponseEntity<Config> config(User user,
                                          @RequestParam(value = "guest", required = false, defaultValue = "false") boolean guest) {
-        LOG.debug("/config");
+        LOG.debug("GET /config");
         Config result = new Config(this.config);
         result
                 .withAuthenticated(user != null && user.getId() != null)
@@ -115,7 +115,7 @@ public class UserController {
 
     @GetMapping("other/{id}")
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/other/%s for user $s", id, user.getEduPersonPrincipalName()));
+        LOG.debug(String.format("/other/%s for user %s", id, user.getEduPersonPrincipalName()));
 
         User other = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         List<Role> roles = other.getUserRoles().stream().map(UserRole::getRole).toList();
@@ -171,7 +171,7 @@ public class UserController {
 
     @GetMapping("login")
     public View login(@RequestParam(value = "app", required = false, defaultValue = "client") String app) {
-        LOG.debug("/login");
+        LOG.debug(String.format("/login for app: %s", app));
         return new RedirectView(app.equals("client") ? config.getClientUrl() : config.getWelcomeUrl(), false);
     }
 

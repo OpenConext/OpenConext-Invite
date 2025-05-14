@@ -147,6 +147,8 @@ public class RoleController implements ApplicationResource {
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
                                         @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("POST /roles/ for user %s", user.getEduPersonPrincipalName()));
+
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         //For super_users we allow an organization GUID from the input form
         if (InstitutionAdmin.isInstitutionAdmin(user)) {
@@ -164,6 +166,7 @@ public class RoleController implements ApplicationResource {
     @PutMapping("")
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
                                            @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("PUT /roles/ for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.MANAGER);
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);
