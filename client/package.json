@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@surfnet/sds": "^0.0.130",
+    "@surfnet/sds": "^0.0.136",
     "dompurify": "^3.2.5",
     "i18n-js": "^4.5.1",
     "isomorphic-dompurify": "^2.24.0",
@@ -14,14 +14,14 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-datepicker": "8.3.0",
     "react-dom": "^19.1.0",
-    "react-router": "^7.5.3",
-    "react-router-dom": "^7.5.3",
+    "react-router": "^7.6.0",
+    "react-router-dom": "^7.6.0",
     "react-select": "^5.10.1",
     "react-tooltip": "^5.28.1",
     "timeago.js": "^4.0.2",
     "tough-cookie": "^5.1.2",
     "word-wrap": "^1.2.5",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.4"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
