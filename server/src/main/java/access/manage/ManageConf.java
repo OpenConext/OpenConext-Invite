@@ -2,6 +2,7 @@ package access.manage;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import crypto.CompoundKeyStore;
 import crypto.KeyStore;
 import crypto.RSAKeyStore;
 import io.micrometer.core.instrument.util.IOUtils;
@@ -28,7 +29,7 @@ public class ManageConf {
     @Bean
     public KeyStore keyStore(@Value("${crypto.development-mode}") Boolean developmentMode,
                              @Value("${crypto.private-key-location}") Resource privateKey) throws IOException {
-        return developmentMode ? new RSAKeyStore() : new RSAKeyStore(IOUtils.toString(privateKey.getInputStream()));
+        return developmentMode ? new CompoundKeyStore() : new CompoundKeyStore(IOUtils.toString(privateKey.getInputStream()));
     }
 
 
