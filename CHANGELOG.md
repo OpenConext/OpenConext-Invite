@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased - YYYY-MM-DD
 
+## 0.0.29
+
+- Add more logging
+
 ## 0.0.28
 
 - Upped dependencies
