@@ -131,10 +131,10 @@ jobs:
             architecture: "linux/amd64,linux/arm64"
           - image: ghcr.io/openconext/openconext-invite/inviteprovisioningmock
             app: provisioning-mock
-            architecture: "linux/amd64,linux/arm64v8"
+            architecture: "linux/amd64,linux/arm64"
           - image: ghcr.io/openconext/openconext-invite/inviteserver
             app: server
-            architecture: "linux/amd64,linux/arm64v8"
+            architecture: "linux/amd64,linux/arm64"
     steps:
       - uses: actions/checkout@v4
 
@@ -172,8 +172,7 @@ jobs:
         with:
           context: ${{ matrix.app }}
           file: ${{ matrix.app }}/docker/Dockerfile
-          platforms: linux/amd64
-#          platforms: "${{ matrix.architecture }}"
+          platforms: "${{ matrix.architecture }}"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
