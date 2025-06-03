@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -178,7 +177,7 @@ public class PerformanceSeed {
     private Application application(ManageIdentifier manageIdentifier) {
         String manageId = manageIdentifier.manageId();
         EntityType entityType = manageIdentifier.manageType();
-        return applicationRepository.findByManageIdAndManageType(manageId, entityType).
+        return applicationRepository.findByManageIdAndManageTypeOrderById(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
     }
 

@@ -95,7 +95,7 @@ public class TeamsController {
         Set<ApplicationUsage> applicationUsages = team.getApplications().stream()
                 .map(applicationFromTeams -> {
                     Optional<Application> optionalApplication = applicationRepository
-                            .findByManageIdAndManageType(applicationFromTeams.getManageId(), applicationFromTeams.getManageType());
+                            .findByManageIdAndManageTypeOrderById(applicationFromTeams.getManageId(), applicationFromTeams.getManageType());
                     Application applicationFromDB = optionalApplication
                             .orElseGet(() -> {
                                 // ID is also serialized from database teams object, need to prevent StaleObjectStateException

@@ -41,13 +41,14 @@ public class RoleOperations {
                 .map(applicationUsageFromClient -> {
                     Application application = applicationUsageFromClient.getApplication();
                     Application applicationFromDB = applicationRepository
-                            .findByManageIdAndManageType(application.getManageId(), application.getManageType())
+                            .findByManageIdAndManageTypeOrderById(application.getManageId(), application.getManageType())
                             .orElseGet(() -> applicationRepository.save(application));
-                    ApplicationUsage applicationUsageFromDB = applicationUsageRepository.findByRoleIdAndApplicationManageIdAndApplicationManageType(
-                            role.getId(),
-                            applicationFromDB.getManageId(),
-                            applicationFromDB.getManageType()
-                    ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationUsageFromClient.getLandingPage()));
+                    ApplicationUsage applicationUsageFromDB = applicationUsageRepository
+                            .findByRoleIdAndApplicationManageIdAndApplicationManageTypeOrderByApplicationId(
+                                    role.getId(),
+                                    applicationFromDB.getManageId(),
+                                    applicationFromDB.getManageType()
+                            ).orElseGet(() -> new ApplicationUsage(applicationFromDB, applicationUsageFromClient.getLandingPage()));
                     applicationUsageFromDB.setLandingPage(applicationUsageFromClient.getLandingPage());
                     return applicationUsageFromDB;
                 })

@@ -28,11 +28,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLTransactionRollbackException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -164,6 +167,11 @@ public class RoleController implements ApplicationResource {
     }
 
     @PutMapping("")
+    @Retryable(
+            value = { SQLTransactionRollbackException.class },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
                                            @Parameter(hidden = true) User user) {
         LOG.debug(String.format("PUT /roles/ for user %s", user.getEduPersonPrincipalName()));

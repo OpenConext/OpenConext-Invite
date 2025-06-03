@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface ApplicationUsageRepository extends JpaRepository<ApplicationUsage, Long> {
 
-    Optional<ApplicationUsage> findByRoleIdAndApplicationManageIdAndApplicationManageType(
+    Optional<ApplicationUsage> findByRoleIdAndApplicationManageIdAndApplicationManageTypeOrderByApplicationId(
             Long roleId, String manageId, EntityType manageType);
 
 }

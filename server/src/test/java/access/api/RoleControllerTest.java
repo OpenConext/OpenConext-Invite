@@ -122,7 +122,7 @@ class RoleControllerTest extends AbstractTest {
         stubForManageProvisioning(List.of());
         stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
 
-        Application application = applicationRepository.findByManageIdAndManageType("1", EntityType.SAML20_SP).
+        Application application = applicationRepository.findByManageIdAndManageTypeOrderById("1", EntityType.SAML20_SP).
                 orElseGet(() -> applicationRepository.save(new Application("1", EntityType.SAML20_SP)));
         Set<ApplicationUsage> applications = Set.of(new ApplicationUsage(application, "bogus"));
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);

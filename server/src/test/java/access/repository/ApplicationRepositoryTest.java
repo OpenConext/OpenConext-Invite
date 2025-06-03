@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ApplicationRepositoryTest extends AbstractTest {
 
     @Test
-    void findByManageIdAndManageType() {
-        Application application = applicationRepository.findByManageIdAndManageType("2", EntityType.SAML20_SP).get();
+    void findByManageIdAndManageTypeOrderById() {
+        Application application = applicationRepository.findByManageIdAndManageTypeOrderById("2", EntityType.SAML20_SP).get();
         assertEquals("2", application.getManageId());
     }
 

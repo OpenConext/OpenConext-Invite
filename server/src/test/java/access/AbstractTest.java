@@ -560,7 +560,7 @@ public abstract class AbstractTest {
     }
 
     protected Set<ApplicationUsage> application(String manageId, EntityType entityType) {
-        Application application = applicationRepository.findByManageIdAndManageType(manageId, entityType).
+        Application application = applicationRepository.findByManageIdAndManageTypeOrderById(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
         return Set.of(new ApplicationUsage(application, "http://landingpage.com"));
     }
@@ -608,7 +608,7 @@ public abstract class AbstractTest {
                         new Application("3", EntityType.SAML20_SP),
                         new Application("6", EntityType.OIDC10_RP))
                 .stream()
-                .map(app -> applicationRepository.findByManageIdAndManageType(app.getManageId(), app.getManageType()).
+                .map(app -> applicationRepository.findByManageIdAndManageTypeOrderById(app.getManageId(), app.getManageType()).
                         orElseGet(() -> applicationRepository.save(new Application(app.getManageId(), app.getManageType()))))
                 .collect(Collectors.toSet());
         Set<ApplicationUsage> applicationUsages = applications.stream().map(application -> new ApplicationUsage(application, "https://landingpage.com")).collect(Collectors.toSet());
