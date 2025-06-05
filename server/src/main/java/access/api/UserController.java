@@ -31,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -95,6 +96,7 @@ public class UserController {
     public ResponseEntity<Config> config(User user,
                                          @RequestParam(value = "guest", required = false, defaultValue = "false") boolean guest) {
         LOG.debug("GET /config");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Config result = new Config(this.config);
         result
                 .withAuthenticated(user != null && user.getId() != null)

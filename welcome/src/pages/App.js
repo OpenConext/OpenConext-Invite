@@ -30,27 +30,31 @@ export const App = () => {
             configuration()
                 .then(res => {
                     useAppStore.setState(() => ({config: res}));
+
                     if (!res.authenticated) {
                         if (!res.name) {
                             const direction = window.location.pathname + window.location.search;
                             localStorage.setItem("location", direction);
                         } else if (!isEmpty(res.missingAttributes)) {
-                            setLoading(false);
                             navigate("/missingAttributes");
+                            setLoading(false);
                             return;
                         }
-                        setLoading(false);
                         const locationStored = localStorage.getItem("location");
                         const pathname = locationStored || window.location.pathname;
-                        const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept");
+                        const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept")
+                            || pathname.startsWith("/invitation/accept");
                         if (res.name && !pathname.startsWith("/invitation/accept") && !isInvitationAcceptFlow) {
                             navigate("/deadend");
-                        } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept") || isInvitationAcceptFlow) {
-                            navigate(isInvitationAcceptFlow ? (window.location.pathname + window.location.search) : pathname);
+                        } else if (pathname === "/" || pathname.startsWith("/login") || isInvitationAcceptFlow) {
+                            const route = isInvitationAcceptFlow ? pathname : (window.location.pathname + window.location.search);
+                            setTimeout(() => navigate(route), 15);
+                            navigate(route);
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page
                             login(res);
                         }
+                        setLoading(false);
                     } else {
                         me()
                             .then(res => {
@@ -58,8 +62,8 @@ export const App = () => {
                                 const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
                                 const newLocation = location.startsWith("/login") ? "/profile" : location;
                                 localStorage.removeItem("location");
-                                setLoading(false);
                                 navigate(newLocation);
+                                setLoading(false);
                             });
                     }
                 })
@@ -73,6 +77,7 @@ export const App = () => {
     if (loading) {
         return <Loader/>
     }
+
     return (
         <div className="access">
             <div className="container">
@@ -92,8 +97,7 @@ export const App = () => {
                     <Routes>
                         <Route path="/" element={<Navigate replace to="login"/>}/>
                         <Route path="proceed" element={<Proceed/>}/>
-                        <Route path="invitation/accept"
-                               element={<Invitation authenticated={false}/>}/>
+                        <Route path="invitation/accept" element={<Invitation authenticated={false}/>}/>
                         <Route path="login" element={<Login/>}/>
                         <Route path="deadend" element={<InviteOnly/>}/>
                         <Route path="missingAttributes" element={<MissingAttributes/>}/>
