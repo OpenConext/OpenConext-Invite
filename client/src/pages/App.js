@@ -51,16 +51,21 @@ export const App = () => {
                             return;
                         }
                         const pathname = localStorage.getItem("location") || window.location.pathname;
-                        const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept");
+                        const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept")
+                            || pathname.startsWith("/invitation/accept");
+                        let route = null;
                         if (res.name && !pathname.startsWith("/invitation/accept") && !isInvitationAcceptFlow) {
-                            setLoading(false);
-                            navigate("/deadend");
+                            route = "/deadend"
                         } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept") || isInvitationAcceptFlow) {
                             setLoading(false);
-                            navigate(isInvitationAcceptFlow ? (window.location.pathname + window.location.search) : pathname);
+                            route = isInvitationAcceptFlow ? pathname : window.location.pathname + window.location.search;
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page
                             login(res);
+                        }
+                        if (!isEmpty(route)) {
+                            setLoading(false);
+                            setTimeout(() => navigate(route), 50);
                         }
                     } else {
                         me()
