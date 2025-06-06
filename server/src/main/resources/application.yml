@@ -71,7 +71,7 @@ spring:
     port: 1025
 
 crypto:
-  development-mode: False
+  development-mode: True
   #  private-key-location: classpath:nope
   #  Use the commented lines when you want to test against a remote manage. Do not add the private_key to git
   #  development-mode: False
