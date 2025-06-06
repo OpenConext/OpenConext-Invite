@@ -16,13 +16,13 @@ import {Profile} from "./Profile";
 import {Proceed} from "./Proceed";
 import {isEmpty} from "../utils/Utils";
 import {MissingAttributes} from "./MissingAttributes";
+import {flushSync} from "react-dom";
 
 
 export const App = () => {
-
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const {authenticated} = useAppStore(state => state);
-    const navigate = useNavigate();
 
     useEffect(() => {
         csrf().then(token => {
@@ -30,32 +30,34 @@ export const App = () => {
             configuration()
                 .then(res => {
                     useAppStore.setState(() => ({config: res}));
+                    let route;
                     if (!res.authenticated) {
                         if (!res.name) {
                             const direction = window.location.pathname + window.location.search;
                             localStorage.setItem("location", direction);
-                        } else if (!isEmpty(res.missingAttributes)) {
-                            navigate("/missingAttributes");
-                            setLoading(false);
-                            return;
                         }
-                        const locationStored = localStorage.getItem("location");
-                        const pathname = locationStored || window.location.pathname;
-                        const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept")
-                            || pathname.startsWith("/invitation/accept");
-                        let route;
-                        if (res.name && !pathname.startsWith("/invitation/accept") && !isInvitationAcceptFlow) {
-                            route = "/deadend";
-                        } else if (pathname === "/" || pathname.startsWith("/login") || isInvitationAcceptFlow) {
-                            route = isInvitationAcceptFlow ? pathname : (window.location.pathname + window.location.search);
+                        if (!isEmpty(res.missingAttributes)) {
+                            route = "/missingAttributes"
+                        } else {
+                            const locationStored = localStorage.getItem("location");
+                            const pathname = locationStored || window.location.pathname;
+                            const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept")
+                                || pathname.startsWith("/invitation/accept");
+                            if (res.name && !isInvitationAcceptFlow) {
+                                route = "/deadend";
+                            } else if (pathname === "/" || pathname.startsWith("/login") || isInvitationAcceptFlow) {
+                                route = isInvitationAcceptFlow ? pathname : (window.location.pathname + window.location.search);
+                            }
+                        }
+                        if (!isEmpty(route)) {
+                            flushSync(() => {
+                                navigate(route, {replace: true})
+                            });
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page
                             login(res);
                         }
-                        if (!isEmpty(route)) {
-                            setLoading(false);
-                            setTimeout(() => navigate(route), 50);
-                        }
+                        setTimeout(() => setLoading(false), 500);
                     } else {
                         me()
                             .then(res => {
@@ -63,14 +65,18 @@ export const App = () => {
                                 const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
                                 const newLocation = location.startsWith("/login") ? "/profile" : location;
                                 localStorage.removeItem("location");
-                                navigate(newLocation);
-                                setLoading(false);
+                                flushSync(() => {
+                                    navigate(newLocation, {replace: true})
+                                });
+                                setTimeout(() => setLoading(false), 500);
                             });
                     }
                 })
                 .catch(() => {
-                    setLoading(false);
-                    navigate("/deadend");
+                    flushSync(() => {
+                        navigate("/deadend", {replace: true})
+                    });
+                    setTimeout(() => setLoading(false), 500);
                 })
         })
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -78,6 +84,7 @@ export const App = () => {
     if (loading) {
         return <Loader/>
     }
+
 
     return (
         <div className="access">
