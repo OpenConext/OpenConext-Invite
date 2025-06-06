@@ -22,7 +22,7 @@ const HAS_LOGGED_IN_AGAIN = "hasLoggedInAgain"
 let runOnce = false;
 
 export const Invitation = ({authenticated}) => {
-    
+
     const navigate = useNavigate();
     const {user, config} = useAppStore(state => state);
 
@@ -34,14 +34,13 @@ export const Invitation = ({authenticated}) => {
 
     useEffect(() => {
         const hashParam = getParameterByName("hash", window.location.search);
-        
+
         if (runOnce) {
             return;
         }
         runOnce = true;
         invitationByHash(hashParam)
             .then(res => {
-                    
                     setInvitation(res);
                     useAppStore.setState(() => ({
                         invitation: res
@@ -67,7 +66,7 @@ export const Invitation = ({authenticated}) => {
                                     })
                             })
                             .catch(e => {
-                                    
+
                                     setLoading(false);
                                     if (e.response && e.response.status === 412) {
                                         setConfirmation({

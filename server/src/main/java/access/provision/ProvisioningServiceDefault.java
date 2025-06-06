@@ -451,11 +451,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         } else if (hasScimHook(provisioning) && (isUser || provisioning.isScimUserProvisioningOnly())) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             HttpHeaders headers = this.httpHeaders(provisioning);
-            if (StringUtils.hasText(provisioning.getScimPassword())) {
-                headers.setBasicAuth(provisioning.getScimUser(), this.decryptScimPassword(provisioning));
-            } else if (StringUtils.hasText(provisioning.getScimBearerToken())) {
-                headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", this.decryptScimBearerToken(provisioning)));
-            }
             requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
         } else if (hasGraphHook(provisioning) && isUser) {
             this.graphClient.deleteUser((User) provisionable, provisioning, remoteIdentifier);
@@ -530,7 +525,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         HttpHeaders headers = new HttpHeaders();
         switch (provisioning.getProvisioningType()) {
             case scim -> {
-                headers.setBasicAuth(provisioning.getScimUser(), decryptScimPassword(provisioning));
+                if (StringUtils.hasText(provisioning.getScimPassword())) {
+                    headers.setBasicAuth(provisioning.getScimUser(), this.decryptScimPassword(provisioning));
+                } else if (StringUtils.hasText(provisioning.getScimBearerToken())) {
+                    headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", this.decryptScimBearerToken(provisioning)));
+                }
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             }

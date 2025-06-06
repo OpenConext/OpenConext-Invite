@@ -30,7 +30,6 @@ export const App = () => {
             configuration()
                 .then(res => {
                     useAppStore.setState(() => ({config: res}));
-
                     if (!res.authenticated) {
                         if (!res.name) {
                             const direction = window.location.pathname + window.location.search;
@@ -44,17 +43,19 @@ export const App = () => {
                         const pathname = locationStored || window.location.pathname;
                         const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept")
                             || pathname.startsWith("/invitation/accept");
+                        let route;
                         if (res.name && !pathname.startsWith("/invitation/accept") && !isInvitationAcceptFlow) {
-                            navigate("/deadend");
+                            route = "/deadend";
                         } else if (pathname === "/" || pathname.startsWith("/login") || isInvitationAcceptFlow) {
-                            const route = isInvitationAcceptFlow ? pathname : (window.location.pathname + window.location.search);
-                            setTimeout(() => navigate(route), 15);
-                            navigate(route);
+                            route = isInvitationAcceptFlow ? pathname : (window.location.pathname + window.location.search);
                         } else {
                             //Bookmarked URL's trigger a direct login and skip the landing page
                             login(res);
                         }
-                        setLoading(false);
+                        if (!isEmpty(route)) {
+                            setLoading(false);
+                            setTimeout(() => navigate(route), 50);
+                        }
                     } else {
                         me()
                             .then(res => {

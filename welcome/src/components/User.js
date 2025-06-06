@@ -12,7 +12,6 @@ export const User = ({user, invitationRoles = []}) => {
             <RoleCard key={index} index={index} application={application}/>
         );
     }
-
     const rolesToExclude = invitationRoles.map(invitationRole => invitationRole.role.id);
     const filteredUserRoles = user.userRoles
         .filter(userRole => userRole.authority === "GUEST" || userRole.guestRoleIncluded)
