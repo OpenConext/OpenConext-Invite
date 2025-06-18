@@ -33,7 +33,9 @@ public class UserRequest implements Serializable {
         this.userName = user.getEduPersonPrincipalName();
         this.name = new Name(user.getName(), user.getFamilyName(), user.getGivenName());
         this.displayName = user.getName();
-        this.emails = Collections.singletonList(new Email(user.getEmail()));
+        //Add the email as multiple types for remote systems that require that
+        this.emails = List.of(new Email("work",user.getEmail()),new Email("other",user.getEmail()));
+        //Add a default phonenumber, for remote systems that require that
         this.phoneNumbers = Collections.singletonList(new PhoneNumber("+31600000000"));
     }
 
