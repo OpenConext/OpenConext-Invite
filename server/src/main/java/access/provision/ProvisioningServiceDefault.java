@@ -529,7 +529,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 if (StringUtils.hasText(provisioning.getScimPassword())) {
                     headers.setBasicAuth(provisioning.getScimUser(), this.decryptScimPassword(provisioning));
                 } else if (StringUtils.hasText(provisioning.getScimBearerToken())) {
-                    headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", this.decryptScimBearerToken(provisioning)));
+                    String decryptedScimBearerToken = this.decryptScimBearerToken(provisioning);
+                    //For testing only, remove before prod
+                    LOG.debug(String.format("Inserting header Authorization: Bearer %s ",decryptedScimBearerToken));
+                    headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", decryptedScimBearerToken));
                 }
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
