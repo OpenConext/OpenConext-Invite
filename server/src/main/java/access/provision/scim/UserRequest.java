@@ -24,7 +24,9 @@ public class UserRequest implements Serializable {
     private final Name name;
     private String id;
     private final String displayName;
+    private final boolean active = true;
     private final List<Email> emails;
+    private final List<PhoneNumber> phoneNumbers;
 
     public UserRequest(User user, Provisioning provisioning) {
         this.externalId = this.resolveExternalId(user, provisioning);
@@ -32,6 +34,7 @@ public class UserRequest implements Serializable {
         this.name = new Name(user.getName(), user.getFamilyName(), user.getGivenName());
         this.displayName = user.getName();
         this.emails = Collections.singletonList(new Email(user.getEmail()));
+        this.phoneNumbers = Collections.singletonList(new PhoneNumber("+31600000000"));
     }
 
     public UserRequest(User user, Provisioning provisioning, String remoteScimIdentifier) {
