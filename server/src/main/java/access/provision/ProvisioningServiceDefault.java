@@ -465,7 +465,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                 ParameterizedTypeReference<T> typeReference,
                                 Provisioning provisioning) {
         try {
-            LOG.info(String.format("Send %s Provisioning request (protocol %s) with %s httpMethod %s and body %s to %s",
+            LOG.info(String.format("Send %s Provisioning request (protocol %s) with %s httpMethod %s and body %s " +
+                            "to provisioning-entityId %s",
                     api,
                     provisioning.getProvisioningType(),
                     requestEntity.getMethod(),
