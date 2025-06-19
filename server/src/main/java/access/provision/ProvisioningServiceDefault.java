@@ -389,6 +389,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         boolean isUser = provisionable instanceof User;
         String apiType = isUser ? USER_API : GROUP_API;
         RequestEntity<String> requestEntity = null;
+        boolean requiresRemoteIdentifier = false;
         if (hasEvaHook(provisioning) && isUser) {
             LOG.info(String.format("Provisioning new eva account for user %s and provisioning %s",
                     ((User) provisionable).getEmail(), provisioning.getEntityId()));
@@ -397,6 +398,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             LOG.info(String.format("Provisioning new SCIM account for provisionable %s and provisioning %s",
                     provisionable.getName(), provisioning.getEntityId()));
             URI uri = this.provisioningUri(provisioning, apiType, Optional.empty());
+            requiresRemoteIdentifier = true;
             requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), HttpMethod.POST, uri);
         } else if (hasGraphHook(provisioning) && isUser) {
             LOG.info(String.format("Provisioning new Graph user for provisionable %s and provisioning %s",
@@ -406,7 +408,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         }
         if (requestEntity != null) {
             Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
-            return Optional.of(new DefaultProvisioningResponse(String.valueOf(results.get("id"))));
+            String id = String.valueOf(results.get("id"));
+            if (!StringUtils.hasText(id) && requiresRemoteIdentifier) {
+                String errorMessage = String.format("Error in %s response %s send to entityID %s. ID is required, but empty SCIM request.",
+                        apiType,
+                        results,
+                        provisioning.getEntityId());
+                throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, null);
+            }
+            return Optional.of(new DefaultProvisioningResponse(id));
         }
         return Optional.empty();
 
@@ -475,14 +485,13 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     provisioning.getEntityId()));
             return restTemplate.exchange(requestEntity, typeReference).getBody();
         } catch (RestClientException e) {
-            LOG.error(String.format("Error from %s with original stack-trace", provisioning.getEntityId()), e);
-
             String errorMessage = String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
                     api,
                     provisioning.getEntityId(),
                     requestEntity.getUrl(),
                     requestEntity.getMethod(),
                     requestEntity.getBody());
+            LOG.error(errorMessage, e);
             throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, e);
         }
     }
@@ -531,7 +540,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 } else if (StringUtils.hasText(provisioning.getScimBearerToken())) {
                     String decryptedScimBearerToken = this.decryptScimBearerToken(provisioning);
                     //For testing only, remove before prod
-                    LOG.debug(String.format("Inserting header Authorization: Bearer %s ",decryptedScimBearerToken));
+                    LOG.debug(String.format("Inserting header Authorization: Bearer %s ", decryptedScimBearerToken));
                     headers.add(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", decryptedScimBearerToken));
                 }
                 headers.setContentType(MediaType.APPLICATION_JSON);

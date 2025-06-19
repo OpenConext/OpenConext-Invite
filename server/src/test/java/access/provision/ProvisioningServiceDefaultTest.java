@@ -2,6 +2,7 @@ package access.provision;
 
 import access.AbstractTest;
 import access.eduid.EduIDProvision;
+import access.exception.RemoteException;
 import access.model.*;
 import access.provision.scim.OperationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,8 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ProvisioningServiceDefaultTest extends AbstractTest {
 
@@ -27,12 +27,21 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     void newUserRequest() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         //See server/src/main/resources/manage/provisioning.json, applicationId="3"
-        this.stubForManageProvisioning(List.of("3"));
+        this.stubForManageProvisioning(List.of("7"));
         String remoteScimIdentifier = this.stubForCreateEvaUser();
         provisioningService.newUserRequest(user);
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
         assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+    }
+
+    @Test
+    void newUserRequestWithInvalidRemoteResponse() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        //We will return a SCIM provisioning app
+        this.stubForManageProvisioning(List.of("1"));
+        this.stubForCreateScimUser("");
+        assertThrows(RemoteException.class, () -> provisioningService.newUserRequest(user));
     }
 
     @Test

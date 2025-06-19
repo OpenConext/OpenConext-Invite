@@ -342,8 +342,8 @@ public abstract class AbstractTest {
         return builder.build();
     }
 
-    protected void stubForManageProvisioning(List<String> identifiers) throws JsonProcessingException {
-        List<Map<String, Object>> providers = localManage.provisioning(identifiers);
+    protected void stubForManageProvisioning(List<String> applicationIdentifiers) throws JsonProcessingException {
+        List<Map<String, Object>> providers = localManage.provisioning(applicationIdentifiers);
         String body = writeValueAsString(providers);
         stubFor(post(urlPathMatching("/manage/api/internal/provisioning"))
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
@@ -468,12 +468,16 @@ public abstract class AbstractTest {
 
     protected String stubForCreateScimUser() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
-        String body = objectMapper.writeValueAsString(Map.of("id", value));
+        return stubForCreateScimUser(value);
+    }
+
+    protected String stubForCreateScimUser(String idValue) throws JsonProcessingException {
+        String body = objectMapper.writeValueAsString(Map.of("id", idValue));
         stubFor(post(urlPathMatching("/api/scim/v2/users"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
-        return value;
+        return idValue;
     }
 
     protected String stubForCreateEvaUser() throws JsonProcessingException {

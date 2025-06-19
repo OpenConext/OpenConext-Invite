@@ -84,16 +84,16 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> provisioning(Collection<String> ids) {
-        LOG.debug("provisioning for : " + ids);
+    public List<Map<String, Object>> provisioning(Collection<String> applicationIdentifiers) {
+        LOG.debug("provisioning for : " + applicationIdentifiers);
 
-        if (CollectionUtils.isEmpty(ids)) {
+        if (CollectionUtils.isEmpty(applicationIdentifiers)) {
             return Collections.emptyList();
         }
         return providers(EntityType.PROVISIONING).stream()
                 .filter(map -> {
                     List<Map<String, String>> applications = (List<Map<String, String>>) map.get("applications");
-                    return applications.stream().anyMatch(m -> ids.contains(m.get("id")));
+                    return applications.stream().anyMatch(m -> applicationIdentifiers.contains(m.get("id")));
                 })
                 .collect(Collectors.toList());
     }

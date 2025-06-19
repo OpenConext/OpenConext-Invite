@@ -75,14 +75,14 @@ public class RemoteManage implements Manage {
 
 
     @Override
-    public List<Map<String, Object>> provisioning(Collection<String> ids) {
+    public List<Map<String, Object>> provisioning(Collection<String> applicationIdentifiers) {
         LOG.debug("provisionings for identifiers");
 
-        if (CollectionUtils.isEmpty(ids)) {
+        if (CollectionUtils.isEmpty(applicationIdentifiers)) {
             return emptyList();
         }
         String queryUrl = String.format("%s/manage/api/internal/provisioning", url);
-        return transformProvider(restTemplate.postForObject(queryUrl, ids, List.class));
+        return transformProvider(restTemplate.postForObject(queryUrl, applicationIdentifiers, List.class));
     }
 
     @Override

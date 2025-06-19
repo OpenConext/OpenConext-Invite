@@ -14,4 +14,5 @@ public record GraphResponse(String remoteIdentifier, String inviteRedeemUrl,
     public boolean isErrorResponse() {
         return errorResponse;
     }
+
 }

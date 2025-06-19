@@ -7,4 +7,5 @@ public interface ProvisioningResponse {
     String remoteIdentifier();
 
     boolean isErrorResponse();
+
 }

@@ -19,7 +19,7 @@ public interface Manage {
 
     List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers);
 
-    List<Map<String, Object>> provisioning(Collection<String> ids);
+    List<Map<String, Object>> provisioning(Collection<String> applicationIdentifiers);
 
     List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider);
 
