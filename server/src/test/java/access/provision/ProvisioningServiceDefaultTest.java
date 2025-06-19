@@ -27,7 +27,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     void newUserRequest() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         //See server/src/main/resources/manage/provisioning.json, applicationId="3"
-        this.stubForManageProvisioning(List.of("7"));
+        this.stubForManageProvisioning(List.of("3"));
         String remoteScimIdentifier = this.stubForCreateEvaUser();
         provisioningService.newUserRequest(user);
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
