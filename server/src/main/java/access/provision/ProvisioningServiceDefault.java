@@ -294,7 +294,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public void updateGroupRequest(List<String> previousManageIdentifiers, Role newRole, boolean nameChanged) {
-        //Immutable List can not be sorted
+        //Immutable List cannot be sorted
         List<String> previousManageIdentifiersSorted = previousManageIdentifiers.stream().sorted().toList();
         List<String> newManageIdentifiers = this.getManageIdentifiers(newRole);
         if (!nameChanged && previousManageIdentifiers.equals(newManageIdentifiers)) {
@@ -314,7 +314,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         List<String> deletedManageIdentifiers = previousManageIdentifiers.stream()
                 .filter(id -> !newManageIdentifiers.contains(id)).toList();
 
-        manage.provisioning(addedManageIdentifiers).stream().map(Provisioning::new)
+        manage.provisioning(addedManageIdentifiers).stream()
+                .map(Provisioning::new)
+                .filter(provisioning -> !provisioning.isScimUserProvisioningOnly())
                 .forEach(provisioning -> {
                     Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
                             .findByManageProvisioningIdAndRole(provisioning.getId(), newRole);
@@ -353,7 +355,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     private void deleteGroupRequest(Role role, List<Provisioning> provisionings) {
         //Delete the group to all provisionings in Manage where the group is known
-        provisionings.forEach(provisioning ->
+        provisionings
+                .stream()
+                .filter(provisioning -> !provisioning.isScimUserProvisioningOnly())
+                .forEach(provisioning ->
                 this.remoteProvisionedGroupRepository
                         .findByManageProvisioningIdAndRole(provisioning.getId(), role)
                         .ifPresent(remoteProvisionedGroup -> {
