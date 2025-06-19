@@ -136,9 +136,6 @@ public abstract class AbstractTest {
     @Autowired
     protected ApplicationUsageRepository applicationUsageRepository;
 
-    @Autowired
-    protected Manage manage;
-
     protected LocalManage localManage;
 
     @RegisterExtension
