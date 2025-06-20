@@ -1799,10 +1799,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@surfnet/sds@^0.0.137":
-  version "0.0.137"
-  resolved "https://registry.yarnpkg.com/@surfnet/sds/-/sds-0.0.137.tgz#7a82deb6635af37fe90311900bfe70bb0c70f3ec"
-  integrity sha512-Ta8xzgcMh5+W79G8Ulan4JAHAcgjopAfBI4x172M124weOlRkaL0I7WzTZ1IW38N1oGYp3LDd3KH++CbQURBjQ==
+"@surfnet/sds@^0.0.139":
+  version "0.0.139"
+  resolved "https://registry.yarnpkg.com/@surfnet/sds/-/sds-0.0.139.tgz#d6f0485dba2f483e0b3f71050f3ed5e257d9ec47"
+  integrity sha512-t0QphR5De7MjLOqYFX+GdD3r4GUNbapDwYcGB7kL/6KTyS5JjUhp822m5HjHD2R+WoticoNrSkqoM2SSzJuTDg==
 
 "@surma/rollup-plugin-off-main-thread@^2.2.3":
   version "2.2.3"
@@ -8143,10 +8143,10 @@ react-scripts@5.0.1:
   optionalDependencies:
     fsevents "^2.3.2"
 
-react-tooltip@^5.28.1:
-  version "5.28.1"
-  resolved "https://registry.yarnpkg.com/react-tooltip/-/react-tooltip-5.28.1.tgz#5b25c7c53ce008b7ad0685e9f516101d80925cbc"
-  integrity sha512-ZA4oHwoIIK09TS7PvSLFcRlje1wGZaxw6xHvfrzn6T82UcMEfEmHVCad16Gnr4NDNDh93HyN037VK4HDi5odfQ==
+react-tooltip@^5.29.1:
+  version "5.29.1"
+  resolved "https://registry.yarnpkg.com/react-tooltip/-/react-tooltip-5.29.1.tgz#ba0b80b04d66822590976d2a32f47544fd9feee2"
+  integrity sha512-rmJmEb/p99xWhwmVT7F7riLG08wwKykjHiMGbDPloNJk3tdI73oHsVOwzZ4SRjqMdd5/xwb/4nmz0RcoMfY7Bw==
   dependencies:
     "@floating-ui/dom" "^1.6.1"
     classnames "^2.3.0"
