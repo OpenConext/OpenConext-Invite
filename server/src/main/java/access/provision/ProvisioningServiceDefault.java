@@ -488,10 +488,13 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     requestEntity.getUrl(),
                     requestEntity.getBody(),
                     provisioning.getEntityId()));
-            T body = restTemplate.exchange(requestEntity, typeReference).getBody();
-
-            LOG.info(String.format("Received response %s for Provisioning request to provisioning-entityId %s",
-                    body, provisioning.getEntityId()));
+            ResponseEntity<T> responseEntity = restTemplate.exchange(requestEntity, typeReference);
+            T body = responseEntity.getBody();
+            HttpStatusCode statusCode = responseEntity.getStatusCode();
+            LOG.info(String.format("Received response with status %s and body %s for Provisioning request to provisioning-entityId %s",
+                    statusCode,
+                    body,
+                    provisioning.getEntityId()));
 
             return body;
         } catch (RestClientException e) {
