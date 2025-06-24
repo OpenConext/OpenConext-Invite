@@ -359,15 +359,15 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .stream()
                 .filter(provisioning -> !provisioning.isScimUserProvisioningOnly())
                 .forEach(provisioning ->
-                this.remoteProvisionedGroupRepository
-                        .findByManageProvisioningIdAndRole(provisioning.getId(), role)
-                        .ifPresent(remoteProvisionedGroup -> {
-                            String remoteIdentifier = remoteProvisionedGroup.getRemoteIdentifier();
-                            String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
-                            String groupRequest = prettyJson(new GroupRequest(externalId, remoteIdentifier, role.getName(), Collections.emptyList()));
-                            this.deleteRequest(provisioning, groupRequest, role, remoteIdentifier);
-                            this.remoteProvisionedGroupRepository.delete(remoteProvisionedGroup);
-                        }));
+                        this.remoteProvisionedGroupRepository
+                                .findByManageProvisioningIdAndRole(provisioning.getId(), role)
+                                .ifPresent(remoteProvisionedGroup -> {
+                                    String remoteIdentifier = remoteProvisionedGroup.getRemoteIdentifier();
+                                    String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
+                                    String groupRequest = prettyJson(new GroupRequest(externalId, remoteIdentifier, role.getName(), Collections.emptyList()));
+                                    this.deleteRequest(provisioning, groupRequest, role, remoteIdentifier);
+                                    this.remoteProvisionedGroupRepository.delete(remoteProvisionedGroup);
+                                }));
     }
 
     private String constructGroupRequest(Role role, String remoteGroupScimIdentifier, List<String> remoteUserScimIdentifiers) {
@@ -488,7 +488,12 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     requestEntity.getUrl(),
                     requestEntity.getBody(),
                     provisioning.getEntityId()));
-            return restTemplate.exchange(requestEntity, typeReference).getBody();
+            T body = restTemplate.exchange(requestEntity, typeReference).getBody();
+
+            LOG.info(String.format("Received response %s for Provisioning request to provisioning-entityId %s",
+                    body, provisioning.getEntityId()));
+
+            return body;
         } catch (RestClientException e) {
             String errorMessage = String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
                     api,
