@@ -413,7 +413,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         }
         if (requestEntity != null) {
             Map<String, Object> results = doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
-            String id = String.valueOf(results.get("id"));
+            String id = (String) results.get("id");
             if (!StringUtils.hasText(id) && requiresRemoteIdentifier) {
                 String errorMessage = String.format("Error in %s response %s send to entityID %s. ID is required, but empty SCIM request.",
                         apiType,
