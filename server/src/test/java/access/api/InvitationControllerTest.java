@@ -497,7 +497,7 @@ class InvitationControllerTest extends AbstractTest {
                 .then()
                 .statusCode(201);
         //Now assert the correct scim_identifier was used
-        List<LoggedRequest> requests = findAll(postRequestedFor(urlPathMatching("/api/scim/v2/users")));
+        List<LoggedRequest> requests = findAll(postRequestedFor(urlPathMatching("/api/scim/v2/Users")));
         assertEquals(1, requests.size());
 
         Map<String, Object> request = objectMapper.readValue(requests.get(0).getBodyAsString(), new TypeReference<>() {

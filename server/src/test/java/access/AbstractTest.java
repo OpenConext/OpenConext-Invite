@@ -433,7 +433,7 @@ public abstract class AbstractTest {
     }
 
     protected void stubForDeleteScimUser() {
-        stubFor(delete(urlPathMatching("/api/scim/v2/users/(.*)"))
+        stubFor(delete(urlPathMatching("/api/scim/v2/Users/(.*)"))
                 .willReturn(aResponse()
                         .withStatus(201)));
     }
@@ -451,7 +451,7 @@ public abstract class AbstractTest {
     }
 
     protected void stubForDeleteScimRole() {
-        stubFor(delete(urlPathMatching("/api/scim/v2/groups/(.*)"))
+        stubFor(delete(urlPathMatching("/api/scim/v2/Groups/(.*)"))
                 .willReturn(aResponse()
                         .withStatus(201)));
     }
@@ -459,7 +459,7 @@ public abstract class AbstractTest {
     protected String stubForCreateScimRole() throws JsonProcessingException {
         String value = UUID.randomUUID().toString();
         String body = objectMapper.writeValueAsString(Map.of("id", value));
-        stubFor(post(urlPathMatching("/api/scim/v2/groups"))
+        stubFor(post(urlPathMatching("/api/scim/v2/Groups"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
@@ -473,7 +473,7 @@ public abstract class AbstractTest {
 
     protected String stubForCreateScimUser(String idValue) throws JsonProcessingException {
         String body = objectMapper.writeValueAsString(Map.of("id", idValue));
-        stubFor(post(urlPathMatching("/api/scim/v2/users"))
+        stubFor(post(urlPathMatching("/api/scim/v2/Users"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(body)));
@@ -512,7 +512,7 @@ public abstract class AbstractTest {
     }
 
     protected void stubForUpdateScimUser() {
-        stubFor(put(urlPathMatching("/api/scim/v2/users/(.*)"))
+        stubFor(put(urlPathMatching("/api/scim/v2/Users/(.*)"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                 ));
@@ -536,14 +536,14 @@ public abstract class AbstractTest {
     }
 
     protected void stubForUpdateScimRole() {
-        stubFor(put(urlPathMatching("/api/scim/v2/groups/(.*)"))
+        stubFor(put(urlPathMatching("/api/scim/v2/Groups/(.*)"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                 ));
     }
 
     protected void stubForUpdateScimRolePatch() {
-        stubFor(patch(urlPathMatching(String.format("/api/scim/v2/groups/(.*)")))
+        stubFor(patch(urlPathMatching(String.format("/api/scim/v2/Groups/(.*)")))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                 ));

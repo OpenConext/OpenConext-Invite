@@ -40,8 +40,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class ProvisioningServiceDefault implements ProvisioningService {
 
-    public final static String USER_API = "users";
-    public final static String GROUP_API = "groups";
+    public final static String USER_API = "Users";
+    public final static String GROUP_API = "Groups";
 
     private static final Log LOG = LogFactory.getLog(ProvisioningServiceDefault.class);
 

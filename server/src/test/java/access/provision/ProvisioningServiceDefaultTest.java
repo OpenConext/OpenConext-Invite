@@ -72,7 +72,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         this.stubForManageProvisioning(List.of("1", "4", "5"));
         this.stubForUpdateScimUser();
         provisioningService.updateUserRequest(user);
-        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching(String.format("/api/scim/v2/users/(.*)"))));
+        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching(String.format("/api/scim/v2/Users/(.*)"))));
 
         assertEquals(1, loggedRequests.size());
         Map<String, Object> userRequest = objectMapper.readValue(loggedRequests.get(0).getBodyAsString(), Map.class);

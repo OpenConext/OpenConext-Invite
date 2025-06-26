@@ -568,7 +568,7 @@ class UserControllerTest extends AbstractTest {
         //This will trigger the SCIM update request, see CustomOidcUserService#loadUser
         openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
 
-        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching("/api/scim/v2/users/(.*)")));
+        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching("/api/scim/v2/Users/(.*)")));
 
         assertEquals(1, loggedRequests.size());
         Map<String, Object> userRequest = objectMapper.readValue(loggedRequests.get(0).getBodyAsString(), Map.class);
