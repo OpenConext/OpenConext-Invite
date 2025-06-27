@@ -19,7 +19,7 @@ class SCIMControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(Map.of("user", "test"))
-                .post("/api/scim/v2/users")
+                .post("/api/scim/v2/Users")
                 .as(Map.class);
         String id = (String) result.get("id");
         assertNotNull(id);
@@ -30,7 +30,7 @@ class SCIMControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .body(Map.of("user", "test"))
                 .pathParams("id", id)
-                .put("/api/scim/v2/users/{id}")
+                .put("/api/scim/v2/Users/{id}")
                 .as(Map.class);
         assertNotNull(result.get("id"));
 
@@ -39,7 +39,7 @@ class SCIMControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("id", id)
-                .delete("/api/scim/v2/users/{id}")
+                .delete("/api/scim/v2/Users/{id}")
                 .then()
                 .statusCode(201);
 
@@ -54,7 +54,7 @@ class SCIMControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .body(Map.of("user", "test"))
                 .pathParams("id", UUID.randomUUID().toString())
-                .patch("api/scim/v2/groups/{id}")
+                .patch("api/scim/v2/Groups/{id}")
                 .as(Map.class);
         assertNotNull(result.get("id"));
         assertEquals(1, provisioningRepository.count());
@@ -68,7 +68,7 @@ class SCIMControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .body(Map.of("user", "test"))
                 .pathParams("id", UUID.randomUUID().toString())
-                .put("api/scim/v2/groups/{id}")
+                .put("api/scim/v2/Groups/{id}")
                 .as(Map.class);
         assertNotNull(result.get("id"));
         assertEquals(1, provisioningRepository.count());

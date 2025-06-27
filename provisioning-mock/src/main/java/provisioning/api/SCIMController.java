@@ -34,100 +34,100 @@ public class SCIMController {
         this.objectMapper = objectMapper;
     }
 
-    @PostMapping("/users")
+    @PostMapping("/Users")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody Map<String, Object> user) {
-        LOG.info("/api/scim/v2/users POST " + user);
+        LOG.info("/api/scim/v2/Users POST " + user);
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(user),
                 HttpMethod.POST,
                 ResourceType.USERS,
-                "/api/scim/v2/users"
+                "/api/scim/v2/Users"
         ));
         String id = UUID.randomUUID().toString();
         Map<String, String> results = Collections.singletonMap("id", id);
-        LOG.info("/api/scim/v2/users POST Results: " + results);
+        LOG.info("/api/scim/v2/Users POST Results: " + results);
         return ResponseEntity.ok(results);
     }
 
-    @PutMapping("/users/{id}")
+    @PutMapping("/Users/{id}")
     public ResponseEntity<Map<String, String>> updateUser(@PathVariable("id") String id, @RequestBody Map<String, Object> user) {
-        LOG.info("/api/scim/v2/users/" + id + " PUT " + user);
+        LOG.info("/api/scim/v2/Users/" + id + " PUT " + user);
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(user),
                 HttpMethod.PUT,
                 ResourceType.USERS,
-                "/api/scim/v2/users/" + id
+                "/api/scim/v2/Users/" + id
         ));
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/Users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") String id) {
-        LOG.info("/api/scim/v2/users/" + id + " DELETE");
+        LOG.info("/api/scim/v2/Users/" + id + " DELETE");
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(Map.of("id", id)),
                 HttpMethod.DELETE,
                 ResourceType.USERS,
-                "/api/scim/v2/users/" + id
+                "/api/scim/v2/Users/" + id
         ));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/groups")
+    @PostMapping("/Groups")
     public ResponseEntity<Map<String, String>> createGroup(@RequestBody Map<String, Object> group) {
-        LOG.info("/api/scim/v2/groups POST " + group);
+        LOG.info("/api/scim/v2/Groups POST " + group);
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(group),
                 HttpMethod.POST,
                 ResourceType.GROUPS,
-                "/api/scim/v2/groups"
+                "/api/scim/v2/Groups"
         ));
         Map<String, String> results = Collections.singletonMap("id", UUID.randomUUID().toString());
-        LOG.info("/api/scim/v2/groups POST Results: " + results);
+        LOG.info("/api/scim/v2/Groups POST Results: " + results);
         return ResponseEntity.ok(results);
     }
 
-    @PatchMapping("/groups/{id}")
+    @PatchMapping("/Groups/{id}")
     public ResponseEntity<Map<String, String>> patchGroup(@PathVariable("id") String id, @RequestBody Map<String, Object> group) {
-        LOG.info("/api/scim/v2/groups/" + id + " PATCH " + group);
+        LOG.info("/api/scim/v2/Groups/" + id + " PATCH " + group);
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(group),
                 HttpMethod.PATCH,
                 ResourceType.GROUPS,
-                "/api/scim/v2/groups/" + id
+                "/api/scim/v2/Groups/" + id
         ));
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
-    @PutMapping("/groups/{id}")
+    @PutMapping("/Groups/{id}")
     public ResponseEntity<Map<String, String>> updateGroup(@PathVariable("id") String id, @RequestBody Map<String, Object> group) {
-        LOG.info("/api/scim/v2/groups/" + id + " PUT " + group);
+        LOG.info("/api/scim/v2/Groups/" + id + " PUT " + group);
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(group),
                 HttpMethod.PUT,
                 ResourceType.GROUPS,
-                "/api/scim/v2/groups/" + id
+                "/api/scim/v2/Groups/" + id
         ));
 
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
 
-    @DeleteMapping("/groups/{id}")
+    @DeleteMapping("/Groups/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable("id") String id) {
-        LOG.info("/api/scim/v2/groups/" + id + " DELETE");
+        LOG.info("/api/scim/v2/Groups/" + id + " DELETE");
         provisioningRepository.save(new Provisioning(
                 ProvisioningType.scim,
                 objectMapper.valueToTree(Map.of("id", id)),
                 HttpMethod.DELETE,
                 ResourceType.GROUPS,
-                "/api/scim/v2/groups/" + id
+                "/api/scim/v2/Groups/" + id
         ));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
