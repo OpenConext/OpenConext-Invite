@@ -23,7 +23,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - name: lint markdown files
-        uses: nosborn/github-action-markdown-cli@v3.4.0
+        uses: nosborn/github-action-markdown-cli@v3.5.0
         with:
           files: .
 
