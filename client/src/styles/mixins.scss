@@ -29,6 +29,11 @@
     display: grid;
     grid-template-columns: [first] 1fr [second] 1fr;
 
+    @media (max-width: $medium) {
+        padding: 0 15px;
+        grid-template-columns: [first] 1fr;
+    }
+
     .input-field, .select-field, .date-field, .error-indication, .sds--checkbox-container {
         grid-column-start: first;
     }
