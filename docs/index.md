@@ -23,8 +23,8 @@ or Selfservice Portal.
 
 - [API documentation](./api/)
 - SCIM
-  - [Protocol description](./SCIM/)
-  - [Gateway Software](./scimgateway.md)
+  - [Protocol description](./SCIM/) - 
+  - [Gateway Software](./scimgateway.md) - Dit is een voorbeeld: hierop is GEEN ondersteuning van SURF
 - [Archimate Model](./Archi/?view=id-942fd1b8aeda45388631ddde7877a745)
 - [Swagger](https://invite.test.surfconext.nl/ui/swagger-ui/index.html)
 - [Code](https://github.com/OpenConext/OpenConext-Invite/)
