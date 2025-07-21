@@ -220,7 +220,7 @@ public class InvitationController implements InvitationResource {
                         }
                     } else {
                         UserRole userRole = new UserRole(
-                                inviter.getName(),
+                                inviter != null ? inviter.getName() : invitation.getRemoteApiUser(),
                                 user,
                                 role,
                                 intendedAuthority,
@@ -230,7 +230,7 @@ public class InvitationController implements InvitationResource {
                         newUserRoles.add(userRole);
                     }
                 });
-        if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
+        if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN) && inviter != null) {
             user.setInstitutionAdmin(true);
             user.setInstitutionAdminByInvite(true);
             //Might be that a super-user has invited the institution admin or a different institution admin
