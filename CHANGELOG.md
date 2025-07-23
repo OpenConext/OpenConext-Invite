@@ -6,13 +6,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.0.33
+
+- Lower mobile breakpoint to avoid mobile view on half of the desktop size
+- Bugfix for accepting an invitation created by remote API user
+
+## 0.0.32
+
+- Bugfix for not redirecting to invitation
+- Bugfix for scim bearer token
+- Bugfix for accepting invitation in client
+- Add active and phoneNumers to SCIM messages
+- Handle empty SCIM provisioning response
+- Fix scim_user_provisioning_only function
+- Improve error log on missing ID in SCIM message
+- Add more logging
+- API endpoint '/v2/users' renamed to '/v2/Users', /groups to /Groups
+- Remove identifiers from SCIM patch request
+
+## 0.0.31
+
+- Avoid deadlocks when trying to create roles with the same subset of applications under heavy load
+
 ## 0.0.30
 
-- Add support for longer secrets (e.g. bearer tokens) in provisioning configuration
+- Use the new CompoundKeyStore for secrets in Manage
 
 ## 0.0.29
 
 - Add more logging
+- Fix plain text invitation email link
+- Return to role instead of index after deleting people
+- Make authority names more consistent
 
 ## 0.0.28
 
