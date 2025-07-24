@@ -19,6 +19,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,9 +82,11 @@ public class ManageController {
         LOG.debug(String.format("GET /manage/organization-guid-validation guid: %s for user %s", organizationGUID, user.getEduPersonPrincipalName()));
 
         UserPermissions.assertSuperUser(user);
-        Map<String, Object> identityProvider = manage.identityProviderByInstitutionalGUID(organizationGUID)
-                .orElseThrow(() -> new NotFoundException("No identity provider with organizationGUID: " + organizationGUID));
-        return ResponseEntity.ok(identityProvider);
+        List<Map<String, Object>> identityProviders = manage.identityProvidersByInstitutionalGUID(organizationGUID);
+        if (CollectionUtils.isEmpty(identityProviders)) {
+            new NotFoundException("No identity provider with organizationGUID: " + organizationGUID);
+        }
+        return ResponseEntity.ok(identityProviders.getFirst());
     }
 
     @GetMapping("applications")

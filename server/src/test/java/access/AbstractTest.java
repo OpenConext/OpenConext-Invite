@@ -3,7 +3,6 @@ package access;
 import access.config.HashGenerator;
 import access.manage.EntityType;
 import access.manage.LocalManage;
-import access.manage.Manage;
 import access.model.*;
 import access.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -354,7 +353,7 @@ public abstract class AbstractTest {
 
     protected void stubForManageProvidersAllowedByIdP(String organisationGUID) throws JsonProcessingException {
         String postPath = "/manage/api/internal/search/%s";
-        Map<String, Object> identityProvider = localManage.identityProviderByInstitutionalGUID(organisationGUID).get();
+        Map<String, Object> identityProvider = localManage.identityProvidersByInstitutionalGUID(organisationGUID).get(0);
         stubFor(post(urlPathMatching(String.format(postPath, EntityType.SAML20_IDP.collectionName()))).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(List.of(identityProvider)))));

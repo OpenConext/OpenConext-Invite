@@ -168,7 +168,7 @@ public class RoleController implements ApplicationResource {
 
     @PutMapping("")
     @Retryable(
-            value = { SQLTransactionRollbackException.class },
+            retryFor = { SQLTransactionRollbackException.class },
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000)
     )

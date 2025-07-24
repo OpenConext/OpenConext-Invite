@@ -99,27 +99,40 @@ public final class LocalManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
-        LOG.debug("providersAllowedByIdP for : " + identityProvider.get("type"));
-
-        Boolean allowedAll = (Boolean) identityProvider.getOrDefault("allowedall", Boolean.FALSE);
+    public List<Map<String, Object>> providersAllowedByIdPs(List<Map<String, Object>> identityProviders) {
+        if (identityProviders.isEmpty()) {
+            return emptyList();
+        }
         List<Map<String, Object>> allProviders = this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
-        if (allowedAll) {
+        if (identityProviders.stream()
+                .anyMatch(idp -> (Boolean) idp.getOrDefault("allowedall", Boolean.FALSE))) {
             return allProviders;
         }
-        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
-        List<String> entityIdentifiers = allowedEntities.stream().map(m -> m.get("name")).toList();
+        List<String> entityIdentifiers = identityProviders.stream()
+                .map(idp -> (List<Map<String, String>>) idp.getOrDefault("allowedEntities", emptyList()))
+                .flatMap(Collection::stream)
+                .map(m -> m.get("name"))
+                .distinct()
+                .toList();
         return allProviders.stream().filter(provider -> entityIdentifiers.contains((String) provider.get("entityid"))).toList();
+
     }
 
     @Override
-    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
+    public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
+        LOG.debug("providersAllowedByIdP for : " + identityProvider.get("type"));
+
+        return this.providersAllowedByIdPs(List.of(identityProvider));
+    }
+
+    @Override
+    public List<Map<String, Object>> identityProvidersByInstitutionalGUID(String organisationGUID) {
         LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);
 
         List<Map<String, Object>> providers = providers(EntityType.SAML20_IDP);
         return providers
                 .stream()
                 .filter(provider -> Objects.equals(provider.get("institutionGuid"), organisationGUID))
-                .findAny();
+                .toList();
     }
 }

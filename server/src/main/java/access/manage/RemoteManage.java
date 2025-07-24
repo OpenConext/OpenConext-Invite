@@ -86,16 +86,22 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
-        LOG.debug("providersAllowedByIdP for : " + identityProvider.get("type"));
-
-        Boolean allowedAll = (Boolean) identityProvider.getOrDefault("allowedall", Boolean.FALSE);
-        if (allowedAll) {
+    public List<Map<String, Object>> providersAllowedByIdPs(List<Map<String, Object>> identityProviders) {
+        LOG.debug("providersAllowedByIdPs");
+        if (identityProviders.isEmpty()) {
+            return emptyList();
+        }
+        if (identityProviders.stream()
+                .anyMatch(idp -> (Boolean) idp.getOrDefault("allowedall", Boolean.FALSE))) {
             return this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
         }
-        List<Map<String, String>> allowedEntities = (List<Map<String, String>>) identityProvider.getOrDefault("allowedEntities", emptyList());
-        String split = allowedEntities.stream().map(m -> "\"" + m.get("name") + "\"")
+        String split = identityProviders.stream()
+                .map(idp -> (List<Map<String, String>>) idp.getOrDefault("allowedEntities", emptyList()))
+                .flatMap(Collection::stream)
+                .map(m -> "\"" + m.get("name") + "\"")
+                .distinct()
                 .collect(Collectors.joining(","));
+
         String body = String.format("{\"data.entityid\":{\"$in\":[%s]}}", split);
         List<Map<String, Object>> results = new ArrayList<>();
         List.of(EntityType.SAML20_SP, EntityType.OIDC10_RP).forEach(entityType -> {
@@ -109,7 +115,14 @@ public class RemoteManage implements Manage {
     }
 
     @Override
-    public Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID) {
+    public List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider) {
+        LOG.debug("providersAllowedByIdP for : " + identityProvider.get("type"));
+
+        return this.providersAllowedByIdPs(List.of(identityProvider));
+    }
+
+    @Override
+    public List<Map<String, Object>> identityProvidersByInstitutionalGUID(String organisationGUID) {
         LOG.debug("identityProviderByInstitutionalGUID for : " + organisationGUID);
 
         Map<String, Object> baseQuery = getBaseQuery();
@@ -122,7 +135,7 @@ public class RemoteManage implements Manage {
         List<Map<String, Object>> identityProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_IDP.collectionName()),
                 baseQuery, List.class);
-        return identityProviders.isEmpty() ? Optional.empty() : Optional.of(transformProvider(identityProviders.get(0)));
+        return transformProvider(identityProviders);
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type) {

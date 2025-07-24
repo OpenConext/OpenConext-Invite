@@ -146,7 +146,7 @@ class ManageControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
         String postPath = "/manage/api/internal/search/%s";
-        Map<String, Object> localIdentityProvider = localManage.identityProviderByInstitutionalGUID(ORGANISATION_GUID).get();
+        Map<String, Object> localIdentityProvider = localManage.identityProvidersByInstitutionalGUID(ORGANISATION_GUID).get(0);
         stubFor(post(urlPathMatching(String.format(postPath, EntityType.SAML20_IDP.collectionName()))).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(List.of(localIdentityProvider)))));

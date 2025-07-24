@@ -23,7 +23,9 @@ public interface Manage {
 
     List<Map<String, Object>> providersAllowedByIdP(Map<String, Object> identityProvider);
 
-    Optional<Map<String, Object>> identityProviderByInstitutionalGUID(String organisationGUID);
+    List<Map<String, Object>> providersAllowedByIdPs(List<Map<String, Object>> identityProviders);
+
+    List<Map<String, Object>> identityProvidersByInstitutionalGUID(String organisationGUID);
 
     default List<Map<String, Object>> transformProvider(List<Map<String, Object>> providers) {
         //Defensive because of Manage misbehaviour
@@ -151,9 +153,9 @@ public interface Manage {
         Map<String, Object> claims = new HashMap<>();
         claims.put(INSTITUTION_ADMIN, true);
         claims.put(ORGANIZATION_GUID, organizationGUID);
-        Optional<Map<String, Object>> optionalIdentityProvider = identityProviderByInstitutionalGUID(organizationGUID);
-        claims.put(INSTITUTION, optionalIdentityProvider.orElse(null));
-        List<Map<String, Object>> applications = optionalIdentityProvider.map(this::providersAllowedByIdP).orElse(Collections.emptyList());
+        List<Map<String, Object>> identityProviders = identityProvidersByInstitutionalGUID(organizationGUID);
+        claims.put(INSTITUTION, identityProviders.size() == 0 ? null : identityProviders.getFirst());
+        List<Map<String, Object>> applications = this.providersAllowedByIdPs(identityProviders);
         claims.put(APPLICATIONS, applications);
         return claims;
     }

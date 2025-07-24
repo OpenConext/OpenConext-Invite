@@ -21,10 +21,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -115,11 +112,7 @@ public class InvitationOperations {
         if (!invitationRequest.isSuppressSendingEmails()) {
 
             invitations.forEach(invitation -> {
-                Optional<String> idpName = Optional.ofNullable(invitation.getOrganizationGUID())
-                        .map(organisationGUID -> this.invitationResource.getManage().identityProviderByInstitutionalGUID(organisationGUID))
-                        .flatMap(optional -> optional)
-                        .map(idp -> (String) idp.get("name:en"));
-
+                Optional<String> idpName = this.identityProviderName(invitation);
                 mailBox.sendInviteMail(user == null ? remoteUser : user,
                         invitation, groupedProviders, invitationRequest.getLanguage(), idpName);
             });
@@ -150,10 +143,7 @@ public class InvitationOperations {
 
         List<GroupedProviders> groupedProviders = this.invitationResource.getManage().getGroupedProviders(requestedRoles);
         Provisionable provisionable = user != null ? user : remoteUser;
-        Optional<String> idpName = Optional.ofNullable(invitation.getOrganizationGUID())
-                .map(organisationGUID -> this.invitationResource.getManage().identityProviderByInstitutionalGUID(organisationGUID))
-                .flatMap(optional -> optional)
-                .map(idp -> (String) idp.get("name:en"));
+        Optional<String> idpName = identityProviderName(invitation);
 
         this.invitationResource.getMailBox()
                 .sendInviteMail(provisionable,
@@ -169,6 +159,16 @@ public class InvitationOperations {
         AccessLogger.invitation(LOG, Event.Resend, invitation);
 
         return Results.createResult();
+    }
+
+    private Optional<String> identityProviderName(Invitation invitation) {
+        return Optional.ofNullable(invitation.getOrganizationGUID())
+                .map(organisationGUID -> this.invitationResource.getManage().identityProvidersByInstitutionalGUID(organisationGUID))
+                .stream()
+                .flatMap(Collection::stream)
+                .findFirst()
+                .map(idp -> (String) idp.get("name:en"));
+
     }
 
 }
