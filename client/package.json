@@ -10,10 +10,10 @@
     "js-cookie": "^3.0.5",
     "lodash.debounce": "^4.0.8",
     "luxon": "^3.7.1",
-    "react": "^19.1.0",
+    "react": "^19.1.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-datepicker": "8.4.0",
-    "react-dom": "^19.1.0",
+    "react-dom": "^19.1.1",
     "react-router": "^7.7.1",
     "react-router-dom": "^7.7.1",
     "react-select": "^5.10.2",
@@ -21,7 +21,7 @@
     "timeago.js": "^4.0.2",
     "tough-cookie": "^5.1.2",
     "word-wrap": "^1.2.5",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
