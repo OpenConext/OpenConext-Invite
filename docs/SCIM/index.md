@@ -117,7 +117,7 @@ dan sturen we een geupdate user-object naar alle service providers waar deze geb
 #### Request
 
 ```curl
-PUT /v1/users/{UserID at SP}  HTTP/1.1
+PUT /v1/Users/{UserID at SP}  HTTP/1.1
 Accept: application/json
 Authorization: Basic dXNlcjpwYXNzd29yZA==
 Host: example.com
@@ -182,7 +182,7 @@ Niet actieve gebruikers worden na X dagen verwijderd uit de invite applicatie, e
 #### Request
 
 ```curl
-DELETE /users/{UserID at SP}  HTTP/1.1
+DELETE /v1/Users/{UserID at SP}  HTTP/1.1
 Accept: application/json
 Authorization: Basic dXNlcjpwYXNzd29yZA==
 Host: example.com
@@ -384,7 +384,7 @@ Als groepen worden verwijderd vanuit de invite applicatie wordt dit ook doorgege
 #### Request
 
 ```curl
-DELETE /groups/{GroupID at SP}  HTTP/1.1
+DELETE /v1/Groups/{GroupID at SP}  HTTP/1.1
 Accept: application/json
 Authorization: Basic dXNlcjpwYXNzd29yZA==
 Host: example.com
