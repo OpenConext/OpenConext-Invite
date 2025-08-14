@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.joining;
 
 @SuppressWarnings("unchecked")
 public class RemoteManage implements Manage {
@@ -45,30 +46,39 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        LOG.debug("providersByIdIn: " + entityType);
+        LOG.debug(String.format("providersByIdIn (%s) %s", entityType, identifiers.stream().collect(joining(") (", "(", ")"))));
         if (CollectionUtils.isEmpty(identifiers)) {
+            LOG.debug("No identifiers in providersByIdIn");
             return emptyList();
         }
-        String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(Collectors.joining(","));
+        String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(joining(","));
         String body = String.format("{ \"id\": { \"$in\": [%s]}}", param);
         String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, entityType.collectionName());
         List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
+        if (providers != null) {
+            LOG.debug(String.format("Got %d results for providersByIdIn", providers.size()));
+        }
         return transformProvider(providers);
     }
 
     @Override
     public Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID) {
-        LOG.debug("providerByEntityID: " + entityType);
+        LOG.debug(String.format("providerByEntityID (%s) %s", entityType, entityID));
+
         String body = String.format("{\"data.entityid\":\"%s\"}", entityID);
         String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, entityType.collectionName());
         List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
         List<Map<String, Object>> allProviders = transformProvider(providers);
+        if (allProviders != null) {
+            LOG.debug(String.format("Got %d results for providerByEntityID", allProviders.size()));
+        }
         return allProviders.isEmpty() ? Optional.empty() : Optional.of(allProviders.get(0));
     }
 
     @Override
     public Map<String, Object> providerById(EntityType entityType, String id) {
-        LOG.debug("providerById: " + entityType);
+        LOG.debug(String.format("providerById (%s) %s", entityType, id));
+
         String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.collectionName(), id);
         return transformProvider(restTemplate.getForEntity(queryUrl, Map.class).getBody());
     }
@@ -79,6 +89,7 @@ public class RemoteManage implements Manage {
         LOG.debug("provisionings for identifiers");
 
         if (CollectionUtils.isEmpty(applicationIdentifiers)) {
+            LOG.debug("No applicationIdentifiers in provisioning");
             return emptyList();
         }
         String queryUrl = String.format("%s/manage/api/internal/provisioning", url);
@@ -89,6 +100,7 @@ public class RemoteManage implements Manage {
     public List<Map<String, Object>> providersAllowedByIdPs(List<Map<String, Object>> identityProviders) {
         LOG.debug("providersAllowedByIdPs");
         if (identityProviders.isEmpty()) {
+            LOG.debug("No identityProviders in providersAllowedByIdPs");
             return emptyList();
         }
         if (identityProviders.stream()
@@ -100,7 +112,7 @@ public class RemoteManage implements Manage {
                 .flatMap(Collection::stream)
                 .map(m -> "\"" + m.get("name") + "\"")
                 .distinct()
-                .collect(Collectors.joining(","));
+                .collect(joining(","));
 
         String body = String.format("{\"data.entityid\":{\"$in\":[%s]}}", split);
         List<Map<String, Object>> results = new ArrayList<>();
@@ -111,6 +123,7 @@ public class RemoteManage implements Manage {
             List<Map<String, Object>> transformedProviders = transformProvider(providers);
             results.addAll(transformedProviders);
         });
+        LOG.debug(String.format("Got %d results for providersAllowedByIdPs", results.size()));
         return results;
     }
 
@@ -135,6 +148,9 @@ public class RemoteManage implements Manage {
         List<Map<String, Object>> identityProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_IDP.collectionName()),
                 baseQuery, List.class);
+        if (identityProviders != null) {
+            LOG.debug(String.format("Got %d results for identityProvidersByInstitutionalGUID", identityProviders.size()));
+        }
         return transformProvider(identityProviders);
     }
 
