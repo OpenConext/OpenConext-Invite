@@ -64,7 +64,7 @@ div.mod-tokens {
         width: 100%;
         margin: 40px auto 25px auto;
 
-        @media (max-width: $tablet-max) {
+        @media (max-width: $medium) {
             flex-direction: column;
         }
 
@@ -86,7 +86,7 @@ div.mod-tokens {
         div.new-token {
             width: 60%;
 
-            @media (max-width: $tablet-max) {
+            @media (max-width: $medium) {
                 padding: 15px;
                 width: 100%;
             }

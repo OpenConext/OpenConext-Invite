@@ -144,7 +144,8 @@ public class SecurityConfig {
                                 "/api/v1/users/ms-accept-return/**",
                                 "/api/v1/validations/**",
                                 "/ui/**",
-                                "/internal/**")
+                                "/internal/health",
+                                "/internal/info")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
@@ -201,10 +202,12 @@ public class SecurityConfig {
                         "/api/deprovision/**",
                         "/api/external/v1/deprovision/**",
                         "/api/internal/invite/**",
-                        "/api/external/v1/internal/invite/**"
+                        "/api/external/v1/internal/invite/**",
+                        "/internal/prometheus"
                 ).sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                ).authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/internal/prometheus").hasRole("ACTUATOR"))
                 .authorizeHttpRequests(c -> c
                         //The API token is secured in the UserHandlerMethodArgumentResolver
                         .requestMatchers(apiTokenRequestMatcher)

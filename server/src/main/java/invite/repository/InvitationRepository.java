@@ -1,5 +1,6 @@
 package invite.repository;
 
+import invite.model.Authority;
 import invite.model.Invitation;
 import invite.model.Role;
 import invite.model.Status;
@@ -28,6 +29,8 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     List<Invitation> findByStatus(Status status);
 
     List<Invitation> findByStatusAndRoles_role(Status status, Role role);
+
+    long countByStatus(Status status);
 
     @Query(value = """
             SELECT i.id, i.email, i.remote_api_user, i.intended_authority, i.created_at, i.expiry_date,

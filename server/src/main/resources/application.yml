@@ -146,6 +146,10 @@ external-api-configuration:
       password: "secret"
       scopes:
         - lifecycle
+    - username: internal
+      password: "secret"
+      scopes:
+        - actuator
     - username: profile
       password: "secret"
       scopes:
@@ -218,24 +222,23 @@ springdoc:
       use-basic-authentication-with-access-code-grant: true
 
 management:
-  health:
-    mail:
-      enabled: false
   endpoints:
     web:
       exposure:
-        include: "health,info,mappings,metrics"
+        include: "health,info,prometheus"
       base-path: "/internal"
   endpoint:
     info:
-      enabled: true
+      access: unrestricted
     health:
-      enabled: true
-      show-details: always
+      access: unrestricted
+      show-details: when_authorized
+    prometheus:
+      access: unrestricted
     mappings:
-      enabled: true
+      access: none
     metrics:
-      enabled: false
+      access: unrestricted
   info:
     git:
       mode: full

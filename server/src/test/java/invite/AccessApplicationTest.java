@@ -13,7 +13,7 @@ class AccessApplicationTest {
 
     @Test
     void mainApp() {
-        ConfigurableApplicationContext applicationContext = SpringApplication.run(AccessServerApplication.class, new String[]{"--server.port=8098"});
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(InviteServerApplication.class, new String[]{"--server.port=8098"});
         RestAssured.port = 8098;
 
         given()

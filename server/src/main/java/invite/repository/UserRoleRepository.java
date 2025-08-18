@@ -31,6 +31,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
 
     List<UserRole> findByRoleName(String roleName);
 
+    long countByAuthority(Authority authority);
+
     @Modifying
     @Query(value = "DELETE FROM user_roles WHERE id = ?1", nativeQuery = true)
     @Transactional(isolation = Isolation.SERIALIZABLE)

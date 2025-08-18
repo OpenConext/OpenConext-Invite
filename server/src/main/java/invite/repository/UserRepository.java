@@ -23,6 +23,10 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
 
     List<User> findBySuperUserTrue();
 
+    long countBySuperUserTrue();
+
+    long countByInstitutionAdminTrue();
+
     Optional<User> findByEduPersonPrincipalNameIgnoreCase(String eppn);
 
     Optional<User> findByEmailIgnoreCase(String email);
