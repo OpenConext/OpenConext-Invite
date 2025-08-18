@@ -87,7 +87,7 @@ export const App = () => {
 
 
     return (
-        <div className="access">
+        <div className="invite">
             <div className="container">
                 <Flash/>
                 <Header/>

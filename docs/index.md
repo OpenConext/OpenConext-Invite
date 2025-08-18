@@ -2,14 +2,14 @@
 
 ## Intro
 
-This provides an application to manage access-roles for external (and
+This provides an application to manage invite-roles for external (and
 internal) users. A user is invited to join a role by email. Once the invite is
 accepted, the new user roles can be sent to external systems by
 [SCIM](https://datatracker.ietf.org/doc/html/rfc7643#section-4.1), graph API
 or email (ticketing system). Also a
 [VOOT](https://wiki.geant.org/display/gn3pjra3/VOOT+specifications) provider is
 available for publishing the users' memberships, for usage in SURFconext PDP
-rules or managing access in the application.
+rules or managing invite in the application.
 
 The application uses two different frontends. The first (inviter) is for
 managing roles and invites. The other web interface is for the guests, used

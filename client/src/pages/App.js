@@ -96,7 +96,7 @@ export const App = () => {
         return <Loader/>
     }
     return (
-        <div className="access">
+        <div className="invite">
             <div className="container">
                 <Flash/>
                 <Header/>

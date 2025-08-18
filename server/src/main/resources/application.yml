@@ -5,7 +5,7 @@ logging:
     com.zaxxer.hikari: ERROR
     org.mariadb.jdbc.message.server: ERROR
     org.springframework.security: INFO
-    access: DEBUG
+    invite: DEBUG
 #    sql: DEBUG
 #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 #    org.hibernate.orm.jdbc.bind: TRACE

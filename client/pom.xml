@@ -7,7 +7,7 @@
         <version>0.0.34-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>access-client</artifactId>
+    <artifactId>invite-client</artifactId>
     <packaging>pom</packaging>
     <name>invite-client</name>
     <build>
