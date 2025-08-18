@@ -152,7 +152,7 @@ export const Roles = () => {
     ];
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
-    const isManager = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
+    const isAllowedToCreateNewRole = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
     const isInstitutionAdmin = highestAuthority(user) === AUTHORITIES.INSTITUTION_ADMIN;
     const isGuest = highestAuthority(user) === AUTHORITIES.GUEST;
     if (isInstitutionAdmin && !isEmpty(user.institution) && roles.length === 0 && !searching) {
@@ -172,7 +172,7 @@ export const Roles = () => {
             {!isGuest && <Entities
                 entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
                 modelName="roles"
-                showNew={isManager}
+                showNew={isAllowedToCreateNewRole}
                 newLabel={I18n.t("roles.new")}
                 newEntityPath={"/role/new"}
                 defaultSort="name"
