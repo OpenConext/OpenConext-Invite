@@ -31,7 +31,6 @@ updates:
       - "/welcome/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 25
     groups:
       frontends-prod:
         applies-to: version-updates
@@ -45,13 +44,14 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Security updates only
+    open-pull-requests-limit: 0
   # Maintain dependencies for server
   - package-ecosystem: "maven"
     directories:
       - "/**"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 25
     groups:
       backend-prod:
         applies-to: version-updates
@@ -65,3 +65,5 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Security updates only
+    open-pull-requests-limit: 0
