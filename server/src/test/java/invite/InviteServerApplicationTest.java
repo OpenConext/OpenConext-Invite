@@ -9,11 +9,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
-class AccessApplicationTest {
+class InviteServerApplicationTest {
 
     @Test
     void mainApp() {
-        ConfigurableApplicationContext applicationContext = SpringApplication.run(InviteServerApplication.class, new String[]{"--server.port=8098"});
+        ConfigurableApplicationContext applicationContext =
+                SpringApplication.run(InviteServerApplication.class, "--server.port=8098");
         RestAssured.port = 8098;
 
         given()

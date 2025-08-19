@@ -222,6 +222,9 @@ springdoc:
       use-basic-authentication-with-access-code-grant: true
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:
