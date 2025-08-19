@@ -14,7 +14,7 @@
         align-items: center;
         width: 100%;
         margin: 0 auto;
-        max-width: $medium;
+        max-width: $max-width;
 
         @media (max-width: $medium) {
             padding: 0 15px;

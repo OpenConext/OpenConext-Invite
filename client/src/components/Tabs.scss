@@ -5,7 +5,7 @@
     background-color: $background;
 
     .tabs {
-        max-width: $medium;
+        max-width: $max-width;
         margin: 0 auto;
         display: flex;
         gap: var(--sds--space--1);
