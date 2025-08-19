@@ -1,5 +1,7 @@
 package invite.validation;
 
+import org.springframework.util.StringUtils;
+
 import java.util.regex.Pattern;
 
 public class EmailFormatValidator implements FormatValidator {
@@ -9,9 +11,12 @@ public class EmailFormatValidator implements FormatValidator {
 
     @Override
     public boolean isValid(String subject) {
-        return pattern.matcher(subject).matches();
+        return StringUtils.hasText(subject) && !hasMoreThanOneAt(subject) && pattern.matcher(subject).matches();
     }
 
+    private boolean hasMoreThanOneAt(String input) {
+        return input.indexOf('@') != -1 && input.indexOf('@') != input.lastIndexOf('@');
+    }
     @Override
     public String formatName() {
         return "email";
