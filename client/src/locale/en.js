@@ -239,7 +239,7 @@ const en = {
         expired: "Expired",
         enforceEmailEquality: "Email equality",
         eduIDOnly: "eduID only",
-        new: "Invite manager or inviter",
+        new: "Invite role manager or inviter",
         newInvitation: "Invite inviter",
         newInvite: "New invite",
         newGuest: "Invite new user",
