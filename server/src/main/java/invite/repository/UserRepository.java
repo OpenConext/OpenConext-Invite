@@ -48,9 +48,9 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
              SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
                 u.created_at as createdAt, u.last_activity as lastActivity,
             (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
-              FROM users u WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)
+              FROM users u WHERE MATCH (given_name, family_name, email, schac_home_organization) against (?1  IN BOOLEAN MODE)
             """,
-            countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email) against (?1  IN BOOLEAN MODE)",
+            countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email, schac_home_organization) against (?1  IN BOOLEAN MODE)",
             queryRewriter = UserRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable);
@@ -72,7 +72,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             INNER JOIN user_roles ur ON ur.user_id = u.id
             INNER JOIN roles r ON r.id = ur.role_id
             WHERE r.organization_guid = ?1 AND
-            MATCH (given_name, family_name, email) against (?2  IN BOOLEAN MODE)
+            MATCH (given_name, family_name, email, schac_home_organization) against (?2  IN BOOLEAN MODE)
             """,
             queryRewriter = UserRepository.class,
             nativeQuery = true)

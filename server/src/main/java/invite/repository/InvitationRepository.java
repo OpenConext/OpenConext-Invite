@@ -49,13 +49,13 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
             FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id
             WHERE i.status = ?1 AND
             (MATCH(i.email) AGAINST(?2 IN BOOLEAN MODE)
-             OR MATCH (u.given_name, u.family_name, u.email) against (?2  IN BOOLEAN MODE))
+             OR MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) against (?2  IN BOOLEAN MODE))
             """,
             countQuery = """
                      SELECT count(*) FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id
                      WHERE status = ?1 AND
                      (MATCH(i.email) AGAINST(?2 IN BOOLEAN MODE)
-                     OR MATCH (u.given_name, u.family_name, u.email) against (?2 IN BOOLEAN MODE))
+                     OR MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) against (?2 IN BOOLEAN MODE))
                     """,
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
@@ -85,7 +85,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2 AND
             (MATCH(i.email) AGAINST(?3 IN BOOLEAN MODE)
-             OR MATCH (u.given_name, u.family_name, u.email) against (?3 IN BOOLEAN MODE))
+             OR MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) against (?3 IN BOOLEAN MODE))
             """,
             countQuery = """
                     SELECT count(*) FROM invitations i
@@ -94,7 +94,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
                     LEFT JOIN users u ON u.id = i.inviter_id
                     WHERE status = ?1 and role_id = ?2 AND
                     (MATCH(i.email) AGAINST(?3 IN BOOLEAN MODE)
-                     OR MATCH (u.given_name, u.family_name, u.email) against (?3 IN BOOLEAN MODE))
+                     OR MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) against (?3 IN BOOLEAN MODE))
                     """,
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)

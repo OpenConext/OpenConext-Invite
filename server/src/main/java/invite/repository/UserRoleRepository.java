@@ -66,12 +66,12 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
                     INNER JOIN users u on u.id = ur.user_id
                     INNER JOIN roles r on r.id = ur.role_id
             WHERE ur.role_id = ?1 AND (ur.authority = 'GUEST' OR ur.guest_role_included )
-                      AND MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE)
+                      AND MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) AGAINST (?2  IN BOOLEAN MODE)
             """,
             countQuery = """
                     SELECT COUNT(ur.id) FROM user_roles ur INNER JOIN users u on u.id = ur.user_id
                     WHERE ur.role_id = ?1  AND (ur.authority = 'GUEST' OR ur.guest_role_included )
-                    AND MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE)
+                    AND MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) AGAINST (?2  IN BOOLEAN MODE)
                     """,
             queryRewriter = UserRoleRepository.class,
             nativeQuery = true)
@@ -98,12 +98,12 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
             FROM user_roles ur
                     INNER JOIN roles r on r.id = ur.role_id
                     INNER JOIN users u on u.id = ur.user_id WHERE ur.role_id = ?1
-            AND ur.authority <> 'GUEST' AND MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE)
+            AND ur.authority <> 'GUEST' AND MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) AGAINST (?2  IN BOOLEAN MODE)
             """,
             countQuery = """
                     SELECT COUNT(ur.id) FROM user_roles ur INNER JOIN users u on u.id = ur.user_id
                     WHERE ur.role_id = ?1 AND ur.authority <> 'GUEST'
-                    AND MATCH (u.given_name, u.family_name, u.email) AGAINST (?2  IN BOOLEAN MODE)
+                    AND MATCH (u.given_name, u.family_name, u.email, u.schac_home_organization) AGAINST (?2  IN BOOLEAN MODE)
                     """,
             queryRewriter = UserRoleRepository.class,
             nativeQuery = true)
