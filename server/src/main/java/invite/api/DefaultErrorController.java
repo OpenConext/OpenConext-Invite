@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public class DefaultErrorController implements ErrorController {
             statusCode = result.containsKey("status") && (int) result.get("status") != 999 ?
                     HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
         } else {
-            if (!(error instanceof NotFoundException)) {
+            if (!(error instanceof NotFoundException || error instanceof NoResourceFoundException)) {
                 boolean logStackTrace = !(error instanceof UserRestrictionException || error instanceof invite.exception.RemoteException);
                 LOG.error(String.format("Error occurred; %s", error), logStackTrace ? error : null);
             }
