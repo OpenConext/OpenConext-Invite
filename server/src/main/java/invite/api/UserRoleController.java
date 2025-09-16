@@ -1,5 +1,6 @@
 package invite.api;
 
+import invite.audit.UserRoleAuditService;
 import invite.config.Config;
 import invite.exception.NotAllowedException;
 import invite.exception.NotFoundException;
@@ -58,17 +59,20 @@ public class UserRoleController implements UserRoleResource {
     private final ProvisioningService provisioningService;
     private final Config config;
     private final UserRoleOperations userRoleOperations;
+    private final UserRoleAuditService userRoleAuditService;
 
     public UserRoleController(UserRoleRepository userRoleRepository,
                               RoleRepository roleRepository,
                               UserRepository userRepository,
                               ProvisioningService provisioningService,
+                              UserRoleAuditService userRoleAuditService,
                               Config config) {
         this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.provisioningService = provisioningService;
         this.config = config;
+        this.userRoleAuditService = userRoleAuditService;
         this.userRoleOperations = new UserRoleOperations(this);
     }
 
@@ -172,7 +176,8 @@ public class UserRoleController implements UserRoleResource {
                                 : null)
                 .filter(Objects::nonNull)
                 .toList();
-
+        newUserRoles.stream().filter(userRole -> userRole.getId() == null)
+                .forEach(userRole -> this.userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.ADD));
         userRepository.save(user);
         AccessLogger.user(LOG, Event.Created, user);
 
@@ -194,6 +199,7 @@ public class UserRoleController implements UserRoleResource {
         UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));
         userRole.setEndDate(updateUserRole.getEndDate());
         userRoleRepository.save(userRole);
+        userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.UPDATE);
         //If there is a EVA provisioning, then update the account
         provisioningService.updateUserRoleRequest(userRole);
         return Results.createResult();
@@ -215,11 +221,13 @@ public class UserRoleController implements UserRoleResource {
                 userRole.setAuthority(Authority.GUEST);
             }
             userRoleRepository.save(userRole);
+            userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.UPDATE);
             AccessLogger.userRole(LOG, Event.Updated, user, userRole);
 
         } else {
             provisioningService.updateGroupRequest(userRole, OperationType.Remove);
             provisioningService.deleteUserRoleRequest(userRole);
+            userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
             userRoleRepository.deleteUserRoleById(id);
             AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
         }

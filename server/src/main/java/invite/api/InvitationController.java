@@ -1,5 +1,6 @@
 package invite.api;
 
+import invite.audit.UserRoleAuditService;
 import invite.exception.InvitationEmailMatchingException;
 import invite.exception.InvitationExpiredException;
 import invite.exception.InvitationStatusException;
@@ -79,6 +80,7 @@ public class InvitationController implements InvitationResource {
     private final SecurityContextRepository securityContextRepository;
     private final SuperAdmin superAdmin;
     private final InvitationOperations invitationOperations;
+    private final UserRoleAuditService userRoleAuditService;
 
     public InvitationController(MailBox mailBox,
                                 Manage manage,
@@ -87,7 +89,7 @@ public class InvitationController implements InvitationResource {
                                 RoleRepository roleRepository,
                                 ProvisioningService provisioningService,
                                 SecurityContextRepository securityContextRepository,
-                                SuperAdmin superAdmin) {
+                                SuperAdmin superAdmin, UserRoleAuditService userRoleAuditService) {
         this.mailBox = mailBox;
         this.manage = manage;
         this.invitationRepository = invitationRepository;
@@ -97,6 +99,7 @@ public class InvitationController implements InvitationResource {
         this.securityContextRepository = securityContextRepository;
         this.superAdmin = superAdmin;
         this.invitationOperations = new InvitationOperations(this);
+        this.userRoleAuditService = userRoleAuditService;
     }
 
     @PostMapping("")
@@ -208,13 +211,19 @@ public class InvitationController implements InvitationResource {
                         Authority currentAuthority = userRole.getAuthority();
                         //Only act upon different authorities
                         if (!currentAuthority.equals(intendedAuthority)) {
+                            boolean userRoleChanged = false;
                             if (intendedAuthority.hasHigherRights(currentAuthority)) {
                                 userRole.setAuthority(intendedAuthority);
                                 userRole.setEndDate(invitation.getRoleExpiryDate());
+                                userRoleChanged = true;
                             }
                             if (currentAuthority.equals(Authority.GUEST) || intendedAuthority.equals(Authority.GUEST) ||
                                     invitation.isGuestRoleIncluded()) {
                                 userRole.setGuestRoleIncluded(true);
+                                userRoleChanged = true;
+                            }
+                            if (userRoleChanged) {
+                                userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.UPDATE);
                             }
                         }
                     } else {
@@ -245,6 +254,7 @@ public class InvitationController implements InvitationResource {
         }
         userRepository.save(user);
         AccessLogger.user(LOG, Event.Created, user);
+        newUserRoles.forEach(userRole -> userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.ADD));
 
         //Only interact with the provisioning service if there is a guest role
         boolean isGuest = user.getUserRoles().stream()

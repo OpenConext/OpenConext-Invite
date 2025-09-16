@@ -1,6 +1,7 @@
 package invite.teams;
 
 import invite.api.Results;
+import invite.audit.UserRoleAuditService;
 import invite.exception.InvalidInputException;
 import invite.manage.Manage;
 import invite.model.Role;
@@ -43,19 +44,21 @@ public class TeamsController {
     private final ApplicationRepository applicationRepository;
     private final Manage manage;
     private final ProvisioningService provisioningService;
+    private final UserRoleAuditService userRoleAuditService;
 
     public TeamsController(RoleRepository roleRepository,
                            UserRepository userRepository,
                            UserRoleRepository userRoleRepository,
                            ApplicationRepository applicationRepository,
                            Manage manage,
-                           ProvisioningService provisioningService) {
+                           ProvisioningService provisioningService, UserRoleAuditService userRoleAuditService) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
         this.manage = manage;
         this.provisioningService = provisioningService;
+        this.userRoleAuditService = userRoleAuditService;
     }
 
     @PutMapping("")
@@ -156,6 +159,7 @@ public class TeamsController {
         boolean guestRoleIncluded = teamsRole.equals(invite.teams.Role.ADMIN) || teamsRole.equals(invite.teams.Role.MANAGER);
         userRole.setGuestRoleIncluded(guestRoleIncluded);
         userRole = userRoleRepository.save(userRole);
+        userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.ADD);
 
         provisioningService.updateGroupRequest(userRole, OperationType.Add);
     }
