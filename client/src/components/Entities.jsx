@@ -68,7 +68,7 @@ export const Entities = ({
         const newQuery = e.target.value;
         const currentQuery = query;
         setQuery(newQuery);
-        //When the user change the query text we reset the page number
+        //When the user changes the query text we reset the page number
         const queryChanged = currentQuery !== newQuery;
         if (queryChanged) {
             setPage(1);

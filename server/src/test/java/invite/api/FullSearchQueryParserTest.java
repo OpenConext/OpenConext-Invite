@@ -14,13 +14,16 @@ class FullSearchQueryParserTest {
         assertEquals("+test +john +doe +example +query*", parsed);
 
         String emailParsed = FullSearchQueryParser.parse("brand+ms@play.com");
-        assertEquals("+brand +ms +play*", emailParsed);
+        assertEquals("+brand +play*", emailParsed);
 
         String strippedWhiteSpace = FullSearchQueryParser.parse(" Leitndhireedisvea@example.com  ");
         assertEquals("+Leitndhireedisvea +example*", strippedWhiteSpace);
 
         String minusCharacter = FullSearchQueryParser.parse("role-bug");
         assertEquals("+role +bug*", minusCharacter);
+
+        String shortToken = FullSearchQueryParser.parse("eduid.nl");
+        assertEquals("+eduid*", shortToken);
     }
 
     @Test
