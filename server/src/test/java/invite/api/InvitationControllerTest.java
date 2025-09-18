@@ -870,5 +870,34 @@ class InvitationControllerTest extends AbstractTest {
         assertTrue(user.isInstitutionAdminByInvite());
     }
 
+    @Test
+    void newInvitationWithUserToken() throws Exception {
+        List<Long> roleIdentifiers = List.of(roleRepository.findByName("Mail").get().getId()) ;
+
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.GUEST,
+                "Message",
+                Language.en,
+                false,
+                false,
+                false,
+                true,
+                List.of("new@new.nl"),
+                roleIdentifiers,
+                null,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        InvitationResponse invitationResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_INVITER_USER_HASH)
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/external/v1/invitations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(201, invitationResponse.getStatus());
+    }
 
 }

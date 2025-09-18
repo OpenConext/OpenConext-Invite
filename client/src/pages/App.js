@@ -26,6 +26,7 @@ import {Inviter} from "./Inviter";
 import {Application} from "./Application";
 import {System} from "./System";
 import {flushSync} from "react-dom";
+import {UserTokens} from "./UserTokens";
 
 
 export const App = () => {
@@ -113,6 +114,7 @@ export const App = () => {
                         <Route path="inviter" element={<Inviter/>}/>
                         <Route path="roles/:id/:tab?" element={<Role/>}/>
                         <Route path="applications/:manageId" element={<Application/>}/>
+                        <Route path="tokens" element={<UserTokens/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>

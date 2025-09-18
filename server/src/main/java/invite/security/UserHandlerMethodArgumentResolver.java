@@ -72,13 +72,16 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             String organizationGUID = apiToken.getOrganizationGUID();
             List<User> apiUsers = apiToken.isSuperUserToken() ?
                     userRepository.findBySuperUserTrue() :
-                    userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGUID, true);
+                    StringUtils.hasText(organizationGUID) ?
+                    userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGUID, true) :
+                    List.of(apiToken.getOwner());
             if (apiUsers.isEmpty()) {
                 //we don't want to return null as this is not part of the happy-path
                 throw new UserRestrictionException();
             }
-            //Does not make any difference security-wise which user we return
-            User user = apiUsers.get(0);
+            //For superusers and institution admins it does not make any difference security-wise which user we return
+            //For inviters and managers the user is linked to the API token
+            User user = apiUsers.getFirst();
             if (StringUtils.hasText(organizationGUID)) {
                 //The overhead is needed / justified for API usage as this are stateless
                 addInstitutionAdminAttributes(user, organizationGUID);

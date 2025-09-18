@@ -101,6 +101,7 @@ public abstract class AbstractTest {
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
     public static final String API_TOKEN_HASH = HashGenerator.generateToken();
     public static final String API_TOKEN_SUPER_USER_HASH = HashGenerator.generateToken();
+    public static final String API_TOKEN_INVITER_USER_HASH = HashGenerator.generateToken();
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -689,7 +690,9 @@ public abstract class AbstractTest {
         APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH), false, "Test-token");
         APIToken superUserApiToken = new APIToken(null,
                 HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH), true, "Test super-user token");
-        doSave(apiTokenRepository, apiToken, superUserApiToken);
+        APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
+                "Test-user token", inviter);
+        doSave(apiTokenRepository, apiToken, superUserApiToken, userApiToken);
     }
 
     @SafeVarargs

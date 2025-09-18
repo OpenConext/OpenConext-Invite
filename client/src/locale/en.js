@@ -1,4 +1,4 @@
-const en = {
+    const en = {
     code: "EN",
     name: "English",
     select_locale: "Change language to English",
@@ -38,6 +38,7 @@ const en = {
             access: "Invite",
             help: "Help",
             profile: "Profile",
+            tokens: "Tokens",
             logout: "Log out"
         },
     },
@@ -400,6 +401,7 @@ const en = {
         createFlash: "API token has been created",
         submit: "Submit",
         required: "The description is required for an API token",
+        userTokens: "Your personal API tokens"
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",

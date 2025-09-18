@@ -36,6 +36,23 @@ class APITokenControllerTest extends AbstractTest {
     }
 
     @Test
+    void apiTokensByUser() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INVITER_SUB);
+
+        List<APIToken> tokens = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/tokens")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, tokens.size());
+        assertEquals(INVITER_SUB, tokens.getFirst().getOwner().getSub());
+    }
+
+    @Test
     void create() throws Exception {
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
@@ -94,7 +111,7 @@ class APITokenControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
-        assertEquals(2, apiTokenRepository.count());
+        assertEquals(3, apiTokenRepository.count());
 
         given()
                 .when()
@@ -106,7 +123,7 @@ class APITokenControllerTest extends AbstractTest {
                 .delete("/api/v1/tokens/{id}")
                 .then()
                 .statusCode(204);
-        assertEquals(1, apiTokenRepository.count());
+        assertEquals(2, apiTokenRepository.count());
     }
 
     @Test
@@ -162,7 +179,7 @@ class APITokenControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
 
-        assertEquals(2, tokens.size());
+        assertEquals(3, tokens.size());
         assertEquals(1L, tokens.stream().filter(token -> token.isSuperUserToken()).count());
         assertEquals(1L, tokens.stream().filter(token -> token.getOrganizationGUID() != null).count());
     }
@@ -172,7 +189,7 @@ class APITokenControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH)).get();
 
-        assertEquals(2, apiTokenRepository.count());
+        assertEquals(3, apiTokenRepository.count());
 
         given()
                 .when()
@@ -185,7 +202,27 @@ class APITokenControllerTest extends AbstractTest {
                 .then()
                 .statusCode(204);
 
-        assertEquals(1, apiTokenRepository.count());
+        assertEquals(2, apiTokenRepository.count());
     }
 
+    @Test
+    void deleteUserToken() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH)).get();
+
+        assertEquals(3, apiTokenRepository.count());
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", apiToken.getId())
+                .delete("/api/v1/tokens/{id}")
+                .then()
+                .statusCode(204);
+
+        assertEquals(2, apiTokenRepository.count());
+    }
 }

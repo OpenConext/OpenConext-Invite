@@ -38,6 +38,7 @@ const nl = {
             access: "Invite",
             help: "Help",
             profile: "Profiel",
+            tokens: "Tokens",
             logout: "Uitloggen"
         },
     },
@@ -400,6 +401,7 @@ const nl = {
         createFlash: "API-token is aangemaakt",
         submit: "Opslaan",
         required: "Een omschrijving is verplicht voor een API-token",
+        userTokens: "Je persoonlijke API-tokens"
     },
     tooltips: {
         userIcon: "Gebruiker {{name}} geprovisiond op {{createdAt}}, laatst actief op {{lastActivity}}",

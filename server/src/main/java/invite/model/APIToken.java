@@ -1,5 +1,6 @@
 package invite.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -37,6 +38,11 @@ public class APIToken implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+
     public APIToken(String organizationGUID, String hashedValue, boolean superUserToken, String description) {
         this.organizationGUID = organizationGUID;
         this.hashedValue = hashedValue;
@@ -45,5 +51,10 @@ public class APIToken implements Serializable {
         this.createdAt = Instant.now();
     }
 
-
+    public APIToken(String hashedValue, String description, User owner) {
+        this.hashedValue = hashedValue;
+        this.description = description;
+        this.owner = owner;
+        this.createdAt = Instant.now();
+    }
 }

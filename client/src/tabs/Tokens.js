@@ -15,6 +15,7 @@ import InputField from "../components/InputField";
 import ErrorIndicator from "../components/ErrorIndicator";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import {Page} from "../components/Page";
+import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 
 export const Tokens = () => {
     const {user, setFlash} = useAppStore(state => state);
@@ -23,6 +24,7 @@ export const Tokens = () => {
     const [tokenValue, setTokenValue] = useState(null);
     const [description, setDescription] = useState("");
     const [newToken, setNewToken] = useState(false);
+    const [isRegularUser, setIsRegularUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
     const [confirmation, setConfirmation] = useState({});
@@ -41,7 +43,10 @@ export const Tokens = () => {
     }, []);
 
     useEffect(() => {
-        if (user.superUser || user.institutionAdmin) {
+        const authority = highestAuthority(user);
+        const isGuest = authority === AUTHORITIES.GUEST;
+        if (!isGuest) {
+            setIsRegularUser(authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER);
             fetchTokens();
         } else {
             navigate("/404");
@@ -156,7 +161,7 @@ export const Tokens = () => {
             header: I18n.t("tokens.createdAt"),
             mapper: token => dateFromEpoch(token.createdAt)
         },
-        {
+        isRegularUser ? null : {
             key: "organizationGUID",
             header: I18n.t("tokens.organizationGUID"),
             mapper: token => token.organizationGUID

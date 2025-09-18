@@ -6,7 +6,7 @@ import {stopEvent} from "../utils/Utils";
 import {UserInfo} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
-import {highestAuthority} from "../utils/UserRole";
+import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 
 
 export const UserMenu = ({user, config, actions}) => {
@@ -32,12 +32,17 @@ export const UserMenu = ({user, config, actions}) => {
     }
 
     const renderMenu = adminLinks => {
+        const authority = highestAuthority(user);
+        const apiTokenLink = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER;
         return (<>
                 <ul>
                     {user.superUser && adminLinks.map(l =>
                         <li key={l}>
                             <Link onClick={toggleUserMenu} to={`/${l}`}>{I18n.t(`header.links.${l}`)}</Link>
                         </li>)}
+                    {apiTokenLink && <li>
+                        <Link onClick={toggleUserMenu} to={`/tokens`}>{I18n.t(`header.links.tokens`)}</Link>
+                    </li>}
                     <li>
                         <Link onClick={toggleUserMenu} to={`/profile`}>{I18n.t(`header.links.profile`)}</Link>
                     </li>
