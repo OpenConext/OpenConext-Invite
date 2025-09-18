@@ -1,0 +1,25 @@
+span.warning-indication {
+    color: #C15500;
+
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+
+    &.standalone {
+        margin-bottom: 15px;
+    }
+
+    &.adjust-margin {
+        margin-top: -15px;
+    }
+
+    span.warning-message {
+        word-break: keep-all;
+    }
+
+    svg {
+        margin-right: 10px;
+        width: 18px;
+        height: auto;
+    }
+}

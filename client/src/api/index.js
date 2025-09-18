@@ -168,6 +168,10 @@ export function organizationGUIDValidation(organizationGUID) {
     return fetchJson(`/api/v1/manage/organization-guid-validation/${organizationGUID}`, {}, {}, false);
 }
 
+export function hasProvisionings(manageId) {
+    return fetchJson(`/api/v1/manage/provisionings/${manageId}`);
+}
+
 //Roles
 export function rolesByApplication(force = true, pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {force: !!force})

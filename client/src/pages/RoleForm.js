@@ -7,7 +7,7 @@ import {
     allProviders,
     consequencesRoleDeletion,
     createRole,
-    deleteRole,
+    deleteRole, hasProvisionings,
     me,
     organizationGUIDValidation,
     roleByID,
@@ -28,6 +28,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
 import {dateFromEpoch, displayExpiryDate, futureDate} from "../utils/Date";
 import DOMPurify from "dompurify";
+import WarningIndicator from "../components/WarningIndicator";
 
 const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
@@ -58,6 +59,7 @@ export const RoleForm = () => {
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [customInviterDisplayName, setCustomInviterDisplayName] = useState(false);
     const [applications, setApplications] = useState([]);
+    const [provisionings, setProvisionings] = useState({});
     const [allowedToEditApplication, setAllowedToEditApplication] = useState(true);
     const [deletedUserRoles, setDeletedUserRoles] = useState(null);
 
@@ -247,6 +249,11 @@ export const RoleForm = () => {
     const changeApplication = (index, application) => {
         applications.splice(index, 1, application);
         setApplications([...applications]);
+        hasProvisionings(application.manageId)
+            .then(res => {
+                const newProvisionings = {...provisionings, [application.manageId]: !res && !application.receivesMemberships};
+                setProvisionings(newProvisionings);
+            })
     }
 
     const changeApplicationLandingPage = (index, e) => {
@@ -367,6 +374,9 @@ export const RoleForm = () => {
                                 <ErrorIndicator msg={I18n.t("forms.required", {
                                     attribute: I18n.t("roles.manage").toLowerCase()
                                 })}/>}
+                            {provisionings[application?.manageId] &&
+                                <WarningIndicator msg={I18n.t("roles.noProvisioning")} decode={false}/>
+                            }
                         </div>
                         <div className="input-field-container">
                             <InputField name={I18n.t("roles.landingPage")}

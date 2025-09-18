@@ -1,9 +1,0 @@
-{
-  "base_query": {
-    "REQUESTED_ATTRIBUTES": [
-      "metaDataFields.logo:0:url",
-      "metaDataFields.coin:application_url",
-      "metaDataFields.coin:institution_guid"
-    ]
-  }
-}

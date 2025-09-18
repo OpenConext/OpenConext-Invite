@@ -25,12 +25,9 @@ public class RemoteManage implements Manage {
 
     private final String url;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final Map<String, Object> queries;
 
-    public RemoteManage(String url, String user, String password, ObjectMapper objectMapper) throws IOException {
+    public RemoteManage(String url, String user, String password) {
         this.url = url;
-        this.queries = objectMapper.readValue(new ClassPathResource("/manage/query_templates.json").getInputStream(), new TypeReference<>() {
-        });
         restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(user, password));
         ResponseErrorHandler resilientErrorHandler = new ResilientErrorHandler();
         restTemplate.setErrorHandler(resilientErrorHandler);
@@ -82,7 +79,6 @@ public class RemoteManage implements Manage {
         String queryUrl = String.format("%s/manage/api/internal/metadata/%s/%s", url, entityType.collectionName(), id);
         return transformProvider(restTemplate.getForEntity(queryUrl, Map.class).getBody());
     }
-
 
     @Override
     public List<Map<String, Object>> provisioning(Collection<String> applicationIdentifiers) {
@@ -144,6 +140,7 @@ public class RemoteManage implements Manage {
         List<String> requestedAttributes = (List<String>) baseQuery.get("REQUESTED_ATTRIBUTES");
         requestedAttributes.add("allowedEntities");
         requestedAttributes.add("allowedall");
+        requestedAttributes.remove("arp");
 
         List<Map<String, Object>> identityProviders = restTemplate.postForObject(
                 String.format("%s/manage/api/internal/search/%s", this.url, EntityType.SAML20_IDP.collectionName()),
@@ -161,8 +158,14 @@ public class RemoteManage implements Manage {
     }
 
     private Map<String, Object> getBaseQuery() {
-        HashMap<String, Object> baseQuery = new HashMap<>((Map<String, Object>) this.queries.get("base_query"));
-        baseQuery.put("REQUESTED_ATTRIBUTES", baseQuery.get("REQUESTED_ATTRIBUTES"));
+        //Must be mutable, both the baseQuery as the requested attributes
+        HashMap<String, Object> baseQuery = new HashMap<>();
+        List<String> requestedAttributes = new ArrayList<>();
+        requestedAttributes.add("arp");
+        requestedAttributes.add("metaDataFields.logo:0:url");
+        requestedAttributes.add("metaDataFields.coin:application_url");
+        requestedAttributes.add("metaDataFields.coin:institution_guid");
+        baseQuery.put("REQUESTED_ATTRIBUTES", requestedAttributes);
         return baseQuery;
     }
 

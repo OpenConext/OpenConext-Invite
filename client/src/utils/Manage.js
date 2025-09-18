@@ -10,6 +10,7 @@ export const singleProviderToOption = (provider, locale) => {
         type: manageType,
         manageType: manageType,
         manageId: manageId,
+        receivesMemberships: provider.receivesMemberships,
         url: provider.url || provider.landingPage,
         landingPage: provider.landingPage || provider.url
     };

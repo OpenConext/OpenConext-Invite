@@ -91,6 +91,23 @@ public interface Manage {
         application.put("name:en", metaDataFields.get("name:en"));
         application.put("name:nl", metaDataFields.get("name:nl"));
         application.put("institutionGuid", metaDataFields.get("coin:institution_guid"));
+        Map<String, Object> arp = (Map<String, Object>) data.get("arp");
+        if (!CollectionUtils.isEmpty(arp)) {
+            boolean enabled = (boolean) arp.getOrDefault("enabled", false);
+            if (!enabled) {
+                //Will receive all attributes, but not from any other source than idp
+                application.put("receivesMemberships", false);
+            } else {
+                Map<String, Object> attributes = (Map<String, Object>) arp.getOrDefault("attributes", Map.of());
+                List<Map<String, Object>> isMemberOf = (List<Map<String, Object>>) attributes.get("urn:mace:dir:attribute-def:isMemberOf");
+                if (CollectionUtils.isEmpty(isMemberOf)) {
+                    application.put("receivesMemberships", false);
+                } else {
+                    boolean receivesVootMemberships = isMemberOf.stream().anyMatch(m -> m.get("source") == "voot");
+                    application.put("receivesMemberships", receivesVootMemberships);
+                }
+            }
+        }
         return application;
     }
 

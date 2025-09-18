@@ -186,7 +186,8 @@
             info: "The following users will lose their access:",
             userInfo: "{{name}} ({{authority}}), last activity {{lastActivity}}",
             andMore: "And {{nbr}} more.. Check the list of current users for more details."
-        }
+        },
+        noProvisioning: "Users added to this role, won't have immediate access to this application. See the <a href='http://wiki.surfnet.nl/' target='_blank'>wiki</a> for more information"
     },
     applications: {
         title: "Access Roles for this application ({{nbr}})",

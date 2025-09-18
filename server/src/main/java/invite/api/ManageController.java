@@ -91,7 +91,6 @@ public class ManageController {
 
     @GetMapping("applications")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
-        LOG.debug("/applications");
         LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
 
         UserPermissions.assertInstitutionAdmin(user);
@@ -130,4 +129,12 @@ public class ManageController {
         ));
     }
 
+    @GetMapping("provisionings/{id}")
+    public ResponseEntity<Boolean> provisionings(@PathVariable("id") String id,
+                                                 @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("GET /manage/provisionings for user %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertInstitutionAdmin(user);
+        List<Map<String, Object>> provisionings = manage.provisioning(List.of(id));
+        return ResponseEntity.ok(!provisionings.isEmpty());
+    }
 }

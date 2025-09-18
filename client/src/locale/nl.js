@@ -186,7 +186,8 @@ const nl = {
             info: "De volgende gebruikers verliezen toegang tot deze rol:",
             userInfo: "{{name}} ({{authority}}), laatste activiteit {{lastActivity}}",
             andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."
-        }
+        },
+        noProvisioning: "Gebruikers die toegevoegd worden aan deze rol, hebben niet gelijk toegang tot deze applicatie. Zie de <a href='http://wiki.surfnet.nl/' target='_blank'>wiki</a> voor meer information"
     },
     applications: {
         title: "Toegangsrollen voor deze applicatie ({{nbr}})",

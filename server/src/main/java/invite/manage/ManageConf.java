@@ -22,7 +22,7 @@ public class ManageConf {
                          @Value("${manage.enabled}") boolean enabled,
                          @Value("${manage.staticManageDirectory}") String staticManageDirectory,
                          ObjectMapper objectMapper) throws IOException {
-        return enabled ? new RemoteManage(url, user, password, objectMapper) : new LocalManage(objectMapper, staticManageDirectory);
+        return enabled ? new RemoteManage(url, user, password) : new LocalManage(objectMapper, staticManageDirectory);
     }
 
     @Bean

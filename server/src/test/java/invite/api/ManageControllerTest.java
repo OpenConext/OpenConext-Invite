@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
 class ManageControllerTest extends AbstractTest {
@@ -180,5 +180,41 @@ class ManageControllerTest extends AbstractTest {
                 .get("/api/v1/manage/organization-guid-validation/{organizationGUID}")
                 .then()
                 .statusCode(403);
+    }
+
+    @Test
+    void provisioningsTrue() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        stubForManageProvisioning(List.of("1"));
+
+        Boolean res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("id","1")
+                .get("/api/v1/manage/provisionings/{id}")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(res);
+    }
+
+    @Test
+    void provisioningsFalse() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        stubForManageProvisioning(List.of("x"));
+
+        Boolean res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("id","1")
+                .get("/api/v1/manage/provisionings/{id}")
+                .as(new TypeRef<>() {
+                });
+        assertFalse(res);
     }
 }
