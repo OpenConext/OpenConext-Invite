@@ -443,7 +443,7 @@ export const InvitationForm = () => {
                                            showYearDropdown={true}
                                            pastDatesAllowed={config.pastDateAllowed}
                                            minDate={futureDate(1)}
-                                           maxDate={futureDate(30)}
+                                           maxDate={futureDate(365)}
                                            name={I18n.t("invitations.expiryDate")}
                                            toolTip={I18n.t("tooltips.expiryDateTooltip")}/>}
 
