@@ -39,7 +39,7 @@ class APITokenControllerTest extends AbstractTest {
     void apiTokensByUser() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INVITER_SUB);
 
-        List<APIToken> tokens = given()
+        List<Map<String, Object>> tokens = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -49,7 +49,7 @@ class APITokenControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, tokens.size());
-        assertEquals(INVITER_SUB, tokens.getFirst().getOwner().getSub());
+        assertEquals("John Doe", tokens.getFirst().get("owner"));
     }
 
     @Test
