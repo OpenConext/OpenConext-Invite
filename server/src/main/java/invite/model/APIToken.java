@@ -40,6 +40,7 @@ public class APIToken implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
+    @JsonIgnore
     private User owner;
 
 
@@ -56,5 +57,10 @@ public class APIToken implements Serializable {
         this.description = description;
         this.owner = owner;
         this.createdAt = Instant.now();
+    }
+
+    @JsonProperty
+    public String owner() {
+        return owner != null ? owner.getName() : null;
     }
 }

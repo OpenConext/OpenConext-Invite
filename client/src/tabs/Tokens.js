@@ -149,6 +149,12 @@ export const Tokens = () => {
             header: I18n.t("tokens.description"),
             mapper: token => <span className={"cut-of-lines"}>{token.description}</span>
         },
+        user.superUser ? {
+            key: "owner",
+            class: "owner",
+            header: I18n.t("tokens.owner"),
+            mapper: token => token.owner || "-"
+        } : null,
         user.superUser ?
             {
                 key: "superUserToken",

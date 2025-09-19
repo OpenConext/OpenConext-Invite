@@ -402,7 +402,8 @@
         createFlash: "API token has been created",
         submit: "Submit",
         required: "The description is required for an API token",
-        userTokens: "Your personal API tokens"
+        userTokens: "Your personal API tokens",
+        owner: "Owner"
     },
     tooltips: {
         userIcon: "User {{name}} provisioned at {{createdAt}} with last activity on {{lastActivity}}",

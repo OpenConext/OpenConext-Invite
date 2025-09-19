@@ -7,15 +7,20 @@ div.mod-tokens {
         thead {
             th {
                 &.secret, &.hashed_token {
-                    width: 20%;
+                    width: 15%;
                 }
 
                 &.description {
-                    width: 35%;
+                    width: 25%;
 
                     &.small {
-                        width: 25%;
+                        width: 20%;
                     }
+                }
+
+                &.owner {
+                    width: 12%;
+
                 }
 
                 &.superUserToken {
