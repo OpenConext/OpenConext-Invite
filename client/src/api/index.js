@@ -117,6 +117,9 @@ export function reportError(error) {
     return postPutJson("/api/v1/users/error", error, "post");
 }
 
+export function deleteUser(userId) {
+    return fetchDelete(`/api/v1/users/${userId}`);
+}
 //Invitations
 export function invitationByHash(hash) {
     return fetchJson(`/api/v1/invitations/public?hash=${hash}`, {}, {}, false);

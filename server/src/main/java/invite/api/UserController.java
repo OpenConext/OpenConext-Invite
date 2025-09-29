@@ -1,5 +1,8 @@
 package invite.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import crypto.KeyStore;
 import invite.config.Config;
 import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;
@@ -7,15 +10,13 @@ import invite.manage.EntityType;
 import invite.manage.Manage;
 import invite.model.*;
 import invite.provision.Provisioning;
+import invite.provision.ProvisioningService;
 import invite.provision.graph.GraphClient;
 import invite.repository.InvitationRepository;
 import invite.repository.RemoteProvisionedUserRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import invite.security.UserPermissions;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import crypto.KeyStore;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,8 +68,7 @@ public class UserController {
     private final ObjectMapper objectMapper;
     private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
     private final GraphClient graphClient;
-    private final RoleRepository roleRepository;
-
+    private final ProvisioningService provisioningService;
 
     @Autowired
     public UserController(Config config,
@@ -81,15 +81,15 @@ public class UserController {
                           @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
                           @Value("${config.server-url}") String serverBaseURL,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix,
-                          RoleRepository roleRepository) {
+                          ProvisioningService provisioningService) {
         this.invitationRepository = invitationRepository;
+        this.provisioningService = provisioningService;
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
         this.manage = manage;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
         this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
-        this.roleRepository = roleRepository;
     }
 
     @GetMapping("config")
@@ -208,6 +208,20 @@ public class UserController {
         });
         return new RedirectView(redirectReference.get());
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> delete(@PathVariable("userId") Long userId, @Parameter(hidden = true) User user) {
+        User other = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        LOG.debug(String.format("DELETE /users for user %s by %s",
+                other.getEduPersonPrincipalName(), user.getEduPersonPrincipalName()));
+        UserPermissions.assertSuperUser(user);
+
+        this.provisioningService.deleteUserRequest(user);
+        userRepository.delete(other);
+        return Results.deleteResult();
+    }
+
 
     @PostMapping("error")
     public ResponseEntity<Map<String, Integer>> error(@RequestBody Map<String, Object> payload,

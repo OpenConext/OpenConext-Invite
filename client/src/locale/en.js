@@ -108,6 +108,7 @@
         applications: "Applications",
         noRolesInfo: "You have no roles (which means you must be super-user)",
         noRolesInstitutionAdmin: "You are an institution admin and you have no roles (but you might have access to applications)",
+        noRolesInstitutionAdminOther: "{{name}} is an institution admin and has no roles (but might have access to applications)",
         noRolesNoApplicationsInstitutionAdmin: "You are an institution admin, but you have no roles and apparently your institution has also no access to applications",
         guestRoleOnly: "You are not an administrator. Are you looking for <a href='{{welcomeUrl}}'>the apps you can access</a>?",
         rolesInfo: "You have the following roles",
@@ -124,7 +125,9 @@
         authority: "Authority",
         endDate: "End date",
         expiryDays: "Expiry days",
-        roleExpiryTooltip: "Sort on roles to see which roles will expire the soonest"
+        roleExpiryTooltip: "Sort on roles to see which roles will expire the soonest",
+        deleteFlash: "User {{name}} has been deleted",
+        deleteConfirmation: "Are you absolutely sure you want to delete user {{name}}? There is no undo button."
     },
     role: {
         copyUrn: "Copy urn",

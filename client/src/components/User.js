@@ -5,18 +5,26 @@ import {dateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
-import {Card, CardType} from "@surfnet/sds";
+import {Button, ButtonType, Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 import {deriveRemoteApplicationAttributes, reduceApplicationFromUserRoles} from "../utils/Manage";
 import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
 import DOMPurify from "dompurify";
+import ConfirmationDialog from "./ConfirmationDialog";
+import {deleteUser} from "../api";
+import {useNavigate} from "react-router-dom";
+import {useAppStore} from "../stores/AppStore";
 
 export const User = ({user, other, config, currentUser}) => {
+    const navigate = useNavigate();
+    const {setFlash} = useAppStore(state => state);
     const searchRef = useRef();
     const [query, setQuery] = useState("");
     const [queryApplication, setQueryApplication] = useState("");
+    const [confirmation, setConfirmation] = useState({});
+    const [confirmationOpen, setConfirmationOpen] = useState(false);
 
     if (user.institutionAdmin) {
         (user.applications || []).forEach(application => deriveRemoteApplicationAttributes(application, I18n.locale));
@@ -104,6 +112,25 @@ export const User = ({user, other, config, currentUser}) => {
         );
     }
 
+    const doDeleteUser = confirmation => {
+        if (confirmation) {
+            setConfirmation({
+                cancel: () => setConfirmationOpen(false),
+                action: () => doDeleteUser(false),
+                warning: true,
+                question: I18n.t("users.deleteConfirmation", {name: user.name}),
+            });
+            setConfirmationOpen(true);
+        } else {
+            deleteUser(user.id).then(() => {
+                setConfirmationOpen(false);
+                setConfirmation({});
+                navigate("/home/users");
+                setFlash(I18n.t("users.deleteFlash", {name: user.name}));
+            })
+        }
+    }
+
     user.highestAuthority = I18n.t(`access.${highestAuthority(user, false)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
         ["lastActivity", true], ["organizationGUID"]];
@@ -117,8 +144,17 @@ export const User = ({user, other, config, currentUser}) => {
 
     return (
         <section className={"user"}>
+            {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
+                                                     cancel={confirmation.cancel}
+                                                     confirm={confirmation.action}
+                                                     question={confirmation.question}/>}
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
-
+            {(currentUser.superUser && other && currentUser.id !== user.id) &&
+                <div className="span-row">
+                    <Button type={ButtonType.Delete}
+                            onClick={() => doDeleteUser(true)}/>
+                </div>
+            }
             <h3 className={"title span-row "}>{I18n.t("users.roles")}</h3>
             {(highestAuthority(user, false) === AUTHORITIES.GUEST && !other) &&
                 <p className={"span-row"}
@@ -126,7 +162,7 @@ export const User = ({user, other, config, currentUser}) => {
             {(!hasRoles && user.superUser) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {(!hasRoles && user.institutionAdmin) &&
-                <p className={"span-row "}>{I18n.t("users.noRolesInstitutionAdmin")}</p>}
+                <p className={"span-row "}>{I18n.t(`users.noRolesInstitutionAdmin${other ? "Other" : ""}`, {name: user.name})}</p>}
             {(hasRoles) &&
                 <>
                     <div className="roles-search span-row">

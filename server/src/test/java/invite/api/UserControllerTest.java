@@ -1,5 +1,6 @@
 package invite.api;
 
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import invite.AbstractTest;
 import invite.AccessCookieFilter;
 import invite.DefaultPage;
@@ -9,7 +10,6 @@ import invite.model.Authority;
 import invite.model.RemoteProvisionedUser;
 import invite.model.User;
 import invite.model.UserRole;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -221,6 +218,26 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/me")
                 .as(User.class);
         assertEquals(MANAGE_SUB, user.getSub());
+    }
+
+    @Test
+    void delete() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        User institutionAdmin = userRepository.findBySubIgnoreCase(INSTITUTION_ADMIN_SUB).get();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", institutionAdmin.getId())
+                .delete("/api/v1/users/{userId}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+        Optional<User> userOptional = userRepository.findBySubIgnoreCase(INSTITUTION_ADMIN_SUB);
+        assertTrue(userOptional.isEmpty());
     }
 
     @Test

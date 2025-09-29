@@ -108,6 +108,7 @@ const nl = {
         applications: "Applicaties",
         noRolesInfo: "Je hebt geen rollen (je bent een super-user)",
         noRolesInstitutionAdmin: "Je bent instellingsadmin, maar hebt nog geen rollen (maar je hebt wel toegang tot je applicaties)",
+        noRolesInstitutionAdminOther: "{{name}} is een instellingsadmin, maar heeft nog geen rollen (maar wel toegang tot applicaties)",
         noRolesNoApplicationsInstitutionAdmin: "Je bent instellingsadmin, maar je hebt geen rollen en je instelling heeft blijkbaar ook geen toegang tot applicaties.",
         guestRoleOnly: "Je bent geen admin. Ben je op zoek naar de <a href='{{welcomeUrl}}'>applicaties waar je toegang to hebt</a>?",
         rolesInfo: "Je hebt de volgende rollen",
@@ -124,7 +125,9 @@ const nl = {
         authority: "Autoriteit",
         endDate: "Einddatum",
         expiryDays: "Verloopdagen",
-        roleExpiryTooltip: "Sorteer op rollen, om te zien welke rol het eerst zal verlopen"
+        roleExpiryTooltip: "Sorteer op rollen, om te zien welke rol het eerst zal verlopen",
+        deleteFlash: "Gebruiker {{name}} is verwijderd",
+        deleteConfirmation: "Weet je heel zeker dat je gebruiker {{name}} wilt verwijderen? Er is geen undo functionaliteit."
     },
     role: {
         copyUrn: "Copy urn",
