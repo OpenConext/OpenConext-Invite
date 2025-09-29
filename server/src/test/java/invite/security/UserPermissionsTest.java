@@ -146,6 +146,23 @@ class UserPermissionsTest extends WithApplicationTest {
     }
 
     @Test
+    void institutionAdminWithRegularRole() {
+        String organizationGUID = UUID.randomUUID().toString();
+        User user = new User();
+        user.setOrganizationGUID(organizationGUID);
+        user.setInstitutionAdmin(true);
+        //May invite users for this role because of organization GUID
+        Role role = new Role("institution-admin-role", "description", application(organizationGUID, EntityType.SAML20_SP), 365, false, false);
+        role.setId(random.nextLong());
+        role.setOrganizationGUID(organizationGUID);
+        //May invite users for this role because of role membership
+        Role manager = new Role("manager-role", "description", application(UUID.randomUUID().toString(), EntityType.SAML20_SP), 365, false, false);
+        manager.setId(random.nextLong());
+        user.addUserRole(new UserRole(Authority.MANAGER, manager));
+        UserPermissions.assertValidInvitation(user, Authority.INVITER, List.of(role, manager));
+    }
+
+    @Test
     void nullPointerHygiene() {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertSuperUser(null));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertInstitutionAdmin(null));

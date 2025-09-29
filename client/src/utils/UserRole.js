@@ -135,7 +135,7 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator, 
         role.value = role.id;
         deriveApplicationAttributes(role, locale, multiple, separator);
     });
-    if (!isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
+    if (!user.superUser) {
         const userRoles = user.userRoles;
         userRoles.forEach(userRole => {
             userRole.isUserRole = true;
@@ -171,7 +171,13 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
         return Object.keys(AUTHORITIES);
 
     }
-    if (user.institutionAdmin && !isEmpty(user.applications)) {
+    //Return only the AUTHORITIES where the user has the correct authority per selectedRole
+    const userRolesForSelectedRoles = selectedRoles
+        .map(role => role.isUserRole ? role.role : role)
+        .map(role => user.userRoles.find(userRole => userRole.role.id === role.id))
+        .filter(userRole => !isEmpty(userRole));
+    //If the user is an institutionAdmin but is also a regular inviter or manager of this role, then filter the authorities
+    if (user.institutionAdmin && !isEmpty(user.applications) && userRolesForSelectedRoles.length === 0) {
         return Object.keys(AUTHORITIES)
             .filter(authority => authority !== AUTHORITIES.SUPER_USER);
     }
@@ -183,11 +189,6 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
         return Object.keys(AUTHORITIES)
             .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[authority]);
     }
-    //Return only the AUTHORITIES where the user has the correct authority per selectedRole
-    const userRolesForSelectedRoles = selectedRoles
-        .map(role => role.isUserRole ? role.role : role)
-        .map(role => user.userRoles.find(userRole => userRole.role.id === role.id))
-        .filter(userRole => !isEmpty(userRole));
     const leastImportantAuthority = userRolesForSelectedRoles
         .reduce((acc, userRole) => {
             if (AUTHORITIES_HIERARCHY[userRole.authority] < AUTHORITIES_HIERARCHY[acc]) {

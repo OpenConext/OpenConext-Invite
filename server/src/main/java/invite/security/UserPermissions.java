@@ -78,8 +78,12 @@ public class UserPermissions {
         }
         //For all roles verify that the user has a higher authority then the one requested for all off the roles
         boolean allowed = roles.stream()
-                .allMatch(role -> mayInviteByApplication(userRoles, intendedAuthority, role) ||
-                        mayInviteByAuthority(userRoles, intendedAuthority, role));
+                .allMatch(role -> {
+                    boolean mayInviteByInstitutionAdmin = user.isInstitutionAdmin() && user.getOrganizationGUID().equals(role.getOrganizationGUID());
+                    boolean mayInviteByApplication = mayInviteByApplication(userRoles, intendedAuthority, role);
+                    boolean mayInviteByAuthority = mayInviteByAuthority(userRoles, intendedAuthority, role);
+                    return mayInviteByInstitutionAdmin || mayInviteByApplication || mayInviteByAuthority;
+                });
         if (!allowed) {
             throw new UserRestrictionException();
         }
