@@ -9,7 +9,7 @@ gebruikt worden. **Deze software wordt niet gemaakt of ondersteund door SURF**.*
 
 [Scimgateway](https://github.com/jelhub/scimgateway) is een open source
 applicatie die SCIM berichten over personen en groepen kan ontvangen en
-verwerken naar endpoints. Scimgateway ondersteunt standaard verschillende 
+verwerken naar endpoints. Scimgateway ondersteunt standaard verschillende
 soorten endpoints.
 
 ## SURFconext Invite
