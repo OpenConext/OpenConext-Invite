@@ -30,6 +30,7 @@ public class FullSearchQueryParser {
             throw new InvalidInputException("Full text query parameter has @NotNull @NotBlank requirement");
         }
         String parsedQuery = Stream.of(query.split("[ @.,+*-]"))
+                //MariaDB does not tokenize words shorter than 3
                 .filter(part -> !(part.isEmpty() || part.length() < 3 || stopWords.contains(part.toLowerCase()) ))
                 .map(part -> "+" + part)
                 .collect(Collectors.joining(" "));
