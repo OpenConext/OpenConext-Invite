@@ -7,8 +7,18 @@ name: Java CI
 on:
   push:
     branches: [main]
+    paths:
+      - client/**
+      - provisioning-mock/**
+      - server/**
+      - welcome/**
   pull_request:
     branches: [main]
+    paths:
+      - client/**
+      - provisioning-mock/**
+      - server/**
+      - welcome/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
