@@ -17,7 +17,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Invitation applications no longer differentiate between individual IdPs of a single institution
 - Implemented easy statistics via Prometheus for performance monitoring
 - Store audit trail for role memberschips
-
+- Allow creation of smaller scoped API access tokens
+- Allow searching for institution name
+- Allow extending invite validity end-date
+- Institution admins can now be invited for roles outside their own organisation
+- Super-users can delete users now
+- Upgrade spring-security 
+  
 ## 0.0.33
 
 - Lower mobile breakpoint to avoid mobile view on half of the desktop size
