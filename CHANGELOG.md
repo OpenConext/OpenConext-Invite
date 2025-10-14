@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Allow extending invite validity end-date
 - Institution admins can now be invited for roles outside their own organisation
 - Super-users can delete users now
-- Upgrade spring-security 
+- Upgrade spring-security
   
 ## 0.0.33
 
