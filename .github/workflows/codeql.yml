@@ -15,8 +15,18 @@ name: "CodeQL"
 on:
   push:
     branches: ["main"]
+    paths:
+      - client/**
+      - provisioning-mock/**
+      - server/**
+      - welcome/**
   pull_request:
     branches: ["main"]
+    paths:
+      - client/**
+      - provisioning-mock/**
+      - server/**
+      - welcome/**
   schedule:
     - cron: '38 2 * * 6'
 
