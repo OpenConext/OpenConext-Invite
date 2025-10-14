@@ -8,14 +8,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.0.34
 
-- Added more logging to manage API calls and improve stability.
-- Optimized table size on full screen view for better readability.
-- Invitation system now recognizes multiple Identity Providers (IdPs).
-- Fixed bug allowing users to log in by pressing 'Enter' on the splash screen.
-- Applied a consistent naming convention in the application hierarchy.
-- Fixed searching for roles that contain a hyphen (-).
-- Invitation applications no longer differentiate between individual IdPs of a single institution.
-- Implemented easy statistics via Prometheus for performance monitoring.
+- Added more logging to manage API calls and improve stability
+- Optimized table size on full screen view for better readability
+- Invitation system now recognizes multiple Identity Providers (IdPs)
+- Fixed bug allowing users to log in by pressing 'Enter' on the splash screen
+- Applied a consistent naming convention in the application hierarchy
+- Fixed searching for roles that contain a hyphen (-)
+- Invitation applications no longer differentiate between individual IdPs of a single institution
+- Implemented easy statistics via Prometheus for performance monitoring
+- Store audit trail for role memberschips
 
 ## 0.0.33
 
