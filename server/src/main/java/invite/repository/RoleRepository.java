@@ -21,7 +21,6 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
             nativeQuery = true)
     List<Role> search(String keyWord, int limit);
 
-
     @Query(value = """
             SELECT r.id as id, r.name as name, r.description as description,
                 (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount
@@ -77,7 +76,7 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
     default String rewrite(String query, Sort sort) {
         Sort.Order userRoleCount = sort.getOrderFor("userRoleCount");
         if (userRoleCount != null) {
-            //Spring can not sort on aggregated columns
+            //Spring cannot sort on aggregated columns
             return query.replace(" order by r.userRoleCount", " order by userRoleCount");
         }
         return query;

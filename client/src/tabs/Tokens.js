@@ -111,6 +111,7 @@ export const Tokens = () => {
                                 name={I18n.t("tokens.secret")}
                                 toolTip={I18n.t("tokens.secretTooltip")}
                                 disabled={true}
+                                customClassName={"token-secret"}
                                 copyClipBoard={true}/>
 
                     <InputField value={description}

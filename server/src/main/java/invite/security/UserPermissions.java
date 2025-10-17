@@ -113,7 +113,7 @@ public class UserPermissions {
                 .orElseThrow(UserRestrictionException::new);
     }
 
-    //Does one off the userRoles has Authority.MANAGE and has the same application as the role
+    //Does one of the userRoles has Authority.MANAGE and has the same application as the role
     private static boolean mayInviteByApplication(Set<UserRole> userRoles, Authority intendedAuthority, Role role) {
         return userRoles.stream()
                 .anyMatch(userRole -> userRole.hasAccessToApplication(role) &&
@@ -121,7 +121,7 @@ public class UserPermissions {
                         userRole.getAuthority().hasEqualOrHigherRights(intendedAuthority));
     }
 
-    //Does one the userRoles has at least the Authority higher than the intendedAuthority and NOT Guest
+    //Does one of the userRoles have at least the Authority higher than the intendedAuthority and NOT Guest
     private static boolean mayInviteByAuthority(Set<UserRole> userRoles, Authority intendedAuthority, Role role) {
         return userRoles.stream()
                 .anyMatch(userRole -> userRole.getAuthority().hasHigherRights(intendedAuthority) &&
