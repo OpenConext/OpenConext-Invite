@@ -1,16 +1,16 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 .tabs-container {
     width: 100%;
-    background-color: $background;
+    background-color: vars.$background;
 
     .tabs {
-        max-width: $max-width;
+        max-width: vars.$max-width;
         margin: 0 auto;
         display: flex;
         gap: var(--sds--space--1);
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             flex-direction: column;
             padding: 0;
         }

@@ -1,14 +1,14 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 .mod-tokens {
     width: 100%;
 
 
     .token-container {
-        max-width: $max-width;
+        max-width: vars.$max-width;
         margin: 0 auto;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             padding: 0 15px;
         }
     }

@@ -1,12 +1,12 @@
-@import "../styles/vars";
+@use "../styles/vars";
 
 .mod-entities {
 
-    max-width: $max-width;
+    max-width: vars.$max-width;
     width: 100%;
     margin: 0 auto;
 
-    @media (max-width: $medium) {
+    @media (max-width: vars.$medium) {
         padding: 0 15px;
     }
 
@@ -22,14 +22,14 @@
         min-height: 40px;
         justify-content: flex-end;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             flex-direction: column;
             align-items: normal;
         }
 
         button {
             margin-left: 25px;
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 margin-left: 0;
                 margin-top: 15px
             }
@@ -37,7 +37,7 @@
 
         h2 {
             margin-right: auto;
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 margin-bottom: 15px
             }
 
@@ -56,7 +56,7 @@
         .search-filter {
             display: flex;
             width: 290px;
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 flex-direction: column;
                 margin: 15px 0;
             }
@@ -76,7 +76,7 @@
             position: relative;
             display: flex;
 
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 margin-left: 0;
                 margin-top: 20px;
 
@@ -89,7 +89,7 @@
                 flex-grow: 2;
                 min-width: 360px;
 
-                @media (max-width: $medium) {
+                @media (max-width: vars.$medium) {
                     min-width: 0;
                 }
             }

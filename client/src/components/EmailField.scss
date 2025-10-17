@@ -1,4 +1,4 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 div.email-field {
     display: flex;
@@ -19,7 +19,7 @@ div.email-field {
         flex-wrap: wrap;
         width: 100%;
         border: 1px solid var(--sds--color--gray--400);
-        border-radius: $br;
+        border-radius: vars.$br;
         font-size: 16px;
 
         &:focus-within {
@@ -50,7 +50,7 @@ div.email-field {
 
     div.email-tag {
         border: 1px solid var(--sds--color--gray--200);
-        border-radius: $br;
+        border-radius: vars.$br;
         margin: 10px 5px 0 5px;
         display: inline-block;
         position: relative;

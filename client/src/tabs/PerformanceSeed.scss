@@ -1,10 +1,10 @@
-@import "../styles/mixins";
+@use "../styles/mixins";
 
 .mod-performance-seed-container {
     background-color: white;
 
     .mod-performance-seed {
-        @include page;
+        @include mixins.page;
         padding: 20px 0;
 
         .actions {

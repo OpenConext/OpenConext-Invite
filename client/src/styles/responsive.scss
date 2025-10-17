@@ -1,8 +1,8 @@
-@import "../styles/vars";
+@use "../styles/vars";
 
 table {
 
-    @media (max-width: $medium) {
+    @media (max-width: vars.$medium) {
 
         thead {
             display: none;

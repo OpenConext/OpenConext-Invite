@@ -1,10 +1,10 @@
-@import "../styles/mixins";
+@use "../styles/mixins";
 
 .mod-cron-container {
     background-color: white;
 
     .mod-cron {
-        @include page;
+        @include mixins.page;
         padding: 20px 0;
 
         .actions {

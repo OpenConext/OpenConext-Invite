@@ -1,4 +1,4 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 
 .tab {
@@ -22,7 +22,7 @@
         margin-right: 0;
     }
 
-    @media (max-width: $medium) {
+    @media (max-width: vars.$medium) {
         margin: 0;
     }
 
@@ -107,7 +107,7 @@
             height: auto;
         }
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             top: 8px;
             right: 4px;
         }

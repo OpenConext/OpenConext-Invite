@@ -1,4 +1,4 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 .date-field {
     display: flex;
@@ -29,7 +29,7 @@
         display: flex;
         width: 240px;
         position: relative;
-        border-radius: $br;
+        border-radius: vars.$br;
 
         &:focus {
             outline: none;
@@ -57,7 +57,7 @@
         input[type="text"] {
             display: block;
             width: 100%;
-            border-radius: $br;
+            border-radius: vars.$br;
             border: 1px solid var(--sds--color--gray--400);
             line-height: 33px;
             padding: 16px;
@@ -71,7 +71,7 @@
 
             &[disabled] {
                 cursor: not-allowed;
-                background-color: $background;
+                background-color: vars.$background;
             }
         }
 

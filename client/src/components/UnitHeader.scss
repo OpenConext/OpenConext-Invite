@@ -1,11 +1,11 @@
-@import "../styles/vars";
+@use "../styles/vars";
 
 
 .unit-header-container {
-    background-color: $background;
+    background-color: vars.$background;
     padding: 15px 0 25px 0;
 
-    @media (max-width: $medium) {
+    @media (max-width: vars.$medium) {
         padding: 15px 15px 25px 15px;
     }
 
@@ -25,12 +25,12 @@
     }
 
     .unit-header {
-        max-width: $max-width;
+        max-width: vars.$max-width;
         margin: 0 auto;
         width: 100%;
         display: flex;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             flex-direction: column;
         }
 
@@ -66,7 +66,7 @@
                 }
             }
 
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 display: none;
             }
 
@@ -96,7 +96,7 @@
         gap: 20px;
         margin-left: 25px;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             margin-top: 20px;
         }
 
@@ -111,7 +111,7 @@
     }
 
     .other-options, .sds--user-info--dropdown {
-        background-color: $background;
+        background-color: vars.$background;
     }
 
     .sds--menu-button .sds--user-info--dropdown {

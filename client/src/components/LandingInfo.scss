@@ -1,17 +1,17 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 .mod-login-container {
-    @media (max-width: $medium) {
+    @media (max-width: vars.$medium) {
         padding: 0 15px;
     }
     background-color: white;
 
     &.bottom {
-        background-color: $background;
+        background-color: vars.$background;
     }
 
     .mod-login {
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             flex-direction: column;
             width: 100%;
         }
@@ -22,7 +22,7 @@
 
         &.reversed {
             flex-direction: row-reverse;
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 flex-direction: column;
             }
         }
@@ -50,14 +50,14 @@
                 font-size: 22px;
             }
 
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 width: auto;
                 margin: 25px auto;
             }
 
             &.info {
                 width: 50%;
-                @media (max-width: $medium) {
+                @media (max-width: vars.$medium) {
                     width: auto;
                     margin: 25px auto;
                 }
@@ -67,7 +67,7 @@
 
         .header-right {
             width: 50%;
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 width: auto;
                 margin: 25px auto;
             }
@@ -76,7 +76,7 @@
                 width: 310px;
                 height: auto;
 
-                @media (max-width: $medium) {
+                @media (max-width: vars.$medium) {
                     width: 180px;
                 }
 
@@ -85,7 +85,7 @@
             &.info {
                 display: flex;
                 width: 55%;
-                @media (max-width: $medium) {
+                @media (max-width: vars.$medium) {
                     width: auto;
                     margin: 25px auto;
                 }
@@ -99,7 +99,7 @@
                         margin: 0 40px 0 0;
                     }
 
-                    @media (max-width: $medium) {
+                    @media (max-width: vars.$medium) {
                         width: 180px;
                     }
 

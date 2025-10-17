@@ -1,20 +1,20 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 div.mod-roles {
 
     .more-results-available {
-        max-width: $max-width;
+        max-width: vars.$max-width;
         width: 100%;
         margin: 20px auto 0 auto;
     }
 
     .guest-only {
 
-        max-width: $max-width;
+        max-width: vars.$max-width;
         width: 100%;
         margin: 25px auto 15px auto;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             padding: 0 15px;
         }
     }
@@ -25,7 +25,7 @@ div.mod-roles {
         flex-direction: column;
         margin-top: 25px;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             padding: 0 15px;
         }
 

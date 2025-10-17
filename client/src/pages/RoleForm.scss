@@ -1,9 +1,10 @@
-@import "../styles/mixins";
+@use "../styles/mixins";
+@use "../styles/vars";
 
 .mod-role-form {
     .role-form {
-        @include page;
-        @include form;
+        @include mixins.page;
+        @include mixins.form;
 
         .section-separator {
             grid-column-start: first;
@@ -19,14 +20,14 @@
             display: flex;
             position: relative;
 
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 flex-direction: column;
             }
 
             .select-field {
                 width: 100%;
 
-                @media (max-width: $medium) {
+                @media (max-width: vars.$medium) {
                     width: 100%;
                 }
 
@@ -47,7 +48,7 @@
                     margin-top: -2px;
                 }
 
-                @media (max-width: $medium) {
+                @media (max-width: vars.$medium) {
                     width: 100%;
                     margin-left: 0;
                 }
@@ -58,7 +59,7 @@
                 right: 0;
                 top: 60px;
 
-                @media (max-width: $medium) {
+                @media (max-width: vars.$medium) {
                     position: initial;
                     margin-left: 0;
                 }

@@ -1,6 +1,6 @@
-@import "styles/tooltip";
-@import "styles/forms";
-@import "styles/responsive";
+@use "styles/tooltip";
+@use "styles/forms";
+@use "styles/responsive";
 
 body:after {
     position: fixed;

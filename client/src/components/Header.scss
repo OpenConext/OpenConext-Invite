@@ -1,4 +1,4 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 .header-container {
 
@@ -14,9 +14,9 @@
         align-items: center;
         width: 100%;
         margin: 0 auto;
-        max-width: $max-width;
+        max-width: vars.$max-width;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             padding: 0 15px;
         }
 

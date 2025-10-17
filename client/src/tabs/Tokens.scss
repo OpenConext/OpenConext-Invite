@@ -1,4 +1,4 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 div.mod-tokens {
 
@@ -70,7 +70,7 @@ div.mod-tokens {
         width: 100%;
         margin: 40px auto 25px auto;
 
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             flex-direction: column;
         }
 
@@ -92,7 +92,7 @@ div.mod-tokens {
         div.new-token {
             width: 60%;
 
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 padding: 15px;
                 width: 100%;
             }

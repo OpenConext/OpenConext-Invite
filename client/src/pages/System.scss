@@ -1,6 +1,6 @@
-@import "../styles/vars";
+@use "../styles/vars";
 
 .mod-system {
     padding-top: 25px;
-    background-color: $background;
+    background-color: vars.$background;
 }

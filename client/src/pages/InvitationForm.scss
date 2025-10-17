@@ -1,14 +1,15 @@
-@import "../styles/mixins";
+@use "../styles/mixins";
+@use "../styles/vars";
 
 .mod-invitation-form {
 
     &.inviter {
-        background-color: $background;
+        background-color: vars.$background;
     }
 
     .invitation-form {
-        @include page;
-        @include form;
+        @include mixins.page;
+        @include mixins.form;
 
         &.inviter {
             max-width: 820px;
@@ -49,7 +50,7 @@
             border: 1px solid var(--sds--color--gray--400);
             background-color: white;
 
-            @media (max-width: $medium) {
+            @media (max-width: vars.$medium) {
                 padding: 25px;
             }
         }

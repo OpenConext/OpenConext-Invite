@@ -1,4 +1,4 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 .select-field {
     display: flex;
@@ -23,7 +23,7 @@
         }
 
         border: 1px solid var(--sds--color--gray--300);
-        border-radius: $br;
+        border-radius: vars.$br;
         font-size: 16px;
         min-height: 48px;
 
@@ -36,7 +36,7 @@
             height: 100%;
             padding-left: 8px;
             border: none;
-            border-radius: $br;
+            border-radius: vars.$br;
         }
 
         .select-inner__control--is-focused {
@@ -46,7 +46,7 @@
         }
 
         &[disabled] {
-            background-color: $background;
+            background-color: vars.$background;
             cursor: not-allowed;
         }
 
@@ -61,7 +61,7 @@
     }
 
     .select-inner__control--is-disabled {
-        background-color: $background;
+        background-color: vars.$background;
         border-radius: 6px;
     }
 }

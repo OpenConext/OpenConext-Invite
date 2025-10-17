@@ -1,8 +1,8 @@
-@import "../styles/vars.scss";
-@import "../styles/mixins";
+@use "../styles/vars.scss";
+@use "../styles/mixins";
 
 .input-field {
-    @include input-field;
+    @include mixins.input-field;
 
     display: flex;
     position: relative;
@@ -13,7 +13,7 @@
         width: 100%;
         border: 1px solid var(--sds--color--gray--300);
         padding: 6px 12px;
-        border-radius: $br;
+        border-radius: vars.$br;
         font-size: 16px;
         height: 48px;
         color: black;
