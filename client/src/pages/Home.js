@@ -64,7 +64,7 @@ export const Home = () => {
                 </Page>
             );
         }
-        if (user && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) {
+        if (user && !user.superUser && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) {
             newTabs.push(
                 <Page key="applicationUsers"
                       name="applicationUsers"
