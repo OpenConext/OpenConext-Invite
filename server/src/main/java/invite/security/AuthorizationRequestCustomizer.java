@@ -1,5 +1,7 @@
 package invite.security;
 
+import invite.manage.Manage;
+import invite.model.ApplicationUsage;
 import invite.model.Authority;
 import invite.model.Invitation;
 import invite.repository.InvitationRepository;
@@ -10,17 +12,26 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AuthorizationRequestCustomizer implements Consumer<OAuth2AuthorizationRequest.Builder> {
 
     private final InvitationRepository invitationRepository;
     private final String eduidEntityId;
+    private final Manage manage;
 
-    public AuthorizationRequestCustomizer(InvitationRepository invitationRepository, String eduidEntityId) {
+    public AuthorizationRequestCustomizer(InvitationRepository invitationRepository,
+                                          String eduidEntityId,
+                                          Manage manage) {
         this.invitationRepository = invitationRepository;
         this.eduidEntityId = eduidEntityId;
+        this.manage = manage;
     }
 
     @Override
@@ -41,8 +52,23 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
             if (hash != null && hash.length == 1) {
                 Optional<Invitation> optionalInvitation = invitationRepository.findByHash(hash[0]);
                 optionalInvitation.ifPresent(invitation -> {
-                    if (invitation.isEduIDOnly() && invitation.getIntendedAuthority().equals(Authority.GUEST)) {
+                    boolean guestInvitation = invitation.getIntendedAuthority().equals(Authority.GUEST);
+                    if (invitation.isEduIDOnly() && guestInvitation) {
                         params.put("login_hint", eduidEntityId);
+                    } else if (!invitation.isEduIDOnly() && guestInvitation) {
+                        //Fetch all IdentityProviders that have one the manage role applications in their allowList
+                        // First, get all entity identifiers of the applications connected to the roles of the invitation
+                        List<String> entityIdentifiers = invitation.getRoles().stream()
+                                .map(role -> role.getRole().getApplicationUsages())
+                                .flatMap(Collection::stream)
+                                .map(applicationUsage -> applicationUsage.getApplication())
+                                .map(application -> manage.providerById(application.getManageType(), application.getManageId()))
+                                .map(provider -> (String) ((Map) provider.get("data")).get("entityid"))
+                                .distinct()
+                                .toList();
+                        //Now get all entityIdentifiers of the IdP's
+                        List<String> idpList = manage.idpEntityIdentifiersByServiceEntityId(entityIdentifiers);
+                        params.put("login_hint", idpList.stream().collect(Collectors.joining(",")));
                     }
                 });
             }

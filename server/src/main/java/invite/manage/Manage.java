@@ -15,6 +15,8 @@ public interface Manage {
 
     Map<String, Object> providerById(EntityType entityType, String id);
 
+    List<String> idpEntityIdentifiersByServiceEntityId(List<String> serviceEntityIdentifiers);
+
     Optional<Map<String, Object>> providerByEntityID(EntityType entityType, String entityID);
 
     List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers);

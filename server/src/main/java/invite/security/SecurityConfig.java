@@ -61,6 +61,7 @@ public class SecurityConfig {
     private final ProvisioningService provisioningService;
     private final ExternalApiConfiguration externalApiConfiguration;
     private final Environment environment;
+    private final Manage manage;
 
     private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
 
@@ -73,7 +74,7 @@ public class SecurityConfig {
                           @Value("${config.eduid-entity-id}") String eduidEntityId,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
-                          @Value("${oidcng.resource-server-secret}") String secret) {
+                          @Value("${oidcng.resource-server-secret}") String secret, Manage manage) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
         this.provisioningService = provisioningService;
@@ -83,6 +84,7 @@ public class SecurityConfig {
         this.secret = secret;
         this.externalApiConfiguration = externalApiConfiguration;
         this.environment = environment;
+        this.manage = manage;
     }
 
     @Configuration
@@ -182,7 +184,7 @@ public class SecurityConfig {
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, "/oauth2/authorization");
         authorizationRequestResolver.setAuthorizationRequestCustomizer(
-                new AuthorizationRequestCustomizer(invitationRepository, eduidEntityId));
+                new AuthorizationRequestCustomizer(invitationRepository, eduidEntityId, manage));
         return authorizationRequestResolver;
     }
 

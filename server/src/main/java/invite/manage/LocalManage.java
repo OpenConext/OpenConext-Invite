@@ -1,8 +1,8 @@
 package invite.manage;
 
-import invite.exception.NotFoundException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import invite.exception.NotFoundException;
 import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,6 +84,23 @@ public final class LocalManage implements Manage {
     }
 
     @Override
+    public List<String> idpEntityIdentifiersByServiceEntityId(List<String> serviceEntityIdentifiers) {
+        if (serviceEntityIdentifiers.isEmpty()) {
+            return emptyList();
+        }
+        List<Map<String, Object>> allIdentityProviders = this.providers(EntityType.SAML20_IDP);
+        return allIdentityProviders.stream()
+                .filter(idp -> {
+                    List<Map<String, String>> allowedEntities = (List<Map<String, String>>) idp.getOrDefault("allowedEntities", emptyList());
+                    return allowedEntities.stream()
+                            .map(entity -> entity.get("name"))
+                            .anyMatch(name -> serviceEntityIdentifiers.contains(name));
+                })
+                .map(idp -> (String) ((Map) idp.get("data")).get("entityid"))
+                .toList();
+    }
+
+    @Override
     public List<Map<String, Object>> provisioning(Collection<String> applicationIdentifiers) {
         LOG.debug("provisioning for : " + applicationIdentifiers);
 
@@ -115,7 +132,6 @@ public final class LocalManage implements Manage {
                 .distinct()
                 .toList();
         return allProviders.stream().filter(provider -> entityIdentifiers.contains((String) provider.get("entityid"))).toList();
-
     }
 
     @Override

@@ -1,18 +1,13 @@
 package invite.manage;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
@@ -43,7 +38,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        LOG.debug(String.format("providersByIdIn (%s) %s", entityType, identifiers.stream().collect(joining(") (", "(", ")"))));
+        LOG.debug(String.format("providersByIdIn (%s) %s", entityType, identifiers));
         if (CollectionUtils.isEmpty(identifiers)) {
             LOG.debug("No identifiers in providersByIdIn");
             return emptyList();
@@ -56,6 +51,27 @@ public class RemoteManage implements Manage {
             LOG.debug(String.format("Got %d results for providersByIdIn", providers.size()));
         }
         return transformProvider(providers);
+    }
+
+    @Override
+    public List<String> idpEntityIdentifiersByServiceEntityId(List<String> serviceEntityIdentifiers) {
+        LOG.debug(String.format("idpEntityIdentifiersByServiceEntityId %s",
+                serviceEntityIdentifiers));
+        if (CollectionUtils.isEmpty(serviceEntityIdentifiers)) {
+            LOG.debug("No identifiers in idpEntityIdentifiersByServiceEntityId");
+            return emptyList();
+        }
+        Map<String, Object> body = Map.of(
+          "allowedEntities.name",serviceEntityIdentifiers,
+          "REQUESTED_ATTRIBUTES", List.of("entityid")
+        );
+        String manageUrl = String.format("%s/manage/api/internal/search/%s", url, EntityType.SAML20_IDP.collectionName());
+        List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
+        if (providers != null) {
+            LOG.debug(String.format("Got %d results for idpEntityIdentifiersByServiceEntityId", providers.size()));
+        }
+        return providers.stream().map(m -> (String)((Map)m.get("data")).get("entityid")).toList();
+
     }
 
     @Override
