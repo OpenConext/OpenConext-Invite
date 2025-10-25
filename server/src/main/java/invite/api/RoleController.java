@@ -1,6 +1,7 @@
 package invite.api;
 
 import invite.config.Config;
+import invite.exception.InvalidInputException;
 import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;
 import invite.logging.AccessLogger;
@@ -151,7 +152,9 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
                                         @Parameter(hidden = true) User user) {
         LOG.debug(String.format("POST /roles/ for user %s", user.getEduPersonPrincipalName()));
-
+        if (role.getId() != null) {
+            throw new InvalidInputException("Role id must be null for new Role");
+        }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         //For super_users we allow an organization GUID from the input form
         if (InstitutionAdmin.isInstitutionAdmin(user)) {
