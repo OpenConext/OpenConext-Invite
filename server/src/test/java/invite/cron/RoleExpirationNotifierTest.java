@@ -32,7 +32,7 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
 
         MimeMessageParser messageParser = super.mailMessage();
         String htmlContent = messageParser.getHtmlContent();
-        //Due to html formatting we can't be sure of the line breaks
+        //Due to HTML formatting, we can't be sure of the line breaks
         Stream.of("Your Inviter role Mail at the application Calendar EN will expire in 5 days".split(" "))
                 .forEach(s -> assertTrue(htmlContent.contains(s)));
 
