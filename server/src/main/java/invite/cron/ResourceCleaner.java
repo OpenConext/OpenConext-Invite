@@ -68,7 +68,7 @@ public class ResourceCleaner {
         Instant past = Instant.now().minus(Period.ofDays(lastActivityDurationDays));
         List<User> users = userRepository.findByLastActivityBefore(past);
 
-        LOG.info(String.format("Deleted %s users with no activity in the last %s days: %s ",
+        LOG.info(String.format("Deleting %s users with no activity in the last %s days: %s ",
                 users.size(),
                 lastActivityDurationDays,
                 users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
@@ -82,7 +82,7 @@ public class ResourceCleaner {
     private List<User> cleanOrphanedUser() {
         List<User> orphans = userRepository.findNonSuperUserWithoutUserRoles();
 
-        LOG.info(String.format("Deleted %s non-super users with no userRoles; %s",
+        LOG.info(String.format("Deleting %s non-super users with no userRoles; %s",
                 orphans.size(),
                 orphans.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
 
@@ -95,7 +95,7 @@ public class ResourceCleaner {
     private List<UserRole> cleanUserRoles() {
         List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(Instant.now(), 1);
 
-        LOG.info(String.format("Deleted %s userRoles with an endDate in the past: %s",
+        LOG.info(String.format("Deleting %s userRoles with an endDate in the past: %s",
                 userRoles.size(),
                 userRoles.stream()
                         .map(userRole -> String.format("%s - %s", userRole.getUser().getEduPersonPrincipalName(), userRole.getRole().getName()))
