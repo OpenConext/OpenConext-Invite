@@ -3,6 +3,7 @@ package invite.model;
 import invite.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ public class Role implements Serializable, Provisionable {
 
     @Column
     @NotNull
+    @NotBlank
     private String name;
 
     @Column(name = "short_name")

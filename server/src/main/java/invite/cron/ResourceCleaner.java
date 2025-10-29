@@ -1,6 +1,7 @@
 package invite.cron;
 
 
+import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
 import invite.provision.ProvisioningService;
@@ -20,7 +21,6 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class ResourceCleaner {
@@ -59,57 +59,57 @@ public class ResourceCleaner {
         List<User> users = cleanNonActiveUsers();
         List<User> orphans = cleanOrphanedUser();
         List<UserRole> userRoles = cleanUserRoles();
-        return Map.of("DeletedNonActiveUsers", users,
+        return Map.of(
+                "DeletedNonActiveUsers", users,
                 "DeletedOrphanUsers", orphans,
-                "DeletedExpiredUserRoles", userRoles);
+                "DeletedExpiredUserRoles", userRoles
+        );
     }
 
     private List<User> cleanNonActiveUsers() {
         Instant past = Instant.now().minus(Period.ofDays(lastActivityDurationDays));
         List<User> users = userRepository.findByLastActivityBefore(past);
-
-        LOG.info(String.format("Deleting %s users with no activity in the last %s days: %s ",
-                users.size(),
-                lastActivityDurationDays,
-                users.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
-
-        users.forEach(provisioningService::deleteUserRequest);
-        userRepository.deleteAll(users);
-
+        this.doDeleteUsers(users, "Deleted user %s with no recent activity");
         return users;
     }
 
     private List<User> cleanOrphanedUser() {
         List<User> orphans = userRepository.findNonSuperUserWithoutUserRoles();
-
-        LOG.info(String.format("Deleting %s non-super users with no userRoles; %s",
-                orphans.size(),
-                orphans.stream().map(User::getEduPersonPrincipalName).collect(Collectors.joining(", "))));
-
-        orphans.forEach(provisioningService::deleteUserRequest);
-        userRepository.deleteAll(orphans);
-
+        this.doDeleteUsers(orphans, "Deleted non-super user %s with no roles");
         return orphans;
+    }
+
+    private void doDeleteUsers(List<User> users, String logMessage) {
+        users.forEach(user -> {
+            try {
+                provisioningService.deleteUserRequest(user);
+                userRepository.delete(user);
+
+                LOG.info(String.format(logMessage, user.getEmail()));
+            } catch (RuntimeException e) {
+                LOG.error(String.format("Error in provisioningService#deleteUserRequest for user %s", user.getEmail()), e);
+            }
+        });
     }
 
     private List<UserRole> cleanUserRoles() {
         List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(Instant.now(), 1);
-
-        LOG.info(String.format("Deleting %s userRoles with an endDate in the past: %s",
-                userRoles.size(),
-                userRoles.stream()
-                        .map(userRole -> String.format("%s - %s", userRole.getUser().getEduPersonPrincipalName(), userRole.getRole().getName()))
-                        .collect(Collectors.toList())));
-
-        userRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Remove));
-
         userRoles.forEach(userRole -> {
             User user = userRole.getUser();
-            user.removeUserRole(userRole);
-            userRepository.save(user);
+            Role role = userRole.getRole();
+            try {
+                provisioningService.updateGroupRequest(userRole, OperationType.Remove);
+                user.removeUserRole(userRole);
+                userRepository.save(user);
+                LOG.info(String.format("Deleted userRoles for user %s and role %s with an endDate in the past",
+                        user.getEmail(),
+                        role.getName()));
+            } catch (RuntimeException e) {
+                LOG.error(String.format("Error in provisioningService#updateGroupRequest for user %s and userRole %s",
+                        user.getEmail(), role.getName()), e);
+            }
         });
         return userRoles;
-
     }
 
 }
