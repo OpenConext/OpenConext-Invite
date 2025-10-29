@@ -58,8 +58,8 @@ public class RoleExpirationNotifier {
             List<GroupedProviders> groupedProviders = manage.getGroupedProviders(List.of(userRole.getRole()));
             GroupedProviders groupedProvider = groupedProviders.isEmpty() ? null : groupedProviders.get(0);
             Instant endDate = userRole.getEndDate();
-            long daysBetween = ChronoUnit.DAYS.between(endDate, instant);
-            String mail = mailBox.sendUserRoleExpirationNotificationMail(userRole, groupedProvider, roleExpirationNotificationDays);
+            long daysBetween = Math.min(ChronoUnit.DAYS.between(endDate, instant) - roleExpirationNotificationDays, roleExpirationNotificationDays) ;
+            String mail = mailBox.sendUserRoleExpirationNotificationMail(userRole, groupedProvider, (int) daysBetween);
             //https://stackoverflow.com/a/75121707
             userRoleRepository.updateExpiryNotifications(1, userRole.getId());
 

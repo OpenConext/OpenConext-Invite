@@ -23,7 +23,7 @@ public class HashGenerator {
     }
 
     public static String generateToken() {
-        return RandomStringUtils.random(36, true, true);
+        return RandomStringUtils.secure().random(36, true, true);
     }
 
     public static String hashToken(String token) {
