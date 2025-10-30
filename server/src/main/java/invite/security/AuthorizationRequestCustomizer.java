@@ -8,6 +8,7 @@ import invite.repository.InvitationRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -63,6 +64,7 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                                 .flatMap(Collection::stream)
                                 .map(applicationUsage -> applicationUsage.getApplication())
                                 .map(application -> manage.providerById(application.getManageType(), application.getManageId()))
+                                .filter(provider -> !CollectionUtils.isEmpty(provider))
                                 .map(provider -> (String) ((Map) provider.get("data")).get("entityid"))
                                 .distinct()
                                 .toList();
