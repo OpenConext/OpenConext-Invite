@@ -136,7 +136,8 @@ export const markAndFilterRoles = (user, allRoles, locale, multiple, separator, 
         deriveApplicationAttributes(role, locale, multiple, separator);
     });
     if (!user.superUser) {
-        const userRoles = user.userRoles;
+        const userRoles = user.userRoles
+            .filter(userRole => userRole.authority !== AUTHORITIES.GUEST);
         userRoles.forEach(userRole => {
             userRole.isUserRole = true;
             const role = userRole.role;

@@ -18,6 +18,9 @@ import java.util.UUID;
 
 public class LocalDevelopmentAuthenticationFilter implements Filter {
 
+    private static final String SUB = "urn:collab:person:example.com:super";
+//    private static final String SUB = "urn:collab:person:example.com:inviter_wiki_sub";
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -30,14 +33,14 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
     private void populateSecurityContext() {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("OPENID"));
         Map<String, Object> claims = Map.of(
-                "eduperson_principal_name", "urn:collab:person:example.com:super",
+                "eduperson_principal_name", SUB,
                 "email", "email",
                 "family_name", "Doe",
                 "given_name", "John",
                 "name", "John Doe",
                 "schac_home_organization", "example.com",
                 "scope", "openid",
-                "sub", "urn:collab:person:example.com:super",
+                "sub", SUB,
                 "uids", List.of("super"));
         OidcIdToken idtoken = new OidcIdToken(
                 UUID.randomUUID().toString(),

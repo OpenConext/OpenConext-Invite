@@ -7,6 +7,7 @@ import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
 import DOMPurify from "dompurify";
 import {useNavigate} from "react-router-dom";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
+import {AUTHORITIES} from "../utils/UserRole";
 
 export const Inviter = () => {
 
@@ -34,10 +35,6 @@ export const Inviter = () => {
         )
     }
 
-    const sortUserRoles = () => {
-        return [...user.userRoles].sort((ur1, ur2) => ur1.role.name.localeCompare(ur2.role.name));
-    }
-
     return (
         <div className="mod-inviter">
             <div className="inviter-container">
@@ -53,7 +50,10 @@ export const Inviter = () => {
                             onClick={() => navigate("/invitation/new")}/>
                 </div>
                 <h3 className={"sub-info"}>{I18n.t("inviter.manage")}</h3>
-                {sortUserRoles(user.userRoles).map((userRole, index) => renderUserRole(userRole.role, index))}
+                {user.userRoles
+                    .filter(userRole => userRole.authority !== AUTHORITIES.GUEST)
+                    .sort((ur1, ur2) => ur1.role.name.localeCompare(ur2.role.name))
+                    .map((userRole, index) => renderUserRole(userRole.role, index))}
             </div>
         </div>);
 };

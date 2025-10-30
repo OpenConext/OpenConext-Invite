@@ -101,7 +101,7 @@ public class ResourceCleaner {
                 provisioningService.updateGroupRequest(userRole, OperationType.Remove);
                 user.removeUserRole(userRole);
                 userRepository.save(user);
-                LOG.info(String.format("Deleted userRoles for user %s and role %s with an endDate in the past",
+                LOG.info(String.format("Deleted userRole for user %s and role %s with an endDate in the past",
                         user.getEmail(),
                         role.getName()));
             } catch (RuntimeException e) {
