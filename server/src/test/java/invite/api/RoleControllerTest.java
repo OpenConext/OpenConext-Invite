@@ -4,10 +4,7 @@ import invite.AbstractTest;
 import invite.AccessCookieFilter;
 import invite.DefaultPage;
 import invite.manage.EntityType;
-import invite.model.Application;
-import invite.model.ApplicationUsage;
-import invite.model.RemoteProvisionedGroup;
-import invite.model.Role;
+import invite.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -28,8 +25,7 @@ class RoleControllerTest extends AbstractTest {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
-        role.setOrganizationGUID("ad93daef-0911-e511-80d0-005056956c1a");
+        RoleRequest roleRequest = new RoleRequest("New", "New desc", 365, false, false, false, true, "ad93daef-0911-e511-80d0-005056956c1a", "From me", application("1", EntityType.SAML20_SP));
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
@@ -41,12 +37,12 @@ class RoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(role)
+                .body(roleRequest)
                 .post("/api/v1/roles")
                 .as(Map.class);
         assertNotNull(result.get("id"));
         Role roleFromDB = roleRepository.findById(Long.valueOf((Integer) result.get("id"))).get();
-        assertEquals(role.getOrganizationGUID(), roleFromDB.getOrganizationGUID());
+        assertEquals(roleRequest.getOrganizationGUID(), roleFromDB.getOrganizationGUID());
     }
 
     @Test
@@ -55,8 +51,9 @@ class RoleControllerTest extends AbstractTest {
         stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
-        Role role = new Role("New", "New desc", application("1", EntityType.SAML20_SP), 365, false, false);
-        role.setOrganizationGUID(UUID.randomUUID().toString());
+        RoleRequest roleRequest = new RoleRequest("New", "New desc", 365,
+                false, false, false, true,
+                UUID.randomUUID().toString(), "From me", application("1", EntityType.SAML20_SP));
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
@@ -68,7 +65,7 @@ class RoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(role)
+                .body(roleRequest)
                 .post("/api/v1/roles")
                 .as(Map.class);
         assertNotNull(result.get("id"));
@@ -81,7 +78,10 @@ class RoleControllerTest extends AbstractTest {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        Role role = new Role("New", "New desc", Set.of(), 365, false, false);
+        RoleRequest roleRequest = new RoleRequest("New", "New desc", 365,
+                false, false, false, true,
+                null, "From me", Set.of());
+
 
         given()
                 .when()
@@ -89,7 +89,7 @@ class RoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(role)
+                .body(roleRequest)
                 .post("/api/v1/roles")
                 .then()
                 .statusCode(400);
@@ -102,7 +102,9 @@ class RoleControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Set<ApplicationUsage> applicationUsages = application("1", EntityType.SAML20_SP);
         applicationUsages.iterator().next().setLandingPage("nope");
-        Role role = new Role("New", "New desc", applicationUsages, 365, false, false);
+        RoleRequest roleRequest = new RoleRequest("New", "New desc", 365,
+                false, false, false, true,
+                null, "From me", applicationUsages);
 
         given()
                 .when()
@@ -110,7 +112,7 @@ class RoleControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(role)
+                .body(roleRequest)
                 .post("/api/v1/roles")
                 .then()
                 .statusCode(400);

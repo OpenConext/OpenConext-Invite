@@ -1,7 +1,6 @@
 package invite.api;
 
 import invite.config.Config;
-import invite.exception.InvalidInputException;
 import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;
 import invite.logging.AccessLogger;
@@ -149,18 +148,20 @@ public class RoleController implements ApplicationResource {
 
 
     @PostMapping("")
-    public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
+    public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
                                         @Parameter(hidden = true) User user) {
         LOG.debug(String.format("POST /roles/ for user %s", user.getEduPersonPrincipalName()));
-        if (role.getId() != null) {
-            throw new InvalidInputException("Role id must be null for new Role");
-        }
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         //For super_users we allow an organization GUID from the input form
+        Role role = new Role(roleRequest);
         if (InstitutionAdmin.isInstitutionAdmin(user)) {
             role.setOrganizationGUID(user.getOrganizationGUID());
+        } else if (user.isSuperUser()) {
+            role.setOrganizationGUID(roleRequest.getOrganizationGUID());
+        } else {
+            role.setOrganizationGUID(null);
         }
-        role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
+        role.setShortName(GroupURN.sanitizeRoleShortName(roleRequest.getName()));
         role.setIdentifier(UUID.randomUUID().toString());
         role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
 
@@ -171,7 +172,7 @@ public class RoleController implements ApplicationResource {
 
     @PutMapping("")
     @Retryable(
-            retryFor = { SQLTransactionRollbackException.class },
+            retryFor = {SQLTransactionRollbackException.class},
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000)
     )

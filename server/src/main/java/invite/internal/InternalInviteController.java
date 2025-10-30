@@ -129,7 +129,6 @@ public class InternalInviteController implements ApplicationResource, Invitation
                     content = {@Content(examples = {@ExampleObject(value = """
                             {
                               "name": "Required role name",
-                              "shortName": "Required short name - may be copy of name",
                               "description": "Required role description",
                               "defaultExpiryDays": 365,
                               "inviterDisplayName": "Free format field used in the invitation emails for this role (can be email address)"
@@ -209,11 +208,12 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                             }
                                             """
                                     )})})})
-    public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
+    public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
                                         @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        Role role = new Role(roleRequest);
         role.setRemoteApiUser(remoteUser.getName());
 
-        role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
+        role.setShortName(GroupURN.sanitizeRoleShortName(role.getName()));
         role.setIdentifier(UUID.randomUUID().toString());
 
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), remoteUser.getName()));
