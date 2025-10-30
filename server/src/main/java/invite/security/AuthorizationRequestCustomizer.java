@@ -55,21 +55,7 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                     boolean guestInvitation = invitation.getIntendedAuthority().equals(Authority.GUEST);
                     if (invitation.isEduIDOnly() && guestInvitation) {
                         params.put("login_hint", eduidEntityId);
-                    } else if (!invitation.isEduIDOnly() && guestInvitation) {
-                        //Fetch all IdentityProviders that have one the manage role applications in their allowList
-                        // First, get all entity identifiers of the applications connected to the roles of the invitation
-                        List<String> entityIdentifiers = invitation.getRoles().stream()
-                                .map(role -> role.getRole().getApplicationUsages())
-                                .flatMap(Collection::stream)
-                                .map(applicationUsage -> applicationUsage.getApplication())
-                                .map(application -> manage.providerById(application.getManageType(), application.getManageId()))
-                                .map(provider -> (String) ((Map) provider.get("data")).get("entityid"))
-                                .distinct()
-                                .toList();
-                        //Now get all entityIdentifiers of the IdP's
-                        List<String> idpList = manage.idpEntityIdentifiersByServiceEntityId(entityIdentifiers);
-                        params.put("login_hint", idpList.stream().collect(Collectors.joining(",")));
-                    }
+                    } 
                 });
             }
         });
