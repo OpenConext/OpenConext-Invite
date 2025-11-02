@@ -244,7 +244,7 @@ export const UserRoles = ({role, guests}) => {
                 />
             );
         }
-        return dateFromEpoch(userRole.endDate, false)
+        return shortDateFromEpoch(userRole.endDate, false)
     }
 
     const actionIcons = userRole => {
