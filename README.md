@@ -21,17 +21,20 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 ```
 
 MariaDB and Mailpit in docker for local development
+
 ```bash
 docker compose up -d
 ```
 
 Then create the MySQL database:
+
 ```sql
 DROP DATABASE IF EXISTS invite;
 CREATE DATABASE invite CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 CREATE USER 'invite'@'%' IDENTIFIED BY 'secret';
 GRANT ALL privileges ON `invite`.* TO 'invite'@'%';
 ```
+
 Note: for MariaDB `COLLATE utf8mb4_0900_ai_ci` might not work and can be left out
 
 ### [Building and running](#building-and-running)
@@ -43,11 +46,13 @@ This project uses Spring Boot and Maven. To run locally, type:
 ```
 
 Install frontend dependencies
+
 ```bash
 (cd client && yarn)
 ```
 
 Run frontend
+
 ```bash
 (cd client && yarn start)
 ```
@@ -156,6 +161,7 @@ openssl pkcs8 -topk8 -in private_key.pem -inform pem -out private_key_pkcs8.pem 
 ```
 
 ## Deploy
+
 To build and deploy (the latter requires credentials in your maven settings):
 
 ```bash
