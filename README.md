@@ -20,8 +20,12 @@ and then export the correct the `JAVA_HOME`. For example on macOS:
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 ```
 
-Then create the MySQL database:
+MariaDB and Mailpit in docker for local development
+```bash
+docker compose up -d
+```
 
+Then create the MySQL database:
 ```sql
 DROP DATABASE IF EXISTS invite;
 CREATE DATABASE invite CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
