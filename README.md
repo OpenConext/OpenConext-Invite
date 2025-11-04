@@ -10,6 +10,8 @@
 
 - Java 21
 - Maven 3
+- Node (nvm)
+- Yarn
 
 First install Java 21 with a package manager
 and then export the correct the `JAVA_HOME`. For example on macOS:
@@ -23,22 +25,27 @@ Then create the MySQL database:
 ```sql
 DROP DATABASE IF EXISTS invite;
 CREATE DATABASE invite CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-CREATE USER 'invite'@'localhost' IDENTIFIED BY 'secret';
-GRANT ALL privileges ON `invite`.* TO 'invite'@'localhost';
+CREATE USER 'invite'@'%' IDENTIFIED BY 'secret';
+GRANT ALL privileges ON `invite`.* TO 'invite'@'%';
 ```
+Note: for MariaDB `COLLATE utf8mb4_0900_ai_ci` might not work and can be left out
 
 ### [Building and running](#building-and-running)
 
 This project uses Spring Boot and Maven. To run locally, type:
 
 ```bash
-mvn spring-boot:run
+(cd server && mvn spring-boot:run)
 ```
 
-To build and deploy (the latter requires credentials in your maven settings):
-
+Install frontend dependencies
 ```bash
-mvn clean deploy
+(cd client && yarn)
+```
+
+Run frontend
+```bash
+(cd client && yarn start)
 ```
 
 ### [Mail](#mail)
@@ -142,4 +149,11 @@ openssl rsa -pubout -in private_key.pem -out public_key.pem
 
 ```bash
 openssl pkcs8 -topk8 -in private_key.pem -inform pem -out private_key_pkcs8.pem -outform pem -nocrypt
+```
+
+## Deploy
+To build and deploy (the latter requires credentials in your maven settings):
+
+```bash
+mvn clean deploy
 ```
