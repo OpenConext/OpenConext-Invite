@@ -311,7 +311,6 @@ Content-Length: ...
 Content-Type: application/json
 {
   "schemas" : [ "urn:ietf:params:scim:api:messages:2.0:PatchOp" ],
-  "externalId" : "test.eduid.nl.uva.canvas.guest",
   "id" : "{GroupID at SP}",
   "Operations" : [ {
     "op" : "Add",
@@ -332,7 +331,6 @@ Content-Length: ...
 Content-Type: application/json
 {
   "schemas" : [ "urn:ietf:params:scim:api:messages:2.0:PatchOp" ],
-  "externalId" : "test.eduid.nl.uva.canvas.guest",
   "id" : "{GroupID at SP}",
   "Operations" : [ {
     "op" : "Remove",
