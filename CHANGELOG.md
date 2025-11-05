@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.0.35
 
-- Bugfix fol duplicate tab's as superuser
+- Bugfix for duplicate tab's as superuser
 - Fix Leading slash for `internal/**` in spring-security
 - Warn when creating a new role if an app can't provision yet
 - Add Prometheus endpoint for easy statistics
