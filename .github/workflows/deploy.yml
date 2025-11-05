@@ -102,18 +102,16 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
 
       - name: Create release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         id: create_release
         with:
-          draft: false
-          prerelease: true
-          release_name: Release ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
-          github-token: ${{ github.token }}
           body: |
             ${{ steps.changelog.outputs.changelog }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+          draft: false
+          prerelease: true
+          token: ${{ github.token }}
         if: github.event_name != 'workflow_dispatch'
 
   dockerbuild:
