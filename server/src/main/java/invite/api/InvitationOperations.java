@@ -40,6 +40,7 @@ public class InvitationOperations {
     public ResponseEntity<InvitationResponse> sendInvitation(InvitationRequest invitationRequest,
                                                              User user,
                                                              RemoteUser remoteUser) {
+        invitationRequest.verify();
         Authority intendedAuthority = invitationRequest.getIntendedAuthority();
         if (!List.of(Authority.INSTITUTION_ADMIN, Authority.SUPER_USER).contains(intendedAuthority)
                 && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
@@ -65,19 +66,26 @@ public class InvitationOperations {
                 invitationRequest.setRoleExpiryDate(Instant.now().plus(defaultExpiryDays, ChronoUnit.DAYS));
             }
         }
-
-        List<Invitation> invitations = invitationRequest.getInvites().stream()
-                .filter(email -> {
-                    boolean valid = emailFormatValidator.isValid(email);
+        List<Invite> invites = invitationRequest.getInvitations();
+        if (invites == null) {
+            invites = new ArrayList<>();
+        }
+        List<String> requestInvites = invitationRequest.getInvites();
+        if (requestInvites != null) {
+            invites.addAll(requestInvites.stream().map(invite -> new Invite(invite, null)).toList());
+        }
+        List<Invitation> invitations = invites.stream()
+                .filter(invite -> {
+                    boolean valid = emailFormatValidator.isValid(invite.getEmail());
                     if (!valid) {
-                        LOG.debug("Not sending invalid email for invitation: " + email);
+                        LOG.debug("Not sending invalid email for invitation: " + invite.getEmail());
                     }
                     return valid;
                 })
-                .map(invitee -> new Invitation(
+                .map(invite -> new Invitation(
                         intendedAuthority,
                         HashGenerator.generateRandomHash(),
-                        invitee,
+                        invite.getEmail(),
                         invitationRequest.isEnforceEmailEquality(),
                         invitationRequest.isEduIDOnly(),
                         invitationRequest.isGuestRoleIncluded(),
@@ -88,8 +96,9 @@ public class InvitationOperations {
                         invitationRequest.getRoleExpiryDate(),
                         requestedRoles.stream()
                                 .map(InvitationRole::new)
-                                .collect(toSet())))
-                .toList();
+                                .collect(toSet()),
+                        invite.getInternalPlaceholderIdentifier())
+                ).toList();
         if (user == null) {
             invitations.forEach(invitation -> invitation.setRemoteApiUser(remoteUser.getName()));
         }

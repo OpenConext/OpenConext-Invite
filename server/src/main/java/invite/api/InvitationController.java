@@ -109,7 +109,6 @@ public class InvitationController implements InvitationResource {
         return this.invitationOperations.sendInvitation(invitationRequest, user, null);
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInvitation(@PathVariable("id") Long id,
                                                  @Parameter(hidden = true) User user) {
@@ -252,6 +251,7 @@ public class InvitationController implements InvitationResource {
                 saveOAuth2AuthenticationToken(authentication, user, servletRequest, servletResponse);
             }
         }
+        user.setInternalPlaceholderIdentifier(invitation.getInternalPlaceholderIdentifier());
         userRepository.save(user);
         AccessLogger.user(LOG, Event.Created, user);
         newUserRoles.forEach(userRole -> userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.ADD));

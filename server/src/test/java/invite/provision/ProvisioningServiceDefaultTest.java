@@ -1,12 +1,14 @@
 package invite.provision;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import invite.AbstractTest;
 import invite.eduid.EduIDProvision;
 import invite.exception.RemoteException;
 import invite.model.*;
 import invite.provision.scim.OperationType;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import invite.provision.scim.UserRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -60,6 +62,26 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
         assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+    }
+
+    @Test
+    void newUserRequestWithExternalPlaceholderIdentifier() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        String internalPlaceholderIdentifier = UUID.randomUUID().toString();
+        user.setInternalPlaceholderIdentifier(internalPlaceholderIdentifier);
+
+        this.stubForManageProvisioning(List.of("4"));
+
+        String remoteScimIdentifier = this.stubForCreateScimUser();
+        provisioningService.newUserRequest(user);
+
+        ServeEvent event = getAllServeEvents().stream().filter(e -> e.getRequest().getUrl().equals("/api/scim/v2/Users")).toList().getFirst();
+        Map userRequest = objectMapper.readValue(event.getRequest().getBodyAsString(), Map.class);
+        assertEquals(internalPlaceholderIdentifier, userRequest.get("id"));
+
+        RemoteProvisionedUser remoteProvisionedUser = remoteProvisionedUserRepository.findByRemoteScimIdentifier(remoteScimIdentifier).get();
+        assertEquals(remoteScimIdentifier, remoteProvisionedUser.getRemoteIdentifier());
+        assertNotEquals(internalPlaceholderIdentifier, remoteScimIdentifier);
     }
 
     @Test

@@ -75,6 +75,9 @@ public class User implements Serializable, Provisionable {
     @Column
     private String email;
 
+    @Column(name = "internal_placeholder_identifier")
+    private String internalPlaceholderIdentifier;
+
     @Column(name = "created_at")
     private Instant createdAt;
 
