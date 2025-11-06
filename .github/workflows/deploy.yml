@@ -102,7 +102,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         id: create_release
         with:
           name: Release ${{ github.ref_name }}
