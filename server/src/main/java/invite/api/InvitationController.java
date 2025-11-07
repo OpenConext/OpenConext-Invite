@@ -19,7 +19,12 @@ import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import invite.security.SuperAdmin;
 import invite.security.UserPermissions;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -103,6 +108,81 @@ public class InvitationController implements InvitationResource {
     }
 
     @PostMapping("")
+    @Operation(summary = "Invite member for existing Role",
+            description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true." +
+                    "At least one email must be either present in invites or invitations. When using the invitations you can also specify the " +
+                    "internalPlaceholderIdentifier, which will be used as the id in the SCIM POST to /User.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = {@Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Invitation example",
+                                            summary = "Example invitation request",
+                                            value = """
+                                                    {
+                                                      "intendedAuthority": "INVITER",
+                                                      "message": "Personal message included in the email",
+                                                      "language": "en",
+                                                      "guestRoleIncluded": true,
+                                                      "invites": [
+                                                        "admin@service.org"
+                                                      ],
+                                                      "invitations": [{
+                                                        "email": "admin2@service.org"
+                                                        "internalPlaceholderIdentifier": "4EFF937F-EE78-4A54-9FD8-A214FD64D7E1",
+                                                      }],
+                                                      "roleIdentifiers": [
+                                                        99
+                                                      ],
+                                                      "roleExpiryDate": 1760788376,
+                                                      "expiryDate": 1730461976
+                                                    }
+                                                    """
+                                    )})}
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created",
+                            content = {@Content(schema = @Schema(implementation = InvitationResponse.class),
+                                    examples = {@ExampleObject(value = """
+                                            {
+                                              "status": 201,
+                                              "recipientInvitationURLs": [
+                                                {
+                                                  "recipient": "admin@service.nl",
+                                                  "invitationURL": "https://invite.test.surfconext.nl/invitation/accept?{hash}"
+                                                }
+                                              ]
+                                            }
+                                            """
+                                    )})}),
+                    @ApiResponse(responseCode = "400", description = "BadRequest",
+                            content = {@Content(schema = @Schema(implementation = StatusResponse.class),
+                                    examples = {@ExampleObject(value = """
+                                            {
+                                              "timestamp": 1717672263253,
+                                              "status": 400,
+                                              "error": "BadRequest",
+                                              "exception": "access.exception.UserRestrictionException",
+                                              "message": "No access to application",
+                                              "path": "/api/internal/invite/invitations"
+                                            }
+                                            """
+                                    )})}),
+                    @ApiResponse(responseCode = "404", description = "Role not found",
+                            content = {@Content(schema = @Schema(implementation = StatusResponse.class),
+                                    examples = {@ExampleObject(value = """
+                                            {
+                                              "timestamp": 1717672263253,
+                                              "status": 404,
+                                              "error": "Not found",
+                                              "exception": "access.exception.NotFoundException",
+                                              "message": "Role not found",
+                                              "path": "/api/internal/invite/invitations"
+                                            }
+                                            """
+                                    )})})})
     public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                             @Parameter(hidden = true) User user) {
         LOG.debug(String.format("New invitation request by user %s", user.getEduPersonPrincipalName()));
