@@ -39,10 +39,6 @@ export const ExpiredUserRoles = () => {
         }
     };
 
-    const displayEndDate = userRole => {
-        return dateFromEpoch(userRole.endDate)
-    }
-
     const columns = [
         {
             key: "name",
@@ -73,7 +69,7 @@ export const ExpiredUserRoles = () => {
             key: "endDate",
             header: I18n.t("roles.endDate"),
             toolTip: I18n.t("tooltips.roleExpiryDateTooltip"),
-            mapper: userRole => displayEndDate(userRole)
+            mapper: userRole => dateFromEpoch(userRole.endDate)
         }];
 
     return (

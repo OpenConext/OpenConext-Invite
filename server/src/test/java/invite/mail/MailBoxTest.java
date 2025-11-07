@@ -55,7 +55,8 @@ class MailBoxTest extends AbstractMailTest {
                 Instant.now().plus(30, ChronoUnit.DAYS),
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Set.of(new InvitationRole(new Role("name", "desc", application("1", EntityType.SAML20_SP), 365, false, false)),
-                        new InvitationRole(new Role("name", "desc", application("1", EntityType.SAML20_SP), 365, false, false))));
+                        new InvitationRole(new Role("name", "desc", application("1", EntityType.SAML20_SP), 365, false, false))),
+                null);
         mailBox.sendInviteMail(user, invitation, List.of(
                 new GroupedProviders(
                         localManage.providerById(EntityType.SAML20_SP, "1"),

@@ -59,6 +59,7 @@ class InvitationMailControllerTest extends AbstractMailTest {
                 false,
                 false,
                 List.of("new@new.nl"),
+                null,
                 roleIdentifiers,
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),

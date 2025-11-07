@@ -15,10 +15,13 @@ export default function EmailField({
                                        pinnedEmails = [],
                                        error = false,
                                        grabFocus = true,
-                                       required = false
+                                       required = false,
+                                       maxEmails = null,
+                                       maxEmailsMessage = null
                                    }) {
 
     const [emailErrors, setEmailErrors] = useState([]);
+    const [displayMaxEmailMessage, setDisplayMaxEmailMessage] = useState(false);
     const [value, setValue] = useState("");
 
     const refContainer = useRef(null);
@@ -62,9 +65,9 @@ export default function EmailField({
         const email = e.target.value;
         const invalidEmails = [];
         const delimiters = [",", " ", ";", "\n", "\t"];
-        let emails;
+        let localEmails;
         if (!isEmpty(email) && email.indexOf("<") > -1) {
-            emails = email.split(/[,\n\t;]/)
+            localEmails = email.split(/[,\n\t;]/)
                 .map(e => e.trim())
                 .filter(part => {
                     const indexOf = part.indexOf("<");
@@ -74,20 +77,26 @@ export default function EmailField({
         } else if (!isEmpty(email) && delimiters.some(delimiter => email.indexOf(delimiter) > -1)) {
             const replacedEmails = email.replace(/[;\s]/g, ",");
             const splitEmails = replacedEmails.split(",");
-            emails = splitEmails
+            localEmails = splitEmails
                 .filter(part => validateEmail(part, invalidEmails));
         } else if (!isEmpty(email)) {
             const valid = validEmailRegExp.test(email.trim());
             if (valid) {
-                emails = [email];
+                localEmails = [email];
             } else {
                 invalidEmails.push(email.trim());
             }
         }
         setEmailErrors((!isEmpty(e.target.value) && !isEmpty(invalidEmails)) ? invalidEmails : []);
-        const uniqueEmails = [...new Set(emails)];
-        if (!isEmpty(uniqueEmails)) {
+        const uniqueEmails = [...new Set(localEmails)];
+        const nbrOfEmails = (emails || []).length + uniqueEmails.length;
+        if (!isEmpty(uniqueEmails) && (isEmpty(maxEmails) || nbrOfEmails <= maxEmails)) {
             addEmails(uniqueEmails);
+        }
+        if (!isEmpty(maxEmails) && nbrOfEmails > maxEmails) {
+            setDisplayMaxEmailMessage(true);
+        } else {
+            setDisplayMaxEmailMessage(false);
         }
         setValue("");
     };
@@ -137,6 +146,10 @@ export default function EmailField({
             {(!isEmpty(emailErrors) && value === "") && <p className="error">
                 {I18n.t("invitations.invalidEmails", {emails: Array.from(new Set(emailErrors)).join(", ")})}
             </p>}
+            {(displayMaxEmailMessage && !isEmpty(maxEmailsMessage)) && <p className="error">
+                {maxEmailsMessage}
+            </p>}
+
         </div>
     );
 }

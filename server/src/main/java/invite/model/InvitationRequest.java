@@ -1,11 +1,12 @@
 package invite.model;
 
-import jakarta.validation.constraints.NotEmpty;
+import invite.exception.InvalidInputException;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -32,8 +33,9 @@ public class InvitationRequest implements Serializable {
 
     private boolean suppressSendingEmails;
 
-    @NotEmpty
     private List<String> invites;
+
+    private List<Invite> invitations;
 
     private List<Long> roleIdentifiers;
 
@@ -43,4 +45,10 @@ public class InvitationRequest implements Serializable {
 
     @NotNull
     private Instant expiryDate;
+
+    public void verify() {
+        if (CollectionUtils.isEmpty(invitations) && CollectionUtils.isEmpty(invites)) {
+            throw new InvalidInputException("Either at least one invitation or invite is required");
+        }
+    }
 }

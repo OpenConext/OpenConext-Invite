@@ -125,6 +125,20 @@ public class Role implements Serializable, Provisionable {
         this.identifier = UUID.randomUUID().toString();
     }
 
+    public Role(RoleRequest roleRequest) {
+        this.name = roleRequest.getName();
+        this.description = roleRequest.getDescription();
+        this.defaultExpiryDays = roleRequest.getDefaultExpiryDays();
+        this.enforceEmailEquality = roleRequest.isEnforceEmailEquality();
+        this.eduIDOnly = roleRequest.isEduIDOnly();
+        this.blockExpiryDate = roleRequest.isBlockExpiryDate();
+        this.overrideSettingsAllowed = roleRequest.isOverrideSettingsAllowed();
+        this.organizationGUID = roleRequest.getOrganizationGUID();
+        this.inviterDisplayName = roleRequest.getInviterDisplayName();
+        this.applicationUsages = roleRequest.getApplicationUsages();
+
+    }
+
     @Transient
     @JsonIgnore
     public List<String> applicationIdentifiers() {

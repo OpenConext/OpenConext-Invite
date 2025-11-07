@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.0.36
+
+- UI: Consistent Date Formatting
+- Fix: Don't stop cleanup job on remote error
+- Fix: Inviter Authority: Invite interface shows too many roles, including ones with only Guest Access
+- Handle Role expiration shorter than the defined role-expiration-notifier-duration-days variable correctly
+- API: A POST to /api/external/v1/invitations should not allow to specify an id or urn
+
+## 0.0.35
+
+- Bugfix for duplicate tab's as superuser
+- Fix Leading slash for `internal/**` in spring-security
+- Warn when creating a new role if an app can't provision yet
+- Add Prometheus endpoint for easy statistics
+
 ## 0.0.34
 
 - Added more logging to manage API calls and improve stability

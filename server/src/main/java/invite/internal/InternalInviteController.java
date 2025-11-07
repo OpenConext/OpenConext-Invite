@@ -129,7 +129,6 @@ public class InternalInviteController implements ApplicationResource, Invitation
                     content = {@Content(examples = {@ExampleObject(value = """
                             {
                               "name": "Required role name",
-                              "shortName": "Required short name - may be copy of name",
                               "description": "Required role description",
                               "defaultExpiryDays": 365,
                               "inviterDisplayName": "Free format field used in the invitation emails for this role (can be email address)"
@@ -209,11 +208,12 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                             }
                                             """
                                     )})})})
-    public ResponseEntity<Role> newRole(@Validated @RequestBody Role role,
+    public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
                                         @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        Role role = new Role(roleRequest);
         role.setRemoteApiUser(remoteUser.getName());
 
-        role.setShortName(GroupURN.sanitizeRoleShortName(role.getShortName()));
+        role.setShortName(GroupURN.sanitizeRoleShortName(role.getName()));
         role.setIdentifier(UUID.randomUUID().toString());
 
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), remoteUser.getName()));
@@ -288,26 +288,38 @@ public class InternalInviteController implements ApplicationResource, Invitation
     @PostMapping("/invitations")
     @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Operation(summary = "Invite member for existing Role",
-            description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true.",
+            description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true." +
+                    "At least one email must be either present in invites or invitations. When using the invitations you can also specify the " +
+                    "internalPlaceholderIdentifier, which will be used as the id in the SCIM POST to /User.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    useParameterTypeSchema = true,
-                    content = {@Content(examples = {@ExampleObject(value = """
-                            {
-                              "intendedAuthority": "INVITER",
-                              "message": "Personal message included in the email",
-                              "language": "en",
-                              "guestRoleIncluded": true,
-                              "invites": [
-                                "admin@service.org"
-                              ],
-                              "roleIdentifiers": [
-                                99
-                              ],
-                              "roleExpiryDate": 1760788376,
-                              "expiryDate": 1730461976
-                            }
-                            """
-                    )})}
+                    required = true,
+                    content = {@Content(
+                            mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Invitation example",
+                                            summary = "Example invitation request",
+                                            value = """
+                                                    {
+                                                      "intendedAuthority": "INVITER",
+                                                      "message": "Personal message included in the email",
+                                                      "language": "en",
+                                                      "guestRoleIncluded": true,
+                                                      "invites": [
+                                                        "admin@service.org"
+                                                      ],
+                                                      "invitations": [{
+                                                        "email": "admin2@service.org",
+                                                        "internalPlaceholderIdentifier": "4EFF937F-EE78-4A54-9FD8-A214FD64D7E1",
+                                                      }],
+                                                      "roleIdentifiers": [
+                                                        99
+                                                      ],
+                                                      "roleExpiryDate": 1760788376,
+                                                      "expiryDate": 1730461976
+                                                    }
+                                                    """
+                                    )})}
             ),
             responses = {
                     @ApiResponse(responseCode = "201", description = "Created",

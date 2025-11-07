@@ -6,7 +6,7 @@ import {ReactComponent as EditIcon} from "@surfnet/sds/icons/functional-icons/ed
 
 import "react-datepicker/dist/react-datepicker.css";
 import "./MinimalDateField.scss"
-import {dateFromEpoch, futureDate} from "../utils/Date";
+import {futureDate, shortDateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import {Chip, ChipType} from "@surfnet/sds";
@@ -41,7 +41,7 @@ export const MinimalDateField = ({
                 type={ChipType.Status_error}
                 label={I18n.t("invitations.statuses.expired")}/>}
             {!expired && <span className="value">
-                {!isEmpty(value) ? dateFromEpoch(value, false) : I18n.t("roles.noEndDate")}
+                {!isEmpty(value) ? shortDateFromEpoch(value, false) : I18n.t("roles.noEndDate")}
             </span>}
             <DatePicker
                 ref={inputRef}

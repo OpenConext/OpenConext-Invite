@@ -246,6 +246,8 @@ export const InvitationForm = () => {
                     pinnedEmails={[]}
                     removeMail={removeMail}
                     required={true}
+                    maxEmails={null} //TODO is there a internal placeholder identifier? then one
+                    maxEmailsMessage={"TODO : localize Not allowed to add more then one email"}
                     error={!initial && isEmpty(invitation.invites)}/>
 
                 {(!initial && isEmpty(invitation.invites)) &&

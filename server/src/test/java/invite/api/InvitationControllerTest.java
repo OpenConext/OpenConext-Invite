@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static invite.security.SecurityConfig.API_TOKEN_HEADER;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -85,6 +86,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 false,
                 List.of("new@new.nl"),
+                List.of(new Invite("new2@new.nl", "placeholder-1")),
                 roleIdentifiers,
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
@@ -98,10 +100,10 @@ class InvitationControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .body(invitationRequest)
                 .post("/api/v1/invitations")
-                .as(new TypeRef<Map<String, Object>>() {
+                .as(new TypeRef<>() {
                 });
         assertEquals(201, results.get("status"));
-        assertEquals(1, ((List) results.get("recipientInvitationURLs")).size());
+        assertEquals(2, ((List) results.get("recipientInvitationURLs")).size());
     }
 
     @Test
@@ -119,6 +121,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 false,
                 List.of("new@new.nl"),
+                List.of(),
                 emptyList(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
@@ -153,6 +156,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 true,
                 List.of("new@new.nl"),
+                List.of(),
                 roleIdentifiers,
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
@@ -177,6 +181,45 @@ class InvitationControllerTest extends AbstractTest {
         example.setEmail(recipientInvitationURL.getRecipient());
         Invitation invitation = invitationRepository.findOne(Example.of(example)).get();
         assertEquals(String.format("http://localhost:4000/invitation/accept?hash=%s", invitation.getHash()), recipientInvitationURL.getInvitationURL());
+    }
+
+    @Test
+    void newInvitationWithInternalPlaceHolderIdentifiers() throws Exception {
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+
+        List<Long> roleIdentifiers = roleRepository.findByApplicationUsagesApplicationManageId("1").stream()
+                .map(Role::getId)
+                .toList();
+
+        String internalPlaceholderIdentifier = UUID.randomUUID().toString();
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.GUEST,
+                "Message",
+                Language.en,
+                true,
+                false,
+                false,
+                true,
+                null,
+                List.of(new Invite("test@external.com", internalPlaceholderIdentifier),
+                        new Invite("tes2t@external.com", internalPlaceholderIdentifier)),
+                roleIdentifiers,
+                null,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        InvitationResponse invitationResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/external/v1/invitations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(201, invitationResponse.getStatus());
+        List<RecipientInvitationURL> recipientInvitationURLs = invitationResponse.getRecipientInvitationURLs();
+        assertEquals(2, recipientInvitationURLs.size());
     }
 
     @Test
@@ -615,6 +658,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 false,
                 List.of("nope"),
+                List.of(),
                 roleIdentifiers,
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
@@ -828,6 +872,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 false,
                 List.of("new@new.nl"),
+                List.of(),
                 emptyList(),
                 ORGANISATION_GUID,
                 Instant.now().plus(365, ChronoUnit.DAYS),
@@ -883,6 +928,7 @@ class InvitationControllerTest extends AbstractTest {
                 false,
                 true,
                 List.of("new@new.nl"),
+                List.of(),
                 roleIdentifiers,
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),

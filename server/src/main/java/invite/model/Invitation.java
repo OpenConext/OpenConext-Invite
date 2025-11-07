@@ -73,6 +73,9 @@ public class Invitation implements Serializable {
     @Column(name = "organization_guid")
     private String organizationGUID;
 
+    @Column(name = "internal_placeholder_identifier")
+    private String internalPlaceholderIdentifier;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "inviter_id")
     @JsonIgnore
@@ -98,7 +101,8 @@ public class Invitation implements Serializable {
                       User inviter,
                       Instant expiryDate,
                       Instant roleExpiryDate,
-                      @NotEmpty Set<InvitationRole> roles) {
+                      @NotEmpty Set<InvitationRole> roles,
+                      String internalPlaceholderIdentifier) {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
