@@ -19,6 +19,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,22 +66,29 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             //The user has logged in with OpenIDConnect. Invite is acting as a backend server
             attributes = authenticationToken.getPrincipal().getAttributes();
         } else if (StringUtils.hasText(apiTokenHeader)) {
-            //The user has obtained an API token (from her institution admin) and there is no state
+            //The user has an API token (from her institution admin) and there is no state
             String hashedToken = HashGenerator.hashToken(apiTokenHeader);
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
                     .orElseThrow(UserRestrictionException::new);
+            List<User> apiUsers = new ArrayList<>();
+            User owner = apiToken.getOwner();
             String organizationGUID = apiToken.getOrganizationGUID();
-            List<User> apiUsers = apiToken.isSuperUserToken() ?
-                    userRepository.findBySuperUserTrue() :
-                    StringUtils.hasText(organizationGUID) ?
-                    userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGUID, true) :
-                    List.of(apiToken.getOwner());
+            if (owner != null) {
+                apiUsers.add(apiToken.getOwner());
+            } else {
+                //backward compatibility for tokens without an owner
+                if (apiToken.isSuperUserToken()) {
+                    apiUsers.addAll(userRepository.findBySuperUserTrue() );
+                } else if (StringUtils.hasText(organizationGUID)) {
+                    apiUsers.addAll(userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGUID, true));
+                }
+            }
             if (apiUsers.isEmpty()) {
                 //we don't want to return null as this is not part of the happy-path
                 throw new UserRestrictionException();
             }
-            //For superusers and institution admins it does not make any difference security-wise which user we return
-            //For inviters and managers the user is linked to the API token
+            //For old superuser and institution admin tokens it does not make any difference security-wise which user we return
+            //For inviters and managers (and all new tokens after 0.0.36 release) the user is linked to the API token
             User user = apiUsers.getFirst();
             if (StringUtils.hasText(organizationGUID)) {
                 //The overhead is needed / justified for API usage as this are stateless

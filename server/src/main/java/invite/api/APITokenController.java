@@ -79,7 +79,8 @@ public class APITokenController {
                     user.getOrganizationGUID(),
                     HashGenerator.hashToken(token),
                     user.isSuperUser(),
-                    apiTokenRequest.getDescription());
+                    apiTokenRequest.getDescription(),
+                    user);
         } else {
             apiToken = new APIToken(HashGenerator.hashToken(token), apiTokenRequest.getDescription(), user);
         }

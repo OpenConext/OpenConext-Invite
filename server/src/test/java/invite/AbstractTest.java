@@ -102,6 +102,7 @@ public abstract class AbstractTest {
     public static final String API_TOKEN_HASH = HashGenerator.generateToken();
     public static final String API_TOKEN_SUPER_USER_HASH = HashGenerator.generateToken();
     public static final String API_TOKEN_INVITER_USER_HASH = HashGenerator.generateToken();
+    public static final String API_TOKEN_LEGACY_HASH = HashGenerator.generateToken();
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -687,12 +688,18 @@ public abstract class AbstractTest {
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation,
                 institutionAdminInvitation, graphInvitation);
 
-        APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH), false, "Test-token");
+        APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH),
+                false, "Test-token", institutionAdmin);
         APIToken superUserApiToken = new APIToken(null,
-                HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH), true, "Test super-user token");
+                HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH), true,
+                "Test super-user token", superUser);
+        APIToken legacyApiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_LEGACY_HASH),
+                false, "Legacy-test-token", institutionAdmin);
+        // Legacy tokens do not have owners
+        legacyApiToken.setOwner(null);
         APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
                 "Test-user token", inviter);
-        doSave(apiTokenRepository, apiToken, superUserApiToken, userApiToken);
+        doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
     }
 
     @SafeVarargs

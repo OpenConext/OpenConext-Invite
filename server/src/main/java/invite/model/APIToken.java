@@ -44,11 +44,12 @@ public class APIToken implements Serializable {
     private User owner;
 
 
-    public APIToken(String organizationGUID, String hashedValue, boolean superUserToken, String description) {
+    public APIToken(String organizationGUID, String hashedValue, boolean superUserToken, String description, User owner) {
         this.organizationGUID = organizationGUID;
         this.hashedValue = hashedValue;
         this.superUserToken = superUserToken;
         this.description = description;
+        this.owner = owner;
         this.createdAt = Instant.now();
     }
 

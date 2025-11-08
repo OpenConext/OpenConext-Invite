@@ -4,6 +4,7 @@ import invite.AbstractTest;
 import invite.AccessCookieFilter;
 import invite.config.HashGenerator;
 import invite.model.APIToken;
+import invite.model.User;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class APITokenControllerTest extends AbstractTest {
                 .get("/api/v1/tokens")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, tokens.size());
+        assertEquals(2, tokens.size());
     }
 
     @Test
@@ -92,13 +93,14 @@ class APITokenControllerTest extends AbstractTest {
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
+        User user = userRepository.findBySubIgnoreCase(SUPER_SUB).get();
         given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(new APIToken("wrong", "wrong", false, "wrong"))
+                .body(new APIToken("wrong", "wrong", false, "wrong", user))
                 .post("/api/v1/tokens")
                 .then()
                 .statusCode(403);
@@ -111,7 +113,7 @@ class APITokenControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
-        assertEquals(3, apiTokenRepository.count());
+        long preCount = apiTokenRepository.count();
 
         given()
                 .when()
@@ -123,7 +125,8 @@ class APITokenControllerTest extends AbstractTest {
                 .delete("/api/v1/tokens/{id}")
                 .then()
                 .statusCode(204);
-        assertEquals(2, apiTokenRepository.count());
+        long postCount = apiTokenRepository.count();
+        assertEquals(preCount - 1, postCount);
     }
 
     @Test
@@ -179,9 +182,9 @@ class APITokenControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
 
-        assertEquals(3, tokens.size());
+        assertEquals(4, tokens.size());
         assertEquals(1L, tokens.stream().filter(token -> token.isSuperUserToken()).count());
-        assertEquals(1L, tokens.stream().filter(token -> token.getOrganizationGUID() != null).count());
+        assertEquals(2L, tokens.stream().filter(token -> token.getOrganizationGUID() != null).count());
     }
 
     @Test
@@ -189,7 +192,7 @@ class APITokenControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH)).get();
 
-        assertEquals(3, apiTokenRepository.count());
+        long preCount = apiTokenRepository.count();
 
         given()
                 .when()
@@ -202,7 +205,8 @@ class APITokenControllerTest extends AbstractTest {
                 .then()
                 .statusCode(204);
 
-        assertEquals(2, apiTokenRepository.count());
+        long postCount = apiTokenRepository.count();
+        assertEquals(preCount - 1, postCount);
     }
 
     @Test
@@ -210,7 +214,7 @@ class APITokenControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
         APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH)).get();
 
-        assertEquals(3, apiTokenRepository.count());
+        long preCount = apiTokenRepository.count();
 
         given()
                 .when()
@@ -223,6 +227,7 @@ class APITokenControllerTest extends AbstractTest {
                 .then()
                 .statusCode(204);
 
-        assertEquals(2, apiTokenRepository.count());
+        long postCount = apiTokenRepository.count();
+        assertEquals(preCount - 1, postCount);
     }
 }
