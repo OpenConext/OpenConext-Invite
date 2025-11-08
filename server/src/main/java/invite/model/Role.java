@@ -1,7 +1,7 @@
 package invite.model;
 
-import invite.provision.scim.GroupURN;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import invite.provision.scim.GroupURN;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -87,12 +87,22 @@ public class Role implements Serializable, Provisionable {
     public Role(Long id,
                 String name,
                 String description,
-                Long userRoleCount) {
+                Long userRoleCount,
+                Integer defaultExpiryDays,
+                boolean enforceEmailEquality,
+                boolean eduIDOnly,
+                boolean overrideSettingsAllowed
+    ) {
         //Only used after native query and returned for Role overview in the GUI
         this.id = id;
         this.name = name;
         this.description = description;
         this.userRoleCount = userRoleCount;
+        this.defaultExpiryDays = defaultExpiryDays;
+        this.enforceEmailEquality = enforceEmailEquality;
+        this.eduIDOnly = eduIDOnly;
+        this.overrideSettingsAllowed = overrideSettingsAllowed;
+
     }
 
     public Role(String name,

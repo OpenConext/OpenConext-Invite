@@ -253,8 +253,13 @@ public class RoleController implements ApplicationResource {
                 (Long) m.get("id"),
                 (String) m.get("name"),
                 (String) m.get("description"),
-                (Long) m.get("userRoleCount")
+                (Long) m.get("userRoleCount"),
+                (Integer) m.get("defaultExpiryDays"),
+                (boolean) m.get("enforceEmailEquality"),
+                (boolean) m.get("eduIDOnly"),
+                (boolean) m.get("overrideSettingsAllowed")
         )).toList();
+
         //Now add all applications, note that we need to preserve ordering of the roles
         Map<Long, List<Map<String, Object>>> applicationGroupedByRoleId =
                 applications.stream().collect(Collectors.groupingBy(m -> (Long) m.get("role_id")));
