@@ -15,6 +15,9 @@ class GroupURNTest {
         assertEquals("expected_short_name_yep", sanitizedRoleShortName);
         //idempotency check
         assertEquals("expected_short_name_yep", GroupURN.sanitizeRoleShortName(sanitizedRoleShortName));
+
+        String sanitizedName = GroupURN.sanitizeRoleShortName("request/path &^");
+        assertEquals("request/path", sanitizedName);
     }
 
     @Test
