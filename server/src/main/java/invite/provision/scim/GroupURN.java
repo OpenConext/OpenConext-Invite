@@ -11,13 +11,14 @@ public class GroupURN {
     }
 
     public static String sanitizeRoleShortName(String shortName) {
-        return Normalizer.normalize(shortName, Normalizer.Form.NFKD)
+        String normalizedShortName = Normalizer.normalize(shortName, Normalizer.Form.NFKD)
                 .trim()
                 .replaceAll(" +", " ")
                 .replaceAll(" ", "_")
-                .replaceAll("[^A-Za-z0-9_.]", "")
+                .replaceAll("[^A-Za-z0-9_./]", "")
                 .replaceAll("_+", "_")
                 .toLowerCase();
+        return normalizedShortName.endsWith("_") ? normalizedShortName.substring(0, normalizedShortName.length() - 1) : normalizedShortName;
     }
 
     public static String urnFromRole(String groupUrnPrefix, Role role) {
