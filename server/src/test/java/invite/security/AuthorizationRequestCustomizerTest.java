@@ -97,7 +97,7 @@ class AuthorizationRequestCustomizerTest {
         invitation.setRoles(Set.of(new InvitationRole(role)));
         when(invitationRepository.findByHash(hash)).thenReturn(Optional.of(invitation));
 
-        Map<String, Object> providerData = Map.of("data", Map.of("entityid", "idp-entity"));
+        Map<String, Object> providerData = Map.of("entityid", "idp-entity");
         when(manage.providerById(application.getManageType(), application.getManageId())).thenReturn(providerData);
         when(manage.idpEntityIdentifiersByServiceEntityId(anyList()))
                 .thenReturn(List.of("idp-entity-1", "idp-entity-2"));

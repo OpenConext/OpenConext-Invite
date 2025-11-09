@@ -73,7 +73,7 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                         List<String> entityIdentifiers = manageIdentifiers.stream()
                                 .map(manageIdentifier -> manage.providerById(manageIdentifier.manageType(), manageIdentifier.manageId()))
                                 .filter(provider -> !CollectionUtils.isEmpty(provider))
-                                .map(provider -> (String) ((Map) provider.get("data")).get("entityid"))
+                                .map(provider -> (String) provider.get("entityid"))
                                 .distinct()
                                 .toList();
                         //Now get all entityIdentifiers of the IdP's
