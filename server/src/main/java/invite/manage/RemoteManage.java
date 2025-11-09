@@ -62,15 +62,17 @@ public class RemoteManage implements Manage {
             return emptyList();
         }
         Map<String, Object> body = Map.of(
-          "allowedEntities.name",serviceEntityIdentifiers,
-          "REQUESTED_ATTRIBUTES", List.of("entityid")
+                "allowedEntities.name", serviceEntityIdentifiers,
+                "allowedall", true,
+                "LOGICAL_OPERATOR_IS_AND", false,
+                "REQUESTED_ATTRIBUTES", List.of("entityid")
         );
         String manageUrl = String.format("%s/manage/api/internal/search/%s", url, EntityType.SAML20_IDP.collectionName());
         List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
         if (providers != null) {
             LOG.debug(String.format("Got %d results for idpEntityIdentifiersByServiceEntityId", providers.size()));
         }
-        return providers.stream().map(m -> (String)((Map)m.get("data")).get("entityid")).toList();
+        return providers.stream().map(m -> (String) ((Map) m.get("data")).get("entityid")).toList();
 
     }
 

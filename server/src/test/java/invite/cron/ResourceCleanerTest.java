@@ -23,7 +23,7 @@ class ResourceCleanerTest extends AbstractTest {
         markUser(GUEST_SUB);
 
         stubForManageProvisioning(List.of("1"));
-        //Because there are RemoteProvisionedGroups
+        //Because there are no RemoteProvisionedGroups
         stubForCreateScimRole();
         stubForCreateScimUser();
         stubForUpdateScimRole();
@@ -38,7 +38,7 @@ class ResourceCleanerTest extends AbstractTest {
         deleteUserRoles(GUEST_SUB);
 
         stubForManageProvisioning(List.of("1"));
-        //Because there are RemoteProvisionedGroups
+        //Because there are no RemoteProvisionedGroups
         stubForCreateScimRole();
         stubForCreateScimUser();
         stubForUpdateScimRole();

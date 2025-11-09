@@ -92,11 +92,12 @@ public final class LocalManage implements Manage {
         return allIdentityProviders.stream()
                 .filter(idp -> {
                     List<Map<String, String>> allowedEntities = (List<Map<String, String>>) idp.getOrDefault("allowedEntities", emptyList());
-                    return allowedEntities.stream()
+                    boolean allowedAll = (boolean) idp.getOrDefault("allowedall", false);
+                    return allowedAll || allowedEntities.stream()
                             .map(entity -> entity.get("name"))
                             .anyMatch(name -> serviceEntityIdentifiers.contains(name));
                 })
-                .map(idp -> (String) ((Map) idp.get("data")).get("entityid"))
+                .map(idp -> (String) idp.get("entityid"))
                 .toList();
     }
 

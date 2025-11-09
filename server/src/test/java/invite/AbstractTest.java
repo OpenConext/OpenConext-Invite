@@ -80,6 +80,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.url: http://localhost:8081",
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
                 "manage.enabled: true",
+                "spring.task.scheduling.enabled=false",
                 "spring.jpa.properties.hibernate.format_sql=false",
                 "spring.jpa.show-sql=false"
         })

@@ -60,6 +60,27 @@ class RemoteManageTest extends AbstractTest {
     }
 
     @Test
+    void idpEntityIdentifiersByServiceEntityId() throws JsonProcessingException {
+        List<String> serviceEntityIdentifiers = List.of("https://network", "https://cloud");
+        List<String> idpEntityIdentifiers = localManage.idpEntityIdentifiersByServiceEntityId(serviceEntityIdentifiers);
+        List<Map<String, Map<String, String>>> idpProviders = idpEntityIdentifiers.stream().map(idpEntityId -> Map.of("data", Map.of("entityid", idpEntityId))).toList();
+        String body = objectMapper.writeValueAsString(idpProviders);
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(body)));
+        List<String> idpEntityIdentifiersRemote = manage.idpEntityIdentifiersByServiceEntityId(serviceEntityIdentifiers);
+        assertEquals(idpEntityIdentifiers, idpEntityIdentifiersRemote);
+    }
+
+    @Test
+    void idpEntityIdentifiersByServiceEntityIdEmpty()  {
+        List<String> serviceEntityIdentifiers = List.of();
+        List<String> idpEntityIdentifiers = localManage.idpEntityIdentifiersByServiceEntityId(serviceEntityIdentifiers);
+        List<String> idpEntityIdentifiersRemote = manage.idpEntityIdentifiersByServiceEntityId(serviceEntityIdentifiers);
+        assertEquals(idpEntityIdentifiers, idpEntityIdentifiersRemote);
+    }
+
+    @Test
     void providerByIdExceptionHandling() {
         stubFor(get(urlPathMatching("/manage/api/internal/metadata/saml20_sp/1")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")

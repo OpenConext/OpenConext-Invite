@@ -24,6 +24,7 @@ import static org.awaitility.Awaitility.await;
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "email.enabled=true",
+                "spring.task.scheduling.enabled=false",
                 "manage.url: http://localhost:8081",
                 "manage.enabled: true"
         })
@@ -52,7 +53,7 @@ public class AbstractMailTest extends AbstractTest {
         return parser.parse();
     }
 
-    protected List<MimeMessageParser> allMailMessages(int expectedLength) throws Exception {
+    protected List<MimeMessageParser> allMailMessages(int expectedLength) {
         await().until(() -> greenMail.getReceivedMessages().length == expectedLength);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
         return Stream.of(receivedMessages)
