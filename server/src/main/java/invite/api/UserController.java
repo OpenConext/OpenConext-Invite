@@ -108,6 +108,7 @@ public class UserController {
     }
 
     @GetMapping("me")
+    @Transactional(readOnly = true)
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
         List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
@@ -116,6 +117,7 @@ public class UserController {
     }
 
     @GetMapping("other/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/other/%s for user %s", id, user.getEduPersonPrincipalName()));
 
@@ -134,6 +136,7 @@ public class UserController {
     }
 
     @GetMapping("search")
+    @Transactional(readOnly = true)
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
                                                             @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
                                                             @RequestParam(value = "query", required = false, defaultValue = "") String query,
@@ -152,6 +155,7 @@ public class UserController {
     }
 
     @GetMapping("search-by-application")
+    @Transactional(readOnly = true)
     public ResponseEntity<Page<UserRoles>> searchByApplication(@Parameter(hidden = true) User user,
                                                                @RequestParam(value = "query", required = false, defaultValue = "") String query,
                                                                @RequestParam(value = "pageNumber", required = false, defaultValue = "0") int pageNumber,

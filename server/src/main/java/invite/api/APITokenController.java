@@ -44,6 +44,7 @@ public class APITokenController {
     }
 
     @GetMapping("")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<APIToken>> apiTokensByInstitution(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /tokens for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.INVITER);
@@ -54,6 +55,7 @@ public class APITokenController {
     }
 
     @GetMapping("generate-token")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, String>> generateToken(@Parameter(hidden = true) User user,
                                                              @Parameter(hidden = true) HttpServletRequest request) {
         LOG.debug(String.format("GET /tokens/generateToken for user %s", user.getEduPersonPrincipalName()));

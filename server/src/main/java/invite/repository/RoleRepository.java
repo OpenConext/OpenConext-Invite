@@ -22,11 +22,7 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
     List<Role> search(String keyWord, int limit);
 
     @Query(value = """
-            SELECT r.id as id, r.name as name, r.description as description,
-                r.default_expiry_days as defaultExpiryDays,
-                r.enforce_email_equality as enforceEmailEquality,
-                r.edu_id_only as eduIDOnly,
-                r.override_settings_allowed as overrideSettingsAllowed,
+            SELECT *,
                 (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount
             FROM roles r
             """,
@@ -35,14 +31,10 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
                     """,
             queryRewriter = RoleRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByPage(Pageable pageable);
+    Page<Role> searchByPage(Pageable pageable);
 
     @Query(value = """
-            SELECT r.id as id, r.name as name, r.description as description,
-                r.default_expiry_days as defaultExpiryDays,
-                r.enforce_email_equality as enforceEmailEquality,
-                r.edu_id_only as eduIDOnly,
-                r.override_settings_allowed as overrideSettingsAllowed,
+            SELECT *,
                 (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount
             FROM roles r WHERE MATCH (name, description) against (?1 IN BOOLEAN MODE)
             """,
@@ -51,15 +43,11 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
                     """,
             queryRewriter = RoleRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByPageWithKeyword(String keyword, Pageable pageable);
+    Page<Role> searchByPageWithKeyword(String keyword, Pageable pageable);
 
 
     @Query(value = """
-            SELECT r.id AS id, r.name AS name, r.description AS description,
-                r.default_expiry_days as defaultExpiryDays,
-                r.enforce_email_equality as enforceEmailEquality,
-                r.edu_id_only as eduIDOnly,
-                r.override_settings_allowed as overrideSettingsAllowed,
+            SELECT *,
                 (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) AS userRoleCount
             FROM roles r WHERE r.organization_guid = ?1
             """,
@@ -68,7 +56,7 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
                     """,
             queryRewriter = RoleRepository.class,
             nativeQuery = true)
-    Page<Map<String, Object>> searchByPageAndOrganizationGUID(String organizationGUID, Pageable pageable);
+    Page<Role> searchByPageAndOrganizationGUID(String organizationGUID, Pageable pageable);
 
     @Query(value = """
             SELECT r.id AS role_id, a.manage_id AS manage_id, a.manage_type AS manage_type

@@ -601,10 +601,12 @@ public abstract class AbstractTest {
                 new Role("Wiki", "Wiki desc",
                         application("1", EntityType.SAML20_SP), 365, false, false);
         wiki.setInviterDisplayName("wiki@university.com");
+        wiki.setOverrideSettingsAllowed(true);
 
         Role network =
                 new Role("Network", "Network desc",
                         application("2", EntityType.SAML20_SP), 365, false, false);
+        network.setEduIDOnly(true);
 
 
         Set<Application> applications = Set.of(
@@ -619,10 +621,11 @@ public abstract class AbstractTest {
         Role storage =
                 new Role("Storage", "Storage desc",
                         applicationUsages, 365, false, false);
+        storage.setEnforceEmailEquality(true);
         Role research =
                 new Role("Research", "Research desc",
                         application("4", EntityType.SAML20_SP), 365, false, false);
-
+        research.setDefaultExpiryDays(Integer.valueOf(900));
         Role calendar =
                 new Role("Calendar", "Calendar desc",
                         application("5", EntityType.OIDC10_RP), 365, false, false);

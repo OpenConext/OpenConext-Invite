@@ -12,7 +12,7 @@ public class Pagination {
     private Pagination() {
     }
 
-    static <T> ResponseEntity<Page<T>> of(Page<Map<String, Object>> page, List<T> content) {
+    static <T> ResponseEntity<Page<T>> of(Page<?> page, List<T> content) {
         return ResponseEntity.ok(new PageImpl<>(content, page.getPageable(), page.getTotalElements()));
     }
 }

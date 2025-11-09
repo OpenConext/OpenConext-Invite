@@ -77,6 +77,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("roles/{roleId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET user_roles/roles/%s for user %s", roleId, user.getEduPersonPrincipalName()));
@@ -85,6 +86,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("managers/{roleId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<String>> managersByRole(@PathVariable("roleId") Long roleId,
                                                        @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET user_roles/managers/%s for user %s", roleId, user.getEduPersonPrincipalName()));
@@ -95,6 +97,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("/consequences/{roleId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> consequencesDeleteRole(@PathVariable("roleId") Long roleId,
                                                                             @Parameter(hidden = true) User user) {
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
@@ -110,6 +113,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("/search/{roleId}/{guests}")
+    @Transactional(readOnly = true)
     public ResponseEntity<Page<?>> searchPaginated(@PathVariable("roleId") Long roleId,
                                                    @PathVariable("guests") boolean guests,
                                                    @RequestParam(value = "query", required = false, defaultValue = "") String query,
@@ -186,7 +190,6 @@ public class UserRoleController implements UserRoleResource {
 
         return ResponseEntity.status(201).body(user);
     }
-
 
     @PutMapping("")
     public ResponseEntity<Map<String, Integer>> updateUserRoleExpirationDate(@Validated @RequestBody UpdateUserRole updateUserRole,

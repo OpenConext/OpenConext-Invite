@@ -90,6 +90,7 @@ public class ManageController {
     }
 
     @GetMapping("applications")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
 

@@ -11,12 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static invite.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RoleControllerTest extends AbstractTest {
 
@@ -319,6 +321,11 @@ class RoleControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(roleRepository.count(), page.getTotalElements());
+        List<Role> roles = page.getContent();
+        assertTrue(roleByName("Wiki", roles).isOverrideSettingsAllowed());
+        assertTrue(roleByName("Network", roles).isEduIDOnly());
+        assertTrue(roleByName("Storage", roles).isEnforceEmailEquality());
+        assertEquals(900, roleByName("Research", roles).getDefaultExpiryDays());
     }
 
     @Test
@@ -619,6 +626,10 @@ class RoleControllerTest extends AbstractTest {
                 .as(Map.class);
         assertNotNull(result.get("id"));
         assertEquals(String.format("urn:mace:surf.nl:test.surfaccess.nl:%s:570/a", result.get("identifier")), result.get("urn"));
+    }
+
+    private Role roleByName(String name, List<Role> roles) {
+        return roles.stream().filter(role -> role.getName().equalsIgnoreCase(name)).findFirst().orElseThrow(IllegalArgumentException::new);
     }
 
 }

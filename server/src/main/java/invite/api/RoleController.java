@@ -80,6 +80,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @GetMapping("")
+    @Transactional(readOnly = true)
     public ResponseEntity<Page<Role>> rolesByApplication(@Parameter(hidden = true) User user,
                                                          @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
                                                          @RequestParam(value = "query", required = false, defaultValue = "") String query,
@@ -89,7 +90,7 @@ public class RoleController implements ApplicationResource {
                                                          @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
 
-        Page<Map<String, Object>> rolesPage;
+        Page<Role> rolesPage;
         if (user.isSuperUser()) {
             if (force) {
                 Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
@@ -106,13 +107,14 @@ public class RoleController implements ApplicationResource {
             rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
 
         }
-        List<Long> roleIdentifiers = rolesPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
+        List<Long> roleIdentifiers = rolesPage.getContent().stream().map(role -> role.getId()).toList();
         List<Map<String, Object>> applications = roleRepository.findApplications(roleIdentifiers);
         List<Role> roles = manage.addManageMetaData(this.roleFromQuery(rolesPage, applications));
         return Pagination.of(rolesPage, roles);
     }
 
     @GetMapping("{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<Role> role(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
 
@@ -123,6 +125,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @GetMapping("/application/{manageId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Role>> rolesPerApplicationId(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/rolesPerApplicationId for user %s", user.getEduPersonPrincipalName()));
 
@@ -248,17 +251,8 @@ public class RoleController implements ApplicationResource {
     }
 
     //See RoleRepository#searchByPage
-    private List<Role> roleFromQuery(Page<Map<String, Object>> rolesPage, List<Map<String, Object>> applications) {
-        List<Role> roles = rolesPage.getContent().stream().map(m -> new Role(
-                (Long) m.get("id"),
-                (String) m.get("name"),
-                (String) m.get("description"),
-                (Long) m.get("userRoleCount"),
-                (Integer) m.get("defaultExpiryDays"),
-                (boolean) m.get("enforceEmailEquality"),
-                (boolean) m.get("eduIDOnly"),
-                (boolean) m.get("overrideSettingsAllowed")
-        )).toList();
+    private List<Role> roleFromQuery(Page<Role> rolesPage, List<Map<String, Object>> applications) {
+        List<Role> roles = rolesPage.getContent();
 
         //Now add all applications, note that we need to preserve ordering of the roles
         Map<Long, List<Map<String, Object>>> applicationGroupedByRoleId =

@@ -179,6 +179,7 @@ class InvitationControllerTest extends AbstractTest {
 
         Invitation example = new Invitation();
         example.setEmail(recipientInvitationURL.getRecipient());
+        example.setEnforceEmailEquality(true);
         Invitation invitation = invitationRepository.findOne(Example.of(example)).get();
         assertEquals(String.format("http://localhost:4000/invitation/accept?hash=%s", invitation.getHash()), recipientInvitationURL.getInvitationURL());
     }

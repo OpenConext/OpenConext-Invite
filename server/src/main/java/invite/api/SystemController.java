@@ -89,6 +89,7 @@ public class SystemController {
     }
 
     @GetMapping("/unknown-roles")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Role>> unknownRoles(@Parameter(hidden = true) User user) {
         LOG.debug("/unknown-roles");
 

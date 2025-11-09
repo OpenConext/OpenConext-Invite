@@ -214,6 +214,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("public")
+    @Transactional(readOnly = true)
     public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
         LOG.debug(String.format("getInvitation with hash %s", hash));
         Invitation invitation = invitationRepository.findByHash(hash).orElseThrow(() -> new NotFoundException("Invitation not found"));
@@ -225,6 +226,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("all")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Invitation>> all(@Parameter(hidden = true) User user) {
         LOG.debug("GET /all invitations");
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
@@ -420,6 +422,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("search")
+    @Transactional(readOnly = true)
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
                                                             @RequestParam(value = "roleId", required = false) Long roleId,
                                                             @RequestParam(value = "query", required = false, defaultValue = "") String query,
