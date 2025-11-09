@@ -23,7 +23,7 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
     @Test
     void sweep() {
         UserRole userRole = userRoleRepository.findByRoleName("Mail").get(0);
-        userRole.setEndDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        userRole.setEndDate(Instant.now().plus(3, ChronoUnit.DAYS));
         super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
 
         userRoleRepository.save(userRole);
@@ -35,7 +35,7 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
         //Due to HTML formatting, we can't be sure of the line breaks
         Stream.of("Your Inviter role Mail at the application Calendar EN will expire".split(" "))
                 .forEach(s -> assertTrue(htmlContent.contains(s)));
-        assertTrue(htmlContent.contains("1 day(s)"));
+        assertTrue(htmlContent.contains("3 day(s)"));
 
         userRole = userRoleRepository.findByRoleName("Mail").get(0);
         assertEquals(1, userRole.getExpiryNotifications());

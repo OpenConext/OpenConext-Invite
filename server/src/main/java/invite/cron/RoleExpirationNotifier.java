@@ -52,13 +52,14 @@ public class RoleExpirationNotifier {
     }
 
     public List<String> doSweep() {
-        Instant instant = Instant.now().plus(roleExpirationNotificationDays, ChronoUnit.DAYS);
-        List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(instant, 0);
+        Instant now = Instant.now();
+        Instant futureDate = now.plus(roleExpirationNotificationDays, ChronoUnit.DAYS);
+        List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(futureDate, 0);
         return userRoles.stream().map(userRole -> {
             List<GroupedProviders> groupedProviders = manage.getGroupedProviders(List.of(userRole.getRole()));
             GroupedProviders groupedProvider = groupedProviders.isEmpty() ? null : groupedProviders.get(0);
             Instant endDate = userRole.getEndDate();
-            long daysBetween = Math.min(ChronoUnit.DAYS.between(endDate, instant) - roleExpirationNotificationDays, roleExpirationNotificationDays) ;
+            long daysBetween = ChronoUnit.DAYS.between(now, endDate) + 1;
             String mail = mailBox.sendUserRoleExpirationNotificationMail(userRole, groupedProvider, (int) daysBetween);
             //https://stackoverflow.com/a/75121707
             userRoleRepository.updateExpiryNotifications(1, userRole.getId());
