@@ -111,7 +111,8 @@ public class InvitationController implements InvitationResource {
     @Operation(summary = "Invite member for existing Role",
             description = """
                     Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true.
-                    At least one email must be either present in invites or invitations. When using the invitations you can also specify the
+                    At least one email must be either present in invites or invitesWithInternalPlaceholderIdentifiers.
+                    When using the invitations you can also specify the
                     internalPlaceholderIdentifier, which will be used as the id in the SCIM POST to /User.
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
