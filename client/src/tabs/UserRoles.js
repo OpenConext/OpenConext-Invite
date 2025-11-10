@@ -12,7 +12,7 @@ import {chipTypeForUserRole} from "../utils/Authority";
 import {allowedToRenewUserRole, AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {deleteUserRole, searchUserRolesByRoleId, updateUserRoleEndData} from "../api";
-import {isEmpty, pseudoGuid} from "../utils/Utils";
+import {isEmpty, pseudoGuid, stopEvent} from "../utils/Utils";
 import {MinimalDateField} from "../components/MinimalDateField";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import debounce from "lodash.debounce";
@@ -355,6 +355,19 @@ export const UserRoles = ({role, guests}) => {
         },
     ];
 
+    const isAllowedToSeeUserDetails =
+        isUserAllowed(AUTHORITIES.SUPER_USER, user) || isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
+
+    const navigateToUserDetails = (e, invitation) => {
+        const path = `/profile/${invitation.user_id}`
+        if (e.metaKey || e.ctrlKey) {
+            window.open(path, '_blank');
+        } else {
+            stopEvent(e);
+            navigate(path);
+        }
+    }
+
     return (<div className="mod-user-roles">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
                                                  cancel={confirmation.cancel}
@@ -381,6 +394,7 @@ export const UserRoles = ({role, guests}) => {
                   inputFocus={!searching}
                   hideTitle={searching}
                   busy={searching}
+                  rowLinkMapper={isAllowedToSeeUserDetails && navigateToUserDetails}
         />
 
     </div>)
