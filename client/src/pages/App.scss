@@ -1,9 +1,6 @@
 .invite {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    position: relative;
-    width: 100%;
 }
 
 .sds--modal.sds--backdrop {
@@ -12,4 +9,13 @@
 
 .react-datepicker-popper {
     z-index: 3 !important;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+}
+
+.content {
+    width: 100%;
 }
