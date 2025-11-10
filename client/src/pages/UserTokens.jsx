@@ -16,7 +16,7 @@ export const UserTokens = () => {
             ]
         });
 
-    }, []);// eslint-disable-line react-hooks/exhaustive-deps
+    }, []); 
 
     return (
         <div className="mod-tokens">

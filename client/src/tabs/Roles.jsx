@@ -52,7 +52,7 @@ export const Roles = () => {
             setRoles(newRoles);
             setSearching(false);
         }
-    }, [user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [user, paginationQueryParams]); 
 
     const openRole = (e, role) => {
         const id = role.isUserRole ? role.role.id : role.id;

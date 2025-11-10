@@ -35,7 +35,7 @@ export const Users = () => {
                     setSearching(false);
                 });
         },
-        [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+        [paginationQueryParams]); 
 
     const openUser = (e, user) => {
         const path = `/profile/${user.id}`
