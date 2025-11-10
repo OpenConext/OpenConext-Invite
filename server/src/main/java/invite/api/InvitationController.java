@@ -109,42 +109,46 @@ public class InvitationController implements InvitationResource {
 
     @PostMapping("")
     @Operation(summary = "Invite member for existing Role",
-            description = "Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true." +
-                    "At least one email must be either present in invites or invitations. When using the invitations you can also specify the " +
-                    "internalPlaceholderIdentifier, which will be used as the id in the SCIM POST to /User.",
+            description = """
+                    Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true.
+                    At least one email must be either present in invites or invitations. When using the invitations you can also specify the
+                    internalPlaceholderIdentifier, which will be used as the id in the SCIM POST to /User.
+                    """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
                     content = {@Content(
                             mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Invitation example",
-                                            summary = "Example invitation request",
-                                            value = """
-                                                    {
-                                                      "intendedAuthority": "INVITER",
-                                                      "message": "Personal message included in the email",
-                                                      "language": "en",
-                                                      "guestRoleIncluded": true,
-                                                      "invites": [
-                                                        "admin@service.org"
-                                                      ],
-                                                      "invitations": [{
-                                                        "email": "admin2@service.org"
-                                                        "internalPlaceholderIdentifier": "4EFF937F-EE78-4A54-9FD8-A214FD64D7E1",
-                                                      }],
-                                                      "roleIdentifiers": [
-                                                        99
-                                                      ],
-                                                      "roleExpiryDate": 1760788376,
-                                                      "expiryDate": 1730461976
-                                                    }
-                                                    """
-                                    )})}
+                            schema = @Schema(implementation = InvitationRequest.class),
+                            examples = {@ExampleObject(value = """
+                                    {
+                                      "intendedAuthority": "INVITER",
+                                      "message": "Personal message included in the email",
+                                      "language": "en",
+                                      "guestRoleIncluded": true,
+                                      "invites": [
+                                        "admin@service.org"
+                                      ],
+                                      "invitesWithInternalPlaceholderIdentifiers": [
+                                        {
+                                          "email": "admin2@service.org",
+                                          "internalPlaceholderIdentifier": "4EFF937F-EE78-4A54-9FD8-A214FD64D7E1"
+                                        }
+                                      ],
+                                      "roleIdentifiers": [
+                                        99
+                                      ],
+                                      "roleExpiryDate": 1760788376,
+                                      "expiryDate": 1730461976
+                                    }
+                                    """
+                            )}
+                    )}
             ),
             responses = {
                     @ApiResponse(responseCode = "201", description = "Created",
-                            content = {@Content(schema = @Schema(implementation = InvitationResponse.class),
+                            content = {@Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = InvitationResponse.class),
                                     examples = {@ExampleObject(value = """
                                             {
                                               "status": 201,
@@ -158,20 +162,25 @@ public class InvitationController implements InvitationResource {
                                             """
                                     )})}),
                     @ApiResponse(responseCode = "400", description = "BadRequest",
-                            content = {@Content(schema = @Schema(implementation = StatusResponse.class),
-                                    examples = {@ExampleObject(value = """
-                                            {
-                                              "timestamp": 1717672263253,
-                                              "status": 400,
-                                              "error": "BadRequest",
-                                              "exception": "access.exception.UserRestrictionException",
-                                              "message": "No access to application",
-                                              "path": "/api/internal/invite/invitations"
-                                            }
-                                            """
-                                    )})}),
+                            content = {@Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = StatusResponse.class),
+                                    examples = {
+                                            @ExampleObject(value = """
+                                                    {
+                                                      "timestamp": 1717672263253,
+                                                      "status": 400,
+                                                      "error": "BadRequest",
+                                                      "exception": "access.exception.UserRestrictionException",
+                                                      "message": "No access to application",
+                                                      "path": "/api/internal/invite/invitations"
+                                                    }
+                                                    """
+                                            )})}),
                     @ApiResponse(responseCode = "404", description = "Role not found",
-                            content = {@Content(schema = @Schema(implementation = StatusResponse.class),
+                            content = {@Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = StatusResponse.class),
                                     examples = {@ExampleObject(value = """
                                             {
                                               "timestamp": 1717672263253,

@@ -35,7 +35,7 @@ public class InvitationRequest implements Serializable {
 
     private List<String> invites;
 
-    private List<Invite> invitations;
+    private List<Invite> invitesWithInternalPlaceholderIdentifiers;
 
     private List<Long> roleIdentifiers;
 
@@ -47,8 +47,8 @@ public class InvitationRequest implements Serializable {
     private Instant expiryDate;
 
     public void verify() {
-        if (CollectionUtils.isEmpty(invitations) && CollectionUtils.isEmpty(invites)) {
-            throw new InvalidInputException("Either at least one invitation or invite is required");
+        if (CollectionUtils.isEmpty(invitesWithInternalPlaceholderIdentifiers) && CollectionUtils.isEmpty(invites)) {
+            throw new InvalidInputException("Either at least one value for invitesWithInternalPlaceholderIdentifiers or invites is required");
         }
     }
 }

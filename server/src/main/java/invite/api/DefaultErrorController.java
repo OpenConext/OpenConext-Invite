@@ -47,6 +47,8 @@ public class DefaultErrorController implements ErrorController {
                 ErrorAttributeOptions.of(
                         ErrorAttributeOptions.Include.EXCEPTION,
                         ErrorAttributeOptions.Include.MESSAGE,
+                        ErrorAttributeOptions.Include.PATH,
+                        ErrorAttributeOptions.Include.ERROR,
                         ErrorAttributeOptions.Include.BINDING_ERRORS)
         );
 

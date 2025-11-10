@@ -66,7 +66,7 @@ public class InvitationOperations {
                 invitationRequest.setRoleExpiryDate(Instant.now().plus(defaultExpiryDays, ChronoUnit.DAYS));
             }
         }
-        List<Invite> invites = invitationRequest.getInvitations();
+        List<Invite> invites = invitationRequest.getInvitesWithInternalPlaceholderIdentifiers();
         if (invites == null) {
             invites = new ArrayList<>();
         }
