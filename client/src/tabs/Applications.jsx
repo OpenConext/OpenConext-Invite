@@ -50,6 +50,7 @@ const Applications = () => {
             header: "",
             nonSortable: true,
             mapper: application => <div className="role-icon">
+                {/*ToDo check if this works*/}
                 {typeof application.logo === "string" ? <img src={application.logo} alt="logo"/> : application.logo}
             </div>
         },

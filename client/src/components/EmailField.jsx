@@ -4,8 +4,8 @@ import "./EmailField.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import {validEmailRegExp} from "../validations/regExps";
-import {ReactComponent as CloseIcon} from "@surfnet/sds/icons/functional-icons/close.svg";
-import {ReactComponent as MailIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
+import MailIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 
 export default function EmailField({
                                        name,

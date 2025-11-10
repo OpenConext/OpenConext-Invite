@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {rolesPerApplicationManageId} from "../api";
 import I18n from "../locale/I18n";
 import "./Application.scss";
-import {ReactComponent as WebsiteIcon} from "../icons/network-information.svg";
+import WebsiteIcon from "../icons/network-information.svg";
 import {Chip} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
@@ -12,7 +12,7 @@ import {deriveApplicationAttributes} from "../utils/Manage";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import {Entities} from "../components/Entities";
 import {chipTypeForUserRole} from "../utils/Authority";
-import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import AlertLogo from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 
 export const Application = () => {
     const {manageId} = useParams();
@@ -73,6 +73,7 @@ export const Application = () => {
             header: "",
             mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> :
                 <div className="role-icon">
+                    {/*ToDo check if this role.log works*/}
                     {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
                 </div>
         },

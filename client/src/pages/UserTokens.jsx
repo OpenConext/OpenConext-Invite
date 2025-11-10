@@ -3,7 +3,7 @@ import I18n from "../locale/I18n";
 import "./UserTokens.scss";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
-import {ReactComponent as Logo} from "@surfnet/sds/icons/illustrative-icons/shield-check.svg";
+import Logo from "@surfnet/sds/icons/illustrative-icons/shield-check.svg";
 import {Tokens} from "../tabs/Tokens";
 
 export const UserTokens = () => {

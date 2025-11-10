@@ -13,8 +13,8 @@ import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {allowedToDeleteInvitation, AUTHORITIES, INVITATION_STATUS, isUserAllowed} from "../utils/UserRole";
-import {ReactComponent as TrashIcon} from "@surfnet/sds/icons/functional-icons/bin.svg";
-import {ReactComponent as ResendIcon} from "@surfnet/sds/icons/functional-icons/go-to-other-website.svg";
+import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import ResendIcon from "@surfnet/sds/icons/functional-icons/go-to-other-website.svg";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import debounce from "lodash.debounce";
 

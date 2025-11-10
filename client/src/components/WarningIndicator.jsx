@@ -1,6 +1,6 @@
 import React from "react";
 import "./WarningIndicator.scss";
-import {ReactComponent as WarningIco} from "../icons/warning.svg";
+import WarningIco from "../icons/warning.svg";
 import DOMPurify from "dompurify";
 
 export default function WarningIndicator({msg, standalone = false, decode = true, adjustMargin = false}) {

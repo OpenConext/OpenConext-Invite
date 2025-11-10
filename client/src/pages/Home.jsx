@@ -1,7 +1,7 @@
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import React, {useEffect, useState} from "react";
-import {ReactComponent as Logo} from "../icons/Owl_Emblem.svg";
+import Logo from "../icons/Owl_Emblem.svg";
 import Tabs from "../components/Tabs";
 import "./Home.scss";
 import {UnitHeader} from "../components/UnitHeader";

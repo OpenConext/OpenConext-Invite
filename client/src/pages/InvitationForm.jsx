@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {ReactComponent as CloseIcon} from "@surfnet/sds/icons/functional-icons/close.svg";
+import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import {
     allowedAuthoritiesForInvitation,
     AUTHORITIES,
@@ -10,9 +10,9 @@ import {
     isUserAllowed,
     markAndFilterRoles
 } from "../utils/UserRole";
-import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
-import {ReactComponent as UpIcon} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
-import {ReactComponent as DownIcon} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
+import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
+import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {newInvitation, organizationGUIDValidation, rolesByApplication} from "../api";
 import {Button, ButtonType, Loader, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";

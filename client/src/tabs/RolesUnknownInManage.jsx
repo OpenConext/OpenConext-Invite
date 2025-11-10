@@ -9,7 +9,7 @@ import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {rolesUnknownInManage} from "../api";
 import {stopEvent} from "../utils/Utils";
 import {chipTypeForUserRole} from "../utils/Authority";
-import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import AlertLogo from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import {deriveApplicationAttributes} from "../utils/Manage";
 
 export const RolesUnknownInManage = () => {

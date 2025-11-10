@@ -17,7 +17,7 @@ import {
 import {Button, ButtonType, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
-import {ReactComponent as RoleIcon} from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
+import RoleIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import InputField from "../components/InputField";
 import {constructShortName} from "../validations/regExps";
 import {distinctValues, isEmpty} from "../utils/Utils";

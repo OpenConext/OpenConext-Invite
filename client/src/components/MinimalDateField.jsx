@@ -1,8 +1,8 @@
 import React, {useRef} from "react";
 
 import DatePicker from "react-datepicker";
-import {ReactComponent as ResetIcon} from "@surfnet/sds/icons/functional-icons/close.svg";
-import {ReactComponent as EditIcon} from "@surfnet/sds/icons/functional-icons/edit.svg";
+import ResetIcon from "@surfnet/sds/icons/functional-icons/close.svg";
+import EditIcon from "@surfnet/sds/icons/functional-icons/edit.svg";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "./MinimalDateField.scss"

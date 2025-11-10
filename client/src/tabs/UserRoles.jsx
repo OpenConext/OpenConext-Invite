@@ -3,7 +3,7 @@ import I18n from "../locale/I18n";
 import "./UserRoles.scss";
 import {Button, ButtonSize, ButtonType, Checkbox, Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
-import {ReactComponent as AlarmBell} from "../icons/alarm_bell.svg";
+import AlarmBell from "../icons/alarm_bell.svg";
 import "./Users.scss";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, futureDate, shortDateFromEpoch} from "../utils/Date";
@@ -16,7 +16,7 @@ import {isEmpty, pseudoGuid} from "../utils/Utils";
 import {MinimalDateField} from "../components/MinimalDateField";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import debounce from "lodash.debounce";
-import {ReactComponent as TrashIcon} from "@surfnet/sds/icons/functional-icons/bin.svg";
+import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 
 const oneMonthMillis = 1000 * 60 * 60 * 24 * 30;
 

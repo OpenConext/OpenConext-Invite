@@ -7,7 +7,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
 import {UnitHeader} from "../components/UnitHeader";
-import {ReactComponent as Logo} from "@surfnet/sds/icons/functional-icons/id-1.svg";
+import Logo from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {dateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
 

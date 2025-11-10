@@ -1,5 +1,5 @@
-import {ReactComponent as ArrowDown} from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
-import {ReactComponent as ArrowUp} from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
+import ArrowDown from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
+import ArrowUp from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import React from "react";
 
 export function headerIcon(column, sorted, reverse) {
