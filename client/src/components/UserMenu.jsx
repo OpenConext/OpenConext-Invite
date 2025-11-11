@@ -9,7 +9,7 @@ import {logout} from "../api";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 
 
-export const UserMenu = ({user, config, actions}) => {
+export const UserMenu = ({user, actions}) => {
     const navigate = useNavigate();
 
     const [dropDownActive, setDropDownActive] = useState(false);

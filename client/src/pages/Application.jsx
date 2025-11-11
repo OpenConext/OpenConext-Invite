@@ -73,7 +73,6 @@ export const Application = () => {
             header: "",
             mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> :
                 <div className="role-icon">
-                    {/*ToDo check if this role.log works*/}
                     {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
                 </div>
         },

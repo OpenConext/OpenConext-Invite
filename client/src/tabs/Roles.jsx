@@ -89,7 +89,6 @@ export const Roles = () => {
         const logo = institution["logo"]
         return (
             <div className="institution-admin-welcome">
-                {/*ToDo check if this works*/}
                 {logo ? <img src={logo} alt="logo"/> : <VoidImage/>}
                 <p>{I18n.t("institutionAdmin.welcome", {name: name})}</p>
                 <Button txt={I18n.t("institutionAdmin.create")}
@@ -107,7 +106,6 @@ export const Roles = () => {
             header: "",
             mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> :
                 <div className="role-icon">
-                    {/*ToDo check if this works*/}
                     {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
                 </div>
         },

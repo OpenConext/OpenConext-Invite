@@ -525,7 +525,7 @@ export const RoleForm = () => {
                 {!isEmpty(deletedUserRoles) && <div className="consequences">
                     <p>{I18n.t("roles.consequences.info")}</p>
                     <ul>
-                        {deletedUserRoles.slice(0, CUT_OFF_DELETED_USER).map(userRole => <li>
+                        {deletedUserRoles.slice(0, CUT_OFF_DELETED_USER).map((userRole, index) => <li key={index}>
                             {I18n.t("roles.consequences.userInfo", {
                                 name: userRole.userInfo.name,
                                 authority: I18n.t(`access.${userRole.authority}`),

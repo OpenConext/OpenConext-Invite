@@ -55,7 +55,7 @@ export const RolesUnknownInManage = () => {
         {
             key: "applicationName",
             header: I18n.t("roles.applicationName"),
-            mapper: role => <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span>
+            mapper: () => <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}</span>
         },
         {
             key: "name",

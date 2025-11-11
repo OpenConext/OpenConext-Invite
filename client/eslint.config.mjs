@@ -18,12 +18,11 @@ export default defineConfig([
   reactHooks.configs.flat.recommended,
   {
     rules: {
-      // ToDo check rules that are off and warn
       "react/prop-types": "off",
       "react/no-children-prop": "off",
       'react-hooks/exhaustive-deps': 'warn',
       "react/react-in-jsx-scope" : "off",
-      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/set-state-in-effect": "warn",
       "react-hooks/immutability":"off"
     },
   },
