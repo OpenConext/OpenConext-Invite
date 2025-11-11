@@ -4,11 +4,7 @@
     margin: 0 auto;
     color: black;
     background-color: vars.$background;
-    padding-top: 10px;
-
-    @media (max-width: vars.$medium) {
-        padding: 10px 15px 0 15px;
-    }
+    padding: 10px 15px 0 15px;
 
     ol.sds--breadcrumb--list {
         min-height: 32px;
@@ -18,7 +14,6 @@
         transition: margin 150ms ease-in-out;
         display: flex;
         align-items: center;
-
     }
 
     li svg {
