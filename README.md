@@ -48,7 +48,9 @@ This project uses Spring Boot and Maven. To run locally, type:
 Install frontend dependencies
 
 ```bash
-(cd client && yarn)
+cd client 
+nvm use
+yarn install
 ```
 
 Run frontend
