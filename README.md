@@ -9,7 +9,7 @@
 ### [System Requirements](#system-requirements)
 
 - Java 21
-- Maven 3
+- Maven 3+
 - Node (nvm)
 - Yarn
 
