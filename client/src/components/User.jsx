@@ -8,7 +8,7 @@ import Logo from "./Logo";
 import {Button, ButtonType, Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 import {deriveRemoteApplicationAttributes, reduceApplicationFromUserRoles} from "../utils/Manage";
-import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
+import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
 import DOMPurify from "dompurify";

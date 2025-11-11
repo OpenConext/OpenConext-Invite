@@ -1,10 +1,10 @@
 import React from "react";
 import DOMPurify from "dompurify";
 import I18n from "../locale/I18n";
-import AccessDeniedLogo from "../icons/landing/undraw_access_denied_re_awnf.svg";
-import AuthenticationLogo from "../icons/landing/undraw_authentication_re_svpt.svg";
-import EnterLogo from "../icons/landing/undraw_enter_uhqk.svg";
-import SCIMLogo from "../icons/landing/undraw_subscriptions_re_k7jj.svg";
+import AccessDeniedLogo from "../icons/landing/undraw_access_denied_re_awnf.svg?url";
+import AuthenticationLogo from "../icons/landing/undraw_authentication_re_svpt.svg?url";
+import EnterLogo from "../icons/landing/undraw_enter_uhqk.svg?url";
+import SCIMLogo from "../icons/landing/undraw_subscriptions_re_k7jj.svg?url";
 import "./LandingInfo.scss";
 import {Chip, ChipType} from "@surfnet/sds"
 

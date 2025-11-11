@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import I18n from "../locale/I18n";
-import {ReactComponent as SearchIcon} from "@surfnet/sds/icons/functional-icons/search.svg";
+import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import {isEmpty} from "../utils/Utils";
 import {sortObjects, valueForSort} from "../utils/Sort";
 import {headerIcon} from "../utils/Forms";

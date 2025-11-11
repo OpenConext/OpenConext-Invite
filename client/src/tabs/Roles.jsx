@@ -10,8 +10,8 @@ import {rolesByApplication} from "../api";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {authorityForRole, chipTypeForUserRole} from "../utils/Authority";
-import {ReactComponent as VoidImage} from "../icons/undraw_void_-3-ggu.svg";
-import {ReactComponent as AlertLogo} from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import VoidImage from "../icons/undraw_void_-3-ggu.svg";
+import AlertLogo from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import DOMPurify from "dompurify";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 
@@ -52,7 +52,7 @@ export const Roles = () => {
             setRoles(newRoles);
             setSearching(false);
         }
-    }, [user, paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [user, paginationQueryParams]); 
 
     const openRole = (e, role) => {
         const id = role.isUserRole ? role.role.id : role.id;

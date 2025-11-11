@@ -1,5 +1,5 @@
 import {isEmpty, splitListSemantically} from "./Utils";
-import {ReactComponent as MultipleIcon} from "../icons/multi-role.svg";
+import MultipleIcon from "../icons/multi-role.svg";
 
 export const singleProviderToOption = (provider, locale) => {
     const manageType = provider.type ? provider.type.toUpperCase() : provider.manageType;

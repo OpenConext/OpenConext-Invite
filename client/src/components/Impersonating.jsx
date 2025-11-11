@@ -5,7 +5,7 @@ import React from "react";
 import {highestAuthority} from "../utils/UserRole";
 
 import "./Impersonating.scss";
-import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
+import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import DOMPurify from "dompurify";
 import {useAppStore} from "../stores/AppStore";
 

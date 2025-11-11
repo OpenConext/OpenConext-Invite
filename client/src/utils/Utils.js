@@ -18,7 +18,7 @@ export function isEmpty(obj) {
         return obj.trim().length === 0;
     }
     if (obj && obj.getTime) {
-        // eslint-disable-next-line
+         
         return obj.getTime() !== obj.getTime();
     }
     if (typeof obj === "object") {

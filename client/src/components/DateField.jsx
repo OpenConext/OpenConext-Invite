@@ -1,6 +1,6 @@
 import React, {useRef} from "react";
 
-import {ReactComponent as CardIcon} from "../icons/calendar-alt.svg";
+import CardIcon from "../icons/calendar-alt.svg";
 import {Tooltip} from "@surfnet/sds";
 import DatePicker from "react-datepicker";
 

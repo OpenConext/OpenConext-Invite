@@ -4,11 +4,11 @@ import "../components/Entities.scss";
 import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsers} from "../api";
-import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./Users.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
-import {ReactComponent as ImpersonateIcon} from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
+import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
@@ -35,7 +35,7 @@ export const Users = () => {
                     setSearching(false);
                 });
         },
-        [paginationQueryParams]);// eslint-disable-line react-hooks/exhaustive-deps
+        [paginationQueryParams]); 
 
     const openUser = (e, user) => {
         const path = `/profile/${user.id}`

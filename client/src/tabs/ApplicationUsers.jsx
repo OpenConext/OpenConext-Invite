@@ -4,7 +4,7 @@ import "../components/Entities.scss";
 import {Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsersByApplication} from "../api";
-import {ReactComponent as UserIcon} from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./ApplicationUsers.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";

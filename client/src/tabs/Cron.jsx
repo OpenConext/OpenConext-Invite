@@ -43,7 +43,7 @@ export const Cron = () => {
             </div>
             {!isEmpty(mailResults) &&
                 <div className="cron-results">
-                    {mailResults["mails"].map(mail => <div className="mail-content">
+                    {mailResults["mails"].map((mail, index) => <div key={index} className="mail-content">
                         <p dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(mail)
                         }}/>

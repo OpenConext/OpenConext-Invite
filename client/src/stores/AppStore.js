@@ -26,9 +26,3 @@ export const useAppStore = create(set => ({
     //[{path: "/roles/4", value: role.name}]
     breadcrumbPath: []
 }));
-
-export const useManageStore = create(set => ({
-    providers: [],
-    provisionings: [],
-    providerById: {}
-}));

@@ -3,7 +3,7 @@ import './Login.scss';
 import I18n from "../locale/I18n";
 import DOMPurify from "dompurify";
 import {LandingInfo} from "../components/LandingInfo";
-import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg";
+import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg?url";
 import {login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty} from "../utils/Utils";
@@ -22,7 +22,7 @@ export const Login = () => {
         if (buttonRef && buttonRef.current) {
             buttonRef.current.focus();
         }
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [])  
 
 
     const doLogin = () => {
