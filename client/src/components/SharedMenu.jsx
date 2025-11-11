@@ -1,5 +1,5 @@
 import {NavigationMenu} from "@surfnet/sds"
-import {ReactComponent as HomeIcon} from "@surfnet/sds/icons/illustrative-icons/home.svg";
+import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
 
 export const SharedMenu = () => {
     const filteredMenuGroups = [
