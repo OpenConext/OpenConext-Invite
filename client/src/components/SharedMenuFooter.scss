@@ -1,3 +1,27 @@
-.shared-menu-footer {
-    color: white;
+footer.shared-menu-footer {
+    margin-top: auto;
+    background: var(--sds--color--black--navigation);
+
+    .sds--footer--inner {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 25px;
+        color: white;
+
+        .sds--language-switcher {
+            --lnk--base-color: white;
+        }
+
+        nav.menu {
+            ul {
+                display: inline-flex;
+                gap: 10px;
+            }
+
+            a:link, nav.menu a:visited:hover {
+                text-decoration: none;
+            }
+        }
+    }
 }
