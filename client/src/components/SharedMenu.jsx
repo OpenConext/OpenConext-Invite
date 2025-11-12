@@ -5,6 +5,8 @@ import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
 import IdIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 import ShieldCheckIcon from "@surfnet/sds/icons/illustrative-icons/shield-check.svg";
+import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg";
+import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
 import {useLocation, useNavigate} from "react-router-dom";
 import {SharedMenuFooter} from "./SharedMenuFooter";
 
@@ -14,6 +16,9 @@ export const SharedMenu = () => {
 
     const isActive = (path) => pathname === path;
 
+    // Todo:
+    // - Translations
+    // - Logic for showing / hiding menu items
     const menuGroups = [
         {
             label: null,
@@ -48,7 +53,23 @@ export const SharedMenu = () => {
                     href: '/home/tokens',
                 }
             ]
-        }
+        },
+        {
+            label: 'support',
+            className: 'custom-group',
+            items: [
+                {
+                    label: 'SURF Servicedesk',
+                    href: '/external/serviceDesk',
+                    Logo: HeadPhonesIcon,
+                },
+                {
+                    label: 'Provide Feedback',
+                    href: '/feedback',
+                    Logo: FeedbackIcon,
+                },
+            ]
+        },
     ];
 
     const menuGroupsWithActiveState = menuGroups.map(group => ({
