@@ -9,7 +9,6 @@ import {Home} from "./Home";
 import {Flash} from "../components/Flash";
 import {Header} from "../components/Header";
 // import {Footer} from "../components/Footer";
-import {BreadCrumb} from "../components/BreadCrumb";
 import {Invitation} from "./Invitation";
 import {login} from "../utils/Login";
 import NotFound from "./NotFound";
@@ -100,11 +99,12 @@ export const App = () => {
         <div className="invite">
             <Flash/>
             <div className="container">
-                <SharedMenu />
+                <div className="menu">
+                    <SharedMenu />
+                </div>
                 <div className="content">
                     <Header/>
                     {impersonator && <Impersonating/>}
-                    {authenticated && <BreadCrumb/>}
                     {authenticated &&
                         <Routes>
                             <Route path="/" element={<Navigate replace to="home"/>}/>

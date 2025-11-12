@@ -1,19 +1,20 @@
 @use "../styles/vars.scss";
 
 .header-container {
-
-    background-color: var(--sds--palette--main-color--400);
+    background-color: var(--sds--color--white);
     color: var(--sds--color--white);
-    margin: 0 auto;
     padding: 5px 0 10px 0;
+    height: vars.$nav-height;
+    display: flex;
+    justify-content: space-around;
 
     .header-inner {
-        position: relative;
         transition: margin 150ms ease-in-out;
         display: flex;
+        justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin: 0 auto;
+        margin: 0 15px;
         max-width: vars.$max-width;
 
         @media (max-width: vars.$medium) {
