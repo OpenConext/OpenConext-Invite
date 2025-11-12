@@ -1,3 +1,4 @@
+import "./SharedMenu.scss";
 import {NavigationMenu} from "@surfnet/sds"
 import HomeIcon from "@surfnet/sds/icons/illustrative-icons/home.svg";
 import TeamIcon from "@surfnet/sds/icons/illustrative-icons/team.svg";
@@ -5,9 +6,10 @@ import IdIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import ScreenIcon from "@surfnet/sds/icons/illustrative-icons/screen.svg";
 import ShieldCheckIcon from "@surfnet/sds/icons/illustrative-icons/shield-check.svg";
 import {useLocation, useNavigate} from "react-router-dom";
+import {SharedMenuFooter} from "./SharedMenuFooter";
 
 export const SharedMenu = () => {
-    const {pathname, assign} = useLocation();
+    const {pathname} = useLocation();
     const navigate = useNavigate();
 
     const isActive = (path) => pathname === path;
@@ -64,14 +66,7 @@ export const SharedMenu = () => {
             setActiveMenuItem={(menuItem) => navigate(menuItem.href)}
             title="SURFconext Invite"
         >
-            <div
-                style={{
-                    color: 'white',
-                    marginTop: '140px'
-                }}
-            >
-                <span>NL</span>{' '}|{' '}<span>EN</span>
-            </div>
+            <SharedMenuFooter />
         </NavigationMenu>
     );
 }
