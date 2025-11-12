@@ -18,7 +18,6 @@ import {isEmpty} from "../utils/Utils";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
-    const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
     const [winking, setWinking] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -35,7 +34,7 @@ export const Home = () => {
             useAppStore.setState({
                 breadcrumbPath: [
                     {path: "/home", value: I18n.t("tabs.home")},
-                    {value: I18n.t(`tabs.${currentTab}`)}
+                    {value: I18n.t(`tabs.${tab}`)}
                 ]
             });
         }
@@ -91,10 +90,9 @@ export const Home = () => {
         }
         setTabs(newTabs);
         setLoading(false);
-    }, [currentTab, user]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [tab, user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const tabChanged = (name) => {
-        setCurrentTab(name);
         navigate(`/home/${name}`);
     }
 
@@ -113,8 +111,7 @@ export const Home = () => {
                             svgClick={() => winkOwl()}>
                     <p>{I18n.t("header.subTitle")}</p>
                 </UnitHeader>
-                <Tabs activeTab={currentTab}
-                      tabChanged={tabChanged}>
+                <Tabs activeTab={tab} tabChanged={tabChanged}>
                     {tabs}
                 </Tabs>
             </div>
