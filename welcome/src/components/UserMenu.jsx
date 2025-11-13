@@ -8,7 +8,7 @@ import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
 
 
-export const UserMenu = ({user, config, actions}) => {
+export const UserMenu = ({user, actions}) => {
     const navigate = useNavigate();
 
     const [dropDownActive, setDropDownActive] = useState(false);

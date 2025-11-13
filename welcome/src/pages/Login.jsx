@@ -20,7 +20,7 @@ export const Login = () => {
         if (buttonRef && buttonRef.current) {
             buttonRef.current.focus();
         }
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [])  
 
     const toggleSpin = () => {
         setSpin(true);
