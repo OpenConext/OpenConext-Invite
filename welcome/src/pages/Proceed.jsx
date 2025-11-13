@@ -12,7 +12,7 @@ import {invitationByHash, logout} from "../api";
 import {login} from "../utils/Login";
 import {RoleCard} from "../components/RoleCard";
 import {User} from "../components/User";
-import HighFive from "../icons/high-five.svg";
+import HighFive from "../icons/high-five.svg?url";
 import {useNavigate} from "react-router-dom";
 import {reduceApplicationFromUserRoles} from "../utils/Manage";
 import {relativeUserWaitTime} from "../utils/Date";

@@ -42,10 +42,11 @@ Note: for MariaDB `COLLATE utf8mb4_0900_ai_ci` might not work and can be left ou
 This project uses Spring Boot and Maven. To run locally, type:
 
 ```bash
-(cd server && mvn spring-boot:run)
+cd server 
+mvn spring-boot:run
 ```
 
-Install frontend dependencies
+Install client frontend dependencies
 
 ```bash
 cd client 
@@ -53,10 +54,28 @@ nvm use
 yarn install
 ```
 
-Run frontend
+Install welcome frontend dependencies
+```bash
+cd welcome 
+nvm use
+yarn install
+```
+
+Run the client frontend <http://localhost:3000>
 
 ```bash
-(cd client && yarn start)
+cd client
+yarn start
+```
+Run the welcome frontend <http://localhost:4000>
+```bash
+cd welcome
+yarn start
+```
+
+Run the server backend
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dmaven.test.skip=true
 ```
 
 ### [Mail](#mail)

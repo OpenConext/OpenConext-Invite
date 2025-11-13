@@ -1,5 +1,5 @@
 import React from "react";
-import {ReactComponent as ArrowRight} from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 
 import {Tooltip} from "@surfnet/sds";
 import "./InputField.scss";

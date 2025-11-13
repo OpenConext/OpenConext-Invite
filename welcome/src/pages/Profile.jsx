@@ -4,7 +4,7 @@ import "./Profile.scss";
 import {Toaster, ToasterType, Tooltip} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
-import HighFive from "../icons/high-five.svg";
+import HighFive from "../icons/high-five.svg?url";
 import {login} from "../utils/Login";
 import {stopEvent} from "../utils/Utils";
 import DOMPurify from "dompurify";

@@ -4,7 +4,7 @@ import {useAppStore} from "../stores/AppStore";
 import {Link} from "react-router-dom";
 import {isEmpty} from "../utils/Utils";
 import DOMPurify from "dompurify";
-import {ReactComponent as ArrowRight} from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
 
 export const BreadCrumb = () => {
 
