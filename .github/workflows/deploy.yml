@@ -87,7 +87,7 @@ jobs:
         with:
           name: invitebuilds
           path: |
-            client/build/
+            client/dist/
             provisioning-mock/target/*.jar
             server/target/*.jar
             welcome/build/
