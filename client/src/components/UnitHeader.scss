@@ -3,7 +3,7 @@
 
 .unit-header-container {
     background-color: vars.$background;
-    padding: 15px 15px 25px 15px;
+    padding: 15px vars.$main-content-margin 25px vars.$main-content-margin;
 
     width: 100%;
 
@@ -22,7 +22,6 @@
 
     .unit-header {
         max-width: vars.$max-width;
-        margin: 0 auto;
         width: 100%;
         display: flex;
 

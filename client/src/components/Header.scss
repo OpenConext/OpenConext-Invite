@@ -14,12 +14,7 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin: 0 15px;
-        max-width: vars.$max-width;
-
-        @media (max-width: vars.$medium) {
-            padding: 0 15px;
-        }
+        margin: 0 vars.$main-content-margin;
 
         a.logo {
             margin-top: 10px;

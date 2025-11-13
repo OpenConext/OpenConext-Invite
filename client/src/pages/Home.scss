@@ -1,11 +1,12 @@
+@use "../styles/vars.scss";
+
 .mod-home-container {
   > * {
-    padding: 0 15px;
+    padding: 0 vars.$main-content-margin;
   }
 }
 
 .unit-header .image {
-
     svg path.right-eye {
         fill: #ffffff;
     }
