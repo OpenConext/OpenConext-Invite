@@ -1,16 +1,16 @@
-@import "../styles/vars.scss";
+@use "../styles/vars.scss";
 
 .mod-profile {
     width: 100%;
 
 
     .profile-container {
-        max-width: $medium;
+        max-width: vars.$medium;
         display: flex;
         flex-direction: column;
         align-items: center;
         margin: 0 auto;
-        @media (max-width: $medium) {
+        @media (max-width: vars.$medium) {
             padding: 0 15px;
         }
 

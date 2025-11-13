@@ -2,7 +2,7 @@ import {Button, ButtonSize, ButtonType} from "@surfnet/sds";
 import './Login.scss';
 import I18n from "../locale/I18n";
 import DOMPurify from "dompurify";
-import HappyLogo from "../icons/landing/undraw_festivities_tvvj.svg";
+import HappyLogo from "../icons/landing/undraw_festivities_tvvj.svg?url";
 import {login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty} from "../utils/Utils";
@@ -20,7 +20,7 @@ export const Login = () => {
         if (buttonRef && buttonRef.current) {
             buttonRef.current.focus();
         }
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [])  
 
     const toggleSpin = () => {
         setSpin(true);

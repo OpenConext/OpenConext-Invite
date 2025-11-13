@@ -14,7 +14,7 @@ import {useAppStore} from "../stores/AppStore";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {organisationName} from "../utils/Manage";
-import HighFive from "../icons/high-five.svg";
+import HighFive from "../icons/high-five.svg?url";
 
 const MAY_ACCEPT = "mayAccept";
 const HAS_LOGGED_IN_AGAIN = "hasLoggedInAgain"

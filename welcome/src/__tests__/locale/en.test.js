@@ -1,4 +1,4 @@
-import React from "react";
+import { describe, it, expect } from 'vitest';
 import en from "../../locale/en";
 import nl from "../../locale/nl";
 
@@ -10,22 +10,23 @@ expect.extend({
         };
     },
 });
-
-test("All translations exists in all bundles", () => {
-    const contains = (translation, translationToVerify, keyCollection, parents) => {
-        Object.keys(translation).forEach(key => {
-            expect(translationToVerify).toContainKey(key);
-            const value = translation[key];
-            keyCollection.push(parents+key);
-            if (typeof value === "object") {
-                contains(value, translationToVerify[key], keyCollection, parents+key+".")
-            }
-        });
-    };
-    const keyCollectionEN = [];
-    contains(en, nl, keyCollectionEN, '');
-    const keyCollectionNL = [];
-    contains(nl, en, keyCollectionNL, '');
-    const positionalMismatches = keyCollectionEN.filter((item, index) => keyCollectionNL[index] !== item);
-    expect(positionalMismatches).toEqual([])
+describe('En', () => {
+    it("All translations exists in all bundles", () => {
+        const contains = (translation, translationToVerify, keyCollection, parents) => {
+            Object.keys(translation).forEach(key => {
+                expect(translationToVerify).toContainKey(key);
+                const value = translation[key];
+                keyCollection.push(parents+key);
+                if (typeof value === "object") {
+                    contains(value, translationToVerify[key], keyCollection, parents+key+".")
+                }
+            });
+        };
+        const keyCollectionEN = [];
+        contains(en, nl, keyCollectionEN, '');
+        const keyCollectionNL = [];
+        contains(nl, en, keyCollectionNL, '');
+        const positionalMismatches = keyCollectionEN.filter((item, index) => keyCollectionNL[index] !== item);
+        expect(positionalMismatches).toEqual([])
+    });
 });

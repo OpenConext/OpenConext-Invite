@@ -8,7 +8,7 @@ import I18n from "../locale/I18n";
 
 export const Header = () => {
 
-    const {user, config} = useAppStore(state => state);
+    const {user} = useAppStore(state => state);
     const actions = [];
     return (
         <div className="header-container">
@@ -20,7 +20,6 @@ export const Header = () => {
                 </Link>
                 {(user && user.id) &&
                     <UserMenu user={user}
-                              config={config}
                               actions={actions}
                     />
                 }
