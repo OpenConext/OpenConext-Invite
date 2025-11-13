@@ -5,6 +5,7 @@ node_modules/
 !**/src/test/**/target/
 docs/invite.archimate.bak
 /yamllint-*
+dist/
 
 ### STS ###
 .apt_generated
@@ -46,3 +47,4 @@ spieldata
 teams-api-calls.md
 .run/
 client/locale_parser.js
+
