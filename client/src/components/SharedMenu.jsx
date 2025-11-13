@@ -9,16 +9,44 @@ import HeadPhonesIcon from "@surfnet/sds/icons/illustrative-icons/headphones.svg
 import FeedbackIcon from "@surfnet/sds/icons/illustrative-icons/feedback.svg";
 import {useLocation, useNavigate} from "react-router-dom";
 import {SharedMenuFooter} from "./SharedMenuFooter";
+import {InviteTabs, useUserTabs} from "../hooks/useUserTabs";
+import I18n from "../locale/I18n";
 
 export const SharedMenu = () => {
     const {pathname} = useLocation();
     const navigate = useNavigate();
+    const { userTabs } = useUserTabs();
 
     const isActive = (path) => pathname === path;
 
-    // Todo:
-    // - Translations
-    // - Logic for showing / hiding menu items
+    const allMenuItems = {
+        [InviteTabs.ROLES]: {
+            label: I18n.t(`tabs.${InviteTabs.ROLES}`),
+            Logo: TeamIcon,
+            href: '/home/roles',
+        },
+        [InviteTabs.USERS]: {
+            label: I18n.t(`tabs.${InviteTabs.USERS}`),
+            Logo: IdIcon,
+            href: '/home/users',
+        },
+        [InviteTabs.APPLICATIONS]: {
+            label: I18n.t(`tabs.${InviteTabs.APPLICATIONS}`),
+            Logo: ScreenIcon,
+            href: '/home/applications',
+        },
+        [InviteTabs.APPLICATION_USERS]: {
+            label: I18n.t(`tabs.${InviteTabs.APPLICATION_USERS}`),
+            Logo: IdIcon,
+            href: '/home/application-users',
+        },
+        [InviteTabs.TOKENS]: {
+            label: I18n.t(`tabs.${InviteTabs.TOKENS}`),
+            Logo: ShieldCheckIcon,
+            href: '/home/tokens',
+        }
+    }
+
     const menuGroups = [
         {
             label: null,
@@ -31,28 +59,7 @@ export const SharedMenu = () => {
             ]
         },
         {
-            items: [
-                {
-                    label: 'Access roles',
-                    Logo: TeamIcon,
-                    href: '/home/roles',
-                },
-                {
-                    label: 'Users',
-                    Logo: IdIcon,
-                    href: '/home/users',
-                },
-                {
-                    label: 'Applications',
-                    Logo: ScreenIcon,
-                    href: '/home/applications',
-                },
-                {
-                    label: 'API tokens',
-                    Logo: ShieldCheckIcon,
-                    href: '/home/tokens',
-                }
-            ]
+            items: userTabs.map(tab => allMenuItems[tab])
         },
         {
             label: 'support',

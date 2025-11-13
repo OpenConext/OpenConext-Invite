@@ -14,16 +14,44 @@ import {Loader} from "@surfnet/sds";
 import {Tokens} from "../tabs/Tokens";
 import {ApplicationUsers} from "../tabs/ApplicationUsers";
 import Applications from "../tabs/Applications";
-import {isEmpty} from "../utils/Utils";
+import {InviteTabs, useUserTabs} from "../hooks/useUserTabs";
 
 export const Home = () => {
-    const {tab = "roles"} = useParams();
-    const [tabs, setTabs] = useState([]);
+    const navigate = useNavigate();
+
+    const {tab = InviteTabs.ROLES} = useParams();
     const [winking, setWinking] = useState(false);
     const [loading, setLoading] = useState(true);
-
     const user = useAppStore((state) => state.user)
-    const navigate = useNavigate();
+    const {userTabs} = useUserTabs();
+
+    const allTabs = {
+        [InviteTabs.ROLES]: (
+            <Page key="roles" name="roles" label={I18n.t("tabs.roles")}>
+                <Roles/>
+            </Page>
+        ),
+        [InviteTabs.USERS]: (
+            <Page key="users" name="users" label={I18n.t("tabs.users")}>
+                <Users/>
+            </Page>
+        ),
+        [InviteTabs.APPLICATIONS]: (
+            <Page key="applications" name="applications" label={I18n.t("tabs.applications")}>
+                <Applications/>
+            </Page>
+        ),
+        [InviteTabs.APPLICATION_USERS]: (
+            <Page key="applicationUsers" name="applicationUsers" label={I18n.t("tabs.applicationUsers")}>
+                <ApplicationUsers/>
+            </Page>
+        ),
+        [InviteTabs.TOKENS]: (
+            <Page key="tokens" name="tokens" label={I18n.t("tabs.tokens")}>
+                <Tokens/>
+            </Page>
+        )
+    }
 
     useEffect(() => {
         if (user) {
@@ -38,57 +66,6 @@ export const Home = () => {
                 ]
             });
         }
-        const newTabs = [
-            <Page key="roles"
-                  name="roles"
-                  label={I18n.t("tabs.roles")}
-            >
-                <Roles/>
-            </Page>
-        ];
-        if (user && user.superUser) {
-            newTabs.push(
-                <Page key="users"
-                      name="users"
-                      label={I18n.t("tabs.users")}
-                >
-                    <Users/>
-                </Page>);
-            newTabs.push(
-                <Page key="applications"
-                      name="applications"
-                      label={I18n.t("tabs.applications")}
-                >
-                    <Applications/>
-                </Page>
-            );
-        }
-        if (user && !user.superUser && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) {
-            newTabs.push(
-                <Page key="applicationUsers"
-                      name="applicationUsers"
-                      label={I18n.t("tabs.applicationUsers")}
-                >
-                    <ApplicationUsers/>
-                </Page>);
-            newTabs.push(
-                <Page key="applications"
-                      name="applications"
-                      label={I18n.t("tabs.applications")}
-                >
-                    <Applications/>
-                </Page>
-            );
-        }
-        if (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) {
-            newTabs.push(
-                <Page key="tokens"
-                      name="tokens"
-                      label={I18n.t("tabs.tokens")}>
-                    <Tokens/>
-                </Page>);
-        }
-        setTabs(newTabs);
         setLoading(false);
     }, [tab, user]);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -104,6 +81,9 @@ export const Home = () => {
     if (loading) {
         return <Loader/>
     }
+
+    const visibleTabs = userTabs.map((tr) => allTabs[tr])
+
     return (
         <div className="home">
             <div className="mod-home-container">
@@ -112,7 +92,7 @@ export const Home = () => {
                     <p>{I18n.t("header.subTitle")}</p>
                 </UnitHeader>
                 <Tabs activeTab={tab} tabChanged={tabChanged}>
-                    {tabs}
+                    {visibleTabs}
                 </Tabs>
             </div>
         </div>
