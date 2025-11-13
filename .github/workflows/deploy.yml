@@ -90,7 +90,7 @@ jobs:
             client/dist/
             provisioning-mock/target/*.jar
             server/target/*.jar
-            welcome/build/
+            welcome/dist/
           retention-days: 1
 
       - name: Build Changelog
