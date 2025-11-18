@@ -92,6 +92,28 @@ class UserRoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void searchGuestsByPageSmallTokens() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        Role role = roleRepository.findByName("Research").get();
+        Map<String, Object> userRoles = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParams(Map.of(
+                        "query", "kb.nl"
+                ))
+                .pathParams("roleId", role.getId())
+                .pathParams("guests", true)
+                .get("/api/v1/user_roles/search/{roleId}/{guests}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, userRoles.get("totalElements"));
+        assertEquals(1, ((List<?>) userRoles.get("content")).size());
+    }
+
+    @Test
     void searchNonGuestsByPage() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
 

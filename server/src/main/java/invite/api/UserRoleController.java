@@ -31,6 +31,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -130,11 +132,18 @@ public class UserRoleController implements UserRoleResource {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> page;
-        if (StringUtils.hasText(query)) {
-            query = FullSearchQueryParser.parse(query);
+        boolean queryIsNotEmpty = StringUtils.hasText(query);
+        query = queryIsNotEmpty ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
+        String parsedQuery = queryIsNotEmpty ? FullSearchQueryParser.parse(query) : "";
+        if (queryIsNotEmpty && !parsedQuery.equals("*")) {
             page = guests ?
-                    userRoleRepository.searchGuestsByPageWithKeyword(roleId, query, pageable) :
-                    userRoleRepository.searchNonGuestsByPageWithKeyword(roleId, query, pageable);
+                    userRoleRepository.searchGuestsByPageWithKeyword(roleId, parsedQuery, pageable) :
+                    userRoleRepository.searchNonGuestsByPageWithKeyword(roleId, parsedQuery, pageable);
+        } else if ("*".equals(parsedQuery)) {
+            //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
+            page = guests ?
+                    userRoleRepository.searchGuestsByPageWithStrictSearch(roleId, query, pageable) :
+                    userRoleRepository.searchNonGuestsByPageWithStrictSearch(roleId, query, pageable);
         } else {
             page = guests ?
                     userRoleRepository.searchGuestsByPage(roleId, pageable) :

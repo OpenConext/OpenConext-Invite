@@ -206,7 +206,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .get("/api/internal/invite/user_roles/{roleId}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, userRoles.size());
+        assertEquals(2, userRoles.size());
     }
 
 }

@@ -109,6 +109,42 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
             nativeQuery = true)
     Page<Map<String, Object>> searchNonGuestsByPageWithKeyword(Long roleId, String keyWord, Pageable pageable);
 
+    @Query(value = """
+            SELECT ur.id, ur.authority, ur.end_date as endDate, ur.created_at as createdAt, u.id as user_id,
+                               u.name, u.email, u.schac_home_organization, r.id as role_id
+            FROM user_roles ur
+                    INNER JOIN roles r on r.id = ur.role_id
+                    INNER JOIN users u on u.id = ur.user_id WHERE ur.role_id = ?1
+            AND ur.authority <> 'GUEST' AND 
+              (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+            """,
+            countQuery = """
+                    SELECT COUNT(ur.id) FROM user_roles ur INNER JOIN users u on u.id = ur.user_id
+                    WHERE ur.role_id = ?1 AND ur.authority <> 'GUEST' 
+                    AND (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+                    """,
+            queryRewriter = UserRoleRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchNonGuestsByPageWithStrictSearch(Long roleId, String keyWord, Pageable pageable);
+
+    @Query(value = """
+            SELECT ur.id, ur.authority, ur.end_date as endDate, ur.created_at as createdAt, u.id as user_id,
+                               u.name, u.email, u.schac_home_organization, r.id as role_id
+            FROM user_roles ur
+                    INNER JOIN roles r on r.id = ur.role_id
+                    INNER JOIN users u on u.id = ur.user_id WHERE ur.role_id = ?1
+            AND (ur.authority = 'GUEST' OR ur.guest_role_included ) AND 
+              (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+            """,
+            countQuery = """
+                    SELECT COUNT(ur.id) FROM user_roles ur INNER JOIN users u on u.id = ur.user_id
+                    WHERE ur.role_id = ?1 AND (ur.authority = 'GUEST' OR ur.guest_role_included )
+                    AND (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+                    """,
+            queryRewriter = UserRoleRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchGuestsByPageWithStrictSearch(Long roleId, String keyWord, Pageable pageable);
+
     @Override
     default String rewrite(String query, Sort sort) {
         Sort.Order nameSort = sort.getOrderFor("name");

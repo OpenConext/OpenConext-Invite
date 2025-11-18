@@ -97,6 +97,7 @@ public abstract class AbstractTest {
     public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
     public static final String INVITER_WIKI_SUB = "urn:collab:person:example.com:inviter_wiki_sub";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
+    public static final String KB_USER_SUB = "urn:collab:person:kb.nl:guest";
     public static final String GRAPH_INVITATION_HASH = "graph_invitation_hash";
     public static final String INSTITUTION_ADMIN_INVITATION_HASH = "institution_admin_invitation_hash";
     public static final String ORGANISATION_GUID = "ad93daef-0911-e511-80d0-005056956c1a";
@@ -595,7 +596,9 @@ public abstract class AbstractTest {
         User guest =
                 new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@example.com");
         guest.setEduId(UUID.randomUUID().toString());
-        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest);
+        User kbUser =
+                new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
+        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest, kbUser);
 
         Role wiki =
                 new Role("Wiki", "Wiki desc",
@@ -656,7 +659,10 @@ public abstract class AbstractTest {
                 new UserRole("system", guest, wiki, Authority.GUEST);
         UserRole researchGuest =
                 new UserRole("system", guest, research, Authority.GUEST);
-        doSave(this.userRoleRepository, wikiManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest, wikiGuest, researchGuest);
+        UserRole kbUserGuest =
+                new UserRole("system", kbUser, research, Authority.GUEST);
+        doSave(this.userRoleRepository, wikiManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest,
+                wikiGuest, researchGuest, kbUserGuest);
 
         String message = "Please join..";
         Instant roleExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);

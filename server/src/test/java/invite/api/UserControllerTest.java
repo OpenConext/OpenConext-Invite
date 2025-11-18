@@ -408,7 +408,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, usersPage.getTotalElements());
+        assertEquals(5, usersPage.getTotalElements());
         assertEquals(1, usersPage.getContent().size());
     }
 
