@@ -175,7 +175,8 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     //Return only the AUTHORITIES where the user has the correct authority per selectedRole
     const userRolesForSelectedRoles = selectedRoles
         .map(role => role.isUserRole ? role.role : role)
-        .map(role => user.userRoles.find(userRole => userRole.role.id === role.id))
+        .filter(role => (!isEmpty(user.organizationGUID) && user.organizationGUID === role.organizationGUID) ||
+            user.userRoles.some(userRole => userRole.role.id === role.id))
         .filter(userRole => !isEmpty(userRole));
     //If the user is an institutionAdmin but is also a regular inviter or manager of this role, then filter the authorities
     if (user.institutionAdmin && !isEmpty(user.applications) && userRolesForSelectedRoles.length === 0) {

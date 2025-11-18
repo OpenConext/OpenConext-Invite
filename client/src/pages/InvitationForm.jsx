@@ -157,7 +157,8 @@ export const InvitationForm = () => {
     const isValid = () => {
         return required.every(attr => !isEmpty(invitation[attr])) &&
             (!isEmpty(selectedRoles) || [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority))
-            && (invitation.intendedAuthority !== AUTHORITIES.INSTITUTION_ADMIN || !user.superUser || validOrganizationGUID);
+            && (invitation.intendedAuthority !== AUTHORITIES.INSTITUTION_ADMIN || !user.superUser || validOrganizationGUID)
+        && !(user.superUser && invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID))
     }
 
     const addEmails = emails => {
@@ -253,17 +254,18 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitations.requiredEmail")}/>}
 
-                {authorityOptions.length > 1 && <SelectField
-                    value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
-                        || authorityOptions[authorityOptions.length - 1]}
-                    options={authorityOptions}
-                    name={I18n.t("invitations.intendedAuthority")}
-                    searchable={false}
-                    disabled={authorityOptions.length === 1}
-                    onChange={authorityChanged}
-                    toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
-                    clearable={false}
-                />}
+                {authorityOptions.length > 1 &&
+                    <SelectField
+                        value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
+                            || authorityOptions[authorityOptions.length - 1]}
+                        options={authorityOptions}
+                        name={I18n.t("invitations.intendedAuthority")}
+                        searchable={false}
+                        disabled={authorityOptions.length === 1}
+                        onChange={authorityChanged}
+                        toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
+                        clearable={false}
+                    />}
 
                 {(user.superUser && AUTHORITIES.INSTITUTION_ADMIN === invitation.intendedAuthority) &&
                     <InputField
