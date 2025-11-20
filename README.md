@@ -55,6 +55,7 @@ yarn install
 ```
 
 Install welcome frontend dependencies
+
 ```bash
 cd welcome 
 nvm use
@@ -68,12 +69,14 @@ cd client
 yarn start
 ```
 Run the welcome frontend <http://localhost:4000>
+
 ```bash
 cd welcome
 yarn start
 ```
 
 Run the server backend
+
 ```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dmaven.test.skip=true
 ```
