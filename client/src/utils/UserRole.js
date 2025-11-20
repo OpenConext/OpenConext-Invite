@@ -170,19 +170,32 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     if (user.superUser) {
         //The superuser has no organization guid, but is allowed to add one
         return Object.keys(AUTHORITIES);
-
     }
     //Return only the AUTHORITIES where the user has the correct authority per selectedRole
+    if (user.institutionAdmin && !isEmpty(user.applications)) {
+        const nonInstitutionalRoles = selectedRoles.filter(role => user.organizationGUID !== role.organizationGUID);
+        if (nonInstitutionalRoles.length === 0) {
+            return Object.keys(AUTHORITIES)
+                .filter(authority => authority !== AUTHORITIES.SUPER_USER);
+        } else {
+            //If the user is an institution-admin but is also a regular inviter or manager of another non-institutional role, then filter the authorities
+            const allowedAuthority = nonInstitutionalRoles
+                .reduce((acc, userRole) => {
+                    if (acc === null || AUTHORITIES_HIERARCHY[userRole.authority] > AUTHORITIES_HIERARCHY[acc]) {
+                        return userRole.authority;
+                    }
+                    return acc;
+                }, null) || AUTHORITIES.INVITER;
+            return Object.keys(AUTHORITIES)
+                .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[allowedAuthority]);
+        }
+    }
     const userRolesForSelectedRoles = selectedRoles
         .map(role => role.isUserRole ? role.role : role)
         .filter(role => (!isEmpty(user.organizationGUID) && user.organizationGUID === role.organizationGUID) ||
             user.userRoles.some(userRole => userRole.role.id === role.id))
         .filter(userRole => !isEmpty(userRole));
-    //If the user is an institutionAdmin but is also a regular inviter or manager of this role, then filter the authorities
-    if (user.institutionAdmin && !isEmpty(user.applications) && userRolesForSelectedRoles.length === 0) {
-        return Object.keys(AUTHORITIES)
-            .filter(authority => authority !== AUTHORITIES.SUPER_USER);
-    }
+
     if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
         return [];
     }
@@ -193,11 +206,11 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     }
     const leastImportantAuthority = userRolesForSelectedRoles
         .reduce((acc, userRole) => {
-            if (AUTHORITIES_HIERARCHY[userRole.authority] < AUTHORITIES_HIERARCHY[acc]) {
+            if (acc === null || AUTHORITIES_HIERARCHY[userRole.authority] > AUTHORITIES_HIERARCHY[acc]) {
                 return userRole.authority;
             }
             return acc;
-        }, AUTHORITIES.GUEST);
+        }, null) || AUTHORITIES.INVITER;
     return Object.keys(AUTHORITIES)
         .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[leastImportantAuthority]);
 

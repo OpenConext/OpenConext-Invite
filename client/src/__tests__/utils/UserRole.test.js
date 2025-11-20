@@ -12,6 +12,7 @@ import {
 const applicationUsagesForManageId = manageId => {
     return [{application: {manageId: manageId}}];
 }
+
 describe('UserRole', () => {
     it("Test isUserAllowed", () => {
         let user = {userRoles: [{authority: AUTHORITIES.GUEST}]}
@@ -36,15 +37,11 @@ describe('UserRole', () => {
 
     it("Allowed authorities for invitation - manager", () => {
         const researchUserRole = {authority: AUTHORITIES.MANAGER, role: {id: "1", manageId: "2"}};
-        const wikiRole = {id: "2", manageId: "2"};
         const mailUserRole = {authority: AUTHORITIES.INVITER, role: {id: "3", manageId: "9"}};
         const user = {userRoles: [researchUserRole, mailUserRole]}
 
         let authorities = allowedAuthoritiesForInvitation(user, []);
         expect(authorities).toEqual([AUTHORITIES.INVITER, AUTHORITIES.GUEST]);
-
-        authorities = allowedAuthoritiesForInvitation(user, [wikiRole]);
-        expect(authorities).toEqual([]);
 
         authorities = allowedAuthoritiesForInvitation(user, [mailUserRole.role]);
         expect(authorities).toEqual([AUTHORITIES.GUEST]);

@@ -201,12 +201,20 @@ export const InvitationForm = () => {
             setSelectedRoles([])
             setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false})
         } else {
+            const allowedAuthorities = allowedAuthoritiesForInvitation(user, selectedOptions);
+            let intendedAuthority = invitation.intendedAuthority;
+            //If the chosen authority is no longer allowed, then change it
+            if (!allowedAuthorities.includes(invitation.intendedAuthority)) {
+               intendedAuthority = allowedAuthorities[0];
+            }
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
             const enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality);
             const eduIDOnly = newSelectedOptions.some(role => role.eduIDOnly);
+
             setInvitation({
                 ...invitation,
+                intendedAuthority: intendedAuthority,
                 enforceEmailEquality: enforceEmailEquality,
                 eduIDOnly: eduIDOnly,
                 roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)
@@ -247,14 +255,14 @@ export const InvitationForm = () => {
                     pinnedEmails={[]}
                     removeMail={removeMail}
                     required={true}
-                    maxEmails={null} //TODO is there a internal placeholder identifier? then one
-                    maxEmailsMessage={"TODO : localize Not allowed to add more then one email"}
+                    maxEmails={null} //TODO is there a internal placeholder identifier? then one.
+                    // See https://github.com/OpenConext/OpenConext-Invite/issues/540
+                    maxEmailsMessage={"TODO : localize Not allowed to add more then one email with external identifier"}
                     error={!initial && isEmpty(invitation.invites)}/>
 
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitations.requiredEmail")}/>}
-
-                {authorityOptions.length > 1 &&
+                {(authorityOptions.length > 1 || (!isInviter && authorityOptions.length === 1)) &&
                     <SelectField
                         value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                             || authorityOptions[authorityOptions.length - 1]}

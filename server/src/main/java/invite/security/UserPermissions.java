@@ -71,7 +71,7 @@ public class UserPermissions {
             throw new UserRestrictionException();
         }
         Set<UserRole> userRoles = user.getUserRoles();
-        //Institution admin needs to own all roles
+        //Institution admin needs to own all roles or be a member of the role for at least the authority of invitationo
         if (user.isInstitutionAdmin() && roles.stream()
                 .allMatch(role -> user.getOrganizationGUID().equals(role.getOrganizationGUID()))) {
             return;
