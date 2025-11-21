@@ -15,7 +15,7 @@ public class GroupURN {
                 .trim()
                 .replaceAll(" +", " ")
                 .replaceAll(" ", "_")
-                .replaceAll("[^A-Za-z0-9_./]", "")
+                .replaceAll("[^A-Za-z0-9_./-]", "")
                 .replaceAll("_+", "_")
                 .toLowerCase();
         return normalizedShortName.endsWith("_") ? normalizedShortName.substring(0, normalizedShortName.length() - 1) : normalizedShortName;

@@ -30,7 +30,6 @@ public class Role implements Serializable, Provisionable {
     private String name;
 
     @Column(name = "short_name")
-    @NotNull
     private String shortName;
 
     @Column(name = "description")
