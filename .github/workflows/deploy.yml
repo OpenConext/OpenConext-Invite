@@ -20,7 +20,7 @@ jobs:
       version: ${{ steps.versioncheck.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -134,7 +134,7 @@ jobs:
             app: server
             architecture: "linux/amd64,linux/arm64"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Download the previous produced artefacts
         uses: actions/download-artifact@v6
