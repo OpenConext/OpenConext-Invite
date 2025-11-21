@@ -190,19 +190,19 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
                 .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[allowedAuthority]);
         }
     }
-    const userRolesForSelectedRoles = selectedRoles
-        .map(role => role.isUserRole ? role.role : role)
-        .filter(role => (!isEmpty(user.organizationGUID) && user.organizationGUID === role.organizationGUID) ||
-            user.userRoles.some(userRole => userRole.role.id === role.id))
-        .filter(userRole => !isEmpty(userRole));
-
-    if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
-        return [];
-    }
     if (isEmpty(selectedRoles)) {
         const authority = highestAuthority(user);
         return Object.keys(AUTHORITIES)
             .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[authority]);
+    }
+    const userRolesForSelectedRoles = selectedRoles
+        .filter(role => {
+            role = role.isUserRole ? role.role : role;
+            return (!isEmpty(user.organizationGUID) && user.organizationGUID === role.organizationGUID) ||
+            user.userRoles.some(userRole => userRole.role.id === role.id)
+        });
+    if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
+        return [];
     }
     const leastImportantAuthority = userRolesForSelectedRoles
         .reduce((acc, userRole) => {
