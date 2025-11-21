@@ -2,10 +2,10 @@
     display: flex;
 
     margin-top: 20px;
-    padding-bottom: 10px;
 
     &:not(.last) {
         border-bottom: 1px solid var(--sds--color--gray--200);
+        padding-bottom: 10px;
     }
 
     align-items: center;

@@ -55,6 +55,10 @@ public class Invitation implements Serializable {
     @Column(name = "edu_id_only")
     private boolean eduIDOnly;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "requested_authn_context")
+    private RequestedAuthnContext requestedAuthnContext;
+
     @Column(name = "guest_role_included")
     private boolean guestRoleIncluded;
 
@@ -95,6 +99,7 @@ public class Invitation implements Serializable {
                       String email,
                       boolean enforceEmailEquality,
                       boolean eduIDOnly,
+                      RequestedAuthnContext requestedAuthnContext,
                       boolean guestRoleIncluded,
                       String message,
                       Language language,
@@ -107,6 +112,7 @@ public class Invitation implements Serializable {
         this.hash = hash;
         this.enforceEmailEquality = enforceEmailEquality;
         this.eduIDOnly = eduIDOnly;
+        this.requestedAuthnContext = requestedAuthnContext;
         this.guestRoleIncluded = guestRoleIncluded;
         this.message = message;
         this.inviter = inviter;
@@ -118,6 +124,7 @@ public class Invitation implements Serializable {
         this.createdAt = Instant.now();
         roles.forEach(role -> role.setInvitation(this));
         this.language = language;
+        this.internalPlaceholderIdentifier = internalPlaceholderIdentifier;
     }
 
     private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles, Instant roleExpiryDate, Authority intendedAuthority) {

@@ -82,6 +82,25 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
+    void eduIDIdentityProvider() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        String eduIDEntityID = "https://login.test2.eduid.nl";
+        stubForManageProviderByEntityID(EntityType.SAML20_IDP, eduIDEntityID);
+
+        Map<String, Object> result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .get("/api/v1/manage/eduid-identity-provider")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(eduIDEntityID, result.get("entityid"));
+    }
+
+    @Test
     void providerById() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 

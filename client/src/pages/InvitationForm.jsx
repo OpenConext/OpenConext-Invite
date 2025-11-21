@@ -33,6 +33,9 @@ export const InviterContainer = ({isInviter, children}) => {
 
 }
 
+const requestedAuthnContextOptions = Object.entries(I18n.translations[I18n.locale].requestedAuthnContext)
+    .map(arr => ({value: arr[0], label: arr[1]}));
+
 export const InvitationForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -158,7 +161,7 @@ export const InvitationForm = () => {
         return required.every(attr => !isEmpty(invitation[attr])) &&
             (!isEmpty(selectedRoles) || [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority))
             && (invitation.intendedAuthority !== AUTHORITIES.INSTITUTION_ADMIN || !user.superUser || validOrganizationGUID)
-        && !(user.superUser && invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID))
+            && !(user.superUser && invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID))
     }
 
     const addEmails = emails => {
@@ -196,6 +199,15 @@ export const InvitationForm = () => {
         }
     }
 
+    const eduIDOnlyChanged = val => {
+        const requestedAuthnContext = val ? invitation.requestedAuthnContext : null;
+        setInvitation({...invitation, eduIDOnly: val, requestedAuthnContext: requestedAuthnContext})
+    }
+
+    const requestedAuthnContextChanged = option => {
+        setInvitation({...invitation, requestedAuthnContext: option.value})
+    }
+
     const rolesChanged = selectedOptions => {
         if (selectedOptions === null) {
             setSelectedRoles([])
@@ -205,7 +217,7 @@ export const InvitationForm = () => {
             let intendedAuthority = invitation.intendedAuthority;
             //If the chosen authority is no longer allowed, then change it
             if (!allowedAuthorities.includes(invitation.intendedAuthority)) {
-               intendedAuthority = allowedAuthorities[0];
+                intendedAuthority = allowedAuthorities[0];
             }
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
@@ -394,12 +406,23 @@ export const InvitationForm = () => {
                                              info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                                 />}
 
-                            {overrideSettingsAllowed &&
+                            {overrideSettingsAllowed  &&
                                 <SwitchField name={"eduIDOnly"}
                                              value={invitation.eduIDOnly || false}
-                                             onChange={val => setInvitation({...invitation, eduIDOnly: val})}
+                                             onChange={eduIDOnlyChanged}
                                              label={I18n.t("invitations.eduIDOnly")}
                                              info={I18n.t("tooltips.eduIDOnlyTooltip")}
+                                             last={invitation.eduIDOnly}
+                                />}
+
+                            {(overrideSettingsAllowed && invitation.eduIDOnly) &&
+                                    <SelectField value={requestedAuthnContextOptions.find(option => option.value === invitation.requestedAuthnContext)}
+                                             options={requestedAuthnContextOptions}
+                                             className={"requested-authn-context"}
+                                             name={I18n.t("invitations.requestedAuthnContext")}
+                                             toolTip={I18n.t("tooltips.requestedAuthnContextTooltip")}
+                                             placeholder={I18n.t("invitations.requestedAuthnContextPlaceHolder")}
+                                             onChange={requestedAuthnContextChanged}
                                 />}
 
                             {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter &&

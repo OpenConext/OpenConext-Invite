@@ -48,6 +48,7 @@ class MailBoxTest extends AbstractMailTest {
                 "nope@ex.com",
                 false,
                 eduIDOnly,
+                RequestedAuthnContext.EduIDLinkedInstitution,
                 false,
                 "Please join..",
                 Language.en,

@@ -669,18 +669,18 @@ public abstract class AbstractTest {
         Instant expiryDate = Instant.now().plus(14, ChronoUnit.DAYS);
 
         Invitation superUserInvitation =
-                new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, false, message, Language.en,
+                new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, null, false, message, Language.en,
                         inviter, expiryDate, roleExpiryDate, Set.of(), null);
         Invitation managerInvitation =
-                new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, false, message, Language.en,
+                new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, null, false, message, Language.en,
                         inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(research)), null);
         Invitation inviterInvitation =
-                new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, true, message, Language.en,
+                new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, true, message, Language.en,
                         inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)), null);
         inviterInvitation.setEnforceEmailEquality(true);
         Invitation guestInvitation =
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com",
-                        false, false, false, message, Language.en,
+                        false, false, null, false, message, Language.en,
                         inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)), null);
         guestInvitation.setEduIDOnly(true);
         //To test graph callback
@@ -688,12 +688,12 @@ public abstract class AbstractTest {
 
         Invitation institutionAdminInvitation =
                 new Invitation(Authority.INSTITUTION_ADMIN, INSTITUTION_ADMIN_INVITATION_HASH, "institutionh@admin.com",
-                        false, false, false, message, Language.en,
+                        false, false, null, false, message, Language.en,
                         institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), null);
 
         Invitation graphInvitation =
                 new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com",
-                        false, false, false, message, Language.en,
+                        false, false, null, false, message, Language.en,
                         inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), null);
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation,
                 institutionAdminInvitation, graphInvitation);

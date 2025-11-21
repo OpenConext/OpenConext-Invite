@@ -23,7 +23,7 @@ public class RoleOperations {
         this.appRepositoryResource = appRepositoryResource;
     }
 
-    public void assertValidRole(RoleRequest role) {
+    public void assertValidRole(Role role) {
         if (CollectionUtils.isEmpty(role.getApplicationUsages())) {
             throw new InvalidInputException("applicationUsages are required");
         }

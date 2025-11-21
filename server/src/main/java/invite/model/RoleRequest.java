@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 @Setter
 public class RoleRequest implements Serializable{
 
-    private Long id;
-
     @NotNull
     @NotBlank
     private String name;

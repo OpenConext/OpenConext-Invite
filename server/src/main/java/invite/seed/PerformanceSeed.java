@@ -134,6 +134,7 @@ public class PerformanceSeed {
                 String.format("%s@example.com", NameGenerator.generate()),
                 false,
                 false,
+                null,
                 false,
                 "Auto generated",
                 Language.en,

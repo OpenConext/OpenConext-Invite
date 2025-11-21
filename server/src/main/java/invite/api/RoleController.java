@@ -179,7 +179,7 @@ public class RoleController implements ApplicationResource {
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000)
     )
-    public ResponseEntity<Role> updateRole(@Validated @RequestBody RoleRequest roleRequest,
+    public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
                                            @Parameter(hidden = true) User user) {
         LOG.debug(String.format("PUT /roles/ for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.MANAGER);
@@ -208,7 +208,7 @@ public class RoleController implements ApplicationResource {
         return Results.deleteResult();
     }
 
-    private ResponseEntity<Role> saveOrUpdate(RoleRequest role, User user) {
+    private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
         roleOperations.assertValidRole(role);
 
         manage.addManageMetaData(List.of(role));

@@ -49,7 +49,7 @@ public class ManageController {
     private final Manage manage;
     private final ApplicationRepository applicationRepository;
     private final RoleRepository roleRepository;
-    private final Map<String, Object> eduIDIdP;
+    private final String eduIDEntityID;
 
     @Autowired
     public ManageController(Manage manage,
@@ -59,11 +59,11 @@ public class ManageController {
         this.manage = manage;
         this.applicationRepository = applicationRepository;
         this.roleRepository = roleRepository;
-        this.eduIDIdP =
-                manage.providerByEntityID(EntityType.SAML20_IDP, eduIDEntityID).orElseThrow(() -> new NotFoundException("EduID IdP not found: " + eduIDEntityID));
+        this.eduIDEntityID = eduIDEntityID;
+
     }
 
-    @GetMapping("provider/{type}/{id}")
+    @GetMapping("/provider/{type}/{id}")
     public ResponseEntity<Map<String, Object>> providerById(@PathVariable("type") EntityType type,
                                                             @PathVariable("id") String id,
                                                             @Parameter(hidden = true) User user) {
@@ -73,7 +73,16 @@ public class ManageController {
         return ResponseEntity.ok(provider);
     }
 
-    @GetMapping("providers")
+    @GetMapping("/eduid-identity-provider")
+    public ResponseEntity<Map<String, Object>> eduIDIdentityProvider(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("GET /manage/eduIDIdentityProvider type: %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertAuthority(user, Authority.INVITER);
+        Map<String, Object> eduIDIdP = manage.providerByEntityID(EntityType.SAML20_IDP, eduIDEntityID)
+                .orElseThrow(() -> new NotFoundException("EduID IdP not found: " + eduIDEntityID));
+        return ResponseEntity.ok(eduIDIdP);
+    }
+
+    @GetMapping("/providers")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/providers for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
@@ -81,7 +90,7 @@ public class ManageController {
         return ResponseEntity.ok(providers);
     }
 
-    @GetMapping("organization-guid-validation/{organizationGUID}")
+    @GetMapping("/organization-guid-validation/{organizationGUID}")
     public ResponseEntity<Map<String, Object>> organizationGUIDValidation(@Parameter(hidden = true) User user,
                                                                           @PathVariable("organizationGUID") String organizationGUID) {
         LOG.debug(String.format("GET /manage/organization-guid-validation guid: %s for user %s", organizationGUID, user.getEduPersonPrincipalName()));
@@ -94,7 +103,7 @@ public class ManageController {
         return ResponseEntity.ok(identityProviders.getFirst());
     }
 
-    @GetMapping("applications")
+    @GetMapping("/applications")
     @Transactional(readOnly = true)
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
@@ -135,7 +144,7 @@ public class ManageController {
         ));
     }
 
-    @GetMapping("provisionings/{id}")
+    @GetMapping("/provisionings/{id}")
     public ResponseEntity<Boolean> provisionings(@PathVariable("id") String id,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/provisionings for user %s", user.getEduPersonPrincipalName()));

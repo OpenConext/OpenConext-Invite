@@ -88,6 +88,7 @@ public class InvitationOperations {
                         invite.getEmail(),
                         invitationRequest.isEnforceEmailEquality(),
                         invitationRequest.isEduIDOnly(),
+                        invitationRequest.getRequestedAuthnContext(),
                         invitationRequest.isGuestRoleIncluded(),
                         invitationRequest.getMessage(),
                         invitationRequest.getLanguage(),
