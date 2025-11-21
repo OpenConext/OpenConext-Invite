@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.0.37
+
+- Bugfix for required short_name in update Role
+- Fix searching for short strings
+- IFix Invitation form is not right if user also has Guest authority on that role
+- Add users' institution identifier during invite creation
+- Fix Role expiration shorter than the defined role-expiration-notifier-duration-days variable
+- Fix Incorrect name for invitations when using API keys
+- Improve the 'hint' descriptions in the 'advanced options'
+- Allow more characters in shortname and URN
+- Limit WAYF to IdP's connected to application
+- Remove externalId from SCIM /Group PATCH operations
+
 ## 0.0.36
 
 - UI: Consistent Date Formatting
@@ -38,7 +51,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Institution admins can now be invited for roles outside their own organisation
 - Super-users can delete users now
 - Upgrade spring-security
-  
+
 ## 0.0.33
 
 - Lower mobile breakpoint to avoid mobile view on half of the desktop size
