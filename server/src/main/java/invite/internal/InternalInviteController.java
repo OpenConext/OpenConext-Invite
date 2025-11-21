@@ -385,7 +385,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
                 role -> RemoteUserPermissions.assertApplicationAccess(remoteUser, role));
     }
 
-    private Role saveOrUpdate(Role role, RemoteUser remoteUser) {
+    private Role saveOrUpdate(RoleRequest role, RemoteUser remoteUser) {
         roleOperations.assertValidRole(role);
         RemoteUserPermissions.assertApplicationAccess(remoteUser, role);
 

@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +49,18 @@ public class ManageController {
     private final Manage manage;
     private final ApplicationRepository applicationRepository;
     private final RoleRepository roleRepository;
+    private final Map<String, Object> eduIDIdP;
 
     @Autowired
     public ManageController(Manage manage,
                             ApplicationRepository applicationRepository,
-                            RoleRepository roleRepository) {
+                            RoleRepository roleRepository,
+                            @Value("${config.eduid-entity-id}") String eduIDEntityID) {
         this.manage = manage;
         this.applicationRepository = applicationRepository;
         this.roleRepository = roleRepository;
+        this.eduIDIdP =
+                manage.providerByEntityID(EntityType.SAML20_IDP, eduIDEntityID).orElseThrow(() -> new NotFoundException("EduID IdP not found: " + eduIDEntityID));
     }
 
     @GetMapping("provider/{type}/{id}")

@@ -4,6 +4,7 @@ import invite.exception.InvalidInputException;
 import invite.model.Application;
 import invite.model.ApplicationUsage;
 import invite.model.Role;
+import invite.model.RoleRequest;
 import invite.repository.ApplicationRepository;
 import invite.repository.ApplicationUsageRepository;
 import invite.validation.URLFormatValidator;
@@ -22,7 +23,7 @@ public class RoleOperations {
         this.appRepositoryResource = appRepositoryResource;
     }
 
-    public void assertValidRole(Role role) {
+    public void assertValidRole(RoleRequest role) {
         if (CollectionUtils.isEmpty(role.getApplicationUsages())) {
             throw new InvalidInputException("applicationUsages are required");
         }
