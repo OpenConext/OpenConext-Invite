@@ -18,6 +18,9 @@ class GroupURNTest {
 
         String sanitizedName = GroupURN.sanitizeRoleShortName("request/path &^");
         assertEquals("request/path", sanitizedName);
+
+        String sanitizedNameWithHyphen = GroupURN.sanitizeRoleShortName("request-path &^");
+        assertEquals("request-path", sanitizedNameWithHyphen);
     }
 
     @Test
