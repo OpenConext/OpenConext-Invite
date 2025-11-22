@@ -71,5 +71,35 @@
         "coin:institution_guid": "test_institution_guid"
       }
     }
+  },
+  {
+    "_id": "10",
+    "version": 1,
+    "type": "saml20_idp",
+    "data": {
+      "entityid": "https://login.test2.eduid.nl",
+      "allowedall": true,
+      "allowedEntities": [],
+      "mfaEntities" : [
+        {
+          "name" : "https://storage",
+          "level" : "transparent_authn_context"
+        },
+        {
+          "name" : "https://wiki",
+          "level" : "https://eduid.nl/trust/linked-institution"
+        },
+        {
+          "name" : "https://network",
+          "level" : "https://eduid.nl/trust/validate-names"
+        }
+      ],
+      "metaDataFields": {
+        "name:en": "EduID EN",
+        "name:nl": "EduID NL",
+        "OrganizationName:en": "SURF bv",
+        "logo:0:url": "https://static.surfconext.nl/media/idp/surfconext.png"
+      }
+    }
   }
 ]

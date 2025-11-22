@@ -56,6 +56,7 @@ class InvitationMailControllerTest extends AbstractMailTest {
                 Language.en,
                 true,
                 false,
+                null,
                 false,
                 false,
                 List.of("new@new.nl"),

@@ -38,9 +38,23 @@
             grid-column-start: first;
         }
 
+        .advanced-settings-container {
+            .select-field.requested-authn-context {
+                margin-top: 0;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--sds--color--gray--200);
+            }
+        }
+
         p.info {
             grid-column-start: first;
             margin-top: 4px;
+        }
+
+        p.warning {
+            margin-top: 14px;
+            color: var(--sds--color--orange--500);
+
         }
 
         .inviter-wrapper {

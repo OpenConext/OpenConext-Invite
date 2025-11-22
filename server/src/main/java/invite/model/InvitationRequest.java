@@ -29,6 +29,8 @@ public class InvitationRequest implements Serializable {
 
     private boolean eduIDOnly;
 
+    private RequestedAuthnContext requestedAuthnContext;
+
     private boolean guestRoleIncluded;
 
     private boolean suppressSendingEmails;
@@ -49,6 +51,9 @@ public class InvitationRequest implements Serializable {
     public void verify() {
         if (CollectionUtils.isEmpty(invitesWithInternalPlaceholderIdentifiers) && CollectionUtils.isEmpty(invites)) {
             throw new InvalidInputException("Either at least one value for invitesWithInternalPlaceholderIdentifiers or invites is required");
+        }
+        if (!eduIDOnly && requestedAuthnContext != null) {
+            throw new InvalidInputException("Not allowed to set requestedAuthnContext for not eduIDOnly");
         }
     }
 }

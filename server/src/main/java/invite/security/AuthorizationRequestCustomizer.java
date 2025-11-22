@@ -52,10 +52,13 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
             if (hash != null && hash.length == 1) {
                 Optional<Invitation> optionalInvitation = invitationRepository.findByHash(hash[0]);
                 optionalInvitation.ifPresent(invitation -> {
+                    if (invitation.isEduIDOnly() && invitation.getRequestedAuthnContext() != null) {
+                        params.put("acr_values", invitation.getRequestedAuthnContext().getUrl());
+                    }
                     boolean guestInvitation = invitation.getIntendedAuthority().equals(Authority.GUEST);
-                    if (invitation.isEduIDOnly() && guestInvitation) {
+                    if (invitation.isEduIDOnly()) {
                         params.put("login_hint", eduidEntityId);
-                    } else if (!invitation.isEduIDOnly() && guestInvitation) {
+                    } else if (guestInvitation) {
                         //Fetch all IdentityProviders that have one of the manage role applications in their allowList
                         //We only want IdP's that have access to ALL the applications of the invitation
                         Set<ManageIdentifier> manageIdentifiers = invitation.getRoles().stream()

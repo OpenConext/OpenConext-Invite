@@ -4,6 +4,7 @@ import invite.exception.InvalidInputException;
 import invite.model.Application;
 import invite.model.ApplicationUsage;
 import invite.model.Role;
+import invite.model.RoleRequest;
 import invite.repository.ApplicationRepository;
 import invite.repository.ApplicationUsageRepository;
 import invite.validation.URLFormatValidator;

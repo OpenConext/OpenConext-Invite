@@ -62,7 +62,7 @@ class AuthorizationRequestCustomizerTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         Invitation invitation = new Invitation();
-        invitation.setIntendedAuthority(Authority.GUEST);
+        invitation.setIntendedAuthority(Authority.MANAGER);
         invitation.setEduIDOnly(true);
         when(invitationRepository.findByHash(hash)).thenReturn(Optional.of(invitation));
 
@@ -73,6 +73,32 @@ class AuthorizationRequestCustomizerTest {
         customizer.accept(builder);
         OAuth2AuthorizationRequest requestResult = builder.build();
         assertEquals("eduid-entity-id", requestResult.getAdditionalParameters().get("login_hint"));
+    }
+
+    @Test
+    void testACRParameterGuestEduIdOnly() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        String hash = "abc123";
+        request.setParameter("hash", hash);
+        DefaultSavedRequest savedRequest = new DefaultSavedRequest(request);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("SPRING_SECURITY_SAVED_REQUEST", savedRequest);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        Invitation invitation = new Invitation();
+        invitation.setIntendedAuthority(Authority.GUEST);
+        invitation.setEduIDOnly(true);
+        invitation.setRequestedAuthnContext(RequestedAuthnContext.EduIDLinkedInstitution);
+        when(invitationRepository.findByHash(hash)).thenReturn(Optional.of(invitation));
+
+        OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode()
+                .authorizationUri("https://auth")
+                .clientId("client");
+
+        customizer.accept(builder);
+        OAuth2AuthorizationRequest requestResult = builder.build();
+        assertEquals("eduid-entity-id", requestResult.getAdditionalParameters().get("login_hint"));
+        assertEquals(RequestedAuthnContext.EduIDLinkedInstitution.getUrl(), requestResult.getAdditionalParameters().get("acr_values"));
     }
 
     @Test

@@ -6,6 +6,7 @@ import invite.manage.EntityType;
 import invite.manage.Manage;
 import invite.model.Application;
 import invite.model.Authority;
+import invite.model.RequestedAuthnContext;
 import invite.model.User;
 import invite.repository.ApplicationRepository;
 import invite.repository.RoleRepository;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static invite.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -48,17 +51,21 @@ public class ManageController {
     private final Manage manage;
     private final ApplicationRepository applicationRepository;
     private final RoleRepository roleRepository;
+    private final String eduIDEntityID;
 
     @Autowired
     public ManageController(Manage manage,
                             ApplicationRepository applicationRepository,
-                            RoleRepository roleRepository) {
+                            RoleRepository roleRepository,
+                            @Value("${config.eduid-entity-id}") String eduIDEntityID) {
         this.manage = manage;
         this.applicationRepository = applicationRepository;
         this.roleRepository = roleRepository;
+        this.eduIDEntityID = eduIDEntityID;
+
     }
 
-    @GetMapping("provider/{type}/{id}")
+    @GetMapping("/provider/{type}/{id}")
     public ResponseEntity<Map<String, Object>> providerById(@PathVariable("type") EntityType type,
                                                             @PathVariable("id") String id,
                                                             @Parameter(hidden = true) User user) {
@@ -68,7 +75,23 @@ public class ManageController {
         return ResponseEntity.ok(provider);
     }
 
-    @GetMapping("providers")
+    @GetMapping("/eduid-identity-provider")
+    public ResponseEntity<Map<String, Object>> eduIDIdentityProvider(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("GET /manage/eduIDIdentityProvider type: %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertAuthority(user, Authority.INVITER);
+        Map<String, Object> eduIDIdP = manage.providerByEntityID(EntityType.SAML20_IDP, eduIDEntityID)
+                .orElseThrow(() -> new NotFoundException("EduID IdP not found: " + eduIDEntityID));
+        return ResponseEntity.ok(eduIDIdP);
+    }
+
+    @GetMapping("/requested-authn-context-values")
+    public ResponseEntity<Map<String, String>> requestedAuthnContextValues() {
+        LOG.debug("GET /manage/requestedAuthnContextValues");
+        Map<String, String> values = Stream.of(RequestedAuthnContext.values()).collect(Collectors.toMap(rac -> rac.name(), rac -> rac.getUrl()));
+        return ResponseEntity.ok(values);
+    }
+
+    @GetMapping("/providers")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/providers for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
@@ -76,7 +99,7 @@ public class ManageController {
         return ResponseEntity.ok(providers);
     }
 
-    @GetMapping("organization-guid-validation/{organizationGUID}")
+    @GetMapping("/organization-guid-validation/{organizationGUID}")
     public ResponseEntity<Map<String, Object>> organizationGUIDValidation(@Parameter(hidden = true) User user,
                                                                           @PathVariable("organizationGUID") String organizationGUID) {
         LOG.debug(String.format("GET /manage/organization-guid-validation guid: %s for user %s", organizationGUID, user.getEduPersonPrincipalName()));
@@ -89,7 +112,7 @@ public class ManageController {
         return ResponseEntity.ok(identityProviders.getFirst());
     }
 
-    @GetMapping("applications")
+    @GetMapping("/applications")
     @Transactional(readOnly = true)
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
@@ -130,7 +153,7 @@ public class ManageController {
         ));
     }
 
-    @GetMapping("provisionings/{id}")
+    @GetMapping("/provisionings/{id}")
     public ResponseEntity<Boolean> provisionings(@PathVariable("id") String id,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/provisionings for user %s", user.getEduPersonPrincipalName()));

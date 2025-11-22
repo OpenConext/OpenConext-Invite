@@ -163,6 +163,14 @@ export function allProviders() {
     return fetchJson("/api/v1/manage/providers");
 }
 
+export function eduidIdentityProvider() {
+    return fetchJson("/api/v1/manage/eduid-identity-provider");
+}
+
+export function requestedAuthnContextValues() {
+    return fetchJson("/api/v1/manage/requested-authn-context-values");
+}
+
 export function allApplications() {
     return fetchJson("/api/v1/manage/applications")
 }
