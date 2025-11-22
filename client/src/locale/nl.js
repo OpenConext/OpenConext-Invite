@@ -244,6 +244,11 @@ const nl = {
         expired: "Verlopen",
         enforceEmailEquality: "E-mailadres moet overeenkomen",
         eduIDOnly: "Uitsluitend eduID",
+        requestedAuthnContext: "ACR waarde",
+        requestedAuthnContextPlaceHolder: "Kies een ACR waarde voor de gebruiker stepup...",
+        requestedAuthnContextWarning: "Om de geselecteerde ACR ook af te dwingen op de applicatie(s) {{applications}} " +
+            "die gekoppeld zijn aan de rol(len) {{roles}}, is aanvullende configuratie nodig voor de eduID-identiteitsprovider. " +
+            "Neem contact op met <a href=\"mailto: support@surfconext.nl\">support@surfconext.nl</a> om deze wijziging aan te vragen.",
         new: "Nodig rolmanager of uitnodiger uit",
         newInvitation: "Nodig uitnodiger uit",
         newInvite: "Nieuwe uitnodiging",
@@ -421,6 +426,7 @@ const nl = {
         defaultExpiryDays: "Het standaardaantal dagen waarna de rol verloopt, gerekend vanaf het moment dat de gebruiker de uitnodiging voor de rol accepteert.",
         enforceEmailEqualityTooltip: "Indien ingeschakeld moet de genodigde de uitnodiging accepteren met een account dat hetzelfde e-mailadres voert als waarheen deze uitnodiging gestuurd is",
         eduIDOnlyTooltip: "Indien ingeschakeld moeten de genodigden eduID gebruiken om in te loggen bij het accepteren",
+        requestedAuthnContextTooltip: "De gebruiker wordt gedwongen de authenticatie te verhogen bij het inloggen met eduID met de opgegeven ARC",
         roleExpiryDateTooltip: "De einddatum van deze rol. Na deze datum wordt de rol verwijderd bij de gebruiker.",
         expiryDateTooltip: "De datum waarop deze uitnodiging verloopt",
         inviterDisplayName: "De specifieke naam van de uitnodiger zal worden getoond in de uitnodiging.<br><br>Standaard tonen we de naam van de daadwerkelijke uitnodiger.",
@@ -529,7 +535,15 @@ const nl = {
         title: "Roles to be expired the next month",
         searchPlaceHolder: "Zoek...",
         noResults: "Yeah, no user-roles to be expired within one month"
+    },
+    requestedAuthnContext: {
+        EduIDLinkedInstitution: "EduID gekoppelde instelling",
+        EduIDValidatedName: "EduID gevalideerde naam",
+        ValidateNamesExternal: "EduID gevalideerde naam bij een externe (niet institutioneel) bron",
+        EduIDRequireStudentAffiliation: "EduID verplicht student affiliation",
+        TransparentAuthnContext: "Application levert zelf ACR waarde"
     }
+
 }
 
 export default nl;

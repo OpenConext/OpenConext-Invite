@@ -246,6 +246,9 @@ const en = {
         eduIDOnly: "eduID only",
         requestedAuthnContext: "ACR value",
         requestedAuthnContextPlaceHolder: "Choose a ACR value for user stepup...",
+        requestedAuthnContextWarning: "To enforce the selected ACR also on the application(s) {{applications}} associated " +
+            "with the role(s) {{roles}}, additional configuration is needed on the eduID identity provider. " +
+            "Please contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> to request this change.",
         new: "Invite role manager or inviter",
         newInvitation: "Invite inviter",
         newInvite: "New invite",
@@ -537,7 +540,8 @@ const en = {
         EduIDLinkedInstitution: "EduID linked institution",
         EduIDValidatedName: "EduID validated name",
         ValidateNamesExternal: "EduID validated name by an external (non institutional) source",
-        EduIDRequireStudentAffiliation: "EduID required student affiliation"
+        EduIDRequireStudentAffiliation: "EduID required student affiliation",
+        TransparentAuthnContext: "Application provides ACR value"
     }
 }
 

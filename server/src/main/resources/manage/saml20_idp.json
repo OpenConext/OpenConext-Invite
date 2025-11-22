@@ -87,7 +87,7 @@
         },
         {
           "name" : "https://wiki",
-          "level" : "http://schemas.microsoft.com/claims/multipleauthn"
+          "level" : "https://eduid.nl/trust/linked-institution"
         },
         {
           "name" : "https://network",

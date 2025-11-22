@@ -21,14 +21,14 @@
         &.small {
             width: 240px;
         }
+
         border: 1px solid var(--sds--color--gray--300);
         border-radius: vars.$br;
         font-size: 16px;
-        min-height: 48px;
+        height: 48px;
 
         &.creatable {
-            height: auto;
-            min-height: 48px;
+            height: 48px;
         }
 
         .select-inner__control {
@@ -42,6 +42,7 @@
             outline: none;
             box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
             border: 1px solid var(--sds--color--gray--300) !important;
+            height: 48px;
         }
 
         &[disabled] {
@@ -49,6 +50,9 @@
             cursor: not-allowed;
         }
 
+        .select-inner__indicators {
+            cursor: pointer;
+        }
     }
 
     .select-inner__single-value--is-disabled {

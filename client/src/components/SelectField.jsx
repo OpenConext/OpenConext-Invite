@@ -9,7 +9,8 @@ export default function SelectField({
                                         onChange, name, value, options, placeholder = "", disabled = false,
                                         toolTip = null, searchable = false, small = false,
                                         clearable = false, isMulti = false, creatable = false,
-                                        onInputChange = null, required = false, className = ""
+                                        onInputChange = null, required = false, className = "",
+                                        children
                                     }) {
     return (
         <div className={`select-field ${className}`}>
@@ -42,6 +43,7 @@ export default function SelectField({
                 isSearchable={searchable}
                 isClearable={clearable}
             />}
+            {children && children}
         </div>
     );
 }

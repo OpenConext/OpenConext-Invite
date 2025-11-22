@@ -13,12 +13,19 @@ import {
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
-import {newInvitation, organizationGUIDValidation, rolesByApplication} from "../api";
+import WarningIcon from "@surfnet/sds/icons/functional-icons/alert-triangle.svg";
+import {
+    eduidIdentityProvider,
+    newInvitation,
+    organizationGUIDValidation,
+    requestedAuthnContextValues,
+    rolesByApplication
+} from "../api";
 import {Button, ButtonType, Loader, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
-import {isEmpty, stopEvent} from "../utils/Utils";
+import {isEmpty, splitListSemantically, stopEvent} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
@@ -26,6 +33,8 @@ import EmailField from "../components/EmailField";
 import {displayExpiryDate, futureDate} from "../utils/Date";
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
+import DOMPurify from "dompurify";
+
 
 export const InviterContainer = ({isInviter, children}) => {
     return isInviter ?
@@ -62,6 +71,8 @@ export const InvitationForm = () => {
     const [customExpiryDate, setCustomExpiryDate] = useState(false);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [initial, setInitial] = useState(true);
+    const [eduIDIdP, setEduIDIdP] = useState(null);
+    const [acrValues, setACRValues] = useState({});
     const [language, setLanguage] = useState(I18n.locale === "en" ? languageOptions[0] : languageOptions[1]);
     const required = ["intendedAuthority", "invites"];
 
@@ -205,7 +216,13 @@ export const InvitationForm = () => {
     }
 
     const requestedAuthnContextChanged = option => {
-        setInvitation({...invitation, requestedAuthnContext: option.value})
+        setInvitation({...invitation, requestedAuthnContext: option ? option.value : null});
+        if (option && isEmpty(eduIDIdP)) {
+            Promise.all([eduidIdentityProvider(), requestedAuthnContextValues()]).then(res => {
+                setEduIDIdP(res[0]);
+                setACRValues(res[1])
+            });
+        }
     }
 
     const rolesChanged = selectedOptions => {
@@ -221,9 +238,13 @@ export const InvitationForm = () => {
             }
             const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
             setSelectedRoles(newSelectedOptions);
-            const enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality);
-            const eduIDOnly = newSelectedOptions.some(role => role.eduIDOnly);
-
+            const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
+            let enforceEmailEquality = invitation.enforceEmailEquality;
+            let eduIDOnly = invitation.eduIDOnly;
+            if (!overrideSettingsAllowed) {
+                enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality) || enforceEmailEquality;
+                eduIDOnly = newSelectedOptions.some(role => role.eduIDOnly) || eduIDOnly;
+            }
             setInvitation({
                 ...invitation,
                 intendedAuthority: intendedAuthority,
@@ -232,6 +253,37 @@ export const InvitationForm = () => {
                 roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)
             })
         }
+    }
+
+    const renderACRWarnings = () => {
+        if (isEmpty(invitation.requestedAuthnContext) || isEmpty(eduIDIdP) || isEmpty(selectedRoles)) {
+            return null;
+        }
+        //Filter out the roles that are linked to applications that are not present in the mfaEntities of the eduIDIdp
+        //or where the MFA level does not equal the requestedAuthnContext. If the requestedAuthnContext === TransparentAuthnContext,
+        //then we skip the warning
+        const mfaEntities = eduIDIdP.mfaEntities;
+        const acrValue = acrValues[invitation.requestedAuthnContext];
+        const missingEntities = selectedRoles.reduce((acc, role) => {
+            const missingMfaApps = role.applicationMaps
+                .filter(app => {
+                    const mfa = mfaEntities.find(mfa => mfa.name === app.entityid);
+                    return isEmpty(mfa) || (mfa.level !== acrValue && mfa.level !== acrValues.TransparentAuthnContext);
+                });
+            if (!isEmpty(missingMfaApps)) {
+                acc.applications = acc.applications.concat(missingMfaApps.map(app => app[`name:${I18n.locale}`] || app["name:en"]));
+                acc.roles.push(role.name)
+            }
+            return acc;
+        }, {applications: [], roles: []})
+        if (isEmpty(missingEntities.roles)) {
+            return null;
+        }
+        const roleNames = splitListSemantically(missingEntities.roles, I18n.t("forms.and"));
+        const applicationNames = splitListSemantically(missingEntities.applications, I18n.t("forms.and"));
+        const html = DOMPurify.sanitize(I18n.t("invitations.requestedAuthnContextWarning",
+            {roles: roleNames, applications: applicationNames}));
+        return <p className="warning" dangerouslySetInnerHTML={{__html: html}}/>
     }
 
     const authorityChanged = option => {
@@ -406,7 +458,7 @@ export const InvitationForm = () => {
                                              info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
                                 />}
 
-                            {overrideSettingsAllowed  &&
+                            {overrideSettingsAllowed &&
                                 <SwitchField name={"eduIDOnly"}
                                              value={invitation.eduIDOnly || false}
                                              onChange={eduIDOnlyChanged}
@@ -416,14 +468,18 @@ export const InvitationForm = () => {
                                 />}
 
                             {(overrideSettingsAllowed && invitation.eduIDOnly) &&
-                                    <SelectField value={requestedAuthnContextOptions.find(option => option.value === invitation.requestedAuthnContext)}
-                                             options={requestedAuthnContextOptions}
-                                             className={"requested-authn-context"}
-                                             name={I18n.t("invitations.requestedAuthnContext")}
-                                             toolTip={I18n.t("tooltips.requestedAuthnContextTooltip")}
-                                             placeholder={I18n.t("invitations.requestedAuthnContextPlaceHolder")}
-                                             onChange={requestedAuthnContextChanged}
-                                />}
+                                <SelectField
+                                    value={requestedAuthnContextOptions.find(option => option.value === invitation.requestedAuthnContext)}
+                                    options={requestedAuthnContextOptions}
+                                    className={"requested-authn-context"}
+                                    name={I18n.t("invitations.requestedAuthnContext")}
+                                    toolTip={I18n.t("tooltips.requestedAuthnContextTooltip")}
+                                    placeholder={I18n.t("invitations.requestedAuthnContextPlaceHolder")}
+                                    clearable={true}
+                                    onChange={requestedAuthnContextChanged}
+                                >
+                                    {renderACRWarnings()}
+                                </SelectField>}
 
                             {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter &&
                                     !skipRoles) &&
@@ -433,6 +489,7 @@ export const InvitationForm = () => {
                                              label={I18n.t("invitations.guestRoleIncluded")}
                                              info={I18n.t("tooltips.guestRoleIncludedTooltip")}
                                 />
+
                             }
                             {(overrideSettingsAllowed && !skipRoles) &&
                                 <SwitchField name={"roleExpiryDate"}

@@ -84,6 +84,7 @@ public interface Manage {
         application.put("type", provider.get("type"));
         application.put("applications", data.get("applications"));
         application.put("allowedEntities", data.get("allowedEntities"));
+        application.put("mfaEntities", data.get("mfaEntities"));
         application.put("allowedall", data.get("allowedall"));
         application.put("entityid", data.get("entityid"));
         application.put("logo", metaDataFields.get("logo:0:url"));

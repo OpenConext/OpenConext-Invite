@@ -6,6 +6,7 @@ import invite.manage.EntityType;
 import invite.manage.Manage;
 import invite.model.Application;
 import invite.model.Authority;
+import invite.model.RequestedAuthnContext;
 import invite.model.User;
 import invite.repository.ApplicationRepository;
 import invite.repository.RoleRepository;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static invite.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -80,6 +82,13 @@ public class ManageController {
         Map<String, Object> eduIDIdP = manage.providerByEntityID(EntityType.SAML20_IDP, eduIDEntityID)
                 .orElseThrow(() -> new NotFoundException("EduID IdP not found: " + eduIDEntityID));
         return ResponseEntity.ok(eduIDIdP);
+    }
+
+    @GetMapping("/requested-authn-context-values")
+    public ResponseEntity<Map<String, String>> requestedAuthnContextValues() {
+        LOG.debug("GET /manage/requestedAuthnContextValues");
+        Map<String, String> values = Stream.of(RequestedAuthnContext.values()).collect(Collectors.toMap(rac -> rac.name(), rac -> rac.getUrl()));
+        return ResponseEntity.ok(values);
     }
 
     @GetMapping("/providers")
