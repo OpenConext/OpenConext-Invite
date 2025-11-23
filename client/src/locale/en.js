@@ -316,6 +316,7 @@ const en = {
         no: "No",
         ok: "OK",
         or: "or ",
+        fixed: "or set a fixed date",
         edit: "Edit",
         reset: "Reset",
         cancel: "Cancel",

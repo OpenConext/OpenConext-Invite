@@ -30,6 +30,8 @@ import SwitchField from "../components/SwitchField";
 import {dateFromEpoch, displayExpiryDate, futureDate} from "../utils/Date";
 import DOMPurify from "dompurify";
 import WarningIndicator from "../components/WarningIndicator";
+import DatePicker from "react-datepicker";
+import {MinimalDateField} from "../components/MinimalDateField";
 
 const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
@@ -446,18 +448,39 @@ export const RoleForm = () => {
                              })}
                              last={customRoleExpiryDate}
                 />
-                {customRoleExpiryDate && <InputField name={I18n.t("roles.defaultExpiryDays")}
-                                                     value={role.defaultExpiryDays || 0}
-                                                     isInteger={true}
-                                                     onChange={e => {
-                                                         const val = parseInt(e.target.value);
-                                                         const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
-                                                         setRole(
-                                                             {...role, defaultExpiryDays: defaultExpiryDays})
-                                                     }}
-                                                     toolTip={I18n.t("tooltips.defaultExpiryDays")}
-                                                     customClassName="inner-switch"
-                />}
+                {customRoleExpiryDate &&
+                    <div className="role-expiry-date">
+                        <InputField name={I18n.t("roles.defaultExpiryDays")}
+                                    value={role.defaultExpiryDays || 0}
+                                    isInteger={true}
+                                    onChange={e => {
+                                        const val = parseInt(e.target.value);
+                                        const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
+                                        setRole(
+                                            {...role, defaultExpiryDays: defaultExpiryDays})
+                                    }}
+                                    toolTip={I18n.t("tooltips.defaultExpiryDays")}
+                                    customClassName="inner-switch"/>
+                        <span className="separator">{I18n.t("forms.fixed")}</span>
+                        <DatePicker
+                            name={"custom-expiry-date"}
+                            id={"custom-expiry-date"}
+                            selected={null}
+                            dateFormat={"dd/MM/yyyy"}
+                            onChange={() => true}
+                            showWeekNumbers
+                            isClearable={true}
+                            showIcon={true}
+                            showYearDropdown={true}
+                            weekLabel="Week"
+                            disabled={false}
+                            todayButton={null}
+                            maxDate={null}
+                            minDate={new Date()}
+                        />
+                    </div>
+
+}
 
                 {(!initial && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {

@@ -98,6 +98,24 @@
             margin-top: 32px;
         }
 
+        .role-expiry-date {
+            grid-column-start: first;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--sds--color--gray--200);
+
+            span.separator {
+                margin-bottom: 15px;
+            }
+
+            div.input-field.inner-switch {
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+        }
+
     }
 
 }
