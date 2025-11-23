@@ -317,6 +317,7 @@ const nl = {
         ok: "Oké",
         or: "of ",
         edit: "Bewerken",
+        reset: "Reset",
         cancel: "Annuleren",
         save: "Opslaan",
         specificDate: "Zet specifieke datum",

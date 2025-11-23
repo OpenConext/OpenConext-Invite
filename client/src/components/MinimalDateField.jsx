@@ -3,13 +3,12 @@ import React, {useRef} from "react";
 import DatePicker from "react-datepicker";
 import ResetIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import EditIcon from "@surfnet/sds/icons/functional-icons/edit.svg";
-
 import "react-datepicker/dist/react-datepicker.css";
 import "./MinimalDateField.scss"
 import {futureDate, shortDateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
 import I18n from "../locale/I18n";
-import {Chip, ChipType} from "@surfnet/sds";
+import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 
 export const MinimalDateField = ({
                                      onChange,
@@ -64,11 +63,17 @@ export const MinimalDateField = ({
             {(!isEmpty(value) && allowNull) &&
                 <div className="icon reset-icon left"
                      onClick={() => onChange(null)}>
-                    <ResetIcon/>
+                    <Tooltip standalone={true}
+                             children={<ResetIcon/>}
+                             tip={I18n.t("forms.reset")}/>
+
                 </div>}
             <div className={`icon edit-icon ${isEmpty(value) || !allowNull ? "left" : ""}`}
                  onClick={toggle}>
-                <EditIcon/>
+                <Tooltip standalone={true}
+                         children={<EditIcon/>}
+                         tip={I18n.t("forms.edit")}/>
+
             </div>
         </div>
     );

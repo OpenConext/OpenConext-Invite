@@ -339,6 +339,7 @@ export const UserRoles = ({role, guests}) => {
             key: "endDate",
             header: I18n.t("roles.endDate"),
             toolTip: I18n.t("tooltips.roleExpiryDateTooltip"),
+            hasLink: true,
             mapper: userRole => displayEndDate(userRole)
         },
         {
@@ -349,6 +350,7 @@ export const UserRoles = ({role, guests}) => {
         {
             key: "adminIcons",
             nonSortable: true,
+            hasLink: true,
             header: "",
             mapper: userRole => actionIcons(userRole)
         },

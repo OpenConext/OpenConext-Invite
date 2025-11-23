@@ -64,22 +64,19 @@ export const Role = () => {
                 const newTabs = [
                     <Page key="guests"
                           name="guests"
-                          label={I18n.t("tabs.guestRoles")}
-                    >
+                          label={I18n.t("tabs.guestRoles")}>
                         <UserRoles role={res}
                                    guests={true}
                         />
                     </Page>,
                     <Page key="invitations"
                           name="invitations"
-                          label={I18n.t("tabs.allPendingInvitations")}
-                    >
+                          label={I18n.t("tabs.allPendingInvitations")}>
                         <Invitations role={res}/>
                     </Page>,
                     <Page key="maintainers"
                           name="maintainers"
-                          label={I18n.t("tabs.userRoles")}
-                    >
+                          label={I18n.t("tabs.userRoles")}>
                         <UserRoles role={res}
                                    guests={false}
                         />
