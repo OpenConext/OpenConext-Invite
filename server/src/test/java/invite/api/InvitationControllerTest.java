@@ -632,7 +632,7 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
-    void eduIDRequiredLoginOnlyForGuests() throws Exception {
+    void eduIDRequiredLoginNotOnlyForGuests() throws Exception {
         Invitation invitation = invitationRepository.findByHash(Authority.INVITER.name()).get();
         invitation.setEduIDOnly(true);
         invitationRepository.save(invitation);
@@ -641,7 +641,7 @@ class InvitationControllerTest extends AbstractTest {
                 "urn:collab:person:example.com:admin",
                 authorizationUrl -> {
                     MultiValueMap<String, String> queryParams = UriComponentsBuilder.fromUriString(authorizationUrl).build().getQueryParams();
-                    assertFalse(queryParams.containsKey("login_hint"));
+                    assertTrue(queryParams.containsKey("login_hint"));
                 },
                 m -> m);
     }

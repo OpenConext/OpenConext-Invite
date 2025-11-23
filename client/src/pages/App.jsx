@@ -36,7 +36,6 @@ export const App = () => {
     const {user, impersonator, authenticated, reload} = useAppStore(state => state);
 
     useEffect(() => {
-        setLoading(true);
         csrf().then(token => {
             useAppStore.setState(() => ({csrfToken: token.token}));
             configuration()

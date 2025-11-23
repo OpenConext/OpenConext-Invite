@@ -19,7 +19,7 @@ export const Roles = () => {
     const {user, config} = useAppStore(state => state);
     const navigate = useNavigate();
 
-    const [searching, setSearching] = useState(true);
+    const [searching, setSearching] = useState(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user));
     const [roles, setRoles] = useState([]);
     const [paginationQueryParams, setPaginationQueryParams] = useState(defaultPagination());
     const [totalElements, setTotalElements] = useState(0);
@@ -41,18 +41,17 @@ export const Roles = () => {
                     setSearching(false);
                 })
         } else {
-            const newRoles = markAndFilterRoles(
+            Promise.resolve(markAndFilterRoles(
                 user,
                 [],
                 I18n.locale,
                 I18n.t("roles.multiple"),
                 I18n.t("forms.and"),
                 "name",
-                false);
-            setRoles(newRoles);
-            setSearching(false);
+                false))
+                .then(res => setRoles(res))
         }
-    }, [user, paginationQueryParams]); 
+    }, [user, paginationQueryParams]);
 
     const openRole = (e, role) => {
         const id = role.isUserRole ? role.role.id : role.id;

@@ -19,16 +19,20 @@ import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 
 export const Tokens = () => {
     const {user, setFlash} = useAppStore(state => state);
+    const authority = highestAuthority(user);
+    const isRegularUser = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER;
+
     const navigate = useNavigate();
     const [tokens, setTokens] = useState(true);
     const [tokenValue, setTokenValue] = useState(null);
     const [description, setDescription] = useState("");
     const [newToken, setNewToken] = useState(false);
-    const [isRegularUser, setIsRegularUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
+
+    const isGuest = authority === AUTHORITIES.GUEST;
 
     const fetchTokens = useCallback(() => {
         apiTokens()
@@ -43,10 +47,7 @@ export const Tokens = () => {
     }, []);
 
     useEffect(() => {
-        const authority = highestAuthority(user);
-        const isGuest = authority === AUTHORITIES.GUEST;
         if (!isGuest) {
-            setIsRegularUser(authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER);
             fetchTokens();
         } else {
             navigate("/404");

@@ -7,7 +7,8 @@ import {
     allProviders,
     consequencesRoleDeletion,
     createRole,
-    deleteRole, hasProvisionings,
+    deleteRole,
+    hasProvisionings,
     me,
     organizationGUIDValidation,
     roleByID,
@@ -60,8 +61,9 @@ export const RoleForm = () => {
     const [customInviterDisplayName, setCustomInviterDisplayName] = useState(false);
     const [applications, setApplications] = useState([]);
     const [provisionings, setProvisionings] = useState({});
-    const [allowedToEditApplication, setAllowedToEditApplication] = useState(true);
     const [deletedUserRoles, setDeletedUserRoles] = useState(null);
+
+    const allowedToEditApplication = useState(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user));
 
     useEffect(() => {
             const newRole = id === "new";
@@ -70,7 +72,6 @@ export const RoleForm = () => {
                 navigate("/404");
                 return;
             }
-            setAllowedToEditApplication(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user))
             const promises = [];
             if (!newRole) {
                 promises.push(roleByID(parseInt(id, 10)));
@@ -251,7 +252,10 @@ export const RoleForm = () => {
         setApplications([...applications]);
         hasProvisionings(application.manageId)
             .then(res => {
-                const newProvisionings = {...provisionings, [application.manageId]: !res && !application.receivesMemberships};
+                const newProvisionings = {
+                    ...provisionings,
+                    [application.manageId]: !res && !application.receivesMemberships
+                };
                 setProvisionings(newProvisionings);
             })
     }

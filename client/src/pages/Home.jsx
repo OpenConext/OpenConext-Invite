@@ -10,7 +10,6 @@ import {Users} from "../tabs/Users";
 import {Page} from "../components/Page";
 import {Roles} from "../tabs/Roles";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
-import {Loader} from "@surfnet/sds";
 import {Tokens} from "../tabs/Tokens";
 import {ApplicationUsers} from "../tabs/ApplicationUsers";
 import Applications from "../tabs/Applications";
@@ -19,83 +18,65 @@ import {isEmpty} from "../utils/Utils";
 export const Home = () => {
     const {tab = "roles"} = useParams();
     const [currentTab, setCurrentTab] = useState(tab);
-    const [tabs, setTabs] = useState([]);
     const [winking, setWinking] = useState(false);
-    const [loading, setLoading] = useState(true);
 
     const user = useAppStore((state) => state.user)
     const navigate = useNavigate();
 
+    const tabs = [
+        <Page key="roles"
+              name="roles"
+              label={I18n.t("tabs.roles")}>
+            <Roles/>
+        </Page>,
+        (user && user.superUser) ?
+            <Page key="users"
+                  name="users"
+                  label={I18n.t("tabs.users")}>
+                <Users/>
+            </Page> : null,
+        (user && user.superUser) ?
+            <Page key="applications"
+                  name="applications"
+                  label={I18n.t("tabs.applications")}>
+                <Applications/>
+            </Page> : null,
+        (user && !user.superUser && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) ?
+            <Page key="applicationUsers"
+                  name="applicationUsers"
+                  label={I18n.t("tabs.applicationUsers")}>
+                <ApplicationUsers/>
+            </Page> : null,
+        (user && !user.superUser && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) ?
+            <Page key="applications"
+                  name="applications"
+                  label={I18n.t("tabs.applications")}>
+                <Applications/>
+            </Page> : null,
+        (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) ?
+            <Page key="tokens"
+                  name="tokens"
+                  label={I18n.t("tabs.tokens")}>
+                <Tokens/>
+            </Page> : null
+    ].filter(t => t !== null);
+
     useEffect(() => {
-        if (user) {
-            if (highestAuthority(user) === AUTHORITIES.INVITER) {
-                navigate("/inviter");
-                return;
-            }
-            useAppStore.setState({
-                breadcrumbPath: [
-                    {path: "/home", value: I18n.t("tabs.home")},
-                    {value: I18n.t(`tabs.${currentTab}`)}
-                ]
-            });
+        if (highestAuthority(user) === AUTHORITIES.INVITER) {
+            navigate("/inviter");
         }
-        const newTabs = [
-            <Page key="roles"
-                  name="roles"
-                  label={I18n.t("tabs.roles")}
-            >
-                <Roles/>
-            </Page>
-        ];
-        if (user && user.superUser) {
-            newTabs.push(
-                <Page key="users"
-                      name="users"
-                      label={I18n.t("tabs.users")}
-                >
-                    <Users/>
-                </Page>);
-            newTabs.push(
-                <Page key="applications"
-                      name="applications"
-                      label={I18n.t("tabs.applications")}
-                >
-                    <Applications/>
-                </Page>
-            );
-        }
-        if (user && !user.superUser && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) {
-            newTabs.push(
-                <Page key="applicationUsers"
-                      name="applicationUsers"
-                      label={I18n.t("tabs.applicationUsers")}
-                >
-                    <ApplicationUsers/>
-                </Page>);
-            newTabs.push(
-                <Page key="applications"
-                      name="applications"
-                      label={I18n.t("tabs.applications")}
-                >
-                    <Applications/>
-                </Page>
-            );
-        }
-        if (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) {
-            newTabs.push(
-                <Page key="tokens"
-                      name="tokens"
-                      label={I18n.t("tabs.tokens")}>
-                    <Tokens/>
-                </Page>);
-        }
-        setTabs(newTabs);
-        setLoading(false);
-    }, [currentTab, user]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    }, [user]);
 
     const tabChanged = (name) => {
         setCurrentTab(name);
         navigate(`/home/${name}`);
+        useAppStore.setState({
+            breadcrumbPath: [
+                {path: "/home", value: I18n.t("tabs.home")},
+                {value: I18n.t(`tabs.${currentTab}`)}
+            ]
+        });
     }
 
     const winkOwl = () => {
@@ -103,9 +84,6 @@ export const Home = () => {
         setTimeout(() => setWinking(false), 850);
     }
 
-    if (loading) {
-        return <Loader/>
-    }
     return (
         <div className="home">
             <div className="mod-home-container">

@@ -14,8 +14,8 @@ import {isEmpty} from "../utils/Utils";
 export const Profile = () => {
     const {id} = useParams();
     const {user: currentUser, config} = useAppStore(state => state);
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(currentUser);
+    const [loading, setLoading] = useState(id !== null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -24,18 +24,22 @@ export const Profile = () => {
                 .then(res => {
                     setUser(res);
                     setLoading(false);
+                })
+                .catch(() => navigate("/404"))
+        }
+
+    }, [id, currentUser]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!loading && user) {
                     useAppStore.setState({
                         breadcrumbPath: [
                             {path: "/home", value: I18n.t("tabs.home")},
                             {path: "/home/users", value: I18n.t("tabs.users")},
-                            {value: res.name}
+                            {value: user.name}
                         ]
                     });
-                })
-                .catch(() => navigate("/404"))
         } else {
-            setUser(currentUser);
-            setLoading(false);
             useAppStore.setState({
                 breadcrumbPath: [
                     {path: "/home", value: I18n.t("tabs.home")},
@@ -43,8 +47,7 @@ export const Profile = () => {
                 ]
             });
         }
-
-    }, [id, currentUser]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
         return <Loader/>

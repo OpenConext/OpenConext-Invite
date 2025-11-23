@@ -24,7 +24,7 @@ export const UserRoles = ({role, guests}) => {
     const navigate = useNavigate();
     const {user, setFlash, config} = useAppStore(state => state);
 
-    const [removeNotAllowed, setRemoveNotAllowed] = useState({});
+    const removeNotAllowed = highestAuthority(user) === AUTHORITIES.INVITER && !guests;
     const [userRoles, setUserRoles] = useState([]);
     const [selectedUserRoles, setSelectedUserRoles] = useState({});
     const [allSelected, setAllSelected] = useState(false);
@@ -35,7 +35,6 @@ export const UserRoles = ({role, guests}) => {
     const [searching, setSearching] = useState(true);
 
     useEffect(() => {
-            setRemoveNotAllowed(highestAuthority(user) === AUTHORITIES.INVITER && !guests);
             searchUserRolesByRoleId(role.id, guests, paginationQueryParams)
                 .then(page => {
                     //We don't get the role from the server anymore due to custom pagination queries

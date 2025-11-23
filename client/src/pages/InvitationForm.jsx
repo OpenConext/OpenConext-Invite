@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
@@ -13,7 +13,6 @@ import {
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
-import WarningIcon from "@surfnet/sds/icons/functional-icons/alert-triangle.svg";
 import {
     eduidIdentityProvider,
     newInvitation,
@@ -106,6 +105,37 @@ export const InvitationForm = () => {
         useAppStore.setState({breadcrumbPath: breadcrumbPath});
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
+    const acrWarning = useMemo(() => {
+            if (isEmpty(invitation.requestedAuthnContext) || isEmpty(eduIDIdP) || isEmpty(selectedRoles)) {
+                return null;
+            }
+            //Filter out the roles that are linked to applications that are not present in the mfaEntities of the eduIDIdp
+            //or where the MFA level does not equal the requestedAuthnContext. If the requestedAuthnContext === TransparentAuthnContext,
+            //then we skip the warning
+            const mfaEntities = eduIDIdP.mfaEntities;
+            const acrValue = acrValues[invitation.requestedAuthnContext];
+            const missingEntities = selectedRoles.reduce((acc, role) => {
+                const missingMfaApps = role.applicationMaps
+                    .filter(app => {
+                        const mfa = mfaEntities.find(mfa => mfa.name === app.entityid);
+                        return isEmpty(mfa) || (mfa.level !== acrValue && mfa.level !== acrValues.TransparentAuthnContext);
+                    });
+                if (!isEmpty(missingMfaApps)) {
+                    acc.applications = acc.applications.concat(missingMfaApps.map(app => app[`name:${I18n.locale}`] || app["name:en"]));
+                    acc.roles.push(role.name)
+                }
+                return acc;
+            }, {applications: [], roles: []})
+            if (isEmpty(missingEntities.roles)) {
+                return null;
+            }
+            const roleNames = splitListSemantically(missingEntities.roles, I18n.t("forms.and"));
+            const applicationNames = splitListSemantically(missingEntities.applications, I18n.t("forms.and"));
+            return DOMPurify.sanitize(I18n.t("invitations.requestedAuthnContextWarning",
+                {roles: roleNames, applications: applicationNames}));
+
+        },
+        [invitation.requestedAuthnContext, eduIDIdP, selectedRoles, acrValues])
 
     const setInitialRole = markedRoles => {
         const urlSearchParams = new URLSearchParams(window.location.search);
@@ -253,37 +283,6 @@ export const InvitationForm = () => {
                 roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)
             })
         }
-    }
-
-    const renderACRWarnings = () => {
-        if (isEmpty(invitation.requestedAuthnContext) || isEmpty(eduIDIdP) || isEmpty(selectedRoles)) {
-            return null;
-        }
-        //Filter out the roles that are linked to applications that are not present in the mfaEntities of the eduIDIdp
-        //or where the MFA level does not equal the requestedAuthnContext. If the requestedAuthnContext === TransparentAuthnContext,
-        //then we skip the warning
-        const mfaEntities = eduIDIdP.mfaEntities;
-        const acrValue = acrValues[invitation.requestedAuthnContext];
-        const missingEntities = selectedRoles.reduce((acc, role) => {
-            const missingMfaApps = role.applicationMaps
-                .filter(app => {
-                    const mfa = mfaEntities.find(mfa => mfa.name === app.entityid);
-                    return isEmpty(mfa) || (mfa.level !== acrValue && mfa.level !== acrValues.TransparentAuthnContext);
-                });
-            if (!isEmpty(missingMfaApps)) {
-                acc.applications = acc.applications.concat(missingMfaApps.map(app => app[`name:${I18n.locale}`] || app["name:en"]));
-                acc.roles.push(role.name)
-            }
-            return acc;
-        }, {applications: [], roles: []})
-        if (isEmpty(missingEntities.roles)) {
-            return null;
-        }
-        const roleNames = splitListSemantically(missingEntities.roles, I18n.t("forms.and"));
-        const applicationNames = splitListSemantically(missingEntities.applications, I18n.t("forms.and"));
-        const html = DOMPurify.sanitize(I18n.t("invitations.requestedAuthnContextWarning",
-            {roles: roleNames, applications: applicationNames}));
-        return <p className="warning" dangerouslySetInnerHTML={{__html: html}}/>
     }
 
     const authorityChanged = option => {
@@ -478,7 +477,8 @@ export const InvitationForm = () => {
                                     clearable={true}
                                     onChange={requestedAuthnContextChanged}
                                 >
-                                    {renderACRWarnings()}
+                                    {acrWarning &&
+                                        <p className="warning" dangerouslySetInnerHTML={{__html: acrWarning}}/>}
                                 </SelectField>}
 
                             {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter &&

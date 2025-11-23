@@ -20,46 +20,31 @@ import {relativeUserWaitTime} from "../utils/Date";
 export const Proceed = () => {
 
     const {user, invitation, config} = useAppStore(state => state);
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [reloadedInvitation, setReloadedInvitation] = useState(null);
-    const [showModal, setShowModal] = useState(true);
-    const [inviteRedeemUrl, setInviteRedeemUrl] = useState(null);
-    const [errorResponse, setErrorResponse] = useState(null);
-    const [userWaitTime, setUserWaitTime] = useState(null);
-    const [role, setRole] = useState(null);
 
-    function invariantParams() {
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        const isRedirect = urlSearchParams.get("isRedirect");
-        if (isRedirect) {
-            setShowModal(false);
-        }
-        const inviteRedeemUrlParam = urlSearchParams.get("inviteRedeemUrl");
-        if (inviteRedeemUrlParam) {
-            setInviteRedeemUrl(DOMPurify.sanitize(decodeURIComponent(inviteRedeemUrlParam)));
-        }
-        setErrorResponse(urlSearchParams.get("errorResponse"));
-        setUserWaitTime(urlSearchParams.get("userWaitTime"));
-        setRole(urlSearchParams.get("role"))
-    }
+    const navigate = useNavigate();
+
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const inviteRedeemUrlParam = urlSearchParams.get("inviteRedeemUrl");
+    const inviteRedeemUrl = inviteRedeemUrlParam ? DOMPurify.sanitize(decodeURIComponent(inviteRedeemUrlParam)) : null;
+    const errorResponse = urlSearchParams.get("errorResponse");
+    const userWaitTime = urlSearchParams.get("userWaitTime");
+    const role = urlSearchParams.get("role");
+
+    const [loading, setLoading] = useState(isEmpty(invitation));
+    const [reloadedInvitation, setReloadedInvitation] = useState(invitation);
+    const [showModal, setShowModal] = useState(isEmpty(urlSearchParams.get("isRedirect")));
 
     useEffect(() => {
         if (isEmpty(user)) {
             login(config);
         } else if (isEmpty(invitation)) {
             const hashParam = getParameterByName("hash", window.location.search);
-            invariantParams();
             invitationByHash(hashParam)
                 .then(res => {
                     setReloadedInvitation(res);
                     setLoading(false);
                 })
                 .catch(() => navigate("/profile"))
-        } else {
-            invariantParams();
-            setReloadedInvitation(invitation);
-            setLoading(false);
         }
     }, [invitation, user, config]); // eslint-disable-line react-hooks/exhaustive-deps
 

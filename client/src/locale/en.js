@@ -247,7 +247,7 @@ const en = {
         requestedAuthnContext: "ACR value",
         requestedAuthnContextPlaceHolder: "Choose a ACR value for user stepup...",
         requestedAuthnContextWarning: "To enforce the selected ACR also on the application(s) {{applications}} associated " +
-            "with the role(s) {{roles}}, additional configuration is needed on the eduID identity provider. " +
+            "with the role(s) {{roles}}, additional configuration is needed on the eduID Identity Provider. " +
             "Please contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> to request this change.",
         new: "Invite role manager or inviter",
         newInvitation: "Invite inviter",
