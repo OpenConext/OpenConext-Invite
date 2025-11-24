@@ -11,6 +11,8 @@ import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,9 @@ public class Role implements Serializable, Provisionable {
 
     @Column(name = "default_expiry_days")
     private Integer defaultExpiryDays;
+
+    @Column(name = "default_expiry_date")
+    private Instant defaultExpiryDate;
 
     @Column(name = "enforce_email_equality")
     private boolean enforceEmailEquality;
@@ -138,6 +143,7 @@ public class Role implements Serializable, Provisionable {
         this.name = roleRequest.getName();
         this.description = roleRequest.getDescription();
         this.defaultExpiryDays = roleRequest.getDefaultExpiryDays();
+        this.defaultExpiryDate = roleRequest.getDefaultExpiryDate();
         this.enforceEmailEquality = roleRequest.isEnforceEmailEquality();
         this.eduIDOnly = roleRequest.isEduIDOnly();
         this.blockExpiryDate = roleRequest.isBlockExpiryDate();
@@ -160,6 +166,15 @@ public class Role implements Serializable, Provisionable {
     public Set<Application> applicationsUsed() {
         return applicationUsages.stream()
                 .map(ApplicationUsage::getApplication).collect(Collectors.toSet());
+    }
+
+    @Transient
+    @JsonIgnore
+    public Instant deriveExpirationDate() {
+        if (this.defaultExpiryDate != null) {
+            return this.defaultExpiryDate;
+        }
+        return Instant.now().plus(this.defaultExpiryDays, ChronoUnit.DAYS))
     }
 
     public void setApplicationUsages(Set<ApplicationUsage> applicationUsages) {

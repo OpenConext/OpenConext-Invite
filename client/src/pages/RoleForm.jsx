@@ -3,6 +3,7 @@ import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
+import Select from "react-select";
 import {
     allProviders,
     consequencesRoleDeletion,
@@ -30,11 +31,12 @@ import SwitchField from "../components/SwitchField";
 import {dateFromEpoch, displayExpiryDate, futureDate} from "../utils/Date";
 import DOMPurify from "dompurify";
 import WarningIndicator from "../components/WarningIndicator";
-import DatePicker from "react-datepicker";
-import {MinimalDateField} from "../components/MinimalDateField";
+import {DateField} from "../components/DateField";
 
 const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
+
+const removeByOptions = ["after", "on"].map(val => ({value: val, label: I18n.t(`invitations.${val}`)}))
 
 export const RoleForm = () => {
     const location = useLocation();
@@ -64,6 +66,7 @@ export const RoleForm = () => {
     const [applications, setApplications] = useState([]);
     const [provisionings, setProvisionings] = useState({});
     const [deletedUserRoles, setDeletedUserRoles] = useState(null);
+    const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[0]);
 
     const allowedToEditApplication = useState(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user));
 
@@ -83,6 +86,10 @@ export const RoleForm = () => {
             }
             Promise.all(promises).then(res => {
                 if (!newRole) {
+                    if (res[0].defaultExpiryDate !== 0) {
+                        res[0].defaultExpiryDate = new Date(res[0].defaultExpiryDate * 1000);
+                        setRemoveRoleBy(removeByOptions[1]);
+                    }
                     setRole(res[0]);
                     setCustomRoleExpiryDate(res[0].defaultExpiryDays !== DEFAULT_EXPIRY_DAYS)
                     setCustomInviterDisplayName(!isEmpty(res[0].inviterDisplayName))
@@ -180,6 +187,15 @@ export const RoleForm = () => {
         })
     }
 
+    const toggleRemoveBy = option => {
+        setRemoveRoleBy(option);
+        if (option.value === "after") {
+            setRole({...role, defaultExpiryDays: DEFAULT_EXPIRY_DAYS, defaultExpiryDate: null});
+        } else {
+            setRole({...role, defaultExpiryDays: 0, defaultExpiryDate: futureDate(365, new Date())});
+        }
+    }
+
     const updateUserIfNecessary = (path, flashMessage) => {
         if (user.userRoles.some(userRole => userRole.role.id === role.id)) {
             //We need to refresh the roles of the User to ensure 100% consistency
@@ -245,7 +261,7 @@ export const RoleForm = () => {
             && validOrganizationGUID
             && !isEmpty(applications[0])
             && applications.every(app => !app || (!app.invalid && !isEmpty(app.landingPage)))
-            && role.defaultExpiryDays > 0
+            && (role.defaultExpiryDays > 0 || role.defaultExpiryDate !== null)
             && (!isEmpty(role.inviterDisplayName) || !customInviterDisplayName);
     }
 
@@ -279,6 +295,12 @@ export const RoleForm = () => {
         setApplications([...applications]);
     }
 
+    const deriveExpiryDate = () => {
+        console.log(`defaultExpityDate ${role.defaultExpiryDate}, defaultExpiryDays: ${role.defaultExpiryDays}`)
+        const expiryDate = isEmpty(role.defaultExpiryDate) ? futureDate(role.defaultExpiryDays, new Date()) : role.defaultExpiryDate;
+        return displayExpiryDate(expiryDate);
+
+    };
     const renderForm = () => {
         const valid = isValid();
         const disabledSubmit = (!valid && !initial) || !validOrganizationGUID;
@@ -441,48 +463,63 @@ export const RoleForm = () => {
 
                 <SwitchField name={"roleExpiryDate"}
                              value={customRoleExpiryDate}
-                             onChange={() => setCustomRoleExpiryDate(!customRoleExpiryDate)}
-                             label={I18n.t("invitations.roleExpiryDateQuestion")}
-                             info={I18n.t("invitations.roleExpiryDateInfo", {
-                                 expiry: displayExpiryDate(futureDate(role.defaultExpiryDays, new Date()))
+                             onChange={() => {
+                                 if (customRoleExpiryDate) {
+                                     setRole({
+                                         ...role,
+                                         defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
+                                         defaultExpiryDate: null
+                                     });
+                                     setRemoveRoleBy(removeByOptions[0]);
+                                 }
+                                 setCustomRoleExpiryDate(!customRoleExpiryDate);
+                             }}
+                             label={I18n.t(`invitations.roleExpiryDateQuestion`)}
+                             info={I18n.t(`invitations.roleExpiryDateInfo${role.defaultExpiryDays === DEFAULT_EXPIRY_DAYS ? "Default" : ""}`, {
+                                 expiry: deriveExpiryDate(),
+                                 days: DEFAULT_EXPIRY_DAYS
                              })}
                              last={customRoleExpiryDate}
                 />
                 {customRoleExpiryDate &&
-                    <div className="role-expiry-date">
-                        <InputField name={I18n.t("roles.defaultExpiryDays")}
-                                    value={role.defaultExpiryDays || 0}
-                                    isInteger={true}
-                                    onChange={e => {
-                                        const val = parseInt(e.target.value);
-                                        const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
-                                        setRole(
-                                            {...role, defaultExpiryDays: defaultExpiryDays})
-                                    }}
-                                    toolTip={I18n.t("tooltips.defaultExpiryDays")}
-                                    customClassName="inner-switch"/>
-                        <span className="separator">{I18n.t("forms.fixed")}</span>
-                        <DatePicker
-                            name={"custom-expiry-date"}
-                            id={"custom-expiry-date"}
-                            selected={null}
-                            dateFormat={"dd/MM/yyyy"}
-                            onChange={() => true}
-                            showWeekNumbers
-                            isClearable={true}
-                            showIcon={true}
-                            showYearDropdown={true}
-                            weekLabel="Week"
-                            disabled={false}
-                            todayButton={null}
-                            maxDate={null}
-                            minDate={new Date()}
-                        />
+                    <div className="role-expiry-date-container">
+                        <p className="label">{I18n.t("invitations.removeRole")}</p>
+                        <div className="role-expiry-date">
+                            <Select className="input-select-inner"
+                                    classNamePrefix={"select-inner"}
+                                    value={removeRoleBy}
+                                    options={removeByOptions}
+                                    onChange={toggleRemoveBy}
+                            />
+                            {removeRoleBy.value === "after" &&
+                                <>
+                                    <InputField value={role.defaultExpiryDays || DEFAULT_EXPIRY_DAYS}
+                                                isInteger={true}
+                                                onChange={e => {
+                                                    const val = parseInt(e.target.value);
+                                                    const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
+                                                    setRole(
+                                                        {...role, defaultExpiryDays: defaultExpiryDays})
+                                                }}
+                                                customClassName="inner-switch"/>
+                                    <span>{I18n.t("invitations.days")}</span>
+                                </>
+                            }
+                            {removeRoleBy.value === "on" &&
+                                <DateField value={role.defaultExpiryDate || futureDate(365, new Date())}
+                                           onChange={e => setRole({...role, defaultExpiryDate: e})}
+                                           showYearDropdown={true}
+                                           pastDatesAllowed={config.pastDateAllowed}
+                                           allowNull={false}
+                                           minDate={futureDate(1, new Date())}
+                                />
+                            }
+
+                        </div>
                     </div>
+                }
 
-}
-
-                {(!initial && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
+                {(!initial && removeRoleBy.value === "after" && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.defaultExpiryDays").toLowerCase()
                     })}/>}

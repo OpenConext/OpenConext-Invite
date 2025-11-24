@@ -185,7 +185,7 @@ public class UserRoleController implements UserRoleResource {
                                         role,
                                         userRoleProvisioning.intendedAuthority,
                                         userRoleProvisioning.guestRoleIncluded,
-                                        Instant.now().plus(role.getDefaultExpiryDays(), ChronoUnit.DAYS)))
+                                        role.deriveExpirationDate()))
                                 : null)
                 .filter(Objects::nonNull)
                 .toList();

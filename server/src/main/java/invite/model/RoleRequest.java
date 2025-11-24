@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,8 @@ public class RoleRequest implements Serializable{
     private String description;
 
     private Integer defaultExpiryDays;
+
+    private Instant defaultExpiryDate;
 
     private boolean enforceEmailEquality;
 

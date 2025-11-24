@@ -98,16 +98,33 @@
             margin-top: 32px;
         }
 
-        .role-expiry-date {
+        .role-expiry-date-container {
             grid-column-start: first;
             display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            padding-bottom: 15px;
+            flex-direction: column;
             border-bottom: 1px solid var(--sds--color--gray--200);
+            padding-bottom: 15px;
 
-            span.separator {
-                margin-bottom: 15px;
+            p.label {
+                font-weight: 600;
+                margin: 12px var(--sds--space--1) 0 0;
+            }
+
+            .role-expiry-date {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+                .input-select-inner {
+                    width: 150px;
+
+                    .select-inner__control {
+                        height: 48px;
+                    }
+                }
+
+                .date-field {
+                    margin-top: 0;
+                }
             }
 
             div.input-field.inner-switch {
