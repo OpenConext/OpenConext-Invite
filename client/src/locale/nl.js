@@ -190,7 +190,7 @@ const nl = {
             userInfo: "{{name}} ({{authority}}), laatste activiteit {{lastActivity}}",
             andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."
         },
-        noProvisioning: "Gebruikers die toegevoegd worden aan deze rol, hebben niet gelijk toegang tot deze applicatie. Zie de <a href=' https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910179/Applicatie+aansluiten+op+SURFconext+Invite' target='_blank'>wiki</a> voor meer information"
+        noProvisioning: "Gebruikers die toegevoegd worden aan deze rol, hebben niet gelijk toegang tot deze applicatie. Zie de <a href=' https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910179/Applicatie+aansluiten+op+SURFconext+Invite' target='_blank'>wiki</a> voor meer informatie."
     },
     applications: {
         title: "Toegangsrollen voor deze applicatie ({{nbr}})",
