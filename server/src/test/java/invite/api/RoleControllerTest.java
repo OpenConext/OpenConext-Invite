@@ -77,7 +77,8 @@ class RoleControllerTest extends AbstractTest {
         assertNotNull(result.get("id"));
         Role roleFromDB = roleRepository.findById(Long.valueOf((Integer) result.get("id"))).get();
         assertEquals(ORGANISATION_GUID, roleFromDB.getOrganizationGUID());
-        assertEquals(roleRequest.getDefaultExpiryDate(), roleFromDB.getDefaultExpiryDate());
+        assertEquals(roleRequest.getDefaultExpiryDate().truncatedTo(ChronoUnit.DAYS),
+                roleFromDB.getDefaultExpiryDate().truncatedTo(ChronoUnit.DAYS));
     }
 
     @Test

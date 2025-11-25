@@ -174,7 +174,7 @@ public class Role implements Serializable, Provisionable {
         if (this.defaultExpiryDate != null) {
             return this.defaultExpiryDate;
         }
-        return Instant.now().plus(this.defaultExpiryDays, ChronoUnit.DAYS))
+        return Instant.now().plus(this.defaultExpiryDays, ChronoUnit.DAYS);
     }
 
     public void setApplicationUsages(Set<ApplicationUsage> applicationUsages) {
