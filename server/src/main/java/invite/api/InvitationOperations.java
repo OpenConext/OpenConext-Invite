@@ -14,6 +14,7 @@ import invite.security.UserPermissions;
 import invite.validation.EmailFormatValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -62,8 +63,8 @@ public class InvitationOperations {
             invitationRequest.setEduIDOnly(requestedRoles.stream().anyMatch(Role::isEduIDOnly));
             invitationRequest.setEnforceEmailEquality(requestedRoles.stream().anyMatch(Role::isEnforceEmailEquality));
             if (intendedAuthority.equals(Authority.GUEST)) {
-                Integer defaultExpiryDays = requestedRoles.stream().max(Comparator.comparingInt(Role::getDefaultExpiryDays)).get().getDefaultExpiryDays();
-                invitationRequest.setRoleExpiryDate(Instant.now().plus(defaultExpiryDays, ChronoUnit.DAYS));
+                Instant latest = calculateInvitationExpiry(requestedRoles);
+                invitationRequest.setRoleExpiryDate(latest);
             }
         }
         List<Invite> invites = invitationRequest.getInvitesWithInternalPlaceholderIdentifiers();
@@ -129,6 +130,22 @@ public class InvitationOperations {
         }
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
         return ResponseEntity.status(HttpStatus.CREATED).body(new InvitationResponse(HttpStatus.CREATED.value(), recipientInvitationURLs));
+    }
+
+    public static Instant calculateInvitationExpiry(List<Role> requestedRoles) {
+        Integer defaultExpiryDays = requestedRoles.stream()
+                .filter(role -> role.getDefaultExpiryDays() != null)
+                .max(Comparator.comparingInt(Role::getDefaultExpiryDays))
+                .map(Role::getDefaultExpiryDays)
+                .orElse(0);
+        Instant now = Instant.now();
+        Instant defaultExpiryDate = requestedRoles.stream()
+                .filter(role -> role.getDefaultExpiryDate() != null)
+                .max(Comparator.comparing(Role::getDefaultExpiryDate))
+                .map(Role::getDefaultExpiryDate)
+                .orElse(now);
+        Instant expiryByDays = now.plus(defaultExpiryDays, ChronoUnit.DAYS);
+        return expiryByDays.isAfter(defaultExpiryDate) ? expiryByDays : defaultExpiryDate;
     }
 
     public ResponseEntity<Map<String, Integer>> resendInvitation(Long id,

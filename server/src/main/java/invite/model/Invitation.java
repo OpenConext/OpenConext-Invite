@@ -2,6 +2,7 @@ package invite.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import invite.api.InvitationOperations;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
@@ -131,12 +132,7 @@ public class Invitation implements Serializable {
         if (roleExpiryDate != null || !intendedAuthority.equals(Authority.GUEST)) {
             return roleExpiryDate;
         }
-        Integer days = roles.stream()
-                .map(invitationRole -> invitationRole.getRole().getDefaultExpiryDays())
-                .filter(Objects::nonNull)
-                .min(Comparator.naturalOrder())
-                .orElse(365);
-        return Instant.now().plus(days, ChronoUnit.DAYS);
+        return InvitationOperations.calculateInvitationExpiry(roles.stream().map(InvitationRole::getRole).toList());
     }
 
     //used in the mustache templates

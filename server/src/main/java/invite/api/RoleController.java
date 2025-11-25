@@ -130,11 +130,13 @@ public class RoleController implements ApplicationResource {
         LOG.debug(String.format("/rolesPerApplicationId for user %s", user.getEduPersonPrincipalName()));
 
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-
-        if (!user.isSuperUser()) {
+        List<Role> roles;
+        if (user.isSuperUser()) {
+            roles = roleRepository.findByApplicationUsagesApplicationManageId(manageId);
+        } else {
             Set<String> applicationManageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
             Set<String> roleManageIdentifiers = user.getUserRoles().stream()
-                    //If the user has an userRole as Inviter, then we must exclude those
+                    //If the user has a userRole as Inviter, then we must exclude those
                     .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
                     .map(userRole -> userRole.getRole().applicationsUsed())
                     .flatMap(Collection::stream)
@@ -144,8 +146,8 @@ public class RoleController implements ApplicationResource {
             if (!applicationManageIdentifiers.contains(manageId)) {
                 throw new UserRestrictionException();
             }
+            roles = roleRepository.findByOrganizationGUIDAndApplicationUsagesApplicationManageId(user.getOrganizationGUID(), manageId);
         }
-        List<Role> roles = roleRepository.findByApplicationUsagesApplicationManageId(manageId);
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 

@@ -29,7 +29,7 @@ import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
-import {displayExpiryDate, futureDate} from "../utils/Date";
+import {deriveExpirationDate, displayExpiryDate, futureDate} from "../utils/Date";
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
@@ -144,27 +144,26 @@ export const InvitationForm = () => {
         const initialRole = markedRoles.find(role => role.value === location.state);
         if (initialRole) {
             // See markAndFilterRoles - we are mixing up userRoles and roles
-            const defaultExpiryDays = initialRole.isUserRole ? initialRole.role.defaultExpiryDays : initialRole.defaultExpiryDays;
             setSelectedRoles([initialRole])
             setInvitation({
                 ...invitation,
                 intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
                 enforceEmailEquality: initialRole.enforceEmailEquality,
                 eduIDOnly: initialRole.eduIDOnly,
-                roleExpiryDate: futureDate(defaultExpiryDays)
+                roleExpiryDate: deriveExpirationDate(initialRole.isUserRole ? initialRole.role : initialRole)
             })
             setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
         } else {
-            let defaultExpiryDays = 366;
+            let roleExpiryDate = futureDate(366);
             if (markedRoles.length === 1) {
                 const role = markedRoles[0]
-                defaultExpiryDays = role.isUserRole ? role.role.defaultExpiryDays : role.defaultExpiryDays;
+                roleExpiryDate = deriveExpirationDate(role.isUserRole ? role.role : role);
                 setSelectedRoles(markedRoles);
             }
             setInvitation({
                 ...invitation,
                 intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
-                roleExpiryDate: futureDate(defaultExpiryDays)
+                roleExpiryDate: roleExpiryDate
             })
         }
     }
@@ -215,14 +214,11 @@ export const InvitationForm = () => {
     }
 
     const defaultRoleExpiryDate = newRoles => {
-        const allDefaultExpiryDays = (newRoles || [])
-            .filter(role => role.defaultExpiryDays)
-            .map(role => role.defaultExpiryDays)
-            .sort();
-        if (invitation.intendedAuthority === AUTHORITIES.GUEST) {
-            return futureDate(isEmpty(allDefaultExpiryDays) ? 365 : allDefaultExpiryDays[0]);
-        }
-        return invitation.roleExpiryDate;
+        const allDefaultExpiryDates = (newRoles || [])
+            .map(role => deriveExpirationDate(role));
+
+        return isEmpty(allDefaultExpiryDates) ? futureDate(365, new Date()) :
+            new Date(Math.max(...allDefaultExpiryDates.map(d => d.getTime())));
     }
 
     const validateOrganizationGUID = e => {
@@ -431,7 +427,7 @@ export const InvitationForm = () => {
                 <InviterContainer isInviter={isInviter}>
                     {renderFormElements(authorityOptions)}
                 </InviterContainer>
-
+                <h1>roleExpiryDate: {invitation.roleExpiryDate.toString()}</h1>
                 <InviterContainer isInviter={isInviter}>
                     {!displayAdvancedSettings &&
                         <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#"

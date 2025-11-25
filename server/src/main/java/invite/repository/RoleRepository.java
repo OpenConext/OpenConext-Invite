@@ -68,6 +68,8 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
 
     List<Role> findByApplicationUsagesApplicationManageId(String manageId);
 
+    List<Role> findByOrganizationGUIDAndApplicationUsagesApplicationManageId(String organizationGUID, String manageId);
+
     List<Role> findByOrganizationGUID(String organizationGUID);
 
     Optional<Role> findByName(String name);
