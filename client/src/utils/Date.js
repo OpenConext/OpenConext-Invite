@@ -9,6 +9,14 @@ export const futureDate = (daysAhead, fromDate = new Date()) => {
     return new Date(time);
 }
 
+export const deriveExpirationDate = role => {
+    if (!isEmpty(role.defaultExpiryDate)) {
+        //When the role is serialized from the Server, then the defaultExpiryDate in epoch / 1000, else a genuine Date
+        return role.defaultExpiryDate.getTime ? role.defaultExpiryDate : new Date(role.defaultExpiryDate * 1000);
+    }
+    return futureDate(role.defaultExpiryDays);
+}
+
 const formatOptions = {month: "short", day: "numeric", year: "numeric"};
 
 export const shortDateFromEpoch = (epoch, needsMultiplier = true) => {
