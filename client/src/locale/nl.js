@@ -268,6 +268,7 @@ const nl = {
         roleExpiryDate: "Verloopdatum rol",
         roleExpiryDateQuestion: "Zet een specifieke verloopdatum voor de rol",
         roleExpiryDateInfo: "Deze rol wordt verwijderd van de gebruiker {{expiry}}",
+        roleExpiryDateInfoOn: "Deze rol wordt verwijderd van de gebruiker op {{date}}",
         roleExpiryDateInfoDefault: "Default wordt deze rol verwijderd van de gebruiker na 365 dagen",
         removeRole: "Verwijder rol",
         after: "Na",
@@ -553,3 +554,4 @@ const nl = {
 }
 
 export default nl;
+

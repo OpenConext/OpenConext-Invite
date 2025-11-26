@@ -28,7 +28,7 @@ import SelectField from "../components/SelectField";
 import {providersToOptions} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
-import {dateFromEpoch, displayExpiryDate, futureDate} from "../utils/Date";
+import {dateFromEpoch, displayExpiryDate, futureDate, longDateFormat} from "../utils/Date";
 import DOMPurify from "dompurify";
 import WarningIndicator from "../components/WarningIndicator";
 import {DateField} from "../components/DateField";
@@ -296,7 +296,6 @@ export const RoleForm = () => {
     }
 
     const deriveExpiryDate = () => {
-        console.log(`defaultExpityDate ${role.defaultExpiryDate}, defaultExpiryDays: ${role.defaultExpiryDays}`)
         const expiryDate = isEmpty(role.defaultExpiryDate) ? futureDate(role.defaultExpiryDays, new Date()) : role.defaultExpiryDate;
         return displayExpiryDate(expiryDate);
 
@@ -475,8 +474,9 @@ export const RoleForm = () => {
                                  setCustomRoleExpiryDate(!customRoleExpiryDate);
                              }}
                              label={I18n.t(`invitations.roleExpiryDateQuestion`)}
-                             info={I18n.t(`invitations.roleExpiryDateInfo${role.defaultExpiryDays === DEFAULT_EXPIRY_DAYS ? "Default" : ""}`, {
+                             info={I18n.t(`invitations.roleExpiryDateInfo${removeRoleBy.value === "on" && role.defaultExpiryDays !== DEFAULT_EXPIRY_DAYS ? "On" : ""}${role.defaultExpiryDays === DEFAULT_EXPIRY_DAYS ? "Default" : ""}`, {
                                  expiry: deriveExpiryDate(),
+                                 date: longDateFormat(role.defaultExpiryDate),
                                  days: DEFAULT_EXPIRY_DAYS
                              })}
                              last={customRoleExpiryDate}

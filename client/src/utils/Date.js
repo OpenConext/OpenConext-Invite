@@ -27,6 +27,16 @@ export const shortDateFromEpoch = (epoch, needsMultiplier = true) => {
     return dateTimeFormat.format(new Date(needsMultiplier ? epoch * 1000 : epoch));
 }
 
+const longFormatOptions = {month: "long", weekday: "long", year: "numeric"};
+
+export const longDateFormat = date => {
+    if (isEmpty(date)) {
+        return "";
+    }
+    const dateTimeFormat = new Intl.DateTimeFormat(`${I18n.locale}-${I18n.locale.toUpperCase()}`, longFormatOptions);
+    return dateTimeFormat.format(date);
+}
+
 export const dateFromEpoch = (epoch, needsMultiplier = true) => {
     return shortDateFromEpoch(epoch, needsMultiplier);
 }

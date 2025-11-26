@@ -95,6 +95,7 @@ export const App = () => {
     if (loading) {
         return <Loader/>
     }
+
     return (
         <div className="invite">
             <div className="container">

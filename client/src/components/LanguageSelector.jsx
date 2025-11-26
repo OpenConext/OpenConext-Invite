@@ -5,8 +5,11 @@ import {replaceQueryParameter} from "../utils/QueryParameters";
 import {stopEvent} from "../utils/Utils";
 import "./LanguageSelector.scss"
 import {languageSwitched} from "../utils/Date";
+import {useAppStore} from "../stores/AppStore";
 
 export const LanguageSelector = () => {
+
+    const {config} = useAppStore(state => state);
 
     const handleChooseLocale = locale => e => {
         stopEvent(e);
@@ -26,15 +29,15 @@ export const LanguageSelector = () => {
         );
     }
 
+    const languages = config.languages.split(",").map(lang => lang.trim());
     return (
         <nav className="sds--language-switcher sds--text--body--small" aria-label="Language">
             <ul>
-                <li>{renderLocaleChooser("nl")}
-                    <span className="sds--language-sds--divider">|</span>
-                </li>
-                <li>
-                    {renderLocaleChooser("en")}
-                </li>
+                {languages.map((lang, index) =>
+                    <li key={index}>{renderLocaleChooser(lang)}
+                        {(index + 1) < languages.length && <span className="sds--language-sds--divider">|</span>}
+                    </li>
+                )}
             </ul>
         </nav>
     );

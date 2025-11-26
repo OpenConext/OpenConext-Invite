@@ -1,6 +1,6 @@
-const en = {
-    code: "EN",
-    name: "English",
+const pt = {
+    code: "PT",
+    name: "Portugese",
     select_locale: "Change language to English",
     languages: {
         language: "Language",
@@ -268,7 +268,6 @@ const en = {
         roleExpiryDate: "Role expiry date",
         roleExpiryDateQuestion: "Set a custom role expiration",
         roleExpiryDateInfo: "This role will be removed from the user {{expiry}}",
-        roleExpiryDateInfoOn: "This role will be removed from the user on {{date}}",
         roleExpiryDateInfoDefault: "By default this role will be removed from a user after {{days}} days",
         removeRole: "Remove role",
         after: "After",
@@ -553,4 +552,4 @@ const en = {
     }
 }
 
-export default en;
+export default pt;

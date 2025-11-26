@@ -123,6 +123,7 @@ config:
   past-date-allowed: True
   performance-seed-allowed: True
   eduid-idp-schac-home-organization: "test.eduid.nl"
+  languages: "nl, en"
 
 feature:
   enable-performance-seed: False
