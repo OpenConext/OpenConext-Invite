@@ -6,7 +6,7 @@ import {sortObjects, valueForSort} from "../utils/Sort";
 import {headerIcon} from "../utils/Forms";
 import "./Entities.scss";
 import {Button, Loader, Pagination, Tooltip} from "@surfnet/sds";
-import {pageCount} from "../utils/Pagination";
+import {pageCount, searchParameterFromQueryParams, storeSearchQueryParameter} from "../utils/Pagination";
 import {useNavigate} from "react-router-dom";
 
 export const Entities = ({
@@ -41,11 +41,10 @@ export const Entities = ({
                              busy = false
                          }) => {
 
-    const [initial, setInitial] = useState(!isEmpty(customSearch));
     const [query, setQuery] = useState("");
-    const [sorted, setSorted] = useState(defaultSort);
-    const [reverse, setReverse] = useState(false);
-    const [page, setPage] = useState(1);
+    const [sorted, setSorted] = useState(searchParameterFromQueryParams("sort", false, defaultSort));
+    const [reverse, setReverse] = useState("DESC" === searchParameterFromQueryParams("sortDirection", false, "ASC"));
+    const [page, setPage] = useState(searchParameterFromQueryParams("page", true, 1));
 
     const searchRef = useRef();
     const navigate = useNavigate();
@@ -126,7 +125,9 @@ export const Entities = ({
     const setSortedKey = key => {
         const newReserve = (sorted === key ? !reverse : false);
         setSorted(key);
+        storeSearchQueryParameter("sort", key);
         setReverse(newReserve);
+        storeSearchQueryParameter("sortDirection", newReserve ? "ASC" : "DESC");
         callCustomSearch(query, key, newReserve, page);
     }
 
@@ -134,7 +135,6 @@ export const Entities = ({
         if (customSearch) {
             //Adjust page, as serverSide is zero-based
             customSearch(newQuery, newSorted, newReversed, newPage - 1);
-            setInitial(false);
         }
         if (searchCallback) {
             const searchResult = filterEntities(query);
@@ -206,12 +206,13 @@ export const Entities = ({
                             </tbody>
                         </table>
                     </div>}
-                {(!hasEntities && !initial && !customEmptySearch && !loading && !hideTitle && !busy) &&
+                {(!hasEntities && !customEmptySearch && !loading && !hideTitle && !busy) &&
                     <p className="no-entities">{customNoEntities || I18n.t(`${modelName}.noEntities`)}</p>}
                 <Pagination currentPage={page}
                             onChange={nbr => {
                                 setPage(nbr);
                                 callCustomSearch(query, sorted, reverse, nbr);
+                                storeSearchQueryParameter("page", nbr);
                             }}
                             total={totalElements || total}
                             pageCount={pageCount}/>

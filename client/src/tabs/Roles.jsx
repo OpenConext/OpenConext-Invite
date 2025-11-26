@@ -65,7 +65,9 @@ export const Roles = () => {
     };
 
     const search = (query, sorted, reverse, page) => {
-        if (isEmpty(query) || query.trim().length > 2) {
+        const paginationQueryParamsChanged = sorted !== paginationQueryParams.sort || reverse !== paginationQueryParams.sortDirection ||
+            page !== paginationQueryParams.pageNumber;
+        if ((!isEmpty(query) && query.trim().length > 2) || paginationQueryParamsChanged) {
             delayedAutocomplete(query, sorted, reverse, page);
         }
     };

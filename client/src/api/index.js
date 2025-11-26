@@ -185,7 +185,7 @@ export function hasProvisionings(manageId) {
 
 //Roles
 export function rolesByApplication(force = true, pagination = {}) {
-    const queryPart = paginationQueryParams(pagination, {force: !!force})
+    const queryPart = paginationQueryParams(pagination, {force: !!force});
     return fetchJson(`/api/v1/roles?${queryPart}`);
 }
 
