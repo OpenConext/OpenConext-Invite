@@ -3,7 +3,7 @@ import I18n from "../locale/I18n";
 import "../components/Entities.scss";
 import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
-import {searchUsers} from "../api";
+import {other, searchUsers} from "../api";
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./Users.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
@@ -120,9 +120,12 @@ export const Users = () => {
     const showImpersonation = currentUser && currentUser.superUser;
 
     const impersonate = user => {
-        startImpersonation(user);
-        setFlash(I18n.t("impersonate.flash.startedImpersonation", {name: user.name}));
-        navigate("/", {replace: true});
+        //First, fetch the entire other user otherwise we get undefined errors
+        other(user.id).then(otherUser => {
+            startImpersonation(otherUser);
+            setFlash(I18n.t("impersonate.flash.startedImpersonation", {name: otherUser.name}));
+            navigate("/", {replace: true});
+        })
     }
 
     if (showImpersonation) {
