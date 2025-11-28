@@ -20,7 +20,7 @@ import {
     requestedAuthnContextValues,
     rolesByApplication
 } from "../api";
-import {Button, ButtonType, Loader, Tooltip} from "@surfnet/sds";
+import {Button, ButtonType, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -64,7 +64,7 @@ export const InvitationForm = () => {
     const [identityProviders, setIdentityProviders] = useState([]);
     const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState({});
     const [displayAdvancedSettings, setDisplayAdvancedSettings] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [customExpiryDate, setCustomExpiryDate] = useState(false);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [initial, setInitial] = useState(true);
@@ -87,14 +87,13 @@ export const InvitationForm = () => {
                         I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
                     setInitialRole(markedRoles);
                     setRoles(markedRoles);
-                    setLoading(false);
+
                 })
         } else {
             const markedRoles = markAndFilterRoles(user, [], I18n.locale,
                 I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
             setInitialRole(markedRoles);
             setRoles(markedRoles)
-            setLoading(false);
         }
         const breadcrumbPath = isInviter ? [] : [
             {path: "/home", value: I18n.t("tabs.home")},
@@ -556,9 +555,6 @@ export const InvitationForm = () => {
         );
     }
 
-    if (loading) {
-        return <Loader/>
-    }
     return (
         <div className={`mod-invitation-form ${isInviter ? "inviter" : ""}`}>
             {!isInviter && <UnitHeader
