@@ -265,6 +265,7 @@ const nl = {
         roles: "Rollen",
         inviterRoles: "Selecteer de rollen voor de nieuwe uitnodiging",
         rolesPlaceHolder: "Kies een of meer rollen",
+        rolesPlaceHolderLoading: "Wacht totdat alle rollen zijn geladen...",
         expiryDate: "Geldig tot",
         acceptedAt: "Datum geaccepteeerd",
         roleExpiryDate: "Verloopdatum rol",

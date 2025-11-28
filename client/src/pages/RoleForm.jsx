@@ -94,18 +94,18 @@ export const RoleForm = () => {
                     setCustomRoleExpiryDate(res[0].defaultExpiryDays !== DEFAULT_EXPIRY_DAYS)
                     setCustomInviterDisplayName(!isEmpty(res[0].inviterDisplayName))
                 }
-                let providers;
+                let newProviders;
                 if (user.superUser) {
-                    providers = providersToOptions(res[newRole ? 0 : 1], I18n.locale);
+                    newProviders = providersToOptions(res[newRole ? 0 : 1], I18n.locale);
                 } else if (user.institutionAdmin) {
-                    providers = providersToOptions(distinctValues(user.applications.concat(
+                    newProviders = providersToOptions(distinctValues(user.applications.concat(
                         user.userRoles.map(userRole => userRole.role.applicationMaps).flat()
                     ), "id"), I18n.locale);
                 } else {
-                    providers = providersToOptions(distinctValues(user.userRoles
+                    newProviders = providersToOptions(distinctValues(user.userRoles
                         .map(userRole => userRole.role.applicationMaps).flat(), "id"), I18n.locale);
                 }
-                setProviders(providers);
+                setProviders(newProviders);
                 setNewRole(newRole);
                 const name = newRole ? "" : res[0].name;
                 const breadcrumbPath = [

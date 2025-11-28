@@ -265,6 +265,7 @@ const en = {
         roles: "Roles",
         inviterRoles: "Select the roles for the new invitation",
         rolesPlaceHolder: "Choose one or more roles",
+        rolesPlaceHolderLoading: "Wait until all roles are loaded...",
         expiryDate: "Valid till",
         acceptedAt: "Date accepted",
         roleExpiryDate: "Role expiry date",

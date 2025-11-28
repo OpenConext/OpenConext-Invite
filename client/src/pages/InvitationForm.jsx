@@ -372,7 +372,7 @@ export const InvitationForm = () => {
                                  required={true}
                                  error={!initial && isEmpty(selectedRoles)}
                                  searchable={true}
-                                 placeholder={I18n.t("invitations.rolesPlaceHolder")}
+                                 placeholder={I18n.t(`invitations.rolesPlaceHolder${isEmpty(roles) ? "Loading" : ""}`)}
                                  onChange={rolesChanged}/>
                     {(!initial && isEmpty(selectedRoles) &&
                             !skipRoles) &&

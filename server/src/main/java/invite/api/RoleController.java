@@ -89,7 +89,6 @@ public class RoleController implements ApplicationResource {
                                                          @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
                                                          @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection) {
         LOG.debug(String.format("/roles for user %s", user.getEduPersonPrincipalName()));
-
         Page<Role> rolesPage;
         if (user.isSuperUser()) {
             if (force) {
