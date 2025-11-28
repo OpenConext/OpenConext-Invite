@@ -1,21 +1,29 @@
 package invite.cron;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import invite.AbstractTest;
 import invite.model.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 
+import static invite.cron.ResourceCleaner.LOCK_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ResourceCleanerTest extends AbstractTest {
 
     @Autowired
     private ResourceCleaner subject;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Test
     void cleanUsersWithoutActivity() throws JsonProcessingException {
@@ -62,10 +70,27 @@ class ResourceCleanerTest extends AbstractTest {
         assertEquals(beforeUserRoles, userRoleRepository.count() + 3);
     }
 
+    @SneakyThrows
     @Test
-    void notCronJobResponsible() {
-        ResourceCleaner resourceCleaner = new ResourceCleaner(null, null, null, 1, false);
-        resourceCleaner.clean();
+    void lockAlreadyAcquired() {
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            subject.tryGetLock(conn, LOCK_NAME);
+
+            long beforeUsers = userRepository.count();
+            markUser(GUEST_SUB);
+
+            subject.clean();
+            //Nothing happened
+            assertEquals(beforeUsers, userRepository.count());
+        } finally {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT RELEASE_LOCK(?)")) {
+                ps.setString(1, LOCK_NAME);
+                ps.executeQuery(); // ignore result
+            }
+        }
+
     }
 
     private void markUser(String sub) {

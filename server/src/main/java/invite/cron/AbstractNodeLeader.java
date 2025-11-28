@@ -14,25 +14,21 @@ public abstract class AbstractNodeLeader {
     private static final Log LOG = LogFactory.getLog(AbstractNodeLeader.class);
 
     private final String lockName;
-    private final int timeoutSeconds;
     private final DataSource dataSource;
 
-    protected AbstractNodeLeader(String lockName, int timeoutSeconds, DataSource dataSource) {
+    protected AbstractNodeLeader(String lockName, DataSource dataSource) {
         this.lockName = lockName;
-        this.timeoutSeconds = timeoutSeconds;
         this.dataSource = dataSource;
     }
 
     @SneakyThrows
     public void perform(String name, Executable executable) {
-
-
         Connection conn = null;
         boolean lockAcquired = false;
 
         try {
             conn = dataSource.getConnection();
-            lockAcquired = tryGetLock(conn, lockName, timeoutSeconds);
+            lockAcquired = tryGetLock(conn, lockName);
 
             if (!lockAcquired) {
                 LOG.info(String.format("Another node is running %s, skipping this one", name));
@@ -64,10 +60,11 @@ public abstract class AbstractNodeLeader {
         }
     }
 
-    private boolean tryGetLock(Connection conn, String name, int timeoutSec) throws Exception {
+    protected boolean tryGetLock(Connection conn, String name) throws Exception {
         try (PreparedStatement ps = conn.prepareStatement("SELECT GET_LOCK(?, ?)")) {
             ps.setString(1, name);
-            ps.setInt(2, timeoutSec);
+            //Use timeout of 0 to have an immediate result
+            ps.setInt(2, 0);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     int result = rs.getInt(1);

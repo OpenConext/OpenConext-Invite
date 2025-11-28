@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.Period;
@@ -23,36 +24,33 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ResourceCleaner {
+public class ResourceCleaner extends AbstractNodeLeader {
 
     private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
+    public static final String LOCK_NAME = "resource_cleaner_user_level_lock";
 
     private final UserRepository userRepository;
     private final ProvisioningService provisioningService;
     private final UserRoleRepository userRoleRepository;
-    private final boolean cronJobResponsible;
     private final int lastActivityDurationDays;
 
     @Autowired
     public ResourceCleaner(UserRepository userRepository,
                            UserRoleRepository userRoleRepository,
                            ProvisioningService provisioningService,
-                           @Value("${cron.last-activity-duration-days}") int lastActivityDurationDays,
-                           @Value("${cron.node-cron-job-responsible}") boolean cronJobResponsible) {
+                           DataSource dataSource,
+                           @Value("${cron.last-activity-duration-days}") int lastActivityDurationDays) {
+        super(LOCK_NAME, dataSource);
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.lastActivityDurationDays = lastActivityDurationDays;
-        this.cronJobResponsible = cronJobResponsible;
         this.provisioningService = provisioningService;
     }
 
     @Scheduled(cron = "${cron.user-cleaner-expression}")
     @Transactional
     public void clean() {
-        if (!cronJobResponsible) {
-            return;
-        }
-        doClean();
+        super.perform("ResourceCleaner#clean", () -> doClean());
     }
 
     public Map<String, List<? extends Serializable>> doClean() {
