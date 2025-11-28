@@ -66,7 +66,7 @@ export const Home = () => {
             navigate("/inviter");
         }
 
-    }, [user]);
+    }, [user, navigate]);
 
     const tabChanged = (name) => {
         setCurrentTab(name);

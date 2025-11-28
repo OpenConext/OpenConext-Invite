@@ -99,6 +99,15 @@ public class ManageController {
         return ResponseEntity.ok(providers);
     }
 
+    @GetMapping("/identity-providers")
+    public ResponseEntity<List<Map<String, Object>>> identityProviders(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("GET /manage/identity-providers for user %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertAuthority(user, Authority.SUPER_USER);
+        List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_IDP);
+        return ResponseEntity.ok(providers.stream()
+                .filter(provider -> provider.get("institutionGuid") != null).toList());
+    }
+
     @GetMapping("/organization-guid-validation/{organizationGUID}")
     public ResponseEntity<Map<String, Object>> organizationGUIDValidation(@Parameter(hidden = true) User user,
                                                                           @PathVariable("organizationGUID") String organizationGUID) {

@@ -14,9 +14,9 @@ import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {
+    allIdentityProviders,
     eduidIdentityProvider,
     newInvitation,
-    organizationGUIDValidation,
     requestedAuthnContextValues,
     rolesByApplication
 } from "../api";
@@ -61,10 +61,8 @@ export const InvitationForm = () => {
         invites: [],
         intendedAuthority: AUTHORITIES.GUEST
     });
-
-    const [validOrganizationGUID, setValidOrganizationGUID] = useState(true);
-    const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState(null);
-
+    const [identityProviders, setIdentityProviders] = useState([]);
+    const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState({});
     const [displayAdvancedSettings, setDisplayAdvancedSettings] = useState(false);
     const [loading, setLoading] = useState(true);
     const [customExpiryDate, setCustomExpiryDate] = useState(false);
@@ -103,6 +101,20 @@ export const InvitationForm = () => {
             {path: "/home/roles", value: I18n.t("tabs.roles")},
         ];
         useAppStore.setState({breadcrumbPath: breadcrumbPath});
+        //Now fetch all IdentityProviders for the superuser
+        if (user.superUser) {
+            allIdentityProviders().then(idps => {
+                const identityProviderOptions = idps
+                    .filter(idp => !isEmpty(idp.institutionGuid))
+                    .map(idp => ({
+                        value: idp.id,
+                        label: idp["name:en"],
+                        institutionGuid: idp.institutionGuid
+                    }))
+                setIdentityProviders(identityProviderOptions);
+            });
+        }
+
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const acrWarning = useMemo(() => {
@@ -198,10 +210,12 @@ export const InvitationForm = () => {
     }
 
     const isValid = () => {
-        return required.every(attr => !isEmpty(invitation[attr])) &&
-            (!isEmpty(selectedRoles) || [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority))
-            && (invitation.intendedAuthority !== AUTHORITIES.INSTITUTION_ADMIN || !user.superUser || validOrganizationGUID)
-            && !(user.superUser && invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID))
+        const invitationIsForAdmin = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority);
+        const res = required.every(attr => !isEmpty(invitation[attr])) &&
+            (!isEmpty(selectedRoles) || invitationIsForAdmin)
+            && (invitationIsForAdmin || user.superUser)
+            && !(invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID));
+        return res;
     }
 
     const addEmails = emails => {
@@ -219,21 +233,6 @@ export const InvitationForm = () => {
 
         return isEmpty(allDefaultExpiryDates) ? futureDate(365, new Date()) :
             new Date(Math.max(...allDefaultExpiryDates.map(d => d.getTime())));
-    }
-
-    const validateOrganizationGUID = e => {
-        const organizationGUID = e.target.value;
-        if (!isEmpty(organizationGUID)) {
-            organizationGUIDValidation(organizationGUID)
-                .then(idp => {
-                    setOrganizationGUIDIdentityProvider(idp);
-                    setValidOrganizationGUID(true);
-                })
-                .catch(() => {
-                    setOrganizationGUIDIdentityProvider(null);
-                    setValidOrganizationGUID(false);
-                })
-        }
     }
 
     const eduIDOnlyChanged = val => {
@@ -281,12 +280,25 @@ export const InvitationForm = () => {
         }
     }
 
+    const changeOrganizationGUIDIdentityProvider = option => {
+        setOrganizationGUIDIdentityProvider(option);
+        setInvitation({...invitation, organizationGUID: option.institutionGuid});
+    }
+
+
     const authorityChanged = option => {
         setInvitation({
             ...invitation,
             intendedAuthority: option.value,
-            roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
+            roleExpiryDate: defaultRoleExpiryDate(selectedRoles),
+            organizationGUID: option.value !== AUTHORITIES.INSTITUTION_ADMIN ? null : invitation.organizationGUID
         });
+        if (option.value === AUTHORITIES.SUPER_USER) {
+            setSelectedRoles([]);
+        }
+        if (option.value !== AUTHORITIES.INSTITUTION_ADMIN) {
+            setOrganizationGUIDIdentityProvider({});
+        }
     }
 
     const renderUserRole = (role, index, invitationSelected, invitationSelectCallback) => {
@@ -335,30 +347,22 @@ export const InvitationForm = () => {
                     />}
 
                 {(user.superUser && AUTHORITIES.INSTITUTION_ADMIN === invitation.intendedAuthority) &&
-                    <InputField
-                        name={I18n.t("roles.organizationGUID")}
-                        value={invitation.organizationGUID}
-                        onChange={e => {
-                            setInvitation({
-                                ...invitation,
-                                organizationGUID: e.target.value
-                            });
-                            setValidOrganizationGUID(true);
-                            setOrganizationGUIDIdentityProvider(null);
-                        }}
-                        onBlur={validateOrganizationGUID}
-                        toolTip={I18n.t("tooltips.organizationGUID")}
+                    <SelectField name={I18n.t("roles.identityProvider")}
+                                 toolTip={I18n.t("tooltips.invitationIdentityProvider")}
+                                 value={identityProviders.find(idp => idp.value === organizationGUIDIdentityProvider.value)}
+                                 placeholder={I18n.t("roles.identityProviderPlaceholder")}
+                                 options={identityProviders}
+                                 onChange={changeOrganizationGUIDIdentityProvider}
+                                 searchable={true}
+                                 required={true}
                     />}
-                {!validOrganizationGUID &&
-                    <ErrorIndicator msg={I18n.t("forms.invalid", {
-                        value: invitation.organizationGUID,
-                        attribute: I18n.t("roles.organizationGUID").toLowerCase()
-                    })}/>}
-                {!isEmpty(organizationGUIDIdentityProvider) &&
-                    <p className="info">{I18n.t("roles.identityProvider", {name: organizationGUIDIdentityProvider["name:en"]})}</p>}
                 {(!initial && isEmpty(invitation.organizationGUID) &&
                         invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && user.superUser) &&
-                    <ErrorIndicator msg={I18n.t("invitations.requiredOrganizationGUID")}/>}
+                    <ErrorIndicator msg={I18n.t("forms.required", {
+                        attribute: I18n.t("roles.identityProvider").toLowerCase()
+                    })}/>}
+                {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
+                    <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
 
                 {(!isInviter && !skipRoles) && <>
                     <SelectField value={selectedRoles}
@@ -427,7 +431,7 @@ export const InvitationForm = () => {
                 <InviterContainer isInviter={isInviter}>
                     {renderFormElements(authorityOptions)}
                 </InviterContainer>
-                <h1>roleExpiryDate: {invitation.roleExpiryDate.toString()}</h1>
+
                 <InviterContainer isInviter={isInviter}>
                     {!displayAdvancedSettings &&
                         <a className={`advanced-settings ${isInviter ? "inviter" : ""}`} href="/#"

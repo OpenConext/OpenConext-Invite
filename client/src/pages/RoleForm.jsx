@@ -5,13 +5,13 @@ import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import Select from "react-select";
 import {
+    allIdentityProviders,
     allProviders,
     consequencesRoleDeletion,
     createRole,
     deleteRole,
     hasProvisionings,
     me,
-    organizationGUIDValidation,
     roleByID,
     updateRole,
     validate
@@ -53,14 +53,14 @@ export const RoleForm = () => {
         defaultExpiryDays: DEFAULT_EXPIRY_DAYS
     });
     const [providers, setProviders] = useState([]);
+    const [identityProviders, setIdentityProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
     const [loading, setLoading] = useState(true);
     const [initial, setInitial] = useState(true);
     const [alreadyExists, setAlreadyExists] = useState({});
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
-    const [validOrganizationGUID, setValidOrganizationGUID] = useState(true);
-    const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState(null);
+    const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState({});
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [customInviterDisplayName, setCustomInviterDisplayName] = useState(false);
     const [applications, setApplications] = useState([]);
@@ -121,14 +121,29 @@ export const RoleForm = () => {
                     }
                 } else {
                     breadcrumbPath.push({path: `/roles/${res[0].id}`, value: name});
-
                     res[0].applicationMaps.forEach(m => m.landingPage = (res[0].applicationUsages.find(appUsage => appUsage.application.manageId === m.id) || {}).landingPage);
                     setApplications(providersToOptions(res[0].applicationMaps, I18n.locale));
                 }
                 breadcrumbPath.push({value: I18n.t(`roles.${newRole ? "new" : "edit"}`, {name: name})});
                 useAppStore.setState({breadcrumbPath: breadcrumbPath});
                 setLoading(false);
-
+                //Now fetch all IdentityProviders for the superuser
+                if (user.superUser) {
+                    allIdentityProviders().then(idps => {
+                        const identityProviderOptions = idps
+                            .filter(idp => !isEmpty(idp.institutionGuid))
+                            .map(idp => ({
+                                value: idp.id,
+                                label: idp["name:en"],
+                                institutionGuid: idp.institutionGuid
+                            }))
+                        setIdentityProviders(identityProviderOptions);
+                        if (!newRole) {
+                            const provider = identityProviderOptions.find(idp => idp.institutionGuid === res[0].organizationGUID);
+                            setOrganizationGUIDIdentityProvider(provider || {});
+                        }
+                    });
+                }
                 setTimeout(() => {
                     if (nameRef && nameRef.current) {
                         nameRef.current.focus();
@@ -239,30 +254,20 @@ export const RoleForm = () => {
         }
     };
 
-    const validateOrganizationGUID = e => {
-        const organizationGUID = e.target.value;
-        if (!isEmpty(organizationGUID)) {
-            organizationGUIDValidation(organizationGUID)
-                .then(idp => {
-                    setOrganizationGUIDIdentityProvider(idp);
-                    setValidOrganizationGUID(true);
-                })
-                .catch(() => {
-                    setOrganizationGUIDIdentityProvider(null);
-                    setValidOrganizationGUID(false);
-                })
-        }
-    }
-
     const isValid = () => {
         return required.every(attr => !isEmpty(role[attr]))
             && Object.values(alreadyExists).every(attr => !attr)
             && !isEmpty(applications)
-            && validOrganizationGUID
+            && !isEmpty(role.organizationGUID)
             && !isEmpty(applications[0])
             && applications.every(app => !app || (!app.invalid && !isEmpty(app.landingPage)))
             && (role.defaultExpiryDays > 0 || role.defaultExpiryDate !== null)
             && (!isEmpty(role.inviterDisplayName) || !customInviterDisplayName);
+    }
+
+    const changeOrganizationGUIDIdentityProvider = option => {
+        setOrganizationGUIDIdentityProvider(option);
+        setRole({...role, organizationGUID: option.institutionGuid});
     }
 
     const changeApplication = (index, application) => {
@@ -302,7 +307,7 @@ export const RoleForm = () => {
     };
     const renderForm = () => {
         const valid = isValid();
-        const disabledSubmit = (!valid && !initial) || !validOrganizationGUID;
+        const disabledSubmit = (!valid && !initial);
         const filteredProviders = providers.filter(option => !applications.some(app => app && option.value === app.value));
         return (<>
                 <h2 className="section-separator">
@@ -348,24 +353,21 @@ export const RoleForm = () => {
                     />}
 
                 {user.superUser &&
-                    <InputField
-                        name={I18n.t("roles.organizationGUID")}
-                        value={role.organizationGUID}
-                        onChange={e => {
-                            setRole({...role, organizationGUID: e.target.value});
-                            setValidOrganizationGUID(true);
-                            setOrganizationGUIDIdentityProvider(null);
-                        }}
-                        onBlur={validateOrganizationGUID}
-                        toolTip={I18n.t("tooltips.organizationGUID")}
+                    <SelectField name={I18n.t("roles.identityProvider")}
+                                 toolTip={I18n.t("tooltips.roleIdentityProvider")}
+                                 value={identityProviders.find(idp => idp.value === organizationGUIDIdentityProvider.value)}
+                                 placeholder={I18n.t("roles.identityProviderPlaceholder")}
+                                 options={identityProviders}
+                                 onChange={changeOrganizationGUIDIdentityProvider}
+                                 searchable={true}
+                                 required={true}
                     />}
-                {!validOrganizationGUID &&
-                    <ErrorIndicator msg={I18n.t("forms.invalid", {
-                        value: role.organizationGUID,
+                {(!initial && isEmpty(role.organizationGUID)) &&
+                    <ErrorIndicator msg={I18n.t("forms.required", {
                         attribute: I18n.t("roles.organizationGUID").toLowerCase()
                     })}/>}
-                {!isEmpty(organizationGUIDIdentityProvider) &&
-                    <p className="info">{I18n.t("roles.identityProvider", {name: organizationGUIDIdentityProvider["name:en"]})}</p>}
+                {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
+                    <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
 
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}

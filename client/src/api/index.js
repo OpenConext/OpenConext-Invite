@@ -175,12 +175,12 @@ export function allApplications() {
     return fetchJson("/api/v1/manage/applications")
 }
 
-export function organizationGUIDValidation(organizationGUID) {
-    return fetchJson(`/api/v1/manage/organization-guid-validation/${organizationGUID}`, {}, {}, false);
-}
-
 export function hasProvisionings(manageId) {
     return fetchJson(`/api/v1/manage/provisionings/${manageId}`);
+}
+
+export function allIdentityProviders() {
+    return fetchJson("/api/v1/manage/identity-providers");
 }
 
 //Roles

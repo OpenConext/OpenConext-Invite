@@ -12,6 +12,10 @@ export default defineConfig({
             include: "**/*.svg",
         }
     )],
+    test: {
+        environment: 'jsdom',
+        globals: true
+    },
     build: {
         chunkSizeWarningLimit: 1000
     },
