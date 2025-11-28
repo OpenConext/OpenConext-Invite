@@ -26,8 +26,8 @@ import java.util.Map;
 @Component
 public class ResourceCleaner extends AbstractNodeLeader {
 
-    private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
     public static final String LOCK_NAME = "resource_cleaner_user_level_lock";
+    private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
 
     private final UserRepository userRepository;
     private final ProvisioningService provisioningService;

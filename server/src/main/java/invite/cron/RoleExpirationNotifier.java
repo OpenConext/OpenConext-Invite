@@ -13,13 +13,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-public class RoleExpirationNotifier {
+public class RoleExpirationNotifier extends AbstractNodeLeader {
 
+    public static final String LOCK_NAME = "role_expiration_notifier_user_level_lock";
     private static final Log LOG = LogFactory.getLog(RoleExpirationNotifier.class);
 
     private final UserRoleRepository userRoleRepository;
@@ -27,28 +29,27 @@ public class RoleExpirationNotifier {
     private final Manage manage;
     private final MailBox mailBox;
 
-    private final boolean cronJobResponsible;
     private final int roleExpirationNotificationDays;
 
     public RoleExpirationNotifier(UserRoleRepository userRoleRepository,
                                   Manage manage,
                                   MailBox mailBox,
-                                  @Value("${cron.node-cron-job-responsible}") boolean cronJobResponsible,
+                                  DataSource dataSource,
                                   @Value("${cron.role-expiration-notifier-duration-days}") int roleExpirationNotificationDays) {
+        super(LOCK_NAME, dataSource);
         this.userRoleRepository = userRoleRepository;
         this.manage = manage;
         this.mailBox = mailBox;
-        this.cronJobResponsible = cronJobResponsible;
         this.roleExpirationNotificationDays = roleExpirationNotificationDays;
     }
 
     @Scheduled(cron = "${cron.role-expiration-notifier-expression}")
     @Transactional
     public void sweep() {
-        if (!cronJobResponsible || roleExpirationNotificationDays == -1) {
+        if (roleExpirationNotificationDays == -1) {
             return;
         }
-        this.doSweep();
+        super.perform("RoleExpirationNotifier#sweep", () -> this.doSweep());
     }
 
     public List<String> doSweep() {

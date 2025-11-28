@@ -64,9 +64,7 @@ class RoleExpirationNotifierTest extends AbstractMailTest {
 
     @Test
     void noCronJobResponsible() {
-        RoleExpirationNotifier subject = new RoleExpirationNotifier(null, null, null, false, 5);
-        subject.sweep();
-        subject = new RoleExpirationNotifier(null, null, null, true, -1);
+        RoleExpirationNotifier subject = new RoleExpirationNotifier(null, null, null, null, -1);
         subject.sweep();
     }
 }
