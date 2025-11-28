@@ -38,7 +38,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        LOG.debug(String.format("providersByIdIn (%s) %s", entityType, identifiers));
+        LOG.debug(String.format("providersByIdIn %s", entityType));
         if (CollectionUtils.isEmpty(identifiers)) {
             LOG.debug("No identifiers in providersByIdIn");
             return emptyList();
@@ -55,8 +55,7 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<String> idpEntityIdentifiersByServiceEntityId(List<String> serviceEntityIdentifiers) {
-        LOG.debug(String.format("idpEntityIdentifiersByServiceEntityId %s",
-                serviceEntityIdentifiers));
+        LOG.debug("idpEntityIdentifiersByServiceEntityId");
         if (CollectionUtils.isEmpty(serviceEntityIdentifiers)) {
             LOG.debug("No identifiers in idpEntityIdentifiersByServiceEntityId");
             return emptyList();
