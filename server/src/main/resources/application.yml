@@ -30,7 +30,7 @@ spring:
   session:
     jdbc:
       cleanup-cron: "-"
-      initialize-schema: always
+      initialize-schema: never
     store-type: jdbc
     timeout: 8h
   mvc:
