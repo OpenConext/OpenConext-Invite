@@ -16,6 +16,7 @@ import invite.repository.RemoteProvisionedUserRepository;
 import invite.repository.UserRoleRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import crypto.KeyStore;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import org.apache.commons.logging.Log;
@@ -40,8 +41,16 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class ProvisioningServiceDefault implements ProvisioningService {
 
-    public final static String USER_API = "Users";
-    public final static String GROUP_API = "Groups";
+    private enum APIType {
+        USER_API("Users"),  GROUP_API("Groups");
+
+        @Getter
+        private final String display;
+
+        APIType(String display) {
+            this.display = display;
+        }
+    }
 
     private static final Log LOG = LogFactory.getLog(ProvisioningServiceDefault.class);
 
@@ -130,13 +139,13 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         provisionings.forEach(provisioning -> {
             if (this.hasEvaHook(provisioning)) {
                 RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, user);
-                this.doExchange(requestEntity, USER_API, mapParameterizedTypeReference, provisioning);
+                this.doExchange(requestEntity, APIType.USER_API, mapParameterizedTypeReference, provisioning);
             } else if (this.hasScimHook(provisioning)) {
                 Optional<RemoteProvisionedUser> provisionedUserOptional =
                         this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
                 provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
                     String userRequest = prettyJson(new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier()));
-                    this.updateRequest(provisioning, userRequest, USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
+                    this.updateRequest(provisioning, userRequest, APIType.USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
                 });
             }
         });
@@ -150,7 +159,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 try {
                     //For now only eva is eligible for update's for the userRole (e.g. new end date)
                     RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, userRole.getUser());
-                    doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+                    doExchange(requestEntity, APIType.USER_API, stringParameterizedTypeReference, provisioning);
                 } catch (InvalidInputException e) {
                     //Can't be helped and won't happen on production
                     LOG.error("Error from evaClient", e);
@@ -168,7 +177,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             if (this.hasEvaHook(provisioning)) {
                 RequestEntity requestEntity = this.evaClient.deleteUserRequest(provisioning, userRole.getUser());
                 if (requestEntity != null) {
-                    doExchange(requestEntity, USER_API, stringParameterizedTypeReference, provisioning);
+                    doExchange(requestEntity, APIType.USER_API, stringParameterizedTypeReference, provisioning);
                 }
             }
             //For now only eva is eligible for update's for the userRole (e.g. new end date)
@@ -279,14 +288,14 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                         role,
                         provisionedGroup.getRemoteIdentifier(),
                         userScimIdentifiers);
-                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PUT);
+                this.updateRequest(provisioning, groupRequest, APIType.GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PUT);
             } else {
                 String groupRequest = patchGroupRequest(
                         role,
                         userScimIdentifiers,
                         provisionedGroup.getRemoteIdentifier(),
                         operationType);
-                this.updateRequest(provisioning, groupRequest, GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PATCH);
+                this.updateRequest(provisioning, groupRequest, APIType.GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PATCH);
             }
         }
 
@@ -392,7 +401,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     private Optional<ProvisioningResponse> newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
         boolean isUser = provisionable instanceof User;
-        String apiType = isUser ? USER_API : GROUP_API;
+        APIType apiType = isUser ? APIType.USER_API : APIType.GROUP_API;
         RequestEntity<String> requestEntity = null;
         boolean requiresRemoteIdentifier = false;
         if (hasEvaHook(provisioning) && isUser) {
@@ -429,10 +438,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     private void updateRequest(Provisioning provisioning,
                                String request,
-                               String apiType,
+                               APIType apiType,
                                String remoteIdentifier,
                                HttpMethod httpMethod) {
-        if (hasScimHook(provisioning) && (USER_API.equals(apiType) || !provisioning.isScimUserProvisioningOnly())) {
+        if (hasScimHook(provisioning) && (APIType.USER_API.equals(apiType) || !provisioning.isScimUserProvisioningOnly())) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             RequestEntity<String> requestEntity = new RequestEntity<>(request, httpHeaders(provisioning), httpMethod, uri);
             doExchange(requestEntity, apiType, mapParameterizedTypeReference, provisioning);
@@ -459,7 +468,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                Provisionable provisionable,
                                String remoteIdentifier) {
         boolean isUser = provisionable instanceof User;
-        String apiType = isUser ? USER_API : GROUP_API;
+        APIType apiType = isUser ? APIType.USER_API : APIType.GROUP_API;
         RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
             requestEntity = this.evaClient.deleteUserRequest(provisioning, (User) provisionable);
@@ -476,13 +485,13 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     private <T, S> T doExchange(RequestEntity<S> requestEntity,
-                                String api,
+                                APIType api,
                                 ParameterizedTypeReference<T> typeReference,
                                 Provisioning provisioning) {
         try {
             LOG.info(String.format("Send %s Provisioning request (protocol %s) with %s httpMethod %s and body %s " +
                             "to provisioning-entityId %s",
-                    api,
+                    api.getDisplay(),
                     provisioning.getProvisioningType(),
                     requestEntity.getMethod(),
                     requestEntity.getUrl(),
@@ -521,11 +530,11 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         return provisioning.getProvisioningType().equals(ProvisioningType.graph);
     }
 
-    private URI provisioningUri(Provisioning provisioning, String objectType, Optional<String> remoteIdentifier) {
+    private URI provisioningUri(Provisioning provisioning, APIType apiType, Optional<String> remoteIdentifier) {
         String postFix = remoteIdentifier.map(identifier -> "/" + identifier).orElse("");
         return URI.create(String.format("%s/%s%s",
                 provisioning.getScimUrl(),
-                objectType,
+                apiType.getDisplay(),
                 postFix));
     }
 
