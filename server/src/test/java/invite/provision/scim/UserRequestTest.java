@@ -35,6 +35,7 @@ class UserRequestTest {
     void externalIdEduPersonPrincipalName() {
         Provisioning provisioning = getProvisioning(ScimUserIdentifier.eduperson_principal_name);
         UserRequest userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
     }
 
@@ -42,10 +43,12 @@ class UserRequestTest {
     void externalIdEduId() {
         Provisioning provisioning = getProvisioning(ScimUserIdentifier.eduID);
         UserRequest userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduId(), userRequest.getUserName());
         assertEquals(user.getEduId(), userRequest.getExternalId());
 
         ReflectionTestUtils.setField(user, "eduId", null);
         userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
     }
 
@@ -53,10 +56,12 @@ class UserRequestTest {
     void externalIdEmail() {
         Provisioning provisioning = getProvisioning(ScimUserIdentifier.email);
         UserRequest userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEmail(), userRequest.getUserName());
         assertEquals(user.getEmail(), userRequest.getExternalId());
 
         ReflectionTestUtils.setField(user, "email", null);
         userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
     }
 
@@ -64,10 +69,12 @@ class UserRequestTest {
     void externalIdUid() {
         Provisioning provisioning = getProvisioning(ScimUserIdentifier.uids);
         UserRequest userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getUid(), userRequest.getUserName());
         assertEquals(user.getUid(), userRequest.getExternalId());
 
         ReflectionTestUtils.setField(user, "uid", null);
         userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
     }
 
@@ -75,10 +82,12 @@ class UserRequestTest {
     void externalIdSubjectId() {
         Provisioning provisioning = getProvisioning(ScimUserIdentifier.subject_id);
         UserRequest userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getSubjectId(), userRequest.getUserName());
         assertEquals(user.getSubjectId(), userRequest.getExternalId());
 
         ReflectionTestUtils.setField(user, "subjectId", null);
         userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
     }
 
@@ -91,6 +100,7 @@ class UserRequestTest {
                 "scim_password", "secret"
         ));
         UserRequest userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
     }
 
@@ -104,6 +114,7 @@ class UserRequestTest {
         ));
         ReflectionTestUtils.setField(provisioning, "scimUserIdentifier", null);
         UserRequest userRequest = new UserRequest(user, provisioning);
+        assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
     }
 

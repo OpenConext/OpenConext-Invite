@@ -518,15 +518,15 @@ class InvitationControllerTest extends AbstractTest {
 
     @Test
     void acceptPatchForDifferentScimIdentifier() throws Exception {
-        String externalId = "subject@example.com";
+        String subjectId = "subject@example.com";
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "new@prov.com",
                 m -> {
-
-                    m.put("subject_id", externalId);
+                    m.put("subject_id", subjectId);
+                    m.put("eduperson_principal_name", "eppn@example.com");
                     return m;
                 });
         Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
-        //Provisioning with id=4 hs different scim_user_identifier
+        //Provisioning with an application(id=4) has the '' as scim_user_identifier
         stubForManageProvisioning(List.of("4"));
         stubForCreateScimUser();
         stubForCreateScimRole();
@@ -549,7 +549,8 @@ class InvitationControllerTest extends AbstractTest {
 
         Map<String, Object> request = objectMapper.readValue(requests.get(0).getBodyAsString(), new TypeReference<>() {
         });
-        assertEquals(externalId, request.get("externalId"));
+        assertEquals(subjectId, request.get("userName"));
+        assertEquals(subjectId, request.get("externalId"));
     }
 
     @Test

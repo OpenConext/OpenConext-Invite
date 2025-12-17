@@ -111,7 +111,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .forEach(provisioning -> {
                     UserRequest request = new UserRequest(user, provisioning);
                     if (ScimUserIdentifier.eduID.equals(provisioning.getScimUserIdentifier()) &&
-                            request.getExternalId().equals(user.getEduId())) {
+                            request.getUserName().equals(user.getEduId())) {
                         //No fallback for failure
                         this.eduID.provisionEduid(new EduIDProvision(user.getEduId(), provisioning.getInstitutionGUID()));
                     }

@@ -13,6 +13,15 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * The SCIM client (e.g., the Invite server) generates and owns the externalId. It also supplies the userName,
+ * whose uniqueness and semantics are enforced by the SCIM service provider (e.g. the educational institutions). The
+ * SCIM service provider generates the immutable id and returns it in the response to a 'create' request. The SCIM
+ * client stores this id and uses it in subsequent PUT or PATCH requests to address the user resource.
+ *
+ * The username which is used by the Invite server can be configured in Manage with the `scim_user_identifier`
+ * attribute, and defaults to the EPPN.
+ */
 @Getter
 public class UserRequest implements Serializable {
 
@@ -29,8 +38,9 @@ public class UserRequest implements Serializable {
     private final List<PhoneNumber> phoneNumbers;
 
     public UserRequest(User user, Provisioning provisioning) {
-        this.externalId = this.resolveExternalId(user, provisioning);
-        this.userName = user.getEduPersonPrincipalName();
+        String resolvedUserName = this.resolveUserName(user, provisioning);
+        this.userName = resolvedUserName;
+        this.externalId = resolvedUserName;
         this.name = new Name(user.getName(), user.getFamilyName(), user.getGivenName());
         this.displayName = user.getName();
         this.emails = List.of(new Email("other",user.getEmail()));
@@ -46,39 +56,39 @@ public class UserRequest implements Serializable {
         this.id = remoteScimIdentifier;
     }
 
-    private String resolveExternalId(User user, Provisioning provisioning) {
+    private String resolveUserName(User user, Provisioning provisioning) {
         ScimUserIdentifier scimUserIdentifier = provisioning.getScimUserIdentifier();
         //Backward compatibility for older Provisionings without default
-        String defaultExternalId = user.getEduPersonPrincipalName();
+        String defaultUserName = user.getEduPersonPrincipalName();
         if (scimUserIdentifier == null) {
-            return defaultExternalId;
+            return defaultUserName;
         }
         boolean missingScimUserIdentifierValue = false;
-        String externalIdIdentifier = switch (scimUserIdentifier) {
+        String configuredUserName = switch (scimUserIdentifier) {
             case subject_id -> {
                 missingScimUserIdentifierValue = !StringUtils.hasText(user.getSubjectId());
-                yield missingScimUserIdentifierValue ? defaultExternalId : user.getSubjectId();
+                yield missingScimUserIdentifierValue ? defaultUserName : user.getSubjectId();
             }
             case uids -> {
                 missingScimUserIdentifierValue = !StringUtils.hasText(user.getUid());
-                yield missingScimUserIdentifierValue ? defaultExternalId : user.getUid();
+                yield missingScimUserIdentifierValue ? defaultUserName : user.getUid();
             }
             case email -> {
                 missingScimUserIdentifierValue = !StringUtils.hasText(user.getEmail());
-                yield missingScimUserIdentifierValue ? defaultExternalId : user.getEmail();
+                yield missingScimUserIdentifierValue ? defaultUserName : user.getEmail();
             }
             case eduID -> {
                 missingScimUserIdentifierValue = !StringUtils.hasText(user.getEduId());
-                yield missingScimUserIdentifierValue ? defaultExternalId : user.getEduId();
+                yield missingScimUserIdentifierValue ? defaultUserName : user.getEduId();
             }
-            default -> defaultExternalId;
+            default -> defaultUserName;
         };
         if (missingScimUserIdentifierValue) {
             LOG.warn(String.format(
                     "Missing attribute %s for SCIM provisioning to %s for user %s. Return defaultExternalId %s",
-                    scimUserIdentifier, provisioning.getEntityId(), user.getSub(), defaultExternalId)
+                    scimUserIdentifier, provisioning.getEntityId(), user.getSub(), defaultUserName)
             );
         }
-        return externalIdIdentifier;
+        return configuredUserName;
     }
 }
