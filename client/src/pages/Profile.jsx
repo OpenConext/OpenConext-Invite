@@ -15,7 +15,7 @@ export const Profile = () => {
     const {id} = useParams();
     const {user: currentUser, config} = useAppStore(state => state);
     const [user, setUser] = useState(currentUser);
-    const [loading, setLoading] = useState(id !== null);
+    const [loading, setLoading] = useState(!isEmpty(id));
     const navigate = useNavigate();
 
     useEffect(() => {
