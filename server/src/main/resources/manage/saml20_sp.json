@@ -11,6 +11,18 @@
         "OrganizationName:en": "SURF bv",
         "coin:institution_guid": "ad93daef-0911-e511-80d0-005056956c1a",
         "coin:application_url": "https://default-url-wiki.org"
+      },
+      "arp": {
+        "enabled": true,
+        "attributes": {
+          "urn:mace:dir:attribute-def:isMemberOf": [
+            {
+              "value": "*",
+              "source": "voot",
+              "motivation": ""
+            }
+          ]
+        }
       }
     }
   },

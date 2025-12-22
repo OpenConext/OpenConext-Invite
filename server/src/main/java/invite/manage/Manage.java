@@ -107,7 +107,9 @@ public interface Manage {
                 if (CollectionUtils.isEmpty(isMemberOf)) {
                     application.put("receivesMemberships", false);
                 } else {
-                    boolean receivesVootMemberships = isMemberOf.stream().anyMatch(m -> m.get("source") == "voot");
+                    boolean receivesVootMemberships = isMemberOf.stream()
+                            .map(m -> m.getOrDefault("source", "nope"))
+                            .anyMatch(source -> source.equals("voot") || source.equals("invite"));
                     application.put("receivesMemberships", receivesVootMemberships);
                 }
             }

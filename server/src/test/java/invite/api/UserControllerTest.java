@@ -137,7 +137,11 @@ class UserControllerTest extends AbstractTest {
         assertNotNull(user.getId());
         assertTrue(user.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
-        assertEquals(4, user.getApplications().size());
+        List<Map<String, Object>> applications = user.getApplications();
+        assertEquals(4, applications.size());
+        Map<String, Object> wiki = applications.stream().filter(m -> m.get("entityid").equals("https://wiki"))
+                .findFirst().get();
+        assertTrue((Boolean) wiki.get("receivesMemberships"));
 
         Map res = given()
                 .when()
