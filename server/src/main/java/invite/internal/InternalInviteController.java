@@ -92,6 +92,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
 
     @GetMapping("/roles")
     @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
+    @Transactional(readOnly = true)
     @Hidden
     public ResponseEntity<List<Role>> rolesByApplication(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         LOG.debug(String.format("/roles for user %s", remoteUser.getName()));
@@ -102,6 +103,19 @@ public class InternalInviteController implements ApplicationResource, Invitation
                 .flatMap(Collection::stream)
                 .toList();
         manage.addManageMetaData(roles);
+        return ResponseEntity.ok(roles);
+    }
+
+    @GetMapping("/roles/{organizationGUID}/{manageId}")
+    @PreAuthorize("hasRole('ACCESS')")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Role>> rolesPerOrganizationApplicationId(@PathVariable("organizationGUID") String organizationGUID,
+                                                                        @PathVariable("manageId") String manageId,
+                                                                        @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        LOG.debug(String.format("/rolesPerApplicationId for remoteUser %s", remoteUser.getName()));
+
+        List<Role> roles = roleRepository
+                .findByOrganizationGUIDAndApplicationUsagesApplicationManageId(organizationGUID, manageId);
         return ResponseEntity.ok(roles);
     }
 

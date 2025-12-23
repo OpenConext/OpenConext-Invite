@@ -210,4 +210,26 @@ class InternalInviteControllerTest extends AbstractTest {
         assertEquals(2, userRoles.size());
     }
 
+    @Test
+    void rolesPerOrganizationApplicationId() {
+        List<Role> roles = given()
+                .when()
+                .auth().preemptive().basic("access", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("organizationGUID", ORGANISATION_GUID)
+                //See Role research in AbstractTest#doSeed
+                .pathParam("manageId", "4")
+                .get("/api/external/v1/internal/invite/roles/{organizationGUID}/{manageId}")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, roles.size());
+
+        Role role = roles.getFirst();
+        assertEquals("Research", role.getName());
+        assertEquals(2L, role.getUserRoleCount());
+    }
+
+
 }
