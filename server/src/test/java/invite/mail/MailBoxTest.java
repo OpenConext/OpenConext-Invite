@@ -27,8 +27,8 @@ class MailBoxTest extends AbstractMailTest {
 
         assertTrue(htmlContent.contains("Wiki EN"));
         assertTrue(htmlContent.contains("SURF bv"));
-        assertTrue(htmlContent.contains("For access to these applications we use SURFconext"));
-        assertFalse(htmlContent.contains("For access to these applications eduID is used"));
+        assertTrue(htmlContent.contains("You accept the role(s) by logging in with SURFconext."));
+        assertFalse(htmlContent.contains("You accept the role(s) by logging in with eduID"));
     }
 
     @Test
@@ -37,8 +37,8 @@ class MailBoxTest extends AbstractMailTest {
 
         assertTrue(htmlContent.contains("Wiki EN"));
         assertTrue(htmlContent.contains("SURF bv"));
-        assertFalse(htmlContent.contains("For access to these applications we use SURFconext"));
-        assertTrue(htmlContent.contains("For access to these applications eduID is used"));
+        assertFalse(htmlContent.contains("You accept the role(s) by logging in with SURFconext"));
+        assertTrue(htmlContent.contains("You accept the role(s) by logging in with eduID"));
     }
 
     private String doSendInviteMail(boolean eduIDOnly, Authority intendedAuthority) {
