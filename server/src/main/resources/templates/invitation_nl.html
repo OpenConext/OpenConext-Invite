@@ -4,12 +4,11 @@
     <title>{{title}}</title>
 </head>
 <body>
-<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
-    <div class="header" style="background-color: #0077C8;padding:10px 40px;">
+<div class="main" style="display:flex;flex-direction:column; padding:24px 32px;font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 18px;color: #000;">
+    <div class="header">
         {{> logo-surf.svg}}
-        <span style="display: inline-block;color:white;margin-left: 10px;font-size: 18px;">Welkom</span>
     </div>
-    <div class="head" style="padding: 30px 40px 20px 40px;">
+    <div class="head">
         {{#environment}}
         <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
             Deze mail is van de {{environment}}-omgeving
@@ -33,7 +32,7 @@
         </ul>
         {{/invitation.anyRoles}}
         {{#message}}
-        <div class="head" style="background-color: #DFF4FF;padding: 20px;margin:5px 0 15px 0;">
+        <div class="head" style="background-color: #DFF4FF;padding: 10px;margin:5px 0 15px 0;">
             <p style="margin: 0;">
                 {{{message}}}
             </p>
@@ -48,7 +47,7 @@
                 <span style="color: white;margin: auto 0 auto 12px;">Ga door met eduID</span>
             </a>
         </div>
-        <p>of kopieer deze link in je browser: {{{ url }}}</p>
+        <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
         {{/useEduID}}
         {{^useEduID}}
         <p>De rol(len) accepteer je door in te loggen met SURFconext.</p>
@@ -58,29 +57,29 @@
                 <span style="color: white;margin: auto;">Ga door</span>
             </a>
         </div>
-        <p>of kopieer deze link in je browser: {{{ url }}}</p>
+        <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
         {{/useEduID}}
     </div>
-    {{#useEduID}}
-    <div class="eduid-info" style="background-color: #f3f2f2;padding: 20px 40px 20px 40px; color: #9b9b9b">
-        <p style="font-size: 18px;margin:20px 0 15px 0;">Waarom heb ik een eduID account nodig?</p>
-        <p>
-            Een eduID is een account voor gebruikers binnen het Nederlandse onderwijs en onderzoek. Het
-            is van jou, en bestaat onafhankelijk van een onderwijsinstelling. Met eduID kan je inloggen op
-            verschillende applicaties. Ook als je geen account van je instelling hebt, kan je met eduID inloggen.
-            Je kunt eduID bijvoorbeeld gebruiken als je bij meerdere instellingen tegelijk onnderwijs wilt volgen.
-            Of na je studie als je naast je werk een opleiding of cursus wilt volgen.
-        </p>
-        <p style="font-weight: bold;margin: 15px 0 0 0;">
-            Aanvragen eduID
-        </p>
-        <p style="margin: 5px 0 10px 0;">Het aanvragen van een eduID is kosteloos en kan direct. Je hebt alleen een
-            e-mailadres nodig.</p>
+    <div class="footer"
+         style="display:flex;align-items:center;justify-content:space-between;padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;">
+        <div class="links" style="text-align: left">
+            <span>Deze uitnoding verloopt via</span>
+            <a class="external" href="https://support.surfconext.nl/invite"
+               style="color: #636363;">SURFconext Invite</a>
+            <span> • </span>
+            <a class="external" href="https://support.surfconext.nl/privacy-nl"
+               style="color: #636363;">Privacy Policy</a>
+            <span> • </span>
+            <a class="external" href="https://support.surfconext.nl/terms-nl"
+               style="color: #636363;">Voorwaarden</a>
+        </div>
+        <div class="about" style="text-align: right">
+            <a class="external"
+                               href="https://surf.nl/"
+                               >{{> logo-surf-black.svg}}</a>
+        </div>
     </div>
-    {{/useEduID}}
-
-    {{> footer_nl.html}}
-
 </div>
+
 </body>
 </html>

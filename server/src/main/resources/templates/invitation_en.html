@@ -4,12 +4,11 @@
     <title>{{title}}</title>
 </head>
 <body>
-<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 16px;color: #353535;">
-    <div class="header" style="background-color: #0077C8;padding:10px 40px;">
+<div class="main" style="display:flex;flex-direction:column; padding:24px 32px;font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 18px;color: #000;">
+    <div class="header">
         {{> logo-surf.svg}}
-        <span style="display: inline-block;color:white;margin-left: 10px;font-size: 18px;">Welcome</span>
     </div>
-    <div class="head" style="padding: 30px 40px 20px 40px;">
+    <div class="head">
         {{#environment}}
         <p style="font-weight: bold;margin: 0; padding: 20px 5px; background-color: #f1f19b;">
             This mail is from the {{environment}} environment
@@ -33,7 +32,7 @@
         </ul>
         {{/invitation.anyRoles}}
         {{#message}}
-        <div class="head" style="background-color: #DFF4FF;padding: 20px;margin:5px 0 15px 0;">
+        <div class="head" style="background-color: #DFF4FF;padding: 10px;margin:5px 0 15px 0;">
             <p style="margin: 0;">
                 {{{message}}}
             </p>
@@ -48,7 +47,7 @@
                 <span style="color: white;margin: auto 0 auto 12px;">Continue with eduID</span>
             </a>
         </div>
-        <p>or copy this link into your browser: {{{ url }}}</p>
+        <p style="word-break: break-word">or copy this link into your browser: {{{ url }}}</p>
         {{/useEduID}}
         {{^useEduID}}
         <p>You accept the role(s) by logging in with SURFconext.</p>
@@ -58,29 +57,29 @@
                 <span style="color: white;margin: auto;">Continue</span>
             </a>
         </div>
-        <p>or copy this link into your browser: {{{ url }}}</p>
+        <p style="word-break: break-word">or copy this link into your browser: {{{ url }}}</p>
         {{/useEduID}}
     </div>
-    {{#useEduID}}
-    <div class="eduid-info" style="background-color: #f3f2f2;padding: 20px 40px 20px 40px; color: #9b9b9b">
-        <p style="font-size: 18px;margin:20px 0 15px 0;">Why do I need an eduID account?</p>
-        <p>An eduID is an account for users within the Dutch educational and research community. It is yours and exists
-            independent of an educational institution.
-            With eduID you can log in to various applications. Even if you don't have an institutional account. You can
-            use
-            eduID for example
-            if you want to follow courses with different institutions. Or if you want to follow a course after you have
-            graduated.</p>
-        <p style="font-weight: bold;margin: 15px 0 0 0;">
-            Request eduID
-        </p>
-        <p style="margin: 5px 0 10px 0;">Requesting an eduID is free, and you can do it now. All you need is an
-            emailaddress.</p>
+    <div class="footer"
+         style="display:flex;align-items:center;justify-content:space-between;padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;">
+        <div class="links" style="text-align: left">
+            <span>This invitation is sent via</span>
+            <a class="external" href="https://support.surfconext.nl/invite"
+               style="color: #636363;">SURFconext Invite</a>
+            <span> • </span>
+            <a class="external" href="https://support.surfconext.nl/privacy"
+               style="color: #636363;">Privacy Policy</a>
+            <span> • </span>
+            <a class="external" href="https://support.surfconext.nl/terms-en"
+               style="color: #636363;">Terms of Use</a>
+        </div>
+        <div class="about" style="text-align: right">
+            <a class="external"
+               href="https://surf.nl/"
+            >{{> logo-surf-black.svg}}</a>
+        </div>
     </div>
-    {{/useEduID}}
-
-    {{> footer_en.html}}
-
 </div>
+
 </body>
 </html>
