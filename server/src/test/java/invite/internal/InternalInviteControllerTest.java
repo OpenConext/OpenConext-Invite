@@ -157,6 +157,39 @@ class InternalInviteControllerTest extends AbstractTest {
         assertEquals(201, results.get("status"));
         assertEquals(1, ((List) results.get("recipientInvitationURLs")).size());
     }
+    @Test
+    void newInvitationNL() {
+        stubForManageProviderById(EntityType.SAML20_SP, "4");
+        List<Long> roleIdentifiers = List.of(roleRepository.findByName("Research").get().getId());
+
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.GUEST,
+                "Message",
+                Language.nl,
+                true,
+                true,
+                null,
+                false,
+                false,
+                List.of("new@new.nl"),
+                List.of(),
+                roleIdentifiers,
+                null,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        Map<String, Object> results = given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/internal/invite/invitations")
+                .as(new TypeRef<Map<String, Object>>() {
+                });
+        assertEquals(201, results.get("status"));
+        assertEquals(1, ((List) results.get("recipientInvitationURLs")).size());
+    }
 
     @Test
     void resendInvitation() {
