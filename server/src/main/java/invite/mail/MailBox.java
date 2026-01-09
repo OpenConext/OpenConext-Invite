@@ -1,6 +1,7 @@
 package invite.mail;
 
 import invite.cron.IdPMetaDataResolver;
+import invite.cron.IdentityProvider;
 import invite.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,12 +70,12 @@ public class MailBox {
         variables.put("groupedProviders", groupedProviders);
         variables.put("title", title);
         if (provisionable instanceof User user) {
-            variables.put("institutionName", idPMetaDataResolver
-                    .getIdentityProvider(user.getSchacHomeOrganization())
+            Optional<IdentityProvider> identityProvider = idPMetaDataResolver
+                    .getIdentityProvider(user.getSchacHomeOrganization());
+            variables.put("institutionName", identityProvider
                     .map(idp -> idp.getName())
                     .orElse(user.getSchacHomeOrganization()));
-            variables.put("institutionLogoUrl", idPMetaDataResolver
-                    .getIdentityProvider(user.getSchacHomeOrganization())
+            variables.put("institutionLogoUrl", identityProvider
                     .map(idp -> idp.getLogoUrl())
                     .orElse(null));
         } else {
