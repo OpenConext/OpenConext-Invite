@@ -108,6 +108,47 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
+    void newInvitationNL() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
+
+        List<Long> roleIdentifiers = roleRepository.findByApplicationUsagesApplicationManageId("1").stream()
+                .map(Role::getId)
+                .toList();
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.GUEST,
+                "Message",
+                Language.nl,
+                true,
+                false,
+                null,
+                false,
+                false,
+                List.of("new@new.nl"),
+                List.of(new Invite("new2@new.nl", "placeholder-1")),
+                roleIdentifiers,
+                null,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        Map<String, Object> results = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/v1/invitations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(201, results.get("status"));
+        assertEquals(2, ((List) results.get("recipientInvitationURLs")).size());
+    }
+
+    @Test
     void newInvitationEmptyRoles() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());

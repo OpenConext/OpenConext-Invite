@@ -73,8 +73,13 @@ public class MailBox {
                     .getIdentityProvider(user.getSchacHomeOrganization())
                     .map(idp -> idp.getName())
                     .orElse(user.getSchacHomeOrganization()));
+            variables.put("institutionLogoUrl", idPMetaDataResolver
+                    .getIdentityProvider(user.getSchacHomeOrganization())
+                    .map(idp -> idp.getLogoUrl())
+                    .orElse(null));
         } else {
             variables.put("institutionName", "SURF");
+            variables.put("isInstitutionSurf", true);
         }
         optionalIdpName.ifPresent(idpName -> variables.put("idpName", idpName));
         variables.put("roles", splitListSemantically(invitation.getRoles().stream()

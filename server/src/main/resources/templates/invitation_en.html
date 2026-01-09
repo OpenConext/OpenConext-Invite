@@ -4,10 +4,14 @@
     <title>{{title}}</title>
 </head>
 <body>
-<div class="main" style="width:617px;margin: 0 auto;display:flex;flex-direction:column; padding:24px 32px;font-family:
-Source Sans Pro, Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
+<div class="main" style="width:617px;margin: 0 auto;display:flex;flex-direction:column; padding:24px 32px;font-family:'Source Sans Pro', Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
     <div class="header">
-        {{> logo-surf.svg}}
+        {{#institutionLogoUrl}}
+            <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;width: 48px;"/>
+        {{/institutionLogoUrl}}
+        {{#isInstitutionSurf}}
+            <img src="https://static.surfconext.nl/logos/org/8017e83f-bca7-e911-90f2-0050569571ea.png" alt="logo" style="height: 48px;width: 48px;"/>
+        {{/isInstitutionSurf}}
     </div>
     <div class="head">
         {{#environment}}
@@ -15,20 +19,17 @@ Source Sans Pro, Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;
             This mail is from the {{environment}} environment
         </p>
         {{/environment}}
-        <p class="title" style="">Hello,</p>
-
         {{#invitation.institutionAdminInvitation}}
-        <p><strong>{{displaySenderName}}</strong> (from <strong>{{institutionName}}</strong>) has invited you to become
+        <p>{{displaySenderName}} (from {{institutionName}}) has invited you to become
             an institution admin for institution {{idpName}} to manage the applications of this institution.</p>
         {{/invitation.institutionAdminInvitation}}
 
         {{#invitation.anyRoles}}
 
-        <p><strong>{{displaySenderName}}</strong> (from <strong>{{institutionName}}</strong>) would you like to grant access to:</p>
+        <p>{{displaySenderName}} (from {{institutionName}}) would you like to grant access to:</p>
         <ul>
             {{#groupedProviders}}
-            <li style="margin-bottom: 4px;"><strong>{{name}}</strong> ({{organisation}}) - as
-                <strong>{{rolesDisplay}}</strong></li>
+            <li style="margin-bottom: 4px;font-weight: 600;">{{name}} - as {{rolesDisplay}}</li>
             {{/groupedProviders}}
         </ul>
         {{/invitation.anyRoles}}
@@ -43,7 +44,7 @@ Source Sans Pro, Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;
         <p>You accept the role(s) by logging in with eduID. If you don’t have one yet, you can create it right away.</p>
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
-               style="border-radius: 4px;color: white;display: flex;width: 200px;background-color: #0077c8;text-decoration: none;cursor:pointer;padding: 8px 20px 8px 10px;">
+               style="border-radius: 4px;color: white;display: flex;background-color: #0077c8;text-decoration: none;cursor:pointer;padding: 8px 20px 8px 10px;">
                 {{> eduID-logo-square.svg}}
                 <span style="color: white;margin: auto 0 auto 12px;">Continue with eduID</span>
             </a>
@@ -54,7 +55,7 @@ Source Sans Pro, Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;
         <p>You accept the role(s) by logging in with SURFconext.</p>
         <div style="display: flex;">
             <a class="button" href="{{{ url }}}"
-               style="border-radius: 4px;color: white;display: flex;width: 200px;background-color: #0077c8;text-decoration: none;cursor:pointer;padding: 8px 20px 8px 10px;">
+               style="border-radius: 4px;color: white;display: flex;background-color: #0077c8;text-decoration: none;cursor:pointer;padding: 8px 20px 8px 10px;">
                 <span style="color: white;margin: auto;">Continue</span>
             </a>
         </div>
