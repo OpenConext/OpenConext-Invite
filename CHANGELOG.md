@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Next (1.0.0)
 
+- The `scim_user_identifier` from Manage determines the `userName` (and not primarily the `externalId`)
 - Endpoint for Access to retrieve roles
 - Add option to only accept an inviyte with an validated account
 - Fix scim_user_provisioning_only
