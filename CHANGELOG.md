@@ -10,16 +10,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - The `scim_user_identifier` from Manage determines the `userName` (and not primarily the `externalId`)
 - Endpoint for Access to retrieve roles
-- Add option to only accept an inviyte with an validated account
+- Add the option to only accept an invitation with a validated account
 - Fix scim_user_provisioning_only
 - Fix for duplicate table errors
 - Move from cronjob master to database locks
 - Improve logging
 - Display visual indication of loading (many) roles for new invite
 - Make organization_guid required for all Roles #591
-- Fix for broken impersonation - race condition
-- Return to correct index
-- Allow extra (e.g. Portugese) translations
+- Fix for broken impersonation – race condition
+- Return to the correct index
+- Allow extra (e.g., Portuguese) translations
 - Allow defining a Role fixed end date
 - Fix for reset / edit function in user-roles #554
 - Bugfix for scoping authorities in new invitations
