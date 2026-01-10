@@ -64,7 +64,6 @@ export const InvitationForm = () => {
     const [identityProviders, setIdentityProviders] = useState([]);
     const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState({});
     const [displayAdvancedSettings, setDisplayAdvancedSettings] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [customExpiryDate, setCustomExpiryDate] = useState(false);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [initial, setInitial] = useState(true);
@@ -192,10 +191,8 @@ export const InvitationForm = () => {
                 roleIdentifiers: selectedRoles.map(role => role.value),
                 language: language.value
             };
-            setLoading(true);
             newInvitation(invitationRequest)
                 .then(() => {
-                    setLoading(false);
                     setFlash(I18n.t("invitations.createFlash"));
                     if (originalRoleId) {
                         navigate(`/roles/${originalRoleId}/invitations`);
