@@ -102,7 +102,7 @@ class ManageControllerTest extends AbstractTest {
                 .get("/api/v1/manage/identity-providers")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
     }
 
     @Test

@@ -172,12 +172,22 @@ public interface Manage {
                 .toList();
     }
 
-    default Map<String, Object> enrichInstitutionAdmin(String organizationGUID) {
+    default Map<String, Object> enrichInstitutionAdmin(String organizationGUID, Map<String, Object> userClaims) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(INSTITUTION_ADMIN, true);
         claims.put(ORGANIZATION_GUID, organizationGUID);
         List<Map<String, Object>> identityProviders = identityProvidersByInstitutionalGUID(organizationGUID);
-        claims.put(INSTITUTION, identityProviders.size() == 0 ? null : identityProviders.getFirst());
+        if (identityProviders.size() > 1) {
+            //try to find the IdP which entityID equals the authenticating authority of the user login
+            String authenticatingAuthority = (String) userClaims.get("authenticating_authority");
+            Map<String, Object> identityProvider = identityProviders.stream()
+                    .filter(idp -> idp.get("entityid").equals(authenticatingAuthority))
+                    .findFirst()
+                    .orElse(identityProviders.getFirst());
+            claims.put(INSTITUTION, identityProvider);
+        } else {
+            claims.put(INSTITUTION, identityProviders.isEmpty() ? null : identityProviders.getFirst());
+        }
         List<Map<String, Object>> applications = this.providersAllowedByIdPs(identityProviders);
         claims.put(APPLICATIONS, applications);
         return claims;

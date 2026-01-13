@@ -404,7 +404,7 @@ public class InvitationController implements InvitationResource {
         DefaultOidcUser existingTokenPrincipal = (DefaultOidcUser) existingToken.getPrincipal();
         //Claims of the tokenPrincipal are immutable, so we need to instantiate a new Map
         Map<String, Object> claims = new HashMap<>(existingTokenPrincipal.getClaims());
-        claims.putAll(manage.enrichInstitutionAdmin(user.getOrganizationGUID()));
+        claims.putAll(manage.enrichInstitutionAdmin(user.getOrganizationGUID(), claims));
         DefaultOidcUser oidcUser = new DefaultOidcUser(
                 existingToken.getAuthorities(),
                 existingTokenPrincipal.getIdToken(),
