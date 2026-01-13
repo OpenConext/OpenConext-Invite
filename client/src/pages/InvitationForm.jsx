@@ -33,6 +33,7 @@ import {deriveExpirationDate, displayExpiryDate, futureDate} from "../utils/Date
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
+import {applicationName} from "../utils/Manage";
 
 
 export const InviterContainer = ({isInviter, children}) => {
@@ -287,9 +288,10 @@ export const InvitationForm = () => {
             ...invitation,
             intendedAuthority: option.value,
             roleExpiryDate: defaultRoleExpiryDate(selectedRoles),
-            organizationGUID: option.value !== AUTHORITIES.INSTITUTION_ADMIN ? null : invitation.organizationGUID
+            organizationGUID: option.value !== AUTHORITIES.INSTITUTION_ADMIN ? null :
+                (user.institutionAdmin ? user.organizationGUID : null)
         });
-        if (option.value === AUTHORITIES.SUPER_USER) {
+        if (option.value === AUTHORITIES.SUPER_USER || option.value === AUTHORITIES.INSTITUTION_ADMIN) {
             setSelectedRoles([]);
         }
         if (option.value !== AUTHORITIES.INSTITUTION_ADMIN) {
@@ -359,6 +361,13 @@ export const InvitationForm = () => {
                     })}/>}
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
+
+                {(user.institutionAdmin && AUTHORITIES.INSTITUTION_ADMIN === invitation.intendedAuthority) &&
+                    <InputField name={I18n.t("roles.identityProvider")}
+                                toolTip={I18n.t("tooltips.invitationIdentityProvider")}
+                                disabled={true}
+                                value={applicationName(user.institution)}
+                    />}
 
                 {(!isInviter && !skipRoles) && <>
                     <SelectField value={selectedRoles}
