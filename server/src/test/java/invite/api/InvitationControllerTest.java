@@ -749,6 +749,29 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
+    void resendInviteMailExpirationDateNL() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        invitation.setExpiryDate(Instant.now().minus(5, ChronoUnit.DAYS));
+        invitation.setLanguage(Language.nl);
+        invitationRepository.save(invitation);
+
+        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("id", invitation.getId())
+                .put("/api/v1/invitations/{id}")
+                .then()
+                .statusCode(201);
+        Invitation savedInvitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        assertTrue(savedInvitation.getExpiryDate().isAfter(Instant.now().plus(13, ChronoUnit.DAYS)));
+    }
+
+    @Test
     void invitationsSearchSuperUser() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 

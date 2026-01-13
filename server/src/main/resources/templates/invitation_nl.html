@@ -4,13 +4,14 @@
     <title>{{title}}</title>
 </head>
 <body>
-<div class="main" style="width:617px;margin: 0 auto;display:flex;flex-direction:column; padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
+<div class="main" style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
+<div class="main" style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
     <div class="header">
         {{#institutionLogoUrl}}
-            <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;width: 48px;"/>
+        <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;width: 48px;"/>
         {{/institutionLogoUrl}}
         {{#isInstitutionSurf}}
-            <img src="https://static.surfconext.nl/logos/org/8017e83f-bca7-e911-90f2-0050569571ea.png" alt="logo" style="height: 48px;width: 48px;"/>
+        <img src="https://static.surfconext.nl/logos/org/8017e83f-bca7-e911-90f2-0050569571ea.png" alt="logo" style="height: 48px;width: 48px;"/>
         {{/isInstitutionSurf}}
     </div>
     <div class="head">
@@ -42,44 +43,56 @@
         {{/message}}
         {{#useEduID}}
         <p>De rol(len) accepteer je door in te loggen met eduID. Als je deze nog niet hebt, kun je hem gelijk aanmaken.</p>
-        <div style="display: flex;">
-            <a class="button" href="{{{ url }}}"
-               style="border-radius: 4px;color: white;display: flex;background-color: #0077c8;text-decoration: none;cursor:pointer;padding: 8px 20px 8px 10px;">
-                {{> eduID-logo-square.svg}}
-                <span style="color: white;margin: auto 0 auto 12px;">Ga door met eduID</span>
-            </a>
-        </div>
+        <table style="border-collapse: collapse; margin: 10px 0;">
+            <tr>
+                <td style="border-radius: 4px; background-color: #0077c8; padding: 0; line-height: 0;">
+                    <a class="button" href="{{{ url }}}" style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px 8px 10px">
+                        <table style="border-collapse: collapse;">
+                            <tr>
+                                <td style="vertical-align: middle; padding: 0;">
+                                    {{> eduID-logo-square.svg}}
+                                </td>
+                                <td style="vertical-align: middle; padding-left: 12px;">
+                                    <span style="color: white;">Ga door met eduID</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </a>
+                </td>
+            </tr>
+        </table>
         <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
         {{/useEduID}}
         {{^useEduID}}
         <p>De rol(len) accepteer je door in te loggen met SURFconext.</p>
-        <div style="display: flex;">
-            <a class="button" href="{{{ url }}}"
-               style="border-radius: 4px;color: white;display: flex;background-color: #0077c8;text-decoration: none;cursor:pointer;padding: 8px 20px 8px 10px;">
-                <span style="color: white;margin: auto;">Ga door</span>
-            </a>
-        </div>
+        <table style="border-collapse: collapse; margin: 10px 0;">
+            <tr>
+                <td style="border-radius: 4px; background-color: #0077c8; padding: 0;">
+                    <a class="button" href="{{{ url }}}" style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px;">
+                        <span style="color: white;">Ga door</span>
+                    </a>
+                </td>
+            </tr>
+        </table>
         <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
         {{/useEduID}}
     </div>
-    <div class="footer"
-         style="display:flex;align-items:center;justify-content:space-between;padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;font-size: 14px;">
-        <div class="links" style="text-align: left">
-            <span>Deze uitnoding verloopt via</span>
-            <a class="external" href="https://support.surfconext.nl/invite"
-               style="color: #636363;">SURFconext Invite</a>
-            <span> • </span>
-            <a class="external" href="https://support.surfconext.nl/privacy-nl"
-               style="color: #636363;">Privacy Policy</a>
-            <span> • </span>
-            <a class="external" href="https://support.surfconext.nl/terms-nl"
-               style="color: #636363;">Voorwaarden</a>
-        </div>
-        <div class="about" style="text-align: right">
-            <a class="external"
-                               href="https://surf.nl/"
-                               >{{> logo-surf-black.svg}}</a>
-        </div>
+    <div class="footer" style="padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;font-size: 14px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="text-align: left; vertical-align: middle; padding-right: 10px; line-height: 0;">
+                    <span>Deze uitnoding verloopt via</span>
+                    <a class="external" href="https://support.surfconext.nl/invite" style="color: #636363; text-decoration: underline;">SURFconext Invite</a>
+                    <span> • </span>
+                    <a class="external" href="https://support.surfconext.nl/privacy-nl" style="color: #636363; text-decoration: underline;">Privacy Policy</a>
+                    <span> • </span>
+                    <a class="external" href="https://support.surfconext.nl/terms-nl" style="color: #636363; text-decoration: underline;">Voorwaarden</a>
+                </td>
+                <td style="text-align: right; vertical-align: middle; white-space: nowrap; width: 100px; line-height: 0;">
+                    <a class="external" href="https://surf.nl/">{{> logo-surf-black.svg}}</a>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 
