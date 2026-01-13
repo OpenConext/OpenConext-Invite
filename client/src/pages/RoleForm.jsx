@@ -25,7 +25,7 @@ import {constructShortName} from "../validations/regExps";
 import {distinctValues, isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
-import {providersToOptions} from "../utils/Manage";
+import {applicationName, providersToOptions} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
 import {dateFromEpoch, displayExpiryDate, futureDate, longDateFormat} from "../utils/Date";
@@ -50,7 +50,8 @@ export const RoleForm = () => {
     const [role, setRole] = useState({
         name: "",
         shortName: "",
-        defaultExpiryDays: DEFAULT_EXPIRY_DAYS
+        defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
+        organizationGUID: user.institutionAdmin ? user.organizationGUID : null
     });
     const [providers, setProviders] = useState([]);
     const [identityProviders, setIdentityProviders] = useState([]);
@@ -86,13 +87,16 @@ export const RoleForm = () => {
             }
             Promise.all(promises).then(res => {
                 if (!newRole) {
-                    if (res[0].defaultExpiryDate !== 0) {
+                    if (!isEmpty(res[0].defaultExpiryDate) && res[0].defaultExpiryDate !== 0) {
                         res[0].defaultExpiryDate = new Date(res[0].defaultExpiryDate * 1000);
+                        setCustomRoleExpiryDate(true);
                         setRemoveRoleBy(removeByOptions[1]);
+                    } else if (res[0].defaultExpiryDays !== 0 && res[0].defaultExpiryDays !== DEFAULT_EXPIRY_DAYS) {
+                        setCustomRoleExpiryDate(true);
+                        setRemoveRoleBy(removeByOptions[0]);
                     }
+                    setCustomInviterDisplayName(!isEmpty(res[0].inviterDisplayName));
                     setRole(res[0]);
-                    setCustomRoleExpiryDate(res[0].defaultExpiryDays !== DEFAULT_EXPIRY_DAYS)
-                    setCustomInviterDisplayName(!isEmpty(res[0].inviterDisplayName))
                 }
                 let newProviders;
                 if (user.superUser) {
@@ -303,8 +307,19 @@ export const RoleForm = () => {
     const deriveExpiryDate = () => {
         const expiryDate = isEmpty(role.defaultExpiryDate) ? futureDate(role.defaultExpiryDays, new Date()) : role.defaultExpiryDate;
         return displayExpiryDate(expiryDate);
-
     };
+
+    const customRoleExpiryDateInfo = () => {
+        let postfix = "Default"
+        if (customRoleExpiryDate) {
+            postfix = removeRoleBy.value === "on" ? "On" : ""
+        }
+        return I18n.t(`invitations.roleExpiryDateInfo${postfix}`, {
+            expiry: deriveExpiryDate(),
+            date: longDateFormat(role.defaultExpiryDate),
+            days: DEFAULT_EXPIRY_DAYS
+        })
+    }
     const renderForm = () => {
         const valid = isValid();
         const disabledSubmit = (!valid && !initial);
@@ -349,6 +364,8 @@ export const RoleForm = () => {
                         name={I18n.t("roles.urn")}
                         value={urnFromRole(config.groupUrnPrefix, role)}
                         disabled={true}
+                        copyClipBoard={true}
+                        customClassName={"token-secret"}
                         toolTip={I18n.t("tooltips.roleUrn")}
                     />}
 
@@ -368,6 +385,13 @@ export const RoleForm = () => {
                     })}/>}
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
+
+                {user.institutionAdmin  &&
+                    <InputField name={I18n.t("roles.identityProvider")}
+                                toolTip={I18n.t("tooltips.invitationIdentityProvider")}
+                                disabled={true}
+                                value={applicationName(user.institution)}
+                    />}
 
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}
@@ -476,11 +500,7 @@ export const RoleForm = () => {
                                  setCustomRoleExpiryDate(!customRoleExpiryDate);
                              }}
                              label={I18n.t(`invitations.roleExpiryDateQuestion`)}
-                             info={I18n.t(`invitations.roleExpiryDateInfo${removeRoleBy.value === "on" && role.defaultExpiryDays !== DEFAULT_EXPIRY_DAYS ? "On" : ""}${role.defaultExpiryDays === DEFAULT_EXPIRY_DAYS ? "Default" : ""}`, {
-                                 expiry: deriveExpiryDate(),
-                                 date: longDateFormat(role.defaultExpiryDate),
-                                 days: DEFAULT_EXPIRY_DAYS
-                             })}
+                             info={customRoleExpiryDateInfo()}
                              last={customRoleExpiryDate}
                 />
                 {customRoleExpiryDate &&
