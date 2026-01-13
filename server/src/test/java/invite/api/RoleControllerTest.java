@@ -614,6 +614,36 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void createWithSuperUserToken() throws Exception {
+        stubForCreateScimRole();
+
+        RoleRequest role = new RoleRequest(
+                "New Role Super User",
+                "description",
+                null,
+                null,
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                application("1", EntityType.SAML20_SP)
+        );
+
+        Map result = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_SUPER_USER_HASH)
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/external/v1/roles")
+                .as(Map.class);
+        assertNotNull(result.get("id"));
+        assertEquals(365, result.get("defaultExpiryDays"));
+    }
+
+    @Test
     void createWithLegacyToken() throws Exception {
         stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         stubForManageProvisioning(List.of());

@@ -57,7 +57,9 @@ public class SwaggerOpenIdConfig {
                         .url(baseUrl));
 
         openAPI.components(components)
-                .addSecurityItem(new SecurityRequirement().addList(OPEN_ID_SCHEME_NAME));
+                .addSecurityItem(new SecurityRequirement().addList(OPEN_ID_SCHEME_NAME))
+                .addSecurityItem(new SecurityRequirement().addList(API_TOKENS_SCHEME_NAME))
+                .addSecurityItem(new SecurityRequirement().addList(BASIC_AUTHENTICATION_SCHEME_NAME));
         return openAPI;
     }
 

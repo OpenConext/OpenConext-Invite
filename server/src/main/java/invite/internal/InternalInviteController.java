@@ -138,6 +138,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Operation(summary = "Create a Role",
             description = "Create a Role linked to a SP in Manage. Note that the required application object needs to be pre-configured during deployment.",
+            security = { @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME) },
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     useParameterTypeSchema = true,
                     content = {@Content(examples = {@ExampleObject(value = """
@@ -401,6 +402,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
 
     private Role saveOrUpdate(Role role, RemoteUser remoteUser) {
         roleOperations.assertValidRole(role);
+        roleOperations.setDefaultsValidRole(role);
         RemoteUserPermissions.assertApplicationAccess(remoteUser, role);
 
         manage.addManageMetaData(List.of(role));

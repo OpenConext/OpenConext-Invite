@@ -58,4 +58,10 @@ public class RoleOperations {
     }
 
 
+    public void setDefaultsValidRole(Role role) {
+        if (role.getDefaultExpiryDate() == null && (
+                role.getDefaultExpiryDays() == null || role.getDefaultExpiryDays() == 0)) {
+            role.setDefaultExpiryDays(365);
+        }
+    }
 }
