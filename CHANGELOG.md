@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Allow defining a Role fixed end date
 - Fix for reset / edit function in user-roles #554
 - Bugfix for scoping authorities in new invitations
+- Make organization_guid required for all Roles
 
 ## 0.0.37
 
