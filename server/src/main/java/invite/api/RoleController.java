@@ -13,7 +13,6 @@ import invite.provision.scim.GroupURN;
 import invite.repository.ApplicationRepository;
 import invite.repository.ApplicationUsageRepository;
 import invite.repository.RoleRepository;
-import invite.security.InstitutionAdmin;
 import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -156,15 +155,12 @@ public class RoleController implements ApplicationResource {
                                         @Parameter(hidden = true) User user) {
         LOG.debug(String.format("POST /roles/ for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-        //For super_users we allow an organization GUID from the input form
-        Role role = new Role(roleRequest);
-        if (InstitutionAdmin.isInstitutionAdmin(user)) {
-            role.setOrganizationGUID(user.getOrganizationGUID());
-        } else if (user.isSuperUser()) {
-            role.setOrganizationGUID(roleRequest.getOrganizationGUID());
-        } else {
-            role.setOrganizationGUID(null);
+        //For super_users we require an organization GUID from the input form
+        if (user.isSuperUser() && !StringUtils.hasText(roleRequest.getOrganizationGUID())) {
+            throw new UserRestrictionException();
         }
+        Role role = new Role(roleRequest);
+        role.setOrganizationGUID(user.isSuperUser() ? roleRequest.getOrganizationGUID() : user.getOrganizationGUID());
         role.setShortName(GroupURN.sanitizeRoleShortName(roleRequest.getName()));
         role.setIdentifier(UUID.randomUUID().toString());
         role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));

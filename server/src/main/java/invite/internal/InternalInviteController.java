@@ -1,7 +1,9 @@
 package invite.internal;
 
 import invite.api.*;
+import invite.exception.InvalidInputException;
 import invite.exception.NotFoundException;
+import invite.exception.UserRestrictionException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
@@ -31,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -225,6 +228,14 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                     )})})})
     public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
                                         @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        if (!StringUtils.hasText(roleRequest.getOrganizationGUID())) {
+            roleRequest.setOrganizationGUID(remoteUser.getOrganizationGUIDFallback());
+        }
+        List<Map<String, Object>> providers = manage.identityProvidersByInstitutionalGUID(roleRequest.getOrganizationGUID());
+        if (providers.isEmpty()) {
+            throw new InvalidInputException("There is no identityProvider with InstitutionalGUID: "+remoteUser.getOrganizationGUIDFallback());
+        }
+
         Role role = new Role(roleRequest);
         role.setRemoteApiUser(remoteUser.getName());
 
@@ -246,7 +257,8 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), remoteUser.getName()));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(saveOrUpdate(role, remoteUser));
+        Role updatedRole = saveOrUpdate(role, remoteUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(updatedRole);
     }
 
     @DeleteMapping("/roles/{id}")

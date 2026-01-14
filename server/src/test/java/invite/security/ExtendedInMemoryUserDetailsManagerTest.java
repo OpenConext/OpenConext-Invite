@@ -15,6 +15,7 @@ class ExtendedInMemoryUserDetailsManagerTest {
             "user",
             "password",
             "SP Dashboard",
+            "ad93daef-0911-e511-80d0-005056956c1a",
             List.of(Scope.profile),
             List.of(new Application("4", EntityType.SAML20_SP)),
             false);

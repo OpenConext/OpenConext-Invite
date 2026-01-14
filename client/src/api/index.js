@@ -240,8 +240,9 @@ export function generateToken() {
     return fetchJson("/api/v1/tokens/generate-token");
 }
 
-export function createToken(description) {
-    return postPutJson("/api/v1/tokens", {description: description}, "POST");
+export function createToken(description, organizationGUID) {
+    const body = {description: description, organizationGUID: organizationGUID};
+    return postPutJson("/api/v1/tokens", body, "POST");
 }
 
 export function deleteToken(token) {

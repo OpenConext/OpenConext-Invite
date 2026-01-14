@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface APITokenRepository extends JpaRepository<APIToken, Long> {
 
-    List<APIToken> findByOrganizationGUID(String organizationGUID);
+    List<APIToken> findByOrganizationGUIDAndSuperUserToken(String organizationGUID, boolean superUserToken);
 
     List<APIToken> findByOwner(User user);
 

@@ -5,7 +5,9 @@ import invite.manage.EntityType;
 import invite.model.*;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,6 +34,11 @@ class InternalInviteControllerTest extends AbstractTest {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("4"));
         super.stubForManageProvisioning(List.of("1"));
         super.stubForCreateScimRole();
+        String path = String.format("/manage/api/internal/search/%s", EntityType.SAML20_IDP.collectionName());
+        List<Map<String, Object>> providers = localManage.identityProvidersByInstitutionalGUID("ad93daef-0911-e511-80d0-005056956c1a");
+        stubFor(post(urlPathMatching(path)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(providers))));
 
         Role newRole = given()
                 .when()
@@ -41,15 +50,38 @@ class InternalInviteControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertNotNull(newRole.getId());
+        assertEquals("ad93daef-0911-e511-80d0-005056956c1a", newRole.getOrganizationGUID());
     }
 
+    @Test
+    void createWithAPIUserInvalidOrganizationGUID() throws Exception {
+        Role role = new Role("Required role name", "Required role description", application("4", EntityType.SAML20_SP),
+                365, false, false);
+        role.setOrganizationGUID("nope");
+
+        given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(role)
+                .post("/api/internal/invite/roles")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @SneakyThrows
     @Test
     void createWithAPIUserNotAllowed() {
         Role role = new Role("Required role name", "Required role description", application("3", EntityType.SAML20_SP),
                 365, false, false);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("3"));
-
+        String path = String.format("/manage/api/internal/search/%s", EntityType.SAML20_IDP.collectionName());
+        List<Map<String, Object>> providers = localManage.identityProvidersByInstitutionalGUID("ad93daef-0911-e511-80d0-005056956c1a");
+        stubFor(post(urlPathMatching(path)).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(providers))));
         given()
                 .when()
                 .auth().preemptive().basic("sp_dashboard", "secret")
@@ -157,6 +189,7 @@ class InternalInviteControllerTest extends AbstractTest {
         assertEquals(201, results.get("status"));
         assertEquals(1, ((List) results.get("recipientInvitationURLs")).size());
     }
+
     @Test
     void newInvitationNL() {
         stubForManageProviderById(EntityType.SAML20_SP, "4");
