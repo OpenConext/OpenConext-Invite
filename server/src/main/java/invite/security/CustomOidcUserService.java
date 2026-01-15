@@ -66,7 +66,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         newClaims.put(ORGANIZATION_GUID, organizationGuid);
 
         if (institutionAdmin && StringUtils.hasText(organizationGuid)) {
-            Map<String, Object> manageClaims = manage.enrichInstitutionAdmin(organizationGuid);
+            Map<String, Object> manageClaims = manage.enrichInstitutionAdmin(organizationGuid, newClaims);
             newClaims.putAll(manageClaims);
         }
         optionalUser.ifPresent(user -> {

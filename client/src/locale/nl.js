@@ -131,7 +131,7 @@ const nl = {
     },
     role: {
         copyUrn: "Copy urn",
-        userInfo: "{{nbr}} leden & geldig voor {{valid}} dagen",
+        userInfo: "{{nbr}} leden & ongeldig {{period}}",
         roleInfo: "Rol geldig voor <strong>{{days}} dagen</strong>",
         roleInfoNoEndDate: "Rol heeft <strong>geen einddatum</strong>",
         contactAdmin: "Contact rolmanager(s)"

@@ -6,6 +6,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Next (1.0.0)
+
+- The `scim_user_identifier` from Manage determines the `userName` (and not primarily the `externalId`)
+- Endpoint for Access to retrieve roles
+- Add the option to only accept an invitation with a validated account
+- Fix scim_user_provisioning_only
+- Fix for duplicate table errors
+- Move from cronjob master to database locks
+- Improve logging
+- Display visual indication of loading (many) roles for new invite
+- Make organization_guid required for all Roles #591
+- Fix for broken impersonation – race condition
+- Return to the correct index
+- Allow extra (e.g., Portuguese) translations
+- Allow defining a Role fixed end date
+- Fix for reset / edit function in user-roles #554
+- Bugfix for scoping authorities in new invitations
+- Make organization_guid required for all Roles
+
 ## 0.0.37
 
 - Bugfix for required short_name in update Role

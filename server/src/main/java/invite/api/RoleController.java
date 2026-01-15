@@ -211,6 +211,7 @@ public class RoleController implements ApplicationResource {
 
     private ResponseEntity<Role> saveOrUpdate(Role role, User user) {
         roleOperations.assertValidRole(role);
+        roleOperations.setDefaultsValidRole(role);
 
         manage.addManageMetaData(List.of(role));
 

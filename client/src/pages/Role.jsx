@@ -18,6 +18,7 @@ import {deriveApplicationAttributes} from "../utils/Manage";
 import DOMPurify from "dompurify";
 import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
 import {isEmpty} from "../utils/Utils";
+import {displayExpiryDate, futureDate} from "../utils/Date";
 
 export const Role = () => {
     const {id, tab = "users"} = useParams();
@@ -177,7 +178,9 @@ export const Role = () => {
                             <span dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(I18n.t("role.userInfo", {
                                     nbr: role.userRoleCount,
-                                    valid: role.defaultExpiryDays
+                                    period: displayExpiryDate(
+                                        !isEmpty(role.defaultExpiryDate) ? new Date(role.defaultExpiryDate * 1000) :
+                                        futureDate(role.defaultExpiryDays))
                                 }))
                             }}/>
                         </div>

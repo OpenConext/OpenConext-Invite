@@ -92,7 +92,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             User user = apiUsers.getFirst();
             if (StringUtils.hasText(organizationGUID)) {
                 //The overhead is needed / justified for API usage as this are stateless
-                addInstitutionAdminAttributes(user, organizationGUID);
+                addInstitutionAdminAttributes(user, organizationGUID, Map.of());
             }
             return user;
         } else {
@@ -138,7 +138,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 String organizationGUID = user.getOrganizationGUID();
                 if (validImpersonation.get()) {
                     //The overhead for retrieving data from manage is justified when super_user is impersonating institutionAdmin
-                    addInstitutionAdminAttributes(user, organizationGUID);
+                    addInstitutionAdminAttributes(user, organizationGUID, attributes);
                 } else {
                     user.updateRemoteAttributes(attributes);
                 }
@@ -148,8 +148,8 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
 
     }
 
-    private void addInstitutionAdminAttributes(User user, String organizationGUID) {
-        Map<String, Object> attributes = manage.enrichInstitutionAdmin(organizationGUID);
+    private void addInstitutionAdminAttributes(User user, String organizationGUID, Map<String, Object> claims) {
+        Map<String, Object> attributes = manage.enrichInstitutionAdmin(organizationGUID, claims);
         user.updateRemoteAttributes(attributes);
     }
 
