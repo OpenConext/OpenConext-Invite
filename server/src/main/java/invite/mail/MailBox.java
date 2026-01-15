@@ -104,7 +104,7 @@ public class MailBox {
         variables.put("useEduID", invitation.isEduIDOnly());
 
         Map<String, String> images = new HashMap<>();
-        if(invitation.isEduIDOnly() && invitation.getIntendedAuthority().equals(Authority.GUEST)) {
+        if(invitation.isEduIDOnly()) {
             images.put("eduIDLogo", "templates/eduID-logo-square.png");
         }
         images.put("logoSurfBlack", "templates/logo-surf-black.png");
@@ -118,15 +118,18 @@ public class MailBox {
 
     private void addInlineImages(MimeMessageHelper helper, Map<String, String> imagePathsMap) {
         imagePathsMap.forEach((cid, resourcePath) -> {
-            try {
-                ClassPathResource resource = new ClassPathResource(resourcePath);
-                if (resource.exists()) {
-                    helper.addInline(cid, resource);
-                }
-            } catch (MessagingException ignored) {
-            }
+            addInlineImage(helper, cid, resourcePath);
         });
     }
+
+    @SneakyThrows
+    private void addInlineImage(MimeMessageHelper helper, String cid, String resourcePath) {
+        ClassPathResource resource = new ClassPathResource(resourcePath);
+        if (resource.exists()) {
+            helper.addInline(cid, resource);
+        }
+    }
+
     @SneakyThrows
     public String inviteMailURL(Invitation invitation) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
@@ -176,8 +179,9 @@ public class MailBox {
         setText(plainText, htmlText, helper);
         helper.setTo(to);
         helper.setFrom(emailFrom);
-        // *** NIEUW: Voeg inline images toe via CID ***
+
         addInlineImages(helper, images);
+
         doSendMail(message);
         return htmlText;
     }
