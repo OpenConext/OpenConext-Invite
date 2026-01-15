@@ -19,10 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -106,12 +103,49 @@ public class MailBox {
         variables.put("url", String.format("%s/invitation/accept?hash=%s", url, invitation.getHash()));
         variables.put("useEduID", invitation.isEduIDOnly() && invitation.getIntendedAuthority().equals(Authority.GUEST));
 
+        Map<String, String> images = new HashMap<>();
+        if(invitation.isEduIDOnly() && invitation.getIntendedAuthority().equals(Authority.GUEST)) {
+            images.put("eduIDLogo", "templates/eduID-logo-square.png");
+        }
+        images.put("logoSurfBlack", "templates/logo-surf-black.png");
+
+//        addImagesAsBase64(variables, images);
+
         sendMail(String.format("invitation_%s", language.name()),
                 title,
                 variables,
+                images,
                 invitation.getEmail());
     }
 
+//    private void addImagesAsBase64(Map<String, Object> variables, Map<String, String> images) {
+//        images.forEach((variableName, resourcePath) -> {
+//            try {
+//                ClassPathResource resource = new ClassPathResource(resourcePath);
+//                if (resource.exists()) {
+//                    byte[] imageBytes = StreamUtils.copyToByteArray(resource.getInputStream());
+//                    String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+//                    variables.put(variableName, base64Image);
+//                } else {
+//                    variables.put(variableName, "");
+//                }
+//            } catch (IOException e) {
+//                variables.put(variableName, "");
+//            }
+//        });
+//    }
+
+    private void addInlineImages(MimeMessageHelper helper, Map<String, String> imagePathsMap) {
+        imagePathsMap.forEach((cid, resourcePath) -> {
+            try {
+                ClassPathResource resource = new ClassPathResource(resourcePath);
+                if (resource.exists()) {
+                    helper.addInline(cid, resource);
+                }
+            } catch (MessagingException ignored) {
+            }
+        });
+    }
     @SneakyThrows
     public String inviteMailURL(Invitation invitation) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
@@ -143,6 +177,7 @@ public class MailBox {
         return sendMail(String.format("role_expiration_%s", lang),
                 title,
                 variables,
+                Collections.emptyMap(),
                 userRole.getUser().getEmail());
     }
 
@@ -150,7 +185,7 @@ public class MailBox {
         return LocaleContextHolder.getLocale().getLanguage();
     }
 
-    private String sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {
+    private String sendMail(String templateName, String subject, Map<String, Object> variables, Map<String, String> images, String... to) throws MessagingException, IOException {
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 
@@ -173,6 +208,8 @@ public class MailBox {
 //                        }
 //                    });
 //        }
+        // *** NIEUW: Voeg inline images toe via CID ***
+        addInlineImages(helper, images);
         doSendMail(message);
         return htmlText;
     }
