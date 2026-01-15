@@ -19,10 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -106,10 +103,31 @@ public class MailBox {
         variables.put("url", String.format("%s/invitation/accept?hash=%s", url, invitation.getHash()));
         variables.put("useEduID", invitation.isEduIDOnly());
 
+        Map<String, String> images = new HashMap<>();
+        if(invitation.isEduIDOnly()) {
+            images.put("eduIDLogo", "templates/eduID-logo-square.png");
+        }
+        images.put("logoSurfBlack", "templates/logo-surf-black.png");
+
         sendMail(String.format("invitation_%s", language.name()),
                 title,
                 variables,
+                images,
                 invitation.getEmail());
+    }
+
+    private void addInlineImages(MimeMessageHelper helper, Map<String, String> imagePathsMap) {
+        imagePathsMap.forEach((cid, resourcePath) -> {
+            addInlineImage(helper, cid, resourcePath);
+        });
+    }
+
+    @SneakyThrows
+    private void addInlineImage(MimeMessageHelper helper, String cid, String resourcePath) {
+        ClassPathResource resource = new ClassPathResource(resourcePath);
+        if (resource.exists()) {
+            helper.addInline(cid, resource);
+        }
     }
 
     @SneakyThrows
@@ -143,6 +161,7 @@ public class MailBox {
         return sendMail(String.format("role_expiration_%s", lang),
                 title,
                 variables,
+                Collections.emptyMap(),
                 userRole.getUser().getEmail());
     }
 
@@ -150,7 +169,7 @@ public class MailBox {
         return LocaleContextHolder.getLocale().getLanguage();
     }
 
-    private String sendMail(String templateName, String subject, Map<String, Object> variables, String... to) throws MessagingException, IOException {
+    private String sendMail(String templateName, String subject, Map<String, Object> variables, Map<String, String> images, String... to) throws MessagingException, IOException {
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 
@@ -160,19 +179,9 @@ public class MailBox {
         setText(plainText, htmlText, helper);
         helper.setTo(to);
         helper.setFrom(emailFrom);
-//        //Add logo, if there
-//        if (variables.containsKey("groupedProviders")) {
-//            List<GroupedProviders> groupedProviders = (List<GroupedProviders>) variables.get("groupedProviders");
-//            groupedProviders.stream()
-//                    .filter(groupedProvider -> StringUtils.hasText(groupedProvider.getLogo()))
-//                    .forEach(groupedProvider -> {
-//                        try {
-//                            helper.addInline(groupedProvider.logoName(), new UrlResource(new URI(groupedProvider.getLogo())));
-//                        } catch (Exception e) {
-//                            //Can't be helped
-//                        }
-//                    });
-//        }
+
+        addInlineImages(helper, images);
+
         doSendMail(message);
         return htmlText;
     }

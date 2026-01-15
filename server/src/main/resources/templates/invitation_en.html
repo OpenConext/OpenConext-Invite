@@ -10,7 +10,7 @@
         <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;width: 48px;"/>
         {{/institutionLogoUrl}}
         {{#isInstitutionSurf}}
-        <img src="https://static.surfconext.nl/logos/org/8017e83f-bca7-e911-90f2-0050569571ea.png" alt="logo" style="height: 48px;width: 48px;"/>
+        <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px; width: 48px;">
         {{/isInstitutionSurf}}
     </div>
     <div class="head">
@@ -49,7 +49,7 @@
                         <table style="border-collapse: collapse;">
                             <tr>
                                 <td style="vertical-align: middle; padding: 0;">
-                                    {{> eduID-logo-square.svg}}
+                                    <img src="cid:eduIDLogo" alt="SURF logo" style="height: 32px; width: 32px;">
                                 </td>
                                 <td style="vertical-align: middle; padding-left: 12px;">
                                     <span style="color: white;">Continue with eduID</span>
@@ -88,7 +88,9 @@
                     <a class="external" href="https://support.surfconext.nl/terms-en" style="color: #636363; text-decoration: underline;">Terms of Use</a>
                 </td>
                 <td style="text-align: right; vertical-align: middle; white-space: nowrap; width: 100px; line-height: 0;">
-                    <a class="external" href="https://surf.nl/">{{> logo-surf-black.svg}}</a>
+                    <a class="external" href="https://surf.nl/">
+                        <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px; width: 48px;">
+                    </a>
                 </td>
             </tr>
         </table>
