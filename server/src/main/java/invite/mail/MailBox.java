@@ -109,31 +109,12 @@ public class MailBox {
         }
         images.put("logoSurfBlack", "templates/logo-surf-black.png");
 
-//        addImagesAsBase64(variables, images);
-
         sendMail(String.format("invitation_%s", language.name()),
                 title,
                 variables,
                 images,
                 invitation.getEmail());
     }
-
-//    private void addImagesAsBase64(Map<String, Object> variables, Map<String, String> images) {
-//        images.forEach((variableName, resourcePath) -> {
-//            try {
-//                ClassPathResource resource = new ClassPathResource(resourcePath);
-//                if (resource.exists()) {
-//                    byte[] imageBytes = StreamUtils.copyToByteArray(resource.getInputStream());
-//                    String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-//                    variables.put(variableName, base64Image);
-//                } else {
-//                    variables.put(variableName, "");
-//                }
-//            } catch (IOException e) {
-//                variables.put(variableName, "");
-//            }
-//        });
-//    }
 
     private void addInlineImages(MimeMessageHelper helper, Map<String, String> imagePathsMap) {
         imagePathsMap.forEach((cid, resourcePath) -> {
@@ -195,19 +176,6 @@ public class MailBox {
         setText(plainText, htmlText, helper);
         helper.setTo(to);
         helper.setFrom(emailFrom);
-//        //Add logo, if there
-//        if (variables.containsKey("groupedProviders")) {
-//            List<GroupedProviders> groupedProviders = (List<GroupedProviders>) variables.get("groupedProviders");
-//            groupedProviders.stream()
-//                    .filter(groupedProvider -> StringUtils.hasText(groupedProvider.getLogo()))
-//                    .forEach(groupedProvider -> {
-//                        try {
-//                            helper.addInline(groupedProvider.logoName(), new UrlResource(new URI(groupedProvider.getLogo())));
-//                        } catch (Exception e) {
-//                            //Can't be helped
-//                        }
-//                    });
-//        }
         // *** NIEUW: Voeg inline images toe via CID ***
         addInlineImages(helper, images);
         doSendMail(message);
