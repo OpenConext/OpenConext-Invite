@@ -23,7 +23,7 @@ class MailBoxTest extends AbstractMailTest {
 
     @Test
     void sendInviteMail() {
-        String htmlContent = doSendInviteMail(true, Authority.INVITER);
+        String htmlContent = doSendInviteMail(false, Authority.INVITER);
 
         assertTrue(htmlContent.contains("Wiki EN"));
         assertTrue(htmlContent.contains("You accept the role(s) by logging in with SURFconext."));
@@ -33,6 +33,15 @@ class MailBoxTest extends AbstractMailTest {
     @Test
     void sendInviteMailForEduIDOnly() {
         String htmlContent = doSendInviteMail(true, Authority.GUEST);
+
+        assertTrue(htmlContent.contains("Wiki EN"));
+        assertFalse(htmlContent.contains("You accept the role(s) by logging in with SURFconext"));
+        assertTrue(htmlContent.contains("You accept the role(s) by logging in with eduID"));
+    }
+
+    @Test
+    void sendInviteMailForEduIDOnlyForNonGuests() {
+        String htmlContent = doSendInviteMail(true, Authority.MANAGER);
 
         assertTrue(htmlContent.contains("Wiki EN"));
         assertFalse(htmlContent.contains("You accept the role(s) by logging in with SURFconext"));
