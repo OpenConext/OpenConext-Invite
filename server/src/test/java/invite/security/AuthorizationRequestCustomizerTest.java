@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.when;
 
@@ -138,4 +138,42 @@ class AuthorizationRequestCustomizerTest {
         assertEquals("idp-entity-1,idp-entity-2",
                 requestResult.getAdditionalParameters().get("login_hint"));
     }
+
+    @Test
+    void testNotAddIdpListLoginHintTooLarge() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        String hash = "abc123";
+        request.setParameter("hash", hash);
+        DefaultSavedRequest savedRequest = new DefaultSavedRequest(request);
+
+        HttpSession session = request.getSession(true);
+        session.setAttribute("SPRING_SECURITY_SAVED_REQUEST", savedRequest);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        Application application = new Application("manage-id", EntityType.SAML20_SP);
+        ApplicationUsage appUsage = new ApplicationUsage(application, "https://landing.com");
+
+        Role role = new Role();
+        role.setApplicationUsages(Set.of(appUsage));
+
+        Invitation invitation = new Invitation();
+        invitation.setIntendedAuthority(Authority.GUEST);
+        invitation.setRoles(Set.of(new InvitationRole(role)));
+        when(invitationRepository.findByHash(hash)).thenReturn(Optional.of(invitation));
+
+        Map<String, Object> providerData = Map.of("entityid", "idp-entity");
+        when(manage.providerById(application.getManageType(), application.getManageId())).thenReturn(providerData);
+        when(manage.idpEntityIdentifiersByServiceEntityId(anyList()))
+                .thenReturn(List.of("sp-entity-id".repeat(10000)));
+
+        OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode()
+                .authorizationUri("https://auth")
+                .clientId("client");
+
+        customizer.accept(builder);
+        OAuth2AuthorizationRequest requestResult = builder.build();
+
+        assertFalse(requestResult.getAdditionalParameters().containsKey("login_hint"));
+    }
+
 }

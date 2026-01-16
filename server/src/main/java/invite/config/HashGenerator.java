@@ -16,7 +16,11 @@ public class HashGenerator {
     }
 
     public static String generateRandomHash() {
-        byte[] aesKey = new byte[128];
+        return generateRandomHash(128);
+    }
+
+    public static String generateRandomHash(int byteLength) {
+        byte[] aesKey = new byte[byteLength];
         secureRandom.nextBytes(aesKey);
         //Avoid decoding / encoding as URL parameter problems
         return Base64.getUrlEncoder().withoutPadding().encodeToString(aesKey);

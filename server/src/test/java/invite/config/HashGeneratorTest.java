@@ -12,9 +12,13 @@ class HashGeneratorTest {
 
     @Test
     void generateRandomHash() {
-        String hash = HashGenerator.generateRandomHash();
+        String defaultHash = HashGenerator.generateRandomHash();
+        assertEquals(171, defaultHash.length());
+
+        String hash = HashGenerator.generateRandomHash(128);
         assertEquals(171, hash.length());
-        String encoded = URLEncoder.encode(hash, Charset.defaultCharset());
+
+        String encoded = URLEncoder.encode(defaultHash, Charset.defaultCharset());
         String decoded = URLDecoder.decode(encoded, Charset.defaultCharset());
         assertEquals(encoded, decoded);
     }
