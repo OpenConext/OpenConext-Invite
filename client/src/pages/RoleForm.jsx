@@ -119,7 +119,8 @@ export const RoleForm = () => {
                 if (newRole) {
                     setApplications([null]);
                     if (location.state) {
-                        setApplications(providers.filter(provider => provider.value === location.state));
+                        const preSelectedProviders = newProviders.filter(provider => provider.value === location.state);
+                        setApplications(preSelectedProviders);
                     } else {
                         setApplications([null]);
                     }
