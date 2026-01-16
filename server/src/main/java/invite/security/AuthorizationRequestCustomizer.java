@@ -91,10 +91,10 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                                 .toList();
                         //Now get all entityIdentifiers of the IdP's
                         List<String> idpList = manage.idpEntityIdentifiersByServiceEntityId(entityIdentifiers);
-                        //to avoid HeadersTooLargeException, IdP scoping for more than 20 IdentityProviders is not helpful
                         String loginHint = String.join(",", idpList);
-                        // Default Tomcat maxHttpHeaderSize is 8KB (8192 bytes), but we need some buffer for other headers
+                        //To avoid HeadersTooLargeException, we check the IdP scoping parameter length
                         int loginHintSize = loginHint.getBytes(Charset.defaultCharset()).length;
+                        //Default Tomcat maxHttpHeaderSize is 8KB (8192 bytes), but we need some buffer for other headers
                         if (loginHintSize < 6000) {
                             LOG.debug("Adding login_hint to authorization request query parameters: " + loginHint);
                             params.put("login_hint", loginHint);
