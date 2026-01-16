@@ -51,7 +51,7 @@ export const RoleForm = () => {
         name: "",
         shortName: "",
         defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
-        organizationGUID: user.institutionAdmin ? user.organizationGUID : null
+        organizationGUID: (user.institutionAdmin && !user.superUser) ? user.organizationGUID : null
     });
     const [providers, setProviders] = useState([]);
     const [identityProviders, setIdentityProviders] = useState([]);
@@ -387,7 +387,7 @@ export const RoleForm = () => {
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
 
-                {user.institutionAdmin  &&
+                {(user.institutionAdmin && !user.superUser) &&
                     <InputField name={I18n.t("roles.identityProvider")}
                                 toolTip={I18n.t("tooltips.invitationIdentityProvider")}
                                 disabled={true}
