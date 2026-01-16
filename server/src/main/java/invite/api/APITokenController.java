@@ -49,7 +49,7 @@ public class APITokenController {
         LOG.debug(String.format("GET /tokens for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.INVITER);
         List<APIToken> apiTokens = user.isSuperUser() ? apiTokenRepository.findAll() :
-                user.isInstitutionAdmin() ? apiTokenRepository.findByOrganizationGUID(user.getOrganizationGUID()) :
+                user.isInstitutionAdmin() ? apiTokenRepository.findByOrganizationGUIDAndSuperUserToken(user.getOrganizationGUID(), false) :
                         apiTokenRepository.findByOwner(user);
         return ResponseEntity.ok(apiTokens);
     }
@@ -75,10 +75,13 @@ public class APITokenController {
         if (!StringUtils.hasText(token)) {
             throw new UserRestrictionException();
         }
+        if (user.isSuperUser() && !StringUtils.hasText(apiTokenRequest.getOrganizationGUID())) {
+            throw new UserRestrictionException();
+        }
         APIToken apiToken;
         if (user.isSuperUser() || user.isInstitutionAdmin()) {
             apiToken = new APIToken(
-                    user.getOrganizationGUID(),
+                    user.isSuperUser() ? apiTokenRequest.getOrganizationGUID() : user.getOrganizationGUID(),
                     HashGenerator.hashToken(token),
                     user.isSuperUser(),
                     apiTokenRequest.getDescription(),

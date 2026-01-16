@@ -26,6 +26,7 @@ public class RemoteUser implements UserDetails, CredentialsContainer, Provisiona
     private String username;
     private String password;
     private String displayName;
+    private String organizationGUIDFallback;
     private List<Scope> scopes = new ArrayList<>();
     private List<Application> applications = new ArrayList<>();
     private boolean localDevMode;
@@ -34,6 +35,7 @@ public class RemoteUser implements UserDetails, CredentialsContainer, Provisiona
         this.username = remoteUser.username;
         this.password = remoteUser.password;
         this.displayName = remoteUser.displayName;
+        this.organizationGUIDFallback = remoteUser.organizationGUIDFallback;
         this.scopes = remoteUser.scopes;
         this.applications = remoteUser.applications;
         this.localDevMode = remoteUser.localDevMode;

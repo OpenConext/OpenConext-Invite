@@ -158,6 +158,7 @@ external-api-configuration:
     - username: sp_dashboard
       displayName: "SP Dashboard"
       password: "secret"
+      organizationGUIDFallback: "ad93daef-0911-e511-80d0-005056956c1a"
       scopes:
         - sp_dashboard
       applications:
@@ -166,6 +167,7 @@ external-api-configuration:
     - username: access
       displayName: "Access"
       password: "secret"
+      organizationGUIDFallback: "5ede9c9b-3bbc-ea11-90fe-0050569571ea"
       scopes:
         - access
       applications:
@@ -174,6 +176,7 @@ external-api-configuration:
     - username: sp_dashboard_local_dev_mode
       displayName: "SP Dashboard"
       password: "secret"
+      organizationGUIDFallback: "ad93daef-0911-e511-80d0-005056956c1a"
       scopes:
         - sp_dashboard
       applications:

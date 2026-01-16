@@ -8,6 +8,7 @@ import invite.model.User;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,54 @@ class APITokenControllerTest extends AbstractTest {
 
         APIToken apiTokenFromDB = apiTokenRepository.findById(apiToken.getId()).get();
         assertEquals(HashGenerator.hashToken(token), apiTokenFromDB.getHashedValue());
+    }
+
+    @Test
+    void createSuperUserToken() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
+        //First get the value, otherwise the creation will fail
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/tokens/generate-token");
+
+        APIToken apiToken = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(Map.of("description", "test", "organizationGUID", "super-users-rule"))
+                .post("/api/v1/tokens")
+                .as(new TypeRef<>() {
+                });
+        assertEquals("super-users-rule", apiToken.getOrganizationGUID());
+    }
+
+    @Test
+    void createSuperUserTokenWithoutOrganizationGUID() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", SUPER_SUB);
+        //First get the value, otherwise the creation will fail
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/tokens/generate-token");
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(Map.of("description", "test", "organizationGUID", ""))
+                .post("/api/v1/tokens")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test

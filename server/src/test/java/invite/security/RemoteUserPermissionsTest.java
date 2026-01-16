@@ -21,7 +21,8 @@ class RemoteUserPermissionsTest {
 
         RemoteUserPermissions.assertScopeAccess(new RemoteUser());
         RemoteUserPermissions.assertScopeAccess(
-                new RemoteUser("user", "secret", null, List.of(Scope.profile), List.of(), false), Scope.profile);
+                new RemoteUser("user", "secret", null,"ad93daef-0911-e511-80d0-005056956c1a",
+                        List.of(Scope.profile), List.of(), false), Scope.profile);
     }
 
     @Test
@@ -34,7 +35,8 @@ class RemoteUserPermissionsTest {
         role.setApplicationUsages(applicationUsages);
         assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(null, role));
         assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(new RemoteUser(), role));
-        RemoteUser remoteUser = new RemoteUser("user", "secret", null, List.of(), List.of(application), false);
+        RemoteUser remoteUser = new RemoteUser("user", "secret", null,
+                "ad93daef-0911-e511-80d0-005056956c1a",List.of(), List.of(application), false);
         RemoteUserPermissions.assertApplicationAccess(remoteUser, role);
         RemoteUserPermissions.assertApplicationAccess(remoteUser, List.of(role));
     }
@@ -47,7 +49,8 @@ class RemoteUserPermissionsTest {
                 new ApplicationUsage(application, "landingPage")
         );
         role.setApplicationUsages(applicationUsages);
-        RemoteUser remoteUser = new RemoteUser("user", "secret", null, List.of(), List.of(new Application("5", EntityType.SAML20_SP)), false);
+        RemoteUser remoteUser = new RemoteUser("user", "secret", null, "ad93daef-0911-e511-80d0-005056956c1a",
+                List.of(), List.of(new Application("5", EntityType.SAML20_SP)), false);
         assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(remoteUser, role));
 
         RemoteUser remoteUserDevMode = new RemoteUser(remoteUser);

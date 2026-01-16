@@ -5,7 +5,7 @@ import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
-import {apiTokens, createToken, deleteToken, generateToken} from "../api";
+import {allIdentityProviders, apiTokens, createToken, deleteToken, generateToken} from "../api";
 import {dateFromEpoch} from "../utils/Date";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 import ChevronLeft from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
@@ -16,6 +16,7 @@ import ErrorIndicator from "../components/ErrorIndicator";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import {Page} from "../components/Page";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
+import SelectField from "../components/SelectField";
 
 export const Tokens = () => {
     const {user, setFlash} = useAppStore(state => state);
@@ -31,6 +32,8 @@ export const Tokens = () => {
     const [initial, setInitial] = useState(true);
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
+    const [identityProviders, setIdentityProviders] = useState([]);
+    const [organizationGUIDIdentityProvider, setOrganizationGUIDIdentityProvider] = useState({});
 
     const isGuest = authority === AUTHORITIES.GUEST;
 
@@ -43,6 +46,22 @@ export const Tokens = () => {
                 setDescription("");
                 setTokenValue(null);
                 setConfirmationOpen(false);
+                setInitial(true);
+                setDescription("");
+                setOrganizationGUIDIdentityProvider({});
+                //Now fetch all IdentityProviders for the superuser
+                if (user.superUser) {
+                    allIdentityProviders().then(idps => {
+                        const identityProviderOptions = idps
+                            .filter(idp => !isEmpty(idp.institutionGuid))
+                            .map(idp => ({
+                                value: idp.id,
+                                label: idp["name:en"],
+                                institutionGuid: idp.institutionGuid
+                            }))
+                        setIdentityProviders(identityProviderOptions);
+                    });
+                }
             });
     }, []);
 
@@ -70,11 +89,11 @@ export const Tokens = () => {
     };
 
     const submitNewToken = () => {
-        if (isEmpty(description)) {
+        if (isEmpty(description) || (user.superUser && isEmpty(organizationGUIDIdentityProvider))) {
             setInitial(false);
         } else {
             setLoading(true);
-            createToken(description).then(() => {
+            createToken(description, organizationGUIDIdentityProvider.institutionGuid).then(() => {
                 setFlash(I18n.t("tokens.createFlash"));
                 fetchTokens();
             });
@@ -84,16 +103,24 @@ export const Tokens = () => {
 
     const cancelSideScreen = e => {
         stopEvent(e);
+        setInitial(true);
         setNewToken(false);
+        setDescription("");
+        setOrganizationGUIDIdentityProvider({});
     }
 
     const createNewToken = () => {
         setLoading(true);
+        setInitial(true);
         generateToken().then(res => {
             setNewToken(true);
             setTokenValue(res.token);
             setLoading(false);
         });
+    }
+
+    const changeOrganizationGUIDIdentityProvider = option => {
+        setOrganizationGUIDIdentityProvider(option);
     }
 
     const renderNewToken = () => {
@@ -125,12 +152,30 @@ export const Tokens = () => {
                     {(!initial && isEmpty(description)) && <ErrorIndicator
                         msg={I18n.t("tokens.required")}/>}
 
+                    {user.superUser &&
+                        <SelectField name={I18n.t("roles.identityProvider")}
+                                     toolTip={I18n.t("tooltips.roleIdentityProvider")}
+                                     value={identityProviders.find(idp => idp.value === organizationGUIDIdentityProvider.value)}
+                                     placeholder={I18n.t("roles.identityProviderPlaceholder")}
+                                     options={identityProviders}
+                                     onChange={changeOrganizationGUIDIdentityProvider}
+                                     searchable={true}
+                                     required={true}
+                        />}
+                    {(!initial && isEmpty(organizationGUIDIdentityProvider.institutionGuid) && user.superUser) &&
+                        <ErrorIndicator msg={I18n.t("forms.required", {
+                            attribute: I18n.t("roles.organizationGUID").toLowerCase()
+                        })}/>}
+                    {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
+                        <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
+
                     <section className="actions">
                         <Button type={ButtonType.Secondary}
                                 txt={I18n.t("forms.cancel")}
                                 onClick={() => setNewToken(false)}/>
                         <Button txt={I18n.t("forms.save")}
-                                disabled={!initial && isEmpty(description)}
+                                disabled={!initial && (isEmpty(description) ||
+                                    (user.superUser && isEmpty(organizationGUIDIdentityProvider.institutionGuid)))}
                                 onClick={() => submitNewToken()}/>
                     </section>
                 </div>

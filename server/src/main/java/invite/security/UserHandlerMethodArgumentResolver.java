@@ -76,11 +76,11 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             if (owner != null) {
                 apiUsers.add(apiToken.getOwner());
             } else {
-                //backward compatibility for tokens without an owner
-                if (apiToken.isSuperUserToken()) {
-                    apiUsers.addAll(userRepository.findBySuperUserTrue() );
-                } else if (StringUtils.hasText(organizationGUID)) {
+                //backward compatibility for tokens without an owner or superusers tokens without organizationGUID
+                if (StringUtils.hasText(organizationGUID)) {
                     apiUsers.addAll(userRepository.findByOrganizationGUIDAndInstitutionAdmin(organizationGUID, true));
+                } else if (apiToken.isSuperUserToken()) {
+                    apiUsers.addAll(userRepository.findBySuperUserTrue());
                 }
             }
             if (apiUsers.isEmpty()) {
