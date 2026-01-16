@@ -209,9 +209,8 @@ export const InvitationForm = () => {
     const isValid = () => {
         const invitationIsForAdmin = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority);
         const res = required.every(attr => !isEmpty(invitation[attr])) &&
-            (!isEmpty(selectedRoles) || invitationIsForAdmin)
-            && (invitationIsForAdmin || user.superUser)
-            && !(invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID));
+            (!isEmpty(selectedRoles) || invitationIsForAdmin) &&
+            !(invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID));
         return res;
     }
 
