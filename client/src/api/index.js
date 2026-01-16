@@ -224,7 +224,7 @@ export function updateUserRoleEndData(userRoleId, endDate) {
 }
 
 export function consequencesRoleDeletion(roleId) {
-    return fetchJson(`/api/v1/user_roles//consequences/${roleId}`, {}, {}, true);
+    return fetchJson(`/api/v1/user_roles/consequences/${roleId}`, {}, {}, true);
 }
 
 export function deleteUserRole(userRoleId, isGuest) {
