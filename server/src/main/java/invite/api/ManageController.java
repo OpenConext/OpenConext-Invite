@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -103,9 +104,11 @@ public class ManageController {
     public ResponseEntity<List<Map<String, Object>>> identityProviders(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/identity-providers for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
-        List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_IDP);
-        return ResponseEntity.ok(providers.stream()
-                .filter(provider -> provider.get("institutionGuid") != null).toList());
+        List<Map<String, Object>> providers = manage.providers(EntityType.SAML20_IDP)
+                .stream()
+                .filter(provider -> StringUtils.hasText((String) provider.get("institutionGuid")))
+                .toList();
+        return ResponseEntity.ok(providers);
     }
 
     @GetMapping("/organization-guid-validation/{organizationGUID}")
