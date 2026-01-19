@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Next (1.0.0)
 
+## 1.0.1
+
+- Fix: eduID only role
+- fix: Adding application to form when sreating a role from the application page
+- Fix: JS issues on create invitation page
+- Fix: idpScoping for long list of IdP's
+- Fix: javascipt issues on search
+- Fix: Reuireing a validated eduID
+
+## 1.0.0
+
 - The `scim_user_identifier` from Manage determines the `userName` (and not primarily the `externalId`)
 - Endpoint for Access to retrieve roles
 - Add the option to only accept an invitation with a validated account
