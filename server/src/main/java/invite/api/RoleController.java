@@ -34,6 +34,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.sql.SQLTransactionRollbackException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -95,9 +97,19 @@ public class RoleController implements ApplicationResource {
                 rolesPage = roleRepository.searchByPage(pageable);
             } else {
                 Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-                rolesPage = StringUtils.hasText(query) ?
-                        roleRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-                        roleRepository.searchByPage(pageable);
+                boolean queryHasText = StringUtils.hasText(query);
+                query = queryHasText ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
+                String parsedQuery = queryHasText ? FullSearchQueryParser.parse(query) : "";
+                boolean noSearchTokens = parsedQuery.equals("*");
+                if (queryHasText && !noSearchTokens) {
+                    rolesPage = roleRepository.searchByPageWithKeyword(parsedQuery, pageable);
+                } else if (noSearchTokens) {
+                    //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
+                    query = query.toUpperCase() + "%";
+                    rolesPage = roleRepository.searchByPageWithStrictSearch(query, pageable);
+                } else {
+                    rolesPage = roleRepository.searchByPage(pageable);
+                }
             }
         } else {
             UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);

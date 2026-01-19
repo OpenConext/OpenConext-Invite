@@ -41,7 +41,9 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.net.InetAddress;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -148,9 +150,21 @@ public class UserController {
 
         UserPermissions.assertSuperUser(user);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ?
-                userRepository.searchByPageWithKeyword(FullSearchQueryParser.parse(query), pageable) :
-                userRepository.searchByPage(pageable);
+
+        boolean queryHasText = StringUtils.hasText(query);
+        query = queryHasText ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
+        String parsedQuery = queryHasText ? FullSearchQueryParser.parse(query) : "";
+        boolean noSearchTokens = parsedQuery.equals("*");
+        Page<Map<String, Object>> usersPage ;
+        if (queryHasText && !noSearchTokens) {
+            usersPage =  userRepository.searchByPageWithKeyword(parsedQuery, pageable);
+        } else if (noSearchTokens) {
+            //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
+            query = query.toUpperCase() + "%";
+            usersPage =  userRepository.searchByPageWithStrictMode(query, pageable);
+        } else {
+            usersPage =  userRepository.searchByPage(pageable);
+        }
         return ResponseEntity.ok(usersPage);
     }
 
@@ -166,9 +180,21 @@ public class UserController {
 
         UserPermissions.assertInstitutionAdmin(user);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
-        Page<Map<String, Object>> usersPage = StringUtils.hasText(query) ?
-                userRepository.searchByPageRoleUsersWithKeyWord(user.getOrganizationGUID(), FullSearchQueryParser.parse(query), pageable) :
-                userRepository.searchByPageRoleUsers(user.getOrganizationGUID(), pageable);
+        boolean queryHasText = StringUtils.hasText(query);
+        query = queryHasText ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
+        String parsedQuery = queryHasText ? FullSearchQueryParser.parse(query) : "";
+        Page<Map<String, Object>> usersPage;
+        String organizationGUID = user.getOrganizationGUID();
+        boolean noSearchTokens = parsedQuery.equals("*");
+        if (queryHasText && !noSearchTokens) {
+            usersPage = userRepository.searchByPageRoleUsersWithKeyWord(organizationGUID, parsedQuery, pageable);
+        } else if (noSearchTokens) {
+            //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
+            query = query.toUpperCase() + "%";
+            usersPage = userRepository.searchByPageRoleUsersWithStrictSearch(organizationGUID, query, pageable);
+        } else {
+            usersPage = userRepository.searchByPageRoleUsers(organizationGUID, pageable);
+        }
         List<Long> userIdentifiers = usersPage.getContent().stream().map(m -> (Long) m.get("id")).toList();
         List<Map<String, Object>> userRoles = userRepository.findUserRoles(userIdentifiers);
         List<UserRoles> userRoleList = this.userRoleFromQuery(usersPage, userRoles);

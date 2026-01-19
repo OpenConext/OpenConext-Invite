@@ -116,12 +116,12 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
                     INNER JOIN roles r on r.id = ur.role_id
                     INNER JOIN users u on u.id = ur.user_id WHERE ur.role_id = ?1
             AND ur.authority <> 'GUEST' AND 
-              (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+              (UPPER(u.email) LIKE ?2 or UPPER(u.schac_home_organization) LIKE ?2)
             """,
             countQuery = """
                     SELECT COUNT(ur.id) FROM user_roles ur INNER JOIN users u on u.id = ur.user_id
                     WHERE ur.role_id = ?1 AND ur.authority <> 'GUEST' 
-                    AND (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+                    AND (UPPER(u.email) LIKE ?2 or UPPER(u.schac_home_organization) LIKE ?2)
                     """,
             queryRewriter = UserRoleRepository.class,
             nativeQuery = true)
@@ -134,12 +134,12 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
                     INNER JOIN roles r on r.id = ur.role_id
                     INNER JOIN users u on u.id = ur.user_id WHERE ur.role_id = ?1
             AND (ur.authority = 'GUEST' OR ur.guest_role_included ) AND 
-              (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+              (UPPER(u.email) LIKE ?2 or UPPER(u.schac_home_organization) LIKE ?2)
             """,
             countQuery = """
                     SELECT COUNT(ur.id) FROM user_roles ur INNER JOIN users u on u.id = ur.user_id
                     WHERE ur.role_id = ?1 AND (ur.authority = 'GUEST' OR ur.guest_role_included )
-                    AND (u.email LIKE ?2 or u.schac_home_organization LIKE ?2)
+                    AND (UPPER(u.email) LIKE ?2 or UPPER(u.schac_home_organization) LIKE ?2)
                     """,
             queryRewriter = UserRoleRepository.class,
             nativeQuery = true)

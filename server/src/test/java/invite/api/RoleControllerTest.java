@@ -405,6 +405,32 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void rolesByApplicationSuperUserPaginationMultipleStrictSearch() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Role> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", false)
+                .queryParam("query", "cal")
+                .queryParam("pageNumber", 2)
+                .queryParam("pageSize", 2)
+                .queryParam("sort", "description")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, page.getTotalElements());
+    }
+
+    @Test
     void rolesByApplicationSuperUserPaginationSortUserRoleCount() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
@@ -456,6 +482,30 @@ class RoleControllerTest extends AbstractTest {
         assertEquals(10, page.getPageable().getPageSize());
         assertEquals(0, page.getPageable().getPageNumber());
         assertEquals(2, page.getContent().getFirst().getApplicationMaps().size());
+    }
+
+    @Test
+    void rolesByApplicationSuperUserPaginationStrictSearch() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("1"));
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Role> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", false)
+                .queryParam("query", "st")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 10)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, page.getTotalElements());
     }
 
     @Test

@@ -51,6 +51,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -444,18 +446,34 @@ public class InvitationController implements InvitationResource {
 
         Page<Map<String, Object>> invitationsPage;
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
+        boolean queryHasText = StringUtils.hasText(query);
+        query = queryHasText ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
+        String parsedQuery = queryHasText ? FullSearchQueryParser.parse(query) : "";
+        boolean noSearchTokens = parsedQuery.equals("*");
 
         if (roleId == null) {
             UserPermissions.assertSuperUser(user);
-            invitationsPage = StringUtils.hasText(query) ?
-                    invitationRepository.searchByStatusPageWithKeyword(Status.OPEN.name(), FullSearchQueryParser.parse(query), pageable) :
-                    invitationRepository.searchByStatusPage(Status.OPEN.name(), pageable);
+            if (queryHasText && !noSearchTokens) {
+                invitationsPage = invitationRepository.searchByStatusPageWithKeyword(Status.OPEN.name(), parsedQuery, pageable);
+            } else if (noSearchTokens) {
+                //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
+                query = query.toUpperCase() + "%";
+                invitationsPage = invitationRepository.searchByStatusPageWithStrictSearch(Status.OPEN.name(), query, pageable);
+            } else {
+                invitationsPage = invitationRepository.searchByStatusPage(Status.OPEN.name(), pageable);
+            }
         } else {
             Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
             UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
-            invitationsPage = StringUtils.hasText(query) ?
-                    invitationRepository.searchByStatusAndRoleWithKeywordPage(Status.OPEN.name(), role.getId(), FullSearchQueryParser.parse(query), pageable) :
-                    invitationRepository.searchByStatusAndRolePage(Status.OPEN.name(), role.getId(), pageable);
+            if (queryHasText && !noSearchTokens) {
+                invitationsPage = invitationRepository.searchByStatusAndRoleWithKeywordPage(Status.OPEN.name(), role.getId(), parsedQuery, pageable);
+            } else if (noSearchTokens) {
+                //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
+                query = query.toUpperCase() + "%";
+                invitationsPage = invitationRepository.searchByStatusAndRoleWithStrictSearch(Status.OPEN.name(), role.getId(), query, pageable);
+            } else {
+                invitationsPage = invitationRepository.searchByStatusAndRolePage(Status.OPEN.name(), role.getId(), pageable);
+            }
         }
         if (invitationsPage.getTotalElements() == 0L) {
             return ResponseEntity.ok(invitationsPage);

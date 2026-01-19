@@ -45,6 +45,19 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
             nativeQuery = true)
     Page<Role> searchByPageWithKeyword(String keyword, Pageable pageable);
 
+    @Query(value = """
+            SELECT *,
+                (SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=r.id) as userRoleCount
+            FROM roles r WHERE 
+            UPPER(r.name) LIKE ?1 or UPPER(r.description) LIKE ?1                               
+            """,
+            countQuery = """
+                    SELECT COUNT(r.id) FROM roles r WHERE 
+                    UPPER(r.name) LIKE ?1 or UPPER(r.description) LIKE ?1                                                                            
+                    """,
+            queryRewriter = RoleRepository.class,
+            nativeQuery = true)
+    Page<Role> searchByPageWithStrictSearch(String keyword, Pageable pageable);
 
     @Query(value = """
             SELECT *,

@@ -318,6 +318,22 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void searchStrictMode() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<User> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "ma")
+                .get("/api/v1/users/search")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, page.getTotalElements());
+    }
+
+    @Test
     void searchWithAtSign() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
@@ -395,6 +411,42 @@ class UserControllerTest extends AbstractTest {
         //Sorted by name default
         List<String> names = usersPage.getContent().stream().map(m -> (String) m.get("name")).toList();
         assertEquals(List.of("Ann Doe", "James Doe", "Mary Doe"), names);
+    }
+
+    @Test
+    void searchByApplicationStrictMode() throws Exception {
+        //Institution admin is enriched with Manage information
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        DefaultPage<Map<String, Object>> usersPage = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "ja")
+                .get("/api/v1/users/search-by-application")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, usersPage.getTotalElements());
+    }
+
+    @Test
+    void searchByApplicationSchacHomeStrictMode() throws Exception {
+        //Institution admin is enriched with Manage information
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        DefaultPage<Map<String, Object>> usersPage = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", "ex")
+                .get("/api/v1/users/search-by-application")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(3, usersPage.getTotalElements());
     }
 
     @Test

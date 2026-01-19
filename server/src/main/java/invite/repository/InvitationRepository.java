@@ -64,6 +64,24 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     @Query(value = """
             SELECT i.id, i.email, i.remote_api_user, i.intended_authority,i.created_at, i.expiry_date,
             u.id as user_id, u.name, u.email as inviter_email
+            FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id
+            WHERE i.status = ?1 AND
+            (UPPER(i.email) LIKE ?2 or UPPER(u.schac_home_organization) LIKE ?2
+             or UPPER(u.email) LIKE ?2)
+            """,
+            countQuery = """
+                     SELECT count(*) FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id
+                     WHERE status = ?1 AND
+                     (UPPER(i.email) LIKE ?2 or UPPER(u.schac_home_organization) LIKE ?2
+                     or UPPER(u.email) LIKE ?2)
+                    """,
+            queryRewriter = InvitationRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByStatusPageWithStrictSearch(String status, String keyWord, Pageable pageable);
+
+    @Query(value = """
+            SELECT i.id, i.email, i.remote_api_user, i.intended_authority,i.created_at, i.expiry_date,
+            u.id as user_id, u.name, u.email as inviter_email
             FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2
@@ -99,6 +117,28 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByStatusAndRoleWithKeywordPage(String status, Long roleId, String keyWord, Pageable pageable);
+
+    @Query(value = """
+            SELECT i.id, i.email, i.remote_api_user, i.intended_authority,i.created_at, i.expiry_date,
+            u.id as user_id, u.name, u.email as inviter_email
+            FROM invitations i LEFT JOIN users u ON u.id = i.inviter_id INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
+            INNER JOIN roles r ON r.id = ir.role_id
+            WHERE i.status = ?1 AND r.id = ?2 AND
+            (UPPER(i.email) LIKE ?3 or UPPER(u.schac_home_organization) LIKE ?3
+                     or UPPER(u.email) LIKE ?3)                              
+            """,
+            countQuery = """
+                    SELECT count(*) FROM invitations i
+                    INNER JOIN invitation_roles ir ON ir.invitation_id = i.id
+                    INNER JOIN roles r ON r.id = ir.role_id
+                    LEFT JOIN users u ON u.id = i.inviter_id
+                    WHERE status = ?1 and role_id = ?2 AND
+                    (UPPER(i.email) LIKE ?3 or UPPER(u.schac_home_organization) LIKE ?3
+                     or UPPER(u.email) LIKE ?3)                              
+                    """,
+            queryRewriter = InvitationRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByStatusAndRoleWithStrictSearch(String status, Long roleId, String keyWord, Pageable pageable);
 
     @Query(value = """
                 SELECT ir.invitation_id as id, r.name, r.id as role_id, a.manage_id

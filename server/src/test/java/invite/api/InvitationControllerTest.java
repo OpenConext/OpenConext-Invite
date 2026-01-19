@@ -831,6 +831,30 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
+    void invitationsSearchSuperUserWithKeywordStrictMode() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("query", "in")
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 3)
+                .queryParam("sort", "created_at")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(2, page.getTotalElements());
+        List<Map<String, Object>> invitations = page.getContent();
+        assertEquals(2, invitations.size());
+    }
+
+    @Test
     void invitationsSearchInviter() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
         Role role = roleRepository.findByName("Calendar").get();
@@ -841,6 +865,40 @@ class InvitationControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .queryParam("roleId", role.getId())
+                .queryParam("pageNumber", 0)
+                .queryParam("pageSize", 1)
+                .queryParam("sort", "email")
+                .queryParam("sortDirection", Sort.Direction.DESC.name())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/search")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(1, page.getTotalElements());
+        List<Map<String, Object>> invitations = page.getContent();
+        assertEquals(1, invitations.size());
+
+        Map<String, Object> invitation = invitations.getFirst();
+        List<String> actual = ((List<Map<String, Object>>) invitation.get("roles"))
+                .stream()
+                .map(m -> (String) m.get("name"))
+                .sorted()
+                .toList();
+        assertEquals(List.of("Calendar", "Mail"), actual);
+    }
+
+    @Test
+    void invitationsSearchInviterStrictMode() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        Role role = roleRepository.findByName("Calendar").get();
+
+        DefaultPage<Map<String, Object>> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("roleId", role.getId())
+                .queryParam("query", "i")
                 .queryParam("pageNumber", 0)
                 .queryParam("pageSize", 1)
                 .queryParam("sort", "email")

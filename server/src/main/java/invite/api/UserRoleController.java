@@ -132,15 +132,17 @@ public class UserRoleController implements UserRoleResource {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> page;
-        boolean queryIsNotEmpty = StringUtils.hasText(query);
-        query = queryIsNotEmpty ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
-        String parsedQuery = queryIsNotEmpty ? FullSearchQueryParser.parse(query) : "";
-        if (queryIsNotEmpty && !parsedQuery.equals("*")) {
+        boolean queryHasText = StringUtils.hasText(query);
+        query = queryHasText ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
+        String parsedQuery = queryHasText ? FullSearchQueryParser.parse(query) : "";
+        boolean noSearchTokens = parsedQuery.equals("*");
+        if (queryHasText && !noSearchTokens) {
             page = guests ?
                     userRoleRepository.searchGuestsByPageWithKeyword(roleId, parsedQuery, pageable) :
                     userRoleRepository.searchNonGuestsByPageWithKeyword(roleId, parsedQuery, pageable);
-        } else if ("*".equals(parsedQuery)) {
+        } else if (noSearchTokens) {
             //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
+            query = query.toUpperCase() + "%";
             page = guests ?
                     userRoleRepository.searchGuestsByPageWithStrictSearch(roleId, query, pageable) :
                     userRoleRepository.searchNonGuestsByPageWithStrictSearch(roleId, query, pageable);

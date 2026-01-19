@@ -56,6 +56,19 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
     Page<Map<String, Object>> searchByPageWithKeyword(String keyWord, Pageable pageable);
 
     @Query(value = """
+             SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
+                u.created_at as createdAt, u.last_activity as lastActivity,
+            (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
+              FROM users u WHERE 
+                       UPPER(u.email) LIKE ?1 or UPPER(u.schac_home_organization) LIKE ?1                      
+            """,
+            countQuery = "SELECT count(*) FROM users WHERE " +
+                    "UPPER(u.email) LIKE ?1 or UPPER(u.schac_home_organization) LIKE ?1",
+            queryRewriter = UserRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPageWithStrictMode(String keyWord, Pageable pageable);
+
+    @Query(value = """
             SELECT distinct(u.id), u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity
             FROM users u
             INNER JOIN user_roles ur ON ur.user_id = u.id
@@ -77,6 +90,18 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             queryRewriter = UserRepository.class,
             nativeQuery = true)
     Page<Map<String, Object>> searchByPageRoleUsersWithKeyWord(String organisationGUID, String query, Pageable pageable);
+
+    @Query(value = """
+            SELECT distinct(u.id), u.email, u.name, u.schac_home_organization, u.created_at, u.last_activity
+            FROM users u
+            INNER JOIN user_roles ur ON ur.user_id = u.id
+            INNER JOIN roles r ON r.id = ur.role_id
+            WHERE r.organization_guid = ?1 AND
+            (UPPER(u.email) LIKE ?2 or UPPER(u.schac_home_organization) LIKE ?2)
+            """,
+            queryRewriter = UserRepository.class,
+            nativeQuery = true)
+    Page<Map<String, Object>> searchByPageRoleUsersWithStrictSearch(String organisationGUID, String query, Pageable pageable);
 
     @Query(value = """
             SELECT ur.user_id, ur.authority, ur.end_date, r.name, r.id
