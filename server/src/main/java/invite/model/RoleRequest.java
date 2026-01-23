@@ -36,8 +36,6 @@ public class RoleRequest implements Serializable{
 
     private boolean eduIDOnly;
 
-    private boolean blockExpiryDate;
-
     private boolean overrideSettingsAllowed;
 
     private String organizationGUID;

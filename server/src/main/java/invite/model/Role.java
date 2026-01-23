@@ -52,9 +52,6 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "edu_id_only")
     private boolean eduIDOnly;
 
-    @Column(name = "block_expiry_date")
-    private boolean blockExpiryDate;
-
     @Column(name = "override_settings_allowed")
     private boolean overrideSettingsAllowed;
 
@@ -146,7 +143,6 @@ public class Role implements Serializable, Provisionable {
         this.defaultExpiryDate = roleRequest.getDefaultExpiryDate();
         this.enforceEmailEquality = roleRequest.isEnforceEmailEquality();
         this.eduIDOnly = roleRequest.isEduIDOnly();
-        this.blockExpiryDate = roleRequest.isBlockExpiryDate();
         this.overrideSettingsAllowed = roleRequest.isOverrideSettingsAllowed();
         this.organizationGUID = roleRequest.getOrganizationGUID();
         this.inviterDisplayName = roleRequest.getInviterDisplayName();

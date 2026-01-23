@@ -176,7 +176,6 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                               "defaultExpiryDays": 365,
                                               "enforceEmailEquality": false,
                                               "eduIDOnly": false,
-                                              "blockExpiryDate": false,
                                               "overrideSettingsAllowed": false,
                                               "teamsOrigin": false,
                                               "identifier": "74fd8059-7558-4454-8393-fd84f74c4907",
