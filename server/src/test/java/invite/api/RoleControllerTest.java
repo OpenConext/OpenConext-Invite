@@ -36,7 +36,6 @@ class RoleControllerTest extends AbstractTest {
                 null,
                 false,
                 false,
-                false,
                 true,
                 "ad93daef-0911-e511-80d0-005056956c1a",
                 "From me",
@@ -71,7 +70,6 @@ class RoleControllerTest extends AbstractTest {
                 null,
                 false,
                 false,
-                false,
                 true,
                 null,
                 "From me",
@@ -97,7 +95,7 @@ class RoleControllerTest extends AbstractTest {
 
         Instant defaultExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);
         RoleRequest roleRequest = new RoleRequest("New", "New desc", null, defaultExpiryDate,
-                false, false, false, true,
+                false, false,  true,
                 UUID.randomUUID().toString(), "From me", application("1", EntityType.SAML20_SP));
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
@@ -126,7 +124,7 @@ class RoleControllerTest extends AbstractTest {
         stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         RoleRequest roleRequest = new RoleRequest("New", "New desc", 365, null,
-                false, false, false, true,
+                false, false,  true,
                 "ad93daef-0911-e511-80d0-005056956c1a", "From me", Set.of());
 
 
@@ -150,7 +148,7 @@ class RoleControllerTest extends AbstractTest {
         Set<ApplicationUsage> applicationUsages = application("1", EntityType.SAML20_SP);
         applicationUsages.iterator().next().setLandingPage("nope");
         RoleRequest roleRequest = new RoleRequest("New", "New desc", 365, null,
-                false, false, false, true,
+                false, false,  true,
                 "ad93daef-0911-e511-80d0-005056956c1a", "From me", applicationUsages);
 
         given()
@@ -711,7 +709,6 @@ class RoleControllerTest extends AbstractTest {
                 "description",
                 null,
                 null,
-                false,
                 false,
                 false,
                 false,

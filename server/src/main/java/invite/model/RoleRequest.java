@@ -43,8 +43,6 @@ public class RoleRequest implements Serializable{
     @Schema(description = "The invite can only be accepted by an eduID account", defaultValue = "false")
     private boolean eduIDOnly;
 
-    private boolean blockExpiryDate;
-
     @Schema(description = "Allow changing the settings when sending an invite.", defaultValue = "false")
     private boolean overrideSettingsAllowed;
 
