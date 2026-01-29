@@ -28,8 +28,8 @@ public class UserRequest implements Serializable {
     private static final Log LOG = LogFactory.getLog(UserRequest.class);
 
     private final List<String> schemas = Collections.singletonList("urn:ietf:params:scim:schemas:core:2.0:User");
-    private final String externalId;
-    private final String userName;
+    private String externalId;
+    private String userName;
     private final Name name;
     private String id;
     private final String displayName;
@@ -55,6 +55,12 @@ public class UserRequest implements Serializable {
         this(user, provisioning);
         this.id = remoteScimIdentifier;
     }
+
+    public void setInsitutionalEduID(String eduIDValue) {
+        this.userName = eduIDValue;
+        this.externalId = eduIDValue;
+    }
+
 
     private String resolveUserName(User user, Provisioning provisioning) {
         ScimUserIdentifier scimUserIdentifier = provisioning.getScimUserIdentifier();

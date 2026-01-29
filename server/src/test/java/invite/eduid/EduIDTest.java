@@ -2,6 +2,7 @@ package invite.eduid;
 
 import invite.WireMockExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import invite.exception.RemoteException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -10,8 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EduIDTest {
 
@@ -30,8 +30,8 @@ class EduIDTest {
         stubFor(post(urlPathMatching("/myconext/api/invite/provision-eduid")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(objectMapper.writeValueAsString(eduIDProvision))));
-        Optional<String> eduid = eduID.provisionEduid(eduIDProvision);
-        assertEquals(eduIDProvision.getEduIDValue(), eduid.get());
+        String eduid = eduID.provisionEduid(eduIDProvision);
+        assertEquals(eduIDProvision.getEduIDValue(), eduid);
     }
 
     @SneakyThrows
@@ -41,7 +41,6 @@ class EduIDTest {
         stubFor(post(urlPathMatching("/myconext/api/invite/provision-eduid")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withStatus(404)));
-        Optional<String> eduid = eduID.provisionEduid(eduIDProvision);
-        assertTrue(eduid.isEmpty());
+        assertThrows(RemoteException.class, ()-> eduID.provisionEduid(eduIDProvision)) ;
     }
 }

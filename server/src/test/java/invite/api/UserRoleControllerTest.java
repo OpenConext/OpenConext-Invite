@@ -557,7 +557,7 @@ class UserRoleControllerTest extends AbstractTest {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
         super.stubForManageProvisioning(List.of("1", "2"));
-
+        super.stubForProvisionEduID(UUID.randomUUID().toString());
         super.stubForCreateScimUser();
         super.stubForCreateGraphUser();
         super.stubForCreateScimRole();

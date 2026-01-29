@@ -1,16 +1,21 @@
 package invite.provision;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import invite.AbstractTest;
-import invite.eduid.EduIDProvision;
 import invite.exception.RemoteException;
-import invite.model.*;
+import invite.model.Authority;
+import invite.model.RemoteProvisionedGroup;
+import invite.model.RemoteProvisionedUser;
+import invite.model.Role;
+import invite.model.User;
+import invite.model.UserRole;
 import invite.provision.scim.OperationType;
-import invite.provision.scim.UserRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -49,19 +54,28 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     @Test
     void newUserRequestWithEduIDProvisioning() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
-
         this.stubForManageProvisioning(List.of("1"));
 
-        EduIDProvision eduIDProvision = new EduIDProvision(user.getEduId(), UUID.randomUUID().toString());
-        stubFor(post(urlPathMatching("/myconext/api/invite/provision-eduid")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(eduIDProvision))));
+        String eduIdForInstitution = UUID.randomUUID().toString();
+        super.stubForProvisionEduID(eduIdForInstitution);
 
         String remoteScimIdentifier = this.stubForCreateScimUser();
         provisioningService.newUserRequest(user);
+        List<ServeEvent> events = this.mockServer.getAllServeEvents();
+        ServeEvent serveEvent = events.stream()
+                .filter(event -> event.getRequest().getUrl().equalsIgnoreCase("/api/scim/v2/Users"))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+        //UserRequest can not be deserialized from String due to missing constructors and setters
+        Map<String, Object> userRequest = objectMapper.readValue(serveEvent.getRequest().getBodyAsString(), new TypeReference<>() {
+        });
+        assertEquals(eduIdForInstitution, userRequest.get("userName"));
+        assertEquals(eduIdForInstitution, userRequest.get("externalId"));
+
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
         assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+
     }
 
     @Test
@@ -93,12 +107,33 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         remoteProvisionedUserRepository.save(remoteProvisionedUser);
         this.stubForManageProvisioning(List.of("1", "4", "5"));
         this.stubForUpdateScimUser();
+        super.stubForProvisionEduID(UUID.randomUUID().toString());
         provisioningService.updateUserRequest(user);
         List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching(String.format("/api/scim/v2/Users/(.*)"))));
 
         assertEquals(1, loggedRequests.size());
         Map<String, Object> userRequest = objectMapper.readValue(loggedRequests.get(0).getBodyAsString(), Map.class);
         assertEquals(remoteScimIdentifier, userRequest.get("id"));
+    }
+
+    @Test
+    void updateUserRequestWithEduIDProvisioningError() throws JsonProcessingException {
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        //Need to ensure the user is updated, therefore the remote needs to exists and provisioning is scimn
+        String remoteScimIdentifier = UUID.randomUUID().toString();
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, remoteScimIdentifier, "7");
+        remoteProvisionedUserRepository.save(remoteProvisionedUser);
+        this.stubForManageProvisioning(List.of("1", "4", "5"));
+        this.stubForUpdateScimUser();
+        try {
+            provisioningService.updateUserRequest(user);
+            fail("Expected RemoteException");
+        } catch (RemoteException e) {
+            assertTrue(e.getMessage().contains("Error in provisionEduid"));
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+            assertNotNull(e.getReference());
+        }
+
     }
 
     @Test

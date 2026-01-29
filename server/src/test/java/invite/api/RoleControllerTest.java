@@ -243,6 +243,7 @@ class RoleControllerTest extends AbstractTest {
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
+        super.stubForProvisionEduID(UUID.randomUUID().toString());
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "4"));
         super.stubForManageProvisioning(List.of("1", "2", "4"));
         super.stubForCreateGraphUser();

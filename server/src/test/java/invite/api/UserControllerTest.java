@@ -636,6 +636,7 @@ class UserControllerTest extends AbstractTest {
         remoteProvisionedUserRepository.save(remoteProvisionedUser);
 
         super.stubForManageProvisioning(List.of("1", "4", "5"));
+        super.stubForProvisionEduID(UUID.randomUUID().toString());
         super.stubForUpdateScimUser();
 
         //This will trigger the SCIM update request, see CustomOidcUserService#loadUser
