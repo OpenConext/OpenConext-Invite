@@ -65,7 +65,7 @@ public class SystemController {
 
     @GetMapping("/cron/cleanup")
     public ResponseEntity<Map<String, List<? extends Serializable>>> cronCleanup(@Parameter(hidden = true) User user) {
-        LOG.debug("/cron/cleanup");
+        LOG.debug(String.format("/cron/cleanup for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         Map<String, List<? extends Serializable>> body = resourceCleaner.doClean();
         return ResponseEntity.ok(body);
@@ -73,14 +73,14 @@ public class SystemController {
 
     @GetMapping("/cron/expiry-notifications")
     public ResponseEntity<Map<String, List<String>>> expiryNotifications(@Parameter(hidden = true) User user) {
-        LOG.debug("/cron/expiry-notifications");
+        LOG.debug(String.format("/cron/expiry-notifications for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         return ResponseEntity.ok(Map.of("mails", roleExpirationNotifier.doSweep()));
     }
 
     @GetMapping("/expiry-user-roles")
     public ResponseEntity<List<UserRole>> expiryUserRoles(@Parameter(hidden = true) User user) {
-        LOG.debug("/cron/notifications");
+        LOG.debug(String.format("/expiry-user-roles for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         Instant instant = Instant.now().plus(30, ChronoUnit.DAYS);
         List<UserRole> userRoles = userRoleRepository.findByEndDateBefore(instant);
@@ -91,8 +91,7 @@ public class SystemController {
     @GetMapping("/unknown-roles")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Role>> unknownRoles(@Parameter(hidden = true) User user) {
-        LOG.debug("/unknown-roles");
-
+        LOG.debug(String.format("/unknown-roles for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
         List<Role> roles = manage.addManageMetaData(roleRepository.findAll());
         List<Role> unknownManageRoles = roles.stream().filter(role -> role.getApplicationMaps().stream().anyMatch(applicationMap -> applicationMap.containsKey("unknown"))).toList();
@@ -104,6 +103,7 @@ public class SystemController {
                                                                @RequestParam(value = "numberOfRole", required = false, defaultValue = "500") int numberOfRole,
                                                                @RequestParam(value = "numberOfUsers", required = false, defaultValue = "75000") int numberOfUsers) {
         LOG.debug("/performance-seed");
+        LOG.debug(String.format("/performance-seed for user %s", user.getEduPersonPrincipalName()));
         if (!config.isPerformanceSeedAllowed()) {
             throw new NotAllowedException("performance-seed not allowed");
         }
