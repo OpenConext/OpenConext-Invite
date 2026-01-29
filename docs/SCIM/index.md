@@ -34,11 +34,15 @@ Er zijn meerdere attributen die een gebruiker of groep identificeren:
 - **id** : De identifier voor een gebruiker of groep bij de Service Provider
 - **externalId** : De identifier binnen de gastenapplicatie
 - **userName** : De identifier voor een gebruiker bij de Service Provider,
-in het SCIM protocol de inlognaam voor de gebruiker als deze bij de Service Provider in gaat loggen.
+in het SCIM protocol de inlognaam voor de gebruiker als deze bij de Service
+Provider in gaat loggen.
 
 Voor de gebruikers die via de invite-applicatie beheerd worden, gebruiken we de
-eduPersonPrincipalName (eppn) of het eduID pseudoniem voor de indentifiers, zodat ze ook bij een SAML
-of oidc authenticatie herkend kunnen worden.
+eduPersonPrincipalName (eppn) of het eduID pseudoniem voor de indentifiers,
+zodat ze ook bij een SAML of oidc authenticatie herkend kunnen worden. Voor
+gestgebruik met eduID heeft
+[de eduID identifier](https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910006/Attributes+in+SURFconext#AttributesinSURFconext-eduIDeduID)
+de voorkeur.
 
 ## Gebruikers
 
@@ -58,8 +62,8 @@ Content-Length: ...
 Content-Type: application/json
 {
   "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
-  "externalId":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806@eduid.nl",
-  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806@eduid.nl",
+  "externalId":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
+  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "name":{
     "familyName":"Havekes",
     "givenName":"Peter"
@@ -97,7 +101,7 @@ Location: https://example.com/v1/Users/{UserID at SP}
     "givenName":"Peter"
   },
   "id": "{UserID at SP}",
-  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806@eduid.nl",
+  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "emails":[
     {
       "type":"other",
@@ -107,7 +111,14 @@ Location: https://example.com/v1/Users/{UserID at SP}
 }
 ```
 
-De **{UserID at SP}** uit het antwoord wordt in de Invite-applicatie opgeslagen bij de user, voor toekomstige updates van de gebruiker.
+De **{UserID at SP}** uit het antwoord wordt in de Invite-applicatie opgeslagen
+bij de user, voor toekomstige updates van de gebruiker.
+
+Als bij het aanmaken van de uitnodiging [via de API](https://invite.test.surfconext.nl/ui/swagger-ui/index.html#/invitation-controller/newInvitation)
+gebruik is gemaakt van `invitesWithInternalPlaceholderIdentifiers`, dan zal de
+waarde van `internalPlaceholderIdentifier` worden doorgevenen als
+`"id": "{internalPlaceholderIdentifier}"` bij het POST bericht om een gebruiker
+aan te maken.
 
 ### Update gebruiker
 
@@ -125,8 +136,8 @@ Content-Length: ...
 Content-Type: application/json
 {
   "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
-  "externalId":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806@eduid.nl",
-  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806@eduid.nl",
+  "externalId":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
+  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "name":{
     "familyName":"Havekes-Nieuwenaam",
     "givenName":"Peter"
@@ -165,7 +176,7 @@ Location: https://example.com/v1/Users/{UserID at SP}
     "resourceType": "User"
   },
   "id": "{UserID at SP}",
-  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806@eduid.nl",
+  "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "emails":[
     {
       "type":"other",
@@ -177,7 +188,9 @@ Location: https://example.com/v1/Users/{UserID at SP}
 
 ### Verwijder gebruiker
 
-Niet actieve gebruikers worden na X dagen verwijderd uit de invite applicatie, en ook bij alle service providers waar de gebruiker is aangemaakt.
+Gebruikers worden na het verlopen van hun laatste rol bij een applicatie
+verwijderd uit SURConext Invite, en ook bij alle service providers waar de
+gebruiker is aangemaakt.
 
 #### Request
 
@@ -196,7 +209,7 @@ HTTP/1.1 200 OK
 
 ## Groepen
 
-De rollen in de invite applicatie worden als rollen gepubliceerd naar de Service Provider.
+De rollen in de invite applicatie worden als groepen gepubliceerd naar de Service Provider.
 
 ### Aanmaken groep
 
@@ -227,7 +240,7 @@ Content-Type: application/json
 }
 ```
 
-Bij het aanmaken van een groep zal de lijst met `members` leeg zijn.
+Bij het initieel aanmaken van een groep zal de lijst met `members` leeg zijn.
 
 #### Response
 
