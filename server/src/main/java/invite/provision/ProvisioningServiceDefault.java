@@ -109,14 +109,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .filter(provisioning -> this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user)
                         .isEmpty())
                 .forEach(provisioning -> {
-                    UserRequest request = new UserRequest(user, provisioning);
-                    if (ScimUserIdentifier.eduID.equals(provisioning.getScimUserIdentifier()) &&
-                            request.getUserName().equals(user.getEduId())) {
-                        //No fallback for failure
-                        this.eduID.provisionEduid(new EduIDProvision(user.getEduId(), provisioning.getInstitutionGUID()));
-                    }
-                    String userRequest = prettyJson(request);
-                    Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, userRequest, user);
+                    UserRequest userRequest = new UserRequest(user, provisioning);
+                    this.resolveInstitutionalEduID(user, provisioning, userRequest);
+                    String userRequestJson = prettyJson(userRequest);
+                    Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, userRequestJson, user);
                     provisioningResponse.ifPresent(response -> {
                         if (!response.isErrorResponse() && StringUtils.hasText(response.remoteIdentifier())) {
                             RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, response.remoteIdentifier(), provisioning.getId());
@@ -128,6 +124,17 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     });
                 });
         return Optional.ofNullable(graphResponseReference.get());
+    }
+
+    private void resolveInstitutionalEduID(User user, Provisioning provisioning, UserRequest request) {
+        if (ScimUserIdentifier.eduID.equals(provisioning.getScimUserIdentifier()) &&
+                request.getUserName().equals(user.getEduId())) {
+            //No fallback for failure
+            EduIDProvision eduIDProvision = new EduIDProvision(user.getEduId(), provisioning.getInstitutionGUID());
+            String eduIdProvisionResponse = this.eduID.provisionEduid(eduIDProvision);
+            //Empty eduIdProvisionResponse is handled by invite.eduid.EduID
+            request.setInsitutionalEduID(eduIdProvisionResponse);
+        }
     }
 
     @Override
@@ -144,8 +151,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 Optional<RemoteProvisionedUser> provisionedUserOptional =
                         this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
                 provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
-                    String userRequest = prettyJson(new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier()));
-                    this.updateRequest(provisioning, userRequest, APIType.USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
+                    UserRequest userRequest = new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
+                    this.resolveInstitutionalEduID(user, provisioning, userRequest);
+                    String userRequestJson = prettyJson(userRequest);
+                    this.updateRequest(provisioning, userRequestJson, APIType.USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
                 });
             }
         });
@@ -198,8 +207,10 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             if (provisionedUserOptional.isPresent()) {
                 RemoteProvisionedUser remoteProvisionedUser = provisionedUserOptional.get();
                 String remoteIdentifier = remoteProvisionedUser.getRemoteIdentifier();
-                String userRequest = prettyJson(new UserRequest(user, provisioning, remoteIdentifier));
-                this.deleteRequest(provisioning, userRequest, user, remoteIdentifier);
+                UserRequest userRequest = new UserRequest(user, provisioning, remoteIdentifier);
+                this.resolveInstitutionalEduID(user, provisioning, userRequest);
+                String userRequestJson = prettyJson(userRequest);
+                this.deleteRequest(provisioning, userRequestJson, user, remoteIdentifier);
                 this.remoteProvisionedUserRepository.delete(remoteProvisionedUser);
             }
         });

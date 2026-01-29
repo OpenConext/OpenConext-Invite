@@ -1,6 +1,7 @@
 package invite;
 
 import invite.config.HashGenerator;
+import invite.eduid.EduIDProvision;
 import invite.manage.EntityType;
 import invite.manage.LocalManage;
 import invite.model.*;
@@ -142,7 +143,7 @@ public abstract class AbstractTest {
     protected LocalManage localManage;
 
     @RegisterExtension
-    WireMockExtension mockServer = new WireMockExtension(8081);
+    protected WireMockExtension mockServer = new WireMockExtension(8081);
 
     @LocalServerPort
     protected int port;
@@ -345,6 +346,13 @@ public abstract class AbstractTest {
         return builder.build();
     }
 
+    protected void stubForProvisionEduID(String eduIdForInstitution) throws JsonProcessingException {
+        EduIDProvision eduIDProvision = new EduIDProvision(eduIdForInstitution, "semantically-not-used");
+        stubFor(post(urlPathMatching("/myconext/api/invite/provision-eduid")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(eduIDProvision))));
+    }
+
     protected void stubForManageProvisioning(List<String> applicationIdentifiers) throws JsonProcessingException {
         List<Map<String, Object>> providers = localManage.provisioning(applicationIdentifiers);
         String body = writeValueAsString(providers);
@@ -352,7 +360,6 @@ public abstract class AbstractTest {
                 .willReturn(aResponse().withHeader("Content-Type", "application/json")
                         .withBody(body)
                         .withStatus(200)));
-
     }
 
     protected void stubForManageProvidersAllowedByIdP(String organisationGUID) throws JsonProcessingException {

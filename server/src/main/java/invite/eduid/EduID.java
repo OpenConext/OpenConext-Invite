@@ -1,5 +1,6 @@
 package invite.eduid;
 
+import invite.exception.RemoteException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,14 +30,18 @@ public class EduID {
         this.headers = initHttpHeaders();
     }
 
-    public Optional<String> provisionEduid(EduIDProvision eduIDProvision) {
+    public String provisionEduid(EduIDProvision eduIDProvision) {
         HttpEntity<EduIDProvision> requestEntity = new HttpEntity<>(eduIDProvision, headers);
         try {
             ResponseEntity<EduIDProvision> responseEntity = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, EduIDProvision.class);
-            return Optional.of(responseEntity.getBody().getEduIDValue());
+            String eduIDValue = responseEntity.getBody().getEduIDValue();
+
+            LOG.info(String.format("eduID %s for institution %s is eduID %s after eduID provisioning",
+                    eduIDProvision.getEduIDValue(), eduIDProvision.getInstitutionGUID(), eduIDValue));
+
+            return eduIDValue;
         } catch (RuntimeException e) {
-            LOG.error("Error in provisionEduid", e);
-            return Optional.empty();
+            throw new RemoteException(HttpStatus.BAD_REQUEST, "Error in provisionEduid", e);
         }
     }
 

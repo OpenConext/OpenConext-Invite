@@ -364,6 +364,7 @@ class InvitationControllerTest extends AbstractTest {
                 .findFirst().get().getAuthority();
         assertEquals(Authority.GUEST, authority);
 
+        super.stubForProvisionEduID(UUID.randomUUID().toString());
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
