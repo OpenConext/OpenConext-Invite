@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.time.Instant;
 import java.time.Period;
 import java.util.List;
@@ -73,24 +72,15 @@ class ResourceCleanerTest extends AbstractTest {
     @SneakyThrows
     @Test
     void lockAlreadyAcquired() {
-        Connection conn = null;
-        try {
-            conn = dataSource.getConnection();
-            subject.tryGetLock(conn, LOCK_NAME);
+        Connection conn = dataSource.getConnection();
+        subject.tryGetLock(conn, LOCK_NAME);
 
-            long beforeUsers = userRepository.count();
-            markUser(GUEST_SUB);
+        long beforeUsers = userRepository.count();
+        markUser(GUEST_SUB);
 
-            subject.clean();
-            //Nothing happened
-            assertEquals(beforeUsers, userRepository.count());
-        } finally {
-            try (PreparedStatement ps = conn.prepareStatement("SELECT RELEASE_LOCK(?)")) {
-                ps.setString(1, LOCK_NAME);
-                ps.executeQuery(); // ignore result
-            }
-        }
-
+        subject.clean();
+        //Nothing happened
+        assertEquals(beforeUsers, userRepository.count());
     }
 
     private void markUser(String sub) {
