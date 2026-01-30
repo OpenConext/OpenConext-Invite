@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public abstract class AbstractNodeLeader {
 
@@ -32,6 +33,8 @@ public abstract class AbstractNodeLeader {
 
             if (!lockAcquired) {
                 LOG.info(String.format("Another node is running %s, skipping this one", name));
+                //Might be that there is a lock not cleaned up due to VM crash
+                this.cleanupStaleLocks(conn, 60);
                 return;
             }
 
@@ -55,30 +58,44 @@ public abstract class AbstractNodeLeader {
                     conn.close();
                 } catch (Exception ignored) {
                     //Can't do anything about this
+                    LOG.warn(String.format("Failed to close lock %s", name));
                 }
             }
         }
     }
 
     protected boolean tryGetLock(Connection conn, String name) throws Exception {
-        try (PreparedStatement ps = conn.prepareStatement("SELECT GET_LOCK(?, ?)")) {
-            ps.setString(1, name);
-            //Use timeout of 0 to have an immediate result
-            ps.setInt(2, 0);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int result = rs.getInt(1);
-                    return !rs.wasNull() && result == 1;
-                }
+        try {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "INSERT INTO distributed_locks (lock_name, acquired_at) VALUES (?, NOW())")) {
+                ps.setString(1, name);
+                ps.executeUpdate();
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                // Duplicate key or other constraint violation means lock is held
                 return false;
             }
+        } finally {
+            conn.setAutoCommit(true);
         }
     }
 
     private void releaseLock(Connection conn, String name) throws Exception {
-        try (PreparedStatement ps = conn.prepareStatement("SELECT RELEASE_LOCK(?)")) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "DELETE FROM distributed_locks WHERE lock_name = ?")) {
             ps.setString(1, name);
-            ps.executeQuery(); // ignore result
+            ps.executeUpdate();
+        }
+    }
+
+    private void cleanupStaleLocks(Connection conn, int timeoutMinutes) throws Exception {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "DELETE FROM distributed_locks WHERE acquired_at < NOW() - INTERVAL ? MINUTE")) {
+            ps.setInt(1, timeoutMinutes);
+            ps.executeUpdate();
         }
     }
 
