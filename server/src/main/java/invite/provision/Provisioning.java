@@ -17,7 +17,7 @@ public class Provisioning {
     private final String id;
     private final String entityId;
     private final ProvisioningType provisioningType;
-    private final String scimUrl;
+    private String scimUrl;
     private final String scimUser;
     private final String scimPassword;
     private final String scimBearerToken;
@@ -41,6 +41,9 @@ public class Provisioning {
 
         this.provisioningType = ProvisioningType.valueOf((String) provider.get("provisioning_type"));
         this.scimUrl = (String) provider.get("scim_url");
+        if (StringUtils.hasText(this.scimUrl) && this.scimUrl.endsWith("/")) {
+            this.scimUrl = this.scimUrl.substring(0, this.scimUrl.length() - 1);
+        }
         this.scimUser = (String) provider.get("scim_user");
         this.scimPassword = (String) provider.get("scim_password");
         this.scimBearerToken = (String) provider.get("scim_bearer_token");
@@ -73,8 +76,8 @@ public class Provisioning {
             case scim -> {
                 assert scimUrl != null : "scimUrl is null";
                 if (scimBearerToken == null) {
-                    assert scimUser != null: "scimUser is null";
-                    assert scimPassword != null: "scimPassword or scimBearerToken is null";
+                    assert scimUser != null : "scimUser is null";
+                    assert scimPassword != null : "scimPassword or scimBearerToken is null";
                 }
             }
             case graph -> {

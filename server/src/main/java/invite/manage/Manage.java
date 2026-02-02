@@ -3,8 +3,15 @@ package invite.manage;
 import invite.model.GroupedProviders;
 import invite.model.Role;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static invite.security.InstitutionAdmin.*;
@@ -81,6 +88,10 @@ public interface Manage {
                     "graph_tenant",
                     "user_wait_time"
             ).forEach(attribute -> application.put(attribute, metaDataFields.get(attribute)));
+        }
+        String scimUrl = (String) application.get("scim_url");
+        if (StringUtils.hasText(scimUrl) && scimUrl.endsWith("/")) {
+            application.put("scim_url", scimUrl.substring(0, scimUrl.length() - 1));
         }
         application.put("type", provider.get("type"));
         application.put("applications", data.get("applications"));

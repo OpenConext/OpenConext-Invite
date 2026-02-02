@@ -35,6 +35,18 @@ class ProvisioningTest {
         this.provisioningMap(ProvisioningType.graph, "graph_client_id", "graph_secret");
     }
 
+    @Test
+    void provisioningScimTrailingSlash() {
+        Map<String, Object> data = Map.of(
+                "provisioning_type", ProvisioningType.scim.name(),
+                "scim_url", "https://scum.url/",
+                "scim_user","user",
+                "scim_password", "secret"
+        );
+        Provisioning provisioning = new Provisioning(data);
+        assertEquals("https://scum.url", provisioning.getScimUrl());
+    }
+
     private void assertInvariant(Map<String, Object> provider) {
         assertThrows(AssertionError.class, () -> new Provisioning(provider));
     }

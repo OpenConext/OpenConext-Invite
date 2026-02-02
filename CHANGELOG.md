@@ -1,4 +1,3 @@
-
 # Change Log
 
 All notable changes to this project will be documented in this file.
@@ -6,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Next (1.0.0)
+## Next (1.0.3)
+
+- Fix: remove trailing slash in `scim_url`
+
+## 1.0.2
+
+- Fix: ensure that when a user is provisioned with eduID as the identifier, invite first calls the eduID
+  provisioning service to obtain an institutional eduID, and then uses that eduID instead of the user’s original eduID
 
 ## 1.0.1
 
@@ -157,10 +163,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Add API endpoints for Openconext-spdashboard integration
 - Add API endpoints for Openconext-myconext integration
 - Fixes https://github.com/OpenConext/OpenConext-Invite/issues/307,
-https://github.com/OpenConext/OpenConext-Invite/issues/312,
-https://github.com/OpenConext/OpenConext-Invite/issues/320,
-https://github.com/OpenConext/OpenConext-Invite/issues/240,
-https://github.com/OpenConext/OpenConext-Invite/issues/310
+  https://github.com/OpenConext/OpenConext-Invite/issues/312,
+  https://github.com/OpenConext/OpenConext-Invite/issues/320,
+  https://github.com/OpenConext/OpenConext-Invite/issues/240,
+  https://github.com/OpenConext/OpenConext-Invite/issues/310
 
 ## 0.0.20 2024-09-13
 
@@ -178,29 +184,29 @@ https://github.com/OpenConext/OpenConext-Invite/issues/310
 - Allow searching for specific role types in users
 - Show correct landingpage for roles in UI and API
 - Fixes issues https://github.com/OpenConext/OpenConext-Invite/issues/231,
-https://github.com/OpenConext/OpenConext-Invite/issues/302,
-https://github.com/OpenConext/OpenConext-Invite/issues/240,
-https://github.com/OpenConext/OpenConext-Invite/issues/298,
-https://github.com/OpenConext/OpenConext-Invite/issues/296,
-https://github.com/OpenConext/OpenConext-Invite/issues/295,
-https://github.com/OpenConext/OpenConext-Invite/issues/297,
-https://github.com/OpenConext/OpenConext-Invite/issues/239,
-https://github.com/OpenConext/OpenConext-Invite/issues/239,
-https://github.com/OpenConext/OpenConext-Invite/issues/241,
-https://github.com/OpenConext/OpenConext-Invite/issues/241,
-https://github.com/OpenConext/OpenConext-Invite/issues/293,
-https://github.com/OpenConext/OpenConext-Invite/issues/235,
-https://github.com/OpenConext/OpenConext-Invite/issues/235,
-https://github.com/OpenConext/OpenConext-Invite/issues/234,
-https://github.com/OpenConext/OpenConext-Invite/issues/232,
-https://github.com/OpenConext/OpenConext-Invite/issues/232,
-https://github.com/OpenConext/OpenConext-Invite/issues/233,
-https://github.com/OpenConext/OpenConext-Invite/issues/233,
-https://github.com/OpenConext/OpenConext-Invite/issues/231,
-https://github.com/OpenConext/OpenConext-Invite/issues/230,
-https://github.com/OpenConext/OpenConext-Invite/issues/227,
-https://github.com/OpenConext/OpenConext-Invite/issues/228,
-https://github.com/OpenConext/OpenConext-Invite/issues/291
+  https://github.com/OpenConext/OpenConext-Invite/issues/302,
+  https://github.com/OpenConext/OpenConext-Invite/issues/240,
+  https://github.com/OpenConext/OpenConext-Invite/issues/298,
+  https://github.com/OpenConext/OpenConext-Invite/issues/296,
+  https://github.com/OpenConext/OpenConext-Invite/issues/295,
+  https://github.com/OpenConext/OpenConext-Invite/issues/297,
+  https://github.com/OpenConext/OpenConext-Invite/issues/239,
+  https://github.com/OpenConext/OpenConext-Invite/issues/239,
+  https://github.com/OpenConext/OpenConext-Invite/issues/241,
+  https://github.com/OpenConext/OpenConext-Invite/issues/241,
+  https://github.com/OpenConext/OpenConext-Invite/issues/293,
+  https://github.com/OpenConext/OpenConext-Invite/issues/235,
+  https://github.com/OpenConext/OpenConext-Invite/issues/235,
+  https://github.com/OpenConext/OpenConext-Invite/issues/234,
+  https://github.com/OpenConext/OpenConext-Invite/issues/232,
+  https://github.com/OpenConext/OpenConext-Invite/issues/232,
+  https://github.com/OpenConext/OpenConext-Invite/issues/233,
+  https://github.com/OpenConext/OpenConext-Invite/issues/233,
+  https://github.com/OpenConext/OpenConext-Invite/issues/231,
+  https://github.com/OpenConext/OpenConext-Invite/issues/230,
+  https://github.com/OpenConext/OpenConext-Invite/issues/227,
+  https://github.com/OpenConext/OpenConext-Invite/issues/228,
+  https://github.com/OpenConext/OpenConext-Invite/issues/291
 
 ## 0.0.19 2024-09-10
 
@@ -254,7 +260,8 @@ https://github.com/OpenConext/OpenConext-Invite/issues/291
 - Fix styling of welcome deadend on medium screens
 - Make clear on welcome/profile which are your actual guest roles and for which you have a different authority
 - Fix wrong explanation with override invite settings option
-- Voot and invite-AA endpoints will only return roles the user is actually a guest in, not a different authority, just like provisioning already works
+- Voot and invite-AA endpoints will only return roles the user is actually a guest in, not a different authority, just
+  like provisioning already works
 - Unbreak 'also invite as guest' when a user upgrades their own role
 - Support updating changed attributes in SCIM
 - Provisionings now show created date
