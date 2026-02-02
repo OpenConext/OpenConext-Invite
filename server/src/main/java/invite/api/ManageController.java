@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -161,8 +162,18 @@ public class ManageController {
                 .toList());
         return ResponseEntity.ok(Map.of(
                 "providers", providers,
-                "provisionings", provisionings
+                "provisionings", sanitizeProvisionings(provisionings)
         ));
+    }
+
+    private List<Map<String, Object>> sanitizeProvisionings(List<Map<String, Object>> provisionings) {
+        List<String> allowedAttributes = List.of("applications", "name:en", "provisioning_type", "name:nl");
+        return provisionings.stream().map(provisioning -> {
+                    Map<String, Object> sanitized = new HashMap<>();
+                    allowedAttributes.forEach(attr -> sanitized.put(attr, provisioning.get(attr)));
+                    return sanitized;
+                }
+        ).toList();
     }
 
     @GetMapping("/provisionings/{id}")

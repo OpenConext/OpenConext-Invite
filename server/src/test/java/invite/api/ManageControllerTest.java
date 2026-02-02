@@ -44,7 +44,9 @@ class ManageControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(5, result.get("providers").size());
-        assertEquals(4, result.get("provisionings").size());
+        List<Map<String, Object>> provisionings = result.get("provisionings");
+        assertEquals(4, provisionings.size());
+        provisionings.forEach(provisioning -> assertTrue(provisioning.size() < 5));
 
         List<LoggedRequest> loggedRequestsForSP = findAll(postRequestedFor(urlPathMatching("/manage/api/internal/rawSearch/saml20_sp")));
         assertEquals(1, loggedRequestsForSP.size());
