@@ -65,14 +65,13 @@ public class RoleController implements ApplicationResource {
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
     private final String groupUrnPrefix;
-    private final UserRoleRepository userRoleRepository;
 
     public RoleController(RoleRepository roleRepository,
                           ApplicationRepository applicationRepository,
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
-                          @Value("${voot.group_urn_domain}") String groupUrnPrefix, UserRoleRepository userRoleRepository) {
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
@@ -80,7 +79,6 @@ public class RoleController implements ApplicationResource {
         this.provisioningService = provisioningService;
         this.roleOperations = new RoleOperations(this);
         this.groupUrnPrefix = groupUrnPrefix;
-        this.userRoleRepository = userRoleRepository;
     }
 
     @GetMapping("")
@@ -216,7 +214,7 @@ public class RoleController implements ApplicationResource {
 
         provisioningService.deleteGroupRequest(role);
         provisioningService.deleteUserRequest(role);
-        roleRepository.delete(role);
+        roleRepository.deleteRoleById(role.getId());
 
         AccessLogger.role(LOG, Event.Deleted, user, role);
         return Results.deleteResult();
