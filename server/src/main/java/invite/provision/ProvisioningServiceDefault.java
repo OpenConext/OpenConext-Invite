@@ -128,13 +128,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
         requestFactory.setReadTimeout(Duration.ofMinutes(1));
         restTemplate.setRequestFactory(requestFactory);
-        RetryTemplate retryTemplate = RetryTemplate.builder()
-                .maxAttempts(3)
-                .fixedBackoff(1000)
-                .build();
-        ClientHttpRequestInterceptor retryInterceptor = (request, body, execution) ->
-                retryTemplate.execute(context -> execution.execute(request, body));
-        restTemplate.getInterceptors().add(retryInterceptor);
         this.roleRepository = roleRepository;
     }
 
