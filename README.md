@@ -192,3 +192,17 @@ To build and deploy (the latter requires credentials in your maven settings):
 ```bash
 mvn clean deploy
 ```
+
+## [Upgrade](#upgrade)
+
+To check the pom.xml with the latest versions, run
+```
+cd server
+mvn versions:display-dependency-updates -DprocessDependencyManagement=false -DdependencyIncludes=*:*
+```
+To see the latest versions report for the client run
+```
+cd client
+nvm use
+yarn outdated
+```

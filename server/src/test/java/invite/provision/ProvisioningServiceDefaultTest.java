@@ -25,6 +25,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("unchecked")
 class ProvisioningServiceDefaultTest extends AbstractTest {
 
     @Autowired
@@ -39,7 +40,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         provisioningService.newUserRequest(user);
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
-        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.getFirst().getRemoteIdentifier());
     }
 
     @Test
@@ -74,7 +75,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
 
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
-        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.getFirst().getRemoteIdentifier());
 
     }
 
@@ -90,7 +91,8 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         provisioningService.newUserRequest(user);
 
         ServeEvent event = getAllServeEvents().stream().filter(e -> e.getRequest().getUrl().equals("/api/scim/v2/Users")).toList().getFirst();
-        Map userRequest = objectMapper.readValue(event.getRequest().getBodyAsString(), Map.class);
+        Map<String, Object> userRequest = objectMapper.readValue(event.getRequest().getBodyAsString(), new TypeReference<>() {
+        });
         assertEquals(internalPlaceholderIdentifier, userRequest.get("id"));
 
         RemoteProvisionedUser remoteProvisionedUser = remoteProvisionedUserRepository.findByRemoteScimIdentifier(remoteScimIdentifier).get();
@@ -109,10 +111,10 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         this.stubForUpdateScimUser();
         super.stubForProvisionEduID(UUID.randomUUID().toString());
         provisioningService.updateUserRequest(user);
-        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching(String.format("/api/scim/v2/Users/(.*)"))));
+        List<LoggedRequest> loggedRequests = findAll(putRequestedFor(urlPathMatching("/api/scim/v2/Users/(.*)")));
 
         assertEquals(1, loggedRequests.size());
-        Map<String, Object> userRequest = objectMapper.readValue(loggedRequests.get(0).getBodyAsString(), Map.class);
+        Map<String, Object> userRequest = objectMapper.readValue(loggedRequests.getFirst().getBodyAsString(), Map.class);
         assertEquals(remoteScimIdentifier, userRequest.get("id"));
     }
 
@@ -189,7 +191,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         provisioningService.updateUserRoleRequest(userRole);
         List<LoggedRequest> loggedRequests = findAll(postRequestedFor(urlPathMatching("/eva/api/v1/guest/create")));
         assertEquals(1, loggedRequests.size());
-        assertTrue(loggedRequests.get(0).getBodyAsString().contains(id));
+        assertTrue(loggedRequests.getFirst().getBodyAsString().contains(id));
 
     }
 
@@ -245,7 +247,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
 
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
-        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.get(0).getRemoteIdentifier());
+        assertEquals(remoteScimIdentifier, remoteProvisionedUsers.getFirst().getRemoteIdentifier());
 
         List<LoggedRequest> requests = findAll(postRequestedFor(urlPathMatching("/eva/api/v1/guest/create")));
         assertEquals(2, requests.size());

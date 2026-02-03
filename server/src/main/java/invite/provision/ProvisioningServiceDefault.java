@@ -1,48 +1,79 @@
 package invite.provision;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import crypto.KeyStore;
 import invite.eduid.EduID;
 import invite.eduid.EduIDProvision;
 import invite.exception.InvalidInputException;
 import invite.exception.RemoteException;
 import invite.manage.Manage;
 import invite.manage.ManageIdentifier;
-import invite.model.*;
+import invite.model.Application;
+import invite.model.Authority;
+import invite.model.Provisionable;
+import invite.model.RemoteProvisionedGroup;
+import invite.model.RemoteProvisionedUser;
+import invite.model.Role;
+import invite.model.User;
+import invite.model.UserRole;
 import invite.provision.eva.EvaClient;
 import invite.provision.graph.GraphClient;
 import invite.provision.graph.GraphResponse;
-import invite.provision.scim.*;
+import invite.provision.scim.GroupPatchRequest;
+import invite.provision.scim.GroupRequest;
+import invite.provision.scim.GroupURN;
+import invite.provision.scim.Member;
+import invite.provision.scim.Operation;
+import invite.provision.scim.OperationType;
+import invite.provision.scim.UserRequest;
 import invite.repository.RemoteProvisionedGroupRepository;
 import invite.repository.RemoteProvisionedUserRepository;
+import invite.repository.RoleRepository;
 import invite.repository.UserRoleRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import crypto.KeyStore;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import okhttp3.OkHttpClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @SuppressWarnings("unchecked")
 public class ProvisioningServiceDefault implements ProvisioningService {
 
+    private final RoleRepository roleRepository;
+
     private enum APIType {
-        USER_API("Users"),  GROUP_API("Groups");
+        USER_API("Users"), GROUP_API("Groups");
 
         @Getter
         private final String display;
@@ -82,7 +113,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                       EduID eduID,
                                       @Value("${voot.group_urn_domain}") String groupUrnPrefix,
                                       @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
-                                      @Value("${config.server-url}") String serverBaseURL) {
+                                      @Value("${config.server-url}") String serverBaseURL, RoleRepository roleRepository) {
         this.userRoleRepository = userRoleRepository;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
         this.remoteProvisionedGroupRepository = remoteProvisionedGroupRepository;
@@ -93,11 +124,18 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         this.eduID = eduID;
         this.graphClient = new GraphClient(serverBaseURL, eduidIdpSchacHomeOrganization, keyStore, objectMapper);
         this.evaClient = new EvaClient(keyStore, remoteProvisionedUserRepository);
-        // Otherwise, we can't use method PATCH
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(1, TimeUnit.MINUTES);
-        builder.retryOnConnectionFailure(true);
-        restTemplate.setRequestFactory(new OkHttp3ClientHttpRequestFactory(builder.build()));
+        // Using JdkClientHttpRequestFactory (available in Spring 6.1+)
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
+        requestFactory.setReadTimeout(Duration.ofMinutes(1));
+        restTemplate.setRequestFactory(requestFactory);
+        RetryTemplate retryTemplate = RetryTemplate.builder()
+                .maxAttempts(3)
+                .fixedBackoff(1000)
+                .build();
+        ClientHttpRequestInterceptor retryInterceptor = (request, body, execution) ->
+                retryTemplate.execute(context -> execution.execute(request, body));
+        restTemplate.getInterceptors().add(retryInterceptor);
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -201,6 +239,63 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
         List<Provisioning> provisionings = getProvisionings(user);
         //Delete the user to all provisionings in Manage where the user is known
+        deprovisionUser(user, provisionings);
+    }
+
+    @Override
+    public void deleteUserRequest(User user, UserRole userRole) {
+        //First send update role request
+        this.updateGroupRequest(userRole, OperationType.Remove);
+        /*
+         * We first need a List all provisionings for the user#userRole, and then we need to remove the provisiongs
+         * from that List that are in use by other user#userRoles, and those are the provisionings which we need to delete
+         */
+        List<Provisioning> userRoleProvisionings = getProvisioningsUserRole(user, userRole);
+        List<String> otherProvisioningIdentifiers = user.getUserRoles().stream()
+                .filter(otherUserRole -> !otherUserRole.getId().equals(userRole.getId()))
+                .map(otherUserRole -> getProvisioningsUserRole(user, userRole))
+                .flatMap(Collection::stream)
+                .map(Provisioning::getId)
+                .toList();
+        List<Provisioning> provisionings = userRoleProvisionings.stream()
+                .filter(provisioning -> !otherProvisioningIdentifiers.contains(provisioning.getId()))
+                .toList();
+        //Delete the user to the not used anymore provisionings  in Manage
+        deprovisionUser(user, provisionings);
+    }
+
+    @Override
+    public void deleteUserRequest(Role role) {
+        List<String> manageIdentifiers = getManageIdentifiers(role);
+        List<Provisioning> allRoleProvisionings = manage.provisioning(manageIdentifiers).stream()
+                .map(Provisioning::new)
+                .toList();
+        /*
+         * We can't deprovision all users of the Role in each provisioning, as they might be in use in other provisioned
+         * roles. We need all provisionings of the Role, but we need to check for each user which provisionings needs to
+         * be excluded from the deprovision.
+         */
+        List<UserRole> userRoles = userRoleRepository.findByRole(role);
+        userRoles.forEach(userRole -> {
+            User user = userRole.getUser();
+            List<ManageIdentifier> otherManageIdentifiers = user.getUserRoles().stream()
+                    .filter(otherUserRole -> !otherUserRole.getId().equals(userRole.getId()))
+                    .map(otherUserRole -> user.manageIdentifierSet(userRole))
+                    .flatMap(Collection::stream)
+                    .toList();
+            // Provisionings that are used by any other userRoles are filtered out
+            List<Provisioning> provisionings = allRoleProvisionings.stream()
+                    .filter(provisioning -> provisioning.getRemoteApplications().stream()
+                            .noneMatch(otherManageIdentifiers::contains))
+                    .toList();
+            //Delete the user to the not used anymore provisionings  in Manage
+            deprovisionUser(user, provisionings);
+        });
+
+
+    }
+
+    private void deprovisionUser(User user, List<Provisioning> provisionings) {
         provisionings.forEach(provisioning -> {
             Optional<RemoteProvisionedUser> provisionedUserOptional = this.remoteProvisionedUserRepository
                     .findByManageProvisioningIdAndUser(provisioning.getId(), user);
@@ -461,6 +556,12 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     private List<Provisioning> getProvisionings(User user) {
         Set<ManageIdentifier> manageIdentifiers = user.manageIdentifierSet();
+        List<String> identifiers = manageIdentifiers.stream().map(ManageIdentifier::manageId).toList();
+        return manage.provisioning(identifiers).stream().map(Provisioning::new).toList();
+    }
+
+    private List<Provisioning> getProvisioningsUserRole(User user, UserRole userRole) {
+        Set<ManageIdentifier> manageIdentifiers = user.manageIdentifierSet(userRole);
         List<String> identifiers = manageIdentifiers.stream().map(ManageIdentifier::manageId).toList();
         return manage.provisioning(identifiers).stream().map(Provisioning::new).toList();
     }

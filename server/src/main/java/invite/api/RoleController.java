@@ -13,6 +13,7 @@ import invite.provision.scim.GroupURN;
 import invite.repository.ApplicationRepository;
 import invite.repository.ApplicationUsageRepository;
 import invite.repository.RoleRepository;
+import invite.repository.UserRoleRepository;
 import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -64,13 +65,14 @@ public class RoleController implements ApplicationResource {
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
     private final String groupUrnPrefix;
+    private final UserRoleRepository userRoleRepository;
 
     public RoleController(RoleRepository roleRepository,
                           ApplicationRepository applicationRepository,
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
-                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix, UserRoleRepository userRoleRepository) {
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
@@ -78,6 +80,7 @@ public class RoleController implements ApplicationResource {
         this.provisioningService = provisioningService;
         this.roleOperations = new RoleOperations(this);
         this.groupUrnPrefix = groupUrnPrefix;
+        this.userRoleRepository = userRoleRepository;
     }
 
     @GetMapping("")
@@ -212,7 +215,9 @@ public class RoleController implements ApplicationResource {
         }
 
         provisioningService.deleteGroupRequest(role);
+        provisioningService.deleteUserRequest(role);
         roleRepository.delete(role);
+
         AccessLogger.role(LOG, Event.Deleted, user, role);
         return Results.deleteResult();
     }
