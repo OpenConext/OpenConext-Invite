@@ -790,8 +790,6 @@ class RoleControllerTest extends AbstractTest {
     @Test
     @SuppressWarnings("unchecked")
     void updateDisplayNameScimProvivisiong() throws Exception {
-        //Because the user is changed and provisionings are queried
-        stubForManageProvisioning(List.of("4"));
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("4"));
@@ -828,12 +826,54 @@ class RoleControllerTest extends AbstractTest {
         //GroupRequest can not be deserialized from String due to missing constructors and setters
         Map<String, Object> groupRequest = objectMapper.readValue(serveEvent.getRequest().getBodyAsString(), new TypeReference<>() {
         }) ;
-        System.out.println(groupRequest);
         List<Map<String, String>> operations = (List<Map<String, String>>) groupRequest.get("Operations");
         Map<String, String> operation = operations.getFirst();
         assertEquals("replace", operation.get("op"));
         assertEquals("displayName", operation.get("path"));
         assertEquals("changed", operation.get("value"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void updateDisplayNameScimProvivisiongPut() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
+        super.stubForManageProvisioning(List.of("1"));
+
+        Role roleDB = roleRepository.search("wiki", 1).get(0);
+        roleDB.setName("changed");
+
+        //Ensure update provisioning is done
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(roleDB, UUID.randomUUID().toString(), "7"));
+        //Prevent new user POST provisionings
+        List<UserRole> userRoles = userRoleRepository.findByRole(roleDB);
+        userRoles.forEach(userRole -> {
+            remoteProvisionedUserRepository.save(new RemoteProvisionedUser(userRole.getUser(), UUID.randomUUID().toString(), "7"));
+        });
+
+        //There will be a PUT request, with the full member content and the changed displayName
+        super.stubForUpdateScimRole();
+        Role updated = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(roleDB)
+                .put("/api/v1/roles")
+                .as(Role.class);
+        assertEquals("changed", updated.getName());
+
+        List<ServeEvent> serveEvents = getAllServeEvents();
+        ServeEvent serveEvent = serveEvents.stream()
+                .filter(event -> event.getRequest().getUrl().startsWith("/api/scim/v2/Groups"))
+                .findFirst().orElseThrow(() -> new NotFoundException("No Group patch request found"));
+        //GroupRequest can not be deserialized from String due to missing constructors and setters
+        Map<String, Object> groupRequest = objectMapper.readValue(serveEvent.getRequest().getBodyAsString(), new TypeReference<>() {
+        }) ;
+        assertEquals("changed", groupRequest.get("displayName"));
+        assertEquals(userRoles.size(), ((List<Map<String, String>>) groupRequest.get("members")).size());
     }
 
     private Role roleByName(String name, List<Role> roles) {
