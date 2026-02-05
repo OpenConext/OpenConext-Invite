@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Next (1.0.3)
 
 - Fix: remove trailing slash in `scim_url`
+- Fix: send PATCH request for change of displayName of Group (e.g. the name of the Role)
 
 ## 1.0.2
 
