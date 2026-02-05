@@ -200,7 +200,16 @@ public class User implements Serializable, Provisionable {
 
     @JsonIgnore
     public Set<ManageIdentifier> manageIdentifierSet() {
-        return userRoles.stream()
+        return manageIdentifierSet(this.userRoles);
+    }
+
+    @JsonIgnore
+    public Set<ManageIdentifier> manageIdentifierSet(UserRole userRole) {
+        return manageIdentifierSet(Set.of(userRole));
+    }
+
+    private Set<ManageIdentifier> manageIdentifierSet(Set<UserRole> userRoleSet) {
+        return userRoleSet.stream()
                 .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(userRole -> userRole.getRole().getApplicationUsages())
                 .flatMap(Collection::stream)

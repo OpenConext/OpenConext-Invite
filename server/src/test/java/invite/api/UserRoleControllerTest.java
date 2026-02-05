@@ -361,6 +361,7 @@ class UserRoleControllerTest extends AbstractTest {
         remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(guestUserRole.getRole(), remoteScimIdentifier, "8"));
         remoteProvisionedUserRepository.save(new RemoteProvisionedUser(guestUserRole.getUser(), remoteScimIdentifier, "8"));
         stubForUpdateScimRolePatch();
+        stubForDeleteScimUser();
 
         given()
                 .when()

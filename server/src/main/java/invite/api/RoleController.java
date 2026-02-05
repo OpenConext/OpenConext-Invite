@@ -13,6 +13,7 @@ import invite.provision.scim.GroupURN;
 import invite.repository.ApplicationRepository;
 import invite.repository.ApplicationUsageRepository;
 import invite.repository.RoleRepository;
+import invite.repository.UserRoleRepository;
 import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -212,7 +213,9 @@ public class RoleController implements ApplicationResource {
         }
 
         provisioningService.deleteGroupRequest(role);
-        roleRepository.delete(role);
+        provisioningService.deleteUserRequest(role);
+        roleRepository.deleteRoleById(role.getId());
+
         AccessLogger.role(LOG, Event.Deleted, user, role);
         return Results.deleteResult();
     }

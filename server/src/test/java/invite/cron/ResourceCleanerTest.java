@@ -27,7 +27,7 @@ class ResourceCleanerTest extends AbstractTest {
     @Test
     void cleanUsersWithoutActivity() throws JsonProcessingException {
         long beforeUsers = userRepository.count();
-        markUser(GUEST_SUB);
+        markUserAsVeryInactive(GUEST_SUB);
 
         stubForManageProvisioning(List.of("1"));
         //Because there are no RemoteProvisionedGroups
@@ -76,14 +76,14 @@ class ResourceCleanerTest extends AbstractTest {
         subject.tryGetLock(conn, LOCK_NAME);
 
         long beforeUsers = userRepository.count();
-        markUser(GUEST_SUB);
+        markUserAsVeryInactive(GUEST_SUB);
 
         subject.clean();
         //Nothing happened
         assertEquals(beforeUsers, userRepository.count());
     }
 
-    private void markUser(String sub) {
+    private void markUserAsVeryInactive(String sub) {
         User user = userRepository.findBySubIgnoreCase(sub).get();
         Instant past = Instant.now().minus(Period.ofDays(1050));
         user.setLastActivity(past);

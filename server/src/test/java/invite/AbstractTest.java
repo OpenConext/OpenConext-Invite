@@ -38,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.ActiveProfiles;
@@ -139,6 +140,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected ApplicationUsageRepository applicationUsageRepository;
+
+    @Autowired
+    protected JdbcTemplate jdbcTemplate;
 
     protected LocalManage localManage;
 
@@ -585,6 +589,8 @@ public abstract class AbstractTest {
         this.userRepository.deleteAllInBatch();
         this.userRoleRepository.deleteAllInBatch();
         this.apiTokenRepository.deleteAllInBatch();
+        this.jdbcTemplate.update("delete from distributed_locks");
+
 
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");

@@ -12,7 +12,7 @@ import {Footer} from "../components/Footer";
 import {BreadCrumb} from "../components/BreadCrumb";
 import {Invitation} from "./Invitation";
 import {login} from "../utils/Login";
-import NotFound from "./NotFound";
+import {NotFound} from "./NotFound";
 import {Impersonating} from "../components/Impersonating";
 import RefreshRoute from "./RefreshRoute";
 import {InviteOnly} from "./InviteOnly";
@@ -27,6 +27,7 @@ import {Application} from "./Application";
 import {System} from "./System";
 import {flushSync} from "react-dom";
 import {UserTokens} from "./UserTokens";
+import {Busy} from "./Busy";
 
 
 export const App = () => {
@@ -133,6 +134,7 @@ export const App = () => {
                         <Route path="login" element={<Login/>}/>
                         <Route path="deadend" element={<InviteOnly/>}/>
                         <Route path="missingAttributes" element={<MissingAttributes/>}/>
+                        <Route path="/home/login" element={<Busy/>}/>
                         <Route path="/*" element={<NotFound/>}/>
                     </Routes>}
             </div>

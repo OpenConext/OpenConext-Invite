@@ -6,6 +6,7 @@ import invite.exception.NotAllowedException;
 import invite.exception.NotFoundException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
+import invite.manage.ManageIdentifier;
 import invite.model.*;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static invite.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -226,7 +228,8 @@ public class UserRoleController implements UserRoleResource {
         LOG.debug(String.format("DELETE user_roles/%s for user %s",id , user.getEduPersonPrincipalName()));
         UserRole userRole = userRoleRepository.findById(id).orElseThrow(() -> new NotFoundException("UserRole not found"));
         // Users are allowed to remove themselves from a role
-        if (!userRole.getUser().getId().equals(user.getId())) {
+        User userOfUserRole = userRole.getUser();
+        if (!userOfUserRole.getId().equals(user.getId())) {
             UserPermissions.assertValidInvitation(user, isGuest ? Authority.GUEST : userRole.getAuthority(), List.of(userRole.getRole()));
         }
         if (userRole.isGuestRoleIncluded()) {
@@ -242,6 +245,9 @@ public class UserRoleController implements UserRoleResource {
             provisioningService.updateGroupRequest(userRole, OperationType.Remove);
             provisioningService.deleteUserRoleRequest(userRole);
             userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
+            // Deprovision the user for all provisionings which are exclusively used in this userRole
+            provisioningService.deleteUserRequest(userOfUserRole, userRole);
+
             userRoleRepository.deleteUserRoleById(id);
             AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
         }

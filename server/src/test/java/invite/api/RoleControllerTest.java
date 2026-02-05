@@ -531,6 +531,31 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void deleteRoleWithDeprovisioning() throws Exception {
+        Role role = roleRepository.search("wiki", 1).get(0);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        //Ensure delete provisioning is done
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7"));
+        Application application = role.applicationsUsed().iterator().next();
+        super.stubForManagerProvidersByIdIn(application.getManageType(), List.of(application.getManageId()));
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        super.stubForManageProvisioning(List.of(application.getManageId()));
+        super.stubForDeleteScimRole();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", role.getId())
+                .delete("/api/v1/roles/{id}")
+                .then()
+                .statusCode(204);
+        assertEquals(0, roleRepository.search("wiki", 1).size());
+    }
+
+    @Test
     void roleById() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
