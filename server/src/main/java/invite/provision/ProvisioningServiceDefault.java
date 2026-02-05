@@ -565,7 +565,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         RequestEntity<String> requestEntity = null;
         if (hasEvaHook(provisioning) && isUser) {
             requestEntity = this.evaClient.deleteUserRequest(provisioning, (User) provisionable);
-        } else if (hasScimHook(provisioning) && (isUser || provisioning.isScimUserProvisioningOnly())) {
+        } else if (hasScimHook(provisioning) && (isUser || !provisioning.isScimUserProvisioningOnly())) {
             URI uri = this.provisioningUri(provisioning, apiType, Optional.ofNullable(remoteIdentifier));
             HttpHeaders headers = this.httpHeaders(provisioning);
             requestEntity = new RequestEntity<>(request, headers, HttpMethod.DELETE, uri);
