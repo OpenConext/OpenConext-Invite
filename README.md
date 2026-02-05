@@ -196,12 +196,15 @@ mvn clean deploy
 ## [Upgrade](#upgrade)
 
 To check the pom.xml with the latest versions, run
-```
+
+```bash
 cd server
 mvn versions:display-dependency-updates -DprocessDependencyManagement=false -DdependencyIncludes=*:*
 ```
+
 To see the latest versions report for the client run
-```
+
+```bash
 cd client
 nvm use
 yarn outdated
