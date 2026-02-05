@@ -76,7 +76,6 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         List<RemoteProvisionedUser> remoteProvisionedUsers = remoteProvisionedUserRepository.findAll();
         assertEquals(1, remoteProvisionedUsers.size());
         assertEquals(remoteScimIdentifier, remoteProvisionedUsers.getFirst().getRemoteIdentifier());
-
     }
 
     @Test
@@ -215,7 +214,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     @Test
     void updateGroupRequest() {
         //We only provision GUEST users
-        provisioningService.updateGroupRequest(new UserRole(Authority.INVITER, null), OperationType.Add);
+        provisioningService.updateGroupRequest(new UserRole(Authority.INVITER, null), OperationType.add);
     }
 
     @Test

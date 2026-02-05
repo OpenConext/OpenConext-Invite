@@ -199,7 +199,7 @@ public class UserRoleController implements UserRoleResource {
         AccessLogger.user(LOG, Event.Created, user);
 
         provisioningService.newUserRequest(user);
-        newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
+        newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.add));
 
         return ResponseEntity.status(201).body(user);
     }
@@ -242,7 +242,7 @@ public class UserRoleController implements UserRoleResource {
             AccessLogger.userRole(LOG, Event.Updated, user, userRole);
 
         } else {
-            provisioningService.updateGroupRequest(userRole, OperationType.Remove);
+            provisioningService.updateGroupRequest(userRole, OperationType.remove);
             provisioningService.deleteUserRoleRequest(userRole);
             userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
             // Deprovision the user for all provisionings which are exclusively used in this userRole

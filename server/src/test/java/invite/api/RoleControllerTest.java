@@ -1,10 +1,20 @@
 package invite.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import invite.AbstractTest;
 import invite.AccessCookieFilter;
 import invite.DefaultPage;
+import invite.exception.NotFoundException;
 import invite.manage.EntityType;
-import invite.model.*;
+import invite.model.Application;
+import invite.model.ApplicationUsage;
+import invite.model.RemoteProvisionedGroup;
+import invite.model.RemoteProvisionedUser;
+import invite.model.Role;
+import invite.model.RoleRequest;
+import invite.model.UserRole;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -18,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static invite.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -95,7 +106,7 @@ class RoleControllerTest extends AbstractTest {
 
         Instant defaultExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);
         RoleRequest roleRequest = new RoleRequest("New", "New desc", null, defaultExpiryDate,
-                false, false,  true,
+                false, false, true,
                 UUID.randomUUID().toString(), "From me", application("1", EntityType.SAML20_SP));
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
@@ -124,7 +135,7 @@ class RoleControllerTest extends AbstractTest {
         stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         RoleRequest roleRequest = new RoleRequest("New", "New desc", 365, null,
-                false, false,  true,
+                false, false, true,
                 "ad93daef-0911-e511-80d0-005056956c1a", "From me", Set.of());
 
 
@@ -148,7 +159,7 @@ class RoleControllerTest extends AbstractTest {
         Set<ApplicationUsage> applicationUsages = application("1", EntityType.SAML20_SP);
         applicationUsages.iterator().next().setLandingPage("nope");
         RoleRequest roleRequest = new RoleRequest("New", "New desc", 365, null,
-                false, false,  true,
+                false, false, true,
                 "ad93daef-0911-e511-80d0-005056956c1a", "From me", applicationUsages);
 
         given()
@@ -774,6 +785,55 @@ class RoleControllerTest extends AbstractTest {
                 .as(Map.class);
         assertNotNull(result.get("id"));
         assertEquals(String.format("urn:mace:surf.nl:test.surfaccess.nl:%s:570/a", result.get("identifier")), result.get("urn"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void updateDisplayNameScimProvivisiong() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of("4"));
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("4"));
+        super.stubForManageProvisioning(List.of("4"));
+
+        Role roleDB = roleRepository.search("research", 1).get(0);
+        roleDB.setName("changed");
+
+        //Ensure update provisioning is done
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(roleDB, UUID.randomUUID().toString(), "8"));
+        //Prevent new user POST provisionings
+        List<UserRole> userRoles = userRoleRepository.findByRole(roleDB);
+        userRoles.forEach(userRole -> {
+            remoteProvisionedUserRepository.save(new RemoteProvisionedUser(userRole.getUser(), UUID.randomUUID().toString(), "8"));
+        });
+
+        //There will be a PATCH request, with the only operation the change of the displayName
+        super.stubForUpdateScimRolePatch();
+        Role updated = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(roleDB)
+                .put("/api/v1/roles")
+                .as(Role.class);
+        assertEquals("changed", updated.getName());
+
+        List<ServeEvent> serveEvents = getAllServeEvents();
+        ServeEvent serveEvent = serveEvents.stream()
+                .filter(event -> event.getRequest().getUrl().startsWith("/api/scim/v2/Groups"))
+                .findFirst().orElseThrow(() -> new NotFoundException("No Group patch request found"));
+        //GroupRequest can not be deserialized from String due to missing constructors and setters
+        Map<String, Object> groupRequest = objectMapper.readValue(serveEvent.getRequest().getBodyAsString(), new TypeReference<>() {
+        }) ;
+        System.out.println(groupRequest);
+        List<Map<String, String>> operations = (List<Map<String, String>>) groupRequest.get("Operations");
+        Map<String, String> operation = operations.getFirst();
+        assertEquals("replace", operation.get("op"));
+        assertEquals("displayName", operation.get("path"));
+        assertEquals("changed", operation.get("value"));
     }
 
     private Role roleByName(String name, List<Role> roles) {

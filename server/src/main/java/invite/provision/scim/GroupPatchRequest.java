@@ -14,7 +14,7 @@ public class GroupPatchRequest implements Serializable {
     @JsonProperty("Operations")
     private final List<Operation> operations;
 
-    public GroupPatchRequest(String externalId, String id, Operation operation) {
+    public GroupPatchRequest(Operation operation) {
         this.operations = Collections.singletonList(operation);
     }
 }

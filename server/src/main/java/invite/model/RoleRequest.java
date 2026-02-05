@@ -25,7 +25,7 @@ public class RoleRequest implements Serializable{
 
     @NotNull
     @NotBlank
-    @Schema(description = "Unique name of the role", example = "Guest for my application", required = true)
+    @Schema(description = "Unique name of the role", example = "Guest for my application", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @Schema(description = "Brief explanation of this role's purpose", example = "Full access to all modules")

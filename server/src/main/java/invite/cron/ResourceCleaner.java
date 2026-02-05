@@ -96,7 +96,7 @@ public class ResourceCleaner extends AbstractNodeLeader {
             User user = userRole.getUser();
             Role role = userRole.getRole();
             try {
-                provisioningService.updateGroupRequest(userRole, OperationType.Remove);
+                provisioningService.updateGroupRequest(userRole, OperationType.remove);
                 user.removeUserRole(userRole);
                 userRepository.save(user);
                 LOG.info(String.format("Deleted userRole for user %s and role %s with an endDate in the past",

@@ -70,7 +70,7 @@ class ResourceCleanerUnitTest {
                 .deleteUserRequest(any(User.class));
         doThrow(new RuntimeException())
                 .when(provisioningService)
-                .updateGroupRequest(any(UserRole.class), eq(OperationType.Remove));
+                .updateGroupRequest(any(UserRole.class), eq(OperationType.remove));
 
         Map<String, List<? extends Serializable>> results = subject.doClean();
         assertEquals(2, results.get("DeletedNonActiveUsers").size());

@@ -192,7 +192,9 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
                                            @Parameter(hidden = true) User user) {
         LOG.debug(String.format("PUT /roles/ for user %s", user.getEduPersonPrincipalName()));
-        UserPermissions.assertAuthority(user, Authority.MANAGER);
+
+        UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
+
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);
     }

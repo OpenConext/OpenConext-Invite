@@ -356,7 +356,7 @@ public class InvitationController implements InvitationResource {
         //Already provisioned users in the remote systems are ignored / excluded
         Optional<GraphResponse> optionalGraphResponse = isGuest ? provisioningService.newUserRequest(user) : Optional.empty();
         if (isGuest) {
-            newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.Add));
+            newUserRoles.forEach(userRole -> provisioningService.updateGroupRequest(userRole, OperationType.add));
         }
         LOG.info(String.format("User %s accepted invitation with role(s) %s",
                 user.getEduPersonPrincipalName(),

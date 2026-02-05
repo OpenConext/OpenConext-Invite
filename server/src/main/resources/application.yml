@@ -216,8 +216,10 @@ manage:
 springdoc:
   pathsToMatch: "/api/external/v1/**"
   api-docs:
+    enabled: true
     path: "/ui/api-docs"
   swagger-ui:
+    enabled: true
     path: "/ui/api-ui.html"
     operationsSorter: method
     oauth:

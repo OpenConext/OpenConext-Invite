@@ -161,7 +161,7 @@ public class TeamsController {
         userRole = userRoleRepository.save(userRole);
         userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.ADD);
 
-        provisioningService.updateGroupRequest(userRole, OperationType.Add);
+        provisioningService.updateGroupRequest(userRole, OperationType.add);
     }
 
     protected static Authority mapAuthority(invite.teams.Role role) {

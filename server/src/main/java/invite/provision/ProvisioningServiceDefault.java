@@ -19,11 +19,12 @@ import invite.model.UserRole;
 import invite.provision.eva.EvaClient;
 import invite.provision.graph.GraphClient;
 import invite.provision.graph.GraphResponse;
+import invite.provision.scim.DisplayNameOperation;
 import invite.provision.scim.GroupPatchRequest;
 import invite.provision.scim.GroupRequest;
 import invite.provision.scim.GroupURN;
 import invite.provision.scim.Member;
-import invite.provision.scim.Operation;
+import invite.provision.scim.MembersOperation;
 import invite.provision.scim.OperationType;
 import invite.provision.scim.UserRequest;
 import invite.repository.RemoteProvisionedGroupRepository;
@@ -44,9 +45,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
@@ -64,7 +63,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @SuppressWarnings("unchecked")
@@ -228,7 +226,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     public void deleteUserRequest(User user) {
         //First send update role requests
         user.getUserRoles()
-                .forEach(userRole -> this.updateGroupRequest(userRole, OperationType.Remove));
+                .forEach(userRole -> this.updateGroupRequest(userRole, OperationType.remove));
 
         List<Provisioning> provisionings = getProvisionings(user);
         //Delete the user to all provisionings in Manage where the user is known
@@ -238,7 +236,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     @Override
     public void deleteUserRequest(User user, UserRole userRole) {
         //First send update role request
-        this.updateGroupRequest(userRole, OperationType.Remove);
+        this.updateGroupRequest(userRole, OperationType.remove);
         /*
          * We first need a List all provisionings for the user#userRole, and then we need to remove the provisiongs
          * from that List that are in use by other user#userRoles, and those are the provisionings which we need to delete
@@ -343,9 +341,9 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                         .filter(userRoleDB -> userRoleDB.getAuthority().equals(Authority.GUEST) || userRoleDB.isGuestRoleIncluded())
                                         .collect(Collectors.toCollection(ArrayList::new));
                                 boolean userRolePresent = userRoles.stream().anyMatch(dbUserRole -> dbUserRole.getId().equals(userRole.getId()));
-                                if (operationType.equals(OperationType.Add) && !userRolePresent) {
+                                if (operationType.equals(OperationType.add) && !userRolePresent) {
                                     userRoles.add(userRole);
-                                } else if (operationType.equals(OperationType.Remove) && userRolePresent) {
+                                } else if (operationType.equals(OperationType.remove) && userRolePresent) {
                                     userRoles = userRoles.stream()
                                             .filter(dbUserRole -> !dbUserRole.getId().equals(userRole.getId()))
                                             .collect(Collectors.toCollection(ArrayList::new));
@@ -381,7 +379,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .map(Optional::get)
                 .map(RemoteProvisionedUser::getRemoteIdentifier)
                 .toList();
-        if (!userScimIdentifiers.isEmpty()) {
+        if (!userScimIdentifiers.isEmpty() || operationType.equals(OperationType.replace)) {
             if (provisioning.isScimUpdateRolePutMethod()) {
                 String groupRequest = constructGroupRequest(
                         role,
@@ -389,15 +387,13 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                         userScimIdentifiers);
                 this.updateRequest(provisioning, groupRequest, APIType.GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PUT);
             } else {
-                String groupRequest = patchGroupRequest(
-                        role,
-                        userScimIdentifiers,
-                        provisionedGroup.getRemoteIdentifier(),
-                        operationType);
+                GroupPatchRequest request = operationType.equals(OperationType.replace) ?
+                        new GroupPatchRequest(new DisplayNameOperation(role.getName())):
+                        new GroupPatchRequest(new MembersOperation(operationType, userScimIdentifiers));
+                String groupRequest = prettyJson(request);
                 this.updateRequest(provisioning, groupRequest, APIType.GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PATCH);
             }
         }
-
     }
 
     @Override
@@ -405,7 +401,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         //Immutable List cannot be sorted
         List<String> previousManageIdentifiersSorted = previousManageIdentifiers.stream().sorted().toList();
         List<String> newManageIdentifiers = this.getManageIdentifiers(newRole);
-        if (!nameChanged && previousManageIdentifiers.equals(newManageIdentifiers)) {
+        boolean noApplicationsChanged = previousManageIdentifiers.equals(newManageIdentifiers);
+        if (!nameChanged && noApplicationsChanged) {
             LOG.info(String.format("Group %s update request with no difference in manage identifiers (%s). No action required",
                     newRole.getName(),
                     newManageIdentifiers));
@@ -436,13 +433,14 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     }
                     provisionedGroupOptional.ifPresent(provisionedGroup -> {
                         List<UserRole> userRoles = userRoleRepository.findByRole(newRole);
-                        this.sendGroupPutRequest(provisioning, provisionedGroup, userRoles, newRole, OperationType.Add);
+                        this.sendGroupPutRequest(provisioning, provisionedGroup, userRoles, newRole, OperationType.replace);
                     });
                 });
 
         LOG.info(String.format("Deleting existing provisionings %s from group %s", deletedManageIdentifiers, newRole.getName()));
 
-        List<Provisioning> provisionings = manage.provisioning(deletedManageIdentifiers).stream().map(Provisioning::new).toList();
+        List<Provisioning> provisionings = manage.provisioning(deletedManageIdentifiers).stream()
+                .map(Provisioning::new).toList();
         deleteGroupRequest(newRole, provisionings);
     }
 
@@ -486,16 +484,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .toList();
         String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
         return prettyJson(new GroupRequest(externalId, remoteGroupScimIdentifier, role.getName(), members));
-    }
-
-    private String patchGroupRequest(Role role,
-                                     List<String> remoteScimProvisionedUsers,
-                                     String remoteScimProvisionedGroup,
-                                     OperationType operationType) {
-        String externalId = GroupURN.urnFromRole(groupUrnPrefix, role);
-        GroupPatchRequest request = new GroupPatchRequest(externalId, remoteScimProvisionedGroup,
-                new Operation(operationType, remoteScimProvisionedUsers));
-        return prettyJson(request);
     }
 
     private Optional<ProvisioningResponse> newRequest(Provisioning provisioning, String request, Provisionable provisionable) {
