@@ -14,7 +14,7 @@ export const deriveExpirationDate = role => {
         //When the role is serialized from the Server, then the defaultExpiryDate in epoch / 1000, else a genuine Date
         return role.defaultExpiryDate.getTime ? role.defaultExpiryDate : new Date(role.defaultExpiryDate * 1000);
     }
-    return futureDate(role.defaultExpiryDays);
+    return futureDate(role.defaultExpiryDays || 365);
 }
 
 const formatOptions = {month: "short", day: "numeric", year: "numeric"};
