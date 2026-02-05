@@ -46,7 +46,13 @@ export const App = () => {
                             if (res.name && !isInvitationAcceptFlow) {
                                 route = "/deadend";
                             } else if (pathname === "/" || pathname.startsWith("/login") || isInvitationAcceptFlow) {
-                                route = isInvitationAcceptFlow ? pathname : (window.location.pathname + window.location.search);
+                                //for an invitation accept flow we add the search parameters when the user is already logged in
+                                if (isInvitationAcceptFlow && pathname.indexOf("hash") === -1) {
+                                    route = (pathname + window.location.search);
+                                } else {
+                                    route = isInvitationAcceptFlow ? pathname : (window.location.pathname + window.location.search);
+                                }
+
                             }
                         }
                         if (!isEmpty(route)) {
