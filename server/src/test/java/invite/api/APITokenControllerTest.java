@@ -25,7 +25,7 @@ class APITokenControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", INSTITUTION_ADMIN_SUB,
                 institutionalAdminEntitlementOperator(ORGANISATION_GUID));
 
-        List<APIToken> tokens = given()
+        List<Map<String, Object>> tokens = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -71,7 +71,7 @@ class APITokenControllerTest extends AbstractTest {
                 });
         String token = res.get("token");
 
-        APIToken apiToken = given()
+        Map<String, Object> apiToken = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -81,11 +81,11 @@ class APITokenControllerTest extends AbstractTest {
                 .post("/api/v1/tokens")
                 .as(new TypeRef<>() {
                 });
-        assertNull(apiToken.getHashedValue());
-        assertEquals(ORGANISATION_GUID, apiToken.getOrganizationGUID());
-        assertEquals("test", apiToken.getDescription());
+        assertNull(apiToken.get("hashedValue"));
+        assertEquals(ORGANISATION_GUID, apiToken.get("organizationGUID"));
+        assertEquals("test", apiToken.get("description"));
 
-        APIToken apiTokenFromDB = apiTokenRepository.findById(apiToken.getId()).get();
+        APIToken apiTokenFromDB = apiTokenRepository.findById(Long.valueOf(apiToken.get("id").toString())).get();
         assertEquals(HashGenerator.hashToken(token), apiTokenFromDB.getHashedValue());
     }
 
@@ -101,7 +101,7 @@ class APITokenControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get("/api/v1/tokens/generate-token");
 
-        APIToken apiToken = given()
+        Map<String, Object> apiToken = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -111,7 +111,7 @@ class APITokenControllerTest extends AbstractTest {
                 .post("/api/v1/tokens")
                 .as(new TypeRef<>() {
                 });
-        assertEquals("super-users-rule", apiToken.getOrganizationGUID());
+        assertEquals("super-users-rule", apiToken.get("organizationGUID"));
     }
 
     @Test
@@ -149,7 +149,11 @@ class APITokenControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .body(new APIToken("wrong", "wrong", false, "wrong", user))
+                .body(Map.of(
+                        "organizationGUID", "wrong",
+                        "hashedValue", "wrong",
+                        "superUserToken", false,
+                        "description", "test"))
                 .post("/api/v1/tokens")
                 .then()
                 .statusCode(403);
@@ -221,7 +225,7 @@ class APITokenControllerTest extends AbstractTest {
     void apiTokensBySuperAdmin() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 
-        List<APIToken> tokens = given()
+        List<Map<String, Object>> tokens = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -232,8 +236,8 @@ class APITokenControllerTest extends AbstractTest {
                 });
 
         assertEquals(4, tokens.size());
-        assertEquals(1L, tokens.stream().filter(token -> token.isSuperUserToken()).count());
-        assertEquals(2L, tokens.stream().filter(token -> token.getOrganizationGUID() != null).count());
+        assertEquals(1L, tokens.stream().filter(token -> (boolean) token.get("superUserToken")).count());
+        assertEquals(2L, tokens.stream().filter(token -> token.get("organizationGUID") != null).count());
     }
 
     @Test

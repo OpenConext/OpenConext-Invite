@@ -243,7 +243,7 @@ public abstract class AbstractTest {
 
         String keyId = String.format("key_%s", new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()));
         RSAKey rsaKey = generateRsaKey(keyId);
-        String publicKeysJson = new JWKSet(rsaKey.toPublicJWK()).toJSONObject().toString();
+        String publicKeysJson = new JWKSet(rsaKey.toPublicJWK()).toString();
         stubFor(get(urlPathMatching("/jwk-set")).willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(publicKeysJson)));

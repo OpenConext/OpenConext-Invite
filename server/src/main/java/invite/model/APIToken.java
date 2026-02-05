@@ -60,7 +60,7 @@ public class APIToken implements Serializable {
         this.createdAt = Instant.now();
     }
 
-    @JsonProperty
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String owner() {
         return owner != null ? owner.getName() : null;
     }
