@@ -192,7 +192,8 @@ const nl = {
             userInfo: "{{name}} ({{authority}}), laatste activiteit {{lastActivity}}",
             andMore: "En nog {{nbr}} meer.. Bekijk de lijst van huidige gebruikers voor meer details."
         },
-        noProvisioning: "Gebruikers die toegevoegd worden aan deze rol, hebben niet gelijk toegang tot deze applicatie. Zie de <a href=' https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910179/Applicatie+aansluiten+op+SURFconext+Invite' target='_blank'>wiki</a> voor meer informatie."
+        noProvisioning: "Gebruikers die toegevoegd worden aan deze rol, hebben niet gelijk toegang tot deze applicatie. Zie de <a href=' https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910179/Applicatie+aansluiten+op+SURFconext+Invite' target='_blank'>wiki</a> voor meer informatie.",
+        userRolesPresent: "Je mag deze rol niet verwijderen, omdat {{nbr}} gebruiker(s) deze rol hebben. Je moet ze eerst verwijderen."
     },
     applications: {
         title: "Toegangsrollen voor deze applicatie ({{nbr}})",
@@ -465,6 +466,7 @@ const nl = {
         confirm: "Bevestig",
         ok: "OK",
         cancel: "Annuleer",
+        notAllowed: "Niet toegestaan"
     },
     footer: {
         terms: "Gebruiksvoorwaarden",

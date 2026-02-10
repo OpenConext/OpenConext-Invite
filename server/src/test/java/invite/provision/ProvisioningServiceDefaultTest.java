@@ -191,7 +191,6 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         List<LoggedRequest> loggedRequests = findAll(postRequestedFor(urlPathMatching("/eva/api/v1/guest/create")));
         assertEquals(1, loggedRequests.size());
         assertTrue(loggedRequests.getFirst().getBodyAsString().contains(id));
-
     }
 
 

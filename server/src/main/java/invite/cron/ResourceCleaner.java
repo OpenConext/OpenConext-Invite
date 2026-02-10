@@ -50,7 +50,7 @@ public class ResourceCleaner extends AbstractNodeLeader {
     @Scheduled(cron = "${cron.user-cleaner-expression}")
     @Transactional
     public void clean() {
-        super.perform("ResourceCleaner#clean", () -> doClean());
+        super.perform("ResourceCleaner#clean", this::doClean);
     }
 
     public Map<String, List<? extends Serializable>> doClean() {

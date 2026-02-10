@@ -66,10 +66,10 @@ export const RoleForm = () => {
     const [customInviterDisplayName, setCustomInviterDisplayName] = useState(false);
     const [applications, setApplications] = useState([]);
     const [provisionings, setProvisionings] = useState({});
-    const [deletedUserRoles, setDeletedUserRoles] = useState(null);
+    const [deletedUserRoles, setDeletedUserRoles] = useState([]);
     const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[0]);
 
-    const allowedToEditApplication = useState(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user));
+    const allowedToEditApplication = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
 
     useEffect(() => {
             const newRole = id === "new";
@@ -202,7 +202,7 @@ export const RoleForm = () => {
                 confirmationTxt: I18n.t("forms.ok"),
                 confirmationHeader: I18n.t("confirmationDialog.error")
             });
-            setDeletedUserRoles(null);
+            setDeletedUserRoles([]);
             setConfirmationOpen(true);
         })
     }
@@ -231,26 +231,41 @@ export const RoleForm = () => {
         }
     }
 
+    const doDeleteAction = allowedToDelete => {
+        if (allowedToDelete) {
+            doDelete(false);
+        } else {
+            setConfirmationOpen(false);
+        }
+    }
+
     const doDelete = showConfirmation => {
         if (showConfirmation) {
             setLoading(true);
             consequencesRoleDeletion(role.id).then(res => {
                 setLoading(false);
                 setDeletedUserRoles(res);
+                const allowedToDelete = user.superUser || res.length === 0;
+                const question = allowedToDelete ? I18n.t("roles.deleteConfirmation") :
+                    I18n.t("roles.userRolesPresent", {nbr: res.length});
+                const confirmationTxt = allowedToDelete ? I18n.t("confirmationDialog.confirm") :
+                    I18n.t("confirmationDialog.ok");
+                const confirmationHeader = allowedToDelete ? I18n.t("confirmationDialog.title") :
+                    I18n.t("confirmationDialog.notAllowed");
                 setConfirmation({
-                    cancel: () => setConfirmationOpen(false),
-                    action: () => doDelete(false),
+                    cancel: !allowedToDelete ? null : () => setConfirmationOpen(false),
+                    action: () => doDeleteAction(allowedToDelete),
                     warning: true,
                     error: false,
-                    question: I18n.t("roles.deleteConfirmation"),
-                    confirmationTxt: I18n.t("confirmationDialog.confirm"),
-                    confirmationHeader: I18n.t("confirmationDialog.title")
+                    question: question,
+                    confirmationTxt: confirmationTxt,
+                    confirmationHeader: confirmationHeader
                 });
                 setConfirmationOpen(true);
             })
         } else {
             setLoading(true);
-            setDeletedUserRoles(null);
+            setDeletedUserRoles([]);
             deleteRole(role)
                 .then(() => {
                     setConfirmationOpen(false);
@@ -609,20 +624,21 @@ export const RoleForm = () => {
                                                      confirmationHeader={confirmation.confirmationHeader}
                                                      isError={confirmation.error}
                                                      question={confirmation.question}>
-                {!isEmpty(deletedUserRoles) && <div className="consequences">
-                    <p>{I18n.t("roles.consequences.info")}</p>
-                    <ul>
-                        {deletedUserRoles.slice(0, CUT_OFF_DELETED_USER).map((userRole, index) => <li key={index}>
-                            {I18n.t("roles.consequences.userInfo", {
-                                name: userRole.userInfo.name,
-                                authority: I18n.t(`access.${userRole.authority}`),
-                                lastActivity: dateFromEpoch(userRole.userInfo.lastActivity)
-                            })}
-                        </li>)}
-                    </ul>
-                    {deletedUserRoles.length > CUT_OFF_DELETED_USER &&
-                        <p>{I18n.t("roles.consequences.andMore", {nbr: deletedUserRoles.length - CUT_OFF_DELETED_USER})}</p>}
-                </div>}
+                {(!isEmpty(deletedUserRoles) && user.superUser) &&
+                    <div className="consequences">
+                        <p>{I18n.t("roles.consequences.info")}</p>
+                        <ul>
+                            {deletedUserRoles.slice(0, CUT_OFF_DELETED_USER).map((userRole, index) => <li key={index}>
+                                {I18n.t("roles.consequences.userInfo", {
+                                    name: userRole.userInfo.name,
+                                    authority: I18n.t(`access.${userRole.authority}`),
+                                    lastActivity: dateFromEpoch(userRole.userInfo.lastActivity)
+                                })}
+                            </li>)}
+                        </ul>
+                        {deletedUserRoles.length > CUT_OFF_DELETED_USER &&
+                            <p>{I18n.t("roles.consequences.andMore", {nbr: deletedUserRoles.length - CUT_OFF_DELETED_USER})}</p>}
+                    </div>}
             </ConfirmationDialog>}
 
             <UnitHeader
