@@ -193,7 +193,7 @@ const en = {
             andMore: "And {{nbr}} more.. Check the list of current users for more details."
         },
         noProvisioning: "Users added to this role, won't have immediate access to this application. See the <a href=' https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910179/Applicatie+aansluiten+op+SURFconext+Invite' target='_blank'>wiki</a> for more information",
-        userRolesPresent: "You are not allowed to delete this role, as {{nbr}} user(s) have this role. You must first delete them."
+        userRolesPresent: "You are not allowed to delete this role, as {{nbr}} user(s) have this role. You must first delete them from this role."
     },
     applications: {
         title: "Access Roles for this application ({{nbr}})",

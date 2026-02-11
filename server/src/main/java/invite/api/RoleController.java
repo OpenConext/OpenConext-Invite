@@ -7,7 +7,13 @@ import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.manage.EntityType;
 import invite.manage.Manage;
-import invite.model.*;
+import invite.model.Application;
+import invite.model.ApplicationUsage;
+import invite.model.Authority;
+import invite.model.Role;
+import invite.model.RoleRequest;
+import invite.model.User;
+import invite.model.UserRole;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.GroupURN;
 import invite.repository.ApplicationRepository;
@@ -33,12 +39,27 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.sql.SQLTransactionRollbackException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -57,6 +78,7 @@ public class RoleController implements ApplicationResource {
     private static final Log LOG = LogFactory.getLog(RoleController.class);
 
     private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     @Getter
     private final ApplicationRepository applicationRepository;
     @Getter
@@ -67,12 +89,14 @@ public class RoleController implements ApplicationResource {
     private final String groupUrnPrefix;
 
     public RoleController(RoleRepository roleRepository,
+                          UserRoleRepository userRoleRepository,
                           ApplicationRepository applicationRepository,
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.roleRepository = roleRepository;
+        this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
         this.applicationUsageRepository = applicationUsageRepository;
         this.manage = manage;
@@ -203,6 +227,15 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id,
                                            @Parameter(hidden = true) User user) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
+
+        List<UserRole> userRoles = this.userRoleRepository.findByRole(role);
+        if (!userRoles.isEmpty() && !user.isSuperUser()) {
+            throw new UserRestrictionException(
+                    String.format("User %s is not allowed to delete role %s when there are still %s userRoles",
+                            user.getEmail(),
+                            role.getName(),
+                            userRoles.size()));
+        }
 
         LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
