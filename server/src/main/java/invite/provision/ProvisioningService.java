@@ -21,8 +21,6 @@ public interface ProvisioningService {
 
     void deleteUserRequest(User user);
 
-    void deleteUserRequest(User user, UserRole userRole);
-
     void deleteUserRequest(Role role);
 
     void newGroupRequest(Role role);

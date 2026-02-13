@@ -242,11 +242,9 @@ public class UserRoleController implements UserRoleResource {
             AccessLogger.userRole(LOG, Event.Updated, user, userRole);
 
         } else {
-            provisioningService.updateGroupRequest(userRole, OperationType.remove);
-            provisioningService.deleteUserRoleRequest(userRole);
             userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
             // Deprovision the user for all provisionings which are exclusively used in this userRole
-            provisioningService.deleteUserRequest(userOfUserRole, userRole);
+            provisioningService.deleteUserRoleRequest(userRole);
 
             userRoleRepository.deleteUserRoleById(id);
             AccessLogger.userRole(LOG, Event.Deleted, user, userRole);

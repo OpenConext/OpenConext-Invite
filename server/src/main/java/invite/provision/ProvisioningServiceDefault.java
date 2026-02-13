@@ -209,20 +209,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @Override
-    public void deleteUserRoleRequest(UserRole userRole) {
-        List<Provisioning> provisionings = getProvisionings(userRole.getUser());
-        provisionings.forEach(provisioning -> {
-            if (this.hasEvaHook(provisioning)) {
-                RequestEntity requestEntity = this.evaClient.deleteUserRequest(provisioning, userRole.getUser());
-                if (requestEntity != null) {
-                    doExchange(requestEntity, APIType.USER_API, stringParameterizedTypeReference, provisioning);
-                }
-            }
-            //For now only eva is eligible for update's for the userRole (e.g. new end date)
-        });
-    }
-
-    @Override
     public void deleteUserRequest(User user) {
         //First send update role requests
         user.getUserRoles()
@@ -234,24 +220,35 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     @Override
-    public void deleteUserRequest(User user, UserRole userRole) {
+    public void deleteUserRoleRequest(UserRole userRole) {
+        getProvisionings(userRole.getUser())
+                .stream()
+                .filter(this::hasEvaHook)
+                .forEach(provisioning -> {
+                    // Sends deletion request to EVA for each provisioning
+                    RequestEntity requestEntity = this.evaClient.deleteUserRequest(provisioning, userRole.getUser());
+                    if (requestEntity != null) {
+                        doExchange(requestEntity, APIType.USER_API, stringParameterizedTypeReference, provisioning);
+                    }
+                });
         //First send update role request
         this.updateGroupRequest(userRole, OperationType.remove);
         /*
-         * We first need a List all provisionings for the user#userRole, and then we need to remove the provisiongs
-         * from that List that are in use by other user#userRoles, and those are the provisionings which we need to delete
+         * We need a List all provisionings for the user#userRole, and then remove the provisiongs that are still in
+         * use by other user#userRoles, and those remainging are the provisionings which we need to delete
          */
+        User user = userRole.getUser();
         List<Provisioning> userRoleProvisionings = getProvisioningsUserRole(user, userRole);
         List<String> otherProvisioningIdentifiers = user.getUserRoles().stream()
                 .filter(otherUserRole -> !otherUserRole.getId().equals(userRole.getId()))
-                .map(otherUserRole -> getProvisioningsUserRole(user, userRole))
+                .map(otherUserRole -> getProvisioningsUserRole(user, otherUserRole))
                 .flatMap(Collection::stream)
                 .map(Provisioning::getId)
                 .toList();
         List<Provisioning> provisionings = userRoleProvisionings.stream()
                 .filter(provisioning -> !otherProvisioningIdentifiers.contains(provisioning.getId()))
                 .toList();
-        //Delete the user to the not used anymore provisionings  in Manage
+        //Delete the user to the not used anymore provisionings in Manage
         deprovisionUser(user, provisionings);
     }
 
@@ -388,7 +385,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 this.updateRequest(provisioning, groupRequest, APIType.GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PUT);
             } else {
                 GroupPatchRequest request = operationType.equals(OperationType.replace) ?
-                        new GroupPatchRequest(new DisplayNameOperation(role.getName())):
+                        new GroupPatchRequest(new DisplayNameOperation(role.getName())) :
                         new GroupPatchRequest(new MembersOperation(operationType, userScimIdentifiers));
                 String groupRequest = prettyJson(request);
                 this.updateRequest(provisioning, groupRequest, APIType.GROUP_API, provisionedGroup.getRemoteIdentifier(), HttpMethod.PATCH);

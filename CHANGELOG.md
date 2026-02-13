@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fix: remove trailing slash in `scim_url`
 - Fix: send PATCH request for change of displayName of Group (e.g. the name of the Role)
 - Fix: accept invitation in same window as where the invitation was send, now works
+- Only allow the deletion of a Role when there are no users with that role or if the user is a super user
 
 ## 1.0.2
 
