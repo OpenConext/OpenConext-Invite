@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Next (1.0.3)
+## Next 
+
+## 1.0.3
 
 - Fix: remove trailing slash in `scim_url`
 - Fix: send PATCH request for change of displayName of Group (e.g. the name of the Role)
 - Fix: accept invitation in same window as where the invitation was send, now works
-- Only allow the deletion of a Role when there are no users with that role or if the user is a super user
+- Change: Only allow the deletion of a Role when there are no users with that role or if the user is a super user
+- Improvement: cronjob database locks to work in clusterd enviroment
+- Fix: SCIM delete messageses were not always sent
+- Fix: Accepting invite in the same browser session that sent the invite
 
 ## 1.0.2
 
