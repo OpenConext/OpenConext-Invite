@@ -32,8 +32,8 @@ if (["nl", "en", "pt"].indexOf(parameterByName) === -1) {
 I18n.locale = parameterByName;
 
 I18n.missingTranslation.register("report-error", (i18n, scope) => {
-    const user = useAppStore.getState().user;
-    if (user && user.id && !scope.startsWith("tab")) {
+    const {user, config} = useAppStore.getState();
+    if (user && user.id && !isEmpty(config.environment)) {
         reportError({"Missing translation": scope});
     }
     return `[missing "${scope}" translation]`;

@@ -124,6 +124,7 @@ config:
   performance-seed-allowed: True
   eduid-idp-schac-home-organization: "test.eduid.nl"
   languages: "nl, en"
+  environment: ${gui.disclaimer.content}
 
 feature:
   enable-performance-seed: False

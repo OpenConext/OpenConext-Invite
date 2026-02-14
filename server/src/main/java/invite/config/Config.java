@@ -27,6 +27,7 @@ public class Config {
     private String eduidIdpSchacHomeOrganization;
     private List<String> missingAttributes;
     private String languages;
+    private String environment;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -40,6 +41,7 @@ public class Config {
         this.groupUrnPrefix = base.groupUrnPrefix;
         this.eduidIdpSchacHomeOrganization = base.eduidIdpSchacHomeOrganization;
         this.languages = base.languages;
+        this.environment = base.environment;
     }
 
     public Config withAuthenticated(boolean authenticated) {
