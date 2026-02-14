@@ -259,7 +259,7 @@ public class UserController {
             JsonProcessingException, UnknownHostException {
         payload.put("dateTime", new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
         payload.put("machine", InetAddress.getLocalHost().getHostName());
-        payload.put("user", user);
+        payload.put("user", user.getEmail());
         String msg = objectMapper.writeValueAsString(payload);
         LOG.error(msg, new IllegalArgumentException(msg));
         return Results.createResult();
