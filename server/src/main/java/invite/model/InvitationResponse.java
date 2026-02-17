@@ -16,5 +16,7 @@ public class InvitationResponse implements Serializable {
 
     private int status;
 
+    private List<Long> invitationIdentifiers;
+
     private List<RecipientInvitationURL> recipientInvitationURLs;
 }

@@ -218,8 +218,9 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(201, invitationResponse.getStatus());
         List<RecipientInvitationURL> recipientInvitationURLs = invitationResponse.getRecipientInvitationURLs();
         assertEquals(1, recipientInvitationURLs.size());
-        RecipientInvitationURL recipientInvitationURL = recipientInvitationURLs.get(0);
+        RecipientInvitationURL recipientInvitationURL = recipientInvitationURLs.getFirst();
         assertEquals("new@new.nl", recipientInvitationURL.getRecipient());
+        assertEquals(1, invitationResponse.getInvitationIdentifiers().size());
 
         Invitation example = new Invitation();
         example.setEmail(recipientInvitationURL.getRecipient());

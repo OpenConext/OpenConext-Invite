@@ -129,7 +129,11 @@ public class InvitationOperations {
             });
         }
         invitations.forEach(invitation -> AccessLogger.invitation(LOG, Event.Created, invitation));
-        return ResponseEntity.status(HttpStatus.CREATED).body(new InvitationResponse(HttpStatus.CREATED.value(), recipientInvitationURLs));
+        InvitationResponse invitationResponse = new InvitationResponse(
+                HttpStatus.CREATED.value(),
+                invitations.stream().map(Invitation::getId).toList(),
+                recipientInvitationURLs);
+        return ResponseEntity.status(HttpStatus.CREATED).body(invitationResponse);
     }
 
     public static Instant calculateInvitationExpiry(List<Role> requestedRoles) {
