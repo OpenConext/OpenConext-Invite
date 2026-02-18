@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Next
+## 1.0.4
+
+- Do nog log missing translation on production enviroment
+- Less logging for missing translations
 
 ## 1.0.3
 
