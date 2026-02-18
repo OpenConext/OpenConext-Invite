@@ -33,7 +33,7 @@ I18n.locale = parameterByName;
 
 I18n.missingTranslation.register("report-error", (i18n, scope) => {
     const {user, config} = useAppStore.getState();
-    if (user && user.id && !isEmpty(config.environment)) {
+    if (user && user.id && config.environment && config.environment !== 'prod') {
         reportError({"Missing translation": scope});
     }
     return `[missing "${scope}" translation]`;
