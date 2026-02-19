@@ -71,9 +71,22 @@ public class AttributeAggregatorController {
         user.setLastActivity(Instant.now());
         userRepository.save(user);
 
+        /*
+         * Also return "surf-autorisaties": [
+         *           "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:SURFNET",
+         *           "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:ad93daef-0911-e511-80d0-005056956c1a",
+         *           "urn:mace:surfnet.nl:surfnet.nl:sab:role:DNS-Beheerder",
+         *           "urn:mace:surfnet.nl:surfnet.nl:sab:role:Instellingsbevoegde",
+         *           "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextbeheerder",
+         *           "urn:mace:surfnet.nl:surfnet.nl:sab:role:Superuser"
+         *       ],
+         * Reduce all crmOrganizationId's and crmOrganizationCode's to an unique set, and rebuild the
+         */
+
         Map<String, Object> provider = optionalProvider.get();
         List<Map<String, String>> userRoles = user.getUserRoles().stream()
-                .filter(userRole -> userRole.getRole().applicationsUsed().stream().anyMatch(application -> application.getManageId().equals(provider.get("id"))))
+                .filter(userRole -> userRole.getRole().applicationsUsed().stream()
+                        .anyMatch(application -> application.getManageId().equals(provider.get("id"))))
                 .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(this::parseUserRole)
                 .toList();

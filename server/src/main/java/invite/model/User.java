@@ -84,6 +84,9 @@ public class User implements Serializable, Provisionable {
     @Column(name = "last_activity")
     private Instant lastActivity;
 
+    @Column(name = "crm_contact_id")
+    private String crmContactId;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
 

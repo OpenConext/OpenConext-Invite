@@ -1,0 +1,30 @@
+{
+  "contactId": "a7792096-dd49-eb11-9104-0050569571ea",
+  "firstname": "Pipo",
+  "middlename": "de",
+  "surname": "Clown",
+  "mobile": "+31622803490",
+  "email": "henny.bekker@braindrops.org",
+  "organisation": {
+    "organisationId": "ad93daef-0911-e511-80d0-005056956c1a",
+    "abbrev": "SURFnet",
+    "name": "SURFnet bv"
+  },
+  "roles": [
+    {
+      "roleId": "5e17b508-08e4-e811-8100-005056956c1a",
+      "sabCode": "CONBEH",
+      "name": "SURFconextbeheerder"
+    },
+    {
+      "roleId": "112a6aa1-07e4-e811-8100-005056956c1a",
+      "sabCode": "OB",
+      "name": "Operationeel beheerder"
+    },
+    {
+      "roleId": "4287096a-08e4-e811-8100-005056956c1a",
+      "sabCode": "SOB",
+      "name": "SURFopzichter-beheerder"
+    }
+  ]
+}
