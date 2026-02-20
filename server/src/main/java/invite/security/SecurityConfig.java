@@ -16,6 +16,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -51,6 +52,7 @@ import java.util.Locale;
 public class SecurityConfig {
 
     public static final String API_TOKEN_HEADER = "X-API-TOKEN";
+    public static final String API_KEY_HEADER = "API-KEY";
 
     private final String eduidEntityId;
     private final String introspectionUri;
@@ -62,6 +64,7 @@ public class SecurityConfig {
     private final ExternalApiConfiguration externalApiConfiguration;
     private final Environment environment;
     private final Manage manage;
+    private final String crmApiKeyHeader;
 
     private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
 
@@ -74,7 +77,9 @@ public class SecurityConfig {
                           @Value("${config.eduid-entity-id}") String eduidEntityId,
                           @Value("${oidcng.introspect-url}") String introspectionUri,
                           @Value("${oidcng.resource-server-id}") String clientId,
-                          @Value("${oidcng.resource-server-secret}") String secret, Manage manage) {
+                          @Value("${oidcng.resource-server-secret}") String secret,
+                          Manage manage,
+                          @Value("${crm.api-key-header}") String crmApiKeyHeader) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
         this.provisioningService = provisioningService;
@@ -85,6 +90,7 @@ public class SecurityConfig {
         this.externalApiConfiguration = externalApiConfiguration;
         this.environment = environment;
         this.manage = manage;
+        this.crmApiKeyHeader = crmApiKeyHeader;
     }
 
     @Configuration
@@ -244,6 +250,28 @@ public class SecurityConfig {
                                 .introspectionUri(introspectionUri)
                                 .introspectionClientCredentials(clientId, secret)
                         ));
+        return http.build();
+    }
+
+    @Bean
+    @Order(4)
+    public SecurityFilterChain internalCRMApiSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/internal/v1/crm/**")
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth ->
+                        auth.anyRequest().access(
+                                (authentication, context) -> {
+                                    String headerValue = context.getRequest().getHeader(API_KEY_HEADER);
+                                    boolean granted = crmApiKeyHeader.equals(headerValue);
+                                    return new AuthorizationDecision(granted);
+                                }
+                        )
+                );
+
         return http.build();
     }
 

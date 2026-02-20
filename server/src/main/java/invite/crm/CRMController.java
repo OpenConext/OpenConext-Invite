@@ -1,5 +1,6 @@
 package invite.crm;
 
+import invite.model.User;
 import invite.repository.UserRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
 @RestController
-@RequestMapping(value = {"/api/external/v1/crm"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/api/internal/v1/crm"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class CRMController {
 
     private static final Log LOG = LogFactory.getLog(CRMController.class);
@@ -24,9 +28,18 @@ public class CRMController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> contact(@RequestBody CRMContact crmContact) {
-//        userRepository.findBySubIgnoreCase()
-        return ResponseEntity.ok().body("created");
+        LOG.debug("POST /api/external/v1/crm: " + crmContact);
+
+        AtomicReference<String> response = new AtomicReference<>();
+        Optional<User> userOptional = userRepository.findByCrmContactId(crmContact.getContactId());
+        userOptional.ifPresentOrElse(user -> {
+                    response.set("updated");
+                },
+                () -> {
+                    response.set("created");
+                });
+
+        return ResponseEntity.ok().body(response.get());
     }
 }

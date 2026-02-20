@@ -100,6 +100,9 @@ oidcng:
   resource-server-secret: secret
   base-url: http://localhost:8888
 
+crm:
+  api-key-header: secret
+
 super-admin:
   users:
     - "urn:collab:person:example.com:admin"
