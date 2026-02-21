@@ -102,6 +102,7 @@ oidcng:
 
 crm:
   api-key-header: secret
+  collab-person-prefix: "urn:collab:person:"
 
 super-admin:
   users:

@@ -18,6 +18,9 @@ class CRMControllerTest extends AbstractTest {
     @Test
     void contact() {
         CRMContact crmContact = new CRMContact(
+                "new_user",
+                "hardewijk.org",
+                false,
                 "contactId",
                 "John",
                 "from",

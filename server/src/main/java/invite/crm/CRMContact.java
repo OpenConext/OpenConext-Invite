@@ -15,6 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class CRMContact {
 
+    private String uid;
+    private String schacHome;
+    private boolean sendInvitation;
     private String contactId;
     private String firstname;
     private String middlename;

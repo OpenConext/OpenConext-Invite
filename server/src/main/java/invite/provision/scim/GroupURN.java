@@ -2,6 +2,7 @@ package invite.provision.scim;
 
 
 import invite.model.Role;
+import org.springframework.util.StringUtils;
 
 import java.text.Normalizer;
 
@@ -22,7 +23,12 @@ public class GroupURN {
     }
 
     public static String urnFromRole(String groupUrnPrefix, Role role) {
-        return role.isTeamsOrigin() ? role.getUrn() : String.format("%s:%s:%s",
+        if (role.isTeamsOrigin()) {
+            return role.getUrn();
+        } else if (StringUtils.hasText(role.getCrmRoleId())) {
+            return "urn:mace:surfnet.nl:surfnet.nl:sab:role:" + role.getCrmRoleName();
+        }
+        return String.format("%s:%s:%s",
                 groupUrnPrefix,
                 role.getIdentifier(),
                 role.getShortName());
