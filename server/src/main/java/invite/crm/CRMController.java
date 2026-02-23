@@ -225,6 +225,9 @@ public class CRMController {
 
     private Role createRole(CRMOrganisation crmOrganisation, CRMRole crmRole) {
         CrmConfigEntry crmConfigEntry = this.crmConfig.get(crmRole.getSabCode());
+        if (crmConfigEntry == null) {
+            throw new InvalidInputException("CRM sabCode is not configured: " + crmRole.getSabCode());
+        }
         Set<ApplicationUsage> applicationUsages = crmConfigEntry.crmManageIdentifiers().stream()
                 .map(crmManageIdentifier -> manage
                         .providerByEntityID(crmManageIdentifier.manageType(), crmManageIdentifier.manageEntityId())
