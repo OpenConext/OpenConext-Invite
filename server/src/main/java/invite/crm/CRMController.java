@@ -137,7 +137,7 @@ public class CRMController {
     private boolean provisionUser(CRMContact crmContact) {
         String sub = constructSub(crmContact);
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
-        User user = optionalUser.orElse(createUser(crmContact, sub));
+        User user = optionalUser.orElseGet(() -> createUser(crmContact, sub));
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, user);
 
         List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles);
@@ -219,7 +219,7 @@ public class CRMController {
     private @NonNull List<Role> convertCrmRolesToInviteRoles(CRMContact crmContact, List<CRMRole> newCrmRoles) {
         return newCrmRoles.stream()
                 .map(crmRole -> roleRepository.findByCrmRoleId(crmRole.getRoleId())
-                        .orElse(this.createRole(crmContact.getOrganisation(), crmRole)))
+                        .orElseGet(() -> this.createRole(crmContact.getOrganisation(), crmRole)))
                 .toList();
     }
 

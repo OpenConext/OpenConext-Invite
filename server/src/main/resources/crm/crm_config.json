@@ -22,8 +22,8 @@
         "manageType": "saml20_sp"
       },
       {
-        "manageEntityId": "https://research",
-        "manageType": "saml20_sp"
+        "manageEntityId": "https://calendar",
+        "manageType": "oidc10_rp"
       }
     ]
   },
@@ -32,8 +32,8 @@
     "roleId": "5e17b508-08e4-e811-8100-005056956c1a",
     "applications": [
       {
-        "manageEntityId": "https://calendar",
-        "manageType": "oidc10_rp"
+        "manageEntityId": "https://research",
+        "manageType": "saml20_sp"
       }
     ]
   },
