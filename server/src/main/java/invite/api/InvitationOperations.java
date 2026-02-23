@@ -6,6 +6,7 @@ import invite.exception.NotFoundException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
+import invite.manage.Manage;
 import invite.model.*;
 import invite.repository.InvitationRepository;
 import invite.security.RemoteUser;
@@ -123,7 +124,7 @@ public class InvitationOperations {
         if (!invitationRequest.isSuppressSendingEmails()) {
 
             invitations.forEach(invitation -> {
-                Optional<String> idpName = this.identityProviderName(invitation);
+                Optional<String> idpName = identityProviderName(this.invitationResource.getManage(), invitation);
                 mailBox.sendInviteMail(user == null ? remoteUser : user,
                         invitation, groupedProviders, invitationRequest.getLanguage(), idpName);
             });
@@ -174,7 +175,7 @@ public class InvitationOperations {
 
         List<GroupedProviders> groupedProviders = this.invitationResource.getManage().getGroupedProviders(requestedRoles);
         Provisionable provisionable = user != null ? user : remoteUser;
-        Optional<String> idpName = identityProviderName(invitation);
+        Optional<String> idpName = identityProviderName(this.invitationResource.getManage(), invitation);
 
         this.invitationResource.getMailBox()
                 .sendInviteMail(provisionable,
@@ -192,9 +193,9 @@ public class InvitationOperations {
         return Results.createResult();
     }
 
-    private Optional<String> identityProviderName(Invitation invitation) {
+    public static Optional<String> identityProviderName(Manage manage, Invitation invitation) {
         return Optional.ofNullable(invitation.getOrganizationGUID())
-                .map(organisationGUID -> this.invitationResource.getManage().identityProvidersByInstitutionalGUID(organisationGUID))
+                .map(organisationGUID -> manage.identityProvidersByInstitutionalGUID(organisationGUID))
                 .stream()
                 .flatMap(Collection::stream)
                 .findFirst()

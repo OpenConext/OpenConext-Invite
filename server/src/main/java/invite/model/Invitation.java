@@ -89,6 +89,9 @@ public class Invitation implements Serializable {
     @Column(name = "remote_api_user")
     private String remoteApiUser;
 
+    @Column(name = "crm_contact_id")
+    private String crmContactId;
+
     @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<InvitationRole> roles = new HashSet<>();
 

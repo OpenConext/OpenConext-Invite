@@ -4,12 +4,24 @@ import invite.audit.UserRoleAuditService;
 import invite.exception.InvitationEmailMatchingException;
 import invite.exception.InvitationExpiredException;
 import invite.exception.InvitationStatusException;
+import invite.exception.InvitationUniqueCrmOrganisationException;
 import invite.exception.NotFoundException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
 import invite.manage.Manage;
-import invite.model.*;
+import invite.model.AcceptInvitation;
+import invite.model.Authority;
+import invite.model.Invitation;
+import invite.model.InvitationRequest;
+import invite.model.InvitationResponse;
+import invite.model.InvitationRole;
+import invite.model.Role;
+import invite.model.Status;
+import invite.model.StatusResponse;
+import invite.model.User;
+import invite.model.UserRole;
+import invite.model.UserRoleAudit;
 import invite.provision.Provisioning;
 import invite.provision.ProvisioningService;
 import invite.provision.graph.GraphResponse;
@@ -49,12 +61,26 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -280,6 +306,8 @@ public class InvitationController implements InvitationResource {
         });
 
         checkEmailEquality(user, invitation);
+        checkCrmUniqueOrganisation(user, invitation);
+
         user.setLastActivity(Instant.now());
 
         invitation.setStatus(Status.ACCEPTED);
@@ -524,5 +552,19 @@ public class InvitationController implements InvitationResource {
         }
     }
 
+    private void checkCrmUniqueOrganisation(User user, Invitation invitation) {
+        if (StringUtils.hasText(invitation.getCrmContactId()) && user.getUserRoles().stream()
+                .map(userRole -> userRole.getRole().getCrmOrganisationId())
+                .anyMatch(crmOrganisationId -> StringUtils.hasText(crmOrganisationId) &&
+                        invitation.getRoles().stream()
+                                .map(invitationRole -> invitationRole.getRole())
+                                .anyMatch(role -> StringUtils.hasText(role.getCrmOrganisationId()) && !role.getCrmOrganisationId().equals(crmOrganisationId)))) {
+            throw new InvitationUniqueCrmOrganisationException(
+                    String.format("User %s is not allowed to accept an invitation from Organisation %s, because it already has roles for Organisation %s",
+                            user.getEmail(),
+                            user.getUserRoles().stream().map(userRole -> userRole.getRole().getCrmOrganisationId()),
+                            invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole().getCrmOrganisationId())));
+        }
+    }
 
 }

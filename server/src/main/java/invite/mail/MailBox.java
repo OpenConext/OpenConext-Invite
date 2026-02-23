@@ -79,7 +79,7 @@ public class MailBox {
             variables.put("institutionName", "SURF");
             variables.put("isInstitutionSurf", true);
         }
-        optionalIdpName.ifPresent(idpName -> variables.put("idpName", idpName));
+            optionalIdpName.ifPresent(idpName -> variables.put("idpName", idpName));
         variables.put("roles", splitListSemantically(invitation.getRoles().stream()
                 .map(invitationRole -> invitationRole.getRole().getName()).toList()));
         if (invitation.getRoles().stream()

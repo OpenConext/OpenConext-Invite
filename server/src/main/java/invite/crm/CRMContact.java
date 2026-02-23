@@ -16,8 +16,8 @@ import java.util.List;
 public class CRMContact {
 
     private String uid;
-    private String schacHome;
-    private boolean sendInvitation;
+    private String schacHomeOrganisation;
+    private boolean suppressInvitation;
     private String contactId;
     private String firstname;
     private String middlename;

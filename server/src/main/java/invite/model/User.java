@@ -143,6 +143,19 @@ public class User implements Serializable, Provisionable {
         ));
     }
 
+    public User(boolean superUser, String eppn, String sub, String schacHomeOrganization, String givenName, String familyName, String email) {
+        this.superUser = superUser;
+        this.eduPersonPrincipalName = eppn;
+        this.sub = sub;
+        this.schacHomeOrganization = schacHomeOrganization;
+        this.givenName = givenName;
+        this.familyName = familyName;
+        this.name = String.format("%s %s", givenName, familyName);
+        this.email = email;
+        this.createdAt = Instant.now();
+        this.lastActivity = Instant.now();
+    }
+
     private void nameInvariant(Map<String, Object> attributes) {
         String name = (String) attributes.get("name");
         String preferredUsername = (String) attributes.get("preferred_username");
@@ -171,19 +184,6 @@ public class User implements Serializable, Provisionable {
             this.givenName = names.get(0);
             this.familyName = String.join(" ", names.stream().skip(1).toList());
         }
-    }
-
-    public User(boolean superUser, String eppn, String sub, String schacHomeOrganization, String givenName, String familyName, String email) {
-        this.superUser = superUser;
-        this.eduPersonPrincipalName = eppn;
-        this.sub = sub;
-        this.schacHomeOrganization = schacHomeOrganization;
-        this.givenName = givenName;
-        this.familyName = familyName;
-        this.name = String.format("%s %s", givenName, familyName);
-        this.email = email;
-        this.createdAt = Instant.now();
-        this.lastActivity = Instant.now();
     }
 
     @JsonIgnore

@@ -68,8 +68,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class ProvisioningServiceDefault implements ProvisioningService {
 
-    private final RoleRepository roleRepository;
-
     private enum APIType {
         USER_API("Users"), GROUP_API("Groups");
 
@@ -111,7 +109,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                       EduID eduID,
                                       @Value("${voot.group_urn_domain}") String groupUrnPrefix,
                                       @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
-                                      @Value("${config.server-url}") String serverBaseURL, RoleRepository roleRepository) {
+                                      @Value("${config.server-url}") String serverBaseURL) {
         this.userRoleRepository = userRoleRepository;
         this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
         this.remoteProvisionedGroupRepository = remoteProvisionedGroupRepository;
@@ -126,7 +124,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
         requestFactory.setReadTimeout(Duration.ofMinutes(1));
         restTemplate.setRequestFactory(requestFactory);
-        this.roleRepository = roleRepository;
     }
 
     @Override
