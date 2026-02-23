@@ -131,6 +131,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public Optional<GraphResponse> newUserRequest(User user) {
+        LOG.info(String.format("Provisioning newUserRequest for user: %s", user.getEmail()));
         List<Provisioning> provisionings = getProvisionings(user);
         AtomicReference<GraphResponse> graphResponseReference = new AtomicReference<>();
         //Provision the user to all provisionings in Manage where the user is unknown
@@ -168,6 +169,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public void updateUserRequest(User user) {
+        LOG.info(String.format("Provisioning updateUserRequest for user: %s", user.getEmail()));
         List<Provisioning> userProvisionings = getProvisionings(user);
         List<Provisioning> provisionings = userProvisionings.stream()
                 .toList();
@@ -191,6 +193,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public void updateUserRoleRequest(UserRole userRole) {
+        LOG.info(String.format("Provisioning updateUserRoleRequest for userRole: %s", userRole.getId()));
         List<Provisioning> provisionings = getProvisionings(userRole.getUser());
         provisionings.forEach(provisioning -> {
             if (this.hasEvaHook(provisioning)) {
@@ -210,6 +213,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public void deleteUserRequest(User user) {
+        LOG.info(String.format("provisioning deleteUserRequest for user %s", user.getEmail()));
         //First send update role requests
         user.getUserRoles()
                 .forEach(userRole -> this.updateGroupRequest(userRole, OperationType.remove));
@@ -221,6 +225,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public void deleteUserRoleRequest(UserRole userRole) {
+        LOG.info(String.format("Provisioning deleteUserRoleRequest for role %s", userRole.getId()));
         getProvisionings(userRole.getUser())
                 .stream()
                 .filter(this::hasEvaHook)
@@ -254,6 +259,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     @Override
     public void deleteUserRequest(Role role) {
+        LOG.info(String.format("Provisioning deleteUserRequest for role: %s", role.getId()));
         List<String> manageIdentifiers = getManageIdentifiers(role);
         List<Provisioning> allRoleProvisionings = manage.provisioning(manageIdentifiers).stream()
                 .map(Provisioning::new)
@@ -279,8 +285,6 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             //Delete the user to the not used anymore provisionings  in Manage
             deprovisionUser(user, provisionings);
         });
-
-
     }
 
     private void deprovisionUser(User user, List<Provisioning> provisionings) {
@@ -288,6 +292,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             Optional<RemoteProvisionedUser> provisionedUserOptional = this.remoteProvisionedUserRepository
                     .findByManageProvisioningIdAndUser(provisioning.getId(), user);
             if (provisionedUserOptional.isPresent()) {
+                LOG.info(String.format("Provisioning deprovisionUser for user: %s", user.getEmail()));
                 RemoteProvisionedUser remoteProvisionedUser = provisionedUserOptional.get();
                 String remoteIdentifier = remoteProvisionedUser.getRemoteIdentifier();
                 UserRequest userRequest = new UserRequest(user, provisioning, remoteIdentifier);
@@ -295,6 +300,8 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 String userRequestJson = prettyJson(userRequest);
                 this.deleteRequest(provisioning, userRequestJson, user, remoteIdentifier);
                 this.remoteProvisionedUserRepository.delete(remoteProvisionedUser);
+            } else {
+                LOG.info(String.format("No provisionings found in deprovisionUser for user: %s", user.getEmail()));
             }
         });
     }
@@ -306,18 +313,22 @@ public class ProvisioningServiceDefault implements ProvisioningService {
             Optional<RemoteProvisionedGroup> provisionedGroupOptional = this.remoteProvisionedGroupRepository
                     .findByManageProvisioningIdAndRole(provisioning.getId(), role);
             if (provisionedGroupOptional.isEmpty()) {
+                LOG.info(String.format("Provisioning newGroupRequest for role: %s", role.getId()));
                 String groupRequest = constructGroupRequest(role, null, Collections.emptyList());
                 Optional<ProvisioningResponse> provisioningResponse = this.newRequest(provisioning, groupRequest, role);
                 provisioningResponse.ifPresent(response -> {
                     RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, response.remoteIdentifier(), provisioning.getId());
                     this.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
                 });
+            } else {
+                LOG.info(String.format("No provisionings found in newGroupRequest for role: %s", role.getId()));
             }
         });
     }
 
     @Override
     public void updateGroupRequest(UserRole userRole, OperationType operationType) {
+        LOG.info(String.format("Provisioning updateGroupRequest for userRole: %s", userRole.getId()));
         if (!userRole.getAuthority().equals(Authority.GUEST) && !userRole.isGuestRoleIncluded()) {
             //We only provision GUEST users
             return;
@@ -364,6 +375,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                                      List<UserRole> userRoles,
                                      Role role,
                                      OperationType operationType) {
+        LOG.info(String.format("Provisioning sendGroupPutRequest for provisioning: %s", provisioning.getId()));
         List<String> userScimIdentifiers = userRoles.stream()
                 .map(userRole -> this.remoteProvisionedUserRepository
                         .findByManageProvisioningIdAndUser(provisioning.getId(), userRole.getUser())
@@ -457,6 +469,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
     }
 
     private void deleteGroupRequest(Role role, List<Provisioning> provisionings) {
+        LOG.info(String.format("Provisioning deleteGroupRequest for role %s", role.getId()));
         //Delete the group to all provisionings in Manage where the group is known
         provisionings
                 .stream()
