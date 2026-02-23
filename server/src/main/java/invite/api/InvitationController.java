@@ -562,8 +562,12 @@ public class InvitationController implements InvitationResource {
             throw new InvitationUniqueCrmOrganisationException(
                     String.format("User %s is not allowed to accept an invitation from Organisation %s, because it already has roles for Organisation %s",
                             user.getEmail(),
-                            user.getUserRoles().stream().map(userRole -> userRole.getRole().getCrmOrganisationId()),
-                            invitation.getRoles().stream().map(invitationRole -> invitationRole.getRole().getCrmOrganisationId())));
+                            user.getUserRoles().stream()
+                                    .map(userRole -> userRole.getRole().getCrmOrganisationId())
+                                    .toList(),
+                            invitation.getRoles().stream()
+                                    .map(invitationRole -> invitationRole.getRole().getCrmOrganisationId())
+                                    .toList()));
         }
     }
 
