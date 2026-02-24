@@ -24,6 +24,8 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
             attributePaths = {"inviter", "roles", "roles.role"})
     Optional<Invitation> findByHash(String hash);
 
+    List<Invitation> findByCrmContactIdAndCrmOrganisationId(String crmContactId, String crmOrganisationId);
+
     Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);
 
     List<Invitation> findByStatus(Status status);

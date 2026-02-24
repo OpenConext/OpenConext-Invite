@@ -122,7 +122,8 @@ class AttributeAggregatorControllerTest extends AbstractTest {
     void attributeAggregationCRMRole() throws JsonProcessingException {
         CRMRole crmRoleResearch = new CRMRole("5e17b508-08e4-e811-8100-005056956c1a", "CONBEH", "SURFconextbeheerder");
         CRMRole crmRoleCloud = new CRMRole("cf652619-08e4-e811-8100-005056956c1a", "CONVER", "SURFconextverantwoordelijke");
-        CRMContact crmContact = getCrmContact(crmRoleResearch, "guest", "example.com", true);
+        CRMContact crmContact = createCrmContact(CRM_CONTACT_ID, CRM_ORGANIZATION_ID, crmRoleResearch,
+                "guest", "kb.nl", true);
         crmContact.setRoles(List.of(crmRoleCloud, crmRoleResearch));
         //This application is linked to the 'CONBEH' CRM role
         String researchEntityId = "https://research";
@@ -149,7 +150,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .auth().preemptive().basic("aa", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .pathParam("sub", GUEST_SUB)
+                .pathParam("sub", KB_USER_SUB)
                 .queryParam("SPentityID", researchEntityId)
                 .get("/api/external/v1/aa/{sub}")
                 .as(new TypeRef<>() {
@@ -161,7 +162,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
         List<String> autorizations = autorisatie.stream().map(m -> m.get("autorisatie")).sorted().toList();
         List<String> expected = Stream.of(
                 "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:abbrec",
-                "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:organisationId",
+                "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + CRM_ORGANIZATION_ID,
                 "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextbeheerder").sorted().toList();
         assertEquals(expected, autorizations);
     }

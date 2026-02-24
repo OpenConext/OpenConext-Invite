@@ -14,6 +14,7 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -299,6 +300,27 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals(1, remoteProvisionedUserRepository.count());
     }
 
+    @Test
+    void acceptWithCRMConstraint() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", KB_USER_SUB);
+        String hash = Authority.GUEST.name();
+        Invitation invitation = invitationRepository.findByHash(hash).get();
+        invitation.setCrmOrganisationId(UUID.randomUUID().toString());
+        invitation.setCrmContactId(CRM_CONTACT_ID);
+        invitationRepository.save(invitation);
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(HttpStatus.NOT_ACCEPTABLE.value());
+    }
     @Test
     void acceptGraph() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "graph@new.com");

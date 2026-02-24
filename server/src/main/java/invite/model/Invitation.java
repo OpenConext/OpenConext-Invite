@@ -92,6 +92,9 @@ public class Invitation implements Serializable {
     @Column(name = "crm_contact_id")
     private String crmContactId;
 
+    @Column(name = "crm_organisation_id")
+    private String crmOrganisationId;
+
     @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<InvitationRole> roles = new HashSet<>();
 

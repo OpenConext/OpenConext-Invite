@@ -87,6 +87,9 @@ public class User implements Serializable, Provisionable {
     @Column(name = "crm_contact_id")
     private String crmContactId;
 
+    @Column(name = "crm_organisation_id")
+    private String crmOrganisationId;
+
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
 

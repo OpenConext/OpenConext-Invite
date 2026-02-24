@@ -111,6 +111,7 @@ public abstract class AbstractTest {
     public static final String API_TOKEN_INVITER_USER_HASH = HashGenerator.generateToken();
     public static final String API_TOKEN_LEGACY_HASH = HashGenerator.generateToken();
     public static final String CRM_CONTACT_ID = "5B5A4230-7A67-46E9-9EE1-95C6F5CACA4A";
+    public static final String CRM_ORGANIZATION_ID = "60507EEF-732D-4B38-B30B-8C7186A61813";
 
 
     @Value("${manage.staticManageDirectory}")
@@ -579,18 +580,23 @@ public abstract class AbstractTest {
         };
     }
 
-    protected CRMContact getCrmContact(CRMRole crmRole, String uid, String schacHomeOrganisation, boolean suppressInvitation) {
+    protected CRMContact createCrmContact(String crmContactId,
+                                          String crmOrganizationId,
+                                          CRMRole crmRole,
+                                          String uid,
+                                          String schacHomeOrganisation,
+                                          boolean suppressInvitation) {
         return new CRMContact(
                 uid,
                 schacHomeOrganisation,
                 suppressInvitation,
-                "contactId",
+                crmContactId,
                 "John",
                 "from",
                 "Doe",
                 "jdoe@example.com",
                 new CRMOrganisation(
-                        "organisationId",
+                        crmOrganizationId,
                         "abbrec",
                         "Inc. Corporated"
                 ),
@@ -636,6 +642,8 @@ public abstract class AbstractTest {
         User kbUser =
                 new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
         kbUser.setCrmContactId(CRM_CONTACT_ID);
+        kbUser.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest, kbUser);
 
         Role wiki =

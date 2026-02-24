@@ -374,6 +374,10 @@ public class InvitationController implements InvitationResource {
             }
         }
         user.setInternalPlaceholderIdentifier(invitation.getInternalPlaceholderIdentifier());
+        if (StringUtils.hasText(invitation.getCrmContactId())) {
+            user.setCrmContactId(invitation.getCrmContactId());
+            user.setCrmOrganisationId(invitation.getCrmOrganisationId());
+        }
         userRepository.save(user);
         AccessLogger.user(LOG, Event.Created, user);
         newUserRoles.forEach(userRole -> userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.ADD));
@@ -553,22 +557,17 @@ public class InvitationController implements InvitationResource {
     }
 
     private void checkCrmUniqueOrganisation(User user, Invitation invitation) {
-        if (StringUtils.hasText(invitation.getCrmContactId()) && user.getUserRoles().stream()
-                .map(userRole -> userRole.getRole().getCrmOrganisationId())
-                .anyMatch(crmOrganisationId -> StringUtils.hasText(crmOrganisationId) &&
-                        invitation.getRoles().stream()
-                                .map(invitationRole -> invitationRole.getRole())
-                                .anyMatch(role -> StringUtils.hasText(role.getCrmOrganisationId()) && !role.getCrmOrganisationId().equals(crmOrganisationId)))) {
+        if (StringUtils.hasText(invitation.getCrmContactId()) &&
+                StringUtils.hasText(user.getCrmContactId()) &&
+                user.getCrmContactId().equals(invitation.getCrmContactId()) &&
+                !user.getCrmOrganisationId().equals(invitation.getCrmOrganisationId())) {
             throw new InvitationUniqueCrmOrganisationException(
                     String.format("User %s is not allowed to accept an invitation from Organisation %s, because it already has roles for Organisation %s",
                             user.getEmail(),
-                            user.getUserRoles().stream()
-                                    .map(userRole -> userRole.getRole().getCrmOrganisationId())
-                                    .toList(),
-                            invitation.getRoles().stream()
-                                    .map(invitationRole -> invitationRole.getRole().getCrmOrganisationId())
-                                    .toList()));
+                            invitation.getCrmOrganisationId(),
+                            user.getCrmOrganisationId()
+                            ));
+
         }
     }
-
 }

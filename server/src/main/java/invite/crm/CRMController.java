@@ -24,6 +24,7 @@ import invite.model.UserRoleAudit;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
 import invite.repository.ApplicationRepository;
+import invite.repository.InvitationRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import org.apache.commons.logging.Log;
@@ -68,6 +69,7 @@ public class CRMController {
     private final Map<String, CrmConfigEntry> crmConfig;
     private final UserRoleAuditService userRoleAuditService;
     private final Provisionable provisionable = () -> "SURF CRM";
+    private final InvitationRepository invitationRepository;
 
 
     @SuppressWarnings("unchecked")
@@ -79,7 +81,8 @@ public class CRMController {
                          ProvisioningService provisioningService,
                          ObjectMapper objectMapper,
                          MailBox mailBox, Manage manage,
-                         UserRoleAuditService userRoleAuditService) throws IOException {
+                         UserRoleAuditService userRoleAuditService,
+                         InvitationRepository invitationRepository) throws IOException {
         this.userRepository = userRepository;
         this.collabPersonPrefix = collabPersonPrefix;
         this.roleRepository = roleRepository;
@@ -100,7 +103,8 @@ public class CRMController {
                         crmConfigEntry -> crmConfigEntry.code(),
                         crmConfigEntry -> crmConfigEntry
                 ));
-
+        LOG.info(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
+        this.invitationRepository = invitationRepository;
     }
 
     @PostMapping("")
@@ -112,7 +116,7 @@ public class CRMController {
         if (crmContact.isSuppressInvitation()) {
             if (!StringUtils.hasText(crmContact.getSchacHomeOrganisation()) || !StringUtils.hasText(crmContact.getUid())) {
                 throw new InvalidInputException(
-                        "Missing schacHomeOrganisation or uid in crmContact with sendInvitation false: " + crmContact);
+                        "Missing schacHomeOrganisation or uid in crmContact with isSuppressInvitation true: " + crmContact);
             }
             created = provisionUser(crmContact);
         } else {
@@ -126,8 +130,16 @@ public class CRMController {
     public ResponseEntity<String> delete(@RequestBody CRMContact crmContact) {
         LOG.debug("DELETE /api/external/v1/crm: " + crmContact);
 
-        List<User> users = userRepository.findByCrmContactId(crmContact.getContactId());
-        users.forEach(user -> {
+        List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
+        invitations.forEach(invitation -> {
+            LOG.info("Deleting CRM invitation: " + invitation.getEmail());
+            this.invitationRepository.delete(invitation);
+        });
+
+        Optional<User> userOptional = userRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
+        userOptional.ifPresent(user -> {
             LOG.info("Deleting CRM user: " + user.getEmail());
             this.provisioningService.deleteUserRequest(user);
             this.userRepository.delete(user);
@@ -140,6 +152,9 @@ public class CRMController {
         String sub = constructSub(crmContact);
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         User user = optionalUser.orElseGet(() -> createUser(crmContact, sub));
+        user.setCrmContactId(crmContact.getContactId());
+        user.setCrmOrganisationId(crmContact.getOrganisation().getOrganisationId());
+
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, user);
 
         List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles);
@@ -166,7 +181,6 @@ public class CRMController {
                 crmContact.getFirstname(),
                 StringUtils.hasText(middleName) ? String.format("%s %s", middleName, surName) : surName,
                 crmContact.getEmail());
-        unsavedUser.setCrmContactId(crmContact.getContactId());
         User user = userRepository.save(unsavedUser);
         this.provisioningService.newUserRequest(user);
         return user;
@@ -177,6 +191,7 @@ public class CRMController {
     }
 
     private List<CRMRole> syncCrmRoles(CRMContact crmContact, User user) {
+        LOG.debug(String.format("Start syncing crmRoles %s for user %s", crmContact.getRoles(), user.getEmail()));
         // Removes roles no longer present in CRM
         user.getUserRoles().removeIf(userRole -> {
             Role role = userRole.getRole();
@@ -192,15 +207,18 @@ public class CRMController {
                 .map(userRole -> userRole.getRole())
                 .toList();
         // Return all the new CRM roles
-        return crmContact.getRoles().stream()
+        List<CRMRole> crmRoles = crmContact.getRoles().stream()
                 .filter(crmRole -> currentRoles.stream()
                         .noneMatch(role -> crmRole.getRoleId().equalsIgnoreCase(role.getCrmRoleId())))
                 .toList();
+        LOG.debug(String.format("Finished syncing crmRoles %s for user %s", crmContact.getRoles(), user.getEmail()));
+        return crmRoles;
     }
 
     private boolean sendInvitation(CRMContact crmContact) {
-        String sub = constructSub(crmContact);
-        Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+        Optional<User> optionalUser =
+                userRepository.findByCrmContactIdAndCrmOrganisationId(
+                        crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, optionalUser.orElse(new User()));
         //Only save the user when the user already existed
         optionalUser.ifPresent(user -> userRepository.save(user));
@@ -213,7 +231,7 @@ public class CRMController {
                     .map(role -> new InvitationRole(role))
                     .collect(Collectors.toSet());
             Invitation invitation = createInvitation(crmContact, invitationRoles);
-            invitation.setOrganizationGUID(crmContact.getOrganisation().getOrganisationId());
+
             Optional<String> idpName = identityProviderName(manage, invitation);
             mailBox.sendInviteMail(this.provisionable, invitation, groupedProviders, Language.en, idpName);
         }
@@ -257,13 +275,15 @@ public class CRMController {
         unsavedRole.setCrmRoleName(crmConfigEntry.name());
         unsavedRole.setCrmOrganisationId(crmOrganisation.getOrganisationId());
         unsavedRole.setCrmOrganisationCode(crmOrganisation.getAbbrev());
+        unsavedRole.setOrganizationGUID(crmOrganisation.getOrganisationId());
+
         Role role = roleRepository.save(unsavedRole);
         this.provisioningService.newGroupRequest(role);
         return role;
     }
 
     private Invitation createInvitation(CRMContact crmContact, Set<InvitationRole> invitationRoles) {
-        return new Invitation(
+        Invitation invitation = new Invitation(
                 Authority.GUEST,
                 HashGenerator.generateRandomHash(),
                 crmContact.getEmail(),
@@ -279,6 +299,12 @@ public class CRMController {
                 invitationRoles,
                 null
         );
+        String crmOrganisationId = crmContact.getOrganisation().getOrganisationId();
+        invitation.setOrganizationGUID(crmOrganisationId);
+        invitation.setCrmOrganisationId(crmOrganisationId);
+        invitation.setCrmContactId(crmContact.getContactId());
+        invitationRepository.save(invitation);
+        return invitation;
 
     }
 }
