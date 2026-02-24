@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.0.5
+
+- Fix: Repair SCIM delete messages for users
+- Improvement: Translations and minor UI updates
+- Improvement: Extra logging for provisioning
+
 ## 1.0.4
 
 - Do nog log missing translation on production enviroment
