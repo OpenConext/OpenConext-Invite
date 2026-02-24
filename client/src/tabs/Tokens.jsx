@@ -63,7 +63,7 @@ export const Tokens = () => {
                     });
                 }
             });
-    }, []);
+    }, [user.superUser]);
 
     useEffect(() => {
         if (!isGuest) {

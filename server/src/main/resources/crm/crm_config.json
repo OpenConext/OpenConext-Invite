@@ -1,0 +1,50 @@
+{
+  "AAI": {
+    "name": "AAIverantwoordelijke",
+    "roleId": "fc89aa87-07e4-e811-8100-005056956c1a",
+    "applications": [
+      {
+        "manageEntityId": "https://wiki",
+        "manageType": "saml20_sp"
+      },
+      {
+        "manageEntityId": "https://network",
+        "manageType": "saml20_sp"
+      }
+    ]
+  },
+  "BVW": {
+    "name": "Beveiligingsverantwoordelijke",
+    "roleId": "92b2b379-07e4-e811-8100-005056956c1a",
+    "applications": [
+      {
+        "manageEntityId": "https://storage",
+        "manageType": "saml20_sp"
+      },
+      {
+        "manageEntityId": "https://calendar",
+        "manageType": "oidc10_rp"
+      }
+    ]
+  },
+  "CONBEH": {
+    "name": "SURFconextbeheerder",
+    "roleId": "5e17b508-08e4-e811-8100-005056956c1a",
+    "applications": [
+      {
+        "manageEntityId": "https://research",
+        "manageType": "saml20_sp"
+      }
+    ]
+  },
+  "CONVER": {
+    "name": "SURFconextverantwoordelijke",
+    "roleId": "cf652619-08e4-e811-8100-005056956c1a",
+    "applications": [
+      {
+        "manageEntityId": "https://cloud",
+        "manageType": "oidc10_rp"
+      }
+    ]
+  }
+}

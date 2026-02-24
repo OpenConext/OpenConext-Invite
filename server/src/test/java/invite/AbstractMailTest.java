@@ -24,9 +24,10 @@ import static org.awaitility.Awaitility.await;
                 "spring.security.oauth2.client.provider.oidcng.user-info-uri=http://localhost:8081/user-info",
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "email.enabled=true",
-                "spring.task.scheduling.enabled=false",
                 "manage.url: http://localhost:8081",
-                "manage.enabled: true"
+                "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
+                "manage.enabled: true",
+                "spring.task.scheduling.enabled=false",
         })
 public class AbstractMailTest extends AbstractTest {
 

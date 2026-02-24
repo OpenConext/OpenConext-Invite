@@ -100,6 +100,13 @@ oidcng:
   resource-server-secret: secret
   base-url: http://localhost:8888
 
+crm:
+  api-key-header: secret
+  collab-person-prefix: "urn:collab:person"
+  # The crm-config-resource can an absolute file path, e.g. file:///opt/openconext/invite/crm_config.json or
+  # a classpath entry
+  crm-config-resource: "classpath:/crm/crm_config.json"
+
 super-admin:
   users:
     - "urn:collab:person:example.com:admin"

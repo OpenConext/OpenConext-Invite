@@ -15,13 +15,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
@@ -31,6 +40,8 @@ import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 public class AttributeAggregatorController {
 
     private static final Log LOG = LogFactory.getLog(AttributeAggregatorController.class);
+    private static final String AUTORISATIE = "autorisatie";
+    private static final String ID = "id";
 
     private final UserRepository userRepository;
     private final Manage manage;
@@ -72,19 +83,32 @@ public class AttributeAggregatorController {
         userRepository.save(user);
 
         Map<String, Object> provider = optionalProvider.get();
-        List<Map<String, String>> userRoles = user.getUserRoles().stream()
-                .filter(userRole -> userRole.getRole().applicationsUsed().stream().anyMatch(application -> application.getManageId().equals(provider.get("id"))))
+        List<Map<String, String>> userRoleList = user.getUserRoles().stream()
+                .filter(userRole -> userRole.getRole().applicationsUsed().stream()
+                        .anyMatch(application -> application.getManageId().equals(provider.get(ID))))
                 .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(this::parseUserRole)
-                .toList();
-        LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", userRoles.size(), unspecifiedId, spEntityId));
-        return ResponseEntity.ok(userRoles);
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        List<Map<String, String>> autorisatieRoles = userRoleList.stream().filter(m -> m.containsKey(AUTORISATIE)).toList();
+        if (!autorisatieRoles.isEmpty()) {
+            Role role = user.getUserRoles().stream()
+                    .map(userRole -> userRole.getRole())
+                    .filter(r -> StringUtils.hasText(r.getCrmRoleId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Won't happen"));
+            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + role.getCrmOrganisationCode()));
+            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + role.getCrmOrganisationId()));
+        }
+        LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", userRoleList.size(), unspecifiedId, spEntityId));
+
+        return ResponseEntity.ok(userRoleList);
     }
 
     private Map<String, String> parseUserRole(UserRole userRole) {
         Role role = userRole.getRole();
         String urn = GroupURN.urnFromRole(groupUrnPrefix, role);
-        return Map.of("id", urn);
+        return Map.of(StringUtils.hasText(role.getCrmRoleId()) ? AUTORISATIE : ID, urn);
     }
 
 }
