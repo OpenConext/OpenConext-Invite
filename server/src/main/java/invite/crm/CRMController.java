@@ -20,6 +20,7 @@ import invite.model.Provisionable;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
+import invite.model.UserRoleAudit;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
 import invite.repository.ApplicationRepository;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,6 +53,7 @@ import static invite.api.InvitationOperations.identityProviderName;
 
 @RestController
 @RequestMapping(value = {"/api/internal/v1/crm"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@Transactional
 public class CRMController {
 
     private static final Log LOG = LogFactory.getLog(CRMController.class);
@@ -126,7 +129,6 @@ public class CRMController {
         List<User> users = userRepository.findByCrmContactId(crmContact.getContactId());
         users.forEach(user -> {
             LOG.info("Deleting CRM user: " + user.getEmail());
-
             this.provisioningService.deleteUserRequest(user);
             this.userRepository.delete(user);
         });
@@ -145,6 +147,8 @@ public class CRMController {
                 .forEach(role -> {
                     UserRole userRole = new UserRole(Authority.GUEST, role);
                     user.addUserRole(userRole);
+
+                    userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.ADD);
                     this.provisioningService.updateGroupRequest(userRole, OperationType.add);
                 });
         userRepository.save(user);

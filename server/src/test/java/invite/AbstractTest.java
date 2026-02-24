@@ -1,6 +1,9 @@
 package invite;
 
 import invite.config.HashGenerator;
+import invite.crm.CRMContact;
+import invite.crm.CRMOrganisation;
+import invite.crm.CRMRole;
 import invite.eduid.EduIDProvision;
 import invite.manage.EntityType;
 import invite.manage.LocalManage;
@@ -107,6 +110,8 @@ public abstract class AbstractTest {
     public static final String API_TOKEN_SUPER_USER_HASH = HashGenerator.generateToken();
     public static final String API_TOKEN_INVITER_USER_HASH = HashGenerator.generateToken();
     public static final String API_TOKEN_LEGACY_HASH = HashGenerator.generateToken();
+    public static final String CRM_CONTACT_ID = "5B5A4230-7A67-46E9-9EE1-95C6F5CACA4A";
+
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
@@ -574,6 +579,25 @@ public abstract class AbstractTest {
         };
     }
 
+    protected CRMContact getCrmContact(CRMRole crmRole, String uid, String schacHomeOrganisation, boolean suppressInvitation) {
+        return new CRMContact(
+                uid,
+                schacHomeOrganisation,
+                suppressInvitation,
+                "contactId",
+                "John",
+                "from",
+                "Doe",
+                "jdoe@example.com",
+                new CRMOrganisation(
+                        "organisationId",
+                        "abbrec",
+                        "Inc. Corporated"
+                ),
+                List.of(crmRole)
+        );
+    }
+
     protected Set<ApplicationUsage> application(String manageId, EntityType entityType) {
         Application application = applicationRepository.findByManageIdAndManageTypeOrderById(manageId, entityType).
                 orElseGet(() -> applicationRepository.save(new Application(manageId, entityType)));
@@ -611,6 +635,7 @@ public abstract class AbstractTest {
         guest.setEduId(UUID.randomUUID().toString());
         User kbUser =
                 new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
+        kbUser.setCrmContactId(CRM_CONTACT_ID);
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest, kbUser);
 
         Role wiki =

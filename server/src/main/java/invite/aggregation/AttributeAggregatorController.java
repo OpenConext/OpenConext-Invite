@@ -40,6 +40,8 @@ import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 public class AttributeAggregatorController {
 
     private static final Log LOG = LogFactory.getLog(AttributeAggregatorController.class);
+    private static final String AUTORISATIE = "autorisatie";
+    private static final String ID = "id";
 
     private final UserRepository userRepository;
     private final Manage manage;
@@ -83,28 +85,21 @@ public class AttributeAggregatorController {
         Map<String, Object> provider = optionalProvider.get();
         List<Map<String, String>> userRoleList = user.getUserRoles().stream()
                 .filter(userRole -> userRole.getRole().applicationsUsed().stream()
-                        .anyMatch(application -> application.getManageId().equals(provider.get("id"))))
+                        .anyMatch(application -> application.getManageId().equals(provider.get(ID))))
                 .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(this::parseUserRole)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        List<Role> crmRoles = user.getUserRoles().stream()
-                .map(userRole -> userRole.getRole())
-                .filter(role -> StringUtils.hasText(role.getCrmRoleId()))
-                .toList();
-        //If there are any CRM roles we need to add the organisation information regardless of the spEntityId
-        Set<String> uniqueOrganizationCodes = crmRoles.stream()
-                .map(role -> "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + role.getCrmOrganisationCode())
-                .collect(Collectors.toSet());
-        Set<String> uniqueOrganizationGUIDS = crmRoles.stream()
-                .map(role -> "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + role.getCrmOrganisationId())
-                .collect(Collectors.toSet());
-        uniqueOrganizationCodes.addAll(uniqueOrganizationGUIDS);
-        List<Map<String, String>> organisationRoles = uniqueOrganizationCodes.stream()
-                        .map(role -> Map.of("autorisatie", role))
-                                .toList();
-        userRoleList.addAll(organisationRoles);
-
+        List<Map<String, String>> autorisatieRoles = userRoleList.stream().filter(m -> m.containsKey(AUTORISATIE)).toList();
+        if (!autorisatieRoles.isEmpty()) {
+            Role role = user.getUserRoles().stream()
+                    .map(userRole -> userRole.getRole())
+                    .filter(r -> StringUtils.hasText(r.getCrmRoleId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Won't happen"));
+            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + role.getCrmOrganisationCode()));
+            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + role.getCrmOrganisationId()));
+        }
         LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", userRoleList.size(), unspecifiedId, spEntityId));
 
         return ResponseEntity.ok(userRoleList);
@@ -113,7 +108,7 @@ public class AttributeAggregatorController {
     private Map<String, String> parseUserRole(UserRole userRole) {
         Role role = userRole.getRole();
         String urn = GroupURN.urnFromRole(groupUrnPrefix, role);
-        return Map.of(StringUtils.hasText(role.getCrmRoleId()) ? "autorisatie" : "id", urn);
+        return Map.of(StringUtils.hasText(role.getCrmRoleId()) ? AUTORISATIE : ID, urn);
     }
 
 }
