@@ -4,11 +4,11 @@
     "roleId": "fc89aa87-07e4-e811-8100-005056956c1a",
     "applications": [
       {
-        "manageEntityId": "https://wiki",
+        "manageEntityID": "https://wiki",
         "manageType": "saml20_sp"
       },
       {
-        "manageEntityId": "https://network",
+        "manageEntityID": "https://network",
         "manageType": "saml20_sp"
       }
     ]
@@ -18,11 +18,11 @@
     "roleId": "92b2b379-07e4-e811-8100-005056956c1a",
     "applications": [
       {
-        "manageEntityId": "https://storage",
+        "manageEntityID": "https://storage",
         "manageType": "saml20_sp"
       },
       {
-        "manageEntityId": "https://calendar",
+        "manageEntityID": "https://calendar",
         "manageType": "oidc10_rp"
       }
     ]
@@ -32,7 +32,7 @@
     "roleId": "5e17b508-08e4-e811-8100-005056956c1a",
     "applications": [
       {
-        "manageEntityId": "https://research",
+        "manageEntityID": "https://research",
         "manageType": "saml20_sp"
       }
     ]
@@ -42,7 +42,7 @@
     "roleId": "cf652619-08e4-e811-8100-005056956c1a",
     "applications": [
       {
-        "manageEntityId": "https://cloud",
+        "manageEntityID": "https://cloud",
         "manageType": "oidc10_rp"
       }
     ]

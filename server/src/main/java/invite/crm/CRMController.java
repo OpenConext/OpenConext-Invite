@@ -95,7 +95,7 @@ public class CRMController {
                         ((List<Map<String, String>>) entry.getValue().get("applications")).stream()
                                 .map(application -> new CrmManageIdentifier(
                                         EntityType.valueOf(application.get("manageType").toUpperCase()),
-                                        application.get("manageEntityId"))).toList()))
+                                        application.get("manageEntityID"))).toList()))
                 .collect(Collectors.toMap(
                         crmConfigEntry -> crmConfigEntry.code(),
                         crmConfigEntry -> crmConfigEntry
@@ -234,7 +234,7 @@ public class CRMController {
         }
         Set<ApplicationUsage> applicationUsages = crmConfigEntry.crmManageIdentifiers().stream()
                 .map(crmManageIdentifier -> manage
-                        .providerByEntityID(crmManageIdentifier.manageType(), crmManageIdentifier.manageEntityId())
+                        .providerByEntityID(crmManageIdentifier.manageType(), crmManageIdentifier.manageEntityID())
                         .orElseThrow(() -> new NotFoundException("Manage entity not found: " + crmManageIdentifier)))
                 .map(provider -> {
                     String manageId = (String) provider.get("id");
