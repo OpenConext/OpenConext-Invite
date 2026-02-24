@@ -451,6 +451,7 @@ export const RoleForm = () => {
                             <InputField name={I18n.t("roles.landingPage")}
                                         value={application ? application.landingPage : null}
                                         isUrl={true}
+                                        required={true}
                                         disabled={isEmpty(application) || !allowedToEditApplication}
                                         placeholder={I18n.t("roles.landingPagePlaceHolder")}
                                         onBlur={e => validateApplication(index, e.target.value)}
