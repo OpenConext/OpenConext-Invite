@@ -56,6 +56,7 @@ public class RoleExpirationNotifier extends AbstractNodeLeader {
         Instant now = Instant.now();
         Instant futureDate = now.plus(roleExpirationNotificationDays, ChronoUnit.DAYS);
         List<UserRole> userRoles = userRoleRepository.findByEndDateBeforeAndExpiryNotifications(futureDate, 0);
+        LOG.info(String.format("RoleExpirationNotifier#doSweep found %s userRoles expiring before %s", (long) userRoles.size(), futureDate));
         return userRoles.stream().map(userRole -> {
             List<GroupedProviders> groupedProviders = manage.getGroupedProviders(List.of(userRole.getRole()));
             GroupedProviders groupedProvider = groupedProviders.isEmpty() ? null : groupedProviders.get(0);

@@ -38,9 +38,8 @@ public class RemoteManage implements Manage {
 
     @Override
     public List<Map<String, Object>> providersByIdIn(EntityType entityType, List<String> identifiers) {
-        LOG.debug(String.format("providersByIdIn %s", entityType));
         if (CollectionUtils.isEmpty(identifiers)) {
-            LOG.debug("No identifiers in providersByIdIn");
+            LOG.debug(String.format("No identifiers in providersByIdIn for entityType %s", entityType));
             return emptyList();
         }
         String param = identifiers.stream().map(id -> String.format("\"%s\"", id)).collect(joining(","));
@@ -48,14 +47,13 @@ public class RemoteManage implements Manage {
         String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, entityType.collectionName());
         List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
         if (providers != null) {
-            LOG.debug(String.format("Got %d results for providersByIdIn", providers.size()));
+            LOG.debug(String.format("Got %d results for providersByIdIn for entityType %s", providers.size(), entityType));
         }
         return transformProvider(providers);
     }
 
     @Override
     public List<String> idpEntityIdentifiersByServiceEntityId(List<String> serviceEntityIdentifiers) {
-        LOG.debug("idpEntityIdentifiersByServiceEntityId");
         if (CollectionUtils.isEmpty(serviceEntityIdentifiers)) {
             LOG.debug("No identifiers in idpEntityIdentifiersByServiceEntityId");
             return emptyList();
@@ -84,7 +82,7 @@ public class RemoteManage implements Manage {
         List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
         List<Map<String, Object>> allProviders = transformProvider(providers);
         if (allProviders != null) {
-            LOG.debug(String.format("Got %d results for providerByEntityID", allProviders.size()));
+            LOG.debug(String.format("Got %d results for providerByEntityID and entityType %s", allProviders.size(), entityType));
         }
         return allProviders.isEmpty() ? Optional.empty() : Optional.of(allProviders.get(0));
     }
