@@ -89,9 +89,10 @@ public class AttributeAggregatorController {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         List<Role> crmRoles = user.getUserRoles().stream()
-                .filter(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()))
                 .map(userRole -> userRole.getRole())
+                .filter(role -> StringUtils.hasText(role.getCrmRoleId()))
                 .toList();
+        //If there are any CRM roles we need to add the organisation information regardless of the spEntityId
         Set<String> uniqueOrganizationCodes = crmRoles.stream()
                 .map(role -> "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + role.getCrmOrganisationCode())
                 .collect(Collectors.toSet());
