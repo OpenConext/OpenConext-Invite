@@ -1,9 +1,11 @@
 package invite.cron;
 
 
+import invite.audit.UserRoleAuditService;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
+import invite.model.UserRoleAudit;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
 import invite.repository.UserRepository;
@@ -32,17 +34,21 @@ public class ResourceCleaner extends AbstractNodeLeader {
     private final UserRepository userRepository;
     private final ProvisioningService provisioningService;
     private final UserRoleRepository userRoleRepository;
+    private final UserRoleAuditService userRoleAuditService;
     private final int lastActivityDurationDays;
+
 
     @Autowired
     public ResourceCleaner(UserRepository userRepository,
                            UserRoleRepository userRoleRepository,
                            ProvisioningService provisioningService,
                            DataSource dataSource,
+                           UserRoleAuditService userRoleAuditService,
                            @Value("${cron.last-activity-duration-days}") int lastActivityDurationDays) {
         super(LOCK_NAME, dataSource);
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+        this.userRoleAuditService = userRoleAuditService;
         this.lastActivityDurationDays = lastActivityDurationDays;
         this.provisioningService = provisioningService;
     }
@@ -96,9 +102,10 @@ public class ResourceCleaner extends AbstractNodeLeader {
             User user = userRole.getUser();
             Role role = userRole.getRole();
             try {
-                provisioningService.updateGroupRequest(userRole, OperationType.remove);
-                user.removeUserRole(userRole);
-                userRepository.save(user);
+                userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
+                provisioningService.deleteUserRoleRequest(userRole);
+                userRoleRepository.deleteUserRoleById(userRole.getId());
+
                 LOG.info(String.format("Deleted userRole for user %s and role %s with an endDate in the past",
                         user.getEmail(),
                         role.getName()));
