@@ -161,7 +161,8 @@ public class ManageController {
                 .map(Application::getManageId)
                 .toList());
         return ResponseEntity.ok(Map.of(
-                "providers", providers,
+                "providers", providers.stream()
+                        .filter(provider -> (Long) provider.get("roleCount") > 0L).toList(),
                 "provisionings", sanitizeProvisionings(provisionings)
         ));
     }
