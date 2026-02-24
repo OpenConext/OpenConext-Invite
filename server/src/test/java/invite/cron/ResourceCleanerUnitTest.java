@@ -1,5 +1,6 @@
 package invite.cron;
 
+import invite.audit.UserRoleAuditService;
 import invite.model.Authority;
 import invite.model.Role;
 import invite.model.User;
@@ -7,6 +8,7 @@ import invite.model.UserRole;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
 import invite.repository.UserRepository;
+import invite.repository.UserRoleAuditRepository;
 import invite.repository.UserRoleRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,9 @@ class ResourceCleanerUnitTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserRoleRepository userRoleRepository = mock(UserRoleRepository.class);
+    private final UserRoleAuditRepository userRoleAuditRepository = mock(UserRoleAuditRepository.class);
     private final ProvisioningService provisioningService = mock(ProvisioningService.class);
+    private final UserRoleAuditService userRoleAuditService = new UserRoleAuditService(userRoleAuditRepository);
     private final DataSource dataSource = mock(DataSource.class);
 
     private final ResourceCleaner subject = new ResourceCleaner(
@@ -36,6 +40,7 @@ class ResourceCleanerUnitTest {
             userRoleRepository,
             provisioningService,
             dataSource,
+            userRoleAuditService,
             5);
 
 
