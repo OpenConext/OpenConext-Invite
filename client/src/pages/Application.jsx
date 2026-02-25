@@ -11,7 +11,7 @@ import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {deriveApplicationAttributes} from "../utils/Manage";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import {Entities} from "../components/Entities";
-import {chipTypeForUserRole} from "../utils/Authority";
+import {authorityForRole, chipTypeForUserRole} from "../utils/Authority";
 import AlertLogo from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 
 export const Application = () => {
@@ -89,9 +89,13 @@ export const Application = () => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: role => <Chip type={chipTypeForUserRole(role.authority)}
-                                  label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
-                                      I18n.t("roles.noMember")}/>
+            mapper: role => {
+                const type = chipTypeForUserRole(role.authority);
+                const authority = authorityForRole(user, role);
+                return <Chip type={type}
+                             label={isEmpty(authority) ? I18n.t("roles.noMember") :
+                                 I18n.t(`access.${authority}`)}/>
+            }
         },
         {
             key: "userRoleCount",
