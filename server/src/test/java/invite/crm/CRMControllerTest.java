@@ -167,6 +167,8 @@ class CRMControllerTest extends AbstractMailTest {
         List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
                 crmContactID, crmOrganisationID);
         assertEquals(1, invitations.size());
+        Invitation invitation = invitations.getFirst();
+        assertEquals("SURF CRM", invitation.getRemoteApiUser());
 
         response = given()
                 .when()

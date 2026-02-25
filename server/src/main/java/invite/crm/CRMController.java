@@ -64,6 +64,7 @@ public class CRMController {
     private static final Log LOG = LogFactory.getLog(CRMController.class);
 
     private final String collabPersonPrefix;
+    private final String inviterName;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ApplicationRepository applicationRepository;
@@ -79,6 +80,7 @@ public class CRMController {
     @SuppressWarnings("unchecked")
     public CRMController(@Value("${crm.collab-person-prefix}") String collabPersonPrefix,
                          @Value("${crm.crm-config-resource}") Resource crmConfigResource,
+                         @Value("${crm.inviter-name}") String inviterName,
                          UserRepository userRepository,
                          RoleRepository roleRepository,
                          ApplicationRepository applicationRepository,
@@ -89,6 +91,7 @@ public class CRMController {
                          InvitationRepository invitationRepository) throws IOException {
         this.userRepository = userRepository;
         this.collabPersonPrefix = collabPersonPrefix;
+        this.inviterName = inviterName;
         this.roleRepository = roleRepository;
         this.applicationRepository = applicationRepository;
         this.provisioningService = provisioningService;
@@ -311,8 +314,8 @@ public class CRMController {
         invitation.setOrganizationGUID(crmOrganisationId);
         invitation.setCrmOrganisationId(crmOrganisationId);
         invitation.setCrmContactId(crmContact.getContactId());
+        invitation.setRemoteApiUser(inviterName);
         invitationRepository.save(invitation);
         return invitation;
-
     }
 }
