@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
+import static invite.security.SecurityConfig.API_KEY_HEADER;
 import static invite.security.SecurityConfig.API_TOKEN_HEADER;
 
 @Configuration
@@ -20,6 +21,7 @@ public class SwaggerOpenIdConfig {
     public static final String OPEN_ID_SCHEME_NAME = "openId";
     public static final String API_TOKENS_SCHEME_NAME = "apiTokens";
     public static final String BASIC_AUTHENTICATION_SCHEME_NAME = "basic_auth";
+    public static final String API_HEADER_SCHEME_NAME = "apiHeaders";
 
     @Bean
     OpenAPI customOpenApi(@Value("${spring.security.oauth2.client.provider.oidcng.authorization-uri}") String authorizationUrl,
@@ -39,6 +41,11 @@ public class SwaggerOpenIdConfig {
                 .in(SecurityScheme.In.HEADER)
                 .name(API_TOKEN_HEADER);
 
+        SecurityScheme apiHeaderSecurityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name(API_KEY_HEADER);
+
         SecurityScheme basicAuthentication = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("basic");
@@ -46,6 +53,7 @@ public class SwaggerOpenIdConfig {
         Components components = new Components()
                 .addSecuritySchemes(OPEN_ID_SCHEME_NAME, openIdSecuritySchema)
                 .addSecuritySchemes(API_TOKENS_SCHEME_NAME, apiTokensSecurityScheme)
+                .addSecuritySchemes(API_HEADER_SCHEME_NAME, apiHeaderSecurityScheme)
                 .addSecuritySchemes(BASIC_AUTHENTICATION_SCHEME_NAME, basicAuthentication);
 
         OpenAPI openAPI = new OpenAPI()
@@ -59,6 +67,7 @@ public class SwaggerOpenIdConfig {
         openAPI.components(components)
                 .addSecurityItem(new SecurityRequirement().addList(OPEN_ID_SCHEME_NAME))
                 .addSecurityItem(new SecurityRequirement().addList(API_TOKENS_SCHEME_NAME))
+                .addSecurityItem(new SecurityRequirement().addList(API_HEADER_SCHEME_NAME))
                 .addSecurityItem(new SecurityRequirement().addList(BASIC_AUTHENTICATION_SCHEME_NAME));
         return openAPI;
     }

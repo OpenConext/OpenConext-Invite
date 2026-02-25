@@ -222,7 +222,9 @@ manage:
 #  staticManageDirectory: file:///usr/local/etc/manage
 
 springdoc:
-  pathsToMatch: "/api/external/v1/**"
+  pathsToMatch:
+    - "/api/external/v1/**"
+    - "/api/internal/v1/crm"
   api-docs:
     enabled: true
     path: "/ui/api-docs"

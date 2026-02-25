@@ -27,6 +27,8 @@ import invite.repository.ApplicationRepository;
 import invite.repository.InvitationRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.NonNull;
@@ -50,11 +52,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static invite.SwaggerOpenIdConfig.API_HEADER_SCHEME_NAME;
 import static invite.api.InvitationOperations.identityProviderName;
 
 @RestController
 @RequestMapping(value = {"/api/internal/v1/crm"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
+@SecurityRequirement(name = API_HEADER_SCHEME_NAME)
 public class CRMController {
 
     private static final Log LOG = LogFactory.getLog(CRMController.class);
@@ -108,6 +112,8 @@ public class CRMController {
     }
 
     @PostMapping("")
+    @Operation(summary = "Create, update CRM role memberships",
+            description = "Add or delete the CRM roles to the CRM contact")
     public ResponseEntity<String> contact(@RequestBody CRMContact crmContact) {
         LOG.debug("POST /api/external/v1/crm: " + crmContact);
 
@@ -127,6 +133,8 @@ public class CRMController {
     }
 
     @DeleteMapping("")
+    @Operation(summary = "Delete CRM profile",
+            description = "Delete CRM profile")
     public ResponseEntity<String> delete(@RequestBody CRMContact crmContact) {
         LOG.debug("DELETE /api/external/v1/crm: " + crmContact);
 
