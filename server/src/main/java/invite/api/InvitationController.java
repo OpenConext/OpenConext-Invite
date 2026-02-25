@@ -4,8 +4,8 @@ import invite.audit.UserRoleAuditService;
 import invite.exception.InvitationEmailMatchingException;
 import invite.exception.InvitationExpiredException;
 import invite.exception.InvitationStatusException;
-import invite.exception.InvitationUniqueCrmOrganisationException;
 import invite.exception.NotFoundException;
+import invite.exception.RemoteException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
@@ -574,12 +574,12 @@ public class InvitationController implements InvitationResource {
                 }
             });
             if (throwException.get()) {
-                throw new InvitationUniqueCrmOrganisationException(
-                        String.format("User %s is not allowed to accept an invitation from Organisation %s, because it already has roles for Organisation %s",
+                throw new RemoteException(HttpStatus.NOT_ACCEPTABLE,
+                        String.format("User %s with CRM contactID %s is not allowed to accept an invitation from Organisation %s, check the database for constraint violations",
                                 user.getEmail(),
-                                invitation.getCrmOrganisationId(),
-                                userCrmOrganisationId
-                        ));
+                                user.getCrmContactId(),
+                                invitation.getCrmOrganisationId()
+                        ), null);
             }
         }
     }
