@@ -303,6 +303,7 @@ class InvitationControllerTest extends AbstractTest {
     @Test
     void acceptWithCRMConstraint() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", KB_USER_SUB);
+
         String hash = Authority.GUEST.name();
         Invitation invitation = invitationRepository.findByHash(hash).get();
         invitation.setCrmOrganisationId(UUID.randomUUID().toString());
@@ -321,6 +322,30 @@ class InvitationControllerTest extends AbstractTest {
                 .then()
                 .statusCode(HttpStatus.NOT_ACCEPTABLE.value());
     }
+
+    @Test
+    void acceptWithCRMConstraintDuplicateProfile() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
+
+        String hash = Authority.GUEST.name();
+        Invitation invitation = invitationRepository.findByHash(hash).get();
+        invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        invitation.setCrmContactId(CRM_CONTACT_ID);
+        invitationRepository.save(invitation);
+
+        AcceptInvitation acceptInvitation = new AcceptInvitation(hash, invitation.getId());
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(acceptInvitation)
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(HttpStatus.NOT_ACCEPTABLE.value());
+    }
+
     @Test
     void acceptGraph() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "graph@new.com");

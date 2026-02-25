@@ -81,6 +81,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -557,17 +558,29 @@ public class InvitationController implements InvitationResource {
     }
 
     private void checkCrmUniqueOrganisation(User user, Invitation invitation) {
-        if (StringUtils.hasText(invitation.getCrmContactId()) &&
-                StringUtils.hasText(user.getCrmContactId()) &&
-                user.getCrmContactId().equals(invitation.getCrmContactId()) &&
-                !user.getCrmOrganisationId().equals(invitation.getCrmOrganisationId())) {
-            throw new InvitationUniqueCrmOrganisationException(
-                    String.format("User %s is not allowed to accept an invitation from Organisation %s, because it already has roles for Organisation %s",
-                            user.getEmail(),
-                            invitation.getCrmOrganisationId(),
-                            user.getCrmOrganisationId()
-                            ));
-
+        String invitationCrmContactId = invitation.getCrmContactId();
+        if (StringUtils.hasText(invitationCrmContactId)) {
+            String userCrmOrganisationId = user.getCrmOrganisationId();
+            AtomicBoolean throwException = new AtomicBoolean(false);
+            if (StringUtils.hasText(userCrmOrganisationId) &&
+                    !userCrmOrganisationId.equals(invitation.getCrmOrganisationId())) {
+                throwException.set(true);
+            }
+            Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(
+                    invitationCrmContactId, invitation.getCrmOrganisationId());
+            optionalUser.ifPresent(userFromDB -> {
+                if (!userFromDB.getId().equals(user.getId())) {
+                    throwException.set(true);
+                }
+            });
+            if (throwException.get()) {
+                throw new InvitationUniqueCrmOrganisationException(
+                        String.format("User %s is not allowed to accept an invitation from Organisation %s, because it already has roles for Organisation %s",
+                                user.getEmail(),
+                                invitation.getCrmOrganisationId(),
+                                userCrmOrganisationId
+                        ));
+            }
         }
     }
 }

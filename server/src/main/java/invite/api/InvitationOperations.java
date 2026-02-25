@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.Period;
@@ -51,6 +52,7 @@ public class InvitationOperations {
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
                 .map(id -> invitationResource.getRoleRepository().findById(id)
+                        .filter(role -> !StringUtils.hasText(role.getCrmRoleId()))
                         .orElseThrow(() -> new NotFoundException("Role not found"))).toList();
 
         if (user != null) {
