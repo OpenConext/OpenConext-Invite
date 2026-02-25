@@ -134,7 +134,9 @@ const pt = {
         userInfo: "{{nbr}} member(s) & invalid {{period}}",
         roleInfo: "Role valid for <strong>{{days}} days</strong>",
         roleInfoNoEndDate: "Role has <strong>no end date</strong>",
-        contactAdmin: "Contact role manager(s)"
+        contactAdmin: "Contact role manager(s)",
+        institutionAdmin: "Institution admins: {{names}}",
+        noInstitutionAdmin: "There is not institution admins"
     },
     roles: {
         title: "Access Roles",

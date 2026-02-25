@@ -32,7 +32,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -66,6 +65,7 @@ public class UserController {
     private final Config config;
     private final UserRepository userRepository;
     private final InvitationRepository invitationRepository;
+    private final RoleRepository roleRepository;
     private final Manage manage;
     private final ObjectMapper objectMapper;
     private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
@@ -75,7 +75,7 @@ public class UserController {
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          InvitationRepository invitationRepository,
+                          InvitationRepository invitationRepository, RoleRepository roleRepository,
                           Manage manage,
                           ObjectMapper objectMapper,
                           RemoteProvisionedUserRepository remoteProvisionedUserRepository,
@@ -85,6 +85,7 @@ public class UserController {
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix,
                           ProvisioningService provisioningService) {
         this.invitationRepository = invitationRepository;
+        this.roleRepository = roleRepository;
         this.provisioningService = provisioningService;
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
@@ -251,8 +252,22 @@ public class UserController {
         return Results.deleteResult();
     }
 
+    @GetMapping("/institution-admins/{roleId}")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<User>> institutionAdminsbyRole(@PathVariable Long roleId,
+                                                   @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("GET institution-admins/%s for user %s", roleId, user.getEduPersonPrincipalName()));
 
-    @PostMapping("error")
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
+
+        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+
+        List<User> users = userRepository.findInstitutionAdminsPerRole(role.getId());
+
+        return ResponseEntity.ok(users);
+    }
+
+        @PostMapping("error")
     public ResponseEntity<Map<String, Integer>> error(@RequestBody Map<String, Object> payload,
                                                       @Parameter(hidden = true) User user) throws
             JsonProcessingException, UnknownHostException {

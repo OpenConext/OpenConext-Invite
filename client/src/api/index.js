@@ -95,6 +95,10 @@ export function other(id) {
     return fetchJson(`/api/v1/users/other/${id}`, {}, {}, false);
 }
 
+export function institutionAdminsbyRole(roleId) {
+    return fetchJson(`/api/v1/users/institution-admins/${roleId}`, {}, {}, false);
+}
+
 export function searchUsers(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
     return fetchJson(`/api/v1/users/search?${queryPart}`);

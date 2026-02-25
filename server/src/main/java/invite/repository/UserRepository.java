@@ -117,6 +117,14 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             nativeQuery = true)
     List<User> findNonSuperUserWithoutUserRoles();
 
+    @Query(value = """
+            SELECT u.* FROM users u
+                    INNER JOIN roles r on r.organization_guid = u.organization_guid
+                    WHERE r.id = ?1 AND u.institution_admin = 1
+            """,
+            nativeQuery = true)
+    List<User> findInstitutionAdminsPerRole(Long roleId);
+
     @Override
     default String rewrite(String query, Sort sort) {
         Sort.Order authoritySort = sort.getOrderFor("authority");

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {managersByRoleId, roleByID} from "../api";
+import {institutionAdminsbyRole, managersByRoleId, roleByID} from "../api";
 import I18n from "../locale/I18n";
 import "./Role.scss";
 import {ButtonType, Loader, Tooltip} from "@surfnet/sds";
@@ -8,6 +8,7 @@ import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import WebsiteIcon from "../icons/network-information.svg";
 import PersonIcon from "../icons/persons.svg";
+import InstitutionAdminIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import {allowedToEditRole, AUTHORITIES, highestAuthority, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
@@ -17,7 +18,7 @@ import ClipBoardCopy from "../components/ClipBoardCopy";
 import {deriveApplicationAttributes} from "../utils/Manage";
 import DOMPurify from "dompurify";
 import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {displayExpiryDate, futureDate} from "../utils/Date";
 
 export const Role = () => {
@@ -30,6 +31,7 @@ export const Role = () => {
     const [currentTab, setCurrentTab] = useState(tab);
     const [tabs, setTabs] = useState([]);
     const [managerEmails, setManagerEmails] = useState([]);
+    const [institutionAdmins, setInstitutionAdmins] = useState([]);
 
     useEffect(() => {
             const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
@@ -54,10 +56,12 @@ export const Role = () => {
             navigate("/404");
             return;
         }
-        roleByID(id, false)
-            .then(res => {
+        Promise.all([roleByID(id, false), institutionAdminsbyRole(id)])
+            .then(results => {
+                const res = results[0];
                 deriveApplicationAttributes(res, I18n.locale, I18n.t("roles.multiple"), I18n.t("forms.and"))
                 setRole(res);
+                setInstitutionAdmins(results[1]);
                 const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
                 if (isInviter) {
                     managersByRoleId(id).then(emails => setManagerEmails(emails));
@@ -173,6 +177,17 @@ export const Role = () => {
                         <ClipBoardCopy txt={urn} transparentBackground={true}/>
                     </div>
                     <div className={"meta-data"}>
+                        <div className={"meta-data-row"}>
+                            <InstitutionAdminIcon/>
+                            {isEmpty(institutionAdmins) && <span>
+                                {I18n.t("role.noInstitutionAdmin")}
+                            </span>}
+                            {!isEmpty(institutionAdmins) && <span dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(I18n.t("role.institutionAdmin", {
+                                    names: splitListSemantically(institutionAdmins.map(u => u.name), I18n.t("forms.and"))
+                                }))
+                            }}/>}
+                        </div>
                         <div className={"meta-data-row"}>
                             <PersonIcon/>
                             <span dangerouslySetInnerHTML={{

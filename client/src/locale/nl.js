@@ -134,7 +134,10 @@ const nl = {
         userInfo: "{{nbr}} leden & verloopt {{period}}",
         roleInfo: "Rol geldig voor <strong>{{days}} dagen</strong>",
         roleInfoNoEndDate: "Rol heeft <strong>geen einddatum</strong>",
-        contactAdmin: "Contact rolmanager(s)"
+        contactAdmin: "Contact rolmanager(s)",
+        institutionAdmin: "Institution admins: {{names}}",
+        noInstitutionAdmin: "There is not institution admins"
+
     },
     roles: {
         title: "Toegangsrollen",

@@ -8,6 +8,7 @@ import invite.exception.NotFoundException;
 import invite.manage.EntityType;
 import invite.model.Authority;
 import invite.model.RemoteProvisionedUser;
+import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
 import io.restassured.common.mapper.TypeRef;
@@ -19,6 +20,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -549,6 +551,26 @@ class UserControllerTest extends AbstractTest {
         Set<UserRole> userRoles = user.getUserRoles();
         assertEquals(2, userRoles.size());
         assertEquals(List.of("5", "5"), userRoles.stream().map(userRole -> userRole.getRole().getApplicationMaps().get(0).get("id")).toList());
+    }
+
+    @Test
+    void institutionAdminsbyRole() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
+        Role role = roleRepository.findByName("Wiki").get();
+
+        List<User> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("roleId", role.getId())
+                .get("/api/v1/users/institution-admins/{roleId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, users.size());
+        User user = users.getFirst();
+        assertTrue(user.isInstitutionAdmin());
+        assertEquals(user.getOrganizationGUID(), role.getOrganizationGUID());
     }
 
     @Test
