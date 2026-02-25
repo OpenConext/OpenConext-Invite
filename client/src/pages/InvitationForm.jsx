@@ -370,7 +370,8 @@ export const InvitationForm = () => {
 
                 {(!isInviter && !skipRoles) && <>
                     <SelectField value={selectedRoles}
-                                 options={roles.filter(role => !selectedRoles.find(r => r.value === role.value))}
+                                 options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
+                                 && isEmpty(role.crmRoleId))}
                                  name={I18n.t("invitations.roles")}
                                  toolTip={I18n.t("tooltips.rolesTooltip")}
                                  isMulti={true}

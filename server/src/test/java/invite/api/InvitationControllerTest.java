@@ -109,6 +109,41 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
+    void invitationForCrmRoleNotAllowed() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", MANAGE_SUB);
+        Role research = roleRepository.findByName("Research").get();
+        research.setCrmRoleId(UUID.randomUUID().toString());
+        roleRepository.save(research);
+
+        InvitationRequest invitationRequest = new InvitationRequest(
+                Authority.GUEST,
+                "Message",
+                Language.en,
+                true,
+                false,
+                null,
+                false,
+                false,
+                List.of("new@new.nl"),
+                List.of(new Invite("new2@new.nl", "placeholder-1")),
+                List.of(research.getId()),
+                null,
+                Instant.now().plus(365, ChronoUnit.DAYS),
+                Instant.now().plus(12, ChronoUnit.DAYS));
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(invitationRequest)
+                .post("/api/v1/invitations")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
     void newInvitationNL() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());

@@ -327,7 +327,8 @@ export const Invitations = ({
                   defaultSort="email"
                   columns={columns}
                   newLabel={I18n.t("invitations.newInvite")}
-                  showNew={!!role && isUserAllowed(AUTHORITIES.MANAGER, user) && !role.unknownInManage}
+                  showNew={!!role && isUserAllowed(AUTHORITIES.MANAGER, user) && !role.unknownInManage
+                      && isEmpty(role.crmRoleId)}
                   newEntityFunc={role ? () => navigate("/invitation/new", {state: role.id}) : null}
                   customNoEntities={I18n.t(`invitations.noResults`)}
                   loading={false}

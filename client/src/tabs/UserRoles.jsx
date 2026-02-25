@@ -385,7 +385,8 @@ export const UserRoles = ({role, guests}) => {
                   defaultSort="name"
                   columns={columns}
                   newLabel={I18n.t(guests ? "invitations.newGuest" : isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user) ? "invitations.new" : "invitations.newInvitation")}
-                  showNew={isUserAllowed(AUTHORITIES.MANAGER, user) && !role.unknownInManage}
+                  showNew={isUserAllowed(AUTHORITIES.MANAGER, user) && !role.unknownInManage
+                      && isEmpty(role.crmRoleId)}
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=${guests === false}`, {state: role.id})}
                   customNoEntities={I18n.t(`userRoles.noResults`)}
                   loading={false}
