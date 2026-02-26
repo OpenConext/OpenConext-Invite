@@ -278,7 +278,7 @@ public class CRMController {
                 String.format("%s for %s", crmConfigEntry.name(), crmOrganisation.getName()),
                 String.format("CRM role %s for organisation %s", crmConfigEntry.name(), crmOrganisation.getName()),
                 applicationUsages,
-                365,
+                365 * 25,
                 true,
                 false
         );
