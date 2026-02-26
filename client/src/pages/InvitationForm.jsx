@@ -371,7 +371,7 @@ export const InvitationForm = () => {
                 {(!isInviter && !skipRoles) && <>
                     <SelectField value={selectedRoles}
                                  options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
-                                 && isEmpty(role.crmRoleId))}
+                                     && isEmpty(role.crmRoleId))}
                                  name={I18n.t("invitations.roles")}
                                  toolTip={I18n.t("tooltips.rolesTooltip")}
                                  isMulti={true}
@@ -454,22 +454,23 @@ export const InvitationForm = () => {
                                 <UpIcon/>
                             </a>
 
-                            {overrideSettingsAllowed &&
-                                <SwitchField name={"enforceEmailEquality"}
-                                             value={invitation.enforceEmailEquality || false}
-                                             onChange={val => setInvitation({...invitation, enforceEmailEquality: val})}
-                                             label={I18n.t("invitations.enforceEmailEquality")}
-                                             info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
-                                />}
 
-                            {overrideSettingsAllowed &&
-                                <SwitchField name={"eduIDOnly"}
-                                             value={invitation.eduIDOnly || false}
-                                             onChange={eduIDOnlyChanged}
-                                             label={I18n.t("invitations.eduIDOnly")}
-                                             info={I18n.t("tooltips.eduIDOnlyTooltip")}
-                                             last={invitation.eduIDOnly}
-                                />}
+                            <SwitchField name={"enforceEmailEquality"}
+                                         value={invitation.enforceEmailEquality || false}
+                                         onChange={val => setInvitation({...invitation, enforceEmailEquality: val})}
+                                         label={I18n.t("invitations.enforceEmailEquality")}
+                                         disabled={!overrideSettingsAllowed}
+                                         info={I18n.t("tooltips.enforceEmailEqualityTooltip")}
+                            />
+
+                            <SwitchField name={"eduIDOnly"}
+                                         value={invitation.eduIDOnly || false}
+                                         onChange={eduIDOnlyChanged}
+                                         label={I18n.t("invitations.eduIDOnly")}
+                                         disabled={!overrideSettingsAllowed}
+                                         info={I18n.t("tooltips.eduIDOnlyTooltip")}
+                                         last={invitation.eduIDOnly}
+                            />
 
                             {(overrideSettingsAllowed && invitation.eduIDOnly) &&
                                 <SelectField

@@ -110,7 +110,7 @@ public class CRMController {
                         crmConfigEntry -> crmConfigEntry.code(),
                         crmConfigEntry -> crmConfigEntry
                 ));
-        LOG.info(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
+        LOG.debug(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
         this.invitationRepository = invitationRepository;
     }
 
@@ -144,14 +144,14 @@ public class CRMController {
         List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
                 crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
         invitations.forEach(invitation -> {
-            LOG.info("Deleting CRM invitation: " + invitation.getEmail());
+            LOG.debug("Deleting CRM invitation: " + invitation.getEmail());
             this.invitationRepository.delete(invitation);
         });
 
         Optional<User> userOptional = userRepository.findByCrmContactIdAndCrmOrganisationId(
                 crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
         userOptional.ifPresent(user -> {
-            LOG.info("Deleting CRM user: " + user.getEmail());
+            LOG.debug("Deleting CRM user: " + user.getEmail());
             this.provisioningService.deleteUserRequest(user);
             this.userRepository.delete(user);
         });
@@ -178,6 +178,10 @@ public class CRMController {
                     this.provisioningService.updateGroupRequest(userRole, OperationType.add);
                 });
         userRepository.save(user);
+
+        LOG.debug(String.format("Provisioned user %s with roles %s",
+                user.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
+
         return optionalUser.isEmpty();
     }
 
@@ -193,6 +197,10 @@ public class CRMController {
                 StringUtils.hasText(middleName) ? String.format("%s %s", middleName, surName) : surName,
                 crmContact.getEmail());
         User user = userRepository.save(unsavedUser);
+
+        LOG.debug(String.format("Created new user %s with sub %s",
+                user.getEmail(), sub));
+
         this.provisioningService.newUserRequest(user);
         return user;
     }
@@ -244,6 +252,10 @@ public class CRMController {
             Invitation invitation = createInvitation(crmContact, invitationRoles);
 
             Optional<String> idpName = identityProviderName(manage, invitation);
+
+            LOG.debug(String.format("Sending invitation to user %s for roles %s",
+                    invitation.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
+
             mailBox.sendInviteMail(this.provisionable, invitation, groupedProviders, Language.en, idpName);
         }
         return optionalUser.isEmpty();
