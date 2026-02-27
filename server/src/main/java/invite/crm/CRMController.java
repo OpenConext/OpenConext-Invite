@@ -31,7 +31,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -261,9 +260,10 @@ public class CRMController {
         return optionalUser.isEmpty();
     }
 
-    private @NonNull List<Role> convertCrmRolesToInviteRoles(CRMContact crmContact, List<CRMRole> newCrmRoles) {
+    private List<Role> convertCrmRolesToInviteRoles(CRMContact crmContact, List<CRMRole> newCrmRoles) {
         return newCrmRoles.stream()
-                .map(crmRole -> roleRepository.findByCrmRoleId(crmRole.getRoleId())
+                .map(crmRole -> roleRepository.findByCrmRoleIdAndCrmOrganisationId(
+                        crmRole.getRoleId(), crmContact.getOrganisation().getOrganisationId())
                         .orElseGet(() -> this.createRole(crmContact.getOrganisation(), crmRole)))
                 .toList();
     }

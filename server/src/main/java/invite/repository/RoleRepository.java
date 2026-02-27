@@ -96,7 +96,7 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
 
     Optional<Role> findByName(String name);
 
-    Optional<Role> findByCrmRoleId(String crmRoleId);
+    Optional<Role> findByCrmRoleIdAndCrmOrganisationId(String crmRoleId, String crmOrganisationId);
 
     @Override
     default String rewrite(String query, Sort sort) {
