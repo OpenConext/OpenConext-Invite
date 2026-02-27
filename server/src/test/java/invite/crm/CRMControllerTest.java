@@ -273,4 +273,57 @@ class CRMControllerTest extends AbstractMailTest {
         assertTrue(optionalUser.isEmpty());
     }
 
+    @Test
+    void scopeInviteRoleToUniqueCRMRoleIdAndOrganizationId() throws JsonProcessingException {
+        String converRoleId = "92b2b379-07e4-e811-8100-005056956c1a";
+        CRMRole crmRole = new CRMRole(converRoleId, "CONVER", "SURFconextverantwoordelijke");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "total", "new.com", true);
+        //These applications are linked to the 'AAI' CRM role
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://cloud");
+        //Ignore the SCIM provisioning
+        super.stubForManageProvisioning(List.of());
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/api/internal/v1/crm")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        User user = userRepository.findBySubIgnoreCase("urn:collab:person:new.com:total").get();
+        assertEquals(1, user.getUserRoles().size());
+        //Now post the same CRMContact for a different user, but the same role. Enusure the role is not re-used
+        String newOrganisationID = UUID.randomUUID().toString();
+        crmContact.setOrganisation(new CRMOrganisation(newOrganisationID,"abbrev","name"));
+        crmContact.setUid("second_user");
+        response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/api/internal/v1/crm")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        user = userRepository.findBySubIgnoreCase("urn:collab:person:new.com:total").get();
+        assertEquals(1, user.getUserRoles().size());
+
+        user = userRepository.findBySubIgnoreCase("urn:collab:person:new.com:second_user").get();
+        assertEquals(1, user.getUserRoles().size());
+
+        List<Role> roles = roleRepository.findByCrmRoleId(converRoleId);
+        assertEquals(2, roles.size());
+    }
+
+
 }
