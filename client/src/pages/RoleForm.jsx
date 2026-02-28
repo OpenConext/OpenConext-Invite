@@ -177,6 +177,8 @@ export const RoleForm = () => {
             const promise = isNewRole ? createRole : updateRole;
             const newRoleData = {
                 ...role,
+                name: (role.name || "").replace(/[\u0000-\u001F\u007F]/g, " ").trim(),
+                description: (role.description || "").replace(/[\u0000-\u001F\u007F]/g, " ").trim(),
                 applicationUsages: applications
                     .filter(app => !isEmpty(app))
                     .map(app => ({application: app, landingPage: app.landingPage}))
