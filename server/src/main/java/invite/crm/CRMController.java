@@ -97,6 +97,7 @@ public class CRMController {
         this.mailBox = mailBox;
         this.manage = manage;
         this.userRoleAuditService = userRoleAuditService;
+        this.invitationRepository = invitationRepository;
         Map<String, Map<String, Object>> crmConfigRaw = objectMapper.readValue(crmConfigResource.getInputStream(), new TypeReference<>() {
         });
         this.crmConfig = crmConfigRaw.entrySet().stream()
@@ -110,7 +111,6 @@ public class CRMController {
                         crmConfigEntry -> crmConfigEntry
                 ));
         LOG.debug(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
-        this.invitationRepository = invitationRepository;
     }
 
     @PostMapping("")
