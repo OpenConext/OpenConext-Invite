@@ -115,23 +115,6 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
-    void contactProvisioningMissingUID() {
-        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
-        //Empty uid will force the InvalidInputException
-        CRMContact crmContact = createCrmContact(CRM_CONTACT_ID, CRM_ORGANIZATION_ID, crmRole, "", "hardewijk.org", true);
-
-        given()
-                .when()
-                .accept(ContentType.JSON)
-                .header(API_KEY_HEADER, "secret")
-                .contentType(ContentType.JSON)
-                .body(crmContact)
-                .post("/api/internal/v1/crm")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
     void contactInviteNewUser() throws Exception {
         CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
         String crmContactID = UUID.randomUUID().toString();
@@ -187,6 +170,35 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void contactInviteNewUserSuppressEmail() throws Exception {
+        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, null, null, true);
+        //These two applications are linked to the 'BVW' CRM role
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/api/internal/v1/crm")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID,
+                crmOrganisationID);
+        assertTrue(optionalUser.isEmpty());
+
+        List<MimeMessageParser> allMailMessages = allMailMessages(0);
+        assertEquals(0, allMailMessages.size());
+    }
+        @Test
     void contactProvisioningRemoveScimRole() throws JsonProcessingException {
         CRMRole crmRoleResearch = new CRMRole("5e17b508-08e4-e811-8100-005056956c1a", "CONBEH", "SURFconextbeheerder");
         CRMRole crmRoleCloud = new CRMRole("cf652619-08e4-e811-8100-005056956c1a", "CONVER", "SURFconextverantwoordelijke");

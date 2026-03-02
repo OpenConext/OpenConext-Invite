@@ -121,12 +121,9 @@ public class CRMController {
 
         boolean created;
 
-        if (crmContact.isSuppressInvitation()) {
-            if (!StringUtils.hasText(crmContact.getSchacHomeOrganisation()) || !StringUtils.hasText(crmContact.getUid())) {
-                throw new InvalidInputException(
-                        "Missing schacHomeOrganisation or uid in crmContact with isSuppressInvitation true: " + crmContact);
-            }
-            created = provisionUser(crmContact);
+        if (crmContact.isSuppressInvitation() &&
+                StringUtils.hasText(crmContact.getSchacHomeOrganisation()) && StringUtils.hasText(crmContact.getUid())) {
+                created = provisionUser(crmContact);
         } else {
             created = sendInvitation(crmContact);
         }
@@ -251,11 +248,14 @@ public class CRMController {
             Invitation invitation = createInvitation(crmContact, invitationRoles);
 
             Optional<String> idpName = identityProviderName(manage, invitation);
-
-            LOG.debug(String.format("Sending invitation to user %s for roles %s",
-                    invitation.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
-
-            mailBox.sendInviteMail(this.provisionable, invitation, groupedProviders, Language.en, idpName);
+            if (crmContact.isSuppressInvitation()) {
+                LOG.debug(String.format("Not actualy sending invitation to user %s for roles %s, because suppressInvitation is set to true",
+                        invitation.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
+            } else {
+                LOG.debug(String.format("Sending invitation to user %s for roles %s",
+                        invitation.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
+                mailBox.sendInviteMail(this.provisionable, invitation, groupedProviders, Language.en, idpName);
+            }
         }
         return optionalUser.isEmpty();
     }
