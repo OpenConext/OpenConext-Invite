@@ -39,12 +39,14 @@ public class SwaggerOpenIdConfig {
         SecurityScheme apiTokensSecurityScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.APIKEY)
                 .in(SecurityScheme.In.HEADER)
-                .name(API_TOKEN_HEADER);
+                .name(API_TOKEN_HEADER)
+                .description("User generated API token");
 
         SecurityScheme apiHeaderSecurityScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.APIKEY)
                 .in(SecurityScheme.In.HEADER)
-                .name(API_KEY_HEADER);
+                .name(API_KEY_HEADER)
+                .description("CRM authentication");
 
         SecurityScheme basicAuthentication = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
