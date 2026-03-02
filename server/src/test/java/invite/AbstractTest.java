@@ -8,6 +8,7 @@ import invite.eduid.EduIDProvision;
 import invite.manage.EntityType;
 import invite.manage.LocalManage;
 import invite.model.*;
+import invite.provision.scim.GroupURN;
 import invite.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -116,6 +117,9 @@ public abstract class AbstractTest {
 
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
+
+    @Value("${voot.group_urn_domain}")
+    private String groupUrnPrefix;
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -688,6 +692,8 @@ public abstract class AbstractTest {
         research.setOrganizationGUID(ORGANISATION_GUID);
         wiki.setOrganizationGUID(ORGANISATION_GUID);
 
+        List.of(wiki, network, storage, research, calendar, mail)
+                .forEach(role -> role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role)));
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 
         UserRole wikiManager =
