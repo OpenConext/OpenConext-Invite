@@ -46,5 +46,10 @@
         "manageType": "oidc10_rp"
       }
     ]
+  },
+  "EMPTY": {
+    "name": "Deprecated",
+    "roleId": "ea61793b-c4a9-47a0-9558-40e684ded3be",
+    "applications": []
   }
 }

@@ -102,7 +102,8 @@ public class CRMController {
         });
         this.crmConfig = crmConfigRaw.entrySet().stream()
                 .map(entry -> new CrmConfigEntry(entry.getKey(), (String) entry.getValue().get("name"),
-                        ((List<Map<String, String>>) entry.getValue().get("applications")).stream()
+                        ((List<Map<String, String>>) entry.getValue().getOrDefault("applications", List.of()))
+                                .stream()
                                 .map(application -> new CrmManageIdentifier(
                                         EntityType.valueOf(application.get("manageType").toUpperCase()),
                                         application.get("manageEntityID"))).toList()))
@@ -123,7 +124,7 @@ public class CRMController {
 
         if (crmContact.isSuppressInvitation() &&
                 StringUtils.hasText(crmContact.getSchacHomeOrganisation()) && StringUtils.hasText(crmContact.getUid())) {
-                created = provisionUser(crmContact);
+            created = provisionUser(crmContact);
         } else {
             created = sendInvitation(crmContact);
         }
@@ -237,10 +238,11 @@ public class CRMController {
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, optionalUser.orElse(new User()));
         //Only save the user when the user already existed
         optionalUser.ifPresent(user -> userRepository.save(user));
+        // Maps CRM roles to existing or new roles
+        List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles);
         //If there are no new roles, then we can't do anything
-        if (!CollectionUtils.isEmpty(newCrmRoles)) {
-            // Maps CRM roles to existing or new roles
-            List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles);
+        if (!CollectionUtils.isEmpty(roles)) {
+            //There are roles in CRM without applications, we need to ignore those
             List<GroupedProviders> groupedProviders = manage.getGroupedProviders(roles);
             Set<InvitationRole> invitationRoles = roles.stream()
                     .map(role -> new InvitationRole(role))
@@ -263,15 +265,19 @@ public class CRMController {
     private List<Role> convertCrmRolesToInviteRoles(CRMContact crmContact, List<CRMRole> newCrmRoles) {
         return newCrmRoles.stream()
                 .map(crmRole -> roleRepository.findByCrmRoleIdAndCrmOrganisationId(
-                        crmRole.getRoleId(), crmContact.getOrganisation().getOrganisationId())
-                        .orElseGet(() -> this.createRole(crmContact.getOrganisation(), crmRole)))
+                                crmRole.getRoleId(), crmContact.getOrganisation().getOrganisationId())
+                        .or(() -> this.createRole(crmContact.getOrganisation(), crmRole)))
+                .flatMap(Optional::stream)
                 .toList();
     }
 
-    private Role createRole(CRMOrganisation crmOrganisation, CRMRole crmRole) {
+    private Optional<Role> createRole(CRMOrganisation crmOrganisation, CRMRole crmRole) {
         CrmConfigEntry crmConfigEntry = this.crmConfig.get(crmRole.getSabCode());
         if (crmConfigEntry == null) {
             throw new InvalidInputException("CRM sabCode is not configured: " + crmRole.getSabCode());
+        }
+        if (crmConfigEntry.crmManageIdentifiers().isEmpty()) {
+            return Optional.empty();
         }
         Set<ApplicationUsage> applicationUsages = crmConfigEntry.crmManageIdentifiers().stream()
                 .map(crmManageIdentifier -> manage
@@ -302,7 +308,7 @@ public class CRMController {
 
         Role role = roleRepository.save(unsavedRole);
         this.provisioningService.newGroupRequest(role);
-        return role;
+        return Optional.of(role);
     }
 
     private Invitation createInvitation(CRMContact crmContact, Set<InvitationRole> invitationRoles) {

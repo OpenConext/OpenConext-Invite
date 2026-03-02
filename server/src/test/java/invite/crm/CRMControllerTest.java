@@ -15,7 +15,6 @@ import invite.model.UserRole;
 import io.restassured.http.ContentType;
 import jakarta.mail.Address;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -198,7 +197,8 @@ class CRMControllerTest extends AbstractMailTest {
         List<MimeMessageParser> allMailMessages = allMailMessages(0);
         assertEquals(0, allMailMessages.size());
     }
-        @Test
+
+    @Test
     void contactProvisioningRemoveScimRole() throws JsonProcessingException {
         CRMRole crmRoleResearch = new CRMRole("5e17b508-08e4-e811-8100-005056956c1a", "CONBEH", "SURFconextbeheerder");
         CRMRole crmRoleCloud = new CRMRole("cf652619-08e4-e811-8100-005056956c1a", "CONVER", "SURFconextverantwoordelijke");
@@ -245,6 +245,67 @@ class CRMControllerTest extends AbstractMailTest {
 
         user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         assertEquals(3, user.getUserRoles().size());
+    }
+
+    @Test
+    void contactProvisioningRoleEmptyApplications() {
+        CRMRole crmRoleResearch = new CRMRole("ea61793b-c4a9-47a0-9558-40e684ded3be", "EMPTY", "Deprecated");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRoleResearch, "steven", "nope.com", true);
+        String sub = "urn:collab:person:nope.com:steven";
+        Optional<User> userOptional = userRepository.findBySubIgnoreCase(sub);
+        assertTrue(userOptional.isEmpty());
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/api/internal/v1/crm")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        userOptional = userRepository.findBySubIgnoreCase(sub);
+        assertTrue(userOptional.isPresent());
+        assertEquals(0, userOptional.get().getUserRoles().size());
+    }
+
+    @Test
+    void contactInviteNoInvitationWithNoRoles() throws Exception {
+        CRMRole crmRoleResearch = new CRMRole("ea61793b-c4a9-47a0-9558-40e684ded3be", "EMPTY", "Deprecated");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRoleResearch, null, null, false);
+        String sub = "urn:collab:person:nope.com:steven";
+        Optional<User> userOptional = userRepository.findBySubIgnoreCase(sub);
+        assertTrue(userOptional.isEmpty());
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/api/internal/v1/crm")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID,
+                crmOrganisationID);
+        assertTrue(optionalUser.isEmpty());
+
+        List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(0, invitations.size());
+
+        List<MimeMessageParser> allMailMessages = allMailMessages(0);
+        assertEquals(0, allMailMessages.size());
     }
 
     @Test
@@ -313,7 +374,7 @@ class CRMControllerTest extends AbstractMailTest {
         assertEquals(1, user.getUserRoles().size());
         //Now post the same CRMContact for a different user, but the same role. Enusure the role is not re-used
         String newOrganisationID = UUID.randomUUID().toString();
-        crmContact.setOrganisation(new CRMOrganisation(newOrganisationID,"abbrev","name"));
+        crmContact.setOrganisation(new CRMOrganisation(newOrganisationID, "abbrev", "name"));
         crmContact.setUid("second_user");
         response = given()
                 .when()
