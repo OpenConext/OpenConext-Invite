@@ -16,6 +16,7 @@ import invite.model.GroupedProviders;
 import invite.model.Invitation;
 import invite.model.InvitationRole;
 import invite.model.Language;
+import invite.model.Organisation;
 import invite.model.Provisionable;
 import invite.model.Role;
 import invite.model.User;
@@ -25,6 +26,7 @@ import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
 import invite.repository.ApplicationRepository;
 import invite.repository.InvitationRepository;
+import invite.repository.OrganisationRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,9 +41,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -74,6 +78,7 @@ public class CRMController {
     private final UserRoleAuditService userRoleAuditService;
     private final Provisionable provisionable = () -> "SURF CRM";
     private final InvitationRepository invitationRepository;
+    private final OrganisationRepository organisationRepository;
 
 
     @SuppressWarnings("unchecked")
@@ -87,7 +92,8 @@ public class CRMController {
                          ObjectMapper objectMapper,
                          MailBox mailBox, Manage manage,
                          UserRoleAuditService userRoleAuditService,
-                         InvitationRepository invitationRepository) throws IOException {
+                         InvitationRepository invitationRepository,
+                         OrganisationRepository organisationRepository) throws IOException {
         this.userRepository = userRepository;
         this.collabPersonPrefix = collabPersonPrefix;
         this.inviterName = inviterName;
@@ -98,6 +104,7 @@ public class CRMController {
         this.manage = manage;
         this.userRoleAuditService = userRoleAuditService;
         this.invitationRepository = invitationRepository;
+        this.organisationRepository = organisationRepository;
         Map<String, Map<String, Object>> crmConfigRaw = objectMapper.readValue(crmConfigResource.getInputStream(), new TypeReference<>() {
         });
         this.crmConfig = crmConfigRaw.entrySet().stream()
@@ -144,20 +151,53 @@ public class CRMController {
             LOG.debug("Deleting CRM invitation: " + invitation.getEmail());
             this.invitationRepository.delete(invitation);
         });
-
-        Optional<User> userOptional = userRepository.findByCrmContactIdAndCrmOrganisationId(
-                crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
-        userOptional.ifPresent(user -> {
-            LOG.debug("Deleting CRM user: " + user.getEmail());
-            this.provisioningService.deleteUserRequest(user);
-            this.userRepository.delete(user);
-        });
-
+        String organisationId = crmContact.getOrganisation().getOrganisationId();
+        Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(organisationId);
+        optionalOrganisation
+                .flatMap(organisation -> userRepository.findByCrmContactIdAndOrganisation(crmContact.getContactId(), organisation))
+                .ifPresent(user -> {
+                    LOG.debug("Deleting CRM user: " + user.getEmail());
+                    this.provisioningService.deleteUserRequest(user);
+                    this.userRepository.delete(user);
+                });
         return ResponseEntity.ok().body("deleted");
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponse> query(@RequestParam(value = "uid", required = false) String uid,
+                                                 @RequestParam(value = "idp", required = false) String idp,
+                                                 @RequestParam(value = "guid", required = false) String guid,
+                                                 @RequestParam(value = "role", required = false) String role) {
+        if (StringUtils.hasText(uid) && StringUtils.hasText(idp)) {
+            String sub = this.constructSub(idp, uid);
+            Optional<User> userOptional = userRepository.findBySubIgnoreCase(sub);
+            userOptional.map(user ->
+                            new ProfileResponse("OK", 0,
+                                    List.of(new Profile(user.getGivenName(),
+                                            user.getMiddleName(),
+                                            user.getFamilyName(),
+                                            user.getEmail(),
+                                            null,
+                                            user.getSchacHomeOrganization(),
+                                            user.getUid(),
+                                            user.getCrmContactId(),
+                                            createOrganisation(user),
+                                            user.getUserRoles().stream()
+                                                    .map(userRole -> userRole.getRole())
+                                                    .filter(role -> StringUtils.hasText(role.getCrmRoleId()))
+                                                    .map(role -> new Authorisation(role.getCrm))
+                                    ))))
+                    .orElseGet(() -> crmUserNotFoundOrNoRoles())
+
+        }
+    }
+
+    private ProfileResponse crmUserNotFoundOrNoRoles() {
+        return new ProfileResponse("Could not find any profiles with the given search parameters", 50, List.of());
+    }
+
     private boolean provisionUser(CRMContact crmContact) {
-        String sub = constructSub(crmContact);
+        String sub = constructSub(crmContact.getSchacHomeOrganisation(), crmContact.getUid());
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         User user = optionalUser.orElseGet(() -> createUser(crmContact, sub));
         user.setCrmContactId(crmContact.getContactId());
@@ -191,8 +231,11 @@ public class CRMController {
                 sub,
                 crmContact.getSchacHomeOrganisation(),
                 crmContact.getFirstname(),
-                StringUtils.hasText(middleName) ? String.format("%s %s", middleName, surName) : surName,
+                StringUtils.hasText(middleName) && !middleName.equals(".") ? String.format("%s %s", middleName, surName) : surName,
                 crmContact.getEmail());
+        unsavedUser.setUid(crmContact.getUid());
+        //Need to keep track of this, for reporting back to CRM API consumers
+        unsavedUser.setMiddleName(middleName);
         User user = userRepository.save(unsavedUser);
 
         LOG.debug(String.format("Created new user %s with sub %s",
@@ -202,8 +245,8 @@ public class CRMController {
         return user;
     }
 
-    private String constructSub(CRMContact crmContact) {
-        return String.format("%s:%s:%s", collabPersonPrefix, crmContact.getSchacHomeOrganisation(), crmContact.getUid());
+    private String constructSub(String schacHomeOrganisation, String uid) {
+        return String.format("%s:%s:%s", collabPersonPrefix, schacHomeOrganisation, uid);
     }
 
     private List<CRMRole> syncCrmRoles(CRMContact crmContact, User user) {

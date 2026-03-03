@@ -1,5 +1,6 @@
 package invite.repository;
 
+import invite.model.Organisation;
 import invite.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
 
     Optional<User> findBySubIgnoreCase(String sub);
 
-    Optional<User> findByCrmContactIdAndCrmOrganisationId(String crmContactId, String crmOrganisationId);
+    Optional<User> findByCrmContactIdAndOrganisation(String crmContactId, Organisation organisation);
 
     List<User> findByOrganizationGUIDAndInstitutionAdmin(String organizationGUID, boolean institutionAdmin);
 

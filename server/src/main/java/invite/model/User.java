@@ -46,6 +46,9 @@ public class User implements Serializable, Provisionable {
     @Column(name = "family_name")
     private String familyName;
 
+    @Column(name = "middle_name")
+    private String middleName;
+
     @Column(name = "name")
     private String name;
 
@@ -87,8 +90,9 @@ public class User implements Serializable, Provisionable {
     @Column(name = "crm_contact_id")
     private String crmContactId;
 
-    @Column(name = "crm_organisation_id")
-    private String crmOrganisationId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organisation_id")
+    private Organisation organisation;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
