@@ -208,7 +208,7 @@ public class InvitationController implements InvitationResource {
                                                       "error": "BadRequest",
                                                       "exception": "access.exception.UserRestrictionException",
                                                       "message": "No access to application",
-                                                      "path": "/api/internal/invite/invitations"
+                                                      "path": "/api/external/v1/invitations"
                                                     }
                                                     """
                                             )})}),
@@ -223,7 +223,7 @@ public class InvitationController implements InvitationResource {
                                               "error": "Not found",
                                               "exception": "access.exception.NotFoundException",
                                               "message": "Role not found",
-                                              "path": "/api/internal/invite/invitations"
+                                              "path": "/api/external/v1/invitations"
                                             }
                                             """
                                     )})})})

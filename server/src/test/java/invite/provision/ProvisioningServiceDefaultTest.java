@@ -213,7 +213,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     @Test
     void updateGroupRequest() {
         //We only provision GUEST users
-        provisioningService.updateGroupRequest(new UserRole(Authority.INVITER, null), OperationType.add);
+        provisioningService.updateGroupRequest(new UserRole(Authority.INVITER, new Role()), OperationType.add);
     }
 
     @Test

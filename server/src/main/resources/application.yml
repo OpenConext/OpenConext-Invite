@@ -152,6 +152,15 @@ external-api-configuration:
       password: "secret"
       scopes:
         - attribute_aggregation
+        - crm
+    - username: pdp
+      password: "secret"
+      scopes:
+        - crm
+    - username: idp_dashboard
+      password: "secret"
+      scopes:
+        - crm
     - username: lifecycle
       password: "secret"
       scopes:

@@ -119,7 +119,7 @@ public abstract class AbstractTest {
     private String staticManageDirectory;
 
     @Value("${voot.group_urn_domain}")
-    private String groupUrnPrefix;
+    protected String groupUrnPrefix;
 
     @Autowired
     protected ObjectMapper objectMapper;

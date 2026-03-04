@@ -161,7 +161,6 @@ public class Role implements Serializable, Provisionable {
         this.organizationGUID = roleRequest.getOrganizationGUID();
         this.inviterDisplayName = roleRequest.getInviterDisplayName();
         this.applicationUsages = roleRequest.getApplicationUsages();
-
     }
 
     @Transient

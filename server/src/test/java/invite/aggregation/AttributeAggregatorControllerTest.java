@@ -138,7 +138,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();

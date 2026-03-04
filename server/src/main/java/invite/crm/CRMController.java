@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -58,12 +59,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.API_HEADER_SCHEME_NAME;
+import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 import static invite.api.InvitationOperations.identityProviderName;
 
 @RestController
-@RequestMapping(value = {"/api/internal/v1/crm"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Transactional
-@SecurityRequirement(name = API_HEADER_SCHEME_NAME)
 public class CRMController {
 
     private static final Log LOG = LogFactory.getLog(CRMController.class);
@@ -126,9 +126,11 @@ public class CRMController {
         LOG.debug(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
     }
 
-    @PostMapping("")
+    @PostMapping(value = "/crm/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Create, update CRM role memberships",
             description = "Add or delete the CRM roles to the CRM contact")
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> contact(@RequestBody CRMContact crmContact) {
         LOG.debug("POST /api/external/v1/crm: " + crmContact);
 
@@ -150,9 +152,11 @@ public class CRMController {
         return ResponseEntity.ok().body(created ? "created" : "updated");
     }
 
-    @DeleteMapping("")
+    @DeleteMapping(value = "/crm/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Delete CRM profile",
             description = "Delete CRM profile")
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> delete(@RequestBody CRMContact crmContact) {
         LOG.debug("DELETE /api/external/v1/crm: " + crmContact);
 
@@ -173,8 +177,11 @@ public class CRMController {
                 });
         return ResponseEntity.ok().body("deleted");
     }
-
-    @GetMapping("/profile")
+    @GetMapping(value = {"/api/profile", "/api/external/v1/invite/crm/profile"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
+    @Operation(summary = "Query for profiles",
+            description = "Based on either 'uid'/'idp' OR 'guid'/'role' search for users and include the ")
+    @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<ProfileResponse> query(@RequestParam(value = "uid", required = false) String userUid,
                                                  @RequestParam(value = "idp", required = false) String idpSchacHomeOrganisation,
                                                  @RequestParam(value = "guid", required = false) String crmOrganisationId,
@@ -204,6 +211,7 @@ public class CRMController {
         }
         ProfileResponse profileResponse = new ProfileResponse("OK", 0,
                 users.stream()
+                        .filter(user -> user.getOrganisation() != null)
                         .map(user ->
                                 new Profile(user.getGivenName(),
                                         user.getMiddleName(),
