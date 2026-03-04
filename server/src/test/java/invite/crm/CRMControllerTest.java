@@ -3,10 +3,12 @@ package invite.crm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import invite.AbstractMailTest;
+import invite.exception.NotFoundException;
 import invite.mail.MimeMessageParser;
 import invite.manage.EntityType;
 import invite.model.Authority;
 import invite.model.Invitation;
+import invite.model.Organisation;
 import invite.model.RemoteProvisionedGroup;
 import invite.model.RemoteProvisionedUser;
 import invite.model.Role;
@@ -54,8 +56,9 @@ class CRMControllerTest extends AbstractMailTest {
                 .extract()
                 .asString();
         assertEquals("created", response);
-
-        User user = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID, crmOrganisationID)
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: "+ crmOrganisationID));
+        User user = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation)
                 .get();
         assertEquals(1, user.getUserRoles().size());
 
@@ -65,7 +68,11 @@ class CRMControllerTest extends AbstractMailTest {
 
         Role role = userRole.getRole();
         assertEquals(crmRole.getRoleId(), role.getCrmRoleId());
-        assertEquals(crmContact.getOrganisation().getOrganisationId(), role.getCrmOrganisationId());
+        Optional<Organisation> optionalOrganisation = organisationRepository
+                .findByCrmOrganisationId(crmContact.getOrganisation().getOrganisationId());
+        assertTrue(optionalOrganisation.isPresent());
+        Role roleFromDB = roleRepository.findByCrmRoleIdAndOrganisation(role.getCrmRoleId(), organisation).get();
+        assertEquals(role.getId(), roleFromDB.getId());
 
         List<ServeEvent> events = getAllServeEvents().stream().filter(e -> e.getRequest().getUrl().startsWith("/api/scim/v2/")).toList();
         assertEquals(3, events.size());
@@ -135,8 +142,9 @@ class CRMControllerTest extends AbstractMailTest {
                 .asString();
         assertEquals("created", response);
 
-        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID,
-                crmOrganisationID);
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: "+ crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID,organisation);
         assertTrue(optionalUser.isEmpty());
 
         MimeMessageParser mimeMessageParser = mailMessage();
@@ -190,8 +198,9 @@ class CRMControllerTest extends AbstractMailTest {
                 .asString();
         assertEquals("created", response);
 
-        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID,
-                crmOrganisationID);
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: "+ crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID,organisation);
         assertTrue(optionalUser.isEmpty());
 
         List<MimeMessageParser> allMailMessages = allMailMessages(0);
@@ -296,8 +305,9 @@ class CRMControllerTest extends AbstractMailTest {
                 .asString();
         assertEquals("created", response);
 
-        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID,
-                crmOrganisationID);
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: "+ crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID,organisation);
         assertTrue(optionalUser.isEmpty());
 
         List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
@@ -342,7 +352,9 @@ class CRMControllerTest extends AbstractMailTest {
                 .asString();
         assertEquals("deleted", response);
 
-        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(CRM_CONTACT_ID, CRM_ORGANIZATION_ID);
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: "+ CRM_ORGANIZATION_ID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(CRM_CONTACT_ID,organisation);
         assertTrue(optionalUser.isEmpty());
     }
 

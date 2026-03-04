@@ -3,6 +3,7 @@ package invite.crm;
 import invite.model.Organisation;
 
 import java.util.List;
+import java.util.Map;
 
 public record Profile(String firstname,
                       String middlename,
@@ -12,6 +13,6 @@ public record Profile(String firstname,
                       String idp,
                       String uid,
                       String guid,
-                      Organisation organisation,
+                      Map<String, Object> organisation,
                       List<Authorisation> authorisations) {
 }

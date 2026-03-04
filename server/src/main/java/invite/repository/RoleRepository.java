@@ -1,5 +1,6 @@
 package invite.repository;
 
+import invite.model.Organisation;
 import invite.model.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -103,7 +104,7 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
 
     Optional<Role> findByName(String name);
 
-    Optional<Role> findByCrmRoleIdAndCrmOrganisationId(String crmRoleId, String crmOrganisationId);
+    Optional<Role> findByCrmRoleIdAndOrganisation(String crmRoleId, Organisation organisation);
 
     List<Role> findByCrmRoleId(String crmRoleId);
 

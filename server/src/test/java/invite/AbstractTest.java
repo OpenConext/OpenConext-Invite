@@ -128,6 +128,9 @@ public abstract class AbstractTest {
     protected UserRepository userRepository;
 
     @Autowired
+    protected OrganisationRepository organisationRepository;
+
+    @Autowired
     protected RoleRepository roleRepository;
 
     @Autowired
@@ -622,6 +625,7 @@ public abstract class AbstractTest {
         this.applicationRepository.deleteAllInBatch();
         this.userRepository.deleteAllInBatch();
         this.userRoleRepository.deleteAllInBatch();
+        this.organisationRepository.deleteAllInBatch();
         this.apiTokenRepository.deleteAllInBatch();
         this.jdbcTemplate.update("delete from distributed_locks");
 
@@ -633,6 +637,11 @@ public abstract class AbstractTest {
         institutionAdmin.setInstitutionAdmin(true);
         institutionAdmin.setInstitutionAdminByInvite(true);
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
+
+        Organisation organisation = new Organisation(
+                CRM_ORGANIZATION_ID,"SURF","SURF"
+        );
+        doSave(organisationRepository, organisation);
 
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
@@ -646,7 +655,7 @@ public abstract class AbstractTest {
         User kbUser =
                 new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
         kbUser.setCrmContactId(CRM_CONTACT_ID);
-        kbUser.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        kbUser.setOrganisation(organisation);
 
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest, kbUser);
 

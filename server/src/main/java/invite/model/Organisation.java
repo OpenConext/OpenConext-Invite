@@ -28,4 +28,9 @@ public class Organisation {
     @Column(name = "crm_organisation_abbrevation")
     private String crmOrganisationAbbrevation;
 
+    public Organisation(String crmOrganisationId, String crmOrganisationName, String crmOrganisationAbbrevation) {
+        this.crmOrganisationId = crmOrganisationId;
+        this.crmOrganisationName = crmOrganisationName;
+        this.crmOrganisationAbbrevation = crmOrganisationAbbrevation;
+    }
 }

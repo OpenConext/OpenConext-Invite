@@ -72,6 +72,7 @@ public class Role implements Serializable, Provisionable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organisation_id")
+    @JsonIgnore
     private Organisation organisation;
 
     @Column(name = "crm_role_id")
@@ -79,6 +80,9 @@ public class Role implements Serializable, Provisionable {
 
     @Column(name = "crm_role_name")
     private String crmRoleName;
+
+    @Column(name = "crm_role_abbrevation")
+    private String crmRoleAbbrevation;
 
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;

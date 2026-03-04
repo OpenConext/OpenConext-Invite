@@ -1,6 +1,7 @@
 package invite.repository;
 
 import invite.model.Authority;
+import invite.model.Organisation;
 import invite.model.Role;
 import invite.model.UserRole;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
     List<UserRole> findByRoleAndAuthorityIn(Role role, List<Authority> authorities);
 
     List<UserRole> findByRoleName(String roleName);
+
+    List<UserRole> findByRoleCrmRoleNameAndRoleOrganisation(String crmRoleName, Organisation organisation);
 
     long countByAuthority(Authority authority);
 

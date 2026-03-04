@@ -29,6 +29,7 @@ import invite.repository.InvitationRepository;
 import invite.repository.OrganisationRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
+import invite.repository.UserRoleRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -49,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,6 +72,7 @@ public class CRMController {
     private final String inviterName;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final ApplicationRepository applicationRepository;
     private final ProvisioningService provisioningService;
     private final MailBox mailBox;
@@ -87,6 +90,7 @@ public class CRMController {
                          @Value("${crm.inviter-name}") String inviterName,
                          UserRepository userRepository,
                          RoleRepository roleRepository,
+                         UserRoleRepository userRoleRepository,
                          ApplicationRepository applicationRepository,
                          ProvisioningService provisioningService,
                          ObjectMapper objectMapper,
@@ -98,6 +102,7 @@ public class CRMController {
         this.collabPersonPrefix = collabPersonPrefix;
         this.inviterName = inviterName;
         this.roleRepository = roleRepository;
+        this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
         this.provisioningService = provisioningService;
         this.mailBox = mailBox;
@@ -128,12 +133,18 @@ public class CRMController {
         LOG.debug("POST /api/external/v1/crm: " + crmContact);
 
         boolean created;
-
+        CRMOrganisation crmOrganisation = crmContact.getOrganisation();
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisation.getOrganisationId())
+                .orElseGet(() -> organisationRepository.save(new Organisation(
+                        crmOrganisation.getOrganisationId(),
+                        crmOrganisation.getName(),
+                        crmOrganisation.getAbbrev()
+                )));
         if (crmContact.isSuppressInvitation() &&
                 StringUtils.hasText(crmContact.getSchacHomeOrganisation()) && StringUtils.hasText(crmContact.getUid())) {
-            created = provisionUser(crmContact);
+            created = provisionUser(crmContact, organisation);
         } else {
-            created = sendInvitation(crmContact);
+            created = sendInvitation(crmContact, organisation);
         }
 
         return ResponseEntity.ok().body(created ? "created" : "updated");
@@ -164,48 +175,70 @@ public class CRMController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<ProfileResponse> query(@RequestParam(value = "uid", required = false) String uid,
-                                                 @RequestParam(value = "idp", required = false) String idp,
-                                                 @RequestParam(value = "guid", required = false) String guid,
-                                                 @RequestParam(value = "role", required = false) String role) {
-        if (StringUtils.hasText(uid) && StringUtils.hasText(idp)) {
-            String sub = this.constructSub(idp, uid);
-            Optional<User> userOptional = userRepository.findBySubIgnoreCase(sub);
-            userOptional.map(user ->
-                            new ProfileResponse("OK", 0,
-                                    List.of(new Profile(user.getGivenName(),
-                                            user.getMiddleName(),
-                                            user.getFamilyName(),
-                                            user.getEmail(),
-                                            null,
-                                            user.getSchacHomeOrganization(),
-                                            user.getUid(),
-                                            user.getCrmContactId(),
-                                            createOrganisation(user),
-                                            user.getUserRoles().stream()
-                                                    .map(userRole -> userRole.getRole())
-                                                    .filter(role -> StringUtils.hasText(role.getCrmRoleId()))
-                                                    .map(role -> new Authorisation(role.getCrm))
-                                    ))))
-                    .orElseGet(() -> crmUserNotFoundOrNoRoles())
-
+    public ResponseEntity<ProfileResponse> query(@RequestParam(value = "uid", required = false) String userUid,
+                                                 @RequestParam(value = "idp", required = false) String idpSchacHomeOrganisation,
+                                                 @RequestParam(value = "guid", required = false) String crmOrganisationId,
+                                                 @RequestParam(value = "role", required = false) String crmRoleName) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("query for profiles: uid=%s, idp=%s, guid=%s, role=%s",
+                    userUid, idpSchacHomeOrganisation, crmOrganisationId, crmRoleName));
         }
+
+        List<User> users;
+        if (StringUtils.hasText(userUid) && StringUtils.hasText(userUid)) {
+            String sub = this.constructSub(idpSchacHomeOrganisation, userUid);
+            users = userRepository.findBySubIgnoreCase(sub).map(Collections::singletonList).orElse(Collections.emptyList());
+        } else if (StringUtils.hasText(crmOrganisationId) && StringUtils.hasText(crmRoleName)) {
+            users = organisationRepository.findByCrmOrganisationId(crmOrganisationId)
+                    .map(organisation -> userRoleRepository.findByRoleCrmRoleNameAndRoleOrganisation(crmRoleName, organisation))
+                    .map(userRoles -> userRoles.stream().map(userRole -> userRole.getUser()).toList())
+                    .orElse(Collections.emptyList());
+
+        } else {
+            users = Collections.emptyList();
+        }
+        if (users.isEmpty()) {
+            LOG.debug("Returning empty results query for profiles");
+            ProfileResponse profileResponse = crmUserNotFoundOrNoRoles();
+            return ResponseEntity.ok(profileResponse);
+        }
+        ProfileResponse profileResponse = new ProfileResponse("OK", 0,
+                users.stream()
+                        .map(user ->
+                                new Profile(user.getGivenName(),
+                                        user.getMiddleName(),
+                                        user.getFamilyName(),
+                                        user.getEmail(),
+                                        null,
+                                        user.getSchacHomeOrganization(),
+                                        user.getUid(),
+                                        user.getCrmContactId(),
+                                        Map.of(
+                                                "abbrev", user.getOrganisation().getCrmOrganisationAbbrevation(),
+                                                "name", user.getOrganisation().getCrmOrganisationName(),
+                                                "guid", user.getOrganisation().getCrmOrganisationId()
+                                        ),
+                                        user.getUserRoles().stream()
+                                                .map(userRole -> userRole.getRole())
+                                                .filter(r -> StringUtils.hasText(r.getCrmRoleId()))
+                                                .map(r -> new Authorisation(r.getCrmRoleAbbrevation(), r.getCrmRoleName()))
+                                                .toList()
+                                )).toList());
+        return ResponseEntity.ok(profileResponse);
     }
 
     private ProfileResponse crmUserNotFoundOrNoRoles() {
         return new ProfileResponse("Could not find any profiles with the given search parameters", 50, List.of());
     }
 
-    private boolean provisionUser(CRMContact crmContact) {
+    private boolean provisionUser(CRMContact crmContact, Organisation organisation) {
         String sub = constructSub(crmContact.getSchacHomeOrganisation(), crmContact.getUid());
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
-        User user = optionalUser.orElseGet(() -> createUser(crmContact, sub));
+        User user = optionalUser.orElseGet(() -> createUser(crmContact, sub, organisation));
         user.setCrmContactId(crmContact.getContactId());
-        user.setCrmOrganisationId(crmContact.getOrganisation().getOrganisationId());
-
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, user);
 
-        List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles);
+        List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles, organisation);
         roles
                 .forEach(role -> {
                     UserRole userRole = new UserRole(Authority.GUEST, role);
@@ -222,7 +255,7 @@ public class CRMController {
         return optionalUser.isEmpty();
     }
 
-    private User createUser(CRMContact crmContact, String sub) {
+    private User createUser(CRMContact crmContact, String sub, Organisation organisation) {
         String middleName = crmContact.getMiddlename();
         String surName = crmContact.getSurname();
         User unsavedUser = new User(
@@ -234,6 +267,7 @@ public class CRMController {
                 StringUtils.hasText(middleName) && !middleName.equals(".") ? String.format("%s %s", middleName, surName) : surName,
                 crmContact.getEmail());
         unsavedUser.setUid(crmContact.getUid());
+        unsavedUser.setOrganisation(organisation);
         //Need to keep track of this, for reporting back to CRM API consumers
         unsavedUser.setMiddleName(middleName);
         User user = userRepository.save(unsavedUser);
@@ -274,15 +308,15 @@ public class CRMController {
         return crmRoles;
     }
 
-    private boolean sendInvitation(CRMContact crmContact) {
+    private boolean sendInvitation(CRMContact crmContact, Organisation organisation) {
         Optional<User> optionalUser =
-                userRepository.findByCrmContactIdAndCrmOrganisationId(
-                        crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
+                userRepository.findByCrmContactIdAndOrganisation(
+                        crmContact.getContactId(), organisation);
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, optionalUser.orElse(new User()));
         //Only save the user when the user already existed
         optionalUser.ifPresent(user -> userRepository.save(user));
         // Maps CRM roles to existing or new roles
-        List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles);
+        List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles, organisation);
         //If there are no new roles, then we can't do anything
         if (!CollectionUtils.isEmpty(roles)) {
             //There are roles in CRM without applications, we need to ignore those
@@ -305,16 +339,22 @@ public class CRMController {
         return optionalUser.isEmpty();
     }
 
-    private List<Role> convertCrmRolesToInviteRoles(CRMContact crmContact, List<CRMRole> newCrmRoles) {
+    private List<Role> convertCrmRolesToInviteRoles(CRMContact crmContact, List<CRMRole> newCrmRoles, Organisation organisation) {
         return newCrmRoles.stream()
-                .map(crmRole -> roleRepository.findByCrmRoleIdAndCrmOrganisationId(
-                                crmRole.getRoleId(), crmContact.getOrganisation().getOrganisationId())
+                .map(crmRole -> roleRepository.findByCrmRoleIdAndOrganisation(
+                                crmRole.getRoleId(), organisation )
                         .or(() -> this.createRole(crmContact.getOrganisation(), crmRole)))
                 .flatMap(Optional::stream)
                 .toList();
     }
 
     private Optional<Role> createRole(CRMOrganisation crmOrganisation, CRMRole crmRole) {
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisation.getOrganisationId())
+                .orElseGet(() -> organisationRepository.save(new Organisation(
+                        crmOrganisation.getOrganisationId(),
+                        crmOrganisation.getName(),
+                        crmOrganisation.getAbbrev()
+                )));
         CrmConfigEntry crmConfigEntry = this.crmConfig.get(crmRole.getSabCode());
         if (crmConfigEntry == null) {
             throw new InvalidInputException("CRM sabCode is not configured: " + crmRole.getSabCode());
@@ -345,8 +385,8 @@ public class CRMController {
         );
         unsavedRole.setCrmRoleId(crmRole.getRoleId());
         unsavedRole.setCrmRoleName(crmConfigEntry.name());
-        unsavedRole.setCrmOrganisationId(crmOrganisation.getOrganisationId());
-        unsavedRole.setCrmOrganisationCode(crmOrganisation.getAbbrev());
+        unsavedRole.setCrmRoleAbbrevation(crmRole.getSabCode());
+        unsavedRole.setOrganisation(organisation);
         unsavedRole.setOrganizationGUID(crmOrganisation.getOrganisationId());
 
         Role role = roleRepository.save(unsavedRole);

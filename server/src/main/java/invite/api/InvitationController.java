@@ -16,6 +16,7 @@ import invite.model.Invitation;
 import invite.model.InvitationRequest;
 import invite.model.InvitationResponse;
 import invite.model.InvitationRole;
+import invite.model.Organisation;
 import invite.model.Role;
 import invite.model.Status;
 import invite.model.StatusResponse;
@@ -27,6 +28,7 @@ import invite.provision.ProvisioningService;
 import invite.provision.graph.GraphResponse;
 import invite.provision.scim.OperationType;
 import invite.repository.InvitationRepository;
+import invite.repository.OrganisationRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import invite.security.SuperAdmin;
@@ -110,6 +112,7 @@ public class InvitationController implements InvitationResource {
     @Getter
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final OrganisationRepository organisationRepository;
     private final ProvisioningService provisioningService;
     private final SecurityContextRepository securityContextRepository;
     private final SuperAdmin superAdmin;
@@ -121,6 +124,7 @@ public class InvitationController implements InvitationResource {
                                 InvitationRepository invitationRepository,
                                 UserRepository userRepository,
                                 RoleRepository roleRepository,
+                                OrganisationRepository organisationRepository,
                                 ProvisioningService provisioningService,
                                 SecurityContextRepository securityContextRepository,
                                 SuperAdmin superAdmin, UserRoleAuditService userRoleAuditService) {
@@ -129,6 +133,7 @@ public class InvitationController implements InvitationResource {
         this.invitationRepository = invitationRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.organisationRepository = organisationRepository;
         this.provisioningService = provisioningService;
         this.securityContextRepository = securityContextRepository;
         this.superAdmin = superAdmin;
@@ -377,7 +382,10 @@ public class InvitationController implements InvitationResource {
         user.setInternalPlaceholderIdentifier(invitation.getInternalPlaceholderIdentifier());
         if (StringUtils.hasText(invitation.getCrmContactId())) {
             user.setCrmContactId(invitation.getCrmContactId());
-            user.setCrmOrganisationId(invitation.getCrmOrganisationId());
+            String crmOrganisationId = invitation.getCrmOrganisationId();
+            Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationId)
+                    .orElseThrow(() -> new IllegalArgumentException("Organisation with crmOrganisationId not found" + crmOrganisationId));
+            user.setOrganisation(organisation);
         }
         userRepository.save(user);
         AccessLogger.user(LOG, Event.Created, user);
@@ -559,15 +567,14 @@ public class InvitationController implements InvitationResource {
 
     private void checkCrmUniqueOrganisation(User user, Invitation invitation) {
         String invitationCrmContactId = invitation.getCrmContactId();
-        if (StringUtils.hasText(invitationCrmContactId)) {
-            String userCrmOrganisationId = user.getCrmOrganisationId();
+        Organisation organisation = user.getOrganisation();
+        if (StringUtils.hasText(invitationCrmContactId) && organisation != null) {
             AtomicBoolean throwException = new AtomicBoolean(false);
-            if (StringUtils.hasText(userCrmOrganisationId) &&
-                    !userCrmOrganisationId.equals(invitation.getCrmOrganisationId())) {
+            if (!organisation.getCrmOrganisationId().equals(invitation.getCrmOrganisationId()))  {
                 throwException.set(true);
             }
-            Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(
-                    invitationCrmContactId, invitation.getCrmOrganisationId());
+            Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(
+                    invitationCrmContactId, organisation);
             optionalUser.ifPresent(userFromDB -> {
                 if (!userFromDB.getId().equals(user.getId())) {
                     throwException.set(true);
