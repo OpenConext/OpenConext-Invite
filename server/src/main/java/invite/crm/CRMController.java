@@ -185,6 +185,7 @@ public class CRMController {
 
     @GetMapping(value = {"/api/profile", "/api/external/v1/invite/crm/profile"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @Operation(summary = "Query for profiles",
             description = "Based on either 'uid'/'idp' OR 'guid'/'role' search for users and include the CRM roles")
     @PreAuthorize("hasRole('CRM')")
