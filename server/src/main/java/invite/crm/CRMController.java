@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -177,10 +176,11 @@ public class CRMController {
                 });
         return ResponseEntity.ok().body("deleted");
     }
+
     @GetMapping(value = {"/api/profile", "/api/external/v1/invite/crm/profile"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
     @Operation(summary = "Query for profiles",
-            description = "Based on either 'uid'/'idp' OR 'guid'/'role' search for users and include the ")
+            description = "Based on either 'uid'/'idp' OR 'guid'/'role' search for users and include the CRM roles")
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<ProfileResponse> query(@RequestParam(value = "uid", required = false) String userUid,
                                                  @RequestParam(value = "idp", required = false) String idpSchacHomeOrganisation,
@@ -233,6 +233,47 @@ public class CRMController {
                                                 .toList()
                                 )).toList());
         return ResponseEntity.ok(profileResponse);
+    }
+
+    @GetMapping(value = {"/crm/api/v1/profiles"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @Operation(summary = "Query for connection status",
+            description = "Lookup the organisation and return all connected users")
+    @PreAuthorize("hasRole('CRM')")
+    public ResponseEntity<Map<String, ConnectionStatusResponse>> connectionStatus(@RequestBody ConnectionStatus connectionStatus) {
+        String crmOrganisationId = connectionStatus.organisationId();
+        Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(crmOrganisationId);
+        if (optionalOrganisation.isEmpty()) {
+            return ResponseEntity.ok(Map.of());
+        }
+        Organisation organisation = optionalOrganisation.get();
+        if (connectionStatus.connected()) {
+            Map<String, ConnectionStatusResponse> responseMap = userRepository.findByOrganisation(organisation)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            user -> user.getCrmContactId(),
+                            user -> new ConnectionStatusResponse(
+                                    user.getName(), user.getEmail(), user.getSchacHomeOrganization(), user.getUid(),
+                                    "Paired", "paired"
+                            )
+                    ));
+            return ResponseEntity.ok(responseMap);
+        } else {
+            Map<String, ConnectionStatusResponse> responseMap = invitationRepository.findByCrmOrganisationId(crmOrganisationId)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            invitation -> invitation.getCrmContactId(),
+                            invitation -> userRepository.findByCrmContactIdAndOrganisation(crmOrganisationId, organisation)
+                                    .map(user -> new ConnectionStatusResponse(
+                                            user.getName(), user.getEmail(), user.getSchacHomeOrganization(), user.getUid(),
+                                            "In process", "in_process"
+                                    )).orElse(new ConnectionStatusResponse(
+                                            null, invitation.getEmail(), null, null,
+                                            "In process", "in_process"
+                                    ))
+                    ));
+            return ResponseEntity.ok(responseMap);
+        }
     }
 
     private ProfileResponse crmUserNotFoundOrNoRoles() {
@@ -350,7 +391,7 @@ public class CRMController {
     private List<Role> convertCrmRolesToInviteRoles(CRMContact crmContact, List<CRMRole> newCrmRoles, Organisation organisation) {
         return newCrmRoles.stream()
                 .map(crmRole -> roleRepository.findByCrmRoleIdAndOrganisation(
-                                crmRole.getRoleId(), organisation )
+                                crmRole.getRoleId(), organisation)
                         .or(() -> this.createRole(crmContact.getOrganisation(), crmRole)))
                 .flatMap(Optional::stream)
                 .toList();

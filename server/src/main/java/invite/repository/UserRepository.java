@@ -22,6 +22,8 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
 
     Optional<User> findByCrmContactIdAndOrganisation(String crmContactId, Organisation organisation);
 
+    List<User> findByOrganisation(Organisation organisation);
+
     List<User> findByOrganizationGUIDAndInstitutionAdmin(String organizationGUID, boolean institutionAdmin);
 
     List<User> findBySuperUserTrue();
