@@ -6,6 +6,8 @@ import invite.audit.UserRoleAuditService;
 import invite.config.HashGenerator;
 import invite.exception.InvalidInputException;
 import invite.exception.NotFoundException;
+import invite.logging.AccessLogger;
+import invite.logging.Event;
 import invite.mail.MailBox;
 import invite.manage.EntityType;
 import invite.manage.Manage;
@@ -50,6 +52,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -274,6 +280,34 @@ public class CRMController {
                     ));
             return ResponseEntity.ok(responseMap);
         }
+    }
+
+    @PostMapping(value = "/crm/api/v1/invite/resend", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Resend an invitation",
+            description = "Resend an invitation based on the CRM OrganisationID and CRM ContactID")
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @PreAuthorize("hasRole('CRM')")
+    public ResponseEntity<ResendInvitationResponse> resendInvitation(@RequestBody ResendInvitation resendInvitation) {
+        List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(resendInvitation.crmContatcId(),
+                resendInvitation.crmOrganisationId());
+        invitations.forEach(invitation -> {
+            List<Role> requestedRoles = invitation.getRoles().stream()
+                    .map(InvitationRole::getRole).toList();
+            List<GroupedProviders> groupedProviders = manage.getGroupedProviders(requestedRoles);
+
+            mailBox.sendInviteMail(provisionable,
+                    invitation,
+                    groupedProviders,
+                    invitation.getLanguage(),
+                    Optional.empty());
+            invitation.setExpiryDate(Instant.now().plus(Period.ofDays(14)));
+            invitationRepository.save(invitation);
+
+            AccessLogger.invitation(LOG, Event.Resend, invitation);
+
+        });
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        return ResponseEntity.ok(new ResendInvitationResponse(timestamp, 200, "ok", "Resend invitation"));
     }
 
     private ProfileResponse crmUserNotFoundOrNoRoles() {

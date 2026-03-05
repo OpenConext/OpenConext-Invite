@@ -20,6 +20,8 @@ import jakarta.mail.Address;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -426,6 +428,31 @@ class CRMControllerTest extends AbstractMailTest {
 
         List<Role> roles = roleRepository.findByCrmRoleId(converRoleId);
         assertEquals(2, roles.size());
+    }
+
+    @Test
+    void resendInviteMail() throws Exception {
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        invitation.setExpiryDate(Instant.now().minus(5, ChronoUnit.DAYS));
+        invitation.setCrmContactId(CRM_CONTACT_ID);
+        invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        invitationRepository.save(invitation);
+
+        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
+        ResendInvitationResponse resendInvitationResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ResendInvitation(CRM_ORGANIZATION_ID, CRM_CONTACT_ID))
+                .post("/crm/api/v1/invite/resend")
+                .as(new TypeRef<>() {
+                });
+        Invitation savedInvitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        assertTrue(savedInvitation.getExpiryDate().isAfter(Instant.now().plus(13, ChronoUnit.DAYS)));
+
+        MimeMessageParser mailMessage = mailMessage();
+        assertEquals("Invitation for Mail at SURFconext Invite", mailMessage.getSubject());
     }
 
     @Test
