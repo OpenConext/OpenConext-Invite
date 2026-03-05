@@ -85,7 +85,6 @@ class CRMControllerTest extends AbstractMailTest {
 
     @Test
     void contactProvisioningWrongApiHeader() throws JsonProcessingException {
-
         given()
                 .when()
                 .accept(ContentType.JSON)
