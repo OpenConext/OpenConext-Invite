@@ -260,7 +260,7 @@ public class CRMController {
                             user -> user.getCrmContactId(),
                             user -> new ConnectionStatusResponse(
                                     user.getName(), user.getEmail(), user.getSchacHomeOrganization(), user.getUid(),
-                                    "Paired", "paired"
+                                    CRMStatusCode.Paired.getStatus(), CRMStatusCode.Paired.getStatusCode()
                             )
                     ));
             return ResponseEntity.ok(responseMap);
@@ -269,17 +269,24 @@ public class CRMController {
                     .stream()
                     .collect(Collectors.toMap(
                             invitation -> invitation.getCrmContactId(),
-                            invitation -> userRepository.findByCrmContactIdAndOrganisation(crmOrganisationId, organisation)
-                                    .map(user -> new ConnectionStatusResponse(
-                                            user.getName(), user.getEmail(), user.getSchacHomeOrganization(), user.getUid(),
-                                            "In process", "in_process"
-                                    )).orElse(new ConnectionStatusResponse(
-                                            null, invitation.getEmail(), null, null,
-                                            "In process", "in_process"
-                                    ))
+                            invitation -> {
+                                CRMStatusCode crmStatusCode = crmStatusCode(invitation);
+                                return userRepository.findByCrmContactIdAndOrganisation(invitation.getCrmContactId(), organisation)
+                                        .map(user -> new ConnectionStatusResponse(
+                                                user.getName(), user.getEmail(), user.getSchacHomeOrganization(), user.getUid(),
+                                                crmStatusCode.getStatus(), crmStatusCode.getStatusCode()
+                                        )).orElse(new ConnectionStatusResponse(
+                                                null, invitation.getEmail(), null, null,
+                                                crmStatusCode.getStatus(), crmStatusCode.getStatusCode()
+                                        ));
+                            }
                     ));
             return ResponseEntity.ok(responseMap);
         }
+    }
+
+    private CRMStatusCode crmStatusCode(Invitation invitation) {
+        return invitation.getExpiryDate().isBefore(Instant.now()) ? CRMStatusCode.NotPaired : CRMStatusCode.InProcess;
     }
 
     @PostMapping(value = "/crm/api/v1/invite/resend", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -426,18 +433,12 @@ public class CRMController {
         return newCrmRoles.stream()
                 .map(crmRole -> roleRepository.findByCrmRoleIdAndOrganisation(
                                 crmRole.getRoleId(), organisation)
-                        .or(() -> this.createRole(crmContact.getOrganisation(), crmRole)))
+                        .or(() -> this.createRole(crmContact.getOrganisation(), crmRole, organisation)))
                 .flatMap(Optional::stream)
                 .toList();
     }
 
-    private Optional<Role> createRole(CRMOrganisation crmOrganisation, CRMRole crmRole) {
-        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisation.getOrganisationId())
-                .orElseGet(() -> organisationRepository.save(new Organisation(
-                        crmOrganisation.getOrganisationId(),
-                        crmOrganisation.getName(),
-                        crmOrganisation.getAbbrev()
-                )));
+    private Optional<Role> createRole(CRMOrganisation crmOrganisation, CRMRole crmRole, Organisation organisation) {
         CrmConfigEntry crmConfigEntry = this.crmConfig.get(crmRole.getSabCode());
         if (crmConfigEntry == null) {
             throw new InvalidInputException("CRM sabCode is not configured: " + crmRole.getSabCode());

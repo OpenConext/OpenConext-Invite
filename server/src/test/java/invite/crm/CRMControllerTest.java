@@ -456,6 +456,86 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void connectionStatusWithInvitationExistingUser() {
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        invitation.setCrmContactId(CRM_CONTACT_ID);
+        invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        //This will cause the CRMStatusCode.NotPaired
+        invitation.setExpiryDate(Instant.now().minus(600, ChronoUnit.DAYS));
+        invitationRepository.save(invitation);
+
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, false))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, response.size());
+        ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
+        assertEquals("gb@kb.nl", connectionStatusResponse.email());
+        assertEquals("George Best", connectionStatusResponse.fullname());
+        assertEquals(CRMStatusCode.NotPaired.getStatusCode(), connectionStatusResponse.statusCode());
+    }
+
+    @Test
+    void connectionStatusWithInvitationNewUser() {
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        //No user with this contactID exists
+        String crmContactId = UUID.randomUUID().toString();
+        invitation.setCrmContactId(crmContactId);
+        invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        invitationRepository.save(invitation);
+
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, false))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, response.size());
+        ConnectionStatusResponse connectionStatusResponse = response.get(crmContactId);
+        assertEquals(invitation.getEmail(), connectionStatusResponse.email());
+        assertNull(connectionStatusResponse.fullname());
+        assertEquals(CRMStatusCode.InProcess.getStatusCode(), connectionStatusResponse.statusCode());
+    }
+
+    @Test
+    void connectionStatusWithUser() {
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, true))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, response.size());
+        ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
+        assertEquals(CRMStatusCode.Paired.getStatusCode(), connectionStatusResponse.statusCode());
+    }
+
+    @Test
+    void connectionStatusWithUnknownOrganisation() {
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus("nope", true))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, response.size());
+    }
+
+    @Test
     void profileWithUidIdp() {
         this.seedCRMData();
         ProfileResponse profileResponse = given()
