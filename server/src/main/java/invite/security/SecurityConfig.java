@@ -16,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -253,7 +252,7 @@ public class SecurityConfig {
     @Order(4)
     public SecurityFilterChain internalCRMApiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/crm/profile/**","/crm/api/v1/**")
+                .securityMatcher("/crm/profile/**", "/crm/api/v1/**", "/api/profile")
                 //crm/api/v1/invite/resend /crm/api/v1/profiles
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
