@@ -184,7 +184,9 @@ export const Role = () => {
                             </span>}
                             {!isEmpty(institutionAdmins) && <span dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(I18n.t("role.institutionAdmin", {
-                                    names: splitListSemantically(institutionAdmins.map(u => u.name), I18n.t("forms.and"))
+                                    names: splitListSemantically(
+                                        institutionAdmins.map(u => `<a href="mailto:${u.email}">${u.name}</a>`),
+                                        I18n.t("forms.and"))
                                 }))
                             }}/>}
                         </div>
