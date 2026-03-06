@@ -136,7 +136,7 @@ const nl = {
         roleInfoNoEndDate: "Rol heeft <strong>geen einddatum</strong>",
         contactAdmin: "Contact rolmanager(s)",
         institutionAdmin: "Institution admins: {{names}}",
-        noInstitutionAdmin: "There is not institution admins"
+        noInstitutionAdmin: "Er zijn geen instellings-admins voor deze rol"
 
     },
     roles: {

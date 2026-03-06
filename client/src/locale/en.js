@@ -136,7 +136,7 @@ const en = {
         roleInfoNoEndDate: "Role has <strong>no end date</strong>",
         contactAdmin: "Contact role manager(s)",
         institutionAdmin: "Institution admins: {{names}}",
-        noInstitutionAdmin: "There is not institution admins"
+        noInstitutionAdmin: "There are no institution admins for this role"
     },
     roles: {
         title: "Access Roles",
