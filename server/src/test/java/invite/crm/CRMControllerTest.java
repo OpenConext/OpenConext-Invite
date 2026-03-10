@@ -649,6 +649,35 @@ class CRMControllerTest extends AbstractMailTest {
         assertEquals(50, profileResponse.code());
     }
 
+    @Test
+    void organisations() {
+        List<CRMOrganisation> organisations = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .get("/crm/api/v1/organisations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, organisations.size());
+        assertEquals(CRM_ORGANIZATION_ID, organisations.getFirst().getOrganisationId());
+    }
+
+    @Test
+    void deleteOrganisation() {
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new CRMOrganisation(CRM_ORGANIZATION_ID, "abbr", "name"))
+                .delete("/crm/api/v1/organisations")
+                .then()
+                .statusCode(204);
+        Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID);
+        assertTrue(optionalOrganisation.isEmpty());
+    }
+
     private void seedCRMData() {
         Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
         Role role = new Role();

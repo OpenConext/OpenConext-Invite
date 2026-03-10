@@ -318,6 +318,30 @@ public class CRMController {
         return ResponseEntity.ok(new ResendInvitationResponse(timestamp, 200, "ok", "Resend invitation"));
     }
 
+    @GetMapping(value = "/crm/api/v1/organisations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get all CRM organisations")
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @PreAuthorize("hasRole('CRM')")
+    public ResponseEntity<List<CRMOrganisation>> organisations() {
+        List<Organisation> organisations = organisationRepository.findAll();
+        List<CRMOrganisation> crmOrganisations = organisations.stream().map(organisation -> new CRMOrganisation(
+                organisation.getCrmOrganisationId(),
+                organisation.getCrmOrganisationAbbrevation(),
+                organisation.getCrmOrganisationName()
+        )).toList();
+        return ResponseEntity.ok(crmOrganisations);
+    }
+
+    @DeleteMapping(value = "/crm/api/v1/organisations", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Delete CRM organisation")
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @PreAuthorize("hasRole('CRM')")
+    public ResponseEntity<Void> deleteOrganisation(@RequestBody CRMOrganisation crmOrganisation) {
+        Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(crmOrganisation.getOrganisationId());
+        optionalOrganisation.ifPresent(organisation -> organisationRepository.delete(organisation));
+        return ResponseEntity.status(204).build();
+    }
+
     private ProfileResponse crmUserNotFoundOrNoRoles() {
         return new ProfileResponse("Could not find any profiles with the given search parameters", 50, List.of());
     }
