@@ -614,6 +614,30 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void profileWithNoParameters() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
     void profileWithRoleName() {
         this.seedCRMData();
         ProfileResponse profileResponse = given()
@@ -728,6 +752,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .auth().preemptive().basic("pdp", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
+                .queryParam("uid", "nope")
                 .get("/api/external/v1/invite/crm/profile")
                 .as(new TypeRef<>() {
                 });

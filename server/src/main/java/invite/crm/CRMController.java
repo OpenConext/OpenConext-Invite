@@ -221,7 +221,7 @@ public class CRMController {
                     .map(userRoles -> userRoles.stream().map(userRole -> userRole.getUser()).toList())
                     .orElse(Collections.emptyList());
         } else {
-            users = Collections.emptyList();
+            users = userRepository.findByOrganisationNotNull();
         }
         if (users.isEmpty()) {
             LOG.debug("Returning empty results query for profiles");
