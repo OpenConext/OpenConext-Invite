@@ -518,6 +518,8 @@ class CRMControllerTest extends AbstractMailTest {
                 });
         assertEquals(1, response.size());
         ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
+        assertEquals("george.best", connectionStatusResponse.link().get("uid"));
+        assertEquals("kb.nl", connectionStatusResponse.link().get("idp"));
         assertEquals(CRMStatusCode.Paired.getStatusCode(), connectionStatusResponse.statusCode());
     }
 

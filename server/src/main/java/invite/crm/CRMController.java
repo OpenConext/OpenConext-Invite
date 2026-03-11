@@ -260,7 +260,10 @@ public class CRMController {
                     .collect(Collectors.toMap(
                             user -> user.getCrmContactId(),
                             user -> new ConnectionStatusResponse(
-                                    user.getName(), user.getEmail(), user.getSchacHomeOrganization(), user.getUid(),
+                                    user.getName(), user.getEmail(), Map.of(
+                                    "uid", user.getUid(),
+                                    "idp", user.getSchacHomeOrganization()
+                            ),
                                     CRMStatusCode.Paired.getStatus(), CRMStatusCode.Paired.getStatusCode()
                             )
                     ));
@@ -274,10 +277,16 @@ public class CRMController {
                                 CRMStatusCode crmStatusCode = crmStatusCode(invitation);
                                 return userRepository.findByCrmContactIdAndOrganisation(invitation.getCrmContactId(), organisation)
                                         .map(user -> new ConnectionStatusResponse(
-                                                user.getName(), user.getEmail(), user.getSchacHomeOrganization(), user.getUid(),
+                                                user.getName(), user.getEmail(),
+                                                Map.of(
+                                                        "uid", user.getUid(),
+                                                        "idp", user.getSchacHomeOrganization()
+                                                ),
+
                                                 crmStatusCode.getStatus(), crmStatusCode.getStatusCode()
                                         )).orElse(new ConnectionStatusResponse(
-                                                null, invitation.getEmail(), null, null,
+                                                null, invitation.getEmail(),
+                                                Map.of(),
                                                 crmStatusCode.getStatus(), crmStatusCode.getStatusCode()
                                         ));
                             }
