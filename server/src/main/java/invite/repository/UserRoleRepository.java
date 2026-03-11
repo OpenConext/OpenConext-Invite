@@ -34,6 +34,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
 
     List<UserRole> findByRoleCrmRoleNameAndRoleOrganisation(String crmRoleName, Organisation organisation);
 
+    List<UserRole> findByRoleOrganisation(Organisation organisation);
+
     long countByAuthority(Authority authority);
 
     @Modifying

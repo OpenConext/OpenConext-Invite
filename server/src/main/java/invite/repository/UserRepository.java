@@ -20,6 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
 
     Optional<User> findBySubIgnoreCase(String sub);
 
+    List<User> findBySchacHomeOrganization(String schacHomeOrganization);
+
+    List<User> findByUid(String uid);
+
     Optional<User> findByCrmContactIdAndOrganisation(String crmContactId, Organisation organisation);
 
     List<User> findByOrganisation(Organisation organisation);

@@ -654,7 +654,7 @@ public abstract class AbstractTest {
         guest.setEduId(UUID.randomUUID().toString());
         User kbUser =
                 new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
-        kbUser.setUid("george.best");
+        kbUser.setUid("guest");
         kbUser.setCrmContactId(CRM_CONTACT_ID);
         kbUser.setOrganisation(organisation);
 

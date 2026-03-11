@@ -518,7 +518,7 @@ class CRMControllerTest extends AbstractMailTest {
                 });
         assertEquals(1, response.size());
         ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
-        assertEquals("george.best", connectionStatusResponse.link().get("uid"));
+        assertEquals("guest", connectionStatusResponse.link().get("uid"));
         assertEquals("kb.nl", connectionStatusResponse.link().get("idp"));
         assertEquals(CRMStatusCode.Paired.getStatusCode(), connectionStatusResponse.statusCode());
     }
@@ -564,6 +564,90 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void profileWithIdp() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("idp", "kb.nl")
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
+    void profileWithUid() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("uid", "guest")
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
+    void profileWithRoleName() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("role", SUPER_ADMIN_NAME)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+    }
+
+    @Test
+    void profileWithOrgGUID() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("guid", CRM_ORGANIZATION_ID)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+    }
+
+        @Test
     void profileWithGuidRole() {
         this.seedCRMData();
         ProfileResponse profileResponse = given()

@@ -197,17 +197,29 @@ public class CRMController {
             LOG.debug(String.format("query for profiles: uid=%s, idp=%s, guid=%s, role=%s",
                     userUid, idpSchacHomeOrganisation, crmOrganisationId, crmRoleName));
         }
-
         List<User> users;
-        if (StringUtils.hasText(userUid) && StringUtils.hasText(userUid)) {
+        if (StringUtils.hasText(userUid) && StringUtils.hasText(idpSchacHomeOrganisation)) {
             String sub = this.constructSub(idpSchacHomeOrganisation, userUid);
             users = userRepository.findBySubIgnoreCase(sub).map(Collections::singletonList).orElse(Collections.emptyList());
+        } else if (StringUtils.hasText(idpSchacHomeOrganisation)) {
+            users = userRepository.findBySchacHomeOrganization(idpSchacHomeOrganisation);
+        } else if (StringUtils.hasText(userUid)) {
+            users = userRepository.findByUid(userUid);
         } else if (StringUtils.hasText(crmOrganisationId) && StringUtils.hasText(crmRoleName)) {
             users = organisationRepository.findByCrmOrganisationId(crmOrganisationId)
                     .map(organisation -> userRoleRepository.findByRoleCrmRoleNameAndRoleOrganisation(crmRoleName, organisation))
                     .map(userRoles -> userRoles.stream().map(userRole -> userRole.getUser()).toList())
                     .orElse(Collections.emptyList());
-
+        } else if (StringUtils.hasText(crmRoleName)) {
+            users = roleRepository.findByCrmRoleName(crmRoleName).stream()
+                    .flatMap(role -> userRoleRepository.findByRole(role).stream()
+                            .map(userRole -> userRole.getUser()))
+                    .toList();
+        } else if (StringUtils.hasText(crmOrganisationId)) {
+            users = organisationRepository.findByCrmOrganisationId(crmOrganisationId)
+                    .map(organisation -> userRoleRepository.findByRoleOrganisation(organisation))
+                    .map(userRoles -> userRoles.stream().map(userRole -> userRole.getUser()).toList())
+                    .orElse(Collections.emptyList());
         } else {
             users = Collections.emptyList();
         }
