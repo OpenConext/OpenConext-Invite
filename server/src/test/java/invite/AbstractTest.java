@@ -8,6 +8,7 @@ import invite.eduid.EduIDProvision;
 import invite.manage.EntityType;
 import invite.manage.LocalManage;
 import invite.model.*;
+import invite.provision.scim.GroupURN;
 import invite.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -117,11 +118,17 @@ public abstract class AbstractTest {
     @Value("${manage.staticManageDirectory}")
     private String staticManageDirectory;
 
+    @Value("${voot.group_urn_domain}")
+    protected String groupUrnPrefix;
+
     @Autowired
     protected ObjectMapper objectMapper;
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected OrganisationRepository organisationRepository;
 
     @Autowired
     protected RoleRepository roleRepository;
@@ -618,6 +625,7 @@ public abstract class AbstractTest {
         this.applicationRepository.deleteAllInBatch();
         this.userRepository.deleteAllInBatch();
         this.userRoleRepository.deleteAllInBatch();
+        this.organisationRepository.deleteAllInBatch();
         this.apiTokenRepository.deleteAllInBatch();
         this.jdbcTemplate.update("delete from distributed_locks");
 
@@ -630,6 +638,11 @@ public abstract class AbstractTest {
         institutionAdmin.setInstitutionAdminByInvite(true);
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
 
+        Organisation organisation = new Organisation(
+                CRM_ORGANIZATION_ID,"SURF","SURF"
+        );
+        doSave(organisationRepository, organisation);
+
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         User inviter =
@@ -641,8 +654,9 @@ public abstract class AbstractTest {
         guest.setEduId(UUID.randomUUID().toString());
         User kbUser =
                 new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
+        kbUser.setUid("guest");
         kbUser.setCrmContactId(CRM_CONTACT_ID);
-        kbUser.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        kbUser.setOrganisation(organisation);
 
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest, kbUser);
 
@@ -688,6 +702,8 @@ public abstract class AbstractTest {
         research.setOrganizationGUID(ORGANISATION_GUID);
         wiki.setOrganizationGUID(ORGANISATION_GUID);
 
+        List.of(wiki, network, storage, research, calendar, mail)
+                .forEach(role -> role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role)));
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
 
         UserRole wikiManager =

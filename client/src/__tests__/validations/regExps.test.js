@@ -10,6 +10,7 @@ describe('regExps', () => {
     it('Emails formats', () => {
         expect(validEmailRegExp.test("aa")).toBeFalsy();
         expect(validEmailRegExp.test("a!@a.c")).toBeFalsy();
+        expect(validEmailRegExp.test("aa@abc..c")).toBeFalsy();
         expect(validEmailRegExp.test("a!@a.c@")).toBeFalsy();
 
         expect(validEmailRegExp.test("a@a")).toBeTruthy();

@@ -147,10 +147,10 @@ jobs:
           name: invitebuilds
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -158,7 +158,7 @@ jobs:
 
       - name: Set docker labels and tags
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ matrix.image }}
           flavor: |
@@ -171,7 +171,7 @@ jobs:
             type=sha
 
       - name: Build and push the ${{ matrix.app }} image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.app }}
           file: ${{ matrix.app }}/docker/Dockerfile

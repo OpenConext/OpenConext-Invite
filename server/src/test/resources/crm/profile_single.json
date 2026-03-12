@@ -1,0 +1,31 @@
+{
+  "message": "OK",
+  "code": 0,
+  "profiles": [
+    {
+      "firstname": "John",
+      "middlename": ".",
+      "surname": "Doe",
+      "email": "john.doe@surf.nl",
+      "mobile": "nope",
+      "idp": "surfnet.nl",
+      "uid": "john",
+      "guid": "e31bc3d1-1211-e511-80d0-005056956c1a",
+      "organisation": {
+        "abbrev": "SURFNET",
+        "name": "SURFnet bv",
+        "guid": "ad93daef-0911-e511-80d0-005056956c1a"
+      },
+      "authorisations": [
+        {
+          "short": "CONBEH",
+          "role": "SURFconextbeheerder"
+        },
+        {
+          "short": "SUP",
+          "role": "Superuser"
+        }
+      ]
+    }
+  ]
+}

@@ -46,7 +46,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(role)
-                .post("/api/internal/invite/roles")
+                .post("/api/external/v1/internal/invite/roles")
                 .as(new TypeRef<>() {
                 });
         assertNotNull(newRole.getId());
@@ -65,7 +65,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(role)
-                .post("/api/internal/invite/roles")
+                .post("/api/external/v1/internal/invite/roles")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
@@ -88,7 +88,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(role)
-                .post("/api/internal/invite/roles")
+                .post("/api/external/v1/internal/invite/roles")
                 .then()
                 .statusCode(403);
     }
@@ -103,7 +103,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(role)
-                .put("/api/internal/invite/roles")
+                .put("/api/external/v1/internal/invite/roles")
                 .as(new TypeRef<>() {
                 });
         assertEquals("changed", newRole.getDescription());
@@ -117,7 +117,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .auth().preemptive().basic("sp_dashboard", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .get("/api/internal/invite/roles")
+                .get("/api/external/v1/internal/invite/roles")
                 .as(new TypeRef<>() {
                 });
 
@@ -133,7 +133,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("id", role.getId())
-                .get("/api/internal/invite/roles/{id}")
+                .get("/api/external/v1/internal/invite/roles/{id}")
                 .as(new TypeRef<>() {
                 });
 
@@ -149,7 +149,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("id", role.getId())
-                .delete("/api/internal/invite/roles/{id}")
+                .delete("/api/external/v1/internal/invite/roles/{id}")
                 .then()
                 .statusCode(204);
         Optional<Role> roleOptional = roleRepository.findByName("Research");
@@ -183,7 +183,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(invitationRequest)
-                .post("/api/internal/invite/invitations")
+                .post("/api/external/v1/internal/invite/invitations")
                 .as(new TypeRef<Map<String, Object>>() {
                 });
         assertEquals(201, results.get("status"));
@@ -217,7 +217,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .body(invitationRequest)
-                .post("/api/internal/invite/invitations")
+                .post("/api/external/v1/internal/invite/invitations")
                 .as(new TypeRef<Map<String, Object>>() {
                 });
         assertEquals(201, results.get("status"));
@@ -237,7 +237,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("id", invitation.getId())
-                .put("/api/internal/invite/invitations/{id}")
+                .put("/api/external/v1/internal/invite/invitations/{id}")
                 .then()
                 .statusCode(201);
 
@@ -256,7 +256,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("id", invitation.getId())
-                .put("/api/internal/invite/invitations/{id}")
+                .put("/api/external/v1/internal/invite/invitations/{id}")
                 .then()
                 .statusCode(403);
     }
@@ -270,7 +270,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("roleId", roleId)
-                .get("/api/internal/invite/user_roles/{roleId}")
+                .get("/api/external/v1/internal/invite/user_roles/{roleId}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(2, userRoles.size());
@@ -297,5 +297,20 @@ class InternalInviteControllerTest extends AbstractTest {
         assertEquals(2L, role.getUserRoleCount());
     }
 
+    @Test
+    void rolesSummary() {
+        List<Map<String, String>> roles = given()
+                .when()
+                .auth().preemptive().basic("access", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/external/v1/internal/invite/roles-summary")
+                .as(new TypeRef<>() {
+                });
+
+        assertEquals(6, roles.size());
+        List.of("name", "description","urn")
+                .forEach(attr -> assertTrue(roles.stream().allMatch(role -> role.containsKey(attr))));
+    }
 
 }

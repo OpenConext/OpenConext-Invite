@@ -138,7 +138,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
@@ -161,7 +161,7 @@ class AttributeAggregatorControllerTest extends AbstractTest {
         assertEquals(3, autorisatie.size());
         List<String> autorizations = autorisatie.stream().map(m -> m.get("autorisatie")).sorted().toList();
         List<String> expected = Stream.of(
-                "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:abbrec",
+                "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:SURF",
                 "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + CRM_ORGANIZATION_ID,
                 "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextbeheerder").sorted().toList();
         assertEquals(expected, autorizations);

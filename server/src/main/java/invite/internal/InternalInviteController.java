@@ -42,7 +42,7 @@ import java.util.*;
 import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = {"/api/internal/invite", "/api/external/v1/internal/invite"},
+@RequestMapping(value = { "/api/external/v1/internal/invite"},
         produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class InternalInviteController implements ApplicationResource, InvitationResource, UserRoleResource {
@@ -106,6 +106,17 @@ public class InternalInviteController implements ApplicationResource, Invitation
                 .flatMap(Collection::stream)
                 .toList();
         manage.addManageMetaData(roles);
+        return ResponseEntity.ok(roles);
+    }
+
+    @GetMapping("/roles-summary")
+    @PreAuthorize("hasAnyRole('ACCESS')")
+    @Transactional(readOnly = true)
+    @Hidden
+    public ResponseEntity<List<Map<String, String>>> rolesSummary(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        LOG.debug(String.format("/roles-summary for user %s", remoteUser.getName()));
+
+        List<Map<String, String>> roles = roleRepository.summary();
         return ResponseEntity.ok(roles);
     }
 
@@ -221,7 +232,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                               "error": "BadRequest",
                                               "exception": "access.exception.UserRestrictionException",
                                               "message": "No access to application",
-                                              "path": "/api/internal/invite/invitations"
+                                              "path": "/api/external/v1/internal/invite"
                                             }
                                             """
                                     )})})})
@@ -371,7 +382,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                               "error": "BadRequest",
                                               "exception": "access.exception.UserRestrictionException",
                                               "message": "No access to application",
-                                              "path": "/api/internal/invite/invitations"
+                                              "path": "/api/external/v1/internal/invite"
                                             }
                                             """
                                     )})}),
@@ -384,7 +395,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                               "error": "Not found",
                                               "exception": "access.exception.NotFoundException",
                                               "message": "Role not found",
-                                              "path": "/api/internal/invite/invitations"
+                                              "path": "/api/external/v1/internal/invite"
                                             }
                                             """
                                     )})})})

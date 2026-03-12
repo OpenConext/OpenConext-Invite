@@ -1,18 +1,38 @@
-ALTER TABLE `roles`
-    ADD `crm_organisation_id` varchar(255) DEFAULT NULL,
-    ADD `crm_organisation_code` varchar(255) DEFAULT NULL,
-    ADD `crm_role_id` varchar(255) DEFAULT NULL,
-    ADD `crm_role_name` varchar(255) DEFAULT NULL;
+CREATE TABLE `organisations`
+(
+    `id`                     bigint       NOT NULL AUTO_INCREMENT,
+    `crm_organisation_id` VARCHAR(255)  NOT NULL,
+    `crm_organisation_name` VARCHAR(255)  NOT NULL,
+    `crm_organisation_abbrevation` VARCHAR(255)  NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX `roles_crm_organisation_id_index` ON `roles` (`crm_organisation_id`);
-CREATE INDEX `roles_crm_role_id_index` ON `roles` (`crm_role_id`);
-
-ALTER TABLE `users`
-    ADD `crm_contact_id` varchar(255) DEFAULT NULL;
-
-CREATE INDEX `users_crm_contact_id_index` ON `users` (`crm_contact_id`);
+ALTER TABLE roles
+    ADD COLUMN crm_role_abbrevation VARCHAR(255) NULL,
+    ADD COLUMN crm_role_id VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN crm_role_name VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN organisation_id BIGINT NULL,
+    ADD CONSTRAINT fk_roles_organisation
+        FOREIGN KEY (organisation_id)
+        REFERENCES organisations(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
 
 ALTER TABLE `invitations`
-    ADD `crm_contact_id` varchar(255) DEFAULT NULL;
+    ADD `crm_contact_id` VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN crm_organisation_id VARCHAR(255) DEFAULT NULL;
 
-CREATE INDEX `invitations_crm_contact_id_index` ON `invitations` (`crm_contact_id`);
+ALTER TABLE `users`
+    ADD `crm_contact_id` VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN organisation_id BIGINT NULL,
+    ADD CONSTRAINT fk_users_organisation
+        FOREIGN KEY (organisation_id)
+        REFERENCES organisations(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
+ALTER TABLE `users`
+    ADD CONSTRAINT `users_unique_crm_contact_profile`
+    UNIQUE (`crm_contact_id`, `organisation_id`);

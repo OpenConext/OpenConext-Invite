@@ -16,7 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +27,7 @@ import org.springframework.security.oauth2.client.web.DefaultOAuth2Authorization
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -199,17 +199,12 @@ public class SecurityConfig {
     SecurityFilterChain basicAuthenticationSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> c.disable())
                 .securityMatcher(
-                        "/api/voot/**",
                         "/api/external/v1/voot/**",
-                        "/api/teams/**",
                         "/api/external/v1/teams/**",
-                        "/api/profile/**",
                         "/api/external/v1/profile/**",
-                        "/api/aa/**",
                         "/api/external/v1/aa/**",
-                        "/api/deprovision/**",
                         "/api/external/v1/deprovision/**",
-                        "/api/internal/invite/**",
+                        "/api/external/v1/invite/crm/**",
                         "/api/external/v1/internal/invite/**",
                         "/internal/prometheus"
                 ).sessionManagement(c -> c
@@ -257,19 +252,15 @@ public class SecurityConfig {
     @Order(4)
     public SecurityFilterChain internalCRMApiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/internal/v1/crm/**")
+                .securityMatcher("/crm/profile/**", "/crm/api/v1/**", "/api/profile")
+                //crm/api/v1/invite/resend /crm/api/v1/profiles
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .csrf(csrf -> csrf.disable())
+                .addFilterBefore(new CrmApiKeyAuthFilter(crmApiKeyHeader, securityContextRepository()), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth ->
-                        auth.anyRequest().access(
-                                (authentication, context) -> {
-                                    String headerValue = context.getRequest().getHeader(API_KEY_HEADER);
-                                    boolean granted = crmApiKeyHeader.equals(headerValue);
-                                    return new AuthorizationDecision(granted);
-                                }
-                        )
+                        auth.anyRequest().authenticated()  // method level is protected with scope
                 );
 
         return http.build();

@@ -3,6 +3,7 @@ package invite.aggregation;
 import invite.manage.EntityType;
 import invite.manage.Manage;
 import invite.model.Authority;
+import invite.model.Organisation;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,15 +30,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
 @RequestMapping(value = {"/api/external/v1/aa"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
+@Transactional
 public class AttributeAggregatorController {
 
     private static final Log LOG = LogFactory.getLog(AttributeAggregatorController.class);
@@ -97,8 +98,9 @@ public class AttributeAggregatorController {
                     .filter(r -> StringUtils.hasText(r.getCrmRoleId()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Won't happen"));
-            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + role.getCrmOrganisationCode()));
-            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + role.getCrmOrganisationId()));
+            Organisation organisation = role.getOrganisation();
+            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + organisation.getCrmOrganisationAbbrevation()));
+            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisation.getCrmOrganisationId()));
         }
         LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", userRoleList.size(), unspecifiedId, spEntityId));
 

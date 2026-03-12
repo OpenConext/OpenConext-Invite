@@ -55,7 +55,7 @@ public class Auditable implements Serializable {
         } else if (authentication instanceof UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
             attributes = Map.of("eduperson_principal_name", usernamePasswordAuthenticationToken.getName());
         }
-        return attributes.getOrDefault("eduperson_principal_name", "ResourceCleaner").toString();
+        return attributes.getOrDefault("eduperson_principal_name", "InternalInvite").toString();
     }
 
 }

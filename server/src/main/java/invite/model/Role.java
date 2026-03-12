@@ -70,17 +70,19 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "inviter_display_name")
     private String inviterDisplayName;
 
-    @Column(name = "crm_organisation_id")
-    private String crmOrganisationId;
-
-    @Column(name = "crm_organisation_code")
-    private String crmOrganisationCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organisation_id")
+    @JsonIgnore
+    private Organisation organisation;
 
     @Column(name = "crm_role_id")
     private String crmRoleId;
 
     @Column(name = "crm_role_name")
     private String crmRoleName;
+
+    @Column(name = "crm_role_abbrevation")
+    private String crmRoleAbbrevation;
 
     @Formula(value = "(SELECT COUNT(*) FROM user_roles ur WHERE ur.role_id=id)")
     private Long userRoleCount;
@@ -159,7 +161,6 @@ public class Role implements Serializable, Provisionable {
         this.organizationGUID = roleRequest.getOrganizationGUID();
         this.inviterDisplayName = roleRequest.getInviterDisplayName();
         this.applicationUsages = roleRequest.getApplicationUsages();
-
     }
 
     @Transient

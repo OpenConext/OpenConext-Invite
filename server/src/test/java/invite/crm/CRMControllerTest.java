@@ -3,21 +3,27 @@ package invite.crm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import invite.AbstractMailTest;
+import invite.exception.NotFoundException;
 import invite.mail.MimeMessageParser;
 import invite.manage.EntityType;
 import invite.model.Authority;
 import invite.model.Invitation;
+import invite.model.Organisation;
 import invite.model.RemoteProvisionedGroup;
 import invite.model.RemoteProvisionedUser;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import jakarta.mail.Address;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +33,8 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CRMControllerTest extends AbstractMailTest {
+
+    public static final String SUPER_ADMIN_NAME = "SUPER_ADMIN_NAME";
 
     @Test
     void contactProvisioningNewUser() throws JsonProcessingException {
@@ -50,13 +58,14 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
         assertEquals("created", response);
-
-        User user = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID, crmOrganisationID)
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        User user = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation)
                 .get();
         assertEquals(1, user.getUserRoles().size());
 
@@ -66,10 +75,27 @@ class CRMControllerTest extends AbstractMailTest {
 
         Role role = userRole.getRole();
         assertEquals(crmRole.getRoleId(), role.getCrmRoleId());
-        assertEquals(crmContact.getOrganisation().getOrganisationId(), role.getCrmOrganisationId());
+        Optional<Organisation> optionalOrganisation = organisationRepository
+                .findByCrmOrganisationId(crmContact.getOrganisation().getOrganisationId());
+        assertTrue(optionalOrganisation.isPresent());
+        Role roleFromDB = roleRepository.findByCrmRoleIdAndOrganisation(role.getCrmRoleId(), organisation).get();
+        assertEquals(role.getId(), roleFromDB.getId());
 
         List<ServeEvent> events = getAllServeEvents().stream().filter(e -> e.getRequest().getUrl().startsWith("/api/scim/v2/")).toList();
         assertEquals(3, events.size());
+    }
+
+    @Test
+    void contactProvisioningWrongApiHeader() throws JsonProcessingException {
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "nope")
+                .contentType(ContentType.JSON)
+                .body(Map.of())
+                .post("/crm/profile")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
@@ -99,7 +125,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
@@ -112,23 +138,6 @@ class CRMControllerTest extends AbstractMailTest {
                 .findFirst().get();
         assertFalse(userRole.isGuestRoleIncluded());
         assertEquals(Authority.GUEST, userRole.getAuthority());
-    }
-
-    @Test
-    void contactProvisioningMissingUID() {
-        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
-        //Empty uid will force the InvalidInputException
-        CRMContact crmContact = createCrmContact(CRM_CONTACT_ID, CRM_ORGANIZATION_ID, crmRole, "", "hardewijk.org", true);
-
-        given()
-                .when()
-                .accept(ContentType.JSON)
-                .header(API_KEY_HEADER, "secret")
-                .contentType(ContentType.JSON)
-                .body(crmContact)
-                .post("/api/internal/v1/crm")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -147,14 +156,15 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
         assertEquals("created", response);
 
-        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID,
-                crmOrganisationID);
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation);
         assertTrue(optionalUser.isEmpty());
 
         MimeMessageParser mimeMessageParser = mailMessage();
@@ -170,13 +180,30 @@ class CRMControllerTest extends AbstractMailTest {
         Invitation invitation = invitations.getFirst();
         assertEquals("SURF CRM", invitation.getRemoteApiUser());
 
+        //Now we send the same POST again, and because of idenpotentcy no new invitation should be created
+        String newResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("updated", newResponse);
+        List<Invitation> invitationsAfterSyncs = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitationsAfterSyncs.size());
+        assertEquals(invitations.getFirst().getId(), invitationsAfterSyncs.getFirst().getId());
+
         response = given()
                 .when()
                 .accept(ContentType.JSON)
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .delete("/api/internal/v1/crm")
+                .delete("/crm/profile")
                 .then()
                 .extract()
                 .asString();
@@ -184,6 +211,37 @@ class CRMControllerTest extends AbstractMailTest {
 
         invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(crmContactID, crmOrganisationID);
         assertEquals(0, invitations.size());
+    }
+
+    @Test
+    void contactInviteNewUserSuppressEmail() throws Exception {
+        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, null, null, true);
+        //These two applications are linked to the 'BVW' CRM role
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation);
+        assertTrue(optionalUser.isEmpty());
+
+        List<MimeMessageParser> allMailMessages = allMailMessages(0);
+        assertEquals(0, allMailMessages.size());
     }
 
     @Test
@@ -209,7 +267,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
@@ -225,7 +283,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
@@ -233,6 +291,68 @@ class CRMControllerTest extends AbstractMailTest {
 
         user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         assertEquals(3, user.getUserRoles().size());
+    }
+
+    @Test
+    void contactProvisioningRoleEmptyApplications() {
+        CRMRole crmRoleResearch = new CRMRole("ea61793b-c4a9-47a0-9558-40e684ded3be", "EMPTY", "Deprecated");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRoleResearch, "steven", "nope.com", true);
+        String sub = "urn:collab:person:nope.com:steven";
+        Optional<User> userOptional = userRepository.findBySubIgnoreCase(sub);
+        assertTrue(userOptional.isEmpty());
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        userOptional = userRepository.findBySubIgnoreCase(sub);
+        assertTrue(userOptional.isPresent());
+        assertEquals(0, userOptional.get().getUserRoles().size());
+    }
+
+    @Test
+    void contactInviteNoInvitationWithNoRoles() throws Exception {
+        CRMRole crmRoleResearch = new CRMRole("ea61793b-c4a9-47a0-9558-40e684ded3be", "EMPTY", "Deprecated");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRoleResearch, null, null, false);
+        String sub = "urn:collab:person:nope.com:steven";
+        Optional<User> userOptional = userRepository.findBySubIgnoreCase(sub);
+        assertTrue(userOptional.isEmpty());
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation);
+        assertTrue(optionalUser.isEmpty());
+
+        List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(0, invitations.size());
+
+        List<MimeMessageParser> allMailMessages = allMailMessages(0);
+        assertEquals(0, allMailMessages.size());
     }
 
     @Test
@@ -263,13 +383,15 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .delete("/api/internal/v1/crm")
+                .delete("/crm/profile")
                 .then()
                 .extract()
                 .asString();
         assertEquals("deleted", response);
 
-        Optional<User> optionalUser = userRepository.findByCrmContactIdAndCrmOrganisationId(CRM_CONTACT_ID, CRM_ORGANIZATION_ID);
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + CRM_ORGANIZATION_ID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(CRM_CONTACT_ID, organisation);
         assertTrue(optionalUser.isEmpty());
     }
 
@@ -291,7 +413,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
@@ -301,7 +423,7 @@ class CRMControllerTest extends AbstractMailTest {
         assertEquals(1, user.getUserRoles().size());
         //Now post the same CRMContact for a different user, but the same role. Enusure the role is not re-used
         String newOrganisationID = UUID.randomUUID().toString();
-        crmContact.setOrganisation(new CRMOrganisation(newOrganisationID,"abbrev","name"));
+        crmContact.setOrganisation(new CRMOrganisation(newOrganisationID, "abbrev", "name"));
         crmContact.setUid("second_user");
         response = given()
                 .when()
@@ -309,7 +431,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
                 .body(crmContact)
-                .post("/api/internal/v1/crm")
+                .post("/crm/profile")
                 .then()
                 .extract()
                 .asString();
@@ -325,5 +447,381 @@ class CRMControllerTest extends AbstractMailTest {
         assertEquals(2, roles.size());
     }
 
+    @Test
+    void resendInviteMail() throws Exception {
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        invitation.setExpiryDate(Instant.now().minus(5, ChronoUnit.DAYS));
+        invitation.setCrmContactId(CRM_CONTACT_ID);
+        invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        invitationRepository.save(invitation);
+
+        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
+        ResendInvitationResponse resendInvitationResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ResendInvitation(CRM_ORGANIZATION_ID, CRM_CONTACT_ID))
+                .post("/crm/api/v1/invite/resend")
+                .as(new TypeRef<>() {
+                });
+        Invitation savedInvitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        assertTrue(savedInvitation.getExpiryDate().isAfter(Instant.now().plus(13, ChronoUnit.DAYS)));
+
+        MimeMessageParser mailMessage = mailMessage();
+        assertEquals("Invitation for Mail at SURFconext Invite", mailMessage.getSubject());
+    }
+
+    @Test
+    void connectionStatusWithInvitationExistingUser() {
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        invitation.setCrmContactId(CRM_CONTACT_ID);
+        invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        //This will cause the CRMStatusCode.NotPaired
+        invitation.setExpiryDate(Instant.now().minus(600, ChronoUnit.DAYS));
+        invitationRepository.save(invitation);
+
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, false))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, response.size());
+        ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
+        assertEquals("gb@kb.nl", connectionStatusResponse.email());
+        assertEquals("George Best", connectionStatusResponse.fullname());
+        assertEquals(CRMStatusCode.NotPaired.getStatusCode(), connectionStatusResponse.statusCode());
+    }
+
+    @Test
+    void connectionStatusWithInvitationNewUser() {
+        Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
+        //No user with this contactID exists
+        String crmContactId = UUID.randomUUID().toString();
+        invitation.setCrmContactId(crmContactId);
+        invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
+        invitationRepository.save(invitation);
+
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, false))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, response.size());
+        ConnectionStatusResponse connectionStatusResponse = response.get(crmContactId);
+        assertEquals(invitation.getEmail(), connectionStatusResponse.email());
+        assertNull(connectionStatusResponse.fullname());
+        assertEquals(CRMStatusCode.InProcess.getStatusCode(), connectionStatusResponse.statusCode());
+    }
+
+    @Test
+    void connectionStatusWithUser() {
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, true))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, response.size());
+        ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
+        assertEquals("guest", connectionStatusResponse.link().get("uid"));
+        assertEquals("kb.nl", connectionStatusResponse.link().get("idp"));
+        assertEquals(CRMStatusCode.Paired.getStatusCode(), connectionStatusResponse.statusCode());
+    }
+
+    @Test
+    void connectionStatusWithUnknownOrganisation() {
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus("nope", true))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, response.size());
+    }
+
+    @Test
+    void profileWithUidIdp() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .auth().preemptive().basic("pdp", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("uid", "guest")
+                .queryParam("idp", "kb.nl")
+                .get("/api/external/v1/invite/crm/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
+    void profileWithIdp() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("idp", "kb.nl")
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
+    void profileWithUid() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("uid", "guest")
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
+    void profileWithNoParameters() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
+    void profileWithRoleName() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("role", SUPER_ADMIN_NAME)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+    }
+
+    @Test
+    void profileWithOrgGUID() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("guid", CRM_ORGANIZATION_ID)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+    }
+
+        @Test
+    void profileWithGuidRole() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .auth().preemptive().basic("pdp", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("guid", CRM_ORGANIZATION_ID)
+                .queryParam("role", SUPER_ADMIN_NAME)
+                .get("/api/external/v1/invite/crm/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
+    void emptyProfileWithUidIdp() {
+        ProfileResponse profileResponse = given()
+                .when()
+                .auth().preemptive().basic("pdp", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("uid", "nope")
+                .queryParam("idp", "kb.nl")
+                .get("/api/external/v1/invite/crm/profile")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(profileResponse.profiles().isEmpty());
+        assertEquals(50, profileResponse.code());
+    }
+
+    @Test
+    void emptyProfileWithGuidRole() {
+        ProfileResponse profileResponse = given()
+                .when()
+                .auth().preemptive().basic("pdp", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("guid", CRM_ORGANIZATION_ID)
+                .queryParam("role", "nope")
+                .get("/api/external/v1/invite/crm/profile")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(profileResponse.profiles().isEmpty());
+        assertEquals(50, profileResponse.code());
+    }
+
+    @Test
+    void emptyProfileWithNoOrg() {
+        ProfileResponse profileResponse = given()
+                .when()
+                .auth().preemptive().basic("pdp", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("guid", "nope")
+                .queryParam("role", SUPER_ADMIN_NAME)
+                .get("/api/external/v1/invite/crm/profile")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(profileResponse.profiles().isEmpty());
+        assertEquals(50, profileResponse.code());
+    }
+
+    @Test
+    void emptyProfile() {
+        ProfileResponse profileResponse = given()
+                .when()
+                .auth().preemptive().basic("pdp", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("uid", "nope")
+                .get("/api/external/v1/invite/crm/profile")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(profileResponse.profiles().isEmpty());
+        assertEquals(50, profileResponse.code());
+    }
+
+    @Test
+    void organisations() {
+        List<CRMOrganisation> organisations = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .get("/crm/api/v1/organisations")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, organisations.size());
+        assertEquals(CRM_ORGANIZATION_ID, organisations.getFirst().getOrganisationId());
+    }
+
+    @Test
+    void deleteOrganisation() {
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new CRMOrganisation(CRM_ORGANIZATION_ID, "abbr", "name"))
+                .delete("/crm/api/v1/organisations")
+                .then()
+                .statusCode(204);
+        Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID);
+        assertTrue(optionalOrganisation.isEmpty());
+    }
+
+    private void seedCRMData() {
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
+        Role role = new Role();
+        role.setCrmRoleId(UUID.randomUUID().toString());
+        role.setCrmRoleAbbrevation("SUPER_ADMIN");
+        role.setCrmRoleName(SUPER_ADMIN_NAME);
+        role.setName("CRM_ROLE");
+        role.setShortName("crm_role");
+        role.setOrganisation(organisation);
+        role.setIdentifier(UUID.randomUUID().toString());
+        roleRepository.save(role);
+        User user = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
+        user.addUserRole(new UserRole(Authority.GUEST, role));
+        userRepository.save(user);
+
+
+    }
 
 }

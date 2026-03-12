@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = {"/api/voot", "/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = { "/api/external/v1/voot"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class VootController {
 
