@@ -180,6 +180,23 @@ class CRMControllerTest extends AbstractMailTest {
         Invitation invitation = invitations.getFirst();
         assertEquals("SURF CRM", invitation.getRemoteApiUser());
 
+        //Now we send the same POST again, and because of idenpotentcy no new invitation should be created
+        String newResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("updated", newResponse);
+        List<Invitation> invitationsAfterSyncs = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitationsAfterSyncs.size());
+        assertEquals(invitations.getFirst().getId(), invitationsAfterSyncs.getFirst().getId());
+
         response = given()
                 .when()
                 .accept(ContentType.JSON)

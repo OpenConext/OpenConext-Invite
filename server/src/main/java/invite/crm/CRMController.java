@@ -21,6 +21,7 @@ import invite.model.Language;
 import invite.model.Organisation;
 import invite.model.Provisionable;
 import invite.model.Role;
+import invite.model.Status;
 import invite.model.User;
 import invite.model.UserRole;
 import invite.model.UserRoleAudit;
@@ -448,6 +449,20 @@ public class CRMController {
         Optional<User> optionalUser =
                 userRepository.findByCrmContactIdAndOrganisation(
                         crmContact.getContactId(), organisation);
+        //Idempotency - if there is already an open invitation with the same roles for this contact / organisation then do nothing
+        List<Invitation> invitations = invitationRepository
+                .findByCrmContactIdAndCrmOrganisationId(crmContact.getContactId(), organisation.getCrmOrganisationId());
+        boolean duplicateInvitation = invitations.stream().anyMatch(invitation -> invitation.getStatus().equals(Status.OPEN) &&
+                invitation.getRoles().stream()
+                        .allMatch(invitationRole -> crmContact.getRoles().stream()
+                                .anyMatch(crmRole -> crmRole.getRoleId().equals(invitationRole.getRole().getCrmRoleId()))));
+        if (duplicateInvitation) {
+            LOG.info(String.format("Not sending invitation to %s as there is already an outstanding invitation with roles %s",
+                    crmContact.getEmail(),
+                    crmContact.getRoles().stream().map(crmRole -> crmRole.getName()).collect(Collectors.joining(", "))));
+            return false;
+        }
+
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, optionalUser.orElse(new User()));
         //Only save the user when the user already existed
         optionalUser.ifPresent(user -> userRepository.save(user));
