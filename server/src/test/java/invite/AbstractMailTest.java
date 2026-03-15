@@ -54,6 +54,11 @@ public class AbstractMailTest extends AbstractTest {
         return parser.parse();
     }
 
+    @SneakyThrows
+    protected void deleteMailMessages() {
+        greenMail.purgeEmailFromAllMailboxes();
+    }
+
     protected List<MimeMessageParser> allMailMessages(int expectedLength) {
         await().until(() -> greenMail.getReceivedMessages().length == expectedLength);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();

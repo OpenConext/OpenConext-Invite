@@ -253,6 +253,7 @@ class CRMControllerTest extends AbstractMailTest {
         Invitation invitation = invitations.getFirst();
         assertEquals("SURF CRM", invitation.getRemoteApiUser());
 
+        deleteMailMessages();
         //Now we send the POST again, but with a different Role
         CRMRole newCrmRole = new CRMRole("differentRoleId", "CONBEH", "SURFconextbeheerder");
         CRMContact newCrmContact = createCrmContact(crmContactID, crmOrganisationID, newCrmRole, null, null, false);
@@ -276,6 +277,11 @@ class CRMControllerTest extends AbstractMailTest {
         assertNotEquals(invitations.getFirst().getId(), invitationsAfterSyncs.getFirst().getId());
         //The previous invitation should be deleted
         assertTrue(invitationRepository.findById(invitations.getFirst().getId()).isEmpty());
+
+        MimeMessageParser latetestMimeMessageParser = mailMessage();
+        assertTrue(latetestMimeMessageParser.getHtmlContent()
+                .contains("Invitation for SURFconextbeheerder for Inc. Corporated at SURFconext Invite"));
+
     }
 
     @Test
