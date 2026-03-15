@@ -31,7 +31,7 @@ jobs:
         uses: ibiqlik/action-yamllint@v3
 
       # Check for changes in the server component of the Archimate model
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: changes
         with:
           filters: |
