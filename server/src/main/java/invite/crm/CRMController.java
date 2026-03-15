@@ -58,8 +58,10 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -449,20 +451,36 @@ public class CRMController {
         Optional<User> optionalUser =
                 userRepository.findByCrmContactIdAndOrganisation(
                         crmContact.getContactId(), organisation);
-        //Idempotency - if there is already an open invitation with the same roles for this contact / organisation then do nothing
+        //Idempotency - if all outstanding open invitations have exact the same roles for this contact / organisation then do nothing
         List<Invitation> invitations = invitationRepository
-                .findByCrmContactIdAndCrmOrganisationId(crmContact.getContactId(), organisation.getCrmOrganisationId());
-        boolean duplicateInvitation = invitations.stream().anyMatch(invitation -> invitation.getStatus().equals(Status.OPEN) &&
-                invitation.getRoles().stream()
-                        .allMatch(invitationRole -> crmContact.getRoles().stream()
-                                .anyMatch(crmRole -> crmRole.getRoleId().equals(invitationRole.getRole().getCrmRoleId()))));
-        if (duplicateInvitation) {
-            LOG.info(String.format("Not sending invitation to %s as there is already an outstanding invitation with roles %s",
-                    crmContact.getEmail(),
-                    crmContact.getRoles().stream().map(crmRole -> crmRole.getName()).collect(Collectors.joining(", "))));
-            return false;
+                .findByCrmContactIdAndCrmOrganisationIdAndStatus(crmContact.getContactId(),
+                        organisation.getCrmOrganisationId(), Status.OPEN);
+        if (!invitations.isEmpty()) {
+            //However, there is an edge-case where the new invitation contains new roles or has roles deleted compared to the last existing open invitation
+            Invitation lastInvitation = invitations.stream()
+                    .max(Comparator.comparing(Invitation::getCreatedAt))
+                    .orElseThrow(() -> new NoSuchElementException("The last will be the first"));
+            Set<String> invitationCrmRoleIds = lastInvitation.getRoles().stream()
+                    .map(InvitationRole::getRole)
+                    .map(Role::getCrmRoleId)
+                    .collect(Collectors.toSet());
+            Set<String> crmRoleIds = crmContact.getRoles().stream()
+                    .map(CRMRole::getRoleId)
+                    .collect(Collectors.toSet());
+            String crmRoleNames = crmContact.getRoles().stream().map(crmRole -> crmRole.getName()).collect(Collectors.joining(", "));
+            if (invitationCrmRoleIds.equals(crmRoleIds)) {
+                LOG.info(String.format("Not sending invitation to %s as there is already an outstanding invitation with roles %s",
+                        crmContact.getEmail(),
+                        crmRoleNames));
+                return false;
+            } else {
+                //We delete all outstanding invitations and proceed
+                LOG.info(String.format("Deleting all outstanding invitations to %s as there is a new invitation with different roles %s",
+                        crmContact.getEmail(),
+                        crmRoleNames));
+                invitationRepository.deleteAll(invitations);
+            }
         }
-
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, optionalUser.orElse(new User()));
         //Only save the user when the user already existed
         optionalUser.ifPresent(user -> userRepository.save(user));

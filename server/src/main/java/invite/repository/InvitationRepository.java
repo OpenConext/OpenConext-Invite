@@ -28,6 +28,8 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     List<Invitation> findByCrmContactIdAndCrmOrganisationId(String crmContactId, String crmOrganisationId);
 
+    List<Invitation> findByCrmContactIdAndCrmOrganisationIdAndStatus(String crmContactId, String crmOrganisationId, Status status);
+
     List<Invitation> findByCrmOrganisationId(String crmOrganisationId);
 
     Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);

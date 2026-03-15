@@ -214,6 +214,71 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void contactInviteNewUserWithRoleAdjustment() throws Exception {
+        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, null, null, false);
+        //These two applications are linked to the 'BVW' CRM role
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation);
+        assertTrue(optionalUser.isEmpty());
+
+        MimeMessageParser mimeMessageParser = mailMessage();
+        List<Address> toAddresses = mimeMessageParser.getTo();
+        assertEquals(1, toAddresses.size());
+        assertEquals("jdoe@example.com", toAddresses.getFirst().toString());
+        assertTrue(mimeMessageParser.getHtmlContent()
+                .contains("Invitation for Beveiligingsverantwoordelijke for Inc. Corporated at SURFconext Invite"));
+
+        List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitations.size());
+        Invitation invitation = invitations.getFirst();
+        assertEquals("SURF CRM", invitation.getRemoteApiUser());
+
+        //Now we send the POST again, but with a different Role
+        CRMRole newCrmRole = new CRMRole("differentRoleId", "CONBEH", "SURFconextbeheerder");
+        CRMContact newCrmContact = createCrmContact(crmContactID, crmOrganisationID, newCrmRole, null, null, false);
+        //This application is linked to the 'CONBEH' CRM role
+        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
+
+        String newResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(newCrmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", newResponse);
+        List<Invitation> invitationsAfterSyncs = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitationsAfterSyncs.size());
+        assertNotEquals(invitations.getFirst().getId(), invitationsAfterSyncs.getFirst().getId());
+        //The previous invitation should be deleted
+        assertTrue(invitationRepository.findById(invitations.getFirst().getId()).isEmpty());
+    }
+
+    @Test
     void contactInviteNewUserSuppressEmail() throws Exception {
         CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
         String crmContactID = UUID.randomUUID().toString();
