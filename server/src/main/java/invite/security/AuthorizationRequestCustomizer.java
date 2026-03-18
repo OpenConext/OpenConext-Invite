@@ -29,13 +29,16 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
     private final InvitationRepository invitationRepository;
     private final String eduidEntityId;
     private final Manage manage;
+    private final boolean allowForEduIDOnlyEnforcementForNonGuests;
 
     public AuthorizationRequestCustomizer(InvitationRepository invitationRepository,
                                           String eduidEntityId,
-                                          Manage manage) {
+                                          Manage manage,
+                                          boolean allowForEduIDOnlyEnforcementForNonGuests) {
         this.invitationRepository = invitationRepository;
         this.eduidEntityId = eduidEntityId;
         this.manage = manage;
+        this.allowForEduIDOnlyEnforcementForNonGuests = allowForEduIDOnlyEnforcementForNonGuests;
     }
 
     @Override
@@ -64,7 +67,7 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                         params.put("acr_values", url);
                     }
                     boolean guestInvitation = invitation.getIntendedAuthority().equals(Authority.GUEST);
-                    if (invitation.isEduIDOnly()) {
+                    if (invitation.isEduIDOnly() && (guestInvitation || allowForEduIDOnlyEnforcementForNonGuests)) {
                         LOG.debug("Adding login_hint to authorization request query parameters: " + eduidEntityId);
 
                         params.put("login_hint", eduidEntityId);

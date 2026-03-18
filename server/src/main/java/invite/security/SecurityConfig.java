@@ -67,6 +67,7 @@ public class SecurityConfig {
     private final String crmApiKeyHeader;
 
     private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
+    private final boolean allowForEduIDOnlyEnforcementForNonGuests;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
@@ -79,7 +80,8 @@ public class SecurityConfig {
                           @Value("${oidcng.resource-server-id}") String clientId,
                           @Value("${oidcng.resource-server-secret}") String secret,
                           Manage manage,
-                          @Value("${crm.api-key-header}") String crmApiKeyHeader) {
+                          @Value("${crm.api-key-header}") String crmApiKeyHeader,
+                          @Value("${feature.allow-for-eduid-only-enforcement-for-non-guests}") boolean allowForEduIDOnlyEnforcementForNonGuests) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
         this.provisioningService = provisioningService;
@@ -91,6 +93,7 @@ public class SecurityConfig {
         this.environment = environment;
         this.manage = manage;
         this.crmApiKeyHeader = crmApiKeyHeader;
+        this.allowForEduIDOnlyEnforcementForNonGuests = allowForEduIDOnlyEnforcementForNonGuests;
     }
 
     @Configuration
@@ -103,11 +106,15 @@ public class SecurityConfig {
         private final Manage manage;
 
         @Autowired
-        public MvcConfig(UserRepository userRepository, APITokenRepository apiTokenRepository, SuperAdmin superAdmin, Manage manage) {
+        public MvcConfig(UserRepository userRepository,
+                         APITokenRepository apiTokenRepository,
+                         SuperAdmin superAdmin,
+                         Manage manage) {
             this.userRepository = userRepository;
             this.apiTokenRepository = apiTokenRepository;
             this.superAdmin = superAdmin;
             this.manage = manage;
+
         }
 
         @Override
@@ -189,8 +196,8 @@ public class SecurityConfig {
         DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, "/oauth2/authorization");
-        authorizationRequestResolver.setAuthorizationRequestCustomizer(
-                new AuthorizationRequestCustomizer(invitationRepository, eduidEntityId, manage));
+        AuthorizationRequestCustomizer requestCustomizer = new AuthorizationRequestCustomizer(invitationRepository, eduidEntityId, manage, allowForEduIDOnlyEnforcementForNonGuests);
+        authorizationRequestResolver.setAuthorizationRequestCustomizer(requestCustomizer);
         return authorizationRequestResolver;
     }
 

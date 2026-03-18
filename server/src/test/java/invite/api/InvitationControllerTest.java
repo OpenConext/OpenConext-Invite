@@ -761,7 +761,9 @@ class InvitationControllerTest extends AbstractTest {
     void eduIDRequiredLoginNotOnlyForGuests() throws Exception {
         Invitation invitation = invitationRepository.findByHash(Authority.INVITER.name()).get();
         invitation.setEduIDOnly(true);
+        invitation.setIntendedAuthority(Authority.GUEST);
         invitationRepository.save(invitation);
+
         openIDConnectFlow(
                 "/api/v1/users/login?force=true&hash=" + Authority.INVITER.name(),
                 "urn:collab:person:example.com:admin",

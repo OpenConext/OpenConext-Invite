@@ -29,7 +29,7 @@ class AuthorizationRequestCustomizerTest {
     private final Manage manage = Mockito.mock(Manage.class);
 
     private final AuthorizationRequestCustomizer customizer =
-            new AuthorizationRequestCustomizer(invitationRepository, "eduid-entity-id", manage);
+            new AuthorizationRequestCustomizer(invitationRepository, "eduid-entity-id", manage, true);
 
     @Test
     void testForceParameterAddsPromptLogin() {
@@ -174,6 +174,34 @@ class AuthorizationRequestCustomizerTest {
         OAuth2AuthorizationRequest requestResult = builder.build();
 
         assertFalse(requestResult.getAdditionalParameters().containsKey("login_hint"));
+    }
+
+    @Test
+    void testManagerEduIdOnlySkipsLoginHintWhenFeatureDisabled() {
+        AuthorizationRequestCustomizer customizerNoGuestEdiUDDisabled =
+                new AuthorizationRequestCustomizer(invitationRepository, "eduid-entity-id", manage, false);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        String hash = "abc123";
+        request.setParameter("hash", hash);
+        DefaultSavedRequest savedRequest = new DefaultSavedRequest(request);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("SPRING_SECURITY_SAVED_REQUEST", savedRequest);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        Invitation invitation = new Invitation();
+        invitation.setIntendedAuthority(Authority.MANAGER);
+        invitation.setEduIDOnly(true);
+        when(invitationRepository.findByHash(hash)).thenReturn(Optional.of(invitation));
+
+        OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode()
+                .authorizationUri("https://auth")
+                .clientId("client");
+
+        customizerNoGuestEdiUDDisabled.accept(builder);
+        OAuth2AuthorizationRequest requestResult = builder.build();
+        Object loginHint = requestResult.getAdditionalParameters().get("login_hint");
+        assertNull(loginHint);
     }
 
 }
