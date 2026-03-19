@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.0
+
+- Feature: Add CRM interface to directly create application-roles and invite users, triggers from an external CRM system
+- Fix: Role list display in invite creation grows with content
+- Improvement: Role overview improvements
+- Improvement: Show acvanced options to inviters
+- Improvement: API token documentation in SwaggerUI
+- Improvement: Feature toggle for `eduID-only` invite for role managers and inviters
+
 ## 1.0.5
 
 - Fix: Repair SCIM delete messages for users
