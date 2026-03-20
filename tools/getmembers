@@ -1,0 +1,60 @@
+#!/bin/bash
+
+for tool in curl jq grep cut; do
+    if ! command -v "$tool" &> /dev/null; then
+        echo "Fout: '$tool' is niet geïnstalleerd. Installeer deze tool om door te gaan." >&2
+        exit 1
+    fi
+done
+
+if [ "$#" -ne 2 ]; then
+    echo "Gebruik: $0 <omgeving> <role_id>" >&2
+    echo "Voorbeeld: $0 test 12345" >&2
+    exit 1
+fi
+
+OMGEVING=$1
+ROLE_ID=$2
+CONFIG_FILE=".invite-${OMGEVING}-config"
+
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Fout: Configuratiebestand '$CONFIG_FILE' voor de omgeving '$OMGEVING' niet gevonden." >&2
+    echo "" >&2
+    echo "Zorg dat je een configuratiebestand aanmaakt voor deze omgeving:" >&2
+    echo "Bestandsnaam: $CONFIG_FILE" >&2
+    echo "Inhoud:" >&2
+    echo "--------------------------------------" >&2
+    echo "BASE_URL=https://invite.${OMGEVING}.surfconext.nl" >&2
+    echo "API_TOKEN=jouw_${OMGEVING}_token_hier" >&2
+    echo "--------------------------------------" >&2
+    exit 1
+fi
+
+BASE_URL=$(grep '^BASE_URL=' "$CONFIG_FILE" | cut -d'=' -f2- | tr -d '\n\r ')
+API_TOKEN=$(grep '^API_TOKEN=' "$CONFIG_FILE" | cut -d'=' -f2- | tr -d '\n\r ')
+
+if [ -z "$BASE_URL" ] || [ -z "$API_TOKEN" ]; then
+    echo "Fout: BASE_URL of API_TOKEN ontbreekt in $CONFIG_FILE." >&2
+    exit 1
+fi
+
+FULL_URL="${BASE_URL}/api/external/v1/user_roles/roles/${ROLE_ID}"
+
+RESPONSE=$(curl -s -w "%{http_code}" -X GET "$FULL_URL" \
+     -H "X-API-TOKEN: $API_TOKEN" \
+     -H "Accept: application/json")
+
+HTTP_STATUS="${RESPONSE: -3}"
+BODY="${RESPONSE::-3}"
+
+if [ "$HTTP_STATUS" != "200" ]; then
+    echo "Fout: Kan gegevens voor rol $ROLE_ID niet ophalen uit omgeving '$OMGEVING'." >&2
+    echo "Status code: $HTTP_STATUS" >&2
+    echo "Respons: $BODY" >&2
+    exit 1
+fi
+
+echo "$BODY" | jq -r '
+  ["Name", "Email"], 
+  (.[] | [.userInfo.name, .userInfo.email]) 
+  | @csv'
