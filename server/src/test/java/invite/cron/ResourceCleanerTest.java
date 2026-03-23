@@ -3,6 +3,7 @@ package invite.cron;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import invite.AbstractTest;
 import invite.model.User;
+import invite.model.UserRoleAudit;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.time.Instant;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static invite.cron.ResourceCleaner.LOCK_NAME;
@@ -19,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ResourceCleanerTest extends AbstractTest {
 
     @Autowired
-    private ResourceCleaner subject;
+    private ResourceCleaner resourceCleaner;
 
     @Autowired
     private DataSource dataSource;
@@ -35,7 +37,7 @@ class ResourceCleanerTest extends AbstractTest {
         stubForCreateScimUser();
         stubForUpdateScimRole();
 
-        subject.clean();
+        resourceCleaner.clean();
         assertEquals(beforeUsers, userRepository.count() + 1);
     }
 
@@ -50,7 +52,7 @@ class ResourceCleanerTest extends AbstractTest {
         stubForCreateScimUser();
         stubForUpdateScimRole();
 
-        subject.clean();
+        resourceCleaner.clean();
         assertEquals(beforeUsers, userRepository.count() + 1);
     }
 
@@ -65,20 +67,37 @@ class ResourceCleanerTest extends AbstractTest {
         stubForCreateScimUser();
         stubForUpdateScimRole();
 
-        subject.clean();
+        resourceCleaner.clean();
         assertEquals(beforeUserRoles, userRoleRepository.count() + 3);
+    }
+
+    @Test
+    void cleanUserRoleAudits() {
+        Instant past = Instant.now().minus(400, ChronoUnit.DAYS);
+        seedUserRoleAudits(past);
+        assertEquals(4, userRoleAuditRepository.count());
+
+        List<UserRoleAudit> userRoleAudits = this.userRoleAuditRepository.findAll();
+        userRoleAudits.forEach(userRoleAudit -> {
+            userRoleAudit.setCreatedAt(past);
+            userRoleAuditRepository.save(userRoleAudit);
+        });
+
+        resourceCleaner.clean();
+
+        assertEquals(0, userRoleAuditRepository.count());
     }
 
     @SneakyThrows
     @Test
     void lockAlreadyAcquired() {
         Connection conn = dataSource.getConnection();
-        subject.tryGetLock(conn, LOCK_NAME);
+        resourceCleaner.tryGetLock(conn, LOCK_NAME);
 
         long beforeUsers = userRepository.count();
         markUserAsVeryInactive(GUEST_SUB);
 
-        subject.clean();
+        resourceCleaner.clean();
         //Nothing happened
         assertEquals(beforeUsers, userRepository.count());
     }

@@ -64,10 +64,10 @@ public class SystemController {
     }
 
     @GetMapping("/cron/cleanup")
-    public ResponseEntity<Map<String, List<? extends Serializable>>> cronCleanup(@Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, Object>> cronCleanup(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/cron/cleanup for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
-        Map<String, List<? extends Serializable>> body = resourceCleaner.doClean();
+        Map<String, Object> body = resourceCleaner.doClean();
         return ResponseEntity.ok(body);
     }
 

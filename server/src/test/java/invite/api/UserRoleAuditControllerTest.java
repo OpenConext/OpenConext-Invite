@@ -3,6 +3,7 @@ package invite.api;
 import invite.AbstractTest;
 import invite.AccessCookieFilter;
 import invite.DefaultPage;
+import invite.cron.ResourceCleaner;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRoleAudit;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -22,13 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserRoleAuditControllerTest extends AbstractTest {
 
-    @Autowired
-    protected UserRoleAuditRepository userRoleAuditRepository;
-
     @BeforeEach
     protected void beforeEach() throws Exception {
         super.beforeEach();
-        this.seedUserRoleAudits();
+        this.seedUserRoleAudits(Instant.now());
     }
 
     @Test
@@ -180,24 +180,5 @@ class UserRoleAuditControllerTest extends AbstractTest {
                 });
         assertEquals(6, res.size());
     }
-
-    private void seedUserRoleAudits() {
-        this.userRoleAuditRepository.deleteAllInBatch();
-        Role network = this.roleRepository.findByName("Network").get();
-        Role research = this.roleRepository.findByName("Research").get();
-        Role mail = this.roleRepository.findByName("Mail").get();
-
-        //paul.doe@example.com
-        User inviter = this.userRepository.findBySubIgnoreCase(INVITER_SUB).get();
-        //ann.doe@example.com
-        User guest = this.userRepository.findBySubIgnoreCase(GUEST_SUB).get();
-
-        UserRoleAudit auditNetworkInviter = new UserRoleAudit(network, inviter);
-        UserRoleAudit auditResearchInviter = new UserRoleAudit(research, inviter);
-        UserRoleAudit auditResearchGuest = new UserRoleAudit(research, guest);
-        UserRoleAudit auditMailGuest = new UserRoleAudit(mail, guest);
-        doSave(userRoleAuditRepository, auditNetworkInviter, auditResearchInviter, auditResearchGuest, auditMailGuest);
-    }
-
 
 }

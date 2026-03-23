@@ -1,15 +1,5 @@
 package invite;
 
-import invite.config.HashGenerator;
-import invite.crm.CRMContact;
-import invite.crm.CRMOrganisation;
-import invite.crm.CRMRole;
-import invite.eduid.EduIDProvision;
-import invite.manage.EntityType;
-import invite.manage.LocalManage;
-import invite.model.*;
-import invite.provision.scim.GroupURN;
-import invite.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +13,39 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import invite.config.HashGenerator;
+import invite.crm.CRMContact;
+import invite.crm.CRMOrganisation;
+import invite.crm.CRMRole;
+import invite.eduid.EduIDProvision;
+import invite.manage.EntityType;
+import invite.manage.LocalManage;
+import invite.model.APIToken;
+import invite.model.Application;
+import invite.model.ApplicationUsage;
+import invite.model.Authority;
+import invite.model.Invitation;
+import invite.model.InvitationRole;
+import invite.model.Language;
+import invite.model.Organisation;
+import invite.model.RemoteProvisionedUser;
+import invite.model.RequestedAuthnContext;
+import invite.model.Role;
+import invite.model.User;
+import invite.model.UserRole;
+import invite.model.UserRoleAudit;
+import invite.provision.scim.GroupURN;
+import invite.repository.APITokenRepository;
+import invite.repository.ApplicationRepository;
+import invite.repository.ApplicationUsageRepository;
+import invite.repository.InvitationRepository;
+import invite.repository.OrganisationRepository;
+import invite.repository.RemoteProvisionedGroupRepository;
+import invite.repository.RemoteProvisionedUserRepository;
+import invite.repository.RoleRepository;
+import invite.repository.UserRepository;
+import invite.repository.UserRoleAuditRepository;
+import invite.repository.UserRoleRepository;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.config.ObjectMapperConfig;
@@ -54,14 +77,27 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -141,6 +177,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected InvitationRepository invitationRepository;
+
+    @Autowired
+    protected UserRoleAuditRepository userRoleAuditRepository;
 
     @Autowired
     protected RemoteProvisionedGroupRepository remoteProvisionedGroupRepository;
@@ -639,7 +678,7 @@ public abstract class AbstractTest {
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
 
         Organisation organisation = new Organisation(
-                CRM_ORGANIZATION_ID,"SURF","SURF"
+                CRM_ORGANIZATION_ID, "SURF", "SURF"
         );
         doSave(organisationRepository, organisation);
 
@@ -773,6 +812,26 @@ public abstract class AbstractTest {
                 "Test-user token", inviter);
         doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
     }
+
+    protected void seedUserRoleAudits(Instant createdAt) {
+        this.userRoleAuditRepository.deleteAllInBatch();
+        Role network = this.roleRepository.findByName("Network").get();
+        Role research = this.roleRepository.findByName("Research").get();
+        Role mail = this.roleRepository.findByName("Mail").get();
+
+        //paul.doe@example.com
+        User inviter = this.userRepository.findBySubIgnoreCase(INVITER_SUB).get();
+        //ann.doe@example.com
+        User guest = this.userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        Instant now = Instant.now();
+        UserRoleAudit auditNetworkInviter = new UserRoleAudit(network, inviter, now);
+        UserRoleAudit auditResearchInviter = new UserRoleAudit(research, inviter, now);
+        UserRoleAudit auditResearchGuest = new UserRoleAudit(research, guest, now);
+        UserRoleAudit auditMailGuest = new UserRoleAudit(mail, guest, now);
+
+        doSave(userRoleAuditRepository, auditNetworkInviter, auditResearchInviter, auditResearchGuest, auditMailGuest);
+    }
+
 
     @SafeVarargs
     protected final <M> void doSave(JpaRepository<M, Long> repository, M... entities) {

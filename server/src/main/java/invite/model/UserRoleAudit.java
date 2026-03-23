@@ -62,14 +62,14 @@ public class UserRoleAudit {
         this.createdBy = createdBy;
     }
 
-    public UserRoleAudit(Role role, User user) {
+    public UserRoleAudit(Role role, User user, Instant createdAt) {
         this.roleId = role.getId();
         this.roleName = role.getName();
         this.userId = user.getId();
         this.userEmail = user.getEmail();
         this.action = ActionType.ADD;
         this.authority = Authority.GUEST;
-        this.createdAt = Instant.now();
+        this.createdAt = createdAt;
         this.createdBy = "test";
     }
 

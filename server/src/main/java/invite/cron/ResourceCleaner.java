@@ -9,6 +9,7 @@ import invite.model.UserRoleAudit;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
 import invite.repository.UserRepository;
+import invite.repository.UserRoleAuditRepository;
 import invite.repository.UserRoleRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,10 +33,12 @@ public class ResourceCleaner extends AbstractNodeLeader {
     private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
 
     private final UserRepository userRepository;
+    private final UserRoleAuditRepository userRoleAuditRepository;
     private final ProvisioningService provisioningService;
     private final UserRoleRepository userRoleRepository;
     private final UserRoleAuditService userRoleAuditService;
     private final int lastActivityDurationDays;
+    private final int purgeAuditLogDays;
 
 
     @Autowired
@@ -43,15 +46,18 @@ public class ResourceCleaner extends AbstractNodeLeader {
                            UserRoleRepository userRoleRepository,
                            ProvisioningService provisioningService,
                            DataSource dataSource,
+                           UserRoleAuditRepository userRoleAuditRepository,
                            UserRoleAuditService userRoleAuditService,
-                           @Value("${cron.last-activity-duration-days}") int lastActivityDurationDays) {
+                           @Value("${cron.last-activity-duration-days}") int lastActivityDurationDays,
+                           @Value("${cron.purge-audit-log-days}") int purgeAuditLogDays) {
         super(LOCK_NAME, dataSource);
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
+        this.userRoleAuditRepository = userRoleAuditRepository;
         this.userRoleAuditService = userRoleAuditService;
         this.lastActivityDurationDays = lastActivityDurationDays;
         this.provisioningService = provisioningService;
-    }
+        this.purgeAuditLogDays = purgeAuditLogDays;    }
 
     @Scheduled(cron = "${cron.user-cleaner-expression}")
     @Transactional
@@ -59,14 +65,15 @@ public class ResourceCleaner extends AbstractNodeLeader {
         super.perform("ResourceCleaner#clean", this::doClean);
     }
 
-    public Map<String, List<? extends Serializable>> doClean() {
+    public Map<String, Object> doClean() {
         List<User> users = cleanNonActiveUsers();
         List<User> orphans = cleanOrphanedUser();
         List<UserRole> userRoles = cleanUserRoles();
         return Map.of(
                 "DeletedNonActiveUsers", users,
                 "DeletedOrphanUsers", orphans,
-                "DeletedExpiredUserRoles", userRoles
+                "DeletedExpiredUserRoles", userRoles,
+                "DeletedUserRoleAudits", cleanUserRoleAudit()
         );
     }
 
@@ -115,6 +122,11 @@ public class ResourceCleaner extends AbstractNodeLeader {
             }
         });
         return userRoles;
+    }
+
+    private int cleanUserRoleAudit() {
+        Instant past = Instant.now().minus(Period.ofDays(purgeAuditLogDays));
+        return userRoleAuditRepository.deleteByCreatedAtBefore(past);
     }
 
 }

@@ -14,7 +14,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,7 +39,9 @@ class ResourceCleanerUnitTest {
             userRoleRepository,
             provisioningService,
             dataSource,
+            userRoleAuditRepository,
             userRoleAuditService,
+            5,
             5);
 
 
@@ -54,6 +55,7 @@ class ResourceCleanerUnitTest {
                 .thenReturn(users);
         when(userRoleRepository.findByEndDateBeforeAndExpiryNotifications(any(Instant.class), eq(1)))
                 .thenReturn(List.of(new UserRole("Inviter", new User(), new Role(), Authority.INVITER)));
+        when(userRoleAuditRepository.deleteByCreatedAtBefore(any(Instant.class))).thenReturn(5);
         doNothing().when(provisioningService).deleteUserRequest(any(User.class));
         doNothing().when(provisioningService).updateGroupRequest(any(UserRole.class), any(OperationType.class));
 
@@ -77,10 +79,11 @@ class ResourceCleanerUnitTest {
                 .when(provisioningService)
                 .updateGroupRequest(any(UserRole.class), eq(OperationType.remove));
 
-        Map<String, List<? extends Serializable>> results = subject.doClean();
-        assertEquals(2, results.get("DeletedNonActiveUsers").size());
-        assertEquals(2, results.get("DeletedOrphanUsers").size());
-        assertEquals(1, results.get("DeletedExpiredUserRoles").size());
+        Map<String, Object> results = subject.doClean();
+        assertEquals(2, ((List) results.get("DeletedNonActiveUsers")).size());
+        assertEquals(2, ((List) results.get("DeletedOrphanUsers")).size());
+        assertEquals(1, ((List) results.get("DeletedExpiredUserRoles")).size());
+        assertEquals(5, (int) results.get("DeletedUserRoleAudits"));
     }
 
 }

@@ -78,7 +78,6 @@ crypto:
   private-key-location: classpath:/private_key_pkcs8.pem
 
 cron:
-  node-cron-job-responsible: true
   user-cleaner-expression: "0 0/30 * * * *"
   last-activity-duration-days: 1000
   role-expiration-notifier-expression: "0 0/30 * * * *"
@@ -87,6 +86,8 @@ cron:
   metadata-resolver-initial-delay-milliseconds: 1
   metadata-resolver-fixed-rate-milliseconds: 86_400_000
   metadata-resolver-url: "classpath:/metadata/idps-metadata.xml"
+  # A value of 0 means no logs will be deleted
+  purge-audit-log-days: 365
 
 myconext:
   uri: "https://login.test2.eduid.nl/myconext/api/invite/provision-eduid"
