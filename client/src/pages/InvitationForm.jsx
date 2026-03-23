@@ -451,7 +451,6 @@ export const InvitationForm = () => {
                                 <UpIcon/>
                             </a>
 
-
                             <SwitchField name={"enforceEmailEquality"}
                                          value={invitation.enforceEmailEquality || false}
                                          onChange={val => setInvitation({...invitation, enforceEmailEquality: val})}
@@ -469,7 +468,7 @@ export const InvitationForm = () => {
                                          last={invitation.eduIDOnly}
                             />
 
-                            {(overrideSettingsAllowed && invitation.eduIDOnly) &&
+                            {invitation.eduIDOnly &&
                                 <SelectField
                                     value={requestedAuthnContextOptions.find(option => option.value === invitation.requestedAuthnContext)}
                                     options={requestedAuthnContextOptions}
