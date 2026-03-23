@@ -32,7 +32,7 @@ public class UserPermissions {
             throw new UserRestrictionException();
         }
 
-        if (user.isSuperUser() || user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
+        if (user.isSuperUser() || (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID()))) {
             return;
         }
         throw new UserRestrictionException();

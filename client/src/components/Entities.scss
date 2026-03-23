@@ -55,10 +55,14 @@
 
         .search-filter {
             display: flex;
-            width: 290px;
+            width: 320px;
+            margin-right: 40px;
             @media (max-width: vars.$medium) {
                 flex-direction: column;
                 margin: 15px 0;
+            }
+            .select-field {
+                width: 100%;
             }
         }
 

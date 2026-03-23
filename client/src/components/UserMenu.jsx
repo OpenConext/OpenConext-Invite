@@ -43,6 +43,9 @@ export const UserMenu = ({user, actions}) => {
                     {apiTokenLink && <li>
                         <Link onClick={toggleUserMenu} to={`/tokens`}>{I18n.t(`header.links.tokens`)}</Link>
                     </li>}
+                    {(user.superUser || (user.institutionAdmin && user.organizationGUID)) && <li>
+                        <Link onClick={toggleUserMenu} to={`/audit`}>{I18n.t(`header.links.audit`)}</Link>
+                    </li>}
                     <li>
                         <Link onClick={toggleUserMenu} to={`/profile`}>{I18n.t(`header.links.profile`)}</Link>
                     </li>

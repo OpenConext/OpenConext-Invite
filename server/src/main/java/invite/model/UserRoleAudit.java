@@ -62,6 +62,17 @@ public class UserRoleAudit {
         this.createdBy = createdBy;
     }
 
+    public UserRoleAudit(Role role, User user) {
+        this.roleId = role.getId();
+        this.roleName = role.getName();
+        this.userId = user.getId();
+        this.userEmail = user.getEmail();
+        this.action = ActionType.ADD;
+        this.authority = Authority.GUEST;
+        this.createdAt = Instant.now();
+        this.createdBy = "test";
+    }
+
     public enum ActionType {
         ADD, DELETE, UPDATE
     }

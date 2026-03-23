@@ -39,7 +39,8 @@ const en = {
             help: "Help",
             profile: "Profile",
             tokens: "Tokens",
-            logout: "Log out"
+            logout: "Log out",
+            audit: "Role history"
         },
     },
     tabs: {
@@ -559,6 +560,24 @@ const en = {
         ValidateNamesExternal: "EduID validated name by an external (non institutional) source",
         EduIDRequireStudentAffiliation: "EduID required student affiliation",
         TransparentAuthnContext: "Application provides ACR value"
+    },
+    userRoleAudit: {
+        header: "Audittrail",
+        info: "All mutations to roles created by your organisation",
+        email: "User",
+        roleName: "Role",
+        action: "Action",
+        actions: {
+            ADD: "Added",
+            DELETE: "Deleted",
+            UPDATE: "Updated"
+        },
+        authority: "Authority",
+        endDate: "End date",
+        createdAt: "Created",
+        searchPlaceHolder: "Search for role history",
+        title: "The audittrail of Roles",
+        rolePlaceHolder: "Filter by role",
     }
 }
 

@@ -280,3 +280,12 @@ export function performanceSeed() {
 export function rolesUnknownInManage() {
     return fetchJson("/api/v1/system/unknown-roles")
 }
+//Audit
+export function searchUserRoleAudits(pagination = {}, roleId = null) {
+    const queryPart = paginationQueryParams(pagination, {roleId: roleId});
+    return fetchJson(`/api/v1/user_roles_audit/search?${queryPart}`);
+}
+
+export function fetchRoles() {
+    return fetchJson("/api/v1/user_roles_audit/roles");
+}

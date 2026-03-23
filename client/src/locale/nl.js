@@ -39,7 +39,8 @@ const nl = {
             help: "Help",
             profile: "Profiel",
             tokens: "Tokens",
-            logout: "Uitloggen"
+            logout: "Uitloggen",
+            audit: "Rol historie"
         },
     },
     tabs: {
@@ -560,6 +561,24 @@ const nl = {
         ValidateNamesExternal: "EduID gevalideerde naam bij een externe (niet institutioneel) bron",
         EduIDRequireStudentAffiliation: "EduID verplicht student affiliation",
         TransparentAuthnContext: "Application levert zelf ACR waarde"
+    },
+    userRoleAudit: {
+        header: "Audittrail",
+        info: "Alle wijzigingen aan rollen die door je organisatie zijn aangemaakt",
+        email: "Gebruiker",
+        roleName: "Rol",
+        action: "Actie",
+        actions: {
+            ADD: "Toegevoegd",
+            DELETE: "Verwijderd",
+            UPDATE: "Bijgewerkt"
+        },
+        authority: "Autoriteit",
+        endDate: "Einddatum",
+        createdAt: "Aangemaakt",
+        searchPlaceHolder: "Zoeken naar rolgeschiedenis",
+        title: "Het auditspoor van rollen",
+        rolePlaceHolder: "Filteren op rol",
     }
 
 }

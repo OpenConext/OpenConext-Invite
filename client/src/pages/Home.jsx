@@ -65,7 +65,7 @@ export const Home = () => {
         if (highestAuthority(user) === AUTHORITIES.INVITER) {
             navigate("/inviter");
         }
-
+        tabChanged(currentTab);
     }, [user, navigate]);
 
     const tabChanged = (name) => {
@@ -74,7 +74,7 @@ export const Home = () => {
         useAppStore.setState({
             breadcrumbPath: [
                 {path: "/home", value: I18n.t("tabs.home")},
-                {value: I18n.t(`tabs.${currentTab}`)}
+                {value: I18n.t(`tabs.${name}`)}
             ]
         });
     }

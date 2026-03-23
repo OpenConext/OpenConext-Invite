@@ -14,9 +14,9 @@ export default function SelectField({
                                     }) {
     return (
         <div className={`select-field ${className}`}>
-            <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
+            {name && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
                 {toolTip && <Tooltip tip={toolTip}/>}
-            </label>
+            </label>}
             {creatable &&
                 <CreatableSelect
                     className={`input-select-inner creatable`}
