@@ -125,6 +125,9 @@ public class ResourceCleaner extends AbstractNodeLeader {
     }
 
     private int cleanUserRoleAudit() {
+        if (purgeAuditLogDays == 0L) {
+            return 0;
+        }
         Instant past = Instant.now().minus(Period.ofDays(purgeAuditLogDays));
         return userRoleAuditRepository.deleteByCreatedAtBefore(past);
     }
