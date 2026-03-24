@@ -9,7 +9,7 @@ import {fetchRoles, searchUserRoleAudits} from "../api";
 import {isEmpty} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {defaultPagination, pageCount} from "../utils/Pagination";
-import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
+import {shortDateFromEpoch} from "../utils/Date";
 import SelectField from "../components/SelectField";
 import {UnitHeader} from "../components/UnitHeader";
 import Logo from "@surfnet/sds/icons/illustrative-icons/database-hand.svg";
@@ -75,7 +75,7 @@ export const UserRoleAudits = () => {
         return (
             <SelectField
                 value={selectedRole}
-                options={roles.map(role => ({value:role.id, label: role.name}))}
+                options={roles.map(role => ({value: role.id, label: role.name}))}
                 searchable={true}
                 clearable={true}
                 placeholder={I18n.t("userRoleAudit.rolePlaceHolder")}

@@ -36,6 +36,9 @@ import {DateField} from "../components/DateField";
 const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
 
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHARS = /[\u0000-\u001F\u007F]/g;
+
 const removeByOptions = ["after", "on"].map(val => ({value: val, label: I18n.t(`invitations.${val}`)}))
 
 export const RoleForm = () => {
@@ -177,8 +180,8 @@ export const RoleForm = () => {
             const promise = isNewRole ? createRole : updateRole;
             const newRoleData = {
                 ...role,
-                name: (role.name || "").replace(/[\u0000-\u001F\u007F]/g, " ").trim(),
-                description: (role.description || "").replace(/[\u0000-\u001F\u007F]/g, " ").trim(),
+                name: (role.name || "").replace(CONTROL_CHARS, " ").trim(),
+                description: (role.description || "").replace(CONTROL_CHARS, " ").trim(),
                 applicationUsages: applications
                     .filter(app => !isEmpty(app))
                     .map(app => ({application: app, landingPage: app.landingPage}))

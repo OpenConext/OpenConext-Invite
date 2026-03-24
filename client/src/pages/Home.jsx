@@ -66,7 +66,7 @@ export const Home = () => {
             navigate("/inviter");
         }
         tabChanged(currentTab);
-    }, [user, navigate]);
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     const tabChanged = (name) => {
         setCurrentTab(name);
