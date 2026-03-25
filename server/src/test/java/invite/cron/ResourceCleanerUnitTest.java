@@ -7,6 +7,7 @@ import invite.model.User;
 import invite.model.UserRole;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
+import invite.repository.InvitationRepository;
 import invite.repository.UserRepository;
 import invite.repository.UserRoleAuditRepository;
 import invite.repository.UserRoleRepository;
@@ -29,6 +30,7 @@ class ResourceCleanerUnitTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
     private final UserRoleRepository userRoleRepository = mock(UserRoleRepository.class);
+    private final InvitationRepository invitationRepository = mock(InvitationRepository.class);
     private final UserRoleAuditRepository userRoleAuditRepository = mock(UserRoleAuditRepository.class);
     private final ProvisioningService provisioningService = mock(ProvisioningService.class);
     private final UserRoleAuditService userRoleAuditService = new UserRoleAuditService(userRoleAuditRepository);
@@ -41,12 +43,15 @@ class ResourceCleanerUnitTest {
             dataSource,
             userRoleAuditRepository,
             userRoleAuditService,
+            invitationRepository,
+            5,
             5,
             5);
 
 
     @SneakyThrows
     @Test
+    @SuppressWarnings("raw")
     void cleanUsers() {
         List<User> users = List.of(new User(), new User());
         when(userRepository.findByLastActivityBefore(any(Instant.class)))
@@ -56,6 +61,7 @@ class ResourceCleanerUnitTest {
         when(userRoleRepository.findByEndDateBeforeAndExpiryNotifications(any(Instant.class), eq(1)))
                 .thenReturn(List.of(new UserRole("Inviter", new User(), new Role(), Authority.INVITER)));
         when(userRoleAuditRepository.deleteByCreatedAtBefore(any(Instant.class))).thenReturn(5);
+        when(invitationRepository.deleteByExpiryDateBefore(any(Instant.class))).thenReturn(3);
         doNothing().when(provisioningService).deleteUserRequest(any(User.class));
         doNothing().when(provisioningService).updateGroupRequest(any(UserRole.class), any(OperationType.class));
 
@@ -80,10 +86,11 @@ class ResourceCleanerUnitTest {
                 .updateGroupRequest(any(UserRole.class), eq(OperationType.remove));
 
         Map<String, Object> results = subject.doClean();
-        assertEquals(2, ((List) results.get("DeletedNonActiveUsers")).size());
-        assertEquals(2, ((List) results.get("DeletedOrphanUsers")).size());
-        assertEquals(1, ((List) results.get("DeletedExpiredUserRoles")).size());
+        assertEquals(2, ((List<?>) results.get("DeletedNonActiveUsers")).size());
+        assertEquals(2, ((List<?>) results.get("DeletedOrphanUsers")).size());
+        assertEquals(1, ((List<?>) results.get("DeletedExpiredUserRoles")).size());
         assertEquals(5, (int) results.get("DeletedUserRoleAudits"));
+        assertEquals(3, (int) results.get("DeletedExpiredInvitations"));
     }
 
 }

@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryRewriter;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -133,7 +134,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
             INNER JOIN roles r ON r.id = ir.role_id
             WHERE i.status = ?1 AND r.id = ?2 AND
             (UPPER(i.email) LIKE ?3 or UPPER(u.schac_home_organization) LIKE ?3
-                     or UPPER(u.email) LIKE ?3)                              
+                     or UPPER(u.email) LIKE ?3)
             """,
             countQuery = """
                     SELECT count(*) FROM invitations i
@@ -142,7 +143,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
                     LEFT JOIN users u ON u.id = i.inviter_id
                     WHERE status = ?1 and role_id = ?2 AND
                     (UPPER(i.email) LIKE ?3 or UPPER(u.schac_home_organization) LIKE ?3
-                     or UPPER(u.email) LIKE ?3)                              
+                     or UPPER(u.email) LIKE ?3)
                     """,
             queryRewriter = InvitationRepository.class,
             nativeQuery = true)
@@ -156,6 +157,8 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
                 WHERE ir.invitation_id IN ?1
             """, nativeQuery = true)
     List<Map<String, Object>> findRoles(List<Long> invitationIdentifiers);
+
+    int deleteByExpiryDateBefore(Instant cutoff);
 
     @Override
     default String rewrite(String query, Sort sort) {

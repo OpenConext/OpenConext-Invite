@@ -3,11 +3,12 @@ package invite.cron;
 
 import invite.audit.UserRoleAuditService;
 import invite.model.Role;
+import invite.model.Status;
 import invite.model.User;
 import invite.model.UserRole;
 import invite.model.UserRoleAudit;
 import invite.provision.ProvisioningService;
-import invite.provision.scim.OperationType;
+import invite.repository.InvitationRepository;
 import invite.repository.UserRepository;
 import invite.repository.UserRoleAuditRepository;
 import invite.repository.UserRoleRepository;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.Period;
 import java.util.List;
@@ -39,6 +39,8 @@ public class ResourceCleaner extends AbstractNodeLeader {
     private final UserRoleAuditService userRoleAuditService;
     private final int lastActivityDurationDays;
     private final int purgeAuditLogDays;
+    private final int purgeExpiredInvitationDays;
+    private final InvitationRepository invitationRepository;
 
 
     @Autowired
@@ -48,8 +50,10 @@ public class ResourceCleaner extends AbstractNodeLeader {
                            DataSource dataSource,
                            UserRoleAuditRepository userRoleAuditRepository,
                            UserRoleAuditService userRoleAuditService,
+                           InvitationRepository invitationRepository,
                            @Value("${cron.last-activity-duration-days}") int lastActivityDurationDays,
-                           @Value("${cron.purge-audit-log-days}") int purgeAuditLogDays) {
+                           @Value("${cron.purge-audit-log-days}") int purgeAuditLogDays,
+                           @Value("${cron.purge-expired-invitations-days}") int purgeExpiredInvitationDays) {
         super(LOCK_NAME, dataSource);
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
@@ -57,7 +61,10 @@ public class ResourceCleaner extends AbstractNodeLeader {
         this.userRoleAuditService = userRoleAuditService;
         this.lastActivityDurationDays = lastActivityDurationDays;
         this.provisioningService = provisioningService;
-        this.purgeAuditLogDays = purgeAuditLogDays;    }
+        this.purgeAuditLogDays = purgeAuditLogDays;
+        this.purgeExpiredInvitationDays = purgeExpiredInvitationDays;
+        this.invitationRepository = invitationRepository;
+    }
 
     @Scheduled(cron = "${cron.user-cleaner-expression}")
     @Transactional
@@ -73,7 +80,8 @@ public class ResourceCleaner extends AbstractNodeLeader {
                 "DeletedNonActiveUsers", users,
                 "DeletedOrphanUsers", orphans,
                 "DeletedExpiredUserRoles", userRoles,
-                "DeletedUserRoleAudits", cleanUserRoleAudit()
+                "DeletedUserRoleAudits", cleanUserRoleAudit(),
+                "DeletedExpiredInvitations", cleanExpiredInvitation()
         );
     }
 
@@ -132,4 +140,11 @@ public class ResourceCleaner extends AbstractNodeLeader {
         return userRoleAuditRepository.deleteByCreatedAtBefore(past);
     }
 
+    private int cleanExpiredInvitation() {
+        if (purgeExpiredInvitationDays == 0L) {
+            return 0;
+        }
+        Instant past = Instant.now().minus(Period.ofDays(purgeExpiredInvitationDays));
+        return invitationRepository.deleteByExpiryDateBefore(past);
+    }
 }

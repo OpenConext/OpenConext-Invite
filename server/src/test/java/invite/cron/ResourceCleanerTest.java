@@ -2,6 +2,7 @@ package invite.cron;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import invite.AbstractTest;
+import invite.model.Invitation;
 import invite.model.User;
 import invite.model.UserRoleAudit;
 import lombok.SneakyThrows;
@@ -86,6 +87,19 @@ class ResourceCleanerTest extends AbstractTest {
         resourceCleaner.clean();
 
         assertEquals(0, userRoleAuditRepository.count());
+    }
+
+    @Test
+    void cleanExpiredInvitations() {
+        long count = invitationRepository.count();
+        Instant past = Instant.now().minus(400, ChronoUnit.DAYS);
+        Invitation invitation = invitationRepository.findByHash(GRAPH_INVITATION_HASH).get();
+            invitation.setExpiryDate(past);
+            invitationRepository.save(invitation);
+
+        resourceCleaner.clean();
+
+        assertEquals(count - 1, invitationRepository.count());
     }
 
     @SneakyThrows
