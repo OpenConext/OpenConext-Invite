@@ -3,7 +3,6 @@ package invite.cron;
 
 import invite.audit.UserRoleAuditService;
 import invite.model.Role;
-import invite.model.Status;
 import invite.model.User;
 import invite.model.UserRole;
 import invite.model.UserRoleAudit;
@@ -12,6 +11,7 @@ import invite.repository.InvitationRepository;
 import invite.repository.UserRepository;
 import invite.repository.UserRoleAuditRepository;
 import invite.repository.UserRoleRepository;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +20,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
 import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 import java.util.Map;
 
 @Component
-public class ResourceCleaner extends AbstractNodeLeader {
+public class ResourceCleaner {
 
     public static final String LOCK_NAME = "resource_cleaner_user_level_lock";
     private static final Log LOG = LogFactory.getLog(ResourceCleaner.class);
@@ -47,14 +46,12 @@ public class ResourceCleaner extends AbstractNodeLeader {
     public ResourceCleaner(UserRepository userRepository,
                            UserRoleRepository userRoleRepository,
                            ProvisioningService provisioningService,
-                           DataSource dataSource,
                            UserRoleAuditRepository userRoleAuditRepository,
                            UserRoleAuditService userRoleAuditService,
                            InvitationRepository invitationRepository,
                            @Value("${cron.last-activity-duration-days}") int lastActivityDurationDays,
                            @Value("${cron.purge-audit-log-days}") int purgeAuditLogDays,
                            @Value("${cron.purge-expired-invitations-days}") int purgeExpiredInvitationDays) {
-        super(LOCK_NAME, dataSource);
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.userRoleAuditRepository = userRoleAuditRepository;
@@ -68,8 +65,9 @@ public class ResourceCleaner extends AbstractNodeLeader {
 
     @Scheduled(cron = "${cron.user-cleaner-expression}")
     @Transactional
+    @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "PT5M", lockAtMostFor = "PT28M")
     public void clean() {
-        super.perform("ResourceCleaner#clean", this::doClean);
+        this.doClean();
     }
 
     public Map<String, Object> doClean() {

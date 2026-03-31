@@ -124,7 +124,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "manage.enabled: true",
                 "spring.task.scheduling.enabled=false",
                 "spring.jpa.properties.hibernate.format_sql=false",
-                "spring.jpa.show-sql=false"
+                "spring.jpa.show-sql=false",
+                "spring.main.allow-bean-definition-overriding=true"
         })
 @SuppressWarnings("unchecked")
 public abstract class AbstractTest {

@@ -5,27 +5,22 @@ import invite.AbstractTest;
 import invite.model.Invitation;
 import invite.model.User;
 import invite.model.UserRoleAudit;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Import;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static invite.cron.ResourceCleaner.LOCK_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ResourceCleanerTest extends AbstractTest {
 
     @Autowired
     private ResourceCleaner resourceCleaner;
-
-    @Autowired
-    private DataSource dataSource;
 
     @Test
     void cleanUsersWithoutActivity() throws JsonProcessingException {
@@ -94,26 +89,12 @@ class ResourceCleanerTest extends AbstractTest {
         long count = invitationRepository.count();
         Instant past = Instant.now().minus(400, ChronoUnit.DAYS);
         Invitation invitation = invitationRepository.findByHash(GRAPH_INVITATION_HASH).get();
-            invitation.setExpiryDate(past);
-            invitationRepository.save(invitation);
+        invitation.setExpiryDate(past);
+        invitationRepository.save(invitation);
 
         resourceCleaner.clean();
 
         assertEquals(count - 1, invitationRepository.count());
-    }
-
-    @SneakyThrows
-    @Test
-    void lockAlreadyAcquired() {
-        Connection conn = dataSource.getConnection();
-        resourceCleaner.tryGetLock(conn, LOCK_NAME);
-
-        long beforeUsers = userRepository.count();
-        markUserAsVeryInactive(GUEST_SUB);
-
-        resourceCleaner.clean();
-        //Nothing happened
-        assertEquals(beforeUsers, userRepository.count());
     }
 
     private void markUserAsVeryInactive(String sub) {

@@ -40,7 +40,6 @@ class ResourceCleanerUnitTest {
             userRepository,
             userRoleRepository,
             provisioningService,
-            dataSource,
             userRoleAuditRepository,
             userRoleAuditService,
             invitationRepository,
