@@ -65,7 +65,8 @@ public class ResourceCleaner {
 
     @Scheduled(cron = "${cron.user-cleaner-expression}")
     @Transactional
-    @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "PT5M", lockAtMostFor = "PT28M")
+    @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.user-cleaner-lock-at-least-for}",
+            lockAtMostFor = "${cron.user-cleaner-lock-at-most-for}")
     public void clean() {
         this.doClean();
     }
