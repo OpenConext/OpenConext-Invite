@@ -11,36 +11,38 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserPermissions {
     private static final Log LOG = LogFactory.getLog(UserPermissions.class);
+
     private UserPermissions() {
     }
 
     public static void assertSuperUser(User user) {
         if (user == null) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("User is NULL");
         }
 
         if (!user.isSuperUser()) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("User is no super user: " + user.getEmail());
         }
     }
 
     public static void assertInstitutionAdmin(User user) {
         if (user == null) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("User is NULL");
         }
 
         if (user.isSuperUser() || (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID()))) {
             return;
         }
-        throw new UserRestrictionException();
+        throw new UserRestrictionException("User is no institution admin: " + user.getEmail());
     }
 
     public static void assertAuthority(User user, Authority authority) {
         if (user == null) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("User is NULL");
         }
         LOG.debug(String.format("assertAuthority for user %s", user.getEduPersonPrincipalName()));
 
@@ -54,13 +56,13 @@ public class UserPermissions {
             return;
         }
         if (user.getUserRoles().stream()
-                        .noneMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(authority)))
-            throw new UserRestrictionException();
+                .noneMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(authority)))
+            throw new UserRestrictionException(String.format("User %s is not an Authority %s", user.getEmail(), authority));
     }
 
     public static void assertValidInvitation(User user, Authority intendedAuthority, List<Role> roles) {
         if (user == null) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("User is NULL");
         }
         LOG.debug(String.format("assertValidInvitation for user %s", user.getEduPersonPrincipalName()));
 
@@ -68,7 +70,7 @@ public class UserPermissions {
             return;
         }
         if (intendedAuthority.equals(Authority.SUPER_USER)) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("Invalid invitation for super-user by " + user.getEmail());
         }
         Set<UserRole> userRoles = user.getUserRoles();
         //Institution admin needs to own all roles or be a member of the role for at least the authority of invitationo
@@ -85,13 +87,14 @@ public class UserPermissions {
                     return mayInviteByInstitutionAdmin || mayInviteByApplication || mayInviteByAuthority;
                 });
         if (!allowed) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException(String.format("Invalid invation by %s for roles %s",
+                    user.getEmail(), roles.stream().map(role -> role.getName()).collect(Collectors.joining(", "))));
         }
     }
 
     public static void assertRoleAccess(User user, Role accessRole, Authority authority) {
         if (user == null) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("USer is NULL");
         }
         LOG.debug(String.format("assertRoleAccess for user %s", user.getEduPersonPrincipalName()));
 
@@ -99,7 +102,7 @@ public class UserPermissions {
             return;
         }
         if (accessRole == null) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("Role is NULL");
         }
         if (user.isInstitutionAdmin() && user.getOrganizationGUID().equals(accessRole.getOrganizationGUID())) {
             return;
@@ -110,7 +113,8 @@ public class UserPermissions {
                         (userRole.hasAccessToApplication(accessRole) &&
                                 userRole.getAuthority().hasEqualOrHigherRights(Authority.INSTITUTION_ADMIN)))
                 .findFirst()
-                .orElseThrow(UserRestrictionException::new);
+                .orElseThrow(() -> new UserRestrictionException(String.format("User %s has no access to role %s",
+                        user.getEmail(), accessRole.getName())));
     }
 
     //Does one of the userRoles has Authority.MANAGE and has the same application as the role
