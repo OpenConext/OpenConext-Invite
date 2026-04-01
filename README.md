@@ -214,5 +214,3 @@ yarn outdated
 
 CRM api calls have been added to enable migration from a legacy application called SAB (SURF Autorisatie Beheer).
 These api calls are actively used to integrate with the enterprise role administration system.
-
-
