@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Improvement: cronjob database locks to work in clusterd enviroment
 - Fix: SCIM delete messageses were not always sent
 - Fix: Accepting invite in the same browser session that sent the invite
+- Change: SCIM Patch opeartions now follow rfc7644 and use `add`, `remove`, or `replace` (instead of `Add` and `Remove`)
 
 ## 1.0.2
 

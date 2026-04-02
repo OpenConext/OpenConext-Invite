@@ -326,7 +326,7 @@ Content-Type: application/json
   "schemas" : [ "urn:ietf:params:scim:api:messages:2.0:PatchOp" ],
   "id" : "{GroupID at SP}",
   "Operations" : [ {
-    "op" : "Add",
+    "op" : "add",
     "path" : "members",
     "value" : [ {
       "value" : "{UserID at SP}"
@@ -346,7 +346,7 @@ Content-Type: application/json
   "schemas" : [ "urn:ietf:params:scim:api:messages:2.0:PatchOp" ],
   "id" : "{GroupID at SP}",
   "Operations" : [ {
-    "op" : "Remove",
+    "op" : "remove",
     "path" : "members",
     "value" : [ {
       "value" : "{UserID at SP}"
