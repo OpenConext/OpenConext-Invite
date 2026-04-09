@@ -22,18 +22,15 @@ public class DeadlockRetryLockProvider implements LockProvider {
 
     @Override
     public Optional<SimpleLock> lock(LockConfiguration lockConfiguration) {
-        int attempts = 0;
-        while (true) {
-            try {
-                return delegate.lock(lockConfiguration);
-            } catch (Exception e) {
-                if (isDeadlock(e)) {
-                    LOG.warn(String.format("Deadlock acquiring ShedLock '%s', skipping cycle",
-                            lockConfiguration.getName()));
-                    return Optional.empty();  // treat as "already locked", skip this cycle
-                }
-                throw e;  // rethrow non-deadlock exceptions as-is
+        try {
+            return delegate.lock(lockConfiguration);
+        } catch (Exception e) {
+            if (isDeadlock(e)) {
+                LOG.warn(String.format("Deadlock acquiring ShedLock '%s', skipping cycle",
+                        lockConfiguration.getName()));
+                return Optional.empty();  // treat as "already locked", skip this cycle
             }
+            throw e;  // rethrow non-deadlock exceptions as-is
         }
     }
 
