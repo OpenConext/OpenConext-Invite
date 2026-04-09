@@ -44,7 +44,6 @@ public class RoleExpirationNotifier {
     @Scheduled(cron = "${cron.role-expiration-notifier-expression}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.role-expiration-notifier-lock-at-least-for}",
             lockAtMostFor = "${cron.role-expiration-notifier-lock-at-most-for}")
-    @Transactional
     public void sweep() {
         if (roleExpirationNotificationDays == -1) {
             return;
