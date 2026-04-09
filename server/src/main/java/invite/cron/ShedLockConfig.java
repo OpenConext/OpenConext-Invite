@@ -18,12 +18,13 @@ public class ShedLockConfig {
     @Bean
     @Profile("!test")
     public LockProvider lockProvider(DataSource dataSource) {
-        return new JdbcTemplateLockProvider(
+        LockProvider delegate = new JdbcTemplateLockProvider(
                 JdbcTemplateLockProvider.Configuration.builder()
                         .withJdbcTemplate(new JdbcTemplate(dataSource))
                         .usingDbTime() // Use DB time, not app-node time — avoids clock skew
                         .build()
         );
+        return new DeadlockRetryLockProvider(delegate);
     }
 
     @Bean
