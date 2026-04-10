@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.Period;
 import java.util.List;
@@ -64,6 +65,7 @@ public class ResourceCleaner {
     @Scheduled(fixedDelayString = "${cron.user-cleaner-cron}", initialDelayString = "${cron.user-cleaner-cron-initiaal-delay}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.user-cleaner-lock-at-least-for}",
             lockAtMostFor = "${cron.user-cleaner-lock-at-most-for}")
+    @Transactional
     public void clean() {
         LOG.info("CRON: Cleaning resources");
         this.doClean();

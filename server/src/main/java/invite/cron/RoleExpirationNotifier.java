@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -42,6 +43,7 @@ public class RoleExpirationNotifier {
     @Scheduled(fixedDelayString = "${cron.role-expiration-notifier-cron}", initialDelayString = "${cron.role-expiration-notifier-cron-initial-delay}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.role-expiration-notifier-lock-at-least-for}",
             lockAtMostFor = "${cron.role-expiration-notifier-lock-at-most-for}")
+    @Transactional
     public void sweep() {
         if (roleExpirationNotificationDays == -1) {
             return;
