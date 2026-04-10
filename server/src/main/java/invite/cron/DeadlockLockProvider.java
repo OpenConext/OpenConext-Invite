@@ -10,13 +10,13 @@ import java.sql.SQLException;
 import java.sql.SQLTransactionRollbackException;
 import java.util.Optional;
 
-public class DeadlockRetryLockProvider implements LockProvider {
+public class DeadlockLockProvider implements LockProvider {
 
-    private static final Log LOG = LogFactory.getLog(DeadlockRetryLockProvider.class);
+    private static final Log LOG = LogFactory.getLog(DeadlockLockProvider.class);
 
     private final LockProvider delegate;
 
-    public DeadlockRetryLockProvider(LockProvider delegate) {
+    public DeadlockLockProvider(LockProvider delegate) {
         this.delegate = delegate;
     }
 
@@ -29,8 +29,11 @@ public class DeadlockRetryLockProvider implements LockProvider {
                 LOG.warn(String.format("Deadlock acquiring ShedLock '%s', skipping cycle",
                         lockConfiguration.getName()));
                 return Optional.empty();  // treat as "already locked", skip this cycle
+            } else {
+                LOG.error(String.format("Unexpected error acquiring ShedLock '%s', skipping cycle",
+                        lockConfiguration.getName()), e);
+                return Optional.empty();  // treat as "already locked", skip this cycle, but make noise
             }
-            throw e;  // rethrow non-deadlock exceptions as-is
         }
     }
 
