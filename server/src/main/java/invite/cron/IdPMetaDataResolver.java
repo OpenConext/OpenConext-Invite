@@ -37,6 +37,7 @@ public class IdPMetaDataResolver {
     @Scheduled(initialDelayString = "${cron.metadata-resolver-initial-delay-milliseconds}",
             fixedRateString = "${cron.metadata-resolver-fixed-rate-milliseconds}")
     public void resolveIdpMetaData() {
+        LOG.info("CRON: Resolving IdP metadata");
         long start = System.currentTimeMillis();
         Map<String, IdentityProvider> newIdentityProviderMap = new HashMap<>();
         String displayNameEn = null;
