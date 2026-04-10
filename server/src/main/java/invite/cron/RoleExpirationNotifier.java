@@ -39,7 +39,7 @@ public class RoleExpirationNotifier {
         this.roleExpirationNotificationDays = roleExpirationNotificationDays;
     }
 
-    @Scheduled(fixedDelayString = "PT30M")
+    @Scheduled(fixedDelayString = "${cron.role-expiration-notifier-cron}", initialDelayString = "${cron.role-expiration-notifier-cron-initial-delay}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.role-expiration-notifier-lock-at-least-for}",
             lockAtMostFor = "${cron.role-expiration-notifier-lock-at-most-for}")
     public void sweep() {

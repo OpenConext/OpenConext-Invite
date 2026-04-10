@@ -61,7 +61,7 @@ public class ResourceCleaner {
         this.invitationRepository = invitationRepository;
     }
 
-    @Scheduled(fixedDelayString = "PT30M")
+    @Scheduled(fixedDelayString = "${cron.user-cleaner-cron}", initialDelayString = "${cron.user-cleaner-cron-initiaal-delay}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.user-cleaner-lock-at-least-for}",
             lockAtMostFor = "${cron.user-cleaner-lock-at-most-for}")
     public void clean() {
