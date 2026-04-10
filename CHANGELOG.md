@@ -5,10 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.2
+
+- Fix: Locking for cron jobs on multi-master databases
+
 ## 1.1.1
 
 - Fix: eduID only invitations for managers and inviters
-- Feature: Display audit train for Institution Admins
+- Feature: Display audit trail for Institution Admins
 - Feature: Clean up expired invitations
 - Fix: Locking for cron jobs on multi-master databases
 
