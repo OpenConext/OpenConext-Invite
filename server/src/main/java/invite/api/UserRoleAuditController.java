@@ -3,21 +3,11 @@ package invite.api;
 import invite.config.Config;
 import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;
-import invite.logging.AccessLogger;
-import invite.logging.Event;
-import invite.manage.EntityType;
-import invite.model.Application;
-import invite.model.ApplicationUsage;
-import invite.model.Authority;
 import invite.model.Role;
-import invite.model.RoleRequest;
 import invite.model.User;
-import invite.model.UserRole;
 import invite.model.UserRoleAudit;
-import invite.provision.scim.GroupURN;
 import invite.repository.RoleRepository;
 import invite.repository.UserRoleAuditRepository;
-import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -29,38 +19,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.sql.SQLTransactionRollbackException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static invite.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
 import static invite.security.InstitutionAdmin.isInstitutionAdmin;
-import static invite.security.UserPermissions.assertAuthority;
 import static invite.security.UserPermissions.assertInstitutionAdmin;
 
 @RestController
@@ -107,7 +78,8 @@ public class UserRoleAuditController {
             Role role = roleRepository.findById(roleId)
                     .orElseThrow(() -> new NotFoundException("Role not found: " + roleId));
             if (!user.getOrganizationGUID().equals(role.getOrganizationGUID())) {
-                throw new UserRestrictionException();
+                throw new UserRestrictionException(String.format("User %s has no access to role %s",
+                        user.getEmail(), role.getName()));
             }
         }
 

@@ -131,7 +131,8 @@ public class UserController {
             //We need to ensure the institution admin has access to at least one of the roles
             boolean allowedByManage = roles.stream().anyMatch(role -> user.getOrganizationGUID().equals(role.getOrganizationGUID()));
             if (!allowedByManage) {
-                throw new UserRestrictionException();
+                throw new UserRestrictionException(String.format("User %s has no access to role %s",
+                        user.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(", "))));
             }
         }
         return ResponseEntity.ok(other);

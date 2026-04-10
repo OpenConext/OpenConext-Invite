@@ -179,7 +179,7 @@ public class RoleController implements ApplicationResource {
                     .collect(Collectors.toSet());
             applicationManageIdentifiers.addAll(roleManageIdentifiers);
             if (!applicationManageIdentifiers.contains(manageId)) {
-                throw new UserRestrictionException();
+                throw new UserRestrictionException(String.format("User %s has no access to manageID %s", user.getEmail(), manageId));
             }
             roles = roleRepository.findByOrganizationGUIDAndApplicationUsagesApplicationManageId(user.getOrganizationGUID(), manageId);
         }
@@ -194,7 +194,7 @@ public class RoleController implements ApplicationResource {
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
         //For super_users we require an organization GUID from the input form
         if (user.isSuperUser() && !StringUtils.hasText(roleRequest.getOrganizationGUID())) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException("Super users must specify an organizationGUID");
         }
         Role role = new Role(roleRequest);
         role.setOrganizationGUID(user.isSuperUser() ? roleRequest.getOrganizationGUID() : user.getOrganizationGUID());
@@ -244,7 +244,8 @@ public class RoleController implements ApplicationResource {
 
         if (!user.isSuperUser() &&
                 !Objects.equals(user.getOrganizationGUID(), role.getOrganizationGUID())) {
-            throw new UserRestrictionException();
+            throw new UserRestrictionException(String.format("Non super user %s not allowd to delete role %s",
+                    user.getEmail(), role.getName()));
         }
 
         provisioningService.deleteGroupRequest(role);

@@ -69,7 +69,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             //The user has an API token (from her institution admin) and there is no state
             String hashedToken = HashGenerator.hashToken(apiTokenHeader);
             APIToken apiToken = apiTokenRepository.findByHashedValue(hashedToken)
-                    .orElseThrow(UserRestrictionException::new);
+                    .orElseThrow(() -> new UserRestrictionException("No API token found for: " + hashedToken));
             List<User> apiUsers = new ArrayList<>();
             User owner = apiToken.getOwner();
             String organizationGUID = apiToken.getOrganizationGUID();
@@ -85,7 +85,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             }
             if (apiUsers.isEmpty()) {
                 //we don't want to return null as this is not part of the happy-path
-                throw new UserRestrictionException();
+                throw new UserRestrictionException("No API user found for token: " + hashedToken);
             }
             //For old superuser and institution admin tokens it does not make any difference security-wise which user we return
             //For inviters and managers (and all new tokens after 0.0.36 release) the user is linked to the API token
@@ -124,7 +124,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                     if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
                         validImpersonation.set(true);
                         return userRepository.findById(Long.valueOf(impersonateId))
-                                .orElseThrow(UserRestrictionException::new);
+                                .orElseThrow(() -> new UserRestrictionException("No user found in impersonation: " + impersonateId));
                     }
                     return user;
                 });
@@ -144,7 +144,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 }
             }
             return user;
-        }).orElseThrow(UserRestrictionException::new);
+        }).orElseThrow(() -> new UserRestrictionException("No user found sub:" + sub));
 
     }
 
