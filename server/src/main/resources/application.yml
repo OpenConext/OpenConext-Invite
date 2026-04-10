@@ -6,7 +6,8 @@ logging:
     org.mariadb.jdbc.message.server: ERROR
     org.springframework.security: INFO
     invite: DEBUG
-#    sql: DEBUG
+    net.javacrumbs.shedlock: DEBUG
+  #    sql: DEBUG
 #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 #    org.hibernate.orm.jdbc.bind: TRACE
   threshold:
@@ -84,7 +85,7 @@ cron:
   last-activity-duration-days: 1000
   role-expiration-notifier-expression: "0 0/30 * * * *"
   # Set to -1 to suppress role expiry notifications
-  #role-expiration-notifier-duration-days: 5
+  role-expiration-notifier-duration-days: 5
   role-expiration-notifier-lock-at-least-for: "PT5M"
   role-expiration-notifier-lock-at-most-for: "PT28M"
   metadata-resolver-initial-delay-milliseconds: 1
