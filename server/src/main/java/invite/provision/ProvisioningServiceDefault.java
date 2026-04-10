@@ -86,6 +86,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
 
     private final ParameterizedTypeReference<String> stringParameterizedTypeReference = new ParameterizedTypeReference<>() {
     };
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     private final UserRoleRepository userRoleRepository;
@@ -606,7 +607,7 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     provisioning.getEntityId()));
 
             return body;
-        } catch (RestClientException e) {
+        } catch (RuntimeException e) {
             String errorMessage = String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
                     api,
                     provisioning.getEntityId(),

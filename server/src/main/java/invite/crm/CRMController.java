@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.API_HEADER_SCHEME_NAME;
@@ -340,6 +341,34 @@ public class CRMController {
         });
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         return ResponseEntity.ok(new ResendInvitationResponse(timestamp, 200, "ok", "Resend invitation"));
+    }
+
+    @PostMapping(value = "/crm/api/v1/invite/remove", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Remove all CRM roles memberships from a user",
+            description = "Remove all CRM roles memberships from a user")
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @PreAuthorize("hasRole('CRM')")
+    public ResponseEntity<String> remove(@RequestBody RemoveRoles removeRoles) {
+        LOG.debug("POST /crm/api/v1/invite/remove: " + removeRoles);
+
+        Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(removeRoles.crmOrganisationId());
+        optionalOrganisation
+                .flatMap(organisation -> userRepository
+                        .findByCrmContactIdAndOrganisation(removeRoles.crmContatcId(), organisation))
+                .ifPresent(user -> {
+                    LOG.debug("Removing roles from CRM user: " + user.getEmail());
+
+                    Predicate<UserRole> predicate = userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId());
+                    user.getUserRoles().stream()
+                            .filter(predicate)
+                            .forEach(userRole -> {
+                                this.provisioningService.deleteUserRoleRequest(userRole);
+                                this.userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
+                            });
+                    user.getUserRoles().removeIf(predicate);
+                    this.userRepository.save(user);
+                });
+        return ResponseEntity.ok().body("removed");
     }
 
     @GetMapping(value = "/crm/api/v1/organisations", produces = MediaType.APPLICATION_JSON_VALUE)

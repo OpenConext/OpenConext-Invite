@@ -16,7 +16,6 @@ public class UserRoleAuditService {
         this.userRoleAuditRepository = userRoleAuditRepository;
     }
 
-
     public void logAction(UserRole userRole, UserRoleAudit.ActionType action) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String authority = authentication != null ? authentication.getName() : "system";

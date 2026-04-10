@@ -86,7 +86,7 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
-    void contactProvisioningWrongApiHeader() throws JsonProcessingException {
+    void contactProvisioningWrongApiHeader() {
         given()
                 .when()
                 .accept(ContentType.JSON)
@@ -759,7 +759,7 @@ class CRMControllerTest extends AbstractMailTest {
         assertEquals(1, profileResponse.profiles().size());
     }
 
-        @Test
+    @Test
     void profileWithGuidRole() {
         this.seedCRMData();
         ProfileResponse profileResponse = given()
@@ -875,6 +875,66 @@ class CRMControllerTest extends AbstractMailTest {
                 .statusCode(204);
         Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID);
         assertTrue(optionalOrganisation.isEmpty());
+    }
+
+    @Test
+    void removeCRMRoles() throws JsonProcessingException {
+        this.seedCRMData();
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
+        User user = userRepository.findByCrmContactIdAndOrganisation(CRM_CONTACT_ID, organisation).get();
+        assertEquals(2, user.getUserRoles().size());
+
+        stubForManageProvisioning(List.of());
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new RemoveRoles(CRM_ORGANIZATION_ID, CRM_CONTACT_ID))
+                .post("/crm/api/v1/invite/remove")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("removed", response);
+
+        user = userRepository.findByCrmContactIdAndOrganisation(CRM_CONTACT_ID, organisation).get();
+        assertEquals(1, user.getUserRoles().size());
+    }
+
+    @Test
+    void removeCRMRolesNoUserFound() {
+        this.seedCRMData();
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new RemoveRoles(CRM_ORGANIZATION_ID, "nope"))
+                .post("/crm/api/v1/invite/remove")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("removed", response);
+    }
+
+    @Test
+    void removeCRMRolesNoOrganisationFound() {
+        this.seedCRMData();
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new RemoveRoles("nope", "nope"))
+                .post("/crm/api/v1/invite/remove")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("removed", response);
     }
 
     private void seedCRMData() {
