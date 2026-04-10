@@ -13,6 +13,19 @@ Providers te sturen.
 | Service Provider | Een applicatie bij de instelling, waar een gast-gebruiker toegang moet krijgen |
 | SCIM client  | De applicatie die de gebruikersinformatie naar de Serice Providers stuurt; De Invite-applicatie backend |
 
+## Authenticatie
+
+De SCIM-endpoints kunnen per instelling op verschillende manieren worden beveiligd.
+De invite-applicatie ondersteunt op dit moment de volgende authenticatiemethoden:
+
+- **HTTP Basic Authentication**  
+  De client stuurt een `Authorization: Basic ...` header met gebruikersnaam en
+  wachtwoord.
+
+- **Bearer token authenticatie**  
+  De client stuurt een `Authorization: Bearer ...` header met een vooraf
+  verstrekt token.
+
 ## Akties
 
 De endpoints bij de instellingen ondersteunen de volgende operaties:
