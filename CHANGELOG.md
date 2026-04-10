@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.1
+
+- Fix: eduID only invitations for managers and inviters
+- Feature: Display audit train for Institution Admins
+- Feature: Clean up expired invitations
+- Fix: Locking for cron jobs on multi-master databases
+
 ## 1.1.0
 
 - Feature: Add CRM interface to directly create application-roles and invite users, triggers from an external CRM system
@@ -34,6 +41,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Improvement: cronjob database locks to work in clusterd enviroment
 - Fix: SCIM delete messageses were not always sent
 - Fix: Accepting invite in the same browser session that sent the invite
+- Change: SCIM Patch opeartions now follow rfc7644 and use `add`, `remove`, or `replace` (instead of `Add` and `Remove`)
 
 ## 1.0.2
 

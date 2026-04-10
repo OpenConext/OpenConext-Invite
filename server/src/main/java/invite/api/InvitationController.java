@@ -160,6 +160,7 @@ public class InvitationController implements InvitationResource {
                                       "message": "Personal message included in the email",
                                       "language": "en",
                                       "guestRoleIncluded": true,
+                                      "suppressSendingEmails": false,
                                       "invites": [
                                         "admin@service.org"
                                       ],
