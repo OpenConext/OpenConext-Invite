@@ -43,14 +43,14 @@ class CRMControllerTest extends AbstractMailTest {
         String crmOrganisationID = UUID.randomUUID().toString();
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "new_user", "hardewijk.org", true);
         //These two applications are linked to the 'BVW' CRM role
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
         //This will return the SCIM provisioning
-        super.stubForManageProvisioning(List.of("5"));
+        stubForManageProvisioning(List.of("5"));
         //The actual SCIM provisioning
-        super.stubForCreateScimRole();
-        super.stubForCreateScimUser();
-        super.stubForUpdateScimRole();
+        stubForCreateScimRole();
+        stubForCreateScimUser();
+        stubForUpdateScimRole();
 
         String response = given()
                 .when()
@@ -105,16 +105,16 @@ class CRMControllerTest extends AbstractMailTest {
         String crmOrganisationID = UUID.randomUUID().toString();
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "guest", "example.com", true);
         //These two applications are linked to the 'BVW' CRM role
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
         //This will return the SCIM provisioning
-        super.stubForManageProvisioning(List.of("5"));
+        stubForManageProvisioning(List.of("5"));
         //The actual SCIM provisioning -
-        super.stubForCreateScimUser();
-        super.stubForCreateScimRole();
-        super.stubForUpdateScimRole();
+        stubForCreateScimUser();
+        stubForCreateScimRole();
+        stubForUpdateScimRole();
         //See "scim_user_identifier": "eduID", in src/main/resources/manage/provisioning.json,"_id": "7",
-        super.stubForProvisionEduID(UUID.randomUUID().toString());
+        stubForProvisionEduID(UUID.randomUUID().toString());
 
         User userBefore = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         assertEquals(3, userBefore.getUserRoles().size());
@@ -147,8 +147,8 @@ class CRMControllerTest extends AbstractMailTest {
         String crmOrganisationID = UUID.randomUUID().toString();
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, null, null, false);
         //These two applications are linked to the 'BVW' CRM role
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
 
         String response = given()
                 .when()
@@ -220,8 +220,8 @@ class CRMControllerTest extends AbstractMailTest {
         String crmOrganisationID = UUID.randomUUID().toString();
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, null, null, false);
         //These two applications are linked to the 'BVW' CRM role
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
 
         String response = given()
                 .when()
@@ -258,7 +258,7 @@ class CRMControllerTest extends AbstractMailTest {
         CRMRole newCrmRole = new CRMRole("differentRoleId", "CONBEH", "SURFconextbeheerder");
         CRMContact newCrmContact = createCrmContact(crmContactID, crmOrganisationID, newCrmRole, null, null, false);
         //This application is linked to the 'CONBEH' CRM role
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
 
         String newResponse = given()
                 .when()
@@ -291,8 +291,8 @@ class CRMControllerTest extends AbstractMailTest {
         String crmOrganisationID = UUID.randomUUID().toString();
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, null, null, true);
         //These two applications are linked to the 'BVW' CRM role
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
 
         String response = given()
                 .when()
@@ -324,10 +324,10 @@ class CRMControllerTest extends AbstractMailTest {
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRoleResearch, "guest", "example.com", true);
         crmContact.setRoles(List.of(crmRoleCloud, crmRoleResearch));
         //This application is linked to the 'CONBEH' CRM role
-        super.stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://cloud");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://research");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://cloud");
         //Ignore the SCIM provisioning
-        super.stubForManageProvisioning(List.of());
+        stubForManageProvisioning(List.of());
 
         User userPre = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         assertEquals(3, userPre.getUserRoles().size());
@@ -432,7 +432,7 @@ class CRMControllerTest extends AbstractMailTest {
         crmContact.setContactId(CRM_CONTACT_ID);
         crmContact.setOrganisation(new CRMOrganisation(CRM_ORGANIZATION_ID, "abbr", "name"));
 
-        super.stubForManageProvisioning(List.of("5"));
+        stubForManageProvisioning(List.of("5"));
         Role role = roleRepository.findByName("Research").get();
         RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7");
         super.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
@@ -445,8 +445,8 @@ class CRMControllerTest extends AbstractMailTest {
         RemoteProvisionedUser remoteProvisionedUserGuest = new RemoteProvisionedUser(guestUser, UUID.randomUUID().toString(), "7");
         super.remoteProvisionedUserRepository.save(remoteProvisionedUserGuest);
 
-        super.stubForUpdateScimRole();
-        super.stubForDeleteScimUser();
+        stubForUpdateScimRole();
+        stubForDeleteScimUser();
 
         String response = given()
                 .when()
@@ -474,9 +474,9 @@ class CRMControllerTest extends AbstractMailTest {
         String crmOrganisationID = UUID.randomUUID().toString();
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "total", "new.com", true);
         //These applications are linked to the 'AAI' CRM role
-        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://cloud");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://cloud");
         //Ignore the SCIM provisioning
-        super.stubForManageProvisioning(List.of());
+        stubForManageProvisioning(List.of());
 
         String response = given()
                 .when()
@@ -526,7 +526,7 @@ class CRMControllerTest extends AbstractMailTest {
         invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
         invitationRepository.save(invitation);
 
-        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
+        stubForManageProviderById(EntityType.OIDC10_RP, "5");
         ResendInvitationResponse resendInvitationResponse = given()
                 .when()
                 .accept(ContentType.JSON)
@@ -935,6 +935,109 @@ class CRMControllerTest extends AbstractMailTest {
                 .extract()
                 .asString();
         assertEquals("removed", response);
+    }
+
+    @Test
+    void sendInvitation() throws Exception {
+        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = CRM_ORGANIZATION_ID;
+        SendInvitation sendInvitation = new SendInvitation(crmOrganisationID, crmContactID, "dpo@example.org", List.of(crmRole));
+
+        //Provisioning is tested on other places
+       stubForManageProvisioning(List.of());
+
+
+        //These two applications are linked to the 'BVW' CRM role
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+
+         stubForManageProviderById(EntityType.OIDC10_RP, "5");
+         stubForManageProviderById(EntityType.SAML20_SP, "3");
+      //  stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(sendInvitation)
+                .post("/crm/api/v1/invite/send")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("send", response);
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation);
+        assertTrue(optionalUser.isEmpty());
+
+        MimeMessageParser mimeMessageParser = mailMessage();
+        List<Address> toAddresses = mimeMessageParser.getTo();
+        assertEquals(1, toAddresses.size());
+        assertEquals("dpo@example.org", toAddresses.getFirst().toString());
+        String htmlContent = mimeMessageParser.getHtmlContent();
+        assertTrue(htmlContent
+                .contains("Invitation for Beveiligingsverantwoordelijke"));
+
+        List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitations.size());
+        Invitation invitation = invitations.getFirst();
+        assertEquals("SURF CRM", invitation.getRemoteApiUser());
+
+        //Now we send the same POST again, and because of idenpotentcy no new invitation should be created
+        String newResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(sendInvitation)
+                .post("/crm/api/v1/invite/send")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("send", newResponse);
+        List<Invitation> invitationsAfterSyncs = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitationsAfterSyncs.size());
+        assertEquals(invitations.getFirst().getId(), invitationsAfterSyncs.getFirst().getId());
+    }
+
+    @Test
+    void sendInvitationWithoutRoles() {
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        SendInvitation sendInvitation = new SendInvitation(crmOrganisationID, crmContactID, "dpo@example.org", List.of());
+
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(sendInvitation)
+                .post("/crm/api/v1/invite/send")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void sendInvitationUnknownOrganisation() {
+        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        SendInvitation sendInvitation = new SendInvitation(crmOrganisationID, crmContactID, "dpo@example.org", List.of(crmRole));
+
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(sendInvitation)
+                .post("/crm/api/v1/invite/send")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     private void seedCRMData() {

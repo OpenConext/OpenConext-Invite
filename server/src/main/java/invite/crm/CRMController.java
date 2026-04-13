@@ -86,7 +86,7 @@ public class CRMController {
     private final ProvisioningService provisioningService;
     private final MailBox mailBox;
     private final Manage manage;
-    private final Map<String, CrmConfigEntry> crmConfig;
+    private final Map<String, CRMConfigEntry> crmConfig;
     private final UserRoleAuditService userRoleAuditService;
     private final Provisionable provisionable = () -> "SURF CRM";
     private final InvitationRepository invitationRepository;
@@ -122,10 +122,10 @@ public class CRMController {
         Map<String, Map<String, Object>> crmConfigRaw = objectMapper.readValue(crmConfigResource.getInputStream(), new TypeReference<>() {
         });
         this.crmConfig = crmConfigRaw.entrySet().stream()
-                .map(entry -> new CrmConfigEntry(entry.getKey(), (String) entry.getValue().get("name"),
+                .map(entry -> new CRMConfigEntry(entry.getKey(), (String) entry.getValue().get("name"),
                         ((List<Map<String, String>>) entry.getValue().getOrDefault("applications", List.of()))
                                 .stream()
-                                .map(application -> new CrmManageIdentifier(
+                                .map(application -> new CRMManageIdentifier(
                                         EntityType.valueOf(application.get("manageType").toUpperCase()),
                                         application.get("manageEntityID"))).toList()))
                 .collect(Collectors.toMap(
@@ -395,6 +395,30 @@ public class CRMController {
         return ResponseEntity.status(204).build();
     }
 
+    @PostMapping(value = "/crm/api/v1/invite/send", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Send invite for CRM role memberships",
+            description = "Send invite for CRM role memberships")
+    @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
+    @PreAuthorize("hasRole('CRM')")
+    public ResponseEntity<String> send(@RequestBody SendInvitation sendInvitation) {
+        LOG.debug("POST /crm/api/v1/invite/send: " + sendInvitation);
+
+        if (CollectionUtils.isEmpty(sendInvitation.roles())) {
+            throw new InvalidInputException("Roles are required for /crm/api/v1/invite/send");
+        }
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(sendInvitation.crmOrganisationId())
+                        .orElseThrow(() -> new NotFoundException("Organisation not found: "+sendInvitation.crmOrganisationId()));
+        CRMContact crmContact = new CRMContact();
+        crmContact.setEmail(sendInvitation.email());
+        crmContact.setRoles(sendInvitation.roles());
+        crmContact.setContactId(sendInvitation.crmContatcId());
+
+        sendInvitation(crmContact, organisation);
+
+        return ResponseEntity.ok().body("send");
+    }
+
     private ProfileResponse crmUserNotFoundOrNoRoles() {
         return new ProfileResponse("Could not find any profiles with the given search parameters", 50, List.of());
     }
@@ -522,7 +546,7 @@ public class CRMController {
             Set<InvitationRole> invitationRoles = roles.stream()
                     .map(role -> new InvitationRole(role))
                     .collect(Collectors.toSet());
-            Invitation invitation = createInvitation(crmContact, invitationRoles);
+            Invitation invitation = createInvitation(crmContact, invitationRoles, organisation);
 
             Optional<String> idpName = identityProviderName(manage, invitation);
             if (crmContact.isSuppressInvitation()) {
@@ -547,7 +571,7 @@ public class CRMController {
     }
 
     private Optional<Role> createRole(CRMOrganisation crmOrganisation, CRMRole crmRole, Organisation organisation) {
-        CrmConfigEntry crmConfigEntry = this.crmConfig.get(crmRole.getSabCode());
+        CRMConfigEntry crmConfigEntry = this.crmConfig.get(crmRole.getSabCode());
         if (crmConfigEntry == null) {
             throw new InvalidInputException("CRM sabCode is not configured: " + crmRole.getSabCode());
         }
@@ -567,9 +591,10 @@ public class CRMController {
                 })
                 .map(application -> new ApplicationUsage(application, application.getLandingPage()))
                 .collect(Collectors.toSet());
+        String organisationName = crmOrganisation != null ? crmOrganisation.getName() : organisation.getCrmOrganisationName();
         Role unsavedRole = new Role(
-                String.format("%s for %s", crmConfigEntry.name(), crmOrganisation.getName()),
-                String.format("CRM role %s for organisation %s", crmConfigEntry.name(), crmOrganisation.getName()),
+                String.format("%s for %s", crmConfigEntry.name(), organisationName),
+                String.format("CRM role %s for organisation %s", crmConfigEntry.name(), organisationName),
                 applicationUsages,
                 365 * 25,
                 true,
@@ -579,14 +604,14 @@ public class CRMController {
         unsavedRole.setCrmRoleName(crmConfigEntry.name());
         unsavedRole.setCrmRoleAbbrevation(crmRole.getSabCode());
         unsavedRole.setOrganisation(organisation);
-        unsavedRole.setOrganizationGUID(crmOrganisation.getOrganisationId());
+        unsavedRole.setOrganizationGUID(organisation.getCrmOrganisationId());
 
         Role role = roleRepository.save(unsavedRole);
         this.provisioningService.newGroupRequest(role);
         return Optional.of(role);
     }
 
-    private Invitation createInvitation(CRMContact crmContact, Set<InvitationRole> invitationRoles) {
+    private Invitation createInvitation(CRMContact crmContact, Set<InvitationRole> invitationRoles, Organisation organisation) {
         Invitation invitation = new Invitation(
                 Authority.GUEST,
                 HashGenerator.generateRandomHash(),
@@ -603,7 +628,8 @@ public class CRMController {
                 invitationRoles,
                 null
         );
-        String crmOrganisationId = crmContact.getOrganisation().getOrganisationId();
+        CRMOrganisation crmOrganisation = crmContact.getOrganisation();
+        String crmOrganisationId = crmOrganisation != null ? crmOrganisation.getOrganisationId() : organisation.getCrmOrganisationId();
         invitation.setOrganizationGUID(crmOrganisationId);
         invitation.setCrmOrganisationId(crmOrganisationId);
         invitation.setCrmContactId(crmContact.getContactId());
