@@ -64,7 +64,8 @@ const nl = {
         allPendingInvitations: "Open uitnodigingen",
         acceptedInvitations: "Geaccepteerd",
         performanceSeed: "Seed",
-        seed: "Seed"
+        seed: "Seed",
+        login: "Login"
     },
     home: {
         access: "SURFconext Invite",

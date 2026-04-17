@@ -63,7 +63,8 @@ const pt = {
         allPendingInvitations: "Pending invitations",
         acceptedInvitations: "Accepted",
         performanceSeed: "Seed",
-        seed: "Seed"
+        seed: "Seed",
+        login: "Login"
     },
     home: {
         access: "SURFconext Invite",
