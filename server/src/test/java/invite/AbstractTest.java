@@ -807,8 +807,6 @@ public abstract class AbstractTest {
                 "Test super-user token", superUser);
         APIToken legacyApiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_LEGACY_HASH),
                 false, "Legacy-test-token", institutionAdmin);
-        // Legacy tokens do not have owners
-        legacyApiToken.setOwner(null);
         APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
                 "Test-user token", inviter);
         doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
