@@ -145,7 +145,7 @@ Login with Mujina IdP and user `admin` to become super-user in the local environ
 
 ### [Institution Admin](#institution-admin)
 
-To become an institution admin in invite, add the following values as `eduPersonEntitlements` using Mujina:
+To become an institution admin in invite, add the following values as `eduPersonEntitlements` attributes using Mujina:
 
 - urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:ad93daef-0911-e511-80d0-005056956c1a
 - urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke
