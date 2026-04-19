@@ -1,19 +1,4 @@
 ---
-logging:
-  level:
-    root: WARN
-    com.zaxxer.hikari: ERROR
-    org.mariadb.jdbc.message.server: ERROR
-    org.springframework.security: INFO
-    invite: DEBUG
-    net.javacrumbs.shedlock: DEBUG
-  #    sql: DEBUG
-#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-#    org.hibernate.orm.jdbc.bind: TRACE
-  threshold:
-#    console: TRACE
-    console: WARN
-
 server:
   port: 8888
   error:
