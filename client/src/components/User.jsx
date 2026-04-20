@@ -93,8 +93,8 @@ export const User = ({user, other, config, currentUser}) => {
         }
         const queryApplicationLower = queryApplication.toLowerCase();
 
-        return application.organizationName.toLowerCase().indexOf(queryApplicationLower) > -1 ||
-            application.name.toLowerCase().indexOf(queryApplicationLower) > -1
+        return (application.organizationName || "").toLowerCase().indexOf(queryApplicationLower) > -1 ||
+            (application.name || "").toLowerCase().indexOf(queryApplicationLower) > -1
     };
 
     const renderApplication = (application, index) => {
