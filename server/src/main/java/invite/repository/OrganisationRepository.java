@@ -19,4 +19,6 @@ import java.util.Optional;
 public interface OrganisationRepository extends JpaRepository<Organisation, Long> {
 
     Optional<Organisation> findByCrmOrganisationId(String crmOrganisationId);
+
+    List<Organisation> findByCrmOrganisationIdIsNotNull();
 }

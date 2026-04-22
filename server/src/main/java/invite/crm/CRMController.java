@@ -376,12 +376,14 @@ public class CRMController {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<List<CRMOrganisation>> organisations() {
-        List<Organisation> organisations = organisationRepository.findAll();
-        List<CRMOrganisation> crmOrganisations = organisations.stream().map(organisation -> new CRMOrganisation(
-                organisation.getCrmOrganisationId(),
-                organisation.getCrmOrganisationAbbrevation(),
-                organisation.getCrmOrganisationName()
-        )).toList();
+        List<Organisation> organisations = organisationRepository.findByCrmOrganisationIdIsNotNull();
+        List<CRMOrganisation> crmOrganisations = organisations.stream()
+                .map(organisation -> new CRMOrganisation(
+                        organisation.getCrmOrganisationId(),
+                        organisation.getCrmOrganisationAbbrevation(),
+                        organisation.getCrmOrganisationName()
+                ))
+                .toList();
         return ResponseEntity.ok(crmOrganisations);
     }
 
@@ -408,7 +410,7 @@ public class CRMController {
         }
 
         Organisation organisation = organisationRepository.findByCrmOrganisationId(sendInvitation.crmOrganisationId())
-                        .orElseThrow(() -> new NotFoundException("Organisation not found: "+sendInvitation.crmOrganisationId()));
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + sendInvitation.crmOrganisationId()));
         CRMContact crmContact = new CRMContact();
         crmContact.setEmail(sendInvitation.email());
         crmContact.setRoles(sendInvitation.roles());
