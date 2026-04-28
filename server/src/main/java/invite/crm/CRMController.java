@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -391,10 +392,15 @@ public class CRMController {
     @Operation(summary = "Delete CRM organisation")
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
-    public ResponseEntity<Void> deleteOrganisation(@RequestBody CRMOrganisation crmOrganisation) {
+    public ResponseEntity<Map<String, String>> deleteOrganisation(@RequestBody CRMOrganisation crmOrganisation) {
         Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(crmOrganisation.getOrganisationId());
-        optionalOrganisation.ifPresent(organisation -> organisationRepository.delete(organisation));
-        return ResponseEntity.status(204).build();
+        return optionalOrganisation
+                .map(organisation -> {
+                    organisationRepository.delete(organisation);
+                    return ResponseEntity.ok(Map.of("status", "deleted"));
+                }).orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        Map.of("status",
+                                String.format("Organisation with crmOrganisationId %s not found", crmOrganisation.getOrganisationId()))));
     }
 
     @PostMapping(value = "/crm/api/v1/invite/send", produces = MediaType.APPLICATION_JSON_VALUE)

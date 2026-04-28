@@ -30,6 +30,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
 import static invite.security.SecurityConfig.API_KEY_HEADER;
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CRMControllerTest extends AbstractMailTest {
@@ -872,9 +873,24 @@ class CRMControllerTest extends AbstractMailTest {
                 .body(new CRMOrganisation(CRM_ORGANIZATION_ID, "abbr", "name"))
                 .delete("/crm/api/v1/organisations")
                 .then()
-                .statusCode(204);
+                .statusCode(200)
+                .body("status", equalTo("deleted"));
         Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID);
         assertTrue(optionalOrganisation.isEmpty());
+    }
+
+    @Test
+    void deleteOrganisationNotFound() {
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new CRMOrganisation("nope", "abbr", "name"))
+                .delete("/crm/api/v1/organisations")
+                .then()
+                .statusCode(400)
+                .body("status", equalTo("Organisation with crmOrganisationId nope not found"));
     }
 
     @Test
