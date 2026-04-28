@@ -173,18 +173,26 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                 .toList();
         //Provision the user to all provisionings in Manage where the user is known
         provisionings.forEach(provisioning -> {
-            if (this.hasEvaHook(provisioning)) {
-                RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, user);
-                this.doExchange(requestEntity, APIType.USER_API, mapParameterizedTypeReference, provisioning);
-            } else if (this.hasScimHook(provisioning)) {
-                Optional<RemoteProvisionedUser> provisionedUserOptional =
-                        this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
-                provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
-                    UserRequest userRequest = new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
-                    this.resolveInstitutionalEduID(user, provisioning, userRequest);
-                    String userRequestJson = prettyJson(userRequest);
-                    this.updateRequest(provisioning, userRequestJson, APIType.USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
-                });
+            try {
+                if (this.hasEvaHook(provisioning)) {
+                    RequestEntity requestEntity = this.evaClient.updateUserRequest(provisioning, user);
+                    this.doExchange(requestEntity, APIType.USER_API, mapParameterizedTypeReference, provisioning);
+                } else if (this.hasScimHook(provisioning)) {
+                    Optional<RemoteProvisionedUser> provisionedUserOptional =
+                            this.remoteProvisionedUserRepository.findByManageProvisioningIdAndUser(provisioning.getId(), user);
+                    provisionedUserOptional.ifPresent(remoteProvisionedUser -> {
+                        UserRequest userRequest = new UserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
+                        this.resolveInstitutionalEduID(user, provisioning, userRequest);
+                        String userRequestJson = prettyJson(userRequest);
+                        this.updateRequest(provisioning, userRequestJson, APIType.USER_API, remoteProvisionedUser.getRemoteIdentifier(), HttpMethod.PUT);
+                    });
+                }
+            } catch (RuntimeException e) {
+                //We choose to ignore these, because one remote provisioning errors should not stop other provisionings
+                LOG.error(String.format("Error in updateUserRequest for provisioning %s for user %s",
+                                provisioning.getEntityId(), user.getEmail())
+                        , e);
+
             }
         });
     }

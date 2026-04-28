@@ -126,15 +126,8 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         remoteProvisionedUserRepository.save(remoteProvisionedUser);
         this.stubForManageProvisioning(List.of("1", "4", "5"));
         this.stubForUpdateScimUser();
-        try {
-            provisioningService.updateUserRequest(user);
-            fail("Expected RemoteException");
-        } catch (RemoteException e) {
-            assertTrue(e.getMessage().contains("Error in provisionEduid"));
-            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-            assertNotNull(e.getReference());
-        }
-
+        //RuntTime exceptions are caught
+        provisioningService.updateUserRequest(user);
     }
 
     @Test
