@@ -286,7 +286,8 @@ public class CRMController {
                     ));
             return ResponseEntity.ok(responseMap);
         } else {
-            Map<String, ConnectionStatusResponse> responseMap = invitationRepository.findByCrmOrganisationId(crmOrganisationId)
+            Map<String, ConnectionStatusResponse> responseMap = invitationRepository
+                    .findByCrmOrganisationIdAndStatus(crmOrganisationId, Status.OPEN)
                     .stream()
                     .collect(Collectors.toMap(
                             invitation -> invitation.getCrmContactId(),
@@ -306,7 +307,8 @@ public class CRMController {
                                                 Map.of(),
                                                 crmStatusCode.getStatus(), crmStatusCode.getStatusCode()
                                         ));
-                            }
+                            },
+                            (existing, replacement) -> replacement
                     ));
             return ResponseEntity.ok(responseMap);
         }

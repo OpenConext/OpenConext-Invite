@@ -1,11 +1,8 @@
 package invite.repository;
 
-import invite.model.Authority;
 import invite.model.Invitation;
-import invite.model.Organisation;
 import invite.model.Role;
 import invite.model.Status;
-import invite.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,7 +28,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     List<Invitation> findByCrmContactIdAndCrmOrganisationIdAndStatus(String crmContactId, String crmOrganisationId, Status status);
 
-    List<Invitation> findByCrmOrganisationId(String crmOrganisationId);
+    List<Invitation> findByCrmOrganisationIdAndStatus(String crmOrganisationId, Status status);
 
     Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);
 
