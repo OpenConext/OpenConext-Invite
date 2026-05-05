@@ -296,7 +296,7 @@ public class CRMController {
                                         .map(user -> new ConnectionStatusResponse(
                                                 user.getName(), user.getEmail(),
                                                 Map.of(
-                                                        "uid", user.getUid(),
+                                                        "uid", resolveUserUid(user),
                                                         "idp", user.getSchacHomeOrganization()
                                                 ),
 
@@ -310,6 +310,15 @@ public class CRMController {
                     ));
             return ResponseEntity.ok(responseMap);
         }
+    }
+
+    private String resolveUserUid(User user) {
+        String uid = user.getUid();
+        if (StringUtils.hasText(uid)) {
+            return uid;
+        }
+        String sub = user.getSub();
+        return sub.substring(sub.lastIndexOf(":") + 1);
     }
 
     private CRMStatusCode crmStatusCode(Invitation invitation) {
