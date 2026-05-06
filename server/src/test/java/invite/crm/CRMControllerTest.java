@@ -653,6 +653,32 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void profileWithUidIdpForAttributeAggregation() {
+        this.seedCRMData();
+        ProfileResponse profileResponse = given()
+                .when()
+                .auth().preemptive().basic("aa", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("uid", "guest")
+                .queryParam("idp", "kb.nl")
+                .get("/api/external/v1/invite/crm/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(CRM_ORGANIZATION_ID, profile.organisation().get("guid"));
+        assertEquals(1, profile.authorisations().size());
+
+        Authorisation authorisation = profile.authorisations().getFirst();
+        assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
+        assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+    }
+
+    @Test
     void profileWithIdp() {
         this.seedCRMData();
         ProfileResponse profileResponse = given()
