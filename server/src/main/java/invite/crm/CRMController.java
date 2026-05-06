@@ -229,7 +229,7 @@ public class CRMController {
             users = userRepository.findByOrganisationNotNull();
         }
         if (users.isEmpty()) {
-            LOG.debug("Returning empty results query for profiles");
+            LOG.debug("Returning empty results query for /api/profile");
             ProfileResponse profileResponse = crmUserNotFoundOrNoRoles();
             return ResponseEntity.ok(profileResponse);
         }
@@ -256,6 +256,9 @@ public class CRMController {
                                                 .map(r -> new Authorisation(r.getCrmRoleAbbrevation(), r.getCrmRoleName()))
                                                 .toList()
                                 )).toList());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("Results for /api/profile %s", profileResponse));
+        }
         return ResponseEntity.ok(profileResponse);
     }
 

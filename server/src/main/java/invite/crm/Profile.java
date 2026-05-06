@@ -1,7 +1,5 @@
 package invite.crm;
 
-import invite.model.Organisation;
-
 import java.util.List;
 import java.util.Map;
 
