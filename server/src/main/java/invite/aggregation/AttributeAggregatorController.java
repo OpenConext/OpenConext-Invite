@@ -89,18 +89,22 @@ public class AttributeAggregatorController {
                         .anyMatch(application -> application.getManageId().equals(provider.get(ID))))
                 .filter(userRole -> userRole.getAuthority().equals(Authority.GUEST) || userRole.isGuestRoleIncluded())
                 .map(this::parseUserRole)
+                //Nees to be mutable
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        List<Map<String, String>> autorisatieRoles = userRoleList.stream().filter(m -> m.containsKey(AUTORISATIE)).toList();
+        List<Map<String, String>> autorisatieRoles = userRoleList.stream()
+                .filter(m -> m.containsKey(AUTORISATIE))
+                .toList();
         if (!autorisatieRoles.isEmpty()) {
-            Role role = user.getUserRoles().stream()
+            user.getUserRoles().stream()
                     .map(userRole -> userRole.getRole())
-                    .filter(r -> StringUtils.hasText(r.getCrmRoleId()))
+                    .filter(r -> r.getOrganisation() != null)
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Won't happen"));
-            Organisation organisation = role.getOrganisation();
-            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + organisation.getCrmOrganisationAbbrevation()));
-            userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisation.getCrmOrganisationId()));
+                    .ifPresent(role -> {
+                        Organisation organisation = role.getOrganisation();
+                        userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationCode:" + organisation.getCrmOrganisationAbbrevation()));
+                        userRoleList.add(Map.of(AUTORISATIE, "urn:mace:surfnet.nl:surfnet.nl:sab:organizationGUID:" + organisation.getCrmOrganisationId()));
+                    });
         }
         LOG.debug(String.format("Returning %o roles for AA request for user: %s and service %s", userRoleList.size(), unspecifiedId, spEntityId));
 
