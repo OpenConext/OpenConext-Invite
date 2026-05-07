@@ -99,6 +99,10 @@ export function institutionAdminsbyRole(roleId) {
     return fetchJson(`/api/v1/users/institution-admins/${roleId}`, {}, {}, false);
 }
 
+export function institutionAdmins() {
+    return fetchJson("/api/v1/users/institutionAdmins", {}, {}, false);
+}
+
 export function searchUsers(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
     return fetchJson(`/api/v1/users/search?${queryPart}`);

@@ -15,6 +15,20 @@ section.user {
 
     }
 
+    p.label {
+        font-weight: 600;
+        margin: 20px 0 15px 0;
+    }
+
+    ul.admins {
+        list-style: circle;
+
+        li {
+            margin-left: 20px;
+        }
+
+    }
+
     p.span-row {
         margin-bottom: 25px;
     }

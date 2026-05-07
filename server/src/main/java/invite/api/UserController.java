@@ -118,6 +118,17 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("institutionAdmins")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, String>>> institutionAdmins(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/institutionAdmins for user %s", user.getEduPersonPrincipalName()));
+
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        List<Map<String, String>> users = userRepository.findInstitutionAdminsPerOrganizationGUID(user.getId(), user.getOrganizationGUID());
+
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping("other/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {

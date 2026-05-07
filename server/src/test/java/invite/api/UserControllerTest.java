@@ -20,10 +20,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -413,6 +416,30 @@ class UserControllerTest extends AbstractTest {
         //Sorted by name default
         List<String> names = usersPage.getContent().stream().map(m -> (String) m.get("name")).toList();
         assertEquals(List.of("Ann Doe", "James Doe", "Mary Doe"), names);
+    }
+
+    @Test
+    void institutionAdmins() throws Exception {
+        userRepository.findAll().forEach(user ->{
+            user.setOrganizationGUID(ORGANISATION_GUID);
+            user.setInstitutionAdmin(true);
+            userRepository.save(user);
+        });
+        userRepository.flush();
+
+        //Institution admin is enriched with Manage information
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        List<Map<String, String>> admins = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/institutionAdmins")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(6, admins.size());
     }
 
     @Test

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {other} from "../api";
+import {institutionAdmins, other} from "../api";
 import I18n from "../locale/I18n";
 import "./Profile.scss";
 import {Loader} from "@surfnet/sds";
@@ -10,12 +10,16 @@ import {UnitHeader} from "../components/UnitHeader";
 import Logo from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {dateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
+import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 
 export const Profile = () => {
     const {id} = useParams();
     const {user: currentUser, config} = useAppStore(state => state);
     const [user, setUser] = useState(currentUser);
-    const [loading, setLoading] = useState(!isEmpty(id));
+    const [otherInstitutionAdmins,setOtherInstitutionAdmins] = useState([]);
+
+    const [loading, setLoading] = useState(!isEmpty(id) || user.institutionAdmin);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +30,12 @@ export const Profile = () => {
                     setLoading(false);
                 })
                 .catch(() => navigate("/404"))
+        } else if (user.institutionAdmin) {
+            institutionAdmins()
+                .then(res => {
+                    setOtherInstitutionAdmins(res);
+                    setLoading(false);
+                })
         }
 
     }, [id, currentUser]);// eslint-disable-line react-hooks/exhaustive-deps
@@ -62,7 +72,11 @@ export const Profile = () => {
                 })}</p>
             </UnitHeader>
             <div className="profile-container">
-                <User user={user} other={!isEmpty(id)} config={config} currentUser={currentUser}/>
+                <User user={user}
+                      other={!isEmpty(id)}
+                      otherInstitutionAdmins={otherInstitutionAdmins}
+                      config={config}
+                      currentUser={currentUser}/>
             </div>
         </div>);
 };

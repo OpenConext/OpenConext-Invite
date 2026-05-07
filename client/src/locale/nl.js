@@ -94,7 +94,7 @@ const nl = {
         name_email: "Naam / e-mail",
         name: "Naam",
         email: "E-mail",
-        highestAuthority: "Rol",
+        highestAuthority: "Functie",
         createdAt: "Aangemaakt op",
         schacHomeOrganization: "Instelling",
         lastActivity: "Laatst actief",
@@ -129,8 +129,9 @@ const nl = {
         expiryDays: "Verloopdagen",
         roleExpiryTooltip: "Sorteer op rollen, om te zien welke rol het eerst zal verlopen",
         deleteFlash: "Gebruiker {{name}} is verwijderd",
-        deleteConfirmation: "Weet je heel zeker dat je gebruiker {{name}} wilt verwijderen? Er is geen undo functionaliteit."
-    },
+        deleteConfirmation: "Weet je heel zeker dat je gebruiker {{name}} wilt verwijderen? Er is geen undo functionaliteit.",
+        institutionAdmins: "Je collega-instellingsbeheerders zijn:",
+        onlyInstitutionAdmins: "Je bent de enige instellingsbeheerder binnen je organisatie",    },
     role: {
         copyUrn: "Copy urn",
         userInfo: "{{nbr}} leden & verloopt {{period}}",

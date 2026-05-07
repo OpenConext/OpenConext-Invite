@@ -6,7 +6,7 @@ import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
 import {Button, ButtonType, Card, CardType} from "@surfnet/sds";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {deriveRemoteApplicationAttributes, reduceApplicationFromUserRoles} from "../utils/Manage";
 import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
@@ -17,7 +17,7 @@ import {deleteUser} from "../api";
 import {useNavigate} from "react-router-dom";
 import {useAppStore} from "../stores/AppStore";
 
-export const User = ({user, other, config, currentUser}) => {
+export const User = ({user, other, config, currentUser, otherInstitutionAdmins}) => {
     const navigate = useNavigate();
     const {setFlash} = useAppStore(state => state);
     const searchRef = useRef();
@@ -155,6 +155,15 @@ export const User = ({user, other, config, currentUser}) => {
                             onClick={() => doDeleteUser(true)}/>
                 </div>
             }
+            {user.institutionAdmin && <div>
+                <p className="label">{isEmpty(otherInstitutionAdmins) ? I18n.t("users.onlyInstitutionAdmins") :
+                    I18n.t("users.institutionAdmins", )}</p>
+                {!isEmpty(otherInstitutionAdmins) && <ul className="admins">
+                    {otherInstitutionAdmins.map((admin, index) => <li key={index}>
+                        <span>{`${admin.name} - ${admin.email}`}</span>
+                    </li>)}
+                </ul>}
+            </div>}
             <h3 className={"title span-row "}>{I18n.t("users.roles")}</h3>
             {(highestAuthority(user, false) === AUTHORITIES.GUEST && !other) &&
                 <p className={"span-row"}

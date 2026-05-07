@@ -134,6 +134,13 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
             nativeQuery = true)
     List<User> findInstitutionAdminsPerRole(Long roleId);
 
+    @Query(value = """
+            SELECT u.name, u.email FROM users u
+                    WHERE u.id <> ?1 AND u.organization_guid = ?2 AND u.institution_admin = 1
+            """,
+            nativeQuery = true)
+    List<Map<String, String>> findInstitutionAdminsPerOrganizationGUID(Long id, String organizationGUID);
+
     @Override
     default String rewrite(String query, Sort sort) {
         Sort.Order authoritySort = sort.getOrderFor("authority");

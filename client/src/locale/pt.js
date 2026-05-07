@@ -128,7 +128,9 @@ const pt = {
         expiryDays: "Expiry days",
         roleExpiryTooltip: "Sort on roles to see which roles will expire the soonest",
         deleteFlash: "User {{name}} has been deleted",
-        deleteConfirmation: "Are you absolutely sure you want to delete user {{name}}? There is no undo button."
+        deleteConfirmation: "Are you absolutely sure you want to delete user {{name}}? There is no undo button.",
+        institutionAdmins: "Your fellow Institution administrators are:",
+        onlyInstitutionAdmins: "You are the only Institution admin within your organisation",
     },
     role: {
         copyUrn: "Copy urn",
