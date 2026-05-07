@@ -246,6 +246,7 @@ const pt = {
         open: "Open",
         accepted: "Accepted",
         expired: "Expired",
+        mine: "Mine open invitations",
         enforceEmailEquality: "Email equality",
         eduIDOnly: "eduID only",
         requestedAuthnContext: "ACR value",

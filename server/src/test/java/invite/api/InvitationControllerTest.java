@@ -745,6 +745,23 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
+    void mine() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        stubForManageProviderById(EntityType.SAML20_SP, "1");
+
+        List<Invitation> invitations = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/invitations/mine")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(3, invitations.size());
+    }
+
+    @Test
     void allByInviterNotAllowed() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
         given()
@@ -913,7 +930,7 @@ class InvitationControllerTest extends AbstractTest {
                 .toList();
         assertEquals(List.of("Calendar", "Mail"), actual);
         assertEquals("inviter@new.com", invitation.get("email"));
-        assertEquals("paul.doe@example.com", invitation.get("inviter_email"));
+        assertEquals("carl.doe@example.com", invitation.get("inviter_email"));
     }
 
     @Test
@@ -1018,7 +1035,7 @@ class InvitationControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .queryParam("roleId", role.getId())
-                .queryParam("query", "john")
+                .queryParam("query", "example")
                 .queryParam("pageNumber", 0)
                 .queryParam("pageSize", 3)
                 .queryParam("sort", "name")

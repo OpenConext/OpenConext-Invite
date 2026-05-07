@@ -1,0 +1,50 @@
+.mod-mine-invitations {
+    background-color: white;
+
+    table.invitations {
+
+        thead {
+            th {
+                &.email {
+                    width: 20%;
+                }
+
+                &.intended_authority {
+                    width: 15%;
+                    text-align: center;
+                }
+
+                &.intendedRoles {
+                    width: 15%;
+                }
+
+                &.name {
+                    width: 26%;
+                }
+
+                &.created_at {
+                    width: 12%;
+                }
+
+                &.expiry_date {
+                    width: 12%;
+                }
+
+            }
+        }
+
+        tbody {
+            td {
+                &.email {
+                    word-break: keep-all;
+                }
+
+                &.intended_authority {
+                    text-align: center;
+                }
+
+            }
+        }
+    }
+
+}

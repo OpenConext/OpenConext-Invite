@@ -286,12 +286,28 @@ public class CRMController {
                     .collect(Collectors.toMap(
                             user -> user.getCrmContactId(),
                             user -> new ConnectionStatusResponse(
-                                    user.getName(), user.getEmail(), Map.of(
-                                    "uid", user.getUid(),
-                                    "idp", user.getSchacHomeOrganization()
+                                    user.getCrmContactId(),
+                                    user.getGivenName(),
+                                    user.getMiddleName(),
+                                    user.getFamilyName(),
+                                    user.getName(),
+                                    user.getEmail(),
+                                    "",
+                                    Map.of(
+                                            "id", organisation.getCrmOrganisationId(),
+                                            "abbrev", organisation.getCrmOrganisationAbbrevation(),
+                                            "name", organisation.getCrmOrganisationName(),
+                                            "oid", organisation.getCrmOrganisationAbbrevation(),
+                                            "guid", organisation.getCrmOrganisationId()
+                                    ),
+                                    Map.of(
+                                            "uid", user.getUid(),
+                                            "idp", user.getSchacHomeOrganization()
+                                    ),
+                                    CRMStatusCode.Paired.getStatus(),
+                                    CRMStatusCode.Paired.getStatusCode()
                             ),
-                                    CRMStatusCode.Paired.getStatus(), CRMStatusCode.Paired.getStatusCode()
-                            )
+                            (existing, replacement) -> replacement
                     ));
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("/crm/api/v1/profiles connectionStatus.connected is true. Returning %s", responseMap));
@@ -307,17 +323,44 @@ public class CRMController {
                                 CRMStatusCode crmStatusCode = crmStatusCode(invitation);
                                 return userRepository.findByCrmContactIdAndOrganisation(invitation.getCrmContactId(), organisation)
                                         .map(user -> new ConnectionStatusResponse(
-                                                user.getName(), user.getEmail(),
+                                                invitation.getCrmContactId(),
+                                                user.getGivenName(),
+                                                user.getMiddleName(),
+                                                user.getFamilyName(),
+                                                user.getName(),
+                                                user.getEmail(),
+                                                "",
+                                                Map.of(
+                                                        "id", organisation.getCrmOrganisationId(),
+                                                        "abbrev", organisation.getCrmOrganisationAbbrevation(),
+                                                        "name", organisation.getCrmOrganisationName(),
+                                                        "oid", organisation.getCrmOrganisationAbbrevation(),
+                                                        "guid", organisation.getCrmOrganisationId()
+                                                ),
                                                 Map.of(
                                                         "uid", resolveUserUid(user),
                                                         "idp", user.getSchacHomeOrganization()
                                                 ),
-
-                                                crmStatusCode.getStatus(), crmStatusCode.getStatusCode()
+                                                crmStatusCode.getStatus(),
+                                                crmStatusCode.getStatusCode()
                                         )).orElse(new ConnectionStatusResponse(
-                                                null, invitation.getEmail(),
+                                                invitation.getCrmContactId(),
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                invitation.getEmail(),
+                                                "",
+                                                Map.of(
+                                                        "id", organisation.getCrmOrganisationId(),
+                                                        "abbrev", organisation.getCrmOrganisationAbbrevation(),
+                                                        "name", organisation.getCrmOrganisationName(),
+                                                        "oid", organisation.getCrmOrganisationAbbrevation(),
+                                                        "guid", organisation.getCrmOrganisationId()
+                                                ),
                                                 Map.of(),
-                                                crmStatusCode.getStatus(), crmStatusCode.getStatusCode()
+                                                crmStatusCode.getStatus(),
+                                                crmStatusCode.getStatusCode()
                                         ));
                             },
                             (existing, replacement) -> replacement

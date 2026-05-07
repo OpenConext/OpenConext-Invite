@@ -558,6 +558,14 @@ public class InvitationController implements InvitationResource {
         return Pagination.of(invitationsPage, invitations);
     }
 
+    @GetMapping("/mine")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Invitation>> mine(@Parameter(hidden = true) User user) {
+        LOG.debug("GET /mine invitations");
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        return ResponseEntity.ok(invitationRepository.findByInviterAndStatus(user, Status.OPEN));
+    }
+
 
     private void checkEmailEquality(User user, Invitation invitation) {
         if (invitation.isEnforceEmailEquality() && !invitation.getEmail().equalsIgnoreCase(user.getEmail())) {

@@ -3,6 +3,7 @@ package invite.repository;
 import invite.model.Invitation;
 import invite.model.Role;
 import invite.model.Status;
+import invite.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,6 +34,8 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
     Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);
 
     List<Invitation> findByStatus(Status status);
+
+    List<Invitation> findByInviterAndStatus(User inviter, Status status);
 
     List<Invitation> findByStatusAndRoles_role(Status status, Role role);
 

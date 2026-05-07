@@ -36,13 +36,15 @@ export const chipTypeForUserRole = authority => {
 }
 
 export const invitationExpiry = invitation => {
-    const expired = new Date(invitation.expiry_date) < new Date();
+    const expiryDate = isEmpty(invitation.expiry_date) ? new Date(invitation.expiryDate * 1000) :
+        new Date(invitation.expiry_date);
+    const expired = expiryDate < new Date();
     if (expired) {
         return <Chip
             type={ChipType.Status_error}
             label={I18n.t("invitations.statuses.expired")}/>
     }
-    return shortDateFromEpoch(invitation.expiry_date, false);
+    return shortDateFromEpoch(invitation.expiry_date || invitation.expiryDate * 1000, false);
 }
 
 export const authorityForRole = (user, role) => {

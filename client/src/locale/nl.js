@@ -250,6 +250,7 @@ const nl = {
         open: "Open",
         accepted: "Geaccepteerd",
         expired: "Verlopen",
+        mine: "Mijn open uitnodigingen",
         enforceEmailEquality: "E-mailadres moet overeenkomen",
         eduIDOnly: "Uitsluitend eduID",
         requestedAuthnContext: "ACR waarde",

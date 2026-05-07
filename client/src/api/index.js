@@ -142,6 +142,10 @@ export function invitationsByRoleId(roleId) {
     return fetchJson(`/api/v1/invitations/roles/${roleId}`, {}, {}, false);
 }
 
+export function invitationsMine() {
+    return fetchJson("/api/v1/invitations/mine", {}, {}, false);
+}
+
 export function resendInvitation(invitationId) {
     return postPutJson(`/api/v1/invitations/${invitationId}`, {}, "PUT");
 }

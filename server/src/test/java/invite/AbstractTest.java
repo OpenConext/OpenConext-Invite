@@ -659,16 +659,15 @@ public abstract class AbstractTest {
 
     private void doSeed() {
         this.invitationRepository.deleteAllInBatch();
+        this.apiTokenRepository.deleteAllInBatch();
         this.remoteProvisionedGroupRepository.deleteAllInBatch();
         this.remoteProvisionedUserRepository.deleteAllInBatch();
         this.roleRepository.deleteAllInBatch();
         this.applicationRepository.deleteAllInBatch();
-        this.userRepository.deleteAllInBatch();
         this.userRoleRepository.deleteAllInBatch();
+        this.userRepository.deleteAllInBatch();
         this.organisationRepository.deleteAllInBatch();
-        this.apiTokenRepository.deleteAllInBatch();
         this.jdbcTemplate.update("delete from distributed_locks");
-
 
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
@@ -765,6 +764,7 @@ public abstract class AbstractTest {
                 new UserRole("system", kbUser, research, Authority.GUEST);
         doSave(this.userRoleRepository, wikiManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest,
                 wikiGuest, researchGuest, kbUserGuest);
+        this.userRoleRepository.flush();
 
         String message = "Please join..";
         Instant roleExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);
@@ -778,12 +778,12 @@ public abstract class AbstractTest {
                         inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(research)), null);
         Invitation inviterInvitation =
                 new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, true, message, Language.en,
-                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)), null);
+                        institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)), null);
         inviterInvitation.setEnforceEmailEquality(true);
         Invitation guestInvitation =
                 new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com",
                         false, false, null, false, message, Language.en,
-                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)), null);
+                        institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)), null);
         guestInvitation.setEduIDOnly(true);
         //To test graph callback
         guestInvitation.setSubInvitee(GUEST_SUB);
@@ -799,6 +799,7 @@ public abstract class AbstractTest {
                         inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), null);
         doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation,
                 institutionAdminInvitation, graphInvitation);
+        this.invitationRepository.flush();
 
         APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH),
                 false, "Test-token", institutionAdmin);
@@ -810,6 +811,7 @@ public abstract class AbstractTest {
         APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
                 "Test-user token", inviter);
         doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
+        this.apiTokenRepository.flush();
     }
 
     protected void seedUserRoleAudits(Instant createdAt) {
@@ -831,12 +833,9 @@ public abstract class AbstractTest {
         doSave(userRoleAuditRepository, auditNetworkInviter, auditResearchInviter, auditResearchGuest, auditMailGuest);
     }
 
-
     @SafeVarargs
     protected final <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
-        Arrays.asList(entities).forEach(entity -> {
-            repository.save(entity);
-        });
+        repository.saveAll(Arrays.asList(entities));
     }
 
 }

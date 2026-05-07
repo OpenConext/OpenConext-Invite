@@ -14,6 +14,8 @@ import {Tokens} from "../tabs/Tokens";
 import {ApplicationUsers} from "../tabs/ApplicationUsers";
 import Applications from "../tabs/Applications";
 import {isEmpty} from "../utils/Utils";
+import {Invitations} from "../tabs/Invitations";
+import {MineInvitations} from "../tabs/MineInvitations";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
@@ -52,6 +54,12 @@ export const Home = () => {
                   name="applications"
                   label={I18n.t("tabs.applications")}>
                 <Applications/>
+            </Page> : null,
+        (user && !user.superUser && user.institutionAdmin && user.organizationGUID) ?
+            <Page key="invitations"
+                  name="invitations"
+                  label={I18n.t("tabs.invitations")}>
+                <MineInvitations/>
             </Page> : null,
         (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) ?
             <Page key="tokens"
