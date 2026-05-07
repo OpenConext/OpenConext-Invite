@@ -558,15 +558,14 @@ class CRMControllerTest extends AbstractMailTest {
                 .accept(ContentType.JSON)
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
-                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, false))
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID))
                 .get("/crm/api/v1/profiles")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, response.size());
         ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
-        assertEquals("gb@kb.nl", connectionStatusResponse.email());
-        assertEquals("George Best", connectionStatusResponse.fullname());
-        assertEquals(CRMStatusCode.NotPaired.getStatusCode(), connectionStatusResponse.statusCode());
+        assertEquals("guest@new.com", connectionStatusResponse.email());
+        assertEquals(CRMStatusCode.InProcess.getStatusCode(), connectionStatusResponse.statusCode());
     }
 
     @Test
@@ -583,15 +582,11 @@ class CRMControllerTest extends AbstractMailTest {
                 .accept(ContentType.JSON)
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
-                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, false))
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID))
                 .get("/crm/api/v1/profiles")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, response.size());
-        ConnectionStatusResponse connectionStatusResponse = response.get(crmContactId);
-        assertEquals(invitation.getEmail(), connectionStatusResponse.email());
-        assertNull(connectionStatusResponse.fullname());
-        assertEquals(CRMStatusCode.InProcess.getStatusCode(), connectionStatusResponse.statusCode());
+        assertEquals(2, response.size());
     }
 
     @Test
@@ -601,7 +596,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .accept(ContentType.JSON)
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
-                .body(new ConnectionStatus(CRM_ORGANIZATION_ID, true))
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID))
                 .get("/crm/api/v1/profiles")
                 .as(new TypeRef<>() {
                 });
@@ -619,7 +614,7 @@ class CRMControllerTest extends AbstractMailTest {
                 .accept(ContentType.JSON)
                 .header(API_KEY_HEADER, "secret")
                 .contentType(ContentType.JSON)
-                .body(new ConnectionStatus("nope", true))
+                .body(new ConnectionStatus("nope"))
                 .get("/crm/api/v1/profiles")
                 .as(new TypeRef<>() {
                 });

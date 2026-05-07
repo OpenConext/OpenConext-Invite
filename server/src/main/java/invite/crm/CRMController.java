@@ -60,6 +60,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -280,109 +281,63 @@ public class CRMController {
             return ResponseEntity.ok(Map.of());
         }
         Organisation organisation = optionalOrganisation.get();
-        if (connectionStatus.connected()) {
-            Map<String, ConnectionStatusResponse> responseMap = userRepository.findByOrganisation(organisation)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            user -> user.getCrmContactId(),
-                            user -> new ConnectionStatusResponse(
-                                    user.getCrmContactId(),
-                                    user.getGivenName(),
-                                    user.getMiddleName(),
-                                    user.getFamilyName(),
-                                    user.getName(),
-                                    user.getEmail(),
-                                    "",
-                                    Map.of(
-                                            "id", 0,
-                                            "abbrev", organisation.getCrmOrganisationAbbrevation(),
-                                            "name", organisation.getCrmOrganisationName(),
-                                            "oid", 0,
-                                            "guid", organisation.getCrmOrganisationId()
-                                    ),
-                                    Map.of(
-                                            "uid", user.getUid(),
-                                            "idp", user.getSchacHomeOrganization()
-                                    ),
-                                    CRMStatusCode.Paired.getStatus(),
-                                    CRMStatusCode.Paired.getStatusCode()
-                            ),
-                            (existing, replacement) -> replacement
-                    ));
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("/crm/api/v1/profiles connectionStatus.connected is true. Returning %s", responseMap));
-            }
-            return ResponseEntity.ok(responseMap);
-        } else {
-            Map<String, ConnectionStatusResponse> responseMap = invitationRepository
-                    .findByCrmOrganisationIdAndStatus(crmOrganisationId, Status.OPEN)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            invitation -> invitation.getCrmContactId(),
-                            invitation -> {
-                                CRMStatusCode crmStatusCode = crmStatusCode(invitation);
-                                return userRepository.findByCrmContactIdAndOrganisation(invitation.getCrmContactId(), organisation)
-                                        .map(user -> new ConnectionStatusResponse(
-                                                invitation.getCrmContactId(),
-                                                user.getGivenName(),
-                                                user.getMiddleName(),
-                                                user.getFamilyName(),
-                                                user.getName(),
-                                                user.getEmail(),
-                                                "",
-                                                Map.of(
-                                                        "id", 0,
-                                                        "abbrev", organisation.getCrmOrganisationAbbrevation(),
-                                                        "name", organisation.getCrmOrganisationName(),
-                                                        "oid", 0,
-                                                        "guid", organisation.getCrmOrganisationId()
-                                                ),
-                                                Map.of(
-                                                        "uid", resolveUserUid(user),
-                                                        "idp", user.getSchacHomeOrganization()
-                                                ),
-                                                crmStatusCode.getStatus(),
-                                                crmStatusCode.getStatusCode()
-                                        )).orElse(new ConnectionStatusResponse(
-                                                invitation.getCrmContactId(),
-                                                null,
-                                                null,
-                                                null,
-                                                null,
-                                                invitation.getEmail(),
-                                                "",
-                                                Map.of(
-                                                        "id", 0,
-                                                        "abbrev", organisation.getCrmOrganisationAbbrevation(),
-                                                        "name", organisation.getCrmOrganisationName(),
-                                                        "oid", 0,
-                                                        "guid", organisation.getCrmOrganisationId()
-                                                ),
-                                                Map.of(),
-                                                crmStatusCode.getStatus(),
-                                                crmStatusCode.getStatusCode()
-                                        ));
-                            },
-                            (existing, replacement) -> replacement
-                    ));
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("/crm/api/v1/profiles connectionStatus.connected is false. Returning %s", responseMap));
-            }
-            return ResponseEntity.ok(responseMap);
-        }
-    }
+        Map<String, ConnectionStatusResponse> responseMap = new HashMap<>();
+        userRepository.findByOrganisation(organisation)
+                .forEach(user -> responseMap.put(
+                                user.getCrmContactId(),
+                                new ConnectionStatusResponse(
+                                        user.getCrmContactId(),
+                                        user.getGivenName(),
+                                        user.getMiddleName(),
+                                        user.getFamilyName(),
+                                        user.getName(),
+                                        user.getEmail(),
+                                        "",
+                                        Map.of(
+                                                "id", 0,
+                                                "abbrev", organisation.getCrmOrganisationAbbrevation(),
+                                                "name", organisation.getCrmOrganisationName(),
+                                                "oid", 0,
+                                                "guid", organisation.getCrmOrganisationId()
+                                        ),
+                                        Map.of(
+                                                "uid", user.getUid(),
+                                                "idp", user.getSchacHomeOrganization()
+                                        ),
+                                        CRMStatusCode.Paired.getStatus(),
+                                        CRMStatusCode.Paired.getStatusCode()
+                                )
+                        )
+                );
 
-    private String resolveUserUid(User user) {
-        String uid = user.getUid();
-        if (StringUtils.hasText(uid)) {
-            return uid;
+        invitationRepository
+                .findByCrmOrganisationIdAndStatus(crmOrganisationId, Status.OPEN)
+                .forEach(invitation -> responseMap.put(
+                        invitation.getCrmContactId(),
+                        new ConnectionStatusResponse(
+                                invitation.getCrmContactId(),
+                                null,
+                                null,
+                                null,
+                                null,
+                                invitation.getEmail(),
+                                "",
+                                Map.of(
+                                        "id", 0,
+                                        "abbrev", organisation.getCrmOrganisationAbbrevation(),
+                                        "name", organisation.getCrmOrganisationName(),
+                                        "oid", 0,
+                                        "guid", organisation.getCrmOrganisationId()
+                                ),
+                                Map.of(),
+                                CRMStatusCode.InProcess.getStatus(),
+                                CRMStatusCode.InProcess.getStatusCode()
+                        )
+                ));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("/crm/api/v1/profiles Returning %s", responseMap));
         }
-        String sub = user.getSub();
-        return sub.substring(sub.lastIndexOf(":") + 1);
-    }
-
-    private CRMStatusCode crmStatusCode(Invitation invitation) {
-        return invitation.getExpiryDate().isBefore(Instant.now()) ? CRMStatusCode.NotPaired : CRMStatusCode.InProcess;
+        return ResponseEntity.ok(responseMap);
     }
 
     @PostMapping(value = "/crm/api/v1/invite/resend", produces = MediaType.APPLICATION_JSON_VALUE)
