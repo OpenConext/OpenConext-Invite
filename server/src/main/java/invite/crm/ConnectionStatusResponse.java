@@ -11,8 +11,8 @@ public record ConnectionStatusResponse(String guid,
                                        String fullname,
                                        String email,
                                        String mobile,
-                                       Map<String, String> organisation,
-                                       Map<String, String> link,
+                                       Map<String, Object> organisation,
+                                       Map<String, Object> link,
                                        String status,
                                        @JsonProperty("status_code")  String statusCode) {
 }
