@@ -331,10 +331,10 @@ public class CRMController {
                                                 user.getEmail(),
                                                 "",
                                                 Map.of(
-                                                        "id", organisation.getCrmOrganisationId(),
+                                                        "id", 0,
                                                         "abbrev", organisation.getCrmOrganisationAbbrevation(),
                                                         "name", organisation.getCrmOrganisationName(),
-                                                        "oid", organisation.getCrmOrganisationAbbrevation(),
+                                                        "oid", 0,
                                                         "guid", organisation.getCrmOrganisationId()
                                                 ),
                                                 Map.of(
@@ -352,10 +352,10 @@ public class CRMController {
                                                 invitation.getEmail(),
                                                 "",
                                                 Map.of(
-                                                        "id", organisation.getCrmOrganisationId(),
+                                                        "id", 0,
                                                         "abbrev", organisation.getCrmOrganisationAbbrevation(),
                                                         "name", organisation.getCrmOrganisationName(),
-                                                        "oid", organisation.getCrmOrganisationAbbrevation(),
+                                                        "oid", 0,
                                                         "guid", organisation.getCrmOrganisationId()
                                                 ),
                                                 Map.of(),
