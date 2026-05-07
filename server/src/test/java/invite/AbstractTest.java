@@ -669,6 +669,12 @@ public abstract class AbstractTest {
         this.organisationRepository.deleteAllInBatch();
         this.jdbcTemplate.update("delete from distributed_locks");
 
+
+        Organisation organisation = new Organisation(
+                CRM_ORGANIZATION_ID, "SURF", "SURF"
+        );
+        doSave(organisationRepository, organisation);
+
         User superUser =
                 new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
         User institutionAdmin =
@@ -676,11 +682,6 @@ public abstract class AbstractTest {
         institutionAdmin.setInstitutionAdmin(true);
         institutionAdmin.setInstitutionAdminByInvite(true);
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
-
-        Organisation organisation = new Organisation(
-                CRM_ORGANIZATION_ID, "SURF", "SURF"
-        );
-        doSave(organisationRepository, organisation);
 
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
@@ -698,6 +699,7 @@ public abstract class AbstractTest {
         kbUser.setOrganisation(organisation);
 
         doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest, kbUser);
+        this.userRepository.flush();
 
         Role wiki =
                 new Role("Wiki", "Wiki desc",
@@ -709,7 +711,6 @@ public abstract class AbstractTest {
                 new Role("Network", "Network desc",
                         application("2", EntityType.SAML20_SP), 365, false, false);
         network.setEduIDOnly(true);
-
 
         Set<Application> applications = Set.of(
                         new Application("3", EntityType.SAML20_SP),
@@ -744,6 +745,7 @@ public abstract class AbstractTest {
         List.of(wiki, network, storage, research, calendar, mail)
                 .forEach(role -> role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role)));
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
+        this.roleRepository.flush();
 
         UserRole wikiManager =
                 new UserRole("system", manager, wiki, Authority.MANAGER);
