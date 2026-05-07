@@ -269,8 +269,14 @@ public class CRMController {
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<Map<String, ConnectionStatusResponse>> connectionStatus(@RequestBody ConnectionStatus connectionStatus) {
         String crmOrganisationId = connectionStatus.organisationId();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("/crm/api/v1/profiles for crmOrganisationId %s", crmOrganisationId));
+        }
         Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(crmOrganisationId);
         if (optionalOrganisation.isEmpty()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("/crm/api/v1/profiles No organisation found for %s", crmOrganisationId));
+            }
             return ResponseEntity.ok(Map.of());
         }
         Organisation organisation = optionalOrganisation.get();
@@ -287,6 +293,9 @@ public class CRMController {
                                     CRMStatusCode.Paired.getStatus(), CRMStatusCode.Paired.getStatusCode()
                             )
                     ));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("/crm/api/v1/profiles connectionStatus.connected is true. Returning %s", responseMap));
+            }
             return ResponseEntity.ok(responseMap);
         } else {
             Map<String, ConnectionStatusResponse> responseMap = invitationRepository
@@ -313,6 +322,9 @@ public class CRMController {
                             },
                             (existing, replacement) -> replacement
                     ));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("/crm/api/v1/profiles connectionStatus.connected is false. Returning %s", responseMap));
+            }
             return ResponseEntity.ok(responseMap);
         }
     }
@@ -336,6 +348,9 @@ public class CRMController {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<ResendInvitationResponse> resendInvitation(@RequestBody ResendInvitation resendInvitation) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("/crm/api/v1/invite/resend for %s", resendInvitation));
+        }
         List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(resendInvitation.crmContatcId(),
                 resendInvitation.crmOrganisationId());
         invitations.forEach(invitation -> {
@@ -355,7 +370,11 @@ public class CRMController {
 
         });
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
-        return ResponseEntity.ok(new ResendInvitationResponse(timestamp, 200, "ok", "Resend invitation"));
+        ResendInvitationResponse response = new ResendInvitationResponse(timestamp, 200, "ok", "Resend invitation");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("/crm/api/v1/invite/resend returning %s", response));
+        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(value = "/crm/api/v1/invite/remove", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -391,6 +410,10 @@ public class CRMController {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<List<CRMOrganisation>> organisations() {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("/crm/api/v1/organisations called");
+        }
+
         List<Organisation> organisations = organisationRepository.findByCrmOrganisationIdIsNotNull();
         List<CRMOrganisation> crmOrganisations = organisations.stream()
                 .map(organisation -> new CRMOrganisation(
@@ -399,6 +422,9 @@ public class CRMController {
                         organisation.getCrmOrganisationName()
                 ))
                 .toList();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("/crm/api/v1/organisations returning %s", crmOrganisations));
+        }
         return ResponseEntity.ok(crmOrganisations);
     }
 

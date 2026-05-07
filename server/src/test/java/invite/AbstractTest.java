@@ -834,8 +834,9 @@ public abstract class AbstractTest {
 
     @SafeVarargs
     protected final <M> void doSave(JpaRepository<M, Long> repository, M... entities) {
-        repository.saveAll(Arrays.asList(entities));
+        Arrays.asList(entities).forEach(entity -> {
+            repository.save(entity);
+        });
     }
-
 
 }
