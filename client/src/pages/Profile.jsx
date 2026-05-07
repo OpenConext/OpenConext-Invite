@@ -10,13 +10,12 @@ import {UnitHeader} from "../components/UnitHeader";
 import Logo from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {dateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
-import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 
 export const Profile = () => {
     const {id} = useParams();
     const {user: currentUser, config} = useAppStore(state => state);
     const [user, setUser] = useState(currentUser);
-    const [otherInstitutionAdmins,setOtherInstitutionAdmins] = useState([]);
+    const [otherInstitutionAdmins, setOtherInstitutionAdmins] = useState([]);
 
     const [loading, setLoading] = useState(!isEmpty(id) || user.institutionAdmin);
 
@@ -42,13 +41,13 @@ export const Profile = () => {
 
     useEffect(() => {
         if (!loading && user) {
-                    useAppStore.setState({
-                        breadcrumbPath: [
-                            {path: "/home", value: I18n.t("tabs.home")},
-                            {path: "/home/users", value: I18n.t("tabs.users")},
-                            {value: user.name}
-                        ]
-                    });
+            useAppStore.setState({
+                breadcrumbPath: [
+                    {path: "/home", value: I18n.t("tabs.home")},
+                    {path: "/home/users", value: I18n.t("tabs.users")},
+                    {value: user.name}
+                ]
+            });
         } else {
             useAppStore.setState({
                 breadcrumbPath: [

@@ -14,7 +14,6 @@ import {Tokens} from "../tabs/Tokens";
 import {ApplicationUsers} from "../tabs/ApplicationUsers";
 import Applications from "../tabs/Applications";
 import {isEmpty} from "../utils/Utils";
-import {Invitations} from "../tabs/Invitations";
 import {MineInvitations} from "../tabs/MineInvitations";
 
 export const Home = () => {
