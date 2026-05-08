@@ -813,7 +813,7 @@ public abstract class AbstractTest {
         APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
                 "Test-user token", inviter);
         doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
-        this.apiTokenRepository.flush();
+
     }
 
     protected void seedUserRoleAudits(Instant createdAt) {

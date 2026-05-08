@@ -284,34 +284,34 @@ public class CRMController {
         Map<String, ConnectionStatusResponse> responseMap = new HashMap<>();
         userRepository.findByOrganisation(organisation)
                 .forEach(user -> {
-                    boolean hasCRMRole = user.getUserRoles().stream()
-                            .anyMatch(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()));
-                    CRMStatusCode crmStatusCode = hasCRMRole ? CRMStatusCode.Paired : CRMStatusCode.NotPaired;
+                            boolean hasCRMRole = user.getUserRoles().stream()
+                                    .anyMatch(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()));
+                            CRMStatusCode crmStatusCode = hasCRMRole ? CRMStatusCode.Paired : CRMStatusCode.NotPaired;
                             responseMap.put(
+                                    user.getCrmContactId(),
+                                    new ConnectionStatusResponse(
                                             user.getCrmContactId(),
-                                            new ConnectionStatusResponse(
-                                                    user.getCrmContactId(),
-                                                    user.getGivenName(),
-                                                    user.getMiddleName(),
-                                                    user.getFamilyName(),
-                                                    user.getName(),
-                                                    user.getEmail(),
-                                                    "",
-                                                    Map.of(
-                                                            "id", 0,
-                                                            "abbrev", organisation.getCrmOrganisationAbbrevation(),
-                                                            "name", organisation.getCrmOrganisationName(),
-                                                            "oid", 0,
-                                                            "guid", organisation.getCrmOrganisationId()
-                                                    ),
-                                                    Map.of(
-                                                            "uid", user.getUid(),
-                                                            "idp", user.getSchacHomeOrganization()
-                                                    ),
-                                                    crmStatusCode.getStatus(),
-                                                    crmStatusCode.getStatusCode()
-                                            )
-                                    );
+                                            user.getGivenName(),
+                                            user.getMiddleName(),
+                                            user.getFamilyName(),
+                                            user.getName(),
+                                            user.getEmail(),
+                                            "",
+                                            Map.of(
+                                                    "id", 0,
+                                                    "abbrev", organisation.getCrmOrganisationAbbrevation(),
+                                                    "name", organisation.getCrmOrganisationName(),
+                                                    "oid", 0,
+                                                    "guid", organisation.getCrmOrganisationId()
+                                            ),
+                                            Map.of(
+                                                    "uid", user.getUid(),
+                                                    "idp", user.getSchacHomeOrganization()
+                                            ),
+                                            crmStatusCode.getStatus(),
+                                            crmStatusCode.getStatusCode()
+                                    )
+                            );
                         }
                 );
 
@@ -455,7 +455,7 @@ public class CRMController {
         LOG.debug("POST /crm/api/v1/invite/send: " + sendInvitation);
 
         if (CollectionUtils.isEmpty(sendInvitation.roles())) {
-            throw new InvalidInputException("Roles are required for /crm/api/v1/invite/send");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Roles are required for /crm/api/v1/invite/send");
         }
 
         Organisation organisation = organisationRepository.findByCrmOrganisationId(sendInvitation.crmOrganisationId())
