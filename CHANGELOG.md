@@ -5,20 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 1.1.9
+## 1.1.10
 
 - Added debug logging for CRM endpoints
-
-## 1.1.8
-
 - Fix: in attribute aggregation for authorization roles ensure the role is a valid CRM role
-
-## 1.1.7
-
 - Fix: Duplicate key exception for CRM invitations
-
-## 1.1.6
-
 - Fix: Institution admin application search
 - Fix: CRM delete API
 - Fix: Continue when SCIM update of personal details produces an error
