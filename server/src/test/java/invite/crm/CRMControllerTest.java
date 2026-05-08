@@ -607,9 +607,8 @@ class CRMControllerTest extends AbstractMailTest {
 
     @Test
     void connectionStatusWithUserPaired() {
-        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
         Role role = this.roleRepository.findByName("Research").get();
-        role.setOrganisation(organisation);
+        role.setCrmRoleId(UUID.randomUUID().toString());
         roleRepository.save(role);
 
         Map<String, ConnectionStatusResponse> response = given()

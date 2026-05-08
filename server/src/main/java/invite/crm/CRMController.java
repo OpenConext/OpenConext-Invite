@@ -285,7 +285,7 @@ public class CRMController {
         userRepository.findByOrganisation(organisation)
                 .forEach(user -> {
                     boolean hasCRMRole = user.getUserRoles().stream()
-                            .anyMatch(userRole -> userRole.getRole().getOrganisation() != null);
+                            .anyMatch(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()));
                     CRMStatusCode crmStatusCode = hasCRMRole ? CRMStatusCode.Paired : CRMStatusCode.NotPaired;
                             responseMap.put(
                                             user.getCrmContactId(),
