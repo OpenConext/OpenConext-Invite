@@ -283,31 +283,36 @@ public class CRMController {
         Organisation organisation = optionalOrganisation.get();
         Map<String, ConnectionStatusResponse> responseMap = new HashMap<>();
         userRepository.findByOrganisation(organisation)
-                .forEach(user -> responseMap.put(
-                                user.getCrmContactId(),
-                                new ConnectionStatusResponse(
-                                        user.getCrmContactId(),
-                                        user.getGivenName(),
-                                        user.getMiddleName(),
-                                        user.getFamilyName(),
-                                        user.getName(),
-                                        user.getEmail(),
-                                        "",
-                                        Map.of(
-                                                "id", 0,
-                                                "abbrev", organisation.getCrmOrganisationAbbrevation(),
-                                                "name", organisation.getCrmOrganisationName(),
-                                                "oid", 0,
-                                                "guid", organisation.getCrmOrganisationId()
-                                        ),
-                                        Map.of(
-                                                "uid", user.getUid(),
-                                                "idp", user.getSchacHomeOrganization()
-                                        ),
-                                        CRMStatusCode.Paired.getStatus(),
-                                        CRMStatusCode.Paired.getStatusCode()
-                                )
-                        )
+                .forEach(user -> {
+                    boolean hasCRMRole = user.getUserRoles().stream()
+                            .anyMatch(userRole -> userRole.getRole().getOrganisation() != null);
+                    CRMStatusCode crmStatusCode = hasCRMRole ? CRMStatusCode.Paired : CRMStatusCode.NotPaired;
+                            responseMap.put(
+                                            user.getCrmContactId(),
+                                            new ConnectionStatusResponse(
+                                                    user.getCrmContactId(),
+                                                    user.getGivenName(),
+                                                    user.getMiddleName(),
+                                                    user.getFamilyName(),
+                                                    user.getName(),
+                                                    user.getEmail(),
+                                                    "",
+                                                    Map.of(
+                                                            "id", 0,
+                                                            "abbrev", organisation.getCrmOrganisationAbbrevation(),
+                                                            "name", organisation.getCrmOrganisationName(),
+                                                            "oid", 0,
+                                                            "guid", organisation.getCrmOrganisationId()
+                                                    ),
+                                                    Map.of(
+                                                            "uid", user.getUid(),
+                                                            "idp", user.getSchacHomeOrganization()
+                                                    ),
+                                                    crmStatusCode.getStatus(),
+                                                    crmStatusCode.getStatusCode()
+                                            )
+                                    );
+                        }
                 );
 
         invitationRepository

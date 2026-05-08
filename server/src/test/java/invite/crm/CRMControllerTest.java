@@ -549,8 +549,6 @@ class CRMControllerTest extends AbstractMailTest {
         Invitation invitation = invitationRepository.findByHash(Authority.GUEST.name()).get();
         invitation.setCrmContactId(CRM_CONTACT_ID);
         invitation.setCrmOrganisationId(CRM_ORGANIZATION_ID);
-        //This will cause the CRMStatusCode.NotPaired
-        invitation.setExpiryDate(Instant.now().minus(600, ChronoUnit.DAYS));
         invitationRepository.save(invitation);
 
         Map<String, ConnectionStatusResponse> response = given()
@@ -590,7 +588,30 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
-    void connectionStatusWithUser() {
+    void connectionStatusWithUserNotPaired() {
+        Map<String, ConnectionStatusResponse> response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(new ConnectionStatus(CRM_ORGANIZATION_ID))
+                .get("/crm/api/v1/profiles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, response.size());
+        ConnectionStatusResponse connectionStatusResponse = response.get(CRM_CONTACT_ID);
+        assertEquals("guest", connectionStatusResponse.link().get("uid"));
+        assertEquals("kb.nl", connectionStatusResponse.link().get("idp"));
+        assertEquals(CRMStatusCode.NotPaired.getStatusCode(), connectionStatusResponse.statusCode());
+    }
+
+    @Test
+    void connectionStatusWithUserPaired() {
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
+        Role role = this.roleRepository.findByName("Research").get();
+        role.setOrganisation(organisation);
+        roleRepository.save(role);
+
         Map<String, ConnectionStatusResponse> response = given()
                 .when()
                 .accept(ContentType.JSON)
