@@ -33,12 +33,15 @@ public class ImageEmbedder {
             String contentType = response.headers()
                     .firstValue("Content-Type")
                     .orElse(DEFAULT_CONTENT_TYPE);
-            String base64Data = Base64.getEncoder().encodeToString(response.body());
 
-            return Optional.of("data:" + contentType + ";base64," + base64Data);
+            return Optional.of(toDataUrl(contentType, response.body()));
         } catch (Exception e) {
             LOG.warn(String.format("Error fetching image from %s: %s", imageUrl, e.getMessage()));
             return Optional.empty();
         }
+    }
+
+    static String toDataUrl(String contentType, byte[] body) {
+        return "data:" + contentType + ";base64," + Base64.getEncoder().encodeToString(body);
     }
 }
