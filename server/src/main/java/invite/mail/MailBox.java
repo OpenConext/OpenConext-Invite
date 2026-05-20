@@ -19,6 +19,10 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,7 +77,29 @@ public class MailBox {
                     .map(idp -> idp.getName())
                     .orElse(user.getSchacHomeOrganization()));
             variables.put("institutionLogoUrl", identityProvider
-                    .map(idp -> idp.getLogoUrl())
+                    .map(idp -> {
+                        String imageUrl = idp.getLogoUrl();
+                        String htmlImgSrc;
+
+                        try {
+                            HttpClient client = HttpClient.newHttpClient();
+                            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(imageUrl)).build();
+                            HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+                            String contentType = response.headers()
+                                    .firstValue("Content-Type")
+                                    .orElse("image/png");
+
+                            String base64Data = Base64.getEncoder().encodeToString(response.body());
+
+                            htmlImgSrc = "data:" + contentType + ";base64," + base64Data;
+                        } catch (Exception e) {
+                            System.err.println("Error fetching image: " + e.getMessage());
+                            htmlImgSrc = "";
+                        }
+
+                        return htmlImgSrc;
+                    })
                     .orElse(null));
         } else {
             variables.put("institutionName", "SURF");
