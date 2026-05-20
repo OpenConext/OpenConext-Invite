@@ -2,11 +2,17 @@ package invite.mail;
 
 import invite.cron.IdPMetaDataResolver;
 import invite.cron.IdentityProvider;
-import invite.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
+import invite.model.Authority;
+import invite.model.GroupedProviders;
+import invite.model.Invitation;
+import invite.model.Language;
+import invite.model.Provisionable;
+import invite.model.User;
+import invite.model.UserRole;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.SneakyThrows;
@@ -19,11 +25,11 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -77,29 +83,7 @@ public class MailBox {
                     .map(idp -> idp.getName())
                     .orElse(user.getSchacHomeOrganization()));
             variables.put("institutionLogoUrl", identityProvider
-                    .map(idp -> {
-                        String imageUrl = idp.getLogoUrl();
-                        String htmlImgSrc;
-
-                        try {
-                            HttpClient client = HttpClient.newHttpClient();
-                            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(imageUrl)).build();
-                            HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-
-                            String contentType = response.headers()
-                                    .firstValue("Content-Type")
-                                    .orElse("image/png");
-
-                            String base64Data = Base64.getEncoder().encodeToString(response.body());
-
-                            htmlImgSrc = "data:" + contentType + ";base64," + base64Data;
-                        } catch (Exception e) {
-                            System.err.println("Error fetching image: " + e.getMessage());
-                            htmlImgSrc = "";
-                        }
-
-                        return htmlImgSrc;
-                    })
+                    .flatMap(idp -> ImageEmbedder.fetchAsDataUrl(idp.getLogoUrl()))
                     .orElse(null));
         } else {
             variables.put("institutionName", "SURF");
