@@ -14,7 +14,7 @@ public class ImageEmbedder {
 
     private static final Log LOG = LogFactory.getLog(ImageEmbedder.class);
     private static final String DEFAULT_CONTENT_TYPE = "image/png";
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    static HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     private ImageEmbedder() {
     }
@@ -41,7 +41,7 @@ public class ImageEmbedder {
         }
     }
 
-    static String toDataUrl(String contentType, byte[] body) {
+    private static String toDataUrl(String contentType, byte[] body) {
         return "data:" + contentType + ";base64," + Base64.getEncoder().encodeToString(body);
     }
 }
