@@ -66,6 +66,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.ActiveProfiles;
@@ -196,6 +197,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    protected TransactionTemplate transactionTemplate;
 
     protected LocalManage localManage;
 
@@ -658,13 +662,14 @@ public abstract class AbstractTest {
     }
 
     private void doSeed() {
+        transactionTemplate.executeWithoutResult(status -> {
         this.invitationRepository.deleteAllInBatch();
         this.apiTokenRepository.deleteAllInBatch();
         this.remoteProvisionedGroupRepository.deleteAllInBatch();
         this.remoteProvisionedUserRepository.deleteAllInBatch();
+        this.userRoleRepository.deleteAllInBatch();
         this.roleRepository.deleteAllInBatch();
         this.applicationRepository.deleteAllInBatch();
-        this.userRoleRepository.deleteAllInBatch();
         this.userRepository.deleteAllInBatch();
         this.organisationRepository.deleteAllInBatch();
         this.jdbcTemplate.update("delete from distributed_locks");
@@ -813,7 +818,7 @@ public abstract class AbstractTest {
         APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
                 "Test-user token", inviter);
         doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
-
+        }); // end transactionTemplate.executeWithoutResult
     }
 
     protected void seedUserRoleAudits(Instant createdAt) {

@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Locale;
 
 @EnableWebSecurity
-@EnableScheduling
 @Configuration
 @EnableMethodSecurity
 @EnableConfigurationProperties({ExternalApiConfiguration.class})
