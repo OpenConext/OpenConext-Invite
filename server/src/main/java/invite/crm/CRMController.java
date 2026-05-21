@@ -479,6 +479,7 @@ public class CRMController {
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         User user = optionalUser.orElseGet(() -> createUser(crmContact, sub, organisation));
         user.setCrmContactId(crmContact.getContactId());
+        user.setOrganisation(organisation);
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, user);
 
         List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles, organisation);
