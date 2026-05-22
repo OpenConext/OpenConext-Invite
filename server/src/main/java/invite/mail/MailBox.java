@@ -2,11 +2,17 @@ package invite.mail;
 
 import invite.cron.IdPMetaDataResolver;
 import invite.cron.IdentityProvider;
-import invite.model.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
+import invite.model.Authority;
+import invite.model.GroupedProviders;
+import invite.model.Invitation;
+import invite.model.Language;
+import invite.model.Provisionable;
+import invite.model.User;
+import invite.model.UserRole;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.SneakyThrows;
@@ -19,7 +25,11 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -73,7 +83,7 @@ public class MailBox {
                     .map(idp -> idp.getName())
                     .orElse(user.getSchacHomeOrganization()));
             variables.put("institutionLogoUrl", identityProvider
-                    .map(idp -> idp.getLogoUrl())
+                    .flatMap(idp -> ImageEmbedder.fetchAsDataUrl(idp.getLogoUrl()))
                     .orElse(null));
         } else {
             variables.put("institutionName", "SURF");
