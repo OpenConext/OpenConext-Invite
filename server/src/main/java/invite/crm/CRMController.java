@@ -478,8 +478,14 @@ public class CRMController {
         String sub = constructSub(crmContact.getSchacHomeOrganisation(), crmContact.getUid());
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         User user = optionalUser.orElseGet(() -> createUser(crmContact, sub, organisation));
-        user.setCrmContactId(crmContact.getContactId());
-        user.setOrganisation(organisation);
+        if (optionalUser.isPresent()) {
+            //Existing Invite users must be enriched with CRM info
+            user.setCrmContactId(crmContact.getContactId());
+            user.setOrganisation(organisation);
+            user.setUid(crmContact.getUid());
+            user.setMiddleName(crmContact.getMiddlename());
+        }
+
         List<CRMRole> newCrmRoles = syncCrmRoles(crmContact, user);
 
         List<Role> roles = convertCrmRolesToInviteRoles(crmContact, newCrmRoles, organisation);
@@ -511,6 +517,7 @@ public class CRMController {
                 StringUtils.hasText(middleName) && !middleName.equals(".") ? String.format("%s %s", middleName, surName) : surName,
                 crmContact.getEmail());
         unsavedUser.setUid(crmContact.getUid());
+        unsavedUser.setCrmContactId(crmContact.getContactId());
         unsavedUser.setOrganisation(organisation);
         //Need to keep track of this, for reporting back to CRM API consumers
         unsavedUser.setMiddleName(middleName);
