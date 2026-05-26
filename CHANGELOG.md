@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.12
+
+- Fix: Add CRM info to existing Invite users
+
 ## 1.1.11
 
 - Fix: CRM import also set the organisation for existing Invite users
