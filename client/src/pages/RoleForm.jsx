@@ -32,6 +32,7 @@ import {dateFromEpoch, displayExpiryDate, futureDate, longDateFormat} from "../u
 import DOMPurify from "dompurify";
 import WarningIndicator from "../components/WarningIndicator";
 import {DateField} from "../components/DateField";
+import {ExpandableSwitchField} from "../components";
 
 const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
@@ -508,6 +509,50 @@ export const RoleForm = () => {
                              info={I18n.t("tooltips.eduIDOnlyTooltip")}
                 />
 
+                <ExpandableSwitchField
+                    label="LabelText"
+                    info="InfoText"
+                    value={false}
+                    onChange={val => console.log(val)}
+                >
+                    <div className="role-expiry-date-container">
+                        <p className="label">{I18n.t("invitations.removeRole")}</p>
+                        <div className="role-expiry-date">
+                            <Select className="input-select-inner"
+                                    classNamePrefix={"select-inner"}
+                                    value={removeRoleBy}
+                                    options={removeByOptions}
+                                    onChange={toggleRemoveBy}
+                            />
+                            {removeRoleBy.value === "after" &&
+                                <>
+                                    <InputField value={role.defaultExpiryDays || DEFAULT_EXPIRY_DAYS}
+                                                isInteger={true}
+                                                onChange={e => {
+                                                    const val = parseInt(e.target.value);
+                                                    const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
+                                                    setRole(
+                                                        {...role, defaultExpiryDays: defaultExpiryDays})
+                                                }}
+                                                customClassName="inner-switch"/>
+                                    <span>{I18n.t("invitations.days")}</span>
+                                </>
+                            }
+                            {removeRoleBy.value === "on" &&
+                                <DateField value={role.defaultExpiryDate || futureDate(365, new Date())}
+                                           onChange={e => setRole({...role, defaultExpiryDate: e})}
+                                           showYearDropdown={true}
+                                           pastDatesAllowed={config.pastDateAllowed}
+                                           allowNull={false}
+                                           minDate={futureDate(1, new Date())}
+                                />
+                            }
+
+                        </div>
+                    </div>
+                </ExpandableSwitchField>
+
+                {/* Todo: old toggle, can be removed before opening a PR */}
                 <SwitchField name={"roleExpiryDate"}
                              value={customRoleExpiryDate}
                              onChange={() => {
@@ -562,6 +607,7 @@ export const RoleForm = () => {
                         </div>
                     </div>
                 }
+                {/* ---- Todo: remove till here ----*/}
 
                 {(!initial && removeRoleBy.value === "after" && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
                     <ErrorIndicator msg={I18n.t("forms.required", {

@@ -34,6 +34,7 @@ import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
 import {applicationName} from "../utils/Manage";
+import {ExpandableSwitchField} from "../components";
 
 
 export const InviterContainer = ({isInviter, children}) => {
@@ -161,6 +162,7 @@ export const InvitationForm = () => {
                 intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
                 enforceEmailEquality: initialRole.enforceEmailEquality,
                 eduIDOnly: initialRole.eduIDOnly,
+                // deriveExpirationDate --> does the magic
                 roleExpiryDate: deriveExpirationDate(initialRole.isUserRole ? initialRole.role : initialRole)
             })
             setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
@@ -467,6 +469,17 @@ export const InvitationForm = () => {
                                          info={I18n.t("tooltips.eduIDOnlyTooltip")}
                                          last={invitation.eduIDOnly}
                             />
+
+                            {/* todo insert toggle here */}
+                            <h1>New Toggle here:</h1>
+                            <ExpandableSwitchField
+                                label="LabelText"
+                                info="InfoText"
+                                value={false}
+                                onChange={val => console.log(val)}
+                            >
+                                <h1>Test content</h1>
+                            </ExpandableSwitchField>
 
                             {invitation.eduIDOnly &&
                                 <SelectField
