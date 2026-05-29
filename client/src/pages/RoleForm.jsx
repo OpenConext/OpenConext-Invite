@@ -510,10 +510,21 @@ export const RoleForm = () => {
                 />
 
                 <ExpandableSwitchField
-                    label="LabelText"
-                    info="InfoText"
-                    value={false}
-                    onChange={val => console.log(val)}
+                    name={"roleExpiryDate"}
+                    label={I18n.t(`invitations.roleExpiryDateQuestion`)}
+                    info={customRoleExpiryDateInfo()}
+                    defaultValue={customRoleExpiryDate}
+                    onChange={val => {
+                        if (!val) {
+                            setRole({
+                                ...role,
+                                defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
+                                defaultExpiryDate: null
+                            });
+                            setRemoveRoleBy(removeByOptions[0]);
+                        }
+                        setCustomRoleExpiryDate(val);
+                    }}
                 >
                     <div className="role-expiry-date-container">
                         <p className="label">{I18n.t("invitations.removeRole")}</p>
@@ -553,60 +564,60 @@ export const RoleForm = () => {
                 </ExpandableSwitchField>
 
                 {/* Todo: old toggle, can be removed before opening a PR */}
-                <SwitchField name={"roleExpiryDate"}
-                             value={customRoleExpiryDate}
-                             onChange={() => {
-                                 if (customRoleExpiryDate) {
-                                     setRole({
-                                         ...role,
-                                         defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
-                                         defaultExpiryDate: null
-                                     });
-                                     setRemoveRoleBy(removeByOptions[0]);
-                                 }
-                                 setCustomRoleExpiryDate(!customRoleExpiryDate);
-                             }}
-                             label={I18n.t(`invitations.roleExpiryDateQuestion`)}
-                             info={customRoleExpiryDateInfo()}
-                             last={customRoleExpiryDate}
-                />
-                {customRoleExpiryDate &&
-                    <div className="role-expiry-date-container">
-                        <p className="label">{I18n.t("invitations.removeRole")}</p>
-                        <div className="role-expiry-date">
-                            <Select className="input-select-inner"
-                                    classNamePrefix={"select-inner"}
-                                    value={removeRoleBy}
-                                    options={removeByOptions}
-                                    onChange={toggleRemoveBy}
-                            />
-                            {removeRoleBy.value === "after" &&
-                                <>
-                                    <InputField value={role.defaultExpiryDays || DEFAULT_EXPIRY_DAYS}
-                                                isInteger={true}
-                                                onChange={e => {
-                                                    const val = parseInt(e.target.value);
-                                                    const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;
-                                                    setRole(
-                                                        {...role, defaultExpiryDays: defaultExpiryDays})
-                                                }}
-                                                customClassName="inner-switch"/>
-                                    <span>{I18n.t("invitations.days")}</span>
-                                </>
-                            }
-                            {removeRoleBy.value === "on" &&
-                                <DateField value={role.defaultExpiryDate || futureDate(365, new Date())}
-                                           onChange={e => setRole({...role, defaultExpiryDate: e})}
-                                           showYearDropdown={true}
-                                           pastDatesAllowed={config.pastDateAllowed}
-                                           allowNull={false}
-                                           minDate={futureDate(1, new Date())}
-                                />
-                            }
+                {/*<SwitchField name={"roleExpiryDate"}*/}
+                {/*             value={customRoleExpiryDate}*/}
+                {/*             onChange={() => {*/}
+                {/*                 if (customRoleExpiryDate) {*/}
+                {/*                     setRole({*/}
+                {/*                         ...role,*/}
+                {/*                         defaultExpiryDays: DEFAULT_EXPIRY_DAYS,*/}
+                {/*                         defaultExpiryDate: null*/}
+                {/*                     });*/}
+                {/*                     setRemoveRoleBy(removeByOptions[0]);*/}
+                {/*                 }*/}
+                {/*                 setCustomRoleExpiryDate(!customRoleExpiryDate);*/}
+                {/*             }}*/}
+                {/*             label={I18n.t(`invitations.roleExpiryDateQuestion`)}*/}
+                {/*             info={customRoleExpiryDateInfo()}*/}
+                {/*             last={customRoleExpiryDate}*/}
+                {/*/>*/}
+                {/*{customRoleExpiryDate &&*/}
+                {/*    <div className="role-expiry-date-container">*/}
+                {/*        <p className="label">{I18n.t("invitations.removeRole")}</p>*/}
+                {/*        <div className="role-expiry-date">*/}
+                {/*            <Select className="input-select-inner"*/}
+                {/*                    classNamePrefix={"select-inner"}*/}
+                {/*                    value={removeRoleBy}*/}
+                {/*                    options={removeByOptions}*/}
+                {/*                    onChange={toggleRemoveBy}*/}
+                {/*            />*/}
+                {/*            {removeRoleBy.value === "after" &&*/}
+                {/*                <>*/}
+                {/*                    <InputField value={role.defaultExpiryDays || DEFAULT_EXPIRY_DAYS}*/}
+                {/*                                isInteger={true}*/}
+                {/*                                onChange={e => {*/}
+                {/*                                    const val = parseInt(e.target.value);*/}
+                {/*                                    const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 0;*/}
+                {/*                                    setRole(*/}
+                {/*                                        {...role, defaultExpiryDays: defaultExpiryDays})*/}
+                {/*                                }}*/}
+                {/*                                customClassName="inner-switch"/>*/}
+                {/*                    <span>{I18n.t("invitations.days")}</span>*/}
+                {/*                </>*/}
+                {/*            }*/}
+                {/*            {removeRoleBy.value === "on" &&*/}
+                {/*                <DateField value={role.defaultExpiryDate || futureDate(365, new Date())}*/}
+                {/*                           onChange={e => setRole({...role, defaultExpiryDate: e})}*/}
+                {/*                           showYearDropdown={true}*/}
+                {/*                           pastDatesAllowed={config.pastDateAllowed}*/}
+                {/*                           allowNull={false}*/}
+                {/*                           minDate={futureDate(1, new Date())}*/}
+                {/*                />*/}
+                {/*            }*/}
 
-                        </div>
-                    </div>
-                }
+                {/*        </div>*/}
+                {/*    </div>*/}
+                {/*}*/}
                 {/* ---- Todo: remove till here ----*/}
 
                 {(!initial && removeRoleBy.value === "after" && (isEmpty(role.defaultExpiryDays) || role.defaultExpiryDays < 1)) &&
