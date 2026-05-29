@@ -34,9 +34,6 @@ public class Application implements Serializable {
     @NotNull
     private EntityType manageType;
 
-    @Transient
-    private String landingPage;
-
     @OneToMany(mappedBy = "application",
             fetch = FetchType.LAZY,
             orphanRemoval = true)
@@ -44,12 +41,8 @@ public class Application implements Serializable {
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
     public Application(String manageId, EntityType manageType) {
-        this(manageId, manageType, "https://landingpage.com");
-    }
-
-    public Application(String manageId, EntityType manageType, String landingPage) {
         this.manageId = manageId;
         this.manageType = manageType;
-        this.landingPage = landingPage;
     }
+
 }

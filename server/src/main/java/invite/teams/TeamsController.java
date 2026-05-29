@@ -80,10 +80,11 @@ public class TeamsController {
             });
         }
         //Check if the applications exist in Manage
-        Set<Application> applications = team.getApplications().stream()
-                .filter(this::applicationExists)
-                .collect(Collectors.toSet());
-        if (applications.isEmpty()) {
+        List<Map<String, Object>> providers = team.getApplications().stream()
+                .map(this::providerByApplication)
+                .filter(provider -> !CollectionUtils.isEmpty(provider))
+                .toList();
+        if (CollectionUtils.isEmpty(providers)) {
             throw new InvalidInputException("None of the applications exists in Manage");
         }
         Role role = new Role();
@@ -105,7 +106,12 @@ public class TeamsController {
                                 applicationFromTeams.setId(null);
                                 return applicationRepository.save(applicationFromTeams);
                             });
-                    return new ApplicationUsage(applicationFromDB, applicationFromTeams.getLandingPage());
+                    String landingPage = providers.stream()
+                            .filter(provider -> provider.get("id").equals(applicationFromTeams.getManageId()))
+                            .findFirst()
+                            .map(provider -> (String) provider.get("url"))
+                            .orElse(null);
+                    return new ApplicationUsage(applicationFromDB, landingPage);
                 })
                 .collect(Collectors.toSet());
         role.setApplicationUsages(applicationUsages);
@@ -118,12 +124,11 @@ public class TeamsController {
         return Results.createResult();
     }
 
-    private boolean applicationExists(Application application) {
+    private Map<String, Object> providerByApplication(Application application) {
         try {
-            Map<String, Object> provider = manage.providerById(application.getManageType(), application.getManageId());
-            return provider != null && !provider.isEmpty();
+            return manage.providerById(application.getManageType(), application.getManageId());
         } catch (RuntimeException e) {
-            return false;
+            return Map.of();
         }
     }
 

@@ -485,7 +485,7 @@ export const RoleForm = () => {
                 {allowedToEditApplication &&
                     <div className="application-actions">
                         <Button txt={I18n.t("roles.addApplication")}
-                                disabled={providers.length === applications.length || isEmpty(applications[0])}
+                                disabled={applications.length !== 0 && (providers.length === applications.length || isEmpty(applications[0]))}
                                 onClick={addApplication}/>
                     </div>
                 }
@@ -652,7 +652,8 @@ export const RoleForm = () => {
                     name: I18n.t(`roles.${isNewRole ? "new" : "edit"}`, {name: role.name}),
                     svg: RoleIcon,
                     style: "small"
-                })}/>
+                })}
+            />
             <div className={"role-form"}>
                 {renderForm()}
             </div>
