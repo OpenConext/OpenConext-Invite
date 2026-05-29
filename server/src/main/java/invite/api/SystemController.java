@@ -4,10 +4,14 @@ import invite.config.Config;
 import invite.cron.ResourceCleaner;
 import invite.cron.RoleExpirationNotifier;
 import invite.exception.NotAllowedException;
+import invite.manage.EntityType;
 import invite.manage.Manage;
+import invite.model.Application;
+import invite.model.ApplicationUsage;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
+import invite.repository.ApplicationUsageRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRoleRepository;
 import invite.security.UserPermissions;
@@ -20,6 +24,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
@@ -46,6 +52,7 @@ public class SystemController {
     private final Manage manage;
     private final PerformanceSeed performanceSeed;
     private final Config config;
+    private final ApplicationUsageRepository applicationUsageRepository;
 
     public SystemController(ResourceCleaner resourceCleaner,
                             RoleExpirationNotifier roleExpirationNotifier,
@@ -53,7 +60,8 @@ public class SystemController {
                             UserRoleRepository userRoleRepository,
                             Manage manage,
                             PerformanceSeed performanceSeed,
-                            Config config) {
+                            Config config,
+                            ApplicationUsageRepository applicationUsageRepository) {
         this.resourceCleaner = resourceCleaner;
         this.roleExpirationNotifier = roleExpirationNotifier;
         this.roleRepository = roleRepository;
@@ -61,6 +69,7 @@ public class SystemController {
         this.manage = manage;
         this.performanceSeed = performanceSeed;
         this.config = config;
+        this.applicationUsageRepository = applicationUsageRepository;
     }
 
     @GetMapping("/cron/cleanup")
@@ -109,6 +118,29 @@ public class SystemController {
         }
         UserPermissions.assertSuperUser(user);
         return ResponseEntity.ok(performanceSeed.go(numberOfRole, numberOfUsers));
+    }
+
+    @GetMapping("/landing-page-fix")
+    public ResponseEntity<Map<String, Integer>> landingPageFix(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("landing-page-fix for user %s", user.getEduPersonPrincipalName()));
+        UserPermissions.assertSuperUser(user);
+
+        List<ApplicationUsage> applicationUsages = applicationUsageRepository.findByLandingPageIsNull();
+        applicationUsages.stream()
+                .forEach(applicationUsage -> {
+                    Application application = applicationUsage.getApplication();
+                    Map<String, Object> provider = manage.providerById(application.getManageType(), application.getManageId());
+                    if (!CollectionUtils.isEmpty(provider)) {
+                        String url = (String) provider.get("url");
+                        if (StringUtils.hasText(url)) {
+                            applicationUsage.setLandingPage(url);
+                            LOG.debug(String.format("Saving applicationUsage with url %s", url));
+                            applicationUsageRepository.save(applicationUsage);
+                        }
+                    }
+                });
+
+        return Results.okResult();
     }
 
 }
