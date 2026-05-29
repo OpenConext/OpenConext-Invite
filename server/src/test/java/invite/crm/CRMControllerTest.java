@@ -6,6 +6,7 @@ import invite.AbstractMailTest;
 import invite.exception.NotFoundException;
 import invite.mail.MimeMessageParser;
 import invite.manage.EntityType;
+import invite.model.ApplicationUsage;
 import invite.model.Authority;
 import invite.model.Invitation;
 import invite.model.Organisation;
@@ -19,12 +20,14 @@ import io.restassured.http.ContentType;
 import jakarta.mail.Address;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
@@ -81,6 +84,9 @@ class CRMControllerTest extends AbstractMailTest {
         assertTrue(optionalOrganisation.isPresent());
         Role roleFromDB = roleRepository.findByCrmRoleIdAndOrganisation(role.getCrmRoleId(), organisation).get();
         assertEquals(role.getId(), roleFromDB.getId());
+        Set<ApplicationUsage> applicationUsages = roleFromDB.getApplicationUsages();
+        assertEquals(2, applicationUsages.size());
+        applicationUsages.forEach(applicationUsage -> assertTrue(StringUtils.hasText(applicationUsage.getLandingPage())));
 
         List<ServeEvent> events = getAllServeEvents().stream().filter(e -> e.getRequest().getUrl().startsWith("/api/scim/v2/")).toList();
         assertEquals(3, events.size());

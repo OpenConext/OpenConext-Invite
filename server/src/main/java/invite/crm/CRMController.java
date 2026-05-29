@@ -644,11 +644,11 @@ public class CRMController {
                 .map(provider -> {
                     String manageId = (String) provider.get("id");
                     EntityType manageType = EntityType.valueOf(((String) provider.get("type")).toUpperCase());
-                    return applicationRepository.findByManageIdAndManageTypeOrderById(manageId, manageType)
-                            .orElseGet(
-                                    () -> applicationRepository.save(new Application(manageId, manageType, (String) provider.get("url"))));
+                    Application application = applicationRepository.findByManageIdAndManageTypeOrderById(manageId, manageType)
+                            .orElseGet(() -> applicationRepository.save(new Application(manageId, manageType)));
+                    String landingPage = (String) provider.get("url");
+                    return new ApplicationUsage(application, landingPage);
                 })
-                .map(application -> new ApplicationUsage(application, application.getLandingPage()))
                 .collect(Collectors.toSet());
         String organisationName = crmOrganisation != null ? crmOrganisation.getName() : organisation.getCrmOrganisationName();
         Role unsavedRole = new Role(
