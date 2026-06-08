@@ -29,13 +29,17 @@ import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
-import {deriveExpirationDate, displayExpiryDate, futureDate} from "../utils/Date";
+import {deriveExpirationDate, futureDate} from "../utils/Date";
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
 import {applicationName} from "../utils/Manage";
 import {ExpandableSwitchField} from "../components";
+import Select from "react-select";
 
+const DEFAULT_ROLE_EXPIRY_DAYS = 366;
+
+const removeByOptions = ["after", "on"].map(val => ({value: val, label: I18n.t(`invitations.${val}`)}))
 
 export const InviterContainer = ({isInviter, children}) => {
     return isInviter ?
@@ -57,9 +61,11 @@ export const InvitationForm = () => {
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [originalRoleId, setOriginalRoleId] = useState(null);
+
     const [invitation, setInvitation] = useState({
         expiryDate: futureDate(30),
-        roleExpiryDate: futureDate(366),
+        roleExpiryDate: null,
+        roleExpiryDays: 0,
         invites: [],
         intendedAuthority: AUTHORITIES.GUEST
     });
@@ -73,6 +79,7 @@ export const InvitationForm = () => {
     const [acrValues, setACRValues] = useState({});
     const [language, setLanguage] = useState(I18n.locale === "en" ? languageOptions[0] : languageOptions[1]);
     const required = ["intendedAuthority", "invites"];
+    const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[1]);
 
     const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
 
@@ -162,7 +169,6 @@ export const InvitationForm = () => {
                 intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
                 enforceEmailEquality: initialRole.enforceEmailEquality,
                 eduIDOnly: initialRole.eduIDOnly,
-                // deriveExpirationDate --> does the magic
                 roleExpiryDate: deriveExpirationDate(initialRole.isUserRole ? initialRole.role : initialRole)
             })
             setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
@@ -191,6 +197,9 @@ export const InvitationForm = () => {
         if (isValid()) {
             const invitationRequest = {
                 ...invitation,
+                roleExpiryDate: removeRoleBy.value === "after"
+                    ? futureDate(invitation.roleExpiryDays || DEFAULT_ROLE_EXPIRY_DAYS)
+                    : invitation.roleExpiryDate,
                 roleIdentifiers: selectedRoles.map(role => role.value),
                 language: language.value
             };
@@ -273,7 +282,6 @@ export const InvitationForm = () => {
                 intendedAuthority: intendedAuthority,
                 enforceEmailEquality: enforceEmailEquality,
                 eduIDOnly: eduIDOnly,
-                roleExpiryDate: defaultRoleExpiryDate(newSelectedOptions)
             })
         }
     }
@@ -412,6 +420,17 @@ export const InvitationForm = () => {
             .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
         const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
         const skipRoles = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority)
+
+        const toggleRemoveBy = option => {
+            setRemoveRoleBy(option);
+
+            if (option.value === "after") {
+                setInvitation({...invitation, roleExpiryDays: DEFAULT_ROLE_EXPIRY_DAYS, roleExpiryDate: null})
+            } else {
+                setInvitation({...invitation, roleExpiryDays: 0, roleExpiryDate: futureDate(DEFAULT_ROLE_EXPIRY_DAYS)})
+            }
+        }
+
         return (
             <>
                 {isInviter &&
@@ -470,17 +489,6 @@ export const InvitationForm = () => {
                                          last={invitation.eduIDOnly}
                             />
 
-                            {/* todo insert toggle here */}
-                            <h1>New Toggle here:</h1>
-                            <ExpandableSwitchField
-                                label="LabelText"
-                                info="InfoText"
-                                value={false}
-                                onChange={val => console.log(val)}
-                            >
-                                <h1>Test content</h1>
-                            </ExpandableSwitchField>
-
                             {invitation.eduIDOnly &&
                                 <SelectField
                                     value={requestedAuthnContextOptions.find(option => option.value === invitation.requestedAuthnContext)}
@@ -506,32 +514,50 @@ export const InvitationForm = () => {
                                 />
 
                             }
+
                             {(overrideSettingsAllowed && !skipRoles) &&
-                                <SwitchField name={"roleExpiryDate"}
-                                             value={customRoleExpiryDate}
-                                             onChange={() => {
-                                                 setCustomRoleExpiryDate(!customRoleExpiryDate);
-                                                 setInvitation({
-                                                     ...invitation,
-                                                     roleExpiryDate: defaultRoleExpiryDate(selectedRoles)
-                                                 })
-                                             }}
-                                             label={I18n.t("invitations.roleExpiryDateQuestion")}
-                                             info={I18n.t("invitations.roleExpiryDateInfo", {
-                                                 expiry: displayExpiryDate(invitation.roleExpiryDate)
-                                             })}
-                                />
+                                <ExpandableSwitchField
+                                    name={"roleExpiryDate"}
+                                    label={I18n.t(`invitations.roleExpiryDateQuestion`)}
+                                    info={"customRoleExpiryDateInfo()"}
+                                    defaultValue={customRoleExpiryDate}
+                                    onChange={val => setCustomRoleExpiryDate(val)}
+                                >
+                                    <div className="role-expiry-date-container">
+                                        <p className="label">{I18n.t("invitations.removeRole")}</p>
+                                        <div className="role-expiry-date">
+                                            <Select className="input-select-inner"
+                                                    classNamePrefix={"select-inner"}
+                                                    value={removeRoleBy}
+                                                    options={removeByOptions}
+                                                    onChange={toggleRemoveBy}
+                                            />
+                                            {removeRoleBy.value === "after" &&
+                                                <>
+                                                    <InputField value={invitation.roleExpiryDays}
+                                                                isInteger={true}
+                                                                onChange={e => {
+                                                                    const val = parseInt(e.target.value);
+                                                                    const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 1;
+                                                                    setInvitation({...invitation, roleExpiryDays: defaultExpiryDays})
+                                                                }}
+                                                                customClassName="inner-switch"/>
+                                                    <span>{I18n.t("invitations.days")}</span>
+                                                </>
+                                            }
+                                            {removeRoleBy.value === "on" &&
+                                                <DateField value={invitation.roleExpiryDate || futureDate(DEFAULT_ROLE_EXPIRY_DAYS)}
+                                                           onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
+                                                           showYearDropdown={true}
+                                                           disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
+                                                           pastDatesAllowed={config.pastDateAllowed}
+                                                           allowNull={overrideSettingsAllowed && invitation.intendedAuthority !== AUTHORITIES.GUEST}
+                                                           minDate={futureDate(1, invitation.expiryDate)}/>
+                                            }
+                                        </div>
+                                    </div>
+                                </ExpandableSwitchField>
                             }
-                            {customRoleExpiryDate &&
-                                <DateField value={invitation.roleExpiryDate}
-                                           onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
-                                           showYearDropdown={true}
-                                           disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
-                                           pastDatesAllowed={config.pastDateAllowed}
-                                           allowNull={overrideSettingsAllowed && invitation.intendedAuthority !== AUTHORITIES.GUEST}
-                                           minDate={futureDate(1, invitation.expiryDate)}
-                                           name={I18n.t("invitations.roleExpiryDate")}
-                                           toolTip={I18n.t("tooltips.roleExpiryDateTooltip")}/>}
 
                             <SwitchField name={"expiryDate"}
                                          value={customExpiryDate}
