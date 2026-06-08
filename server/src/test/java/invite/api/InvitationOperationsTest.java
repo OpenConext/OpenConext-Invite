@@ -25,7 +25,7 @@ class InvitationOperationsTest {
     }
 
     @Test
-    void longestByDays() {
+    void shortestByDays() {
         Instant before = Instant.now();
         List<Role> roles = List.of(
                 roleWithExpiryDays(5),
@@ -35,11 +35,11 @@ class InvitationOperationsTest {
 
         Instant result = InvitationOperations.calculateInvitationExpiry(roles);
 
-        assertExpiryInDays(before, result, 90);
+        assertExpiryInDays(before, result, 5);
     }
 
     @Test
-    void longestByDate() {
+    void shortestByDate() {
         Instant soon = Instant.now().plus(3, ChronoUnit.DAYS);
         Instant later = Instant.now().plus(60, ChronoUnit.DAYS);
         List<Role> roles = List.of(
@@ -49,12 +49,12 @@ class InvitationOperationsTest {
 
         Instant result = InvitationOperations.calculateInvitationExpiry(roles);
 
-        assertEquals(later, result);
+        assertEquals(soon, result);
     }
 
     @Test
-    void dateWinsWhenLaterThanDays() {
-        Instant dateExpiry = Instant.now().plus(60, ChronoUnit.DAYS);
+    void dateWinsWhenEarlierThanDays() {
+        Instant dateExpiry = Instant.now().plus(3, ChronoUnit.DAYS);
         List<Role> roles = List.of(
                 roleWithExpiryDays(7),
                 roleWithExpiryDate(dateExpiry)
@@ -62,23 +62,23 @@ class InvitationOperationsTest {
 
         Instant result = InvitationOperations.calculateInvitationExpiry(roles);
 
-        // The dateExpiry (60 days from now) is later than 7 days
+        // The dateExpiry (3 days from now) is earlier than 7 days
         assertEquals(dateExpiry, result);
     }
 
     @Test
-    void daysWinsWhenLaterThanDate() {
+    void daysWinsWhenEarlierThanDate() {
         Instant before = Instant.now();
         Instant dateExpiry = Instant.now().plus(3, ChronoUnit.DAYS);
         List<Role> roles = List.of(
-                roleWithExpiryDays(60),
+                roleWithExpiryDays(1),
                 roleWithExpiryDate(dateExpiry)
         );
 
         Instant result = InvitationOperations.calculateInvitationExpiry(roles);
 
-        // The dateExpiry (3 days from now) is later than 60 days
-        assertExpiryInDays(before, result, 60);
+        // The 1 day of expiration is earlier than dateExpiry (3 days from now)
+        assertExpiryInDays(before, result, 1);
     }
 
     @Test
@@ -88,6 +88,19 @@ class InvitationOperationsTest {
                 new Role(),
                 roleWithExpiryDate(dateExpiry),
                 new Role()
+        );
+
+        Instant result = InvitationOperations.calculateInvitationExpiry(roles);
+
+        assertEquals(dateExpiry, result);
+    }
+
+    @Test
+    void rolesWithZeroDaysAreIgnored() {
+        Instant dateExpiry = Instant.now().plus(45, ChronoUnit.DAYS);
+        List<Role> roles = List.of(
+                roleWithExpiryDays(0),
+                roleWithExpiryDate(dateExpiry)
         );
 
         Instant result = InvitationOperations.calculateInvitationExpiry(roles);
