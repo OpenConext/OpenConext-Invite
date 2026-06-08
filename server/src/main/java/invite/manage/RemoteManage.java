@@ -147,10 +147,7 @@ public class RemoteManage implements Manage {
             results.addAll(providers);
         }
         //Now make the list unique as it is likey that there are duplicates
-        Set<Object> seen = new HashSet<>();
-        List<Map<String, Object>> unique = results.stream()
-                .filter(m -> seen.add(m.get("id")))
-                .toList();
+        List<Map<String, Object>> unique = distinctBy(results, m -> m.get("id"));
 
         LOG.debug(String.format("Got %d results for providersAllowedByIdPs", results.size()));
         return unique;

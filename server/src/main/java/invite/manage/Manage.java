@@ -8,10 +8,13 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static invite.security.InstitutionAdmin.*;
@@ -207,4 +210,13 @@ public interface Manage {
     }
 
 
+    default <T, K> List<T> distinctBy(List<T> list, Function<T, K> keyExtractor) {
+        Set<K> seen = new HashSet<>();
+        return list.stream()
+                .filter(item -> {
+                    K key = keyExtractor.apply(item);
+                    return key != null && seen.add(key);
+                })
+                .toList();
+    }
 }
