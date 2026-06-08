@@ -36,6 +36,8 @@ public interface Manage {
 
     List<Map<String, Object>> identityProvidersByInstitutionalGUID(String organisationGUID);
 
+    List<Map<String, Object>> providersByInstitutionalGUID(List<String> organisationGUIDs);
+
     default List<Map<String, Object>> transformProvider(List<Map<String, Object>> providers) {
         //Defensive because of Manage misbehavior
         if (CollectionUtils.isEmpty(providers)) {

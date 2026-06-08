@@ -9,8 +9,14 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -126,13 +132,29 @@ public final class LocalManage implements Manage {
                 .anyMatch(idp -> (Boolean) idp.getOrDefault("allowedall", Boolean.FALSE))) {
             return allProviders;
         }
+        List<String> institutionGuids = identityProviders.stream()
+                .map(idp -> (String) idp.get("institutionGuid"))
+                .filter(institutionGuid -> StringUtils.hasText(institutionGuid))
+                .toList();
         List<String> entityIdentifiers = identityProviders.stream()
                 .map(idp -> (List<Map<String, String>>) idp.getOrDefault("allowedEntities", emptyList()))
                 .flatMap(Collection::stream)
                 .map(m -> m.get("name"))
                 .distinct()
                 .toList();
-        return allProviders.stream().filter(provider -> entityIdentifiers.contains((String) provider.get("entityid"))).toList();
+        List<Map<String, Object>> providers = allProviders.stream()
+                .filter(provider -> entityIdentifiers.contains((String) provider.get("entityid")) ||
+                        institutionGuids.contains((String) provider.get("institutionGuid")))
+                .toList();
+        return providers;
+    }
+
+    @Override
+    public List<Map<String, Object>> providersByInstitutionalGUID(List<String> organisationGUIDs) {
+        List<Map<String, Object>> allProviders = this.providers(EntityType.SAML20_SP, EntityType.OIDC10_RP);
+        return allProviders.stream()
+                .filter(provider -> organisationGUIDs.contains((String)provider.get("institutionGuid")))
+                .toList();
     }
 
     @Override

@@ -710,7 +710,7 @@ class InvitationControllerTest extends AbstractTest {
                 .as(User.class);
         assertTrue(me.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, me.getOrganizationGUID());
-        assertEquals(4, me.getApplications().size());
+        assertEquals(5, me.getApplications().size());
         assertEquals("https://mock-idp", me.getInstitution().get("entityid"));
     }
 

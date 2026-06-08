@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
@@ -136,8 +137,41 @@ public class RemoteManage implements Manage {
             List<Map<String, Object>> transformedProviders = transformProvider(providers);
             results.addAll(transformedProviders);
         });
+        List<String> organisationGUIDs = identityProviders.stream()
+                .map(idp -> (String )idp.get("institutionGuid"))
+                .filter(institutionGuid -> StringUtils.hasText(institutionGuid))
+                .distinct()
+                .toList();
+        if (!CollectionUtils.isEmpty(organisationGUIDs)) {
+            List<Map<String, Object>> providers = this.providersByInstitutionalGUID(organisationGUIDs);
+            results.addAll(providers);
+        }
+        //Now make the list unique as it is likey that there are duplicates
+        Set<Object> seen = new HashSet<>();
+        List<Map<String, Object>> unique = results.stream()
+                .filter(m -> seen.add(m.get("id")))
+                .toList();
+
         LOG.debug(String.format("Got %d results for providersAllowedByIdPs", results.size()));
+        return unique;
+    }
+
+    @Override
+    public List<Map<String, Object>> providersByInstitutionalGUID(List<String> organisationGUIDs) {
+        LOG.debug("providersByInstitutionalGUID for : " + organisationGUIDs);
+
+        String param = organisationGUIDs.stream().map(id -> String.format("\"%s\"", id)).collect(joining(","));
+        String body = String.format("{ \"data.metaDataFields.coin:institution_guid\": { \"$in\": [%s]}}", param);
+        List<Map<String, Object>> results = new ArrayList<>();
+        List.of(EntityType.SAML20_SP, EntityType.OIDC10_RP).forEach(entityType -> {
+            String manageUrl = String.format("%s/manage/api/internal/rawSearch/%s", url,
+                    entityType.collectionName());
+            List<Map<String, Object>> providers = restTemplate.postForObject(manageUrl, body, List.class);
+            List<Map<String, Object>> transformedProviders = transformProvider(providers);
+            results.addAll(transformedProviders);
+        });
         return results;
+
     }
 
     @Override

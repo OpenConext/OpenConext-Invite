@@ -143,7 +143,7 @@ class UserControllerTest extends AbstractTest {
         assertTrue(user.isInstitutionAdmin());
         assertEquals(ORGANISATION_GUID, user.getOrganizationGUID());
         List<Map<String, Object>> applications = user.getApplications();
-        assertEquals(4, applications.size());
+        assertEquals(5, applications.size());
         Map<String, Object> wiki = applications.stream().filter(m -> m.get("entityid").equals("https://wiki"))
                 .findFirst().get();
         assertTrue((Boolean) wiki.get("receivesMemberships"));
@@ -265,7 +265,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/me")
                 .as(User.class);
         assertEquals(INSTITUTION_ADMIN_SUB, user.getEduPersonPrincipalName());
-        assertEquals(4, user.getApplications().size());
+        assertEquals(5, user.getApplications().size());
         assertEquals(EntityType.SAML20_IDP.collectionName(), user.getInstitution().get("type"));
     }
 
