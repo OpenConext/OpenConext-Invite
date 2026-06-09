@@ -28,7 +28,7 @@ export const shortDateFromEpoch = (epoch, needsMultiplier = true) => {
     return dateTimeFormat.format(new Date(needsMultiplier ? epoch * 1000 : epoch));
 }
 
-const longFormatOptions = {month: "long", weekday: "long", year: "numeric"};
+const longFormatOptions = {weekday: "long", day: "numeric", month: "long", year: "numeric"};
 
 export const longDateFormat = date => {
     if (isEmpty(date)) {
