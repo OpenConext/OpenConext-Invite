@@ -182,9 +182,27 @@ public class CRMController {
         optionalOrganisation
                 .flatMap(organisation -> userRepository.findByCrmContactIdAndOrganisation(crmContact.getContactId(), organisation))
                 .ifPresent(user -> {
-                    LOG.debug("Deleting CRM user: " + user.getEmail());
-                    this.provisioningService.deleteUserRequest(user);
-                    this.userRepository.delete(user);
+                    long inviteNativeUserRolesCount = user.getUserRoles().stream()
+                            .filter(userRole -> !StringUtils.hasText(userRole.getRole().getCrmRoleId()))
+                            .count();
+                    if (inviteNativeUserRolesCount == 0L) {
+                        LOG.debug("Deleting CRM user: " + user.getEmail());
+                        this.provisioningService.deleteUserRequest(user);
+                        this.userRepository.delete(user);
+                    } else {
+                        List<UserRole> crmUserRoles = user.getUserRoles().stream()
+                                .filter(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()))
+                                .toList();
+
+                        LOG.debug("Deleting all CRM roles (but not deleting the user) for user: " + user.getEmail());
+                        crmUserRoles.forEach(crmUserRole -> {
+                            this.userRoleAuditService.logAction(crmUserRole, UserRoleAudit.ActionType.DELETE);
+                            this.provisioningService.deleteUserRoleRequest(crmUserRole);
+                        });
+                        user.getUserRoles().removeIf(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()));
+                        this.userRepository.save(user);
+                    }
+
                 });
         return ResponseEntity.ok().body("deleted");
     }
