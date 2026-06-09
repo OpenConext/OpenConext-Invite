@@ -15,7 +15,6 @@ import invite.security.UserPermissions;
 import invite.validation.EmailFormatValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -25,6 +24,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -140,19 +140,23 @@ public class InvitationOperations {
     }
 
     public static Instant calculateInvitationExpiry(List<Role> requestedRoles) {
-        Integer defaultExpiryDays = requestedRoles.stream()
-                .filter(role -> role.getDefaultExpiryDays() != null)
-                .max(Comparator.comparingInt(Role::getDefaultExpiryDays))
-                .map(Role::getDefaultExpiryDays)
-                .orElse(0);
         Instant now = Instant.now();
-        Instant defaultExpiryDate = requestedRoles.stream()
+
+        Optional<Instant> expiryByDays = requestedRoles.stream()
+                .filter(role -> role.getDefaultExpiryDays() != null && role.getDefaultExpiryDays() > 0)
+                .map(Role::getDefaultExpiryDays)
+                .min(Comparator.naturalOrder())
+                .map(days -> now.plus(days, ChronoUnit.DAYS));
+
+        Optional<Instant> expiryByDate = requestedRoles.stream()
                 .filter(role -> role.getDefaultExpiryDate() != null)
-                .max(Comparator.comparing(Role::getDefaultExpiryDate))
                 .map(Role::getDefaultExpiryDate)
+                .min(Comparator.naturalOrder());
+
+        return Stream.of(expiryByDays, expiryByDate)
+                .flatMap(Optional::stream)
+                .min(Comparator.naturalOrder())
                 .orElse(now);
-        Instant expiryByDays = now.plus(defaultExpiryDays, ChronoUnit.DAYS);
-        return expiryByDays.isAfter(defaultExpiryDate) ? expiryByDays : defaultExpiryDate;
     }
 
     public ResponseEntity<Map<String, Integer>> resendInvitation(Long id,
