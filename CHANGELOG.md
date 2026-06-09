@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.14
+
+- Only delete User in CRM Delete endpoint, if there are no native Invite roles anymore for this user
+
+## 1.1.13
+
+- Added SuperUser endpoint to fix the missing landing pages in Application Usages
+
 ## 1.1.12
 
 - Fix: Add CRM info to existing Invite users

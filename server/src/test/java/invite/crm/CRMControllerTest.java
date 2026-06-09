@@ -19,6 +19,7 @@ import io.restassured.http.ContentType;
 import jakarta.mail.Address;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -439,6 +440,9 @@ class CRMControllerTest extends AbstractMailTest {
         super.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
 
         User user = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
+        user.getUserRoles().removeIf(userRole -> !StringUtils.hasText(userRole.getRole().getCrmRoleId()));
+        userRepository.save(user);
+
         RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, UUID.randomUUID().toString(), "7");
         super.remoteProvisionedUserRepository.save(remoteProvisionedUser);
         //Because of the PUT request of the change in the group, all users are fetched and checked if they exists in the remote SCIM
@@ -465,6 +469,47 @@ class CRMControllerTest extends AbstractMailTest {
                 .orElseThrow(() -> new NotFoundException("Organisation not found: " + CRM_ORGANIZATION_ID));
         Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(CRM_CONTACT_ID, organisation);
         assertTrue(optionalUser.isEmpty());
+    }
+
+    @Test
+    void deleteUserWithNativeInviteRoles() throws JsonProcessingException {
+        CRMContact crmContact = new CRMContact();
+        crmContact.setContactId(CRM_CONTACT_ID);
+        crmContact.setOrganisation(new CRMOrganisation(CRM_ORGANIZATION_ID, "abbr", "name"));
+
+        stubForManageProvisioning(List.of("5"));
+        Role role = roleRepository.findByName("Research").get();
+        RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7");
+        super.remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
+
+        User user = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
+        RemoteProvisionedUser remoteProvisionedUser = new RemoteProvisionedUser(user, UUID.randomUUID().toString(), "7");
+        super.remoteProvisionedUserRepository.save(remoteProvisionedUser);
+        //Because of the PUT request of the change in the group, all users are fetched and checked if they exists in the remote SCIM
+        User guestUser = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        RemoteProvisionedUser remoteProvisionedUserGuest = new RemoteProvisionedUser(guestUser, UUID.randomUUID().toString(), "7");
+        super.remoteProvisionedUserRepository.save(remoteProvisionedUserGuest);
+
+        stubForUpdateScimRole();
+        stubForDeleteScimUser();
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .delete("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("deleted", response);
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + CRM_ORGANIZATION_ID));
+        Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(CRM_CONTACT_ID, organisation);
+        assertFalse(optionalUser.isEmpty());
+        assertEquals(1, optionalUser.get().getUserRoles().size());
     }
 
     @Test
