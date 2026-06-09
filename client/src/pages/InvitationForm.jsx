@@ -29,7 +29,7 @@ import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
 import EmailField from "../components/EmailField";
-import {deriveExpirationDate, futureDate} from "../utils/Date";
+import {deriveExpirationDate, displayExpiryDate, futureDate, longDateFormat} from "../utils/Date";
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
@@ -246,6 +246,21 @@ export const InvitationForm = () => {
 
         return isEmpty(allDefaultExpiryDates) ? futureDate(365, new Date()) :
             new Date(Math.max(...allDefaultExpiryDates.map(d => d.getTime())));
+    }
+
+    const customRoleExpiryDateInfo = () => {
+        let postfix = "Default";
+        if (customRoleExpiryDate) {
+            postfix = removeRoleBy.value === "on" ? "On" : "";
+        }
+        const expiryDate = removeRoleBy.value === "on"
+            ? invitation.roleExpiryDate
+            : futureDate(invitation.roleExpiryDays || DEFAULT_ROLE_EXPIRY_DAYS);
+        return I18n.t(`invitations.roleExpiryDateInfo${postfix}`, {
+            expiry: displayExpiryDate(expiryDate),
+            date: longDateFormat(invitation.roleExpiryDate),
+            days: DEFAULT_ROLE_EXPIRY_DAYS
+        });
     }
 
     const eduIDOnlyChanged = val => {
@@ -525,7 +540,7 @@ export const InvitationForm = () => {
                                 <ExpandableSwitchField
                                     name={"roleExpiryDate"}
                                     label={I18n.t(`invitations.roleExpiryDateQuestion`)}
-                                    info={"customRoleExpiryDateInfo()"}
+                                    info={customRoleExpiryDateInfo()}
                                     defaultValue={customRoleExpiryDate}
                                     onChange={val => setCustomRoleExpiryDate(val)}
                                 >
