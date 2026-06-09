@@ -567,12 +567,11 @@ export const InvitationForm = () => {
                                                 </>
                                             }
                                             {removeRoleBy.value === "on" &&
-                                                <DateField value={invitation.roleExpiryDate}
+                                                <DateField value={invitation.roleExpiryDate || futureDate(DEFAULT_ROLE_EXPIRY_DAYS)}
                                                            onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
                                                            showYearDropdown={true}
                                                            disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
                                                            pastDatesAllowed={config.pastDateAllowed}
-                                                           allowNull={overrideSettingsAllowed && invitation.intendedAuthority !== AUTHORITIES.GUEST}
                                                            minDate={futureDate(1, invitation.expiryDate)}/>
                                             }
                                         </div>
