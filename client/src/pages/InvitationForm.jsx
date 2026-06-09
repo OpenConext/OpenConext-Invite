@@ -34,7 +34,7 @@ import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
 import {applicationName} from "../utils/Manage";
-import {ExpandableSwitchField} from "../components";
+import {ExpandableSwitchField} from "../components/ExpandableSwitchField";
 import Select from "react-select";
 
 const DEFAULT_ROLE_EXPIRY_DAYS = 366;

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import SwitchField from "../SwitchField";
+import SwitchField from "./SwitchField";
 
 export const ExpandableSwitchField = ({
                                           name,

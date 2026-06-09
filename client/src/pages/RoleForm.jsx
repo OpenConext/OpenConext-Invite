@@ -32,7 +32,7 @@ import {dateFromEpoch, displayExpiryDate, futureDate, longDateFormat} from "../u
 import DOMPurify from "dompurify";
 import WarningIndicator from "../components/WarningIndicator";
 import {DateField} from "../components/DateField";
-import {ExpandableSwitchField} from "../components";
+import {ExpandableSwitchField} from "../components/ExpandableSwitchField";
 
 const DEFAULT_EXPIRY_DAYS = 365;
 const CUT_OFF_DELETED_USER = 5;
