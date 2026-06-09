@@ -75,6 +75,7 @@ export const InvitationForm = () => {
     const [customExpiryDate, setCustomExpiryDate] = useState(false);
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [initial, setInitial] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [eduIDIdP, setEduIDIdP] = useState(null);
     const [acrValues, setACRValues] = useState({});
     const [language, setLanguage] = useState(I18n.locale === "en" ? languageOptions[0] : languageOptions[1]);
@@ -194,7 +195,8 @@ export const InvitationForm = () => {
 
     const submit = () => {
         setInitial(false);
-        if (isValid()) {
+        if (isValid() && !isSubmitting) {
+            setIsSubmitting(true);
             const invitationRequest = {
                 ...invitation,
                 roleExpiryDate: removeRoleBy.value === "after"
@@ -213,6 +215,10 @@ export const InvitationForm = () => {
                     } else {
                         navigate(-1);
                     }
+                })
+                .catch(e => {
+                    setIsSubmitting(false);
+                    throw e;
                 });
         }
     }
@@ -546,7 +552,7 @@ export const InvitationForm = () => {
                                                 </>
                                             }
                                             {removeRoleBy.value === "on" &&
-                                                <DateField value={invitation.roleExpiryDate || futureDate(DEFAULT_ROLE_EXPIRY_DAYS)}
+                                                <DateField value={invitation.roleExpiryDate}
                                                            onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
                                                            showYearDropdown={true}
                                                            disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
@@ -587,7 +593,7 @@ export const InvitationForm = () => {
                     <Button type={ButtonType.Secondary}
                             txt={I18n.t("forms.cancel")}
                             onClick={() => navigate(-1)}/>
-                    <Button disabled={disabledSubmit}
+                    <Button disabled={disabledSubmit || isSubmitting}
                             txt={I18n.t("invitations.invite")}
                             onClick={submit}/>
                 </section>
