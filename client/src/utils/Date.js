@@ -4,8 +4,9 @@ import {isEmpty} from "./Utils";
 
 let timeAgoInitialized = false;
 
-export const futureDate = (daysAhead, fromDate = new Date()) => {
-    const time = fromDate.getTime() + (1000 * 60 * 60 * 24 * daysAhead);
+export const futureDate = (daysAhead, fromDate) => {
+    const baseDate = isEmpty(fromDate) ? new Date() : fromDate;
+    const time = baseDate.getTime() + (1000 * 60 * 60 * 24 * daysAhead);
     return new Date(time);
 }
 
