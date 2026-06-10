@@ -1142,6 +1142,50 @@ class CRMControllerTest extends AbstractMailTest {
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
+    @Test
+    void contactDeduplicateRoles() throws JsonProcessingException {
+        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
+        CRMRole duplicateRole = new CRMRole("roleId", "BVW", "Super");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = new CRMContact(
+                "new_user",
+                "hardewijk.org",
+                true,
+                crmContactID,
+                "John",
+                "from",
+                "Doe",
+                "jdoe@example.com",
+                new CRMOrganisation(crmOrganisationID, "abbrec", "Inc. Corporated"),
+                List.of(crmRole, duplicateRole, duplicateRole)
+        );
+
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+        stubForManageProvisioning(List.of("5"));
+        stubForCreateScimRole();
+        stubForCreateScimUser();
+        stubForUpdateScimRole();
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        User user = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation).get();
+        assertEquals(1, user.getUserRoles().size());
+    }
+
     private void seedCRMData() {
         Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
         Role role = new Role();
