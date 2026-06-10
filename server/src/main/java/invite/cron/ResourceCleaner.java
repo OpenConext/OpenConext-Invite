@@ -62,7 +62,8 @@ public class ResourceCleaner {
         this.invitationRepository = invitationRepository;
     }
 
-    @Scheduled(fixedDelayString = "${cron.user-cleaner-cron}", initialDelayString = "${cron.user-cleaner-cron-initial-delay}")
+    @Scheduled(fixedDelayString = "${cron.user-cleaner-cron}",
+            initialDelayString = "#{T(java.util.concurrent.ThreadLocalRandom).current().nextLong(${cron.delay_min:300000}, ${cron.delay_max:900001})}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.user-cleaner-lock-at-least-for}",
             lockAtMostFor = "${cron.user-cleaner-lock-at-most-for}")
     @Transactional

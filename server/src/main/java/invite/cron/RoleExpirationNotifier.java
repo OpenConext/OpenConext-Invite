@@ -39,8 +39,8 @@ public class RoleExpirationNotifier {
         this.mailBox = mailBox;
         this.roleExpirationNotificationDays = roleExpirationNotificationDays;
     }
-
-    @Scheduled(fixedDelayString = "${cron.role-expiration-notifier-cron}", initialDelayString = "${cron.role-expiration-notifier-cron-initial-delay}")
+    @Scheduled(fixedDelayString = "${cron.user-cleaner-cron}",
+            initialDelayString = "#{T(java.util.concurrent.ThreadLocalRandom).current().nextLong(${delay.min:300000}, ${delay.max:900001})}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.role-expiration-notifier-lock-at-least-for}",
             lockAtMostFor = "${cron.role-expiration-notifier-lock-at-most-for}")
     @Transactional

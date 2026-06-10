@@ -187,6 +187,8 @@ public class CRMController {
                             .count();
                     if (inviteNativeUserRolesCount == 0L) {
                         LOG.debug("Deleting CRM user: " + user.getEmail());
+                        user.getUserRoles().forEach(crmUserRole ->
+                                this.userRoleAuditService.logAction(crmUserRole, UserRoleAudit.ActionType.DELETE));
                         this.provisioningService.deleteUserRequest(user);
                         this.userRepository.delete(user);
                     } else {
