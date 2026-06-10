@@ -71,7 +71,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
               FROM users u WHERE 
                        UPPER(u.email) LIKE ?1 or UPPER(u.schac_home_organization) LIKE ?1                      
             """,
-            countQuery = "SELECT count(*) FROM users WHERE " +
+            countQuery = "SELECT count(*) FROM users u WHERE " +
                     "UPPER(u.email) LIKE ?1 or UPPER(u.schac_home_organization) LIKE ?1",
             queryRewriter = UserRepository.class,
             nativeQuery = true)
