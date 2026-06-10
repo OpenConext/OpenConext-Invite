@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.15
+
+- Fix for duplicate CRM roles
+
 ## 1.1.14
 
 - Only delete User in CRM Delete endpoint, if there are no native Invite roles anymore for this user
