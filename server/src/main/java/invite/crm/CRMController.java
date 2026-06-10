@@ -58,12 +58,15 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -144,6 +147,13 @@ public class CRMController {
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> contact(@RequestBody CRMContact crmContact) {
         LOG.debug("POST /api/external/v1/crm: " + crmContact);
+
+        List<CRMRole> distinctRoles = crmContact.getRoles().stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(CRMRole::getRoleId, r -> r, (a, b) -> a, LinkedHashMap::new))
+                .values().stream()
+                .collect(Collectors.toCollection(ArrayList::new));
+        crmContact.setRoles(distinctRoles);
 
         boolean created;
         CRMOrganisation crmOrganisation = crmContact.getOrganisation();
