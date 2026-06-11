@@ -536,21 +536,19 @@ public class CRMController {
     }
 
     private User createUser(CRMContact crmContact, String sub, Organisation organisation) {
-        String middleName = crmContact.getMiddlename();
-        String surName = crmContact.getSurname();
         User unsavedUser = new User(
                 false,
                 crmContact.getEmail(),
                 sub,
                 crmContact.getSchacHomeOrganisation(),
                 crmContact.getFirstname(),
-                StringUtils.hasText(middleName) && !middleName.equals(".") ? String.format("%s %s", middleName, surName) : surName,
+                crmContact.getSurname(),
                 crmContact.getEmail());
+        //Need to keep track of this, for reporting back to CRM API consumers
+        unsavedUser.setMiddleName(crmContact.getMiddlename());
         unsavedUser.setUid(crmContact.getUid());
         unsavedUser.setCrmContactId(crmContact.getContactId());
         unsavedUser.setOrganisation(organisation);
-        //Need to keep track of this, for reporting back to CRM API consumers
-        unsavedUser.setMiddleName(middleName);
         User user = userRepository.save(unsavedUser);
 
         LOG.debug(String.format("Created new user %s with sub %s",

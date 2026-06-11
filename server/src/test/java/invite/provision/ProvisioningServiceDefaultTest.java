@@ -244,7 +244,7 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         assertEquals(2, requests.size());
         String updateRequest = requests.getLast().getBodyAsString();
         //After URLEncoding
-        assertTrue(updateRequest.contains("name=Ely+Doe"));
+        assertTrue(updateRequest.contains("name=Ann+Doe"));
         assertTrue(updateRequest.contains(String.format("id=%s", remoteScimIdentifier)));
     }
 

@@ -1,9 +1,19 @@
 package invite.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import invite.manage.ManageIdentifier;
 import invite.provision.Provisioning;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +22,16 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -318,5 +337,12 @@ public class User implements Serializable, Provisionable {
                                         applicationUsage.getApplication().getManageType())
                         )))
                 .toList();
+    }
+
+    public String getName() {
+        if (StringUtils.hasText(givenName) && StringUtils.hasText(familyName)) {
+            return String.format("%s %s%s", givenName, StringUtils.hasText(middleName) ? middleName + " " : "", familyName);
+        }
+        return name;
     }
 }
