@@ -317,10 +317,11 @@ public class CRMController {
                             boolean hasCRMRole = user.getUserRoles().stream()
                                     .anyMatch(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()));
                             CRMStatusCode crmStatusCode = hasCRMRole ? CRMStatusCode.Paired : CRMStatusCode.NotPaired;
-                            responseMap.put(
-                                    user.getCrmContactId(),
+                    String crmContactId = user.getCrmContactId();
+                    responseMap.put(
+                            crmContactId,
                                     new ConnectionStatusResponse(
-                                            user.getCrmContactId(),
+                                            crmContactId,
                                             user.getGivenName(),
                                             user.getMiddleName(),
                                             user.getFamilyName(),
