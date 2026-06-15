@@ -149,7 +149,7 @@ export const Role = () => {
         return actions;
     }
 
-    const tabChanged = (name) => {
+    const tabChanged = name => {
         setCurrentTab(name);
         navigate(`/roles/${role.id}/${name}`);
     }
@@ -167,6 +167,7 @@ export const Role = () => {
             {isInviter &&
                 <UnitHeaderInviter role={role}
                                    userRole={userRole}
+                                   inviteAllowed={currentTab !== "maintainers"}
                                    managerEmails={managerEmails}/>}
             {!isInviter &&
                 <UnitHeader obj={({...role, logo: logo})}
