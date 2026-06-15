@@ -63,7 +63,7 @@ public class ResourceCleaner {
     }
 
     @Scheduled(fixedDelayString = "${cron.user-cleaner-cron}",
-            initialDelayString = "#{T(java.util.concurrent.ThreadLocalRandom).current().nextLong(${cron.delay_min:300000}, ${cron.delay_max:900001})}")
+            initialDelayString = "#{T(java.util.concurrent.ThreadLocalRandom).current().nextLong(${cron.delay_min:200000}, ${cron.delay_max:1200001})}")
     @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "${cron.user-cleaner-lock-at-least-for}",
             lockAtMostFor = "${cron.user-cleaner-lock-at-most-for}")
     @Transactional
