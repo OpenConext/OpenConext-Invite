@@ -116,6 +116,8 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
     @Query(value = "SELECT r.id, r.name from roles r where r.organization_guid = ?1", nativeQuery = true)
     List<Map<String, Object>> fetchAllRolesByOrganizanGUID(String organizationGuid);
 
+    List<Role> findByCrmRoleIdIsNotNull();
+
     @Override
     default String rewrite(String query, Sort sort) {
         Sort.Order userRoleCount = sort.getOrderFor("userRoleCount");

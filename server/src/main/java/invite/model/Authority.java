@@ -4,11 +4,12 @@ import java.util.Map;
 
 public enum Authority {
 
-    SUPER_USER(4), INSTITUTION_ADMIN(3), MANAGER(2), INVITER(1), GUEST(0);
+    SUPER_USER(5), INSTITUTION_ADMIN(4), APPLICATION_MANAGER(3), MANAGER(2), INVITER(1), GUEST(0);
 
-    private Map<String, Map<String, String>> translations = Map.of(
+    private final Map<String, Map<String, String>> translations = Map.of(
             "SUPER_USER", Map.of("en", "Super user", "nl", "Super user"),
             "INSTITUTION_ADMIN", Map.of("en", "Institution admin", "nl", "Instellings-admin"),
+            "APPLICATION_MANAGER", Map.of("en", "Application manager", "nl", "Applicatie beheerder"),
             "MANAGER", Map.of("en", "Manager", "nl", "Beheerder"),
             "INVITER", Map.of("en", "Inviter", "nl", "Uitnodiger"),
             "GUEST", Map.of("en", "Guest", "nl", "Gast")

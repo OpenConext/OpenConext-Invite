@@ -44,7 +44,12 @@
       {
         "manageEntityID": "https://cloud",
         "manageType": "oidc10_rp"
+      },
+      {
+        "manageEntityID": "https://nope",
+        "manageType": "saml20_sp"
       }
+
     ]
   },
   "EMPTY": {

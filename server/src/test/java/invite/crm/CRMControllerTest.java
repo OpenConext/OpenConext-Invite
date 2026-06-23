@@ -3,9 +3,11 @@ package invite.crm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import invite.AbstractMailTest;
+import invite.AccessCookieFilter;
 import invite.exception.NotFoundException;
 import invite.mail.MimeMessageParser;
 import invite.manage.EntityType;
+import invite.model.Application;
 import invite.model.ApplicationUsage;
 import invite.model.Authority;
 import invite.model.Invitation;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -32,6 +35,7 @@ import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
 import static invite.security.SecurityConfig.API_KEY_HEADER;
+import static invite.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
@@ -1061,7 +1065,6 @@ class CRMControllerTest extends AbstractMailTest {
 
          stubForManageProviderById(EntityType.OIDC10_RP, "5");
          stubForManageProviderById(EntityType.SAML20_SP, "3");
-      //  stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
 
         String response = given()
                 .when()
@@ -1189,6 +1192,37 @@ class CRMControllerTest extends AbstractMailTest {
                 .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
         User user = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation).get();
         assertEquals(1, user.getUserRoles().size());
+    }
+
+
+    @Test
+    void sync() throws JsonProcessingException {
+        this.seedCRMData();
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
+        Role role = roleRepository.findByName("Calendar").get();
+        role.setCrmRoleId(UUID.randomUUID().toString());
+        role.setCrmRoleAbbrevation("CONVER");
+        role.setCrmRoleName("CONVER");
+        role.setOrganisation(organisation);
+        role.setIdentifier(UUID.randomUUID().toString());
+        roleRepository.save(role);
+
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP,"https://cloud");
+        super.stubForManageProviderById(EntityType.OIDC10_RP, "5");
+
+        Map<String, Map<CRMSync, List<Map<String, String>>>> result = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .header(API_TOKEN_HEADER, API_TOKEN_SUPER_USER_HASH)
+                .get("/api/external/v1/system/crm/sync")
+                .as(new TypeRef<>() {
+                });
+        Map<CRMSync, List<Map<String, String>>> syncListMap = result.get("Calendar");
+        assertEquals(1, syncListMap.get(CRMSync.crm_applications_missing_in_manage).size());
+        assertEquals(1, syncListMap.get(CRMSync.applications_missing_in_invite).size());
+        assertEquals(1, syncListMap.get(CRMSync.applications_missing_in_crm).size());
+
     }
 
     private void seedCRMData() {

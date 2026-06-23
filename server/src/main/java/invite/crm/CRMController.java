@@ -33,7 +33,9 @@ import invite.repository.OrganisationRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import invite.repository.UserRoleRepository;
+import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +61,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -317,9 +320,9 @@ public class CRMController {
                             boolean hasCRMRole = user.getUserRoles().stream()
                                     .anyMatch(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()));
                             CRMStatusCode crmStatusCode = hasCRMRole ? CRMStatusCode.Paired : CRMStatusCode.NotPaired;
-                    String crmContactId = user.getCrmContactId();
-                    responseMap.put(
-                            crmContactId,
+                            String crmContactId = user.getCrmContactId();
+                            responseMap.put(
+                                    crmContactId,
                                     new ConnectionStatusResponse(
                                             crmContactId,
                                             user.getGivenName(),
@@ -499,6 +502,69 @@ public class CRMController {
         sendInvitation(crmContact, organisation);
 
         return ResponseEntity.ok().body("send");
+    }
+
+    @GetMapping(value = "/api/external/v1/system/crm/sync", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Map<CRMSync, List<Map<String, String>>>>> syncReport(@Parameter(hidden = true) User user) {
+        LOG.debug("GET /api/v1/crm");
+
+        UserPermissions.assertSuperUser(user);
+        List<Role> crmRoles = roleRepository.findByCrmRoleIdIsNotNull();
+        Map<String, Map<CRMSync, List<Map<String, String>>>> results = new HashMap<>();
+        //Now check if there are applicationUsages#applications that are not in the CRM config
+        crmRoles.forEach(role -> {
+            results.put(role.getName(), Map.of(
+                    CRMSync.applications_missing_in_invite, new ArrayList<>(),
+                    CRMSync.applications_missing_in_crm, new ArrayList<>(),
+                    CRMSync.crm_applications_missing_in_manage, new ArrayList<>()));
+            CRMConfigEntry crmConfigEntry = this.crmConfig.get(role.getCrmRoleAbbrevation());
+            //Might be null, as no invitations are send out yet for this role
+            if (crmConfigEntry != null) {
+                List<Map<String, Object>> crmConfiguredProviders = crmConfigEntry.crmManageIdentifiers().stream()
+                        .map(crmManageIdentifier -> {
+                            Optional<Map<String, Object>> provider = manage
+                                    .providerByEntityID(crmManageIdentifier.manageType(), crmManageIdentifier.manageEntityID());
+                            if (provider.isEmpty()) {
+                                results.get(role.getName())
+                                        .get(CRMSync.crm_applications_missing_in_manage)
+                                        .add(crmManageIdentifier.toProvider());
+                            }
+                            return provider;
+                        })
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList();
+                List<Application> applications = role.getApplicationUsages().stream()
+                        .map(applicationUsage -> applicationUsage.getApplication())
+                        .toList();
+                applications
+                        .forEach(application -> {
+                            boolean missingInCrmApplication = crmConfiguredProviders.stream()
+                                    .noneMatch(provider -> provider.get("id").equals(application.getManageId()));
+                            // This application is in the Invite database, but is not configured in the CRM config
+                            if (missingInCrmApplication) {
+                                Map<String, Object> provider = manage.providerById(application.getManageType(), application.getManageId());
+                                if (!CollectionUtils.isEmpty(provider)) {
+                                    results.get(role.getName())
+                                            .get(CRMSync.applications_missing_in_crm)
+                                            .add(Map.of("entityid", (String) provider.get("entityid"),
+                                                    "type", application.getManageType().collectionName()));
+                                }
+                            }
+                        });
+                // Now find all applications that are configured in the CRM config, but are not in the Invite database
+                List<Map<String, String>> applicationsMissingInInvite = crmConfiguredProviders.stream()
+                        .filter(provider -> applications.stream()
+                                .noneMatch(application -> application.getManageId().equals(provider.get("id"))))
+                        .map(provider -> Map.of("entityid", (String) provider.get("entityid"),
+                                "type", (String) provider.get("type")))
+                        .toList();
+                results.get(role.getName()).get(CRMSync.applications_missing_in_invite).addAll(applicationsMissingInInvite);
+            }
+        });
+        //Now filter out all roles that have nothing to report
+        results.entrySet().removeIf(entry -> entry.getValue().values().stream().allMatch(Collection::isEmpty));
+        return ResponseEntity.ok().body(results);
     }
 
     private ProfileResponse crmUserNotFoundOrNoRoles() {
