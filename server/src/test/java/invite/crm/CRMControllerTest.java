@@ -530,6 +530,7 @@ class CRMControllerTest extends AbstractMailTest {
         CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "total", "new.com", true);
         //These applications are linked to the 'AAI' CRM role
         stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://cloud");
+
         //Ignore the SCIM provisioning
         stubForManageProvisioning(List.of());
 
@@ -1201,8 +1202,8 @@ class CRMControllerTest extends AbstractMailTest {
         Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
         Role role = roleRepository.findByName("Calendar").get();
         role.setCrmRoleId(UUID.randomUUID().toString());
-        role.setCrmRoleAbbrevation("CONVER");
-        role.setCrmRoleName("CONVER");
+        role.setCrmRoleAbbrevation("SYNC");
+        role.setCrmRoleName("SYNC");
         role.setOrganisation(organisation);
         role.setIdentifier(UUID.randomUUID().toString());
         roleRepository.save(role);

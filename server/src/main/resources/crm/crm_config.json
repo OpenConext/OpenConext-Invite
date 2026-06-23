@@ -44,6 +44,16 @@
       {
         "manageEntityID": "https://cloud",
         "manageType": "oidc10_rp"
+      }
+    ]
+  },
+  "SYNC": {
+    "name": "SURFconextSync",
+    "roleId": "cf652619-08e4-e811-8100-005056956c1b",
+    "applications": [
+      {
+        "manageEntityID": "https://cloud",
+        "manageType": "oidc10_rp"
       },
       {
         "manageEntityID": "https://nope",
