@@ -214,3 +214,9 @@ yarn outdated
 
 CRM api calls have been added to enable migration from a legacy application called SAB (SURF Autorisatie Beheer).
 These api calls are actively used to integrate with the enterprise role administration system.
+
+With the following `cUrl` one can check the sync status
+
+```bash
+curl -H "accept: application/json" -H "X-API-TOKEN: super-user-token" "https://invite.test.surfconext.nl/api/external/v1/system/landing-page-fix"
+```
