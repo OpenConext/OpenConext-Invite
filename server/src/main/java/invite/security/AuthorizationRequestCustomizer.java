@@ -30,15 +30,18 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
     private final String eduidEntityId;
     private final Manage manage;
     private final boolean allowForEduIDOnlyEnforcementForNonGuests;
+    private final boolean inviteAcceptAddLoginHint;
 
     public AuthorizationRequestCustomizer(InvitationRepository invitationRepository,
                                           String eduidEntityId,
                                           Manage manage,
-                                          boolean allowForEduIDOnlyEnforcementForNonGuests) {
+                                          boolean allowForEduIDOnlyEnforcementForNonGuests,
+                                          boolean inviteAcceptAddLoginHint) {
         this.invitationRepository = invitationRepository;
         this.eduidEntityId = eduidEntityId;
         this.manage = manage;
         this.allowForEduIDOnlyEnforcementForNonGuests = allowForEduIDOnlyEnforcementForNonGuests;
+        this.inviteAcceptAddLoginHint = inviteAcceptAddLoginHint;
     }
 
     @Override
@@ -67,11 +70,12 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                         params.put("acr_values", url);
                     }
                     boolean guestInvitation = invitation.getIntendedAuthority().equals(Authority.GUEST);
-                    if (invitation.isEduIDOnly() && (guestInvitation || allowForEduIDOnlyEnforcementForNonGuests)) {
+                    if (invitation.isEduIDOnly() && this.inviteAcceptAddLoginHint &&
+                            (guestInvitation || allowForEduIDOnlyEnforcementForNonGuests)) {
                         LOG.debug("Adding login_hint to authorization request query parameters: " + eduidEntityId);
 
                         params.put("login_hint", eduidEntityId);
-                    } else if (guestInvitation) {
+                    } else if (guestInvitation && this.inviteAcceptAddLoginHint) {
                         //Fetch all IdentityProviders that have one of the manage role applications in their allowList
                         //We only want IdP's that have access to ALL the applications of the invitation
                         Set<ManageIdentifier> manageIdentifiers = invitation.getRoles().stream()

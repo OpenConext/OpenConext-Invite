@@ -2,7 +2,13 @@ package invite.security;
 
 import invite.manage.EntityType;
 import invite.manage.Manage;
-import invite.model.*;
+import invite.model.Application;
+import invite.model.ApplicationUsage;
+import invite.model.Authority;
+import invite.model.Invitation;
+import invite.model.InvitationRole;
+import invite.model.RequestedAuthnContext;
+import invite.model.Role;
 import invite.repository.InvitationRepository;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
@@ -29,7 +35,12 @@ class AuthorizationRequestCustomizerTest {
     private final Manage manage = Mockito.mock(Manage.class);
 
     private final AuthorizationRequestCustomizer customizer =
-            new AuthorizationRequestCustomizer(invitationRepository, "eduid-entity-id", manage, true);
+            new AuthorizationRequestCustomizer(
+                    invitationRepository,
+                    "eduid-entity-id",
+                    manage,
+                    true,
+                    true);
 
     @Test
     void testForceParameterAddsPromptLogin() {
@@ -140,6 +151,50 @@ class AuthorizationRequestCustomizerTest {
     }
 
     @Test
+    void testHashParameterGuestNonEduIdOnlyFeatureToggleNoIdpListLoginHint() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        String hash = "abc123";
+        request.setParameter("hash", hash);
+        DefaultSavedRequest savedRequest = new DefaultSavedRequest(request);
+
+        HttpSession session = request.getSession(true);
+        session.setAttribute("SPRING_SECURITY_SAVED_REQUEST", savedRequest);
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        Application application = new Application("manage-id", EntityType.SAML20_SP);
+        ApplicationUsage appUsage = new ApplicationUsage(application, "https://landing.com");
+
+        Role role = new Role();
+        role.setApplicationUsages(Set.of(appUsage));
+
+        Invitation invitation = new Invitation();
+        invitation.setIntendedAuthority(Authority.GUEST);
+        invitation.setRoles(Set.of(new InvitationRole(role)));
+        when(invitationRepository.findByHash(hash)).thenReturn(Optional.of(invitation));
+
+        Map<String, Object> providerData = Map.of("entityid", "idp-entity");
+        when(manage.providerById(application.getManageType(), application.getManageId())).thenReturn(providerData);
+        when(manage.idpEntityIdentifiersByServiceEntityId(anyList()))
+                .thenReturn(List.of("idp-entity-1", "idp-entity-2"));
+
+        OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode()
+                .authorizationUri("https://auth")
+                .clientId("client");
+
+        AuthorizationRequestCustomizer customizerWithNoLoginHint =
+                new AuthorizationRequestCustomizer(
+                        invitationRepository,
+                        "eduid-entity-id",
+                        manage,
+                        true,
+                        false);
+        customizerWithNoLoginHint.accept(builder);
+        OAuth2AuthorizationRequest requestResult = builder.build();
+
+        assertFalse(requestResult.getAdditionalParameters().containsKey("login_hint"));
+    }
+
+    @Test
     void testNotAddIdpListLoginHintTooLarge() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         String hash = "abc123";
@@ -179,7 +234,12 @@ class AuthorizationRequestCustomizerTest {
     @Test
     void testManagerEduIdOnlySkipsLoginHintWhenFeatureDisabled() {
         AuthorizationRequestCustomizer customizerNoGuestEdiUDDisabled =
-                new AuthorizationRequestCustomizer(invitationRepository, "eduid-entity-id", manage, false);
+                new AuthorizationRequestCustomizer(
+                        invitationRepository,
+                        "eduid-entity-id",
+                        manage,
+                        false,
+                        true);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         String hash = "abc123";

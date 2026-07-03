@@ -67,6 +67,7 @@ public class SecurityConfig {
 
     private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
     private final boolean allowForEduIDOnlyEnforcementForNonGuests;
+    private final boolean inviteAcceptAddLoginHint;
 
     @Autowired
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
@@ -80,7 +81,8 @@ public class SecurityConfig {
                           @Value("${oidcng.resource-server-secret}") String secret,
                           Manage manage,
                           @Value("${crm.api-key-header}") String crmApiKeyHeader,
-                          @Value("${feature.allow-for-eduid-only-enforcement-for-non-guests}") boolean allowForEduIDOnlyEnforcementForNonGuests) {
+                          @Value("${feature.allow-for-eduid-only-enforcement-for-non-guests}") boolean allowForEduIDOnlyEnforcementForNonGuests,
+                          @Value("${feature.invite-accept-add-login_hint}") boolean inviteAcceptAddLoginHint) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.invitationRepository = invitationRepository;
         this.provisioningService = provisioningService;
@@ -93,6 +95,7 @@ public class SecurityConfig {
         this.manage = manage;
         this.crmApiKeyHeader = crmApiKeyHeader;
         this.allowForEduIDOnlyEnforcementForNonGuests = allowForEduIDOnlyEnforcementForNonGuests;
+        this.inviteAcceptAddLoginHint = inviteAcceptAddLoginHint;
     }
 
     @Configuration
@@ -195,7 +198,13 @@ public class SecurityConfig {
         DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =
                 new DefaultOAuth2AuthorizationRequestResolver(
                         clientRegistrationRepository, "/oauth2/authorization");
-        AuthorizationRequestCustomizer requestCustomizer = new AuthorizationRequestCustomizer(invitationRepository, eduidEntityId, manage, allowForEduIDOnlyEnforcementForNonGuests);
+        AuthorizationRequestCustomizer requestCustomizer = new AuthorizationRequestCustomizer(
+                invitationRepository,
+                eduidEntityId,
+                manage,
+                allowForEduIDOnlyEnforcementForNonGuests,
+                inviteAcceptAddLoginHint
+                );
         authorizationRequestResolver.setAuthorizationRequestCustomizer(requestCustomizer);
         return authorizationRequestResolver;
     }
