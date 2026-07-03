@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, ButtonSize, Chip, Tooltip} from "@surfnet/sds";
+import {Button, ButtonSize, Checkbox, Chip, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router-dom";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication} from "../api";
@@ -103,7 +103,6 @@ export const Roles = () => {
         {
             nonSortable: true,
             key: "logo",
-
             header: "",
             mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> :
                 <div className="role-icon">
@@ -132,6 +131,12 @@ export const Roles = () => {
             key: "description",
             header: I18n.t("roles.description"),
             mapper: role => <span className={"cut-of-lines"}>{role.description}</span>
+        },
+        {
+            key: "crm",
+            nonSortable: true,
+            header: I18n.t("roles.isCrm"),
+            mapper: role => <Checkbox name="crm" value={!isEmpty(role.crmRoleId)} readOnly={true}/>
         },
         {
             nonSortable: true,
@@ -170,25 +175,26 @@ export const Roles = () => {
                                                        dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
             {(isGuest && user.institutionAdmin) && <p className={"guest-only"}
                                                       dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.noRolesNoApplicationsInstitutionAdmin"))}}/>}
-            {!isGuest && <Entities
-                entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
-                modelName="roles"
-                showNew={isAllowedToCreateNewRole}
-                newLabel={I18n.t("roles.new")}
-                newEntityPath={"/role/new"}
-                defaultSort="name"
-                columns={columns}
-                searchAttributes={["name", "description", "applicationName"]}
-                customNoEntities={I18n.t(`roles.noResults`)}
-                loading={false}
-                inputFocus={!searching}
-                hideTitle={searching}
-                customSearch={user.superUser ? search : null}
-                totalElements={user.superUser ? totalElements : null}
-                rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
-                rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
-                busy={searching}
-            />}
+            {!isGuest &&
+                <Entities
+                    entities={isSuperUser ? roles : roles.filter(role => !(role.isUserRole && role.authority === "GUEST"))}
+                    modelName="roles"
+                    showNew={isAllowedToCreateNewRole}
+                    newLabel={I18n.t("roles.new")}
+                    newEntityPath={"/role/new"}
+                    defaultSort="name"
+                    columns={columns}
+                    searchAttributes={["name", "description", "applicationName"]}
+                    customNoEntities={I18n.t(`roles.noResults`)}
+                    loading={false}
+                    inputFocus={!searching}
+                    hideTitle={searching}
+                    customSearch={user.superUser ? search : null}
+                    totalElements={user.superUser ? totalElements : null}
+                    rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
+                    rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
+                    busy={searching}
+                />}
         </div>
     );
 

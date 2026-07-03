@@ -170,6 +170,7 @@ const en = {
         yourRole: "Your role",
         description: "Description",
         descriptionPlaceHolder: "The description of the role",
+        isCrm: "CRM",
         noResults: "No roles are found",
         noMember: "No member",
         searchPlaceHolder: "Search for roles...",

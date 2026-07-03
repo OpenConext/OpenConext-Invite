@@ -39,7 +39,8 @@ const pt = {
             help: "Help",
             profile: "Profile",
             tokens: "Tokens",
-            logout: "Log out"
+            logout: "Log out",
+            audit: "Role history"
         },
     },
     tabs: {

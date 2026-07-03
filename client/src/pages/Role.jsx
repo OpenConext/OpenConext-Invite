@@ -8,6 +8,7 @@ import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import WebsiteIcon from "../icons/network-information.svg";
 import PersonIcon from "../icons/persons.svg";
+import CrmIcon from "@surfnet/sds/icons/illustrative-icons/database-check.svg";
 import InstitutionAdminIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import {allowedToEditRole, AUTHORITIES, highestAuthority, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import Tabs from "../components/Tabs";
@@ -213,6 +214,12 @@ export const Role = () => {
                                 <Tooltip tip={I18n.t("roles.unknownInManageToolTip")} standalone={true}
                                          clickable={true}/>
                             </div>}
+                        {!isEmpty(role.crmRoleId) &&
+                            <div className={"meta-data-row"}>
+                                <CrmIcon/>
+                                <div>{`CRM: ${role.crmRoleName} (${role.crmRoleAbbrevation})`}</div>
+                            </div>
+                        }
                     </div>
                 </UnitHeader>}
             <div className="mod-role">
