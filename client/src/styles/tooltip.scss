@@ -3,3 +3,13 @@
     --rt-color-white: var(--sds--color--white);
     --rt-opacity: 0.98;
 }
+
+.react-tooltip {
+
+    a {
+        &:visited {
+            color: whitesmoke!important;
+        }
+        color: whitesmoke!important;
+    }
+}
