@@ -447,7 +447,7 @@ const nl = {
         defaultExpiryDays: "Het standaardaantal dagen waarna de rol verloopt, gerekend vanaf het moment dat de gebruiker de uitnodiging voor de rol accepteert.",
         enforceEmailEqualityTooltip: "Indien ingeschakeld moet de genodigde de uitnodiging accepteren met een account dat hetzelfde e-mailadres voert als waarheen deze uitnodiging gestuurd is",
         eduIDOnlyTooltip: "Indien ingeschakeld moeten de genodigden eduID gebruiken om in te loggen bij het accepteren",
-        requestedAuthnContextTooltip: "De gebruiker wordt gedwongen de authenticatie te verhogen bij het inloggen met eduID met de opgegeven ARC",
+        requestedAuthnContextTooltip: "De gebruiker wordt gedwongen de authenticatie te verhogen bij het inloggen met eduID met de opgegeven ACR",
         roleExpiryDateTooltip: "De einddatum van deze rol. Na deze datum wordt de rol verwijderd bij de gebruiker.",
         expiryDateTooltip: "De datum waarop deze uitnodiging verloopt",
         inviterDisplayName: "De specifieke naam van de uitnodiger zal worden getoond in de uitnodiging.<br><br>Standaard tonen we de naam van de daadwerkelijke uitnodiger.",

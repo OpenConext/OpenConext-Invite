@@ -89,7 +89,8 @@ public class ManageController {
     @GetMapping("/requested-authn-context-values")
     public ResponseEntity<Map<String, String>> requestedAuthnContextValues() {
         LOG.debug("GET /manage/requestedAuthnContextValues");
-        Map<String, String> values = Stream.of(RequestedAuthnContext.values()).collect(Collectors.toMap(rac -> rac.name(), rac -> rac.getUrl()));
+        Map<String, String> values = Stream.of(RequestedAuthnContext.values())
+                .collect(Collectors.toMap(rac -> rac.name(), rac -> rac.getUrl()));
         return ResponseEntity.ok(values);
     }
 

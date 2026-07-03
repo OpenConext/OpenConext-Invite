@@ -447,7 +447,7 @@ const en = {
         defaultExpiryDays: "The default number of days the role will expire, from the moment a user has accepted the invitation for this role",
         enforceEmailEqualityTooltip: "When checked the invitee must accept the invitation with an account with the email address where the invitation was sent to",
         eduIDOnlyTooltip: "When checked the invitees will be required to log in with eduID",
-        requestedAuthnContextTooltip: "The user will be forced to step up the authentication when logging in with eduID with the specified ARC",
+        requestedAuthnContextTooltip: "The user will be forced to step up the authentication when logging in with eduID with the specified ACR",
         roleExpiryDateTooltip: "The end date of this role. After this date the role is removed from the user.",
         expiryDateTooltip: "The date on which this invitation expires",
         inviterDisplayName: "The functional address which will used in the invitations of the role.<br><br>Default the name of the inviter is show.",
