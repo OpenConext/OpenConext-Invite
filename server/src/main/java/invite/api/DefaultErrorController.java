@@ -57,9 +57,10 @@ public class DefaultErrorController implements ErrorController {
         Throwable error = this.errorAttributes.getError(webRequest);
         HttpStatus statusCode;
 
-        if (error == null) {
-            if ("Unauthorized".equalsIgnoreCase((String) result.get("error"))) {
-                statusCode = HttpStatus.UNAUTHORIZED;
+        boolean isAccessDenied = error instanceof AccessDeniedException;
+        if (error == null || isAccessDenied) {
+            if (isAccessDenied || "Unauthorized".equalsIgnoreCase((String) result.get("error"))) {
+                statusCode = isAccessDenied ? FORBIDDEN : UNAUTHORIZED;
                 this.handleAuthorizationException(request, result);
             } else {
                 statusCode = result.containsKey("status") && (int) result.get("status") != 999 ?
@@ -71,13 +72,9 @@ public class DefaultErrorController implements ErrorController {
                 boolean logStackTrace = !(error instanceof UserRestrictionException || error instanceof invite.exception.RemoteException);
                 LOG.error(String.format("Error occurred; %s", error), logStackTrace ? error : null);
             }
-            if (error instanceof AccessDeniedException) {
-                statusCode = FORBIDDEN;
-            } else {
-                //https://github.com/spring-projects/spring-boot/issues/3057
-                ResponseStatus annotation = AnnotationUtils.getAnnotation(error.getClass(), ResponseStatus.class);
-                statusCode = annotation != null ? annotation.value() : BAD_REQUEST;
-            }
+            //https://github.com/spring-projects/spring-boot/issues/3057
+            ResponseStatus annotation = AnnotationUtils.getAnnotation(error.getClass(), ResponseStatus.class);
+            statusCode = annotation != null ? annotation.value() : BAD_REQUEST;
         }
         result.put("status", statusCode.value());
         return ResponseEntity.status(statusCode).body(result);
