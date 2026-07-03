@@ -138,6 +138,7 @@ public abstract class AbstractTest {
     public static final String SUPER_SUB = "urn:collab:person:example.com:super";
     public static final String MANAGE_SUB = "urn:collab:person:example.com:manager";
     public static final String INSTITUTION_ADMIN_SUB = "urn:collab:person:example.com:institution_admin";
+    public static final String APPLICATION_MANAGER_SUB = "urn:collab:person:example.com:application_manager";
     public static final String INVITER_SUB = "urn:collab:person:example.com:inviter";
     public static final String INVITER_WIKI_SUB = "urn:collab:person:example.com:inviter_wiki_sub";
     public static final String GUEST_SUB = "urn:collab:person:example.com:guest";
@@ -688,6 +689,10 @@ public abstract class AbstractTest {
         institutionAdmin.setInstitutionAdminByInvite(true);
         institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
 
+        User applicationManager =
+                new User(false, APPLICATION_MANAGER_SUB, APPLICATION_MANAGER_SUB, "example.com", "App", "Manager", "app.manager@example.com");
+        applicationManager.setOrganizationGUID(ORGANISATION_GUID);
+
         User manager =
                 new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
         User inviter =
@@ -703,7 +708,7 @@ public abstract class AbstractTest {
         kbUser.setCrmContactId(CRM_CONTACT_ID);
         kbUser.setOrganisation(organisation);
 
-        doSave(this.userRepository, superUser, institutionAdmin, manager, inviter, wikiInviter, guest, kbUser);
+        doSave(this.userRepository, superUser, institutionAdmin, applicationManager, manager, inviter, wikiInviter, guest, kbUser);
         this.userRepository.flush();
 
         Role wiki =
@@ -761,6 +766,8 @@ public abstract class AbstractTest {
         UserRole wikiManager =
                 new UserRole("system", manager, wiki, Authority.MANAGER);
         wikiManager.setGuestRoleIncluded(true);
+        UserRole appManager =
+                new UserRole("system", applicationManager, wiki, Authority.APPLICATION_MANAGER);
         UserRole wikiInviterUserRole =
                 new UserRole("system", wikiInviter, wiki, Authority.INVITER);
         UserRole calendarInviter =
@@ -775,7 +782,7 @@ public abstract class AbstractTest {
                 new UserRole("system", guest, research, Authority.GUEST);
         UserRole kbUserGuest =
                 new UserRole("system", kbUser, research, Authority.GUEST);
-        doSave(this.userRoleRepository, wikiManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest,
+        doSave(this.userRoleRepository, wikiManager, appManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest,
                 wikiGuest, researchGuest, kbUserGuest);
         this.userRoleRepository.flush();
 

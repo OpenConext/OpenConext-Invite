@@ -82,6 +82,7 @@ const en = {
     access: {
         SUPER_USER: "Superuser",
         INSTITUTION_ADMIN: "Institution admin",
+        APPLICATION_MANAGER: "Application manager",
         MANAGER: "Role manager",
         INVITER: "Inviter",
         GUEST: "User",

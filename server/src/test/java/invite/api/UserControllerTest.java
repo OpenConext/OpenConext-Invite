@@ -372,7 +372,7 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(3, page.getContent().size());
-        assertEquals(6, page.getTotalElements());
+        assertEquals(7, page.getTotalElements());
     }
 
     @Test
@@ -393,7 +393,7 @@ class UserControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(2, page.getContent().size());
-        assertEquals(6, page.getTotalElements());
+        assertEquals(7, page.getTotalElements());
     }
 
     @Test
@@ -439,7 +439,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/institutionAdmins")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(6, admins.size());
+        assertEquals(7, admins.size());
     }
 
     @Test
@@ -475,7 +475,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(3, usersPage.getTotalElements());
+        assertEquals(4, usersPage.getTotalElements());
     }
 
     @Test
@@ -493,7 +493,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(5, usersPage.getTotalElements());
+        assertEquals(6, usersPage.getTotalElements());
         assertEquals(1, usersPage.getContent().size());
     }
 
@@ -516,7 +516,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, usersPage.getTotalElements());
+        assertEquals(5, usersPage.getTotalElements());
         assertEquals(2, usersPage.getContent().size());
     }
 

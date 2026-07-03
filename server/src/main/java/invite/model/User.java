@@ -140,6 +140,9 @@ public class User implements Serializable, Provisionable {
         this.uid = ((List<String>) attributes.getOrDefault("uids", List.of())).stream().findAny().orElse(null);
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
+        if (!StringUtils.hasText(this.organizationGUID)) {
+            this.organizationGUID = (String) attributes.get("surf-crm-id");
+        }
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
         this.createdAt = Instant.now();
@@ -294,6 +297,10 @@ public class User implements Serializable, Provisionable {
         changed = changed || !Objects.equals(this.subjectId, newSubjectId);
         this.subjectId = newSubjectId;
 
+        String newOrganizationGUID = (String) attributes.get("surf-crm-id");
+        changed = changed || !Objects.equals(this.organizationGUID, newOrganizationGUID);
+        this.organizationGUID = newOrganizationGUID;
+
         this.lastActivity = Instant.now();
 
         String currentName = this.name;
@@ -313,6 +320,9 @@ public class User implements Serializable, Provisionable {
     public void updateRemoteAttributes(Map<String, Object> attributes) {
         this.institutionAdmin = (boolean) attributes.getOrDefault(INSTITUTION_ADMIN, false);
         this.organizationGUID = (String) attributes.get(ORGANIZATION_GUID);
+        if (!StringUtils.hasText(this.organizationGUID)) {
+            this.organizationGUID = (String) attributes.get("surf-crm-id");
+        }
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
     }

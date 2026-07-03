@@ -12,6 +12,7 @@ export const INVITATION_STATUS = {
 export const AUTHORITIES = {
     SUPER_USER: "SUPER_USER",
     INSTITUTION_ADMIN: "INSTITUTION_ADMIN",
+    APPLICATION_MANAGER: "APPLICATION_MANAGER",
     MANAGER: "MANAGER",
     INVITER: "INVITER",
     GUEST: "GUEST"
@@ -20,9 +21,10 @@ export const AUTHORITIES = {
 const AUTHORITIES_HIERARCHY = {
     [AUTHORITIES.SUPER_USER]: 1,
     [AUTHORITIES.INSTITUTION_ADMIN]: 2,
-    [AUTHORITIES.MANAGER]: 3,
-    [AUTHORITIES.INVITER]: 4,
-    [AUTHORITIES.GUEST]: 5
+    [AUTHORITIES.APPLICATION_MANAGER]: 3,
+    [AUTHORITIES.MANAGER]: 4,
+    [AUTHORITIES.INVITER]: 5,
+    [AUTHORITIES.GUEST]: 6
 }
 
 export const highestAuthority = (user, forceApplications = true) => {
@@ -57,7 +59,7 @@ const roleIsConnectedToApp = (role, app) => {
         .includes(app.id)
 }
 
-const isApplicationManagerForUserRole = (user, userRole) => {
+const isManagerForUserRole = (user, userRole) => {
     if (AUTHORITIES_HIERARCHY[userRole.authority] <= AUTHORITIES_HIERARCHY[AUTHORITIES.MANAGER]) {
         return false;
     }
@@ -102,7 +104,7 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
 
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
         .some(application => roleIsConnectedToApp(userRole.role, application));
-    const allowedByApplicationForManager = isApplicationManagerForUserRole(user, userRole);
+    const allowedByApplicationForManager = isManagerForUserRole(user, userRole);
     const usedAuthority = targetGuestRole ? AUTHORITIES.GUEST : userRole.authority
     switch (usedAuthority) {
         case AUTHORITIES.SUPER_USER:
@@ -199,7 +201,7 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
         .filter(role => {
             role = role.isUserRole ? role.role : role;
             return (!isEmpty(user.organizationGUID) && user.organizationGUID === role.organizationGUID) ||
-            user.userRoles.some(userRole => userRole.role.id === role.id)
+                user.userRoles.some(userRole => userRole.role.id === role.id)
         });
     if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
         return [];

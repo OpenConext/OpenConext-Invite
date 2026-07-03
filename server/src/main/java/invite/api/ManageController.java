@@ -7,6 +7,7 @@ import invite.manage.Manage;
 import invite.model.Application;
 import invite.model.Authority;
 import invite.model.RequestedAuthnContext;
+import invite.model.Role;
 import invite.model.User;
 import invite.repository.ApplicationRepository;
 import invite.repository.RoleRepository;
@@ -182,7 +183,10 @@ public class ManageController {
     public ResponseEntity<Boolean> provisionings(@PathVariable("id") String id,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/provisionings for user %s", user.getEduPersonPrincipalName()));
-        UserPermissions.assertInstitutionAdmin(user);
+        if (!(user.isSuperUser() || user.isInstitutionAdmin())) {
+            List<Role> roles = roleRepository.findByApplicationUsagesApplicationManageId(id);
+            UserPermissions.assertApplicationManager(user, roles);
+        }
         List<Map<String, Object>> provisionings = manage.provisioning(List.of(id));
         return ResponseEntity.ok(!provisionings.isEmpty());
     }

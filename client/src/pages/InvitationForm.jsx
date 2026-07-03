@@ -33,7 +33,6 @@ import {deriveExpirationDate, displayExpiryDate, futureDate, longDateFormat} fro
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
-import {applicationName} from "../utils/Manage";
 import {ExpandableSwitchField} from "../components/ExpandableSwitchField";
 import Select from "react-select";
 
@@ -389,13 +388,6 @@ export const InvitationForm = () => {
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
 
-                {(user.institutionAdmin && AUTHORITIES.INSTITUTION_ADMIN === invitation.intendedAuthority) &&
-                    <InputField name={I18n.t("roles.identityProvider")}
-                                toolTip={I18n.t("tooltips.invitationIdentityProvider")}
-                                disabled={true}
-                                value={applicationName(user.institution)}
-                    />}
-
                 {(!isInviter && !skipRoles) && <>
                     <SelectField value={selectedRoles}
                                  options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
@@ -471,7 +463,8 @@ export const InvitationForm = () => {
                         {(!initial && isEmpty(selectedRoles)) &&
                             <ErrorIndicator msg={I18n.t("invitations.requiredRole")} adjustMargin={true}/>
                         }
-                    </div>}
+                    </div>
+                }
                 <InviterContainer isInviter={isInviter}>
                     {renderFormElements(authorityOptions)}
                 </InviterContainer>
@@ -560,19 +553,23 @@ export const InvitationForm = () => {
                                                                 onChange={e => {
                                                                     const val = parseInt(e.target.value);
                                                                     const defaultExpiryDays = Number.isInteger(val) && val > 0 ? val : 1;
-                                                                    setInvitation({...invitation, roleExpiryDays: defaultExpiryDays})
+                                                                    setInvitation({
+                                                                        ...invitation,
+                                                                        roleExpiryDays: defaultExpiryDays
+                                                                    })
                                                                 }}
                                                                 customClassName="inner-switch"/>
                                                     <span>{I18n.t("invitations.days")}</span>
                                                 </>
                                             }
                                             {removeRoleBy.value === "on" &&
-                                                <DateField value={invitation.roleExpiryDate || futureDate(DEFAULT_ROLE_EXPIRY_DAYS)}
-                                                           onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
-                                                           showYearDropdown={true}
-                                                           disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
-                                                           pastDatesAllowed={config.pastDateAllowed}
-                                                           minDate={futureDate(1, invitation.expiryDate)}/>
+                                                <DateField
+                                                    value={invitation.roleExpiryDate || futureDate(DEFAULT_ROLE_EXPIRY_DAYS)}
+                                                    onChange={e => setInvitation({...invitation, roleExpiryDate: e})}
+                                                    showYearDropdown={true}
+                                                    disabled={selectedRoles.some(role => !role.overrideSettingsAllowed)}
+                                                    pastDatesAllowed={config.pastDateAllowed}
+                                                    minDate={futureDate(1, invitation.expiryDate)}/>
                                             }
                                         </div>
                                     </div>

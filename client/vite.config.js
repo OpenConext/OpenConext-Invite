@@ -39,8 +39,7 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                // ToDo fix?
-                silenceDeprecations: ["mixed-decls"],
+                silenceDeprecations: ['legacy-js-api'],
             },
         },
     },

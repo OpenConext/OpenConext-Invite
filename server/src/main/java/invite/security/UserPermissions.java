@@ -7,6 +7,7 @@ import invite.model.User;
 import invite.model.UserRole;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -38,6 +39,27 @@ public class UserPermissions {
             return;
         }
         throw new UserRestrictionException("User is no institution admin: " + user.getEmail());
+    }
+
+    public static void assertApplicationManager(User user, List<Role> roles) {
+        if (user == null) {
+            throw new UserRestrictionException("User is NULL");
+        }
+
+        if (user.isSuperUser() || (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID()))) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(roles)) {
+            throw new UserRestrictionException("Roles are empty");
+        }
+
+        Set<Long> roleIdentifiers = roles.stream().map(role -> role.getId()).collect(Collectors.toSet());
+        if (user.getUserRoles().stream().filter(userRole -> roleIdentifiers.contains(userRole.getRole().getId()))
+                .noneMatch(userRole -> userRole.getAuthority().equals(Authority.APPLICATION_MANAGER))) {
+            throw new UserRestrictionException(
+                    String.format("User %s does not have the Authority.APPLICATION_MANAGER for the requested roles", user.getEmail()));
+        }
+
     }
 
     public static void assertAuthority(User user, Authority authority) {

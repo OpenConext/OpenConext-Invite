@@ -384,7 +384,7 @@ export const UserRoles = ({role, guests}) => {
                   modelName="userRoles"
                   defaultSort="name"
                   columns={columns}
-                  newLabel={I18n.t(guests ? "invitations.newGuest" : isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user) ? "invitations.new" : "invitations.newInvitation")}
+                  newLabel={I18n.t(guests ? "invitations.newGuest" : isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user) ? "invitations.new" : "invitations.newInvitation")}
                   showNew={isUserAllowed(AUTHORITIES.MANAGER, user) && !role.unknownInManage
                       && isEmpty(role.crmRoleId)}
                   newEntityFunc={() => navigate(`/invitation/new?maintainer=${guests === false}`, {state: role.id})}

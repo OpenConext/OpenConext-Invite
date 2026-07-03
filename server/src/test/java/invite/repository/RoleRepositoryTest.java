@@ -55,6 +55,6 @@ class RoleRepositoryTest extends AbstractTest {
         Page<Role> page = roleRepository.searchByPageWithKeyword("wiki*", pageRequest);
         assertEquals(1L, page.getTotalElements());
         assertEquals(1, page.getContent().size());
-        assertEquals(3L, page.getContent().get(0).getUserRoleCount());
+        assertEquals(4L, page.getContent().get(0).getUserRoleCount());
     }
 }

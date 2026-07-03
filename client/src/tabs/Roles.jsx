@@ -158,7 +158,7 @@ export const Roles = () => {
     ];
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
-    const isAllowedToCreateNewRole = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
+    const isAllowedToCreateNewRole = isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user);
     const isInstitutionAdmin = highestAuthority(user) === AUTHORITIES.INSTITUTION_ADMIN;
     const isGuest = highestAuthority(user) === AUTHORITIES.GUEST;
     if (isInstitutionAdmin && !isEmpty(user.institution) && roles.length === 0 && !searching) {

@@ -82,6 +82,7 @@ const nl = {
     access: {
         SUPER_USER: "Superuser",
         INSTITUTION_ADMIN: "Instellingsadmin",
+        APPLICATION_MANAGER: "Applicatie-manager",
         MANAGER: "Rolmanager",
         INVITER: "Uitnodiger",
         GUEST: "Gebruiker",

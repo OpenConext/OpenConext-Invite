@@ -61,6 +61,7 @@ div.mod-roles {
                 }
                 &.crm {
                     width: 10%;
+                    text-align: center;
                 }
                 &.authority {
                     width: 15%;
@@ -76,8 +77,11 @@ div.mod-roles {
         }
 
         tbody {
-            td.authority, td.defaultExpiryDays, td.userRoleCount {
+            td.authority, td.defaultExpiryDays, td.userRoleCount, td.crm {
                 text-align: center;
+                input[type=checkbox] + label {
+                    margin: 0 auto;
+                }
             }
 
             .unknown-in-manage {

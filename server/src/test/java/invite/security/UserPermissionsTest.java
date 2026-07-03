@@ -163,6 +163,26 @@ class UserPermissionsTest extends WithApplicationTest {
     }
 
     @Test
+    void assertApplicationManager() {
+        User user = new User();
+        user.setOrganizationGUID(UUID.randomUUID().toString());
+        user.setInstitutionAdmin(true);
+        UserPermissions.assertApplicationManager(user, emptyList());
+
+        user.setSuperUser(true);
+        UserPermissions.assertApplicationManager(user, emptyList());
+
+        User appManager = new User();
+        Role appManagerRole = new Role("app-manager-role", "description", application(UUID.randomUUID().toString(), EntityType.SAML20_SP), 365, false, false);
+        UserRole userRole = new UserRole(Authority.APPLICATION_MANAGER, appManagerRole);
+        appManager.getUserRoles().add(userRole);
+        UserPermissions.assertApplicationManager(user, List.of(appManagerRole));
+
+        userRole.setAuthority(Authority.MANAGER);
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User(), List.of(appManagerRole)));
+    }
+
+    @Test
     void nullPointerHygiene() {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertSuperUser(null));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertInstitutionAdmin(null));
@@ -171,6 +191,8 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertValidInvitation(null, Authority.GUEST, emptyList()));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(null, null, Authority.GUEST));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(new User(), null, Authority.GUEST));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(null, null));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User(), null));
     }
 
     private User userWithRole(Authority authority, String manageIdentifier) {

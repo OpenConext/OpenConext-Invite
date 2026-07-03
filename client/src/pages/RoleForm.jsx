@@ -55,7 +55,7 @@ export const RoleForm = () => {
         name: "",
         shortName: "",
         defaultExpiryDays: DEFAULT_EXPIRY_DAYS,
-        organizationGUID: (user.institutionAdmin && !user.superUser) ? user.organizationGUID : null
+        organizationGUID: user.organizationGUID
     });
     const [providers, setProviders] = useState([]);
     const [identityProviders, setIdentityProviders] = useState([]);
@@ -73,12 +73,12 @@ export const RoleForm = () => {
     const [deletedUserRoles, setDeletedUserRoles] = useState([]);
     const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[0]);
 
-    const [allowedToEditApplication, setAllowedToEditApplication] = useState(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user));
+    const [allowedToEditApplication, setAllowedToEditApplication] = useState(isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user));
 
     useEffect(() => {
             const newRole = id === "new";
             //Managers may edit - certain attributes - of roles, but are not allowed to create new ones
-            if (!isUserAllowed(AUTHORITIES.MANAGER, user) || (newRole && !isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user))) {
+            if (!isUserAllowed(AUTHORITIES.MANAGER, user) || (newRole && !isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user))) {
                 navigate("/404");
                 return;
             }
@@ -224,7 +224,8 @@ export const RoleForm = () => {
     }
 
     const updateUserIfNecessary = (path, flashMessage) => {
-        if (user.userRoles.some(userRole => userRole.role.id === role.id)) {
+        if (user.userRoles
+            .some(userRole => userRole.authority === AUTHORITIES.APPLICATION_MANAGER || userRole.role.id === role.id)) {
             //We need to refresh the roles of the User to ensure 100% consistency
             me()
                 .then(res => {

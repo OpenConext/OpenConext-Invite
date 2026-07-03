@@ -32,7 +32,8 @@ describe('UserRole', () => {
         const user = {superUser: true}
 
         const authorities = allowedAuthoritiesForInvitation(user, []);
-        expect(authorities).toEqual([AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN, AUTHORITIES.MANAGER, AUTHORITIES.INVITER, AUTHORITIES.GUEST]);
+        let expected = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN, AUTHORITIES.APPLICATION_MANAGER, AUTHORITIES.MANAGER, AUTHORITIES.INVITER, AUTHORITIES.GUEST];
+        expect(authorities).toEqual(expected);
     });
 
     it("Allowed authorities for invitation - manager", () => {

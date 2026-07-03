@@ -7,6 +7,7 @@ import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.manage.EntityType;
 import invite.manage.Manage;
+import invite.manage.ManageIdentifier;
 import invite.model.Application;
 import invite.model.ApplicationUsage;
 import invite.model.Authority;
@@ -19,6 +20,7 @@ import invite.provision.scim.GroupURN;
 import invite.repository.ApplicationRepository;
 import invite.repository.ApplicationUsageRepository;
 import invite.repository.RoleRepository;
+import invite.repository.UserRepository;
 import invite.repository.UserRoleRepository;
 import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -87,6 +89,7 @@ public class RoleController implements ApplicationResource {
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
     private final String groupUrnPrefix;
+    private final UserRepository userRepository;
 
     public RoleController(RoleRepository roleRepository,
                           UserRoleRepository userRoleRepository,
@@ -94,7 +97,7 @@ public class RoleController implements ApplicationResource {
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
-                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix, UserRepository userRepository) {
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
@@ -103,6 +106,7 @@ public class RoleController implements ApplicationResource {
         this.provisioningService = provisioningService;
         this.roleOperations = new RoleOperations(this);
         this.groupUrnPrefix = groupUrnPrefix;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("")
@@ -191,20 +195,43 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
                                         @Parameter(hidden = true) User user) {
         LOG.debug(String.format("POST /roles/ for user %s", user.getEduPersonPrincipalName()));
-        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+
         //For super_users we require an organization GUID from the input form
         if (user.isSuperUser() && !StringUtils.hasText(roleRequest.getOrganizationGUID())) {
             throw new UserRestrictionException("Super users must specify an organizationGUID");
         }
+
         Role role = new Role(roleRequest);
         role.setOrganizationGUID(user.isSuperUser() ? roleRequest.getOrganizationGUID() : user.getOrganizationGUID());
         role.setShortName(GroupURN.sanitizeRoleShortName(roleRequest.getName()));
         role.setIdentifier(UUID.randomUUID().toString());
         role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
 
-        LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getName()));
+        boolean addRoleMembership = false;
+        if (!(user.isSuperUser() || user.isInstitutionAdmin())) {
+            //Only allowed to create a role if all applications that are selected, are connected to existing roles
+            Set<ManageIdentifier> manageIdentifiers = role.getApplicationUsages().stream()
+                    .map(applicationUsage -> applicationUsage.manageIdentifier())
+                    .collect(Collectors.toSet());
+            Set<ManageIdentifier> userAccessRoles = user.getUserRoles().stream()
+                    .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.APPLICATION_MANAGER))
+                    .flatMap(userRole -> userRole.getRole().getApplicationUsages().stream().map(applicationUsage -> applicationUsage.manageIdentifier()))
+                    .collect(Collectors.toSet());
+            if (!userAccessRoles.containsAll(manageIdentifiers)) {
+                throw new UserRestrictionException(
+                        String.format("User %s does not have the Authority.APPLICATION_MANAGER for the requested roles", user.getEmail()));
+            }
+            addRoleMembership = true;
+        }
 
-        return saveOrUpdate(role, user);
+        LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getName()));
+        ResponseEntity<Role> roleResponseEntity = saveOrUpdate(role, user);
+        if (addRoleMembership) {
+            Role savedRole = roleResponseEntity.getBody();
+            user.addUserRole(new UserRole(Authority.APPLICATION_MANAGER, savedRole));
+            userRepository.save(user);
+        }
+        return roleResponseEntity;
     }
 
     @PutMapping("")
@@ -240,7 +267,7 @@ public class RoleController implements ApplicationResource {
         LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        UserPermissions.assertApplicationManager(user, List.of(role));
 
         if (!user.isSuperUser() &&
                 !Objects.equals(user.getOrganizationGUID(), role.getOrganizationGUID())) {
