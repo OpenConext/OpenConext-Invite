@@ -25,7 +25,7 @@ import {constructShortName} from "../validations/regExps";
 import {distinctValues, isEmpty} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
-import {applicationName, providersToOptions} from "../utils/Manage";
+import {providersToOptions} from "../utils/Manage";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import SwitchField from "../components/SwitchField";
 import {dateFromEpoch, displayExpiryDate, futureDate, longDateFormat} from "../utils/Date";
@@ -408,13 +408,6 @@ export const RoleForm = () => {
                     })}/>}
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
-
-                {(user.institutionAdmin && !user.superUser) &&
-                    <InputField name={I18n.t("roles.identityProvider")}
-                                toolTip={I18n.t("tooltips.invitationIdentityProvider")}
-                                disabled={true}
-                                value={applicationName(user.institution)}
-                    />}
 
                 <InputField name={I18n.t("roles.description")}
                             value={role.description || ""}
