@@ -73,7 +73,7 @@ export const RoleForm = () => {
     const [deletedUserRoles, setDeletedUserRoles] = useState([]);
     const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[0]);
 
-    const allowedToEditApplication = isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);
+    const [allowedToEditApplication, setAllowedToEditApplication] = useState(isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user));
 
     useEffect(() => {
             const newRole = id === "new";
@@ -101,6 +101,7 @@ export const RoleForm = () => {
                     }
                     setCustomInviterDisplayName(!isEmpty(res[0].inviterDisplayName));
                     setRole(res[0]);
+                    setAllowedToEditApplication(allowedToEditApplication && isEmpty(res[0].crmRoleId));
                 }
                 let newProviders;
                 if (user.superUser) {

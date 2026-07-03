@@ -1149,8 +1149,8 @@ class InvitationControllerTest extends AbstractTest {
     }
 
     @Test
-    void newInvitationWithUserToken() throws Exception {
-        List<Long> roleIdentifiers = List.of(roleRepository.findByName("Mail").get().getId()) ;
+    void newInvitationWithUserToken() {
+        List<Long> roleIdentifiers = List.of(roleRepository.findByName("Calendar").get().getId()) ;
 
         InvitationRequest invitationRequest = new InvitationRequest(
                 Authority.GUEST,

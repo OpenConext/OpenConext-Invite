@@ -747,6 +747,12 @@ public abstract class AbstractTest {
         research.setOrganizationGUID(ORGANISATION_GUID);
         wiki.setOrganizationGUID(ORGANISATION_GUID);
 
+        //Mark one role as CRM role
+        mail.setOrganisation(organisation);
+        mail.setCrmRoleId("cf652619-08e4-e811-8100-005056956c1a");
+        mail.setCrmRoleName("SURFconextverantwoordelijke");
+        mail.setCrmRoleAbbrevation("CONVER");
+
         List.of(wiki, network, storage, research, calendar, mail)
                 .forEach(role -> role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role)));
         doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);

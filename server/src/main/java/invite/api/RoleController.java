@@ -265,8 +265,9 @@ public class RoleController implements ApplicationResource {
         boolean isNew = role.getId() == null;
         List<String> previousApplicationIdentifiers = new ArrayList<>();
         Optional<UserRole> optionalUserRole = user.userRoleForRole(role);
-        boolean immutableApplicationUsages = !user.isSuperUser() &&
-                optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER);
+        boolean immutableApplicationUsages = (!user.isSuperUser() &&
+                optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER)) ||
+                StringUtils.hasText(role.getCrmRoleId());
         boolean nameChanged = false;
         if (!isNew) {
             Role previousRole = roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));

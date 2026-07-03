@@ -308,7 +308,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
 
-        assertEquals(6, roles.size());
+        assertEquals(5, roles.size());
         List.of("name", "description","urn")
                 .forEach(attr -> assertTrue(roles.stream().allMatch(role -> role.containsKey(attr))));
     }

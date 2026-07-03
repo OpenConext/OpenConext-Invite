@@ -315,6 +315,37 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void updateApplicationsImmutableApplicationsForCrmRole() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "4"));
+        super.stubForManageProvisioning(List.of("1", "2", "4"));
+        super.stubForCreateScimRole();
+        super.stubForDeleteScimRole();
+
+        Role roleDB = roleRepository.search("Mail", 1).get(0);
+        assertEquals(1, roleDB.getApplicationUsages().size());
+        roleDB.setApplicationUsages(Set.of(
+                new ApplicationUsage(new Application("1", EntityType.SAML20_SP), "https://landingpage.com"),
+                new ApplicationUsage(new Application("4", EntityType.SAML20_SP), "https://landingpage.com"))
+        );
+        String body = super.objectMapper.writeValueAsString(roleDB);
+        Role updated = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(body)
+                .put("/api/v1/roles")
+                .as(Role.class);
+        //Because the applicationUsages are immutable for CRM roles
+        assertEquals(1, updated.getApplicationUsages().size());
+    }
+
+    @Test
     void rolesByApplicationInstitutionAdminByAPI() throws Exception {
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2"));
         super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
