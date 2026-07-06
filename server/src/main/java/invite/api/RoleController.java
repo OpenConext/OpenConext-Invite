@@ -207,31 +207,11 @@ public class RoleController implements ApplicationResource {
         role.setIdentifier(UUID.randomUUID().toString());
         role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
 
-        boolean addRoleMembership = false;
-        if (!(user.isSuperUser() || user.isInstitutionAdmin())) {
-            //Only allowed to create a role if all applications that are selected, are connected to existing roles
-            Set<ManageIdentifier> manageIdentifiers = role.getApplicationUsages().stream()
-                    .map(applicationUsage -> applicationUsage.manageIdentifier())
-                    .collect(Collectors.toSet());
-            Set<ManageIdentifier> userAccessRoles = user.getUserRoles().stream()
-                    .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.APPLICATION_MANAGER))
-                    .flatMap(userRole -> userRole.getRole().getApplicationUsages().stream().map(applicationUsage -> applicationUsage.manageIdentifier()))
-                    .collect(Collectors.toSet());
-            if (!userAccessRoles.containsAll(manageIdentifiers)) {
-                throw new UserRestrictionException(
-                        String.format("User %s does not have the Authority.APPLICATION_MANAGER for the requested roles", user.getEmail()));
-            }
-            addRoleMembership = true;
-        }
+        UserPermissions.assertApplicationManager(user, List.of(role));
 
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getName()));
-        ResponseEntity<Role> roleResponseEntity = saveOrUpdate(role, user);
-        if (addRoleMembership) {
-            Role savedRole = roleResponseEntity.getBody();
-            user.addUserRole(new UserRole(Authority.APPLICATION_MANAGER, savedRole));
-            userRepository.save(user);
-        }
-        return roleResponseEntity;
+
+        return saveOrUpdate(role, user);
     }
 
     @PutMapping("")

@@ -41,7 +41,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .get("/api/v1/user_roles/roles/{roleId}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, userRoles.size());
+        assertEquals(3, userRoles.size());
         assertNotNull(userRoles.get(0).getUserInfo().get("name"));
     }
 
@@ -159,7 +159,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .get("/api/v1/user_roles/search/{roleId}/{guests}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(3, userRoles.get("totalElements"));
+        assertEquals(2, userRoles.get("totalElements"));
         assertEquals(1, ((List<?>) userRoles.get("content")).size());
     }
 
@@ -507,7 +507,7 @@ class UserRoleControllerTest extends AbstractTest {
                 .get("/api/v1/user_roles/consequences/{roleId}")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, userRoles.size());
+        assertEquals(3, userRoles.size());
     }
 
     @Test

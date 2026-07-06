@@ -34,6 +34,9 @@ export const highestAuthority = (user, forceApplications = true) => {
     if (user.institutionAdmin && (!isEmpty(user.applications) || !forceApplications)) {
         return AUTHORITIES.INSTITUTION_ADMIN;
     }
+    if (!isEmpty(user.userApplications)) {
+        return AUTHORITIES.APPLICATION_MANAGER;
+    }
     return (user.userRoles || []).reduce((acc, u) => {
         if (AUTHORITIES_HIERARCHY[acc] > AUTHORITIES_HIERARCHY[AUTHORITIES[u.authority]]) {
             return u.authority

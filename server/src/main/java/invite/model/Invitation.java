@@ -98,6 +98,9 @@ public class Invitation implements Serializable {
     @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<InvitationRole> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "invitation", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<InvitationApplication> applications = new HashSet<>();
+
     @Transient
     private boolean emailEqualityConflict = false;
 
@@ -133,6 +136,25 @@ public class Invitation implements Serializable {
         this.language = language;
         this.internalPlaceholderIdentifier = internalPlaceholderIdentifier;
     }
+
+    public Invitation(String hash,
+                      String email,
+                      Language language,
+                      User inviter,
+                      Instant expiryDate,
+                      @NotEmpty Set<InvitationApplication> applications) {
+        this.hash = hash;
+        this.inviter = inviter;
+        this.status = Status.OPEN;
+        this.applications = applications;
+        this.intendedAuthority = Authority.APPLICATION_MANAGER;
+        this.email = email;
+        this.expiryDate = expiryDate == null ? Instant.now().plus(Period.ofDays(14)) : expiryDate;
+        this.createdAt = Instant.now();
+        applications.forEach(application -> application.setInvitation(this));
+        this.language = language;
+    }
+
 
     private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles, Instant roleExpiryDate, Authority intendedAuthority) {
         if (roleExpiryDate != null || !intendedAuthority.equals(Authority.GUEST)) {

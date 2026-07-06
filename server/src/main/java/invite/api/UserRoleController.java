@@ -107,7 +107,7 @@ public class UserRoleController implements UserRoleResource {
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         LOG.debug(String.format("Fetching consequences delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
-        UserPermissions.assertRoleAccess(user, role, Authority.APPLICATION_MANAGER);
+        UserPermissions.assertRoleAccess(user, role, Authority.INSTITUTION_ADMIN);
 
         List<UserRole> userRoles = userRoleRepository.findByRole(role);
         List<Map<String, Object>> res = userRoles.stream().map(userRole -> Map.of(

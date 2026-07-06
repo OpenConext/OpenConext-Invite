@@ -117,6 +117,9 @@ public class User implements Serializable, Provisionable {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<UserApplication> userApplications = new HashSet<>();
+
     @Transient
     private List<Map<String, Object>> applications = Collections.emptyList();
 
@@ -224,11 +227,10 @@ public class User implements Serializable, Provisionable {
     }
 
     @JsonIgnore
-    public void removeUserRole(UserRole role) {
-        //This is required by Hibernate - children can't be dereferenced
-        Set<UserRole> newRoles = userRoles.stream().filter(ur -> !ur.getId().equals(role.getId())).collect(Collectors.toSet());
-        userRoles.clear();
-        userRoles.addAll(newRoles);
+    public UserApplication addUserApplication(UserApplication userApplication) {
+        this.userApplications.add(userApplication);
+        userApplication.setUser(this);
+        return userApplication;
     }
 
     @JsonIgnore
@@ -355,4 +357,6 @@ public class User implements Serializable, Provisionable {
         }
         return name;
     }
+
+
 }

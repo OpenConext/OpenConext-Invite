@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,28 +46,42 @@ public class UserPermissions {
         if (user == null) {
             throw new UserRestrictionException("User is NULL");
         }
-
-        if (user.isSuperUser() || (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID()))) {
+        if (user.isSuperUser()) {
             return;
         }
         if (CollectionUtils.isEmpty(roles)) {
             throw new UserRestrictionException("Roles are empty");
         }
-
-        Set<Long> roleIdentifiers = roles.stream().map(role -> role.getId()).collect(Collectors.toSet());
-        if (user.getUserRoles().stream().filter(userRole -> roleIdentifiers.contains(userRole.getRole().getId()))
-                .noneMatch(userRole -> userRole.getAuthority().equals(Authority.APPLICATION_MANAGER))) {
-            throw new UserRestrictionException(
-                    String.format("User %s does not have the Authority.APPLICATION_MANAGER for the requested roles", user.getEmail()));
+        if (user.isInstitutionAdmin()) {
+            if (!StringUtils.hasText(user.getOrganizationGUID())) {
+                throw new UserRestrictionException(String.format("User %s is institutionAdmin, but has no organizationGUID", user.getEmail()));
+            }
+            if (roles.stream().allMatch(role -> Objects.equals(role.getOrganizationGUID(), user.getOrganizationGUID()))) {
+                return;
+            }
+            throw new UserRestrictionException(String.format("User %s is institutionAdmin of %s, but does not own all roles %s",
+                    user.getEmail(),
+                    user.getOrganizationGUID(),
+                    roles.stream().map(role -> role.getOrganizationGUID()).toList()));
         }
-
+        // Ensure that through the Applications of the User, all Roles are owned
+        Set<Long> roleApplicationIdentifiers = roles.stream().map(role -> role.getApplicationUsages())
+                .flatMap(applicationUsages -> applicationUsages.stream()
+                        .map(applicationUsage -> applicationUsage.getApplication().getId()))
+                .collect(Collectors.toSet());
+        Set<Long> userApplicationIdentifiers = user.getUserApplications().stream()
+                .map(userApplication -> userApplication.getApplication().getId())
+                .collect(Collectors.toSet());
+        if (!userApplicationIdentifiers.containsAll(roleApplicationIdentifiers)) {
+            throw new UserRestrictionException(
+                    String.format("User %s does not own all Applications for the requested roles", user.getEmail()));
+        }
     }
 
     public static void assertAuthority(User user, Authority authority) {
         if (user == null) {
             throw new UserRestrictionException("User is NULL");
         }
-        LOG.debug(String.format("assertAuthority for user %s", user.getEduPersonPrincipalName()));
 
         if (user.isSuperUser()) {
             LOG.debug(String.format("user %s is superuser", user.getEduPersonPrincipalName()));

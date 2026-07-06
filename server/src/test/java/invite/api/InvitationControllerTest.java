@@ -741,7 +741,7 @@ class InvitationControllerTest extends AbstractTest {
                 .get("/api/v1/invitations/all")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(6, invitations.size());
+        assertEquals(7, invitations.size());
     }
 
     @Test
@@ -892,7 +892,7 @@ class InvitationControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
 
-        assertEquals(6, page.getTotalElements());
+        assertEquals(7, page.getTotalElements());
 
         List<Map<String, Object>> content = page.getContent();
         assertEquals(3, content.size());

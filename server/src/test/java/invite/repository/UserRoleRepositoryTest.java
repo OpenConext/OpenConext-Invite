@@ -39,7 +39,7 @@ class UserRoleRepositoryTest extends AbstractTest {
         PageRequest pageRequest = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "authority"));
         Long roleID = roleRepository.findByName("Wiki").get().getId();
         Page<Map<String, Object>> userRoles = userRoleRepository.searchNonGuestsByPage(roleID, pageRequest);
-        assertEquals(3L, userRoles.getTotalElements());
+        assertEquals(2L, userRoles.getTotalElements());
         assertEquals(1, userRoles.getContent().size());
     }
 
