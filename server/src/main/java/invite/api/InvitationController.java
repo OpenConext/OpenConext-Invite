@@ -27,6 +27,7 @@ import invite.provision.Provisioning;
 import invite.provision.ProvisioningService;
 import invite.provision.graph.GraphResponse;
 import invite.provision.scim.OperationType;
+import invite.repository.ApplicationRepository;
 import invite.repository.InvitationRepository;
 import invite.repository.OrganisationRepository;
 import invite.repository.RoleRepository;
@@ -113,6 +114,8 @@ public class InvitationController implements InvitationResource {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final OrganisationRepository organisationRepository;
+    @Getter
+    private final ApplicationRepository applicationRepository;
     private final ProvisioningService provisioningService;
     private final SecurityContextRepository securityContextRepository;
     private final SuperAdmin superAdmin;
@@ -125,6 +128,7 @@ public class InvitationController implements InvitationResource {
                                 UserRepository userRepository,
                                 RoleRepository roleRepository,
                                 OrganisationRepository organisationRepository,
+                                ApplicationRepository applicationRepository,
                                 ProvisioningService provisioningService,
                                 SecurityContextRepository securityContextRepository,
                                 SuperAdmin superAdmin, UserRoleAuditService userRoleAuditService) {
@@ -134,6 +138,7 @@ public class InvitationController implements InvitationResource {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.organisationRepository = organisationRepository;
+        this.applicationRepository = applicationRepository;
         this.provisioningService = provisioningService;
         this.securityContextRepository = securityContextRepository;
         this.superAdmin = superAdmin;

@@ -3,7 +3,19 @@ package invite.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import invite.api.InvitationOperations;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,8 +26,12 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.Period;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Entity(name = "invitations")
 @NoArgsConstructor
@@ -116,7 +132,8 @@ public class Invitation implements Serializable {
                       User inviter,
                       Instant expiryDate,
                       Instant roleExpiryDate,
-                      @NotEmpty Set<InvitationRole> roles,
+                      Set<InvitationRole> roles,
+                      Set<InvitationApplication> applications,
                       String internalPlaceholderIdentifier) {
         this.intendedAuthority = intendedAuthority;
         this.hash = hash;
@@ -133,28 +150,10 @@ public class Invitation implements Serializable {
         this.roleExpiryDate = this.roleExpiryDate(roles, roleExpiryDate, intendedAuthority);
         this.createdAt = Instant.now();
         roles.forEach(role -> role.setInvitation(this));
+        applications.forEach(application -> application.setInvitation(this));
         this.language = language;
         this.internalPlaceholderIdentifier = internalPlaceholderIdentifier;
     }
-
-    public Invitation(String hash,
-                      String email,
-                      Language language,
-                      User inviter,
-                      Instant expiryDate,
-                      @NotEmpty Set<InvitationApplication> applications) {
-        this.hash = hash;
-        this.inviter = inviter;
-        this.status = Status.OPEN;
-        this.applications = applications;
-        this.intendedAuthority = Authority.APPLICATION_MANAGER;
-        this.email = email;
-        this.expiryDate = expiryDate == null ? Instant.now().plus(Period.ofDays(14)) : expiryDate;
-        this.createdAt = Instant.now();
-        applications.forEach(application -> application.setInvitation(this));
-        this.language = language;
-    }
-
 
     private Instant roleExpiryDate(@NotEmpty Set<InvitationRole> roles, Instant roleExpiryDate, Authority intendedAuthority) {
         if (roleExpiryDate != null || !intendedAuthority.equals(Authority.GUEST)) {

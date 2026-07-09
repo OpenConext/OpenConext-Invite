@@ -206,9 +206,11 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
             return (!isEmpty(user.organizationGUID) && user.organizationGUID === role.organizationGUID) ||
                 user.userRoles.some(userRole => userRole.role.id === role.id)
         });
+
     if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
         return [];
     }
+
     const leastImportantAuthority = userRolesForSelectedRoles
         .reduce((acc, userRole) => {
             if (acc === null || AUTHORITIES_HIERARCHY[userRole.authority] > AUTHORITIES_HIERARCHY[acc]) {
@@ -216,6 +218,7 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
             }
             return acc;
         }, null) || AUTHORITIES.INVITER;
+
     return Object.keys(AUTHORITIES)
         .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[leastImportantAuthority]);
 

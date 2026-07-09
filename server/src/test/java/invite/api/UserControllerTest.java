@@ -126,8 +126,10 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    void meWithApplicationUsages() throws Exception {
+    void meWithUserApplicationMap() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", APPLICATION_MANAGER_SUB);
+        //For UserApplication enrichments
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("6"));
 
         User user = given()
                 .when()
@@ -136,8 +138,9 @@ class UserControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get(accessCookieFilter.apiURL())
                 .as(User.class);
-        user.getUserApplications().iterator().next().getApplication().
-        assertEquals("urn:collab:person:example.com:admin", user.getEmail());
+        Map<String, Object> applicationMap = user.getUserApplications().iterator().next().getApplicationMap();
+        assertEquals("Cloud EN", applicationMap.get("name:en"));
+        assertEquals("urn:collab:person:example.com:application_manager", user.getEmail());
 
         Map res = given()
                 .when()

@@ -61,6 +61,7 @@ class InvitationMailControllerTest extends AbstractMailTest {
                 List.of("new@new.nl"),
                 null,
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));

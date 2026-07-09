@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -173,6 +174,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -207,6 +209,7 @@ class InternalInviteControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));

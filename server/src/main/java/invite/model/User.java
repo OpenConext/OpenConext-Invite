@@ -120,6 +120,7 @@ public class User implements Serializable, Provisionable {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserApplication> userApplications = new HashSet<>();
 
+    //The application connected to the IdP of the User, if institution admin
     @Transient
     private List<Map<String, Object>> applications = Collections.emptyList();
 

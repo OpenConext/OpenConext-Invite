@@ -169,8 +169,8 @@ public interface Manage {
                         .toList()));
         return roles;
     }
-//TODO refactor so there is no duplication
-    default List<Role> addManageMetaData(Set<UserApplication> userApplications) {
+
+    default Set<UserApplication> addManageMetaData(Set<UserApplication> userApplications) {
         //First get all unique remote manage entities and group them by manageType
         Map<EntityType, List<ManageIdentifier>> groupedManageIdentifiers = userApplications.stream()
                 .map(UserApplication::getApplication)
@@ -183,26 +183,11 @@ public interface Manage {
                 .map(entry -> this.providersByIdIn(entry.getKey(), entry.getValue().stream().map(ManageIdentifier::manageId).toList()))
                 .flatMap(List::stream)
                 .collect(Collectors.toMap(map -> (String) map.get("id"), map -> map));
-        //Add the metadata to the role
-
-        userApplications.forEach(userApplication -> userApplication.setApplicationMap(
-                role.getApplicationUsages().stream()
-                        .map(applicationUsage -> {
-                            Map<String, Object> applicationMap =
-                                    transformProvider(remoteApplications.get(applicationUsage.getApplication().getManageId()));
-                            if (CollectionUtils.isEmpty(applicationMap)) {
-                                //If remote manage is not behaving
-                                applicationMap = new HashMap<>();
-                                applicationMap.put("unknown", true);
-                            } else {
-                                //Bugfix for overwrite of map reference value in case roles are linked to same application, need new Map
-                                applicationMap = new HashMap<>(applicationMap);
-                            }
-                            applicationMap.put("landingPage", applicationUsage.getLandingPage());
-                            return applicationMap;
-                        })
-                        .toList()));
-        return roles;
+        //Add the metadata to the userApplication
+        userApplications.forEach(userApplication -> {
+                    Map<String, Object> provider = transformProvider(remoteApplications.get(userApplication.getApplication().getManageId()));
+                    userApplication.setApplicationMap(provider);});
+        return userApplications;
     }
 
     default List<GroupedProviders> getGroupedProviders(List<Role> requestedRoles) {

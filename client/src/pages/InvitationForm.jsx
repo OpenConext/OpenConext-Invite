@@ -14,6 +14,7 @@ import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {
+    allApplicationsFromManage,
     allIdentityProviders,
     eduidIdentityProvider,
     newInvitation,
@@ -35,6 +36,7 @@ import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import DOMPurify from "dompurify";
 import {ExpandableSwitchField} from "../components/ExpandableSwitchField";
 import Select from "react-select";
+import {providersToOptions} from "../utils/Manage";
 
 const DEFAULT_ROLE_EXPIRY_DAYS = 366;
 
@@ -59,8 +61,9 @@ export const InvitationForm = () => {
     const [guest, setGuest] = useState(false);
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
+    const [applications, setApplications] = useState([]);
+    const [selectedApplications, setSelectedApplications] = useState([]);
     const [originalRoleId, setOriginalRoleId] = useState(null);
-
     const [invitation, setInvitation] = useState({
         expiryDate: futureDate(30),
         roleExpiryDate: null,
@@ -88,14 +91,17 @@ export const InvitationForm = () => {
             navigate("/404");
             return;
         }
-        if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
+        if (isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user)) {
             rolesByApplication(true)
                 .then(page => {
                     const markedRoles = markAndFilterRoles(user, page.content, I18n.locale,
                         I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
                     setInitialRole(markedRoles);
                     setRoles(markedRoles);
-
+                    if (user.institutionAdmin && !isEmpty(user.applications)) {
+                        const options = providersToOptions(user.applications);
+                        setApplications(options);
+                    }
                 })
         } else {
             const markedRoles = markAndFilterRoles(user, [], I18n.locale,
@@ -110,18 +116,20 @@ export const InvitationForm = () => {
         useAppStore.setState({breadcrumbPath: breadcrumbPath});
         //Now fetch all IdentityProviders for the superuser
         if (user.superUser) {
-            allIdentityProviders().then(idps => {
-                const identityProviderOptions = idps
-                    .filter(idp => !isEmpty(idp.institutionGuid))
-                    .map(idp => ({
-                        value: idp.id,
-                        label: idp["name:en"],
-                        institutionGuid: idp.institutionGuid
-                    }))
-                setIdentityProviders(identityProviderOptions);
-            });
+            Promise.all([allApplicationsFromManage(), allIdentityProviders()])
+                .then(res => {
+                    const options = providersToOptions(res[0]);
+                    setApplications(options);
+                    const identityProviderOptions = res[1]
+                        .filter(idp => !isEmpty(idp.institutionGuid))
+                        .map(idp => ({
+                            value: idp.id,
+                            label: idp["name:en"],
+                            institutionGuid: idp.institutionGuid
+                        }))
+                    setIdentityProviders(identityProviderOptions);
+                });
         }
-
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const acrWarning = useMemo(() => {
@@ -202,6 +210,10 @@ export const InvitationForm = () => {
                     ? futureDate(invitation.roleExpiryDays || DEFAULT_ROLE_EXPIRY_DAYS)
                     : invitation.roleExpiryDate,
                 roleIdentifiers: selectedRoles.map(role => role.value),
+                manageIdentifiers: selectedApplications.map(app => ({
+                    manageType: app.manageType,
+                    manageId: app.manageId,
+                })),
                 language: language.value
             };
             newInvitation(invitationRequest)
@@ -225,8 +237,9 @@ export const InvitationForm = () => {
     const isValid = () => {
         const invitationIsForAdmin = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority);
         const res = required.every(attr => !isEmpty(invitation[attr])) &&
-            (!isEmpty(selectedRoles) || invitationIsForAdmin) &&
-            !(invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID));
+            (!isEmpty(selectedRoles) || invitationIsForAdmin || invitation.intendedAuthority === AUTHORITIES.APPLICATION_MANAGER) &&
+            !(invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID)) &&
+            (!isEmpty(selectedApplications) || invitation.intendedAuthority !== AUTHORITIES.INSTITUTION_ADMIN);
         return res;
     }
 
@@ -274,6 +287,15 @@ export const InvitationForm = () => {
                 setEduIDIdP(res[0]);
                 setACRValues(res[1])
             });
+        }
+    }
+
+    const applicationsChanged = selectedOptions => {
+        if (selectedOptions === null) {
+            setSelectedApplications([])
+        } else {
+            const newSelectedOptions = Array.isArray(selectedOptions) ? [...selectedOptions] : [selectedOptions];
+            setSelectedApplications(newSelectedOptions);
         }
     }
 
@@ -326,6 +348,13 @@ export const InvitationForm = () => {
         if (option.value !== AUTHORITIES.INSTITUTION_ADMIN) {
             setOrganizationGUIDIdentityProvider({});
         }
+        if (option.value === AUTHORITIES.APPLICATION_MANAGER) {
+            setSelectedRoles([]);
+            setOrganizationGUIDIdentityProvider({});
+        }
+        if (option.value !== AUTHORITIES.APPLICATION_MANAGER) {
+            setSelectedApplications([]);
+        }
     }
 
     const renderUserRole = (role, index, invitationSelected, invitationSelectCallback) => {
@@ -354,9 +383,9 @@ export const InvitationForm = () => {
                     removeMail={removeMail}
                     required={true}
                     error={!initial && isEmpty(invitation.invites)}/>
-
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitations.requiredEmail")}/>}
+
                 {(authorityOptions.length > 1 || (!isInviter && authorityOptions.length === 1)) &&
                     <SelectField
                         value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
@@ -388,23 +417,40 @@ export const InvitationForm = () => {
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
 
-                {(!isInviter && !skipRoles) && <>
-                    <SelectField value={selectedRoles}
-                                 options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
-                                     && isEmpty(role.crmRoleId))}
-                                 name={I18n.t("invitations.roles")}
-                                 toolTip={I18n.t("tooltips.rolesTooltip")}
-                                 isMulti={true}
-                                 required={true}
-                                 error={!initial && isEmpty(selectedRoles)}
-                                 searchable={true}
-                                 placeholder={I18n.t(`invitations.rolesPlaceHolder${isEmpty(roles) ? "Loading" : ""}`)}
-                                 onChange={rolesChanged}/>
-                    {(!initial && isEmpty(selectedRoles) &&
-                            !skipRoles) &&
-                        <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
-                </>}
 
+                {(!isInviter && !skipRoles && invitation.intendedAuthority !== AUTHORITIES.APPLICATION_MANAGER) &&
+                    <>
+                        <SelectField value={selectedRoles}
+                                     options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
+                                         && isEmpty(role.crmRoleId))}
+                                     name={I18n.t("invitations.roles")}
+                                     toolTip={I18n.t("tooltips.rolesTooltip")}
+                                     isMulti={true}
+                                     required={true}
+                                     error={!initial && isEmpty(selectedRoles)}
+                                     searchable={true}
+                                     placeholder={I18n.t(`invitations.rolesPlaceHolder${isEmpty(roles) ? "Loading" : ""}`)}
+                                     onChange={rolesChanged}/>
+                        {(!initial && isEmpty(selectedRoles) &&
+                                !skipRoles) &&
+                            <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
+                    </>}
+
+                {invitation.intendedAuthority === AUTHORITIES.APPLICATION_MANAGER &&
+                    <>
+                        <SelectField value={selectedApplications}
+                                     options={applications.filter(app => !selectedApplications.find(a => a.value === app.value))}
+                                     name={I18n.t("invitations.applications")}
+                                     toolTip={I18n.t("tooltips.applicationsTooltip")}
+                                     isMulti={true}
+                                     required={true}
+                                     error={!initial && isEmpty(selectedApplications)}
+                                     searchable={true}
+                                     placeholder={I18n.t(`invitations.applicationsPlaceHolder${isEmpty(applications) ? "Loading" : ""}`)}
+                                     onChange={applicationsChanged}/>
+                        {(!initial && isEmpty(selectedApplications)) &&
+                            <ErrorIndicator msg={I18n.t("invitations.requiredApplication")}/>}
+                    </>}
 
                 <InputField name={I18n.t(isInviter ? "invitations.inviterRole.message" : "invitations.message")}
                             value={invitation.message}

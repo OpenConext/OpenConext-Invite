@@ -677,7 +677,6 @@ public abstract class AbstractTest {
             this.organisationRepository.deleteAllInBatch();
             this.jdbcTemplate.update("delete from distributed_locks");
 
-
             Organisation organisation = new Organisation(
                     CRM_ORGANIZATION_ID, "SURF", "SURF"
             );
@@ -710,17 +709,27 @@ public abstract class AbstractTest {
             kbUser.setCrmContactId(CRM_CONTACT_ID);
             kbUser.setOrganisation(organisation);
 
+            Application rpApplication = new Application("6", EntityType.OIDC10_RP);
+            Application spApplication = new Application("3", EntityType.SAML20_SP);
             Set<Application> applications = Set.of(
-                            new Application("3", EntityType.SAML20_SP),
-                            new Application("6", EntityType.OIDC10_RP))
+                            spApplication,
+                            rpApplication)
                     .stream()
                     .map(app -> applicationRepository.findByManageIdAndManageTypeOrderById(app.getManageId(), app.getManageType()).
                             orElseGet(() -> applicationRepository.save(new Application(app.getManageId(), app.getManageType()))))
                     .collect(Collectors.toSet());
-            Set<ApplicationUsage> applicationUsages = applications.stream().map(application -> new ApplicationUsage(application, "https://landingpage.com")).collect(Collectors.toSet());
+            Set<ApplicationUsage> applicationUsages = applications.stream()
+                    .map(application -> new ApplicationUsage(application, "https://landingpage.com")).collect(Collectors.toSet());
+            //Otherwise the applications point to the non-persisted entity
+            rpApplication = applications.stream()
+                    .filter(application -> application.getManageType().equals(EntityType.OIDC10_RP))
+                            .findFirst().get();
+            spApplication = applications.stream()
+                    .filter(application -> application.getManageType().equals(EntityType.SAML20_SP))
+                    .findFirst().get();
 
             //We need an applicationManager in the test suite
-            applicationManager.addUserApplication(new UserApplication(applications.iterator().next()));
+            applicationManager.addUserApplication(new UserApplication(rpApplication));
 
             doSave(this.userRepository, superUser, institutionAdmin, applicationManager, manager, inviter, wikiInviter, guest, kbUser);
             this.userRepository.flush();
@@ -795,26 +804,28 @@ public abstract class AbstractTest {
 
             Invitation superUserInvitation =
                     new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, null, false, message, Language.en,
-                            inviter, expiryDate, roleExpiryDate, Set.of(), null);
+                            inviter, expiryDate, roleExpiryDate, Set.of(), Set.of(),null);
 
             Invitation managerInvitation =
                     new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, null, false, message, Language.en,
-                            inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(research)), null);
+                            inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(research)), Set.of(),null);
 
             Invitation applicationManagerInvitation =
-                    new Invitation(APPLICATION_MANAGER_SUB, "app@manager.com", Language.en, inviter, null, Set.of(
-                            new InvitationApplication(applications.iterator().next())
-                    ));
+                    new Invitation(Authority.APPLICATION_MANAGER, Authority.APPLICATION_MANAGER.name(), "app@manager.com",
+                            false, false, null, false, message, Language.en,
+                            inviter, expiryDate, roleExpiryDate, Set.of(), Set.of(
+                            new InvitationApplication(spApplication)
+                    ), null);
 
             Invitation inviterInvitation =
                     new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, true, message, Language.en,
-                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)), null);
+                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)),Set.of(), null);
             inviterInvitation.setEnforceEmailEquality(true);
 
             Invitation guestInvitation =
                     new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com",
                             false, false, null, false, message, Language.en,
-                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)), null);
+                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)),Set.of(), null);
             guestInvitation.setEduIDOnly(true);
             //To test graph callback
             guestInvitation.setSubInvitee(GUEST_SUB);
@@ -822,12 +833,12 @@ public abstract class AbstractTest {
             Invitation institutionAdminInvitation =
                     new Invitation(Authority.INSTITUTION_ADMIN, INSTITUTION_ADMIN_INVITATION_HASH, "institutionh@admin.com",
                             false, false, null, false, message, Language.en,
-                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), null);
+                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)),Set.of(), null);
 
             Invitation graphInvitation =
                     new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com",
                             false, false, null, false, message, Language.en,
-                            inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), null);
+                            inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), Set.of(),null);
             doSave(invitationRepository, superUserInvitation, managerInvitation, applicationManagerInvitation, inviterInvitation, guestInvitation,
                     institutionAdminInvitation, graphInvitation);
             this.invitationRepository.flush();

@@ -113,8 +113,11 @@ public class UserController {
     @Transactional(readOnly = true)
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
+
         List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.addManageMetaData(roles);
+        manage.addManageMetaData(user.getUserApplications());
+
         return ResponseEntity.ok(user);
     }
 

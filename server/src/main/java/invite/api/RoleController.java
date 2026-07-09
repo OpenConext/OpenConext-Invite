@@ -7,7 +7,6 @@ import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.manage.EntityType;
 import invite.manage.Manage;
-import invite.manage.ManageIdentifier;
 import invite.model.Application;
 import invite.model.ApplicationUsage;
 import invite.model.Authority;
@@ -31,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -89,7 +89,6 @@ public class RoleController implements ApplicationResource {
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
     private final String groupUrnPrefix;
-    private final UserRepository userRepository;
 
     public RoleController(RoleRepository roleRepository,
                           UserRoleRepository userRoleRepository,
@@ -97,7 +96,7 @@ public class RoleController implements ApplicationResource {
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
-                          @Value("${voot.group_urn_domain}") String groupUrnPrefix, UserRepository userRepository) {
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
@@ -106,7 +105,6 @@ public class RoleController implements ApplicationResource {
         this.provisioningService = provisioningService;
         this.roleOperations = new RoleOperations(this);
         this.groupUrnPrefix = groupUrnPrefix;
-        this.userRepository = userRepository;
     }
 
     @GetMapping("")
@@ -141,10 +139,17 @@ public class RoleController implements ApplicationResource {
                 }
             }
         } else {
-            UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+            UserPermissions.assertApplicationManager(user);
             Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-            rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
-
+            if (user.isInstitutionAdmin()) {
+                rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
+            } else {
+                List<String > manageIdentifiers = user.getUserApplications().stream()
+                        .map(userApplication -> userApplication.getApplication().getManageId())
+                        .toList();
+                List<Role> roles = roleRepository.findByApplicationUsagesApplicationManageIdIn(manageIdentifiers);
+                rolesPage = new PageImpl<>(roles, pageable, roles.size());
+            }
         }
         List<Long> roleIdentifiers = rolesPage.getContent().stream().map(role -> role.getId()).toList();
         List<Map<String, Object>> applications = roleRepository.findApplications(roleIdentifiers);

@@ -46,17 +46,28 @@ public class InvitationOperations {
         invitationRequest.verify();
         Authority intendedAuthority = invitationRequest.getIntendedAuthority();
         if (!List.of(Authority.INSTITUTION_ADMIN, Authority.SUPER_USER).contains(intendedAuthority)
+                && !intendedAuthority.equals(Authority.APPLICATION_MANAGER)
                 && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
             throw new NotAllowedException("Invitation for non-super-user or institution-admin must contain at least one role");
+        }
+        if (intendedAuthority.equals(Authority.APPLICATION_MANAGER)
+                && CollectionUtils.isEmpty(invitationRequest.getManageIdentifiers())) {
+            throw new NotAllowedException("Invitation for application manager must contain at least one application");
         }
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
                 .map(id -> invitationResource.getRoleRepository().findById(id)
                         .filter(role -> !StringUtils.hasText(role.getCrmRoleId()))
                         .orElseThrow(() -> new NotFoundException("Role not found"))).toList();
-
+        List<Application> requestedApplications = invitationRequest.getManageIdentifiers().stream()
+                .map(manageIdentifier -> invitationResource.getApplicationRepository()
+                        .findByManageIdAndManageTypeOrderById(manageIdentifier.manageId(), manageIdentifier.manageType()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
         if (user != null) {
             UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+            UserPermissions.assertValidApplicationManagerInvitation(user, intendedAuthority, requestedApplications);
         } else {
             RemoteUserPermissions.assertApplicationAccess(remoteUser, requestedRoles);
         }
@@ -102,6 +113,9 @@ public class InvitationOperations {
                         requestedRoles.stream()
                                 .map(InvitationRole::new)
                                 .collect(toSet()),
+                        requestedApplications.stream()
+                                        .map(InvitationApplication::new)
+                                                .collect(toSet()),
                         invite.getInternalPlaceholderIdentifier())
                 ).toList();
         if (user == null) {
@@ -109,7 +123,7 @@ public class InvitationOperations {
         }
         if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
             invitations.forEach(invitation -> invitation.setOrganizationGUID(
-                    user.isSuperUser() ? invitationRequest.getOrganizationGUID() : user.getOrganizationGUID())
+                    (user == null || user.isSuperUser()) ? invitationRequest.getOrganizationGUID() : user.getOrganizationGUID())
             );
         }
 

@@ -2,7 +2,7 @@ import "./Applications.scss";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {allApplications} from "../api";
+import {applicationsFromManage} from "../api";
 import {stopEvent} from "../utils/Utils";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {useAppStore} from "../stores/AppStore";
@@ -24,7 +24,7 @@ const Applications = () => {
                 navigate("/404");
                 return;
             }
-            allApplications()
+            applicationsFromManage()
                 .then(res => {
                     const mergedApps = mergeProvidersProvisioningsRoles(
                         res.providers, res.provisionings);

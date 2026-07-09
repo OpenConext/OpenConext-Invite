@@ -45,7 +45,8 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
     @Query(value = """
              SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
                 u.created_at as createdAt, u.last_activity as lastActivity,
-                (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
+                (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority,
+                (SELECT GROUP_CONCAT(DISTINCT au.application_id) FROM user_applications au WHERE au.user_id = u.id) AS userApplications
                 FROM users u
             """,
             countQuery = "SELECT count(*) FROM users",
@@ -56,7 +57,8 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
     @Query(value = """
              SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
                 u.created_at as createdAt, u.last_activity as lastActivity,
-            (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
+            (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority,
+            (SELECT GROUP_CONCAT(DISTINCT au.application_id) FROM user_applications au WHERE au.user_id = u.id) AS userApplications
               FROM users u WHERE MATCH (given_name, family_name, email, schac_home_organization) against (?1  IN BOOLEAN MODE)
             """,
             countQuery = "SELECT count(*) FROM users WHERE MATCH (given_name, family_name, email, schac_home_organization) against (?1  IN BOOLEAN MODE)",
@@ -67,7 +69,8 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
     @Query(value = """
              SELECT u.id, u.name, u.email, u.schac_home_organization, u.super_user, u.institution_admin,
                 u.created_at as createdAt, u.last_activity as lastActivity,
-            (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority
+            (SELECT GROUP_CONCAT(DISTINCT ur.authority) FROM user_roles ur WHERE ur.user_id = u.id) AS authority,
+            (SELECT GROUP_CONCAT(DISTINCT au.application_id) FROM user_applications au WHERE au.user_id = u.id) AS userApplications
               FROM users u WHERE 
                        UPPER(u.email) LIKE ?1 or UPPER(u.schac_home_organization) LIKE ?1                      
             """,
@@ -122,7 +125,8 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
 
 
     @Query(value = "SELECT * FROM users u WHERE super_user = 0 AND institution_admin = 0 " +
-            "AND NOT EXISTS (SELECT ur.id FROM user_roles ur WHERE ur.user_id = u.id)",
+            "AND NOT EXISTS (SELECT ur.id FROM user_roles ur WHERE ur.user_id = u.id)" +
+            "AND NOT EXISTS (SELECT ua.id FROM user_applications ua WHERE ua.user_id = u.id)",
             nativeQuery = true)
     List<User> findNonSuperUserWithoutUserRoles();
 

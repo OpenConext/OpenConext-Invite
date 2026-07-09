@@ -1,6 +1,7 @@
 package invite.model;
 
 import invite.exception.InvalidInputException;
+import invite.manage.ManageIdentifier;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,6 +41,8 @@ public class InvitationRequest implements Serializable {
     private List<Invite> invitesWithInternalPlaceholderIdentifiers;
 
     private List<Long> roleIdentifiers;
+
+    private List<ManageIdentifier> manageIdentifiers;
 
     private String organizationGUID;
 

@@ -1,6 +1,7 @@
 package invite.security;
 
 import invite.exception.UserRestrictionException;
+import invite.model.Application;
 import invite.model.Authority;
 import invite.model.Role;
 import invite.model.User;
@@ -41,6 +42,19 @@ public class UserPermissions {
         }
         throw new UserRestrictionException("User is no institution admin: " + user.getEmail());
     }
+
+    public static void assertApplicationManager(User user) {
+        if (user == null) {
+            throw new UserRestrictionException("User is NULL");
+        }
+        if (user.isSuperUser() ||
+                (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) ||
+            !CollectionUtils.isEmpty(user.getUserApplications())) {
+            return;
+        }
+            throw new UserRestrictionException(
+                    String.format("User %s is not a super user, institution admin or application manager", user.getEmail()));
+        }
 
     public static void assertApplicationManager(User user, List<Role> roles) {
         if (user == null) {
@@ -127,6 +141,24 @@ public class UserPermissions {
             throw new UserRestrictionException(String.format("Invalid invation by %s for roles %s",
                     user.getEmail(), roles.stream().map(role -> role.getName()).collect(Collectors.joining(", "))));
         }
+    }
+
+    public static void assertValidApplicationManagerInvitation(User user, Authority intendedAuthority, List<Application> applications) {
+        if (!Authority.APPLICATION_MANAGER.equals(intendedAuthority)) {
+            return;
+        }
+        if (user == null) {
+            throw new UserRestrictionException("User is NULL");
+        }
+        LOG.debug(String.format("assertValidInvitation for user %s", user.getEduPersonPrincipalName()));
+        if (user.isSuperUser()) {
+            return;
+        }
+        if (!user.isInstitutionAdmin()) {
+            throw new UserRestrictionException(String.format("Invalid invation by %s for application %s",
+                    user.getEmail(), applications.stream().map(application -> application.getManageId()).collect(Collectors.joining(", "))));
+        }
+        System.out.println();
     }
 
     public static void assertRoleAccess(User user, Role accessRole, Authority authority) {

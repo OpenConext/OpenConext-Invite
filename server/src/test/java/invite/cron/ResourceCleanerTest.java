@@ -34,7 +34,7 @@ class ResourceCleanerTest extends AbstractTest {
         stubForUpdateScimRole();
 
         resourceCleaner.clean();
-        assertEquals(beforeUsers, userRepository.count() + 2);
+        assertEquals(beforeUsers, userRepository.count() + 1);
     }
 
     @Test
@@ -49,7 +49,7 @@ class ResourceCleanerTest extends AbstractTest {
         stubForUpdateScimRole();
 
         resourceCleaner.clean();
-        assertEquals(beforeUsers, userRepository.count() + 2);
+        assertEquals(beforeUsers, userRepository.count() + 1);
     }
 
     @Test

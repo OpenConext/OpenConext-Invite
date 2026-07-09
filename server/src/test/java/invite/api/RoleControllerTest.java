@@ -389,6 +389,27 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void rolesByApplicationApplicationManager() throws Exception {
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("6"));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", APPLICATION_MANAGER_SUB);
+
+        DefaultPage<Role> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", true)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, page.getTotalElements());
+        List<Role> roles = page.getContent();
+        assertEquals(1, roles.size());
+    }
+
+    @Test
     void rolesByApplicationSuperUser() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));

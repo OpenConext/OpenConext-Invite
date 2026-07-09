@@ -67,8 +67,10 @@ public class MailBox {
     }
 
     @SneakyThrows
-    public void sendInviteMail(Provisionable provisionable, Invitation invitation,
-                               List<GroupedProviders> groupedProviders, Language language,
+    public void sendInviteMail(Provisionable provisionable,
+                               Invitation invitation,
+                               List<GroupedProviders> groupedProviders,
+                               Language language,
                                Optional<String> optionalIdpName) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         String title = String.format(subjects.get(language.name()).get("newInvitation"),

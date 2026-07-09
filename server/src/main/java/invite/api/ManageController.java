@@ -127,24 +127,22 @@ public class ManageController {
         return ResponseEntity.ok(identityProviders.getFirst());
     }
 
-    @GetMapping("/applications")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
-        LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
 
-        UserPermissions.assertInstitutionAdmin(user);
-        List<Application> applications;
-        if (user.isSuperUser()) {
-            applications = applicationRepository.findAll();
-        } else {
-            applications = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
-                    .stream()
-                    .map(role -> role.getApplicationUsages())
-                    .flatMap(Set::stream)
-                    .map(applicationUsage -> applicationUsage.getApplication())
-                    .toList();
-        }
-        Map<EntityType, List<Application>> groupedByManageType = applications.stream().collect(Collectors.groupingBy(Application::getManageType));
+    @GetMapping("/all-applications")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> allApplications(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("GET /manage/all-applications for user %s", user.getEduPersonPrincipalName()));
+
+        UserPermissions.assertSuperUser(user);
+
+        List<Application> applications = applicationRepository.findAll();
+        List<Map<String, Object>> providers = getProviders(applications);
+        return ResponseEntity.ok(providers);
+    }
+
+    private List<Map<String, Object>> getProviders(List<Application> applications) {
+        Map<EntityType, List<Application>> groupedByManageType = applications.stream()
+                .collect(Collectors.groupingBy(Application::getManageType));
 
         List<Map<String, Object>> providers = groupedByManageType.entrySet().stream()
                 .map(entry -> manage.providersByIdIn(
@@ -152,6 +150,32 @@ public class ManageController {
                         entry.getValue().stream().map(Application::getManageId).collect(Collectors.toList())))
                 .flatMap(Collection::stream)
                 .toList();
+        return providers;
+    }
+
+    @GetMapping("/applications")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
+
+        UserPermissions.assertApplicationManager(user);
+
+        List<Application> applications;
+        if (user.isSuperUser()) {
+            applications = applicationRepository.findAll();
+        } else if (user.isInstitutionAdmin()) {
+            applications = roleRepository.findByOrganizationGUID(user.getOrganizationGUID())
+                    .stream()
+                    .map(role -> role.getApplicationUsages())
+                    .flatMap(Set::stream)
+                    .map(applicationUsage -> applicationUsage.getApplication())
+                    .toList();
+        } else {
+            //Application manager
+            applications = user.getUserApplications().stream()
+                    .map(userApplication -> userApplication.getApplication()).toList();
+        }
+        List<Map<String, Object>> providers = getProviders(applications);
         //Convert to map with key = manage_id and value = role_count
         Map<String, Long> applicationsPerManageId = applicationRepository.countByApplications().stream()
                 .collect(Collectors.toMap(m -> (String) m.get("manage_id"), m -> (Long) m.get("role_count")));
