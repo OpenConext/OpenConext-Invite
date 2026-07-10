@@ -113,6 +113,8 @@ const en = {
         noRolesInstitutionAdmin: "You are an institution admin and you have no roles (but you might have access to applications)",
         noRolesInstitutionAdminOther: "{{name}} is an institution admin and has no roles (but might have access to applications)",
         noRolesNoApplicationsInstitutionAdmin: "You are an institution admin, but you have no roles and apparently your institution has also no access to applications",
+        noRolesInfoApplicationManager: "You have no roles, but are an application manager and has access to applications",
+        noRolesInfoApplicationManagerOther: "{{name}} has no roles, but is an application manager and has access to applications",
         guestRoleOnly: "You are not an administrator. Are you looking for <a href='{{welcomeUrl}}'>the apps you can access</a>?",
         rolesInfo: "You have the following roles",
         applicationsInfo: "You have access to the following applications",

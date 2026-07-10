@@ -7,7 +7,19 @@ import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
 import invite.manage.Manage;
-import invite.model.*;
+import invite.model.Application;
+import invite.model.Authority;
+import invite.model.GroupedProviders;
+import invite.model.Invitation;
+import invite.model.InvitationApplication;
+import invite.model.InvitationRequest;
+import invite.model.InvitationResponse;
+import invite.model.InvitationRole;
+import invite.model.Invite;
+import invite.model.Provisionable;
+import invite.model.RecipientInvitationURL;
+import invite.model.Role;
+import invite.model.User;
 import invite.repository.InvitationRepository;
 import invite.security.RemoteUser;
 import invite.security.RemoteUserPermissions;
@@ -23,7 +35,12 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
@@ -114,8 +131,8 @@ public class InvitationOperations {
                                 .map(InvitationRole::new)
                                 .collect(toSet()),
                         requestedApplications.stream()
-                                        .map(InvitationApplication::new)
-                                                .collect(toSet()),
+                                .map(InvitationApplication::new)
+                                .collect(toSet()),
                         invite.getInternalPlaceholderIdentifier())
                 ).toList();
         if (user == null) {

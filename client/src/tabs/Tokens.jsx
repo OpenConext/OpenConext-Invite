@@ -21,7 +21,8 @@ import SelectField from "../components/SelectField";
 export const Tokens = () => {
     const {user, setFlash} = useAppStore(state => state);
     const authority = highestAuthority(user);
-    const isRegularUser = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER;
+    const isRegularUser = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER ||
+        authority === AUTHORITIES.APPLICATION_MANAGER;
 
     const navigate = useNavigate();
     const [tokens, setTokens] = useState(true);

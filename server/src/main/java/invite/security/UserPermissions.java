@@ -49,12 +49,12 @@ public class UserPermissions {
         }
         if (user.isSuperUser() ||
                 (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) ||
-            !CollectionUtils.isEmpty(user.getUserApplications())) {
+                !CollectionUtils.isEmpty(user.getUserApplications())) {
             return;
         }
-            throw new UserRestrictionException(
-                    String.format("User %s is not a super user, institution admin or application manager", user.getEmail()));
-        }
+        throw new UserRestrictionException(
+                String.format("User %s is not a super user, institution admin or application manager", user.getEmail()));
+    }
 
     public static void assertApplicationManager(User user, List<Role> roles) {
         if (user == null) {
@@ -106,6 +106,10 @@ public class UserPermissions {
             LOG.debug(String.format("user %s is InstitutionAdmin", user.getEduPersonPrincipalName()));
             return;
         }
+        if (!user.getUserApplications().isEmpty() && Authority.APPLICATION_MANAGER.hasEqualOrHigherRights(authority)) {
+            LOG.debug(String.format("user %s is ApplicationManager", user.getEduPersonPrincipalName()));
+            return;
+        }
         if (user.getUserRoles().stream()
                 .noneMatch(userRole -> userRole.getAuthority().hasEqualOrHigherRights(authority)))
             throw new UserRestrictionException(String.format("User %s is not an Authority %s", user.getEmail(), authority));
@@ -123,13 +127,29 @@ public class UserPermissions {
         if (intendedAuthority.equals(Authority.SUPER_USER)) {
             throw new UserRestrictionException("Invalid invitation for super-user by " + user.getEmail());
         }
-        Set<UserRole> userRoles = user.getUserRoles();
+        if (!user.isInstitutionAdmin() && intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
+            throw new UserRestrictionException("Invalid institution admin invitation by " + user.getEmail());
+        }
         //Institution admin needs to own all roles or be a member of the role for at least the authority of invitationo
         if (user.isInstitutionAdmin() && roles.stream()
                 .allMatch(role -> user.getOrganizationGUID().equals(role.getOrganizationGUID()))) {
             return;
         }
+        if (!user.getUserApplications().isEmpty()) {
+            Set<Long> roleIdentifiers = roles.stream().map(role -> role.getId()).collect(Collectors.toSet());
+            Set<Long> applicationManagerRoles = user.getUserApplications().stream().flatMap(userApplication ->
+                            userApplication.getApplication().getApplicationUsages().stream()
+                                    .map(applicationUsage -> applicationUsage.getRole().getId()))
+                    .collect(Collectors.toSet());
+            if (applicationManagerRoles.containsAll(roleIdentifiers)) {
+                return;
+            } else {
+                //All roles not owned as application manager are assesed as normal userRoles
+                roles = roles.stream().filter(role -> !applicationManagerRoles.contains(role.getId())).toList();
+            }
+        }
         //For all roles verify that the user has a higher authority then the one requested for all off the roles
+        Set<UserRole> userRoles = user.getUserRoles();
         boolean allowed = roles.stream()
                 .allMatch(role -> {
                     boolean mayInviteByInstitutionAdmin = user.isInstitutionAdmin() && user.getOrganizationGUID().equals(role.getOrganizationGUID());
@@ -158,7 +178,6 @@ public class UserPermissions {
             throw new UserRestrictionException(String.format("Invalid invation by %s for application %s",
                     user.getEmail(), applications.stream().map(application -> application.getManageId()).collect(Collectors.joining(", "))));
         }
-        System.out.println();
     }
 
     public static void assertRoleAccess(User user, Role accessRole, Authority authority) {
@@ -175,6 +194,15 @@ public class UserPermissions {
         }
         if (user.isInstitutionAdmin() && user.getOrganizationGUID().equals(accessRole.getOrganizationGUID())) {
             return;
+        }
+        if (!user.getUserApplications().isEmpty()) {
+            //Application Manager
+            if (user.getUserApplications().stream()
+                    .anyMatch(userApplication ->
+                            userApplication.getApplication().getApplicationUsages().stream()
+                                    .anyMatch(applicationUsage -> Objects.equals(applicationUsage.getRole().getId(), accessRole.getId())))) {
+                return;
+            }
         }
         user.getUserRoles().stream()
                 .filter(userRole -> (userRole.getRole().getId().equals(accessRole.getId()) &&

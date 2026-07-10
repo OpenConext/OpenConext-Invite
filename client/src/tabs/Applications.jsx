@@ -20,7 +20,7 @@ const Applications = () => {
     const [applications, setApplications] = useState([]);
 
     useEffect(() => {
-            if (!isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
+            if (!isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user)) {
                 navigate("/404");
                 return;
             }

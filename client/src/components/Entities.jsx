@@ -144,10 +144,7 @@ export const Entities = ({
     }
 
     const getEntityValue = (entity, column) => {
-        if (column.mapper) {
-            return column.mapper(entity);
-        }
-        return entity[column.key];
+        return column.mapper ? column.mapper(entity): entity[column.key];
     }
 
     const onRowClick = (e, entity) => {

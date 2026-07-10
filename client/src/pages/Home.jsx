@@ -48,7 +48,8 @@ export const Home = () => {
                   label={I18n.t("tabs.applicationUsers")}>
                 <ApplicationUsers/>
             </Page> : null,
-        (user && !user.superUser && user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) ?
+        (user && !user.superUser && ((user.institutionAdmin && user.organizationGUID && !isEmpty(user.applications)) ||
+         !isEmpty(user.userApplications))) ?
             <Page key="applications"
                   name="applications"
                   label={I18n.t("tabs.applications")}>

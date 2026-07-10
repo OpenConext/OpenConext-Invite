@@ -104,9 +104,10 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
     if (deleteAction && (user.id === userRole.userInfo?.id || user.id === userRole.user_id)) {
         return true;
     }
-
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
         .some(application => roleIsConnectedToApp(userRole.role, application));
+    const allowedByApplicationManager = (user.userApplications || [])
+        .some(userApp => roleIsConnectedToApp(userRole.role, userApp.applicationMap));
     const allowedByApplicationForManager = isManagerForUserRole(user, userRole);
     const usedAuthority = targetGuestRole ? AUTHORITIES.GUEST : userRole.authority
     switch (usedAuthority) {
@@ -114,15 +115,17 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
             return false;
         case AUTHORITIES.INSTITUTION_ADMIN:
             return false;
-        case AUTHORITIES.MANAGER:
+        case AUTHORITIES.APPLICATION_MANAGER:
             return allowedByApplicationForInstitutionAdmin;
+        case AUTHORITIES.MANAGER:
+            return allowedByApplicationForInstitutionAdmin || allowedByApplicationManager;
         case AUTHORITIES.INVITER :
-            return isUserAllowed(AUTHORITIES.MANAGER, user) &&
+            return allowedByApplicationManager || isUserAllowed(AUTHORITIES.MANAGER, user) &&
                 ((user.userRoles || []).some(ur => userRole.role.id === ur.role.id)
                     || allowedByApplicationForManager
                     || allowedByApplicationForInstitutionAdmin);
         case  AUTHORITIES.GUEST:
-            return isUserAllowed(AUTHORITIES.INVITER, user) &&
+            return allowedByApplicationManager || isUserAllowed(AUTHORITIES.INVITER, user) &&
                 (user.userRoles.some(ur => userRole.role.id === ur.role.id)
                     || allowedByApplicationForManager
                     || allowedByApplicationForInstitutionAdmin);
@@ -193,6 +196,17 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
                 }, null) || AUTHORITIES.INVITER;
             return Object.keys(AUTHORITIES)
                 .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[allowedAuthority]);
+        }
+    }
+    if (!isEmpty(user.userApplications)) {
+        //if all the roles are linked to the userApplications of the user ,then everything excluding Application Manager and up is included
+        //otherwise fall back to the userRole
+        const manageIdentifierRequired = selectedRoles.map(role => role.applicationUsages.map(appUsage => appUsage.application.manageId)).flat();
+        const manageIdentifiers = user.userApplications.map(userApp => userApp.application.manageId);
+        const allRolesAllowed = manageIdentifierRequired.every(manageId => manageIdentifiers.includes(manageId));
+        if (allRolesAllowed) {
+            return Object.keys(AUTHORITIES)
+                .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[AUTHORITIES.APPLICATION_MANAGER]);
         }
     }
     if (isEmpty(selectedRoles)) {

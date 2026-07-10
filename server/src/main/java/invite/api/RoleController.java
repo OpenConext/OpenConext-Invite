@@ -13,6 +13,7 @@ import invite.model.Authority;
 import invite.model.Role;
 import invite.model.RoleRequest;
 import invite.model.User;
+import invite.model.UserApplication;
 import invite.model.UserRole;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.GroupURN;
@@ -89,6 +90,7 @@ public class RoleController implements ApplicationResource {
     private final ProvisioningService provisioningService;
     private final RoleOperations roleOperations;
     private final String groupUrnPrefix;
+    private final UserRepository userRepository;
 
     public RoleController(RoleRepository roleRepository,
                           UserRoleRepository userRoleRepository,
@@ -96,7 +98,7 @@ public class RoleController implements ApplicationResource {
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
-                          @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix, UserRepository userRepository) {
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
@@ -105,6 +107,7 @@ public class RoleController implements ApplicationResource {
         this.provisioningService = provisioningService;
         this.roleOperations = new RoleOperations(this);
         this.groupUrnPrefix = groupUrnPrefix;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("")
@@ -162,8 +165,10 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<Role> role(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
 
+        User userFromDB = userRepository.getReferenceById(user.getId());
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
         manage.addManageMetaData(List.of(role));
         return ResponseEntity.ok(role);
     }
@@ -173,28 +178,40 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<List<Role>> rolesPerApplicationId(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/rolesPerApplicationId for user %s", user.getEduPersonPrincipalName()));
 
-        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        UserPermissions.assertAuthority(user, Authority.APPLICATION_MANAGER);
         List<Role> roles;
         if (user.isSuperUser()) {
             roles = roleRepository.findByApplicationUsagesApplicationManageId(manageId);
-        } else {
-            Set<String> applicationManageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
-            Set<String> roleManageIdentifiers = user.getUserRoles().stream()
-                    //If the user has a userRole as Inviter, then we must exclude those
-                    .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
-                    .map(userRole -> userRole.getRole().applicationsUsed())
-                    .flatMap(Collection::stream)
-                    .map(Application::getManageId)
-                    .collect(Collectors.toSet());
-            applicationManageIdentifiers.addAll(roleManageIdentifiers);
-            if (!applicationManageIdentifiers.contains(manageId)) {
-                throw new UserRestrictionException(String.format("User %s has no access to manageID %s", user.getEmail(), manageId));
-            }
+        } else if (user.isInstitutionAdmin()) {
+            List<Map<String, Object>> applications = user.getApplications();
+            Set<String> applicationManageIdentifiers = applications.stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
+            assertRoleAccess(manageId, user, applicationManageIdentifiers);
             roles = roleRepository.findByOrganizationGUIDAndApplicationUsagesApplicationManageId(user.getOrganizationGUID(), manageId);
+        } else {
+            //Application manager
+            Set<UserApplication> userApplications = user.getUserApplications();
+            Set<String> applicationManageIdentifiers = userApplications.stream()
+                    .map(userApplication -> userApplication.getApplication().getManageId()).collect(Collectors.toSet());
+            assertRoleAccess(manageId, user, applicationManageIdentifiers);
+            roles = roleRepository.findByApplicationUsagesApplicationManageId(manageId);
+
         }
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
+    private void assertRoleAccess(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user, Set<String> applicationManageIdentifiers) {
+        Set<String> roleManageIdentifiers = user.getUserRoles().stream()
+                //If the user has a userRole as Inviter, then we must exclude those
+                .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
+                .map(userRole -> userRole.getRole().applicationsUsed())
+                .flatMap(Collection::stream)
+                .map(Application::getManageId)
+                .collect(Collectors.toSet());
+        applicationManageIdentifiers.addAll(roleManageIdentifiers);
+        if (!applicationManageIdentifiers.contains(manageId)) {
+            throw new UserRestrictionException(String.format("User %s has no access to manageID %s", user.getEmail(), manageId));
+        }
+    }
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
@@ -229,7 +246,8 @@ public class RoleController implements ApplicationResource {
                                            @Parameter(hidden = true) User user) {
         LOG.debug(String.format("PUT /roles/ for user %s", user.getEduPersonPrincipalName()));
 
-        UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.MANAGER);
 
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);

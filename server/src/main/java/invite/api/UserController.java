@@ -275,7 +275,8 @@ public class UserController {
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
 
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
 
         List<User> users = userRepository.findInstitutionAdminsPerRole(role.getId());
 

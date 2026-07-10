@@ -23,11 +23,15 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
     const searchRef = useRef();
     const [query, setQuery] = useState("");
     const [queryApplication, setQueryApplication] = useState("");
+    const [queryUserApplication, setQueryUserApplication] = useState("");
     const [confirmation, setConfirmation] = useState({});
     const [confirmationOpen, setConfirmationOpen] = useState(false);
 
     if (user.institutionAdmin) {
         (user.applications || []).forEach(application => deriveRemoteApplicationAttributes(application, I18n.locale));
+    }
+    if (!isEmpty(user.userApplications)) {
+        user.userApplications.forEach(application => deriveRemoteApplicationAttributes(application.applicationMap, I18n.locale));
     }
 
     useEffect(() => {
@@ -87,11 +91,11 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
         )
     }
 
-    const filterApplication = application => {
-        if (isEmpty(queryApplication)) {
+    const filterApplication = (application, queryString) => {
+        if (isEmpty(queryString)) {
             return true;
         }
-        const queryApplicationLower = queryApplication.toLowerCase();
+        const queryApplicationLower = queryString.toLowerCase();
 
         return (application.organizationName || "").toLowerCase().indexOf(queryApplicationLower) > -1 ||
             (application.name || "").toLowerCase().indexOf(queryApplicationLower) > -1
@@ -137,7 +141,9 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
     const filteredUserRoles = user.userRoles
         .filter(filterUserRole)
         .filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);
-    const filteredApplications = (user.applications || []).filter(filterApplication);
+    const filteredApplications = (user.applications || []).filter(app => filterApplication(app, queryApplication));
+    const filteredUserApplications = (user.userApplications || [])
+        .map(app => app.applicationMap).filter(app => filterApplication(app, queryUserApplication));
     const allCardApplications = reduceApplicationFromUserRoles(filteredUserRoles, I18n.locale);
 
     const hasRoles = !isEmpty(user.userRoles.filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser))
@@ -168,6 +174,8 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
             {(highestAuthority(user, false) === AUTHORITIES.GUEST && !other) &&
                 <p className={"span-row"}
                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("users.guestRoleOnly", {welcomeUrl: config.welcomeUrl}))}}/>}
+            {(!hasRoles && !isEmpty(user.userApplications)) &&
+                <p className={"span-row "}>{I18n.t(`users.noRolesInfoApplicationManager${other ? "Other" : ""}`, {name: user.name})}</p>}
             {(!hasRoles && user.superUser) &&
                 <p className={"span-row "}>{I18n.t("users.noRolesInfo")}</p>}
             {(!hasRoles && user.institutionAdmin) &&
@@ -196,6 +204,20 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                     {filteredApplications
                         .map((application, index) => renderApplication(application, index))}
                     {filteredApplications.length === 0 &&
+                        <p>{I18n.t(`users.noApplicationsFound`)}</p>}
+                </>}
+            {!isEmpty(user.userApplications) &&
+                <>
+                    <h3 className={"title span-row "}>{I18n.t("users.applications")}</h3>
+                    <div className="roles-search span-row">
+                        <p>
+                            {I18n.t(`users.${other ? "applicationsInfoOther" : "applicationsInfo"}`, {name: user.name})}
+                        </p>
+                        {renderSearch(queryUserApplication, setQueryUserApplication, I18n.t(`users.applicationsSearchPlaceHolder`))}
+                    </div>
+                    {filteredUserApplications
+                        .map((application, index) => renderApplication(application, index))}
+                    {filteredUserApplications.length === 0 &&
                         <p>{I18n.t(`users.noApplicationsFound`)}</p>}
                 </>}
         </section>

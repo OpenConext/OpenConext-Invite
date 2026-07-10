@@ -145,12 +145,13 @@ public class Invitation implements Serializable {
         this.inviter = inviter;
         this.status = Status.OPEN;
         this.roles = roles;
+        roles.forEach(role -> role.setInvitation(this));
+        this.applications = applications;
+        applications.forEach(application -> application.setInvitation(this));
         this.email = email;
         this.expiryDate = expiryDate == null ? Instant.now().plus(Period.ofDays(14)) : expiryDate;
         this.roleExpiryDate = this.roleExpiryDate(roles, roleExpiryDate, intendedAuthority);
         this.createdAt = Instant.now();
-        roles.forEach(role -> role.setInvitation(this));
-        applications.forEach(application -> application.setInvitation(this));
         this.language = language;
         this.internalPlaceholderIdentifier = internalPlaceholderIdentifier;
     }
@@ -165,7 +166,13 @@ public class Invitation implements Serializable {
     //used in the mustache templates
     @JsonIgnore
     public List<String> anyRoles() {
-        return CollectionUtils.isEmpty(this.roles) ? Collections.emptyList() : Arrays.asList("will-iterate-once");
+        return CollectionUtils.isEmpty(this.roles) ? Collections.emptyList() : List.of("will-iterate-once");
+    }
+
+    //used in the mustache templates
+    @JsonIgnore
+    public List<String> anyApplications() {
+        return CollectionUtils.isEmpty(this.applications) ? Collections.emptyList() : List.of("will-iterate-once");
     }
 
     //used in the mustache templates

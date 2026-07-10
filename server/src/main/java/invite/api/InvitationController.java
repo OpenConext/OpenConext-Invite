@@ -21,6 +21,7 @@ import invite.model.Role;
 import invite.model.Status;
 import invite.model.StatusResponse;
 import invite.model.User;
+import invite.model.UserApplication;
 import invite.model.UserRole;
 import invite.model.UserRoleAudit;
 import invite.provision.Provisioning;
@@ -236,7 +237,8 @@ public class InvitationController implements InvitationResource {
     public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                             @Parameter(hidden = true) User user) {
         LOG.debug(String.format("New invitation request by user %s", user.getEduPersonPrincipalName()));
-        return this.invitationOperations.sendInvitation(invitationRequest, user, null);
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        return this.invitationOperations.sendInvitation(invitationRequest, userFromDB, null);
     }
 
     @DeleteMapping("/{id}")
@@ -248,7 +250,9 @@ public class InvitationController implements InvitationResource {
         List<Role> requestedRoles = invitation.getRoles().stream()
                 .map(InvitationRole::getRole).toList();
         Authority intendedAuthority = invitation.getIntendedAuthority();
-        UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertValidInvitation(userFromDB, intendedAuthority, requestedRoles);
 
         AccessLogger.invitation(LOG, Event.Deleted, invitation);
         invitationRepository.delete(invitation);
@@ -260,7 +264,9 @@ public class InvitationController implements InvitationResource {
     public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
                                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("ResendInvitation with id %s by user %s ", id, user.getEduPersonPrincipalName()));
-        return this.invitationOperations.resendInvitation(id, user, null);
+
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        return this.invitationOperations.resendInvitation(id, userFromDB, null);
     }
 
     @GetMapping("public")
@@ -385,6 +391,10 @@ public class InvitationController implements InvitationResource {
                 saveOAuth2AuthenticationToken(authentication, user, servletRequest, servletResponse);
             }
         }
+        if (intendedAuthority.equals(Authority.APPLICATION_MANAGER)) {
+            invitation.getApplications()
+                    .forEach(invitationApplication -> user.addUserApplication(new UserApplication(invitationApplication.getApplication())));
+        }
         user.setInternalPlaceholderIdentifier(invitation.getInternalPlaceholderIdentifier());
         if (StringUtils.hasText(invitation.getCrmContactId())) {
             user.setCrmContactId(invitation.getCrmContactId());
@@ -475,7 +485,9 @@ public class InvitationController implements InvitationResource {
         LOG.debug(String.format("GET /roles/%s by user %s", roleId, user.getEduPersonPrincipalName()));
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
         List<Invitation> invitations = invitationRepository.findByStatusAndRoles_role(Status.OPEN, role);
         return ResponseEntity.ok(invitations);
     }
@@ -511,7 +523,8 @@ public class InvitationController implements InvitationResource {
             }
         } else {
             Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
-            UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+            User userFromDB = userRepository.getReferenceById(user.getId());
+            UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
             if (queryHasText && !noSearchTokens) {
                 invitationsPage = invitationRepository.searchByStatusAndRoleWithKeywordPage(Status.OPEN.name(), role.getId(), parsedQuery, pageable);
             } else if (noSearchTokens) {
