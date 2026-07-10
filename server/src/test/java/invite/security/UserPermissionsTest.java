@@ -48,7 +48,7 @@ class UserPermissionsTest extends WithApplicationTest {
         Role role = new Role();
         role.applicationsUsed().add(new Application("1", EntityType.SAML20_SP));
 
-        UserPermissions.assertValidInvitation(new User(new HashMap<>()), Authority.INSTITUTION_ADMIN, new ArrayList<>());
+        UserPermissions.assertValidInvitation(user, Authority.INSTITUTION_ADMIN, new ArrayList<>());
     }
 
     @Test
