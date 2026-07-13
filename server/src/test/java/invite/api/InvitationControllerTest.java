@@ -90,6 +90,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(new Invite("new2@new.nl", "placeholder-1")),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -127,6 +128,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(new Invite("new2@new.nl", "placeholder-1")),
                 List.of(research.getId()),
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -166,6 +168,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(new Invite("new2@new.nl", "placeholder-1")),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -202,6 +205,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(),
                 emptyList(),
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -238,6 +242,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -287,6 +292,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of(new Invite("test@external.com", internalPlaceholderIdentifier),
                         new Invite("tes2t@external.com", internalPlaceholderIdentifier)),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -741,7 +747,7 @@ class InvitationControllerTest extends AbstractTest {
                 .get("/api/v1/invitations/all")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(6, invitations.size());
+        assertEquals(7, invitations.size());
     }
 
     @Test
@@ -811,6 +817,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("nope"),
                 List.of(),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -892,7 +899,7 @@ class InvitationControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
 
-        assertEquals(6, page.getTotalElements());
+        assertEquals(7, page.getTotalElements());
 
         List<Map<String, Object>> content = page.getContent();
         assertEquals(3, content.size());
@@ -1107,6 +1114,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(),
                 emptyList(),
+                List.of(),
                 ORGANISATION_GUID,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));
@@ -1164,6 +1172,7 @@ class InvitationControllerTest extends AbstractTest {
                 List.of("new@new.nl"),
                 List.of(),
                 roleIdentifiers,
+                List.of(),
                 null,
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Instant.now().plus(12, ChronoUnit.DAYS));

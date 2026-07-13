@@ -48,7 +48,7 @@ class UserPermissionsTest extends WithApplicationTest {
         Role role = new Role();
         role.applicationsUsed().add(new Application("1", EntityType.SAML20_SP));
 
-        UserPermissions.assertValidInvitation(new User(new HashMap<>()), Authority.INSTITUTION_ADMIN, new ArrayList<>());
+        UserPermissions.assertValidInvitation(user, Authority.INSTITUTION_ADMIN, new ArrayList<>());
     }
 
     @Test
@@ -116,7 +116,7 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole(), Authority.INVITER));
     }
 
-    @Test()
+    @Test
     void assertRoleAccessManager() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.MANAGER, identifier);
@@ -164,22 +164,48 @@ class UserPermissionsTest extends WithApplicationTest {
 
     @Test
     void assertApplicationManager() {
+        Set<ApplicationUsage> applicationUsages = application(UUID.randomUUID().toString(), EntityType.SAML20_SP);
+        Role appManagerRole = new Role("role", "description", applicationUsages, 365, false, false);
+
         User user = new User();
         user.setOrganizationGUID(UUID.randomUUID().toString());
         user.setInstitutionAdmin(true);
-        UserPermissions.assertApplicationManager(user, emptyList());
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(user, List.of(appManagerRole)));
+
+        appManagerRole.setOrganizationGUID(user.getOrganizationGUID());
+        UserPermissions.assertApplicationManager(user, List.of(appManagerRole));
 
         user.setSuperUser(true);
         UserPermissions.assertApplicationManager(user, emptyList());
 
         User appManager = new User();
-        Role appManagerRole = new Role("app-manager-role", "description", application(UUID.randomUUID().toString(), EntityType.SAML20_SP), 365, false, false);
-        UserRole userRole = new UserRole(Authority.APPLICATION_MANAGER, appManagerRole);
-        appManager.getUserRoles().add(userRole);
-        UserPermissions.assertApplicationManager(user, List.of(appManagerRole));
+        Application application = applicationUsages.iterator().next().getApplication();
+        application.setId(1L);
+        appManager.getUserApplications().add(new UserApplication(user, application));
+        UserPermissions.assertApplicationManager(appManager, List.of(appManagerRole));
 
-        userRole.setAuthority(Authority.MANAGER);
-        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User(), List.of(appManagerRole)));
+        Set<ApplicationUsage> notOwnerApplicationUsages = application(UUID.randomUUID().toString(), EntityType.OIDC10_RP);
+        Role notOwnedRole = new Role("role", "description", notOwnerApplicationUsages, 365, false, false);
+        Application notOwnedApplication = notOwnerApplicationUsages.iterator().next().getApplication();
+        notOwnedApplication.setId(99L);
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(appManager, List.of(appManagerRole, notOwnedRole)));
+
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User()));
+
+        User institutionAdmin = new User();
+        institutionAdmin.setInstitutionAdmin(true);
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(institutionAdmin, List.of(appManagerRole)));
+    }
+
+    @Test
+    void assertRoleAccessApplicationManager() {
+        Set<ApplicationUsage> applicationUsages = application(UUID.randomUUID().toString(), EntityType.SAML20_SP);
+        Role role = new Role("role", "description", applicationUsages, 365, false, false);
+
+        User user = new User();
+        Application application = applicationUsages.iterator().next().getApplication();
+        user.addUserApplication(new UserApplication(application));
+        UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
     }
 
     @Test
@@ -193,6 +219,8 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(new User(), null, Authority.GUEST));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(null, null));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User(), null));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User(), emptyList()));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(null));
     }
 
     private User userWithRole(Authority authority, String manageIdentifier) {

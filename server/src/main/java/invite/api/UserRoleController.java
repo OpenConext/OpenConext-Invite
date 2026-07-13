@@ -85,8 +85,9 @@ public class UserRoleController implements UserRoleResource {
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET user_roles/roles/%s for user %s", roleId, user.getEduPersonPrincipalName()));
+        User userFromDB = userRepository.getReferenceById(user.getId());
         return this.userRoleOperations.userRolesByRole(roleId,
-                role -> UserPermissions.assertRoleAccess(user, role, Authority.INVITER));
+                role -> UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER));
     }
 
     @GetMapping("managers/{roleId}")
@@ -95,7 +96,10 @@ public class UserRoleController implements UserRoleResource {
                                                        @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET user_roles/managers/%s for user %s", roleId, user.getEduPersonPrincipalName()));
         Role role = this.roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
+
         List<UserRole> userRoles = userRoleRepository.findByRoleAndAuthorityIn(role, List.of(Authority.MANAGER, Authority.INSTITUTION_ADMIN));
         return ResponseEntity.ok(userRoles.stream().map(userRole -> userRole.getUser().getEmail()).toList());
     }
@@ -107,7 +111,8 @@ public class UserRoleController implements UserRoleResource {
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
         LOG.debug(String.format("Fetching consequences delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
-        UserPermissions.assertRoleAccess(user, role, Authority.APPLICATION_MANAGER);
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INSTITUTION_ADMIN);
 
         List<UserRole> userRoles = userRoleRepository.findByRole(role);
         List<Map<String, Object>> res = userRoles.stream().map(userRole -> Map.of(
@@ -131,7 +136,8 @@ public class UserRoleController implements UserRoleResource {
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
 
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(sortDirection), sort));
         Page<Map<String, Object>> page;
@@ -213,7 +219,8 @@ public class UserRoleController implements UserRoleResource {
         if (updateUserRole.getEndDate() != null && !config.isPastDateAllowed() && Instant.now().isAfter(updateUserRole.getEndDate())) {
             throw new NotAllowedException("End date must be after now");
         }
-        UserPermissions.assertValidInvitation(user, userRole.getAuthority(), List.of(userRole.getRole()));
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertValidInvitation(userFromDB, userRole.getAuthority(), List.of(userRole.getRole()));
         userRole.setEndDate(updateUserRole.getEndDate());
         userRoleRepository.save(userRole);
         userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.UPDATE);
@@ -227,11 +234,13 @@ public class UserRoleController implements UserRoleResource {
                                                @PathVariable("isGuest") Boolean isGuest,
                                                @Parameter(hidden = true) User user) {
         LOG.debug(String.format("DELETE user_roles/%s for user %s",id , user.getEduPersonPrincipalName()));
+
+        User userFromDB = userRepository.getReferenceById(user.getId());
         UserRole userRole = userRoleRepository.findById(id).orElseThrow(() -> new NotFoundException("UserRole not found"));
         // Users are allowed to remove themselves from a role
         User userOfUserRole = userRole.getUser();
-        if (!userOfUserRole.getId().equals(user.getId())) {
-            UserPermissions.assertValidInvitation(user, isGuest ? Authority.GUEST : userRole.getAuthority(), List.of(userRole.getRole()));
+        if (!userOfUserRole.getId().equals(userFromDB.getId())) {
+            UserPermissions.assertValidInvitation(userFromDB, isGuest ? Authority.GUEST : userRole.getAuthority(), List.of(userRole.getRole()));
         }
         if (userRole.isGuestRoleIncluded()) {
             userRole.setGuestRoleIncluded(false);
@@ -240,7 +249,7 @@ public class UserRoleController implements UserRoleResource {
             }
             userRoleRepository.save(userRole);
             userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.UPDATE);
-            AccessLogger.userRole(LOG, Event.Updated, user, userRole);
+            AccessLogger.userRole(LOG, Event.Updated, userFromDB, userRole);
 
         } else {
             userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
@@ -248,7 +257,7 @@ public class UserRoleController implements UserRoleResource {
             provisioningService.deleteUserRoleRequest(userRole);
 
             userRoleRepository.deleteUserRoleById(id);
-            AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
+            AccessLogger.userRole(LOG, Event.Deleted, userFromDB, userRole);
         }
         return Results.deleteResult();
     }

@@ -183,8 +183,12 @@ export function requestedAuthnContextValues() {
     return fetchJson("/api/v1/manage/requested-authn-context-values");
 }
 
-export function allApplications() {
+export function applicationsFromManage() {
     return fetchJson("/api/v1/manage/applications")
+}
+
+export function allApplicationsFromManage() {
+    return fetchJson("/api/v1/manage/all-applications")
 }
 
 export function hasProvisionings(manageId) {

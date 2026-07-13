@@ -142,6 +142,7 @@ public class PerformanceSeed {
                 Instant.now().plus(30, ChronoUnit.DAYS),
                 Instant.now().plus(365 * 5, ChronoUnit.DAYS),
                 roles,
+                Set.of(),
                 null);
     }
 

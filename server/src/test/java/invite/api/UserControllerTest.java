@@ -126,6 +126,33 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void meWithUserApplicationMap() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", APPLICATION_MANAGER_SUB);
+        //For UserApplication enrichments
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("6"));
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(User.class);
+        Map<String, Object> applicationMap = user.getUserApplications().iterator().next().getApplicationMap();
+        assertEquals("Cloud EN", applicationMap.get("name:en"));
+        assertEquals("urn:collab:person:example.com:application_manager", user.getEmail());
+
+        Map res = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(Map.class);
+        assertTrue((Boolean) res.get("authenticated"));
+    }
+
+    @Test
     void institutionAdminProvision() throws Exception {
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
 
@@ -475,7 +502,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(4, usersPage.getTotalElements());
+        assertEquals(3, usersPage.getTotalElements());
     }
 
     @Test
@@ -493,7 +520,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(6, usersPage.getTotalElements());
+        assertEquals(5, usersPage.getTotalElements());
         assertEquals(1, usersPage.getContent().size());
     }
 
@@ -516,7 +543,7 @@ class UserControllerTest extends AbstractTest {
                 .get("/api/v1/users/search-by-application")
                 .as(new TypeRef<>() {
                 });
-        assertEquals(5, usersPage.getTotalElements());
+        assertEquals(4, usersPage.getTotalElements());
         assertEquals(2, usersPage.getContent().size());
     }
 

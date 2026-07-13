@@ -21,7 +21,8 @@ import SelectField from "../components/SelectField";
 export const Tokens = () => {
     const {user, setFlash} = useAppStore(state => state);
     const authority = highestAuthority(user);
-    const isRegularUser = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER;
+    const isRegularUser = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER ||
+        authority === AUTHORITIES.APPLICATION_MANAGER;
 
     const navigate = useNavigate();
     const [tokens, setTokens] = useState(true);
@@ -206,8 +207,12 @@ export const Tokens = () => {
             {
                 key: "superUserToken",
                 header: I18n.t("tokens.superUserToken"),
-                mapper: token => <div className="container"><Checkbox value={token.superUserToken} name={""}
-                                                                      onChange={() => true} readOnly={true}/></div>
+                mapper: token => <div className="container">
+                    <Checkbox value={token.superUserToken}
+                              name={""}
+                              onChange={() => true}
+                              readOnly={true}/>
+                </div>
             } : null,
         {
             key: "created_at",
@@ -241,20 +246,21 @@ export const Tokens = () => {
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
                                                      question={confirmation.question}/>}
-            {!newToken && <Entities
-                entities={tokens}
-                modelName="tokens"
-                showNew={true}
-                newLabel={I18n.t("tokens.new")}
-                newEntityFunc={() => createNewToken()}
-                defaultSort="description"
-                columns={columns}
-                searchAttributes={["description"]}
-                customNoEntities={I18n.t(`tokens.noEntities`)}
-                loading={false}
-                inputFocus={true}
-                hideTitle={false}
-            />}
+            {!newToken &&
+                <Entities
+                    entities={tokens}
+                    modelName="tokens"
+                    showNew={true}
+                    newLabel={I18n.t("tokens.new")}
+                    newEntityFunc={() => createNewToken()}
+                    defaultSort="description"
+                    columns={columns}
+                    searchAttributes={["description"]}
+                    customNoEntities={I18n.t(`tokens.noEntities`)}
+                    loading={false}
+                    inputFocus={true}
+                    hideTitle={false}
+                />}
         </div>
     );
 

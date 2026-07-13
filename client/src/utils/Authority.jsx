@@ -12,7 +12,14 @@ export const authorityForUserOverview = user => {
     if (user.institution_admin) {
         return AUTHORITIES.INSTITUTION_ADMIN;
     }
-    return isEmpty(user.authority) ? null : user.authority.split(",")[0];
+    if (!isEmpty(user.userApplications)) {
+        return AUTHORITIES.APPLICATION_MANAGER;
+    }
+    if (isEmpty(user.authority)) {
+        return null;
+    }
+    let authorities = user.authority.split(",");
+    return authorities[authorities.length - 1];
 }
 
 export const chipTypeForUserRole = authority => {

@@ -78,8 +78,8 @@ export const Users = () => {
                          tip={I18n.t("tooltips.userIcon",
                              {
                                  name: user.name,
-                                 createdAt: dateFromEpoch(user.createdAt),
-                                 lastActivity: dateFromEpoch(user.lastActivity)
+                                 createdAt: dateFromEpoch(user.createdAt, false),
+                                 lastActivity: dateFromEpoch(user.lastActivity, false)
                              })}/>
             </div>
         },

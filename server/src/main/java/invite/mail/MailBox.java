@@ -1,11 +1,12 @@
 package invite.mail;
 
-import invite.cron.IdPMetaDataResolver;
-import invite.cron.IdentityProvider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
+import invite.cron.IdPMetaDataResolver;
+import invite.cron.IdentityProvider;
+import invite.manage.Manage;
 import invite.model.Authority;
 import invite.model.GroupedProviders;
 import invite.model.Invitation;
@@ -46,6 +47,7 @@ public class MailBox {
 
     private final MustacheFactory mustacheFactory = new DefaultMustacheFactory("templates");
     private final IdPMetaDataResolver idPMetaDataResolver;
+    private final Manage manage;
 
     public MailBox(ObjectMapper objectMapper,
                    IdPMetaDataResolver idPMetaDataResolver,
@@ -54,9 +56,11 @@ public class MailBox {
                    String contactEmail,
                    String clientUrl,
                    String welcomeUrl,
-                   String environment) throws IOException {
+                   String environment,
+                   Manage manage) throws IOException {
         this.mailSender = mailSender;
         this.idPMetaDataResolver = idPMetaDataResolver;
+        this.manage = manage;
         this.emailFrom = emailFrom;
         this.contactEmail = contactEmail;
         this.clientUrl = clientUrl;
@@ -64,11 +68,14 @@ public class MailBox {
         this.environment = environment;
         this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
         });
+
     }
 
     @SneakyThrows
-    public void sendInviteMail(Provisionable provisionable, Invitation invitation,
-                               List<GroupedProviders> groupedProviders, Language language,
+    public void sendInviteMail(Provisionable provisionable,
+                               Invitation invitation,
+                               List<GroupedProviders> groupedProviders,
+                               Language language,
                                Optional<String> optionalIdpName) {
         Authority intendedAuthority = invitation.getIntendedAuthority();
         String title = String.format(subjects.get(language.name()).get("newInvitation"),
@@ -89,7 +96,7 @@ public class MailBox {
             variables.put("institutionName", "SURF");
             variables.put("isInstitutionSurf", true);
         }
-            optionalIdpName.ifPresent(idpName -> variables.put("idpName", idpName));
+        optionalIdpName.ifPresent(idpName -> variables.put("idpName", idpName));
         variables.put("roles", splitListSemantically(invitation.getRoles().stream()
                 .map(invitationRole -> invitationRole.getRole().getName()).toList()));
         if (invitation.getRoles().stream()
@@ -102,6 +109,13 @@ public class MailBox {
         if (StringUtils.hasText(invitation.getMessage())) {
             variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
         }
+        List<GroupedProviders> applicationProviders = invitation.getApplications().stream()
+                .map(invitationApplication -> invitationApplication.getApplication())
+                .map(application -> manage.providerById(application.getManageType(), application.getManageId()))
+                .filter(provider -> !CollectionUtils.isEmpty(provider))
+                .map(provider -> new GroupedProviders(provider, List.of(), null))
+                .toList();
+        variables.put("applicationProviders", applicationProviders);
         variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(language.name()));
         variables.put("user", provisionable);
@@ -114,7 +128,7 @@ public class MailBox {
         variables.put("useEduID", invitation.isEduIDOnly());
 
         Map<String, String> images = new HashMap<>();
-        if(invitation.isEduIDOnly()) {
+        if (invitation.isEduIDOnly()) {
             images.put("eduIDLogo", "templates/eduID-logo-square.png");
         }
         images.put("logoSurfBlack", "templates/logo-surf-black.png");

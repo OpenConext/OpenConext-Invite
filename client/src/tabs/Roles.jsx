@@ -25,7 +25,7 @@ export const Roles = () => {
     const [totalElements, setTotalElements] = useState(0);
 
     useEffect(() => {
-        if (isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
+        if (isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user)) {
             rolesByApplication(false, paginationQueryParams)
                 .then(page => {
                     const newRoles = markAndFilterRoles(

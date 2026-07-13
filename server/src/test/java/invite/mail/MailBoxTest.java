@@ -26,8 +26,8 @@ class MailBoxTest extends AbstractMailTest {
         String htmlContent = doSendInviteMail(false, Authority.INVITER);
 
         assertTrue(htmlContent.contains("Wiki EN"));
-        assertTrue(htmlContent.contains("You accept the role(s) by logging in with SURFconext."));
-        assertFalse(htmlContent.contains("You accept the role(s) by logging in with eduID"));
+        assertTrue(htmlContent.contains("You accept the invitation by logging in with SURFconext."));
+        assertFalse(htmlContent.contains("You accept the invitation by logging in with eduID"));
     }
 
     @Test
@@ -35,8 +35,8 @@ class MailBoxTest extends AbstractMailTest {
         String htmlContent = doSendInviteMail(true, Authority.GUEST);
 
         assertTrue(htmlContent.contains("Wiki EN"));
-        assertFalse(htmlContent.contains("You accept the role(s) by logging in with SURFconext"));
-        assertTrue(htmlContent.contains("You accept the role(s) by logging in with eduID"));
+        assertFalse(htmlContent.contains("You accept the invitation by logging in with SURFconext"));
+        assertTrue(htmlContent.contains("You accept the invitation by logging in with eduID"));
     }
 
     @Test
@@ -44,8 +44,8 @@ class MailBoxTest extends AbstractMailTest {
         String htmlContent = doSendInviteMail(true, Authority.MANAGER);
 
         assertTrue(htmlContent.contains("Wiki EN"));
-        assertFalse(htmlContent.contains("You accept the role(s) by logging in with SURFconext"));
-        assertTrue(htmlContent.contains("You accept the role(s) by logging in with eduID"));
+        assertFalse(htmlContent.contains("You accept the invitation by logging in with SURFconext"));
+        assertTrue(htmlContent.contains("You accept the invitation by logging in with eduID"));
     }
 
     private String doSendInviteMail(boolean eduIDOnly, Authority intendedAuthority) {
@@ -64,6 +64,7 @@ class MailBoxTest extends AbstractMailTest {
                 Instant.now().plus(365, ChronoUnit.DAYS),
                 Set.of(new InvitationRole(new Role("name", "desc", application("1", EntityType.SAML20_SP), 365, false, false)),
                         new InvitationRole(new Role("name", "desc", application("1", EntityType.SAML20_SP), 365, false, false))),
+                Set.of(),
                 null);
         mailBox.sendInviteMail(user, invitation, List.of(
                 new GroupedProviders(

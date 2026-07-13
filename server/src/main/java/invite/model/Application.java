@@ -40,6 +40,18 @@ public class Application implements Serializable {
     @JsonIgnore
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
+    @OneToMany(mappedBy = "application",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
+    @JsonIgnore
+    private Set<UserApplication> userApplications = new HashSet<>();
+
+    @OneToMany(mappedBy = "application",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
+    @JsonIgnore
+    private Set<InvitationApplication> invitationApplications = new HashSet<>();
+
     public Application(String manageId, EntityType manageType) {
         this.manageId = manageId;
         this.manageType = manageType;

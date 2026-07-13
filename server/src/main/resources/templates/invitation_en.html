@@ -25,7 +25,6 @@
         {{/invitation.institutionAdminInvitation}}
 
         {{#invitation.anyRoles}}
-
         <p>{{displaySenderName}} (from {{institutionName}}) would like to grant you access to:</p>
         <ul>
             {{#groupedProviders}}
@@ -33,6 +32,16 @@
             {{/groupedProviders}}
         </ul>
         {{/invitation.anyRoles}}
+
+        {{#invitation.anyApplications}}
+        <p>{{displaySenderName}} (from {{institutionName}}) would like to grant you access to the following applications:</p>
+        <ul>
+            {{#applicationProviders}}
+            <li style="margin-bottom: 4px;font-weight: 600;">{{name}}</li>
+            {{/applicationProviders}}
+        </ul>
+        {{/invitation.anyApplications}}
+
         {{#message}}
         <div class="head" style="background-color: #DFF4FF;padding: 10px;margin:5px 0 15px 0;">
             <p style="margin: 0;">
@@ -41,7 +50,7 @@
         </div>
         {{/message}}
         {{#useEduID}}
-        <p>You accept the role(s) by logging in with eduID. If you don't have one yet, you can create it right away.</p>
+        <p>You accept the invitation by logging in with eduID. If you don't have one yet, you can create it right away.</p>
         <table style="border-collapse: collapse; margin: 10px 0;">
             <tr>
                 <td style="border-radius: 4px; background-color: #0077c8; padding: 0; line-height: 0;">
@@ -63,7 +72,7 @@
         <p style="word-break: break-word">or copy this link into your browser: {{{ url }}}</p>
         {{/useEduID}}
         {{^useEduID}}
-        <p>You accept the role(s) by logging in with SURFconext.</p>
+        <p>You accept the invitation by logging in with SURFconext.</p>
         <table style="border-collapse: collapse; margin: 10px 0;">
             <tr>
                 <td style="border-radius: 4px; background-color: #0077c8; padding: 0;">

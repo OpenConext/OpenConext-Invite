@@ -2,6 +2,7 @@ package invite.manage;
 
 import invite.model.GroupedProviders;
 import invite.model.Role;
+import invite.model.UserApplication;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -133,6 +134,7 @@ public interface Manage {
         return application;
     }
 
+
     default List<Role> addManageMetaData(List<Role> roles) {
         //First get all unique remote manage entities and group them by manageType
         Map<EntityType, List<ManageIdentifier>> groupedManageIdentifiers = roles.stream()
@@ -166,6 +168,26 @@ public interface Manage {
                         })
                         .toList()));
         return roles;
+    }
+
+    default Set<UserApplication> addManageMetaData(Set<UserApplication> userApplications) {
+        //First get all unique remote manage entities and group them by manageType
+        Map<EntityType, List<ManageIdentifier>> groupedManageIdentifiers = userApplications.stream()
+                .map(UserApplication::getApplication)
+                .map(application -> new ManageIdentifier(application.getManageId(), application.getManageType()))
+                .collect(Collectors.toSet())
+                .stream()
+                .collect(Collectors.groupingBy(ManageIdentifier::manageType));
+        //Now for each manageType (hopefully one, maximum two) we call manage and create a map with as key the manageId in manage
+        Map<String, Map<String, Object>> remoteApplications = groupedManageIdentifiers.entrySet().stream()
+                .map(entry -> this.providersByIdIn(entry.getKey(), entry.getValue().stream().map(ManageIdentifier::manageId).toList()))
+                .flatMap(List::stream)
+                .collect(Collectors.toMap(map -> (String) map.get("id"), map -> map));
+        //Add the metadata to the userApplication
+        userApplications.forEach(userApplication -> {
+                    Map<String, Object> provider = transformProvider(remoteApplications.get(userApplication.getApplication().getManageId()));
+                    userApplication.setApplicationMap(provider);});
+        return userApplications;
     }
 
     default List<GroupedProviders> getGroupedProviders(List<Role> requestedRoles) {

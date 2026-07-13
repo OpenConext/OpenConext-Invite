@@ -95,6 +95,7 @@ public class TeamsController {
         role.setDefaultExpiryDays(DEFAULT_EXPIRY_DAYS);
         role.setIdentifier(UUID.randomUUID().toString());
         role.setTeamsOrigin(true);
+        role.setOrganizationGUID(UUID.randomUUID().toString());
         //This is the disadvantage of having to save references from Manage
         Set<ApplicationUsage> applicationUsages = team.getApplications().stream()
                 .map(applicationFromTeams -> {

@@ -25,6 +25,7 @@ import invite.model.Application;
 import invite.model.ApplicationUsage;
 import invite.model.Authority;
 import invite.model.Invitation;
+import invite.model.InvitationApplication;
 import invite.model.InvitationRole;
 import invite.model.Language;
 import invite.model.Organisation;
@@ -32,6 +33,7 @@ import invite.model.RemoteProvisionedUser;
 import invite.model.RequestedAuthnContext;
 import invite.model.Role;
 import invite.model.User;
+import invite.model.UserApplication;
 import invite.model.UserRole;
 import invite.model.UserRoleAudit;
 import invite.provision.scim.GroupURN;
@@ -66,11 +68,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -664,173 +666,200 @@ public abstract class AbstractTest {
 
     private void doSeed() {
         transactionTemplate.executeWithoutResult(status -> {
-        this.invitationRepository.deleteAllInBatch();
-        this.apiTokenRepository.deleteAllInBatch();
-        this.remoteProvisionedGroupRepository.deleteAllInBatch();
-        this.remoteProvisionedUserRepository.deleteAllInBatch();
-        this.userRoleRepository.deleteAllInBatch();
-        this.roleRepository.deleteAllInBatch();
-        this.applicationRepository.deleteAllInBatch();
-        this.userRepository.deleteAllInBatch();
-        this.organisationRepository.deleteAllInBatch();
-        this.jdbcTemplate.update("delete from distributed_locks");
+            this.invitationRepository.deleteAllInBatch();
+            this.apiTokenRepository.deleteAllInBatch();
+            this.remoteProvisionedGroupRepository.deleteAllInBatch();
+            this.remoteProvisionedUserRepository.deleteAllInBatch();
+            this.userRoleRepository.deleteAllInBatch();
+            this.roleRepository.deleteAllInBatch();
+            this.applicationRepository.deleteAllInBatch();
+            this.userRepository.deleteAllInBatch();
+            this.organisationRepository.deleteAllInBatch();
+            this.jdbcTemplate.update("delete from distributed_locks");
 
+            Organisation organisation = new Organisation(
+                    CRM_ORGANIZATION_ID, "SURF", "SURF"
+            );
+            doSave(organisationRepository, organisation);
 
-        Organisation organisation = new Organisation(
-                CRM_ORGANIZATION_ID, "SURF", "SURF"
-        );
-        doSave(organisationRepository, organisation);
+            User superUser =
+                    new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
+            User institutionAdmin =
+                    new User(false, INSTITUTION_ADMIN_SUB, INSTITUTION_ADMIN_SUB, "example.com", "Carl", "Doe", "carl.doe@example.com");
+            institutionAdmin.setInstitutionAdmin(true);
+            institutionAdmin.setInstitutionAdminByInvite(true);
+            institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
 
-        User superUser =
-                new User(true, SUPER_SUB, SUPER_SUB, "example.com", "David", "Doe", "david.doe@example.com");
-        User institutionAdmin =
-                new User(false, INSTITUTION_ADMIN_SUB, INSTITUTION_ADMIN_SUB, "example.com", "Carl", "Doe", "carl.doe@example.com");
-        institutionAdmin.setInstitutionAdmin(true);
-        institutionAdmin.setInstitutionAdminByInvite(true);
-        institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
+            User applicationManager =
+                    new User(false, APPLICATION_MANAGER_SUB, APPLICATION_MANAGER_SUB, "example.com", "App", "Manager", "app.manager@example.com");
+            applicationManager.setOrganizationGUID(ORGANISATION_GUID);
 
-        User applicationManager =
-                new User(false, APPLICATION_MANAGER_SUB, APPLICATION_MANAGER_SUB, "example.com", "App", "Manager", "app.manager@example.com");
-        applicationManager.setOrganizationGUID(ORGANISATION_GUID);
+            User manager =
+                    new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
+            User inviter =
+                    new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@example.com");
+            User wikiInviter =
+                    new User(false, INVITER_WIKI_SUB, INVITER_WIKI_SUB, "example.com", "James", "Doe", "james.doe@example.com");
+            User guest =
+                    new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@example.com");
+            guest.setEduId(UUID.randomUUID().toString());
+            User kbUser =
+                    new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
+            kbUser.setUid("guest");
+            kbUser.setCrmContactId(CRM_CONTACT_ID);
+            kbUser.setOrganisation(organisation);
 
-        User manager =
-                new User(false, MANAGE_SUB, MANAGE_SUB, "example.com", "Mary", "Doe", "mary.doe@example.com");
-        User inviter =
-                new User(false, INVITER_SUB, INVITER_SUB, "example.com", "Paul", "Doe", "paul.doe@example.com");
-        User wikiInviter =
-                new User(false, INVITER_WIKI_SUB, INVITER_WIKI_SUB, "example.com", "James", "Doe", "james.doe@example.com");
-        User guest =
-                new User(false, GUEST_SUB, GUEST_SUB, "example.com", "Ann", "Doe", "ann.doe@example.com");
-        guest.setEduId(UUID.randomUUID().toString());
-        User kbUser =
-                new User(false, KB_USER_SUB, KB_USER_SUB, "kb.nl", "George", "Best", "gb@kb.nl");
-        kbUser.setUid("guest");
-        kbUser.setCrmContactId(CRM_CONTACT_ID);
-        kbUser.setOrganisation(organisation);
+            Application rpApplication = new Application("6", EntityType.OIDC10_RP);
+            Application spApplication = new Application("3", EntityType.SAML20_SP);
+            Set<Application> applications = Set.of(
+                            spApplication,
+                            rpApplication)
+                    .stream()
+                    .map(app -> applicationRepository.findByManageIdAndManageTypeOrderById(app.getManageId(), app.getManageType()).
+                            orElseGet(() -> applicationRepository.save(new Application(app.getManageId(), app.getManageType()))))
+                    .collect(Collectors.toSet());
+            Set<ApplicationUsage> applicationUsages = applications.stream()
+                    .map(application -> new ApplicationUsage(application, "https://landingpage.com"))
+                    .collect(Collectors.toSet());
+            //Otherwise the applications point to the non-persisted entity
+            rpApplication = applications.stream()
+                    .filter(application -> application.getManageType().equals(EntityType.OIDC10_RP))
+                            .findFirst().get();
+            spApplication = applications.stream()
+                    .filter(application -> application.getManageType().equals(EntityType.SAML20_SP))
+                    .findFirst().get();
 
-        doSave(this.userRepository, superUser, institutionAdmin, applicationManager, manager, inviter, wikiInviter, guest, kbUser);
-        this.userRepository.flush();
+            //We need an applicationManager in the test suite
+            applicationManager.addUserApplication(new UserApplication(rpApplication));
 
-        Role wiki =
-                new Role("Wiki", "Wiki desc",
-                        application("1", EntityType.SAML20_SP), 365, false, false);
-        wiki.setInviterDisplayName("wiki@university.com");
-        wiki.setOverrideSettingsAllowed(true);
+            doSave(this.userRepository, superUser, institutionAdmin, applicationManager, manager, inviter, wikiInviter, guest, kbUser);
+            this.userRepository.flush();
 
-        Role network =
-                new Role("Network", "Network desc",
-                        application("2", EntityType.SAML20_SP), 365, false, false);
-        network.setEduIDOnly(true);
+            Role wiki =
+                    new Role("Wiki", "Wiki desc",
+                            application("1", EntityType.SAML20_SP), 365, false, false);
+            wiki.setInviterDisplayName("wiki@university.com");
+            wiki.setOverrideSettingsAllowed(true);
 
-        Set<Application> applications = Set.of(
-                        new Application("3", EntityType.SAML20_SP),
-                        new Application("6", EntityType.OIDC10_RP))
-                .stream()
-                .map(app -> applicationRepository.findByManageIdAndManageTypeOrderById(app.getManageId(), app.getManageType()).
-                        orElseGet(() -> applicationRepository.save(new Application(app.getManageId(), app.getManageType()))))
-                .collect(Collectors.toSet());
-        Set<ApplicationUsage> applicationUsages = applications.stream().map(application -> new ApplicationUsage(application, "https://landingpage.com")).collect(Collectors.toSet());
+            Role network =
+                    new Role("Network", "Network desc",
+                            application("2", EntityType.SAML20_SP), 365, false, false);
+            network.setEduIDOnly(true);
 
-        Role storage =
-                new Role("Storage", "Storage desc",
-                        applicationUsages, 365, false, false);
-        storage.setEnforceEmailEquality(true);
-        Role research =
-                new Role("Research", "Research desc",
-                        application("4", EntityType.SAML20_SP), 365, false, false);
-        research.setDefaultExpiryDays(Integer.valueOf(900));
-        Role calendar =
-                new Role("Calendar", "Calendar desc",
-                        application("5", EntityType.OIDC10_RP), 365, false, false);
+            Role storage =
+                    new Role("Storage", "Storage desc",
+                            applicationUsages, 365, false, false);
+            storage.setEnforceEmailEquality(true);
+            Role research =
+                    new Role("Research", "Research desc",
+                            application("4", EntityType.SAML20_SP), 365, false, false);
+            research.setDefaultExpiryDays(Integer.valueOf(900));
+            Role calendar =
+                    new Role("Calendar", "Calendar desc",
+                            application("5", EntityType.OIDC10_RP), 365, false, false);
 
-        Role mail =
-                new Role("Mail", "Mail desc",
-                        application("5", EntityType.OIDC10_RP), 365, false, false);
+            Role mail =
+                    new Role("Mail", "Mail desc",
+                            application("5", EntityType.OIDC10_RP), 365, false, false);
 
-        //These roles will be accessible for the institution admin based
-        network.setOrganizationGUID(ORGANISATION_GUID);
-        research.setOrganizationGUID(ORGANISATION_GUID);
-        wiki.setOrganizationGUID(ORGANISATION_GUID);
+            //These roles will be accessible for the institution admin based
+            network.setOrganizationGUID(ORGANISATION_GUID);
+            research.setOrganizationGUID(ORGANISATION_GUID);
+            wiki.setOrganizationGUID(ORGANISATION_GUID);
 
-        //Mark one role as CRM role
-        mail.setOrganisation(organisation);
-        mail.setCrmRoleId("cf652619-08e4-e811-8100-005056956c1a");
-        mail.setCrmRoleName("SURFconextverantwoordelijke");
-        mail.setCrmRoleAbbrevation("CONVER");
+            //Mark one role as CRM role
+            mail.setOrganisation(organisation);
+            mail.setCrmRoleId("cf652619-08e4-e811-8100-005056956c1a");
+            mail.setCrmRoleName("SURFconextverantwoordelijke");
+            mail.setCrmRoleAbbrevation("CONVER");
 
-        List.of(wiki, network, storage, research, calendar, mail)
-                .forEach(role -> role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role)));
-        doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
-        this.roleRepository.flush();
+            List.of(wiki, network, storage, research, calendar, mail)
+                    .forEach(role -> {
+                        if (!StringUtils.hasText(role.getOrganizationGUID())) {
+                            role.setOrganizationGUID(UUID.randomUUID().toString());
+                        }
+                        role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
+                    });
 
-        UserRole wikiManager =
-                new UserRole("system", manager, wiki, Authority.MANAGER);
-        wikiManager.setGuestRoleIncluded(true);
-        UserRole appManager =
-                new UserRole("system", applicationManager, wiki, Authority.APPLICATION_MANAGER);
-        UserRole wikiInviterUserRole =
-                new UserRole("system", wikiInviter, wiki, Authority.INVITER);
-        UserRole calendarInviter =
-                new UserRole("system", inviter, calendar, Authority.INVITER);
-        UserRole mailInviter =
-                new UserRole("system", inviter, mail, Authority.INVITER);
-        UserRole storageGuest =
-                new UserRole("system", guest, storage, Authority.GUEST);
-        UserRole wikiGuest =
-                new UserRole("system", guest, wiki, Authority.GUEST);
-        UserRole researchGuest =
-                new UserRole("system", guest, research, Authority.GUEST);
-        UserRole kbUserGuest =
-                new UserRole("system", kbUser, research, Authority.GUEST);
-        doSave(this.userRoleRepository, wikiManager, appManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest,
-                wikiGuest, researchGuest, kbUserGuest);
-        this.userRoleRepository.flush();
+            doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
+            this.roleRepository.flush();
 
-        String message = "Please join..";
-        Instant roleExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);
-        Instant expiryDate = Instant.now().plus(14, ChronoUnit.DAYS);
+            UserRole wikiManager =
+                    new UserRole("system", manager, wiki, Authority.MANAGER);
+            wikiManager.setGuestRoleIncluded(true);
+            UserRole wikiInviterUserRole =
+                    new UserRole("system", wikiInviter, wiki, Authority.INVITER);
+            UserRole calendarInviter =
+                    new UserRole("system", inviter, calendar, Authority.INVITER);
+            UserRole mailInviter =
+                    new UserRole("system", inviter, mail, Authority.INVITER);
+            UserRole storageGuest =
+                    new UserRole("system", guest, storage, Authority.GUEST);
+            UserRole wikiGuest =
+                    new UserRole("system", guest, wiki, Authority.GUEST);
+            UserRole researchGuest =
+                    new UserRole("system", guest, research, Authority.GUEST);
+            UserRole kbUserGuest =
+                    new UserRole("system", kbUser, research, Authority.GUEST);
+            doSave(this.userRoleRepository, wikiManager, wikiInviterUserRole, calendarInviter, mailInviter, storageGuest,
+                    wikiGuest, researchGuest, kbUserGuest);
+            this.userRoleRepository.flush();
 
-        Invitation superUserInvitation =
-                new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, null, false, message, Language.en,
-                        inviter, expiryDate, roleExpiryDate, Set.of(), null);
-        Invitation managerInvitation =
-                new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, null, false, message, Language.en,
-                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(research)), null);
-        Invitation inviterInvitation =
-                new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, true, message, Language.en,
-                        institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)), null);
-        inviterInvitation.setEnforceEmailEquality(true);
-        Invitation guestInvitation =
-                new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com",
-                        false, false, null, false, message, Language.en,
-                        institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)), null);
-        guestInvitation.setEduIDOnly(true);
-        //To test graph callback
-        guestInvitation.setSubInvitee(GUEST_SUB);
+            String message = "Please join..";
+            Instant roleExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);
+            Instant expiryDate = Instant.now().plus(14, ChronoUnit.DAYS);
 
-        Invitation institutionAdminInvitation =
-                new Invitation(Authority.INSTITUTION_ADMIN, INSTITUTION_ADMIN_INVITATION_HASH, "institutionh@admin.com",
-                        false, false, null, false, message, Language.en,
-                        institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), null);
+            Invitation superUserInvitation =
+                    new Invitation(Authority.SUPER_USER, Authority.SUPER_USER.name(), "super_user@new.com", false, false, null, false, message, Language.en,
+                            inviter, expiryDate, roleExpiryDate, Set.of(), Set.of(),null);
 
-        Invitation graphInvitation =
-                new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com",
-                        false, false, null, false, message, Language.en,
-                        inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), null);
-        doSave(invitationRepository, superUserInvitation, managerInvitation, inviterInvitation, guestInvitation,
-                institutionAdminInvitation, graphInvitation);
-        this.invitationRepository.flush();
+            Invitation managerInvitation =
+                    new Invitation(Authority.MANAGER, Authority.MANAGER.name(), "manager@new.com", false, false, null, false, message, Language.en,
+                            inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(research)), Set.of(),null);
 
-        APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH),
-                false, "Test-token", institutionAdmin);
-        APIToken superUserApiToken = new APIToken(null,
-                HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH), true,
-                "Test super-user token", superUser);
-        APIToken legacyApiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_LEGACY_HASH),
-                false, "Legacy-test-token", institutionAdmin);
-        APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
-                "Test-user token", inviter);
-        doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
+            Invitation applicationManagerInvitation =
+                    new Invitation(Authority.APPLICATION_MANAGER, Authority.APPLICATION_MANAGER.name(), "app@manager.com",
+                            false, false, null, false, message, Language.en,
+                            inviter, expiryDate, roleExpiryDate, Set.of(), Set.of(
+                            new InvitationApplication(spApplication)
+                    ), null);
+
+            Invitation inviterInvitation =
+                    new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, true, message, Language.en,
+                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)),Set.of(), null);
+            inviterInvitation.setEnforceEmailEquality(true);
+
+            Invitation guestInvitation =
+                    new Invitation(Authority.GUEST, Authority.GUEST.name(), "guest@new.com",
+                            false, false, null, false, message, Language.en,
+                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(mail)),Set.of(), null);
+            guestInvitation.setEduIDOnly(true);
+            //To test graph callback
+            guestInvitation.setSubInvitee(GUEST_SUB);
+
+            Invitation institutionAdminInvitation =
+                    new Invitation(Authority.INSTITUTION_ADMIN, INSTITUTION_ADMIN_INVITATION_HASH, "institutionh@admin.com",
+                            false, false, null, false, message, Language.en,
+                            institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)),Set.of(), null);
+
+            Invitation graphInvitation =
+                    new Invitation(Authority.GUEST, GRAPH_INVITATION_HASH, "graph@new.com",
+                            false, false, null, false, message, Language.en,
+                            inviter, expiryDate, roleExpiryDate, Set.of(new InvitationRole(network)), Set.of(),null);
+            doSave(invitationRepository, superUserInvitation, managerInvitation, applicationManagerInvitation, inviterInvitation, guestInvitation,
+                    institutionAdminInvitation, graphInvitation);
+            this.invitationRepository.flush();
+
+            APIToken apiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_HASH),
+                    false, "Test-token", institutionAdmin);
+            APIToken superUserApiToken = new APIToken(null,
+                    HashGenerator.hashToken(API_TOKEN_SUPER_USER_HASH), true,
+                    "Test super-user token", superUser);
+            APIToken legacyApiToken = new APIToken(ORGANISATION_GUID, HashGenerator.hashToken(API_TOKEN_LEGACY_HASH),
+                    false, "Legacy-test-token", institutionAdmin);
+            APIToken userApiToken = new APIToken(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH),
+                    "Test-user token", inviter);
+            doSave(apiTokenRepository, apiToken, superUserApiToken, legacyApiToken, userApiToken);
         }); // end transactionTemplate.executeWithoutResult
     }
 

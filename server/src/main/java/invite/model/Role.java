@@ -1,6 +1,7 @@
 package invite.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import invite.provision.scim.GroupURN;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Role implements Serializable, Provisionable {
 
     @Id
@@ -61,7 +63,7 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "identifier")
     private String identifier;
 
-    @Column(name = "organization_guid")
+    @Column(name = "organization_guid", nullable = false)
     private String organizationGUID;
 
     @Column(name = "remote_api_user")

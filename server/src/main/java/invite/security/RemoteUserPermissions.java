@@ -36,7 +36,7 @@ public class RemoteUserPermissions {
         if (remoteUser == null) {
             throw new UserRestrictionException("Remote user is NULL");
         }
-        if (remoteUser.isLocalDevMode()) {
+        if (remoteUser.isLocalDevMode() || remoteUser.getScopes().contains(Scope.access)) {
             return;
         }
         List<Application> remoteUserApplications = remoteUser.getApplications();

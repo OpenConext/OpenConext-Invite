@@ -7,13 +7,13 @@ import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.manage.EntityType;
 import invite.manage.Manage;
-import invite.manage.ManageIdentifier;
 import invite.model.Application;
 import invite.model.ApplicationUsage;
 import invite.model.Authority;
 import invite.model.Role;
 import invite.model.RoleRequest;
 import invite.model.User;
+import invite.model.UserApplication;
 import invite.model.UserRole;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.GroupURN;
@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -141,10 +142,17 @@ public class RoleController implements ApplicationResource {
                 }
             }
         } else {
-            UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+            UserPermissions.assertApplicationManager(user);
             Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-            rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
-
+            if (user.isInstitutionAdmin()) {
+                rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
+            } else {
+                List<String > manageIdentifiers = user.getUserApplications().stream()
+                        .map(userApplication -> userApplication.getApplication().getManageId())
+                        .toList();
+                List<Role> roles = roleRepository.findByApplicationUsagesApplicationManageIdIn(manageIdentifiers);
+                rolesPage = new PageImpl<>(roles, pageable, roles.size());
+            }
         }
         List<Long> roleIdentifiers = rolesPage.getContent().stream().map(role -> role.getId()).toList();
         List<Map<String, Object>> applications = roleRepository.findApplications(roleIdentifiers);
@@ -157,8 +165,10 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<Role> role(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
 
+        User userFromDB = userRepository.getReferenceById(user.getId());
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
         manage.addManageMetaData(List.of(role));
         return ResponseEntity.ok(role);
     }
@@ -168,28 +178,40 @@ public class RoleController implements ApplicationResource {
     public ResponseEntity<List<Role>> rolesPerApplicationId(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/rolesPerApplicationId for user %s", user.getEduPersonPrincipalName()));
 
-        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        UserPermissions.assertAuthority(user, Authority.APPLICATION_MANAGER);
         List<Role> roles;
         if (user.isSuperUser()) {
             roles = roleRepository.findByApplicationUsagesApplicationManageId(manageId);
-        } else {
-            Set<String> applicationManageIdentifiers = user.getApplications().stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
-            Set<String> roleManageIdentifiers = user.getUserRoles().stream()
-                    //If the user has a userRole as Inviter, then we must exclude those
-                    .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
-                    .map(userRole -> userRole.getRole().applicationsUsed())
-                    .flatMap(Collection::stream)
-                    .map(Application::getManageId)
-                    .collect(Collectors.toSet());
-            applicationManageIdentifiers.addAll(roleManageIdentifiers);
-            if (!applicationManageIdentifiers.contains(manageId)) {
-                throw new UserRestrictionException(String.format("User %s has no access to manageID %s", user.getEmail(), manageId));
-            }
+        } else if (user.isInstitutionAdmin()) {
+            List<Map<String, Object>> applications = user.getApplications();
+            Set<String> applicationManageIdentifiers = applications.stream().map(m -> (String) m.get("id")).collect(Collectors.toSet());
+            assertRoleAccess(manageId, user, applicationManageIdentifiers);
             roles = roleRepository.findByOrganizationGUIDAndApplicationUsagesApplicationManageId(user.getOrganizationGUID(), manageId);
+        } else {
+            //Application manager
+            Set<UserApplication> userApplications = user.getUserApplications();
+            Set<String> applicationManageIdentifiers = userApplications.stream()
+                    .map(userApplication -> userApplication.getApplication().getManageId()).collect(Collectors.toSet());
+            assertRoleAccess(manageId, user, applicationManageIdentifiers);
+            roles = roleRepository.findByApplicationUsagesApplicationManageId(manageId);
+
         }
         return ResponseEntity.ok(manage.addManageMetaData(roles));
     }
 
+    private void assertRoleAccess(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user, Set<String> applicationManageIdentifiers) {
+        Set<String> roleManageIdentifiers = user.getUserRoles().stream()
+                //If the user has a userRole as Inviter, then we must exclude those
+                .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.MANAGER))
+                .map(userRole -> userRole.getRole().applicationsUsed())
+                .flatMap(Collection::stream)
+                .map(Application::getManageId)
+                .collect(Collectors.toSet());
+        applicationManageIdentifiers.addAll(roleManageIdentifiers);
+        if (!applicationManageIdentifiers.contains(manageId)) {
+            throw new UserRestrictionException(String.format("User %s has no access to manageID %s", user.getEmail(), manageId));
+        }
+    }
 
     @PostMapping("")
     public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
@@ -207,31 +229,11 @@ public class RoleController implements ApplicationResource {
         role.setIdentifier(UUID.randomUUID().toString());
         role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
 
-        boolean addRoleMembership = false;
-        if (!(user.isSuperUser() || user.isInstitutionAdmin())) {
-            //Only allowed to create a role if all applications that are selected, are connected to existing roles
-            Set<ManageIdentifier> manageIdentifiers = role.getApplicationUsages().stream()
-                    .map(applicationUsage -> applicationUsage.manageIdentifier())
-                    .collect(Collectors.toSet());
-            Set<ManageIdentifier> userAccessRoles = user.getUserRoles().stream()
-                    .filter(userRole -> userRole.getAuthority().hasEqualOrHigherRights(Authority.APPLICATION_MANAGER))
-                    .flatMap(userRole -> userRole.getRole().getApplicationUsages().stream().map(applicationUsage -> applicationUsage.manageIdentifier()))
-                    .collect(Collectors.toSet());
-            if (!userAccessRoles.containsAll(manageIdentifiers)) {
-                throw new UserRestrictionException(
-                        String.format("User %s does not have the Authority.APPLICATION_MANAGER for the requested roles", user.getEmail()));
-            }
-            addRoleMembership = true;
-        }
+        UserPermissions.assertApplicationManager(user, List.of(role));
 
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getName()));
-        ResponseEntity<Role> roleResponseEntity = saveOrUpdate(role, user);
-        if (addRoleMembership) {
-            Role savedRole = roleResponseEntity.getBody();
-            user.addUserRole(new UserRole(Authority.APPLICATION_MANAGER, savedRole));
-            userRepository.save(user);
-        }
-        return roleResponseEntity;
+
+        return saveOrUpdate(role, user);
     }
 
     @PutMapping("")
@@ -244,7 +246,8 @@ public class RoleController implements ApplicationResource {
                                            @Parameter(hidden = true) User user) {
         LOG.debug(String.format("PUT /roles/ for user %s", user.getEduPersonPrincipalName()));
 
-        UserPermissions.assertRoleAccess(user, role, Authority.MANAGER);
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.MANAGER);
 
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);
@@ -267,9 +270,9 @@ public class RoleController implements ApplicationResource {
         LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertApplicationManager(user, List.of(role));
+        boolean isApplicationManager = UserPermissions.assertApplicationManager(user, List.of(role));
 
-        if (!user.isSuperUser() &&
+        if (!user.isSuperUser() && !isApplicationManager &&
                 !Objects.equals(user.getOrganizationGUID(), role.getOrganizationGUID())) {
             throw new UserRestrictionException(String.format("Non super user %s not allowd to delete role %s",
                     user.getEmail(), role.getName()));

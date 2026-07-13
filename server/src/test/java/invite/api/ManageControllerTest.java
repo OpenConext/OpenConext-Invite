@@ -193,6 +193,27 @@ class ManageControllerTest extends AbstractTest {
     }
 
     @Test
+    void applicationsByApplicationManager() throws Exception {
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", APPLICATION_MANAGER_SUB);
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("6"));
+        stubForManageProvisioning(List.of("6"));
+
+        Map<String, List<Map<String, Object>>> result = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .get("/api/v1/manage/applications")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, result.get("providers").size());
+        assertEquals(1, result.get("provisionings").size());
+    }
+
+    @Test
     void organizationGUIDValidation() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
 

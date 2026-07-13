@@ -3,6 +3,7 @@ package invite.mail;
 import invite.config.Config;
 import invite.cron.IdPMetaDataResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import invite.manage.Manage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +22,11 @@ public class MailConf {
                            @Value("${email.contactEmail}") String contactEmail,
                            @Value("${email.environment}") String env,
                            IdPMetaDataResolver idPMetaDataResolver,
+                           Manage manage,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
-        return new MailBox(objectMapper, idPMetaDataResolver, mailSender, emailFrom, contactEmail, config.getClientUrl(), config.getWelcomeUrl(), env);
+        return new MailBox(objectMapper, idPMetaDataResolver, mailSender, emailFrom,
+                contactEmail, config.getClientUrl(), config.getWelcomeUrl(), env, manage);
     }
 
 

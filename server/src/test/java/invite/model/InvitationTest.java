@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ class InvitationTest extends WithApplicationTest {
 
         Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, null, false, "Please join..", Language.en, new User(),
                 null, Instant.now().plus(30, ChronoUnit.DAYS),
-                Set.of(new InvitationRole(role)), null);
+                Set.of(new InvitationRole(role)), Set.of(),null);
 
         assertEquals(13, Instant.now().until(invitation.getExpiryDate(), ChronoUnit.DAYS));
         assertEquals(29, Instant.now().until(invitation.getRoleExpiryDate(), ChronoUnit.DAYS));
@@ -31,7 +32,7 @@ class InvitationTest extends WithApplicationTest {
         Role role = new Role("mail", "description", application("1", EntityType.SAML20_SP), null, false, false);
 
         Invitation invitation = new Invitation(Authority.MANAGER, "hash", "john@example.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, false, "Please join..", Language.en, new User(),
-                null, null, Set.of(new InvitationRole(role)), null);
+                null, null, Set.of(new InvitationRole(role)), Set.of(), null);
         assertEquals(13, Instant.now().until(invitation.getExpiryDate(), ChronoUnit.DAYS));
         assertNull(invitation.getRoleExpiryDate());
     }
@@ -44,6 +45,7 @@ class InvitationTest extends WithApplicationTest {
                 false, false, null, false, "Please join..", Language.en, new User(),
                 null, null,
                 Set.of(new InvitationRole(role)),
+                Set.of(),
                 UUID.randomUUID().toString());
 
         assertEquals(29, Instant.now().until(invitation.getRoleExpiryDate(), ChronoUnit.DAYS));

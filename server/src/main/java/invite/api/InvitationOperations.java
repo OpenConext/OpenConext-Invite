@@ -7,7 +7,19 @@ import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
 import invite.manage.Manage;
-import invite.model.*;
+import invite.model.Application;
+import invite.model.Authority;
+import invite.model.GroupedProviders;
+import invite.model.Invitation;
+import invite.model.InvitationApplication;
+import invite.model.InvitationRequest;
+import invite.model.InvitationResponse;
+import invite.model.InvitationRole;
+import invite.model.Invite;
+import invite.model.Provisionable;
+import invite.model.RecipientInvitationURL;
+import invite.model.Role;
+import invite.model.User;
 import invite.repository.InvitationRepository;
 import invite.security.RemoteUser;
 import invite.security.RemoteUserPermissions;
@@ -23,7 +35,12 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
@@ -46,17 +63,28 @@ public class InvitationOperations {
         invitationRequest.verify();
         Authority intendedAuthority = invitationRequest.getIntendedAuthority();
         if (!List.of(Authority.INSTITUTION_ADMIN, Authority.SUPER_USER).contains(intendedAuthority)
+                && !intendedAuthority.equals(Authority.APPLICATION_MANAGER)
                 && CollectionUtils.isEmpty(invitationRequest.getRoleIdentifiers())) {
             throw new NotAllowedException("Invitation for non-super-user or institution-admin must contain at least one role");
+        }
+        if (intendedAuthority.equals(Authority.APPLICATION_MANAGER)
+                && CollectionUtils.isEmpty(invitationRequest.getManageIdentifiers())) {
+            throw new NotAllowedException("Invitation for application manager must contain at least one application");
         }
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
                 .map(id -> invitationResource.getRoleRepository().findById(id)
                         .filter(role -> !StringUtils.hasText(role.getCrmRoleId()))
                         .orElseThrow(() -> new NotFoundException("Role not found"))).toList();
-
+        List<Application> requestedApplications = invitationRequest.getManageIdentifiers().stream()
+                .map(manageIdentifier -> invitationResource.getApplicationRepository()
+                        .findByManageIdAndManageTypeOrderById(manageIdentifier.manageId(), manageIdentifier.manageType()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
         if (user != null) {
             UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+            UserPermissions.assertValidApplicationManagerInvitation(user, intendedAuthority, requestedApplications);
         } else {
             RemoteUserPermissions.assertApplicationAccess(remoteUser, requestedRoles);
         }
@@ -102,6 +130,9 @@ public class InvitationOperations {
                         requestedRoles.stream()
                                 .map(InvitationRole::new)
                                 .collect(toSet()),
+                        requestedApplications.stream()
+                                .map(InvitationApplication::new)
+                                .collect(toSet()),
                         invite.getInternalPlaceholderIdentifier())
                 ).toList();
         if (user == null) {
@@ -109,7 +140,7 @@ public class InvitationOperations {
         }
         if (intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
             invitations.forEach(invitation -> invitation.setOrganizationGUID(
-                    user.isSuperUser() ? invitationRequest.getOrganizationGUID() : user.getOrganizationGUID())
+                    (user == null || user.isSuperUser()) ? invitationRequest.getOrganizationGUID() : user.getOrganizationGUID())
             );
         }
 

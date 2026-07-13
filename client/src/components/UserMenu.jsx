@@ -33,7 +33,7 @@ export const UserMenu = ({user, actions}) => {
 
     const renderMenu = adminLinks => {
         const authority = highestAuthority(user);
-        const apiTokenLink = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER;
+        const apiTokenLink = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER || authority === AUTHORITIES.APPLICATION_MANAGER;
         return (<>
                 <ul>
                     {user.superUser && adminLinks.map(l =>

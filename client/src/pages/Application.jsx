@@ -23,7 +23,7 @@ export const Application = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-            if (!isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user)) {
+            if (!isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user)) {
                 navigate("/404");
                 return;
             }

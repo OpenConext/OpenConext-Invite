@@ -113,8 +113,11 @@ public class UserController {
     @Transactional(readOnly = true)
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
+
         List<Role> roles = user.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.addManageMetaData(roles);
+        manage.addManageMetaData(user.getUserApplications());
+
         return ResponseEntity.ok(user);
     }
 
@@ -272,7 +275,8 @@ public class UserController {
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
 
-        UserPermissions.assertRoleAccess(user, role, Authority.INVITER);
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
 
         List<User> users = userRepository.findInstitutionAdminsPerRole(role.getId());
 

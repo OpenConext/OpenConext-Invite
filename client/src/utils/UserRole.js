@@ -34,6 +34,9 @@ export const highestAuthority = (user, forceApplications = true) => {
     if (user.institutionAdmin && (!isEmpty(user.applications) || !forceApplications)) {
         return AUTHORITIES.INSTITUTION_ADMIN;
     }
+    if (!isEmpty(user.userApplications)) {
+        return AUTHORITIES.APPLICATION_MANAGER;
+    }
     return (user.userRoles || []).reduce((acc, u) => {
         if (AUTHORITIES_HIERARCHY[acc] > AUTHORITIES_HIERARCHY[AUTHORITIES[u.authority]]) {
             return u.authority
@@ -79,6 +82,15 @@ export const allowedToEditRole = (user, role) => {
     if (user.institutionAdmin && (user.applications || []).some(app => roleIsConnectedToApp(role, app))) {
         return true;
     }
+    if (!isEmpty(user.userApplications)) {
+        //All of application usages of the Role must be owned by the user
+        const roleApplicationIdentifiers = role.applicationUsages.map(applicationUsage => applicationUsage.application.id);
+        const userApplicationIdentifiers = user.userApplications.map(userApplication => userApplication.application.id);
+        const isApplicationManager = roleApplicationIdentifiers.every(applicationId => userApplicationIdentifiers.includes(applicationId));
+        if (isApplicationManager) {
+            return true;
+        }
+    }
     //One the userRoles must have the same manageId as the role
     const userRole = user.userRoles.find(userRole => userRole.role.id === role.id);
     return !isEmpty(userRole) && AUTHORITIES_HIERARCHY[userRole.authority] <= AUTHORITIES_HIERARCHY[AUTHORITIES.MANAGER];
@@ -101,9 +113,10 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
     if (deleteAction && (user.id === userRole.userInfo?.id || user.id === userRole.user_id)) {
         return true;
     }
-
     const allowedByApplicationForInstitutionAdmin = user.institutionAdmin && (user.applications || [])
         .some(application => roleIsConnectedToApp(userRole.role, application));
+    const allowedByApplicationManager = (user.userApplications || [])
+        .some(userApp => roleIsConnectedToApp(userRole.role, userApp.applicationMap));
     const allowedByApplicationForManager = isManagerForUserRole(user, userRole);
     const usedAuthority = targetGuestRole ? AUTHORITIES.GUEST : userRole.authority
     switch (usedAuthority) {
@@ -111,15 +124,17 @@ export const allowedToRenewUserRole = (user, userRole, deleteAction = false, tar
             return false;
         case AUTHORITIES.INSTITUTION_ADMIN:
             return false;
-        case AUTHORITIES.MANAGER:
+        case AUTHORITIES.APPLICATION_MANAGER:
             return allowedByApplicationForInstitutionAdmin;
+        case AUTHORITIES.MANAGER:
+            return allowedByApplicationForInstitutionAdmin || allowedByApplicationManager;
         case AUTHORITIES.INVITER :
-            return isUserAllowed(AUTHORITIES.MANAGER, user) &&
+            return allowedByApplicationManager || isUserAllowed(AUTHORITIES.MANAGER, user) &&
                 ((user.userRoles || []).some(ur => userRole.role.id === ur.role.id)
                     || allowedByApplicationForManager
                     || allowedByApplicationForInstitutionAdmin);
         case  AUTHORITIES.GUEST:
-            return isUserAllowed(AUTHORITIES.INVITER, user) &&
+            return allowedByApplicationManager || isUserAllowed(AUTHORITIES.INVITER, user) &&
                 (user.userRoles.some(ur => userRole.role.id === ur.role.id)
                     || allowedByApplicationForManager
                     || allowedByApplicationForInstitutionAdmin);
@@ -192,6 +207,17 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
                 .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[allowedAuthority]);
         }
     }
+    if (!isEmpty(user.userApplications)) {
+        //if all the roles are linked to the userApplications of the user ,then everything excluding Application Manager and up is included
+        //otherwise fall back to the userRole
+        const manageIdentifierRequired = selectedRoles.map(role => role.applicationUsages.map(appUsage => appUsage.application.manageId)).flat();
+        const manageIdentifiers = user.userApplications.map(userApp => userApp.application.manageId);
+        const allRolesAllowed = manageIdentifierRequired.every(manageId => manageIdentifiers.includes(manageId));
+        if (allRolesAllowed) {
+            return Object.keys(AUTHORITIES)
+                .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[AUTHORITIES.APPLICATION_MANAGER]);
+        }
+    }
     if (isEmpty(selectedRoles)) {
         const authority = highestAuthority(user);
         return Object.keys(AUTHORITIES)
@@ -203,9 +229,11 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
             return (!isEmpty(user.organizationGUID) && user.organizationGUID === role.organizationGUID) ||
                 user.userRoles.some(userRole => userRole.role.id === role.id)
         });
+
     if (!isUserAllowed(AUTHORITIES.INVITER, user)) {
         return [];
     }
+
     const leastImportantAuthority = userRolesForSelectedRoles
         .reduce((acc, userRole) => {
             if (acc === null || AUTHORITIES_HIERARCHY[userRole.authority] > AUTHORITIES_HIERARCHY[acc]) {
@@ -213,6 +241,7 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
             }
             return acc;
         }, null) || AUTHORITIES.INVITER;
+
     return Object.keys(AUTHORITIES)
         .filter(auth => AUTHORITIES_HIERARCHY[auth] > AUTHORITIES_HIERARCHY[leastImportantAuthority]);
 

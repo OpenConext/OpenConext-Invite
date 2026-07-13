@@ -389,6 +389,27 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void rolesByApplicationApplicationManager() throws Exception {
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("6"));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", APPLICATION_MANAGER_SUB);
+
+        DefaultPage<Role> page = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .queryParam("force", true)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/roles")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, page.getTotalElements());
+        List<Role> roles = page.getContent();
+        assertEquals(1, roles.size());
+    }
+
+    @Test
     void rolesByApplicationSuperUser() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
@@ -626,6 +647,24 @@ class RoleControllerTest extends AbstractTest {
         stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
 
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        Role role = roleRepository.search("storage", 1).get(0);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", role.getId())
+                .delete("/api/v1/roles/{id}")
+                .then()
+                .statusCode(403);
+        assertEquals(1, roleRepository.search("storage", 1).size());
+    }
+
+    @Test
+    void deleteRoleByApplicationManager() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", APPLICATION_MANAGER_SUB);
 
         Role role = roleRepository.search("storage", 1).get(0);
         given()
