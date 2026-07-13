@@ -548,10 +548,10 @@ export const InvitationForm = () => {
                                          label={I18n.t("invitations.eduIDOnly")}
                                          disabled={!overrideSettingsAllowed}
                                          info={I18n.t("tooltips.eduIDOnlyTooltip")}
-                                         last={invitation.eduIDOnly}
+                                         last={invitation.eduIDOnly && !isEmpty(requestedAuthnContextOptions)}
                             />
 
-                            {invitation.eduIDOnly &&
+                            {(invitation.eduIDOnly && !isEmpty(requestedAuthnContextOptions)) &&
                                 <SelectField
                                     value={requestedAuthnContextOptions.find(option => option.value === invitation.requestedAuthnContext)}
                                     options={requestedAuthnContextOptions}

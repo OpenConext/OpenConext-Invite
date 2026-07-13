@@ -52,6 +52,9 @@ public class RoleRequest implements Serializable{
     @Schema(description = "The email address used", example = "550e8400-e29b-41d4-a716-446655440000")
     private String inviterDisplayName;
 
+    @Schema(description = "The ACR value", example = "https://eduid.nl/trust/linked-institution")
+    private String requestedAuthnContext;
+
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
 
 }

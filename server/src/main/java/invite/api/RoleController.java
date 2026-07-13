@@ -230,8 +230,6 @@ public class RoleController implements ApplicationResource {
         role.setIdentifier(UUID.randomUUID().toString());
         role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
 
-        UserPermissions.assertApplicationManager(user, List.of(role));
-
         LOG.debug(String.format("New role '%s' by user %s", role.getName(), user.getName()));
 
         return saveOrUpdate(role, user);
@@ -319,7 +317,9 @@ public class RoleController implements ApplicationResource {
         if (!immutableApplicationUsages) {
             roleOperations.syncRoleApplicationUsages(role);
         }
-
+        if (isNew) {
+            UserPermissions.assertApplicationManager(user, List.of(role));
+        }
         Role saved = roleRepository.save(role);
         if (isNew) {
             provisioningService.newGroupRequest(saved);

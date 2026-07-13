@@ -54,6 +54,9 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "edu_id_only")
     private boolean eduIDOnly;
 
+    @Column(name = "requested_authn_context")
+    private String requestedAuthnContext;
+
     @Column(name = "override_settings_allowed")
     private boolean overrideSettingsAllowed;
 
@@ -163,6 +166,7 @@ public class Role implements Serializable, Provisionable {
         this.organizationGUID = roleRequest.getOrganizationGUID();
         this.inviterDisplayName = roleRequest.getInviterDisplayName();
         this.applicationUsages = roleRequest.getApplicationUsages();
+        this.requestedAuthnContext = roleRequest.getRequestedAuthnContext();
     }
 
     @Transient

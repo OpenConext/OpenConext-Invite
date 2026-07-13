@@ -209,10 +209,9 @@ public class ManageController {
     public ResponseEntity<Boolean> provisionings(@PathVariable("id") String id,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/provisionings for user %s", user.getEduPersonPrincipalName()));
-        if (!(user.isSuperUser() || user.isInstitutionAdmin())) {
-            List<Role> roles = roleRepository.findByApplicationUsagesApplicationManageId(id);
-            UserPermissions.assertApplicationManager(user, roles);
-        }
+
+        UserPermissions.assertApplicationManager(user);
+
         List<Map<String, Object>> provisionings = manage.provisioning(List.of(id));
         return ResponseEntity.ok(!provisionings.isEmpty());
     }

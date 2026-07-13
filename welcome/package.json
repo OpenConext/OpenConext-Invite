@@ -42,7 +42,6 @@
     "vite": "^8.1.4",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.10"
-    
   },
   "resolutions": {
     "nth-check": "^2.1.1",

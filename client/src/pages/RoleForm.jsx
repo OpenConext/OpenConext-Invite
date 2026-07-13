@@ -12,6 +12,7 @@ import {
     deleteRole,
     hasProvisionings,
     me,
+    requestedAuthnContextValues,
     roleByID,
     updateRole,
     validate
@@ -72,7 +73,7 @@ export const RoleForm = () => {
     const [provisionings, setProvisionings] = useState({});
     const [deletedUserRoles, setDeletedUserRoles] = useState([]);
     const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[0]);
-
+    const [requestedAuthnContextOptions, setRequestedAuthnContextOptions] = useState([]);
     const [allowedToEditApplication, setAllowedToEditApplication] = useState(isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user));
 
     useEffect(() => {
@@ -159,6 +160,12 @@ export const RoleForm = () => {
                         }
                     });
                 }
+                requestedAuthnContextValues()
+                    .then(res => {
+                        const acrContexts = Object.entries(res)
+                            .map(arr => ({value: arr[1], label: I18n.t(`requestedAuthnContext.${arr[0]}`)}));
+                        setRequestedAuthnContextOptions(acrContexts);
+                    });
                 setTimeout(() => {
                     if (nameRef && nameRef.current) {
                         nameRef.current.focus();
@@ -230,7 +237,8 @@ export const RoleForm = () => {
 
     const updateUserIfNecessary = (path, flashMessage) => {
         if (user.userRoles
-            .some(userRole => userRole.authority === AUTHORITIES.APPLICATION_MANAGER || userRole.role.id === role.id)) {
+            .some(userRole => userRole.role.id === role.id)
+            || !isEmpty(user.userApplications)) {
             //We need to refresh the roles of the User to ensure 100% consistency
             me()
                 .then(res => {
@@ -508,6 +516,18 @@ export const RoleForm = () => {
                              label={I18n.t("invitations.eduIDOnly")}
                              info={I18n.t("tooltips.eduIDOnlyTooltip")}
                 />
+                {(role.eduIDOnly && !isEmpty(requestedAuthnContextOptions)) &&
+                    <SelectField
+                        value={requestedAuthnContextOptions.find(option => option.value === role.requestedAuthnContext)}
+                        options={requestedAuthnContextOptions}
+                        className={"requested-authn-context"}
+                        name={I18n.t("invitations.requestedAuthnContext")}
+                        toolTip={I18n.t("tooltips.requestedAuthnContextTooltip")}
+                        placeholder={I18n.t("invitations.requestedAuthnContextPlaceHolder")}
+                        clearable={true}
+                        onChange={option => setRole({...role, requestedAuthnContext: option === null ? null : option.value})}
+                    >
+                    </SelectField>}
 
                 <ExpandableSwitchField
                     name={"roleExpiryDate"}
