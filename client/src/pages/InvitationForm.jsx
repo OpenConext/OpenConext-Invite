@@ -101,10 +101,12 @@ export const InvitationForm = () => {
                     }
                 })
         } else {
-            const markedRoles = markAndFilterRoles(user, [], I18n.locale,
-                I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
-            setInitialRole(markedRoles);
-            setRoles(markedRoles)
+            Promise.resolve().then(() => {
+                const markedRoles = markAndFilterRoles(user, [], I18n.locale,
+                    I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
+                setInitialRole(markedRoles);
+                setRoles(markedRoles);
+            });
         }
         const breadcrumbPath = isInviter ? [] : [
             {path: "/home", value: I18n.t("tabs.home")},

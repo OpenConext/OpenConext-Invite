@@ -186,7 +186,7 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                         <p>
                             {I18n.t(`users.${other ? "rolesInfoOther" : "rolesInfo"}`, {name: user.name})}
                         </p>
-                        {renderSearch(query, setQuery, I18n.t(`roles.searchPlaceHolder`, searchRef))}
+                        {renderSearch(query, setQuery, I18n.t(`roles.searchPlaceHolder`), searchRef)}
                     </div>
                     {allCardApplications
                         .map((application, index) => renderRoleCard(application, index))}
