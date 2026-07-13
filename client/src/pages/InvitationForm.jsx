@@ -185,6 +185,7 @@ export const InvitationForm = () => {
                 intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
                 enforceEmailEquality: initialRole.enforceEmailEquality,
                 eduIDOnly: initialRole.eduIDOnly,
+                requestedAuthnContext: initialRole.requestedAuthnContext,
                 roleExpiryDate: deriveExpirationDate(initialRole.isUserRole ? initialRole.role : initialRole)
             })
             setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
@@ -304,7 +305,7 @@ export const InvitationForm = () => {
     const rolesChanged = selectedOptions => {
         if (selectedOptions === null) {
             setSelectedRoles([])
-            setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false})
+            setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false, requestedAuthnContext: null})
         } else {
             const allowedAuthorities = allowedAuthoritiesForInvitation(user, selectedOptions);
             let intendedAuthority = invitation.intendedAuthority;
@@ -317,15 +318,20 @@ export const InvitationForm = () => {
             const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
             let enforceEmailEquality = invitation.enforceEmailEquality;
             let eduIDOnly = invitation.eduIDOnly;
+            let requestedAuthnContext = invitation.requestedAuthnContext;
             if (!overrideSettingsAllowed) {
                 enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality) || enforceEmailEquality;
                 eduIDOnly = newSelectedOptions.some(role => role.eduIDOnly) || eduIDOnly;
+                const rolesWithRequestedAuthnContext = newSelectedOptions.filter(role => isEmpty(role.requestedAuthnContext));
+                requestedAuthnContext = isEmpty(rolesWithRequestedAuthnContext) ? requestedAuthnContext :
+                    rolesWithRequestedAuthnContext[0].requestedAuthnContext;
             }
             setInvitation({
                 ...invitation,
                 intendedAuthority: intendedAuthority,
                 enforceEmailEquality: enforceEmailEquality,
                 eduIDOnly: eduIDOnly,
+                requestedAuthnContext: requestedAuthnContext
             })
         }
     }
@@ -560,6 +566,7 @@ export const InvitationForm = () => {
                                     toolTip={I18n.t("tooltips.requestedAuthnContextTooltip")}
                                     placeholder={I18n.t("invitations.requestedAuthnContextPlaceHolder")}
                                     clearable={true}
+                                    disabled={!overrideSettingsAllowed}
                                     onChange={requestedAuthnContextChanged}
                                 >
                                     {acrWarning &&
