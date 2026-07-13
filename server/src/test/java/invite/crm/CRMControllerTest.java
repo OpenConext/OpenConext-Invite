@@ -517,8 +517,13 @@ class CRMControllerTest extends AbstractMailTest {
         Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID)
                 .orElseThrow(() -> new NotFoundException("Organisation not found: " + CRM_ORGANIZATION_ID));
         Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(CRM_CONTACT_ID, organisation);
-        assertFalse(optionalUser.isEmpty());
-        assertEquals(1, optionalUser.get().getUserRoles().size());
+        //We have nullified the CRM references, so we can't find it by CRM contact ID and Organisation
+        assertTrue(optionalUser.isEmpty());
+
+        User userFromDB = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
+        assertEquals(1, userFromDB.getUserRoles().size());
+        assertNull(userFromDB.getCrmContactId());
+        assertNull(userFromDB.getOrganisation());
     }
 
     @Test

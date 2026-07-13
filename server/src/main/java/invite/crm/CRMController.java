@@ -215,6 +215,8 @@ public class CRMController {
                             this.provisioningService.deleteUserRoleRequest(crmUserRole);
                         });
                         user.getUserRoles().removeIf(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()));
+                        user.setCrmContactId(null);
+                        user.setOrganisation(null);
                         this.userRepository.save(user);
                     }
 
