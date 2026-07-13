@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Add Application Manager (see [#693](https://github.com/OpenConext/OpenConext-Invite/issues/693))
 - Make acr's configurable (see [#722](https://github.com/OpenConext/OpenConext-Invite/issues/722))
 
-
 ## 1.1.15
 
 - Fix for duplicate CRM roles
