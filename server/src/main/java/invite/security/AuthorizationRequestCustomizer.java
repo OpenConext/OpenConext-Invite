@@ -63,7 +63,7 @@ public class AuthorizationRequestCustomizer implements Consumer<OAuth2Authorizat
                 Optional<Invitation> optionalInvitation = invitationRepository.findByHash(hash[0]);
                 optionalInvitation.ifPresent(invitation -> {
                     if (invitation.isEduIDOnly() && invitation.getRequestedAuthnContext() != null) {
-                        String url = invitation.getRequestedAuthnContext().getUrl();
+                        String url = invitation.getRequestedAuthnContext();
 
                         LOG.debug("Adding acr_values to authorization request query parameters: " + url);
 

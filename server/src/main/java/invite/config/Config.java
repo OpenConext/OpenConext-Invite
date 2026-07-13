@@ -28,6 +28,7 @@ public class Config {
     private List<String> missingAttributes;
     private String languages;
     private String environment;
+    private List<RequestedAuthnContext> acrRequirements;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -42,6 +43,7 @@ public class Config {
         this.eduidIdpSchacHomeOrganization = base.eduidIdpSchacHomeOrganization;
         this.languages = base.languages;
         this.environment = base.environment;
+        this.acrRequirements = base.acrRequirements;
     }
 
     public Config withAuthenticated(boolean authenticated) {

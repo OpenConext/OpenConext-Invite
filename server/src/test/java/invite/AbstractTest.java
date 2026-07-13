@@ -30,7 +30,7 @@ import invite.model.InvitationRole;
 import invite.model.Language;
 import invite.model.Organisation;
 import invite.model.RemoteProvisionedUser;
-import invite.model.RequestedAuthnContext;
+import invite.config.RequestedAuthnContext;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserApplication;
@@ -825,7 +825,7 @@ public abstract class AbstractTest {
                     ), null);
 
             Invitation inviterInvitation =
-                    new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, true, message, Language.en,
+                    new Invitation(Authority.INVITER, Authority.INVITER.name(), "inviter@new.com", false, false, "https://eduid.nl/trust/linked-institution", true, message, Language.en,
                             institutionAdmin, expiryDate, roleExpiryDate, Set.of(new InvitationRole(calendar), new InvitationRole(mail)),Set.of(), null);
             inviterInvitation.setEnforceEmailEquality(true);
 

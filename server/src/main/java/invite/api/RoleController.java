@@ -98,7 +98,8 @@ public class RoleController implements ApplicationResource {
                           ApplicationUsageRepository applicationUsageRepository,
                           Manage manage,
                           ProvisioningService provisioningService,
-                          @Value("${voot.group_urn_domain}") String groupUrnPrefix, UserRepository userRepository) {
+                          @Value("${voot.group_urn_domain}") String groupUrnPrefix,
+                          UserRepository userRepository) {
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;

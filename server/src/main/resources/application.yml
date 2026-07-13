@@ -128,6 +128,17 @@ config:
   eduid-idp-schac-home-organization: "test.eduid.nl"
   languages: "nl, en"
   environment: ${gui.disclaimer.content}
+  acr-requirements:
+    - key: EduIDLinkedInstitution
+      url: "https://eduid.nl/trust/linked-institution"
+    - key: EduIDValidatedName
+      url: "https://eduid.nl/trust/validate-names"
+    - key: ValidateNamesExternal
+      url: "https://eduid.nl/trust/validate-names-external"
+    - key: EduIDRequireStudentAffiliation
+      url: "https://eduid.nl/trust/affiliation-student"
+    - key: TransparentAuthnContext
+      url: "transparent_authn_context"
 
 feature:
   enable-performance-seed: False

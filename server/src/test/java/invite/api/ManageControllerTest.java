@@ -1,18 +1,15 @@
 package invite.api;
 
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import invite.AbstractTest;
 import invite.AccessCookieFilter;
 import invite.manage.EntityType;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import invite.model.RequestedAuthnContext;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
@@ -139,7 +136,13 @@ class ManageControllerTest extends AbstractTest {
                 .get("/api/v1/manage/requested-authn-context-values")
                 .as(new TypeRef<>() {
                 });
-        Map<String, String> values = Stream.of(RequestedAuthnContext.values()).collect(Collectors.toMap(rac -> rac.name(), rac -> rac.getUrl()));
+        Map<String, String> values = Map.of(
+                "EduIDLinkedInstitution", "https://eduid.nl/trust/linked-institution",
+                "EduIDValidatedName","https://eduid.nl/trust/validate-names",
+                "ValidateNamesExternal","https://eduid.nl/trust/validate-names-external",
+                "EduIDRequireStudentAffiliation", "https://eduid.nl/trust/affiliation-student",
+                "TransparentAuthnContext","transparent_authn_context"
+        );
         assertEquals(result, values);
     }
 
@@ -265,7 +268,7 @@ class ManageControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .pathParam("id","1")
+                .pathParam("id", "1")
                 .get("/api/v1/manage/provisionings/{id}")
                 .as(new TypeRef<>() {
                 });
@@ -283,7 +286,7 @@ class ManageControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
                 .contentType(ContentType.JSON)
-                .pathParam("id","1")
+                .pathParam("id", "1")
                 .get("/api/v1/manage/provisionings/{id}")
                 .as(new TypeRef<>() {
                 });

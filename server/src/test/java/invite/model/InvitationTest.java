@@ -1,12 +1,12 @@
 package invite.model;
 
 import invite.WithApplicationTest;
+import invite.config.RequestedAuthnContext;
 import invite.manage.EntityType;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,7 +31,7 @@ class InvitationTest extends WithApplicationTest {
     void constructorWithDefaults() {
         Role role = new Role("mail", "description", application("1", EntityType.SAML20_SP), null, false, false);
 
-        Invitation invitation = new Invitation(Authority.MANAGER, "hash", "john@example.com", false, false, RequestedAuthnContext.EduIDLinkedInstitution, false, "Please join..", Language.en, new User(),
+        Invitation invitation = new Invitation(Authority.MANAGER, "hash", "john@example.com", false, false, "https://eduid.nl/trust/linked-institution", false, "Please join..", Language.en, new User(),
                 null, null, Set.of(new InvitationRole(role)), Set.of(), null);
         assertEquals(13, Instant.now().until(invitation.getExpiryDate(), ChronoUnit.DAYS));
         assertNull(invitation.getRoleExpiryDate());

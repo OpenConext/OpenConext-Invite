@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.2.0
+
+- Remove IdentityProvider for non-super-admins (see [#755](https://github.com/OpenConext/OpenConext-Invite/issues/755))
+- Allow disabling of login_hint (see [#754](https://github.com/OpenConext/OpenConext-Invite/issues/754))
+- Hide “Add inviter” / “Add role manager” button for users without permission (see [#750](https://github.com/OpenConext/OpenConext-Invite/issues/750))
+- List of applications for institution admin in Role form (see [#727](https://github.com/OpenConext/OpenConext-Invite/issues/727))
+- Read-only info CRM rol eigenschappen (see [#735](https://github.com/OpenConext/OpenConext-Invite/issues/735))
+- Move internalPlaceholderIdentifier to externalId in SCIM / POST Users (see [#771](https://github.com/OpenConext/OpenConext-Invite/issues/771))
+- Log ip, username and endpoint on "Access Denied" (see [#713](https://github.com/OpenConext/OpenConext-Invite/issues/713))
+- Remove external links from mails (see [#612](https://github.com/OpenConext/OpenConext-Invite/issues/612))
+- Introduce After/On expiration selection option when sending invite (see [#610](https://github.com/OpenConext/OpenConext-Invite/issues/610))
+- Add "Application Manager" Role (see [#693](https://github.com/OpenConext/OpenConext-Invite/issues/693))
+- Add Application Manager (see [#693](https://github.com/OpenConext/OpenConext-Invite/issues/693))
+- Make acr's configurable (see [#722](https://github.com/OpenConext/OpenConext-Invite/issues/722))
+
+
 ## 1.1.15
 
 - Fix for duplicate CRM roles

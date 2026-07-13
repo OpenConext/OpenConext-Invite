@@ -7,7 +7,7 @@ import invite.model.ApplicationUsage;
 import invite.model.Authority;
 import invite.model.Invitation;
 import invite.model.InvitationRole;
-import invite.model.RequestedAuthnContext;
+import invite.config.RequestedAuthnContext;
 import invite.model.Role;
 import invite.repository.InvitationRepository;
 import jakarta.servlet.http.HttpSession;
@@ -99,7 +99,7 @@ class AuthorizationRequestCustomizerTest {
         Invitation invitation = new Invitation();
         invitation.setIntendedAuthority(Authority.GUEST);
         invitation.setEduIDOnly(true);
-        invitation.setRequestedAuthnContext(RequestedAuthnContext.EduIDLinkedInstitution);
+        invitation.setRequestedAuthnContext("https://eduid.nl/trust/linked-institution");
         when(invitationRepository.findByHash(hash)).thenReturn(Optional.of(invitation));
 
         OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode()
@@ -109,7 +109,7 @@ class AuthorizationRequestCustomizerTest {
         customizer.accept(builder);
         OAuth2AuthorizationRequest requestResult = builder.build();
         assertEquals("eduid-entity-id", requestResult.getAdditionalParameters().get("login_hint"));
-        assertEquals(RequestedAuthnContext.EduIDLinkedInstitution.getUrl(), requestResult.getAdditionalParameters().get("acr_values"));
+        assertEquals("https://eduid.nl/trust/linked-institution", requestResult.getAdditionalParameters().get("acr_values"));
     }
 
     @Test

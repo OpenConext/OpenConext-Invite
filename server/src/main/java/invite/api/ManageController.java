@@ -6,7 +6,7 @@ import invite.manage.EntityType;
 import invite.manage.Manage;
 import invite.model.Application;
 import invite.model.Authority;
-import invite.model.RequestedAuthnContext;
+import invite.config.RequestedAuthnContext;
 import invite.model.Role;
 import invite.model.User;
 import invite.repository.ApplicationRepository;
@@ -54,18 +54,20 @@ public class ManageController {
     private final Manage manage;
     private final ApplicationRepository applicationRepository;
     private final RoleRepository roleRepository;
+    private final Config config;
     private final String eduIDEntityID;
 
     @Autowired
     public ManageController(Manage manage,
                             ApplicationRepository applicationRepository,
                             RoleRepository roleRepository,
+                            Config config,
                             @Value("${config.eduid-entity-id}") String eduIDEntityID) {
         this.manage = manage;
         this.applicationRepository = applicationRepository;
         this.roleRepository = roleRepository;
+        this.config = config;
         this.eduIDEntityID = eduIDEntityID;
-
     }
 
     @GetMapping("/provider/{type}/{id}")
@@ -90,9 +92,9 @@ public class ManageController {
     @GetMapping("/requested-authn-context-values")
     public ResponseEntity<Map<String, String>> requestedAuthnContextValues() {
         LOG.debug("GET /manage/requestedAuthnContextValues");
-        Map<String, String> values = Stream.of(RequestedAuthnContext.values())
-                .collect(Collectors.toMap(rac -> rac.name(), rac -> rac.getUrl()));
-        return ResponseEntity.ok(values);
+        Map<String, String> acrMap = config.getAcrRequirements().stream()
+                .collect(Collectors.toMap(acr -> acr.key(), acr -> acr.url()));
+        return ResponseEntity.ok(acrMap);
     }
 
     @GetMapping("/providers")

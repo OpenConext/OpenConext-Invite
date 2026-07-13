@@ -48,9 +48,6 @@ export const InviterContainer = ({isInviter, children}) => {
 
 }
 
-const requestedAuthnContextOptions = Object.entries(I18n.translations[I18n.locale].requestedAuthnContext)
-    .map(arr => ({value: arr[0], label: arr[1]}));
-
 export const InvitationForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -83,7 +80,7 @@ export const InvitationForm = () => {
     const [language, setLanguage] = useState(I18n.locale === "en" ? languageOptions[0] : languageOptions[1]);
     const required = ["intendedAuthority", "invites"];
     const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[1]);
-
+    const [requestedAuthnContextOptions, setRequestedAuthnContextOptions] = useState([]);
     const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
 
     useEffect(() => {
@@ -130,6 +127,15 @@ export const InvitationForm = () => {
                     setIdentityProviders(identityProviderOptions);
                 });
         }
+        Promise.all([eduidIdentityProvider(), requestedAuthnContextValues()])
+            .then(res => {
+                setEduIDIdP(res[0]);
+                setACRValues(res[1]);
+                const acrContexts = Object.entries(res[1])
+                    .map(arr => ({value: arr[1], label: I18n.t(`requestedAuthnContext.${arr[0]}`) }));
+                setRequestedAuthnContextOptions(acrContexts);
+            });
+
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const acrWarning = useMemo(() => {
@@ -140,7 +146,7 @@ export const InvitationForm = () => {
             //or where the MFA level does not equal the requestedAuthnContext. If the requestedAuthnContext === TransparentAuthnContext,
             //then we skip the warning
             const mfaEntities = eduIDIdP.mfaEntities;
-            const acrValue = acrValues[invitation.requestedAuthnContext];
+            const acrValue = invitation.requestedAuthnContext;
             const missingEntities = selectedRoles.reduce((acc, role) => {
                 const missingMfaApps = role.applicationMaps
                     .filter(app => {
@@ -282,12 +288,6 @@ export const InvitationForm = () => {
 
     const requestedAuthnContextChanged = option => {
         setInvitation({...invitation, requestedAuthnContext: option ? option.value : null});
-        if (option && isEmpty(eduIDIdP)) {
-            Promise.all([eduidIdentityProvider(), requestedAuthnContextValues()]).then(res => {
-                setEduIDIdP(res[0]);
-                setACRValues(res[1])
-            });
-        }
     }
 
     const applicationsChanged = selectedOptions => {

@@ -3,6 +3,7 @@ package invite.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import invite.api.InvitationOperations;
+import invite.config.RequestedAuthnContext;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -72,9 +73,8 @@ public class Invitation implements Serializable {
     @Column(name = "edu_id_only")
     private boolean eduIDOnly;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "requested_authn_context")
-    private RequestedAuthnContext requestedAuthnContext;
+    private String requestedAuthnContext;
 
     @Column(name = "guest_role_included")
     private boolean guestRoleIncluded;
@@ -125,7 +125,7 @@ public class Invitation implements Serializable {
                       String email,
                       boolean enforceEmailEquality,
                       boolean eduIDOnly,
-                      RequestedAuthnContext requestedAuthnContext,
+                      String requestedAuthnContext,
                       boolean guestRoleIncluded,
                       String message,
                       Language language,

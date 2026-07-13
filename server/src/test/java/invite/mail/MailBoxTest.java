@@ -2,7 +2,13 @@ package invite.mail;
 
 import invite.AbstractMailTest;
 import invite.manage.EntityType;
-import invite.model.*;
+import invite.model.Authority;
+import invite.model.GroupedProviders;
+import invite.model.Invitation;
+import invite.model.InvitationRole;
+import invite.model.Language;
+import invite.model.Role;
+import invite.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -55,7 +61,7 @@ class MailBoxTest extends AbstractMailTest {
                 "nope@ex.com",
                 false,
                 eduIDOnly,
-                RequestedAuthnContext.EduIDLinkedInstitution,
+                "https://eduid.nl/trust/linked-institution",
                 false,
                 "Please join..",
                 Language.en,

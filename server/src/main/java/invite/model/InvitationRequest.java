@@ -1,5 +1,6 @@
 package invite.model;
 
+import invite.config.RequestedAuthnContext;
 import invite.exception.InvalidInputException;
 import invite.manage.ManageIdentifier;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +31,7 @@ public class InvitationRequest implements Serializable {
 
     private boolean eduIDOnly;
 
-    private RequestedAuthnContext requestedAuthnContext;
+    private String requestedAuthnContext;
 
     private boolean guestRoleIncluded;
 
