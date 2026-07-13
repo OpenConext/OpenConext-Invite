@@ -42,11 +42,14 @@
     "vite": "^8.1.4",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.10"
+    
   },
   "resolutions": {
     "nth-check": "^2.1.1",
     "tough-cookie": "^6.0.0",
-    "word-wrap": "^1.2.5"
+    "word-wrap": "^1.2.5",
+    "js-yaml": "^5.2.1"
+
   },
   "eslintConfig": {
     "extends": [
