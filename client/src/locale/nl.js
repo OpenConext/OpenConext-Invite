@@ -113,6 +113,8 @@ const nl = {
         noRolesInstitutionAdmin: "Je bent instellingsadmin, maar hebt nog geen rollen (maar je hebt wel toegang tot je applicaties)",
         noRolesInstitutionAdminOther: "{{name}} is een instellingsadmin, maar heeft nog geen rollen (maar wel toegang tot applicaties)",
         noRolesNoApplicationsInstitutionAdmin: "Je bent instellingsadmin, maar je hebt geen rollen en je instelling heeft blijkbaar ook geen toegang tot applicaties.",
+        noRolesInfoApplicationManager: "Je hebt geen rollen. Je bent een applicatie manager en je hebt toegang tot applicaties",
+        noRolesInfoApplicationManagerOther: "{{name}} heeft geen  rollen, maar is een applicatie manager en heeft toegang tot applicaties",
         guestRoleOnly: "Je bent geen admin. Ben je op zoek naar de <a href='{{welcomeUrl}}'>applicaties waar je toegang to hebt</a>?",
         rolesInfo: "Je hebt de volgende rollen",
         applicationsInfo: "Je hebt toegang tot de volgende applicaties",

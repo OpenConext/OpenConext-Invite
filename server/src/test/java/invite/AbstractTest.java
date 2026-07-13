@@ -719,7 +719,8 @@ public abstract class AbstractTest {
                             orElseGet(() -> applicationRepository.save(new Application(app.getManageId(), app.getManageType()))))
                     .collect(Collectors.toSet());
             Set<ApplicationUsage> applicationUsages = applications.stream()
-                    .map(application -> new ApplicationUsage(application, "https://landingpage.com")).collect(Collectors.toSet());
+                    .map(application -> new ApplicationUsage(application, "https://landingpage.com"))
+                    .collect(Collectors.toSet());
             //Otherwise the applications point to the non-persisted entity
             rpApplication = applications.stream()
                     .filter(application -> application.getManageType().equals(EntityType.OIDC10_RP))
@@ -773,7 +774,13 @@ public abstract class AbstractTest {
             mail.setCrmRoleAbbrevation("CONVER");
 
             List.of(wiki, network, storage, research, calendar, mail)
-                    .forEach(role -> role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role)));
+                    .forEach(role -> {
+                        if (!StringUtils.hasText(role.getOrganizationGUID())) {
+                            role.setOrganizationGUID(UUID.randomUUID().toString());
+                        }
+                        role.setUrn(GroupURN.urnFromRole(this.groupUrnPrefix, role));
+                    });
+
             doSave(this.roleRepository, wiki, network, storage, research, calendar, mail);
             this.roleRepository.flush();
 

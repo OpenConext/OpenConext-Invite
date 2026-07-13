@@ -82,6 +82,15 @@ export const allowedToEditRole = (user, role) => {
     if (user.institutionAdmin && (user.applications || []).some(app => roleIsConnectedToApp(role, app))) {
         return true;
     }
+    if (!isEmpty(user.userApplications)) {
+        //All of application usages of the Role must be owned by the user
+        const roleApplicationIdentifiers = role.applicationUsages.map(applicationUsage => applicationUsage.application.id);
+        const userApplicationIdentifiers = user.userApplications.map(userApplication => userApplication.application.id);
+        const isApplicationManager = roleApplicationIdentifiers.every(applicationId => userApplicationIdentifiers.includes(applicationId));
+        if (isApplicationManager) {
+            return true;
+        }
+    }
     //One the userRoles must have the same manageId as the role
     const userRole = user.userRoles.find(userRole => userRole.role.id === role.id);
     return !isEmpty(userRole) && AUTHORITIES_HIERARCHY[userRole.authority] <= AUTHORITIES_HIERARCHY[AUTHORITIES.MANAGER];

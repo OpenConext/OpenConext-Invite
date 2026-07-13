@@ -663,6 +663,24 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void deleteRoleByApplicationManager() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", APPLICATION_MANAGER_SUB);
+
+        Role role = roleRepository.search("storage", 1).get(0);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", role.getId())
+                .delete("/api/v1/roles/{id}")
+                .then()
+                .statusCode(403);
+        assertEquals(1, roleRepository.search("storage", 1).size());
+    }
+
+    @Test
     void roleByIdForbidden() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());

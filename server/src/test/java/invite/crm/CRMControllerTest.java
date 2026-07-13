@@ -1236,6 +1236,7 @@ class CRMControllerTest extends AbstractMailTest {
         role.setShortName("crm_role");
         role.setOrganisation(organisation);
         role.setIdentifier(UUID.randomUUID().toString());
+        role.setOrganizationGUID(UUID.randomUUID().toString());
         roleRepository.save(role);
         User user = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
         user.addUserRole(new UserRole(Authority.GUEST, role));

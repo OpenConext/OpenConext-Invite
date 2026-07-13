@@ -270,9 +270,9 @@ public class RoleController implements ApplicationResource {
         LOG.debug(String.format("Delete role %s by user %s", role.getName(), user.getEduPersonPrincipalName()));
 
         manage.addManageMetaData(List.of(role));
-        UserPermissions.assertApplicationManager(user, List.of(role));
+        boolean isApplicationManager = UserPermissions.assertApplicationManager(user, List.of(role));
 
-        if (!user.isSuperUser() &&
+        if (!user.isSuperUser() && !isApplicationManager &&
                 !Objects.equals(user.getOrganizationGUID(), role.getOrganizationGUID())) {
             throw new UserRestrictionException(String.format("Non super user %s not allowd to delete role %s",
                     user.getEmail(), role.getName()));

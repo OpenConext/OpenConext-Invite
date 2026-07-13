@@ -116,7 +116,7 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, user.getUserRoles().iterator().next().getRole(), Authority.INVITER));
     }
 
-    @Test()
+    @Test
     void assertRoleAccessManager() {
         String identifier = UUID.randomUUID().toString();
         User user = userWithRole(Authority.MANAGER, identifier);
@@ -180,8 +180,21 @@ class UserPermissionsTest extends WithApplicationTest {
 
         User appManager = new User();
         Application application = applicationUsages.iterator().next().getApplication();
+        application.setId(1L);
         appManager.getUserApplications().add(new UserApplication(user, application));
-        UserPermissions.assertApplicationManager(user, List.of(appManagerRole));
+        UserPermissions.assertApplicationManager(appManager, List.of(appManagerRole));
+
+        Set<ApplicationUsage> notOwnerApplicationUsages = application(UUID.randomUUID().toString(), EntityType.OIDC10_RP);
+        Role notOwnedRole = new Role("role", "description", notOwnerApplicationUsages, 365, false, false);
+        Application notOwnedApplication = notOwnerApplicationUsages.iterator().next().getApplication();
+        notOwnedApplication.setId(99L);
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(appManager, List.of(appManagerRole, notOwnedRole)));
+
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User()));
+
+        User institutionAdmin = new User();
+        institutionAdmin.setInstitutionAdmin(true);
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(institutionAdmin, List.of(appManagerRole)));
     }
 
     @Test
@@ -207,6 +220,7 @@ class UserPermissionsTest extends WithApplicationTest {
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(null, null));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User(), null));
         assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(new User(), emptyList()));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertApplicationManager(null));
     }
 
     private User userWithRole(Authority authority, String manageIdentifier) {

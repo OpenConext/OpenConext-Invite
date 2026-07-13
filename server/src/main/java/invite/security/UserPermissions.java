@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserPermissions {
+
     private static final Log LOG = LogFactory.getLog(UserPermissions.class);
 
     private UserPermissions() {
@@ -56,12 +57,12 @@ public class UserPermissions {
                 String.format("User %s is not a super user, institution admin or application manager", user.getEmail()));
     }
 
-    public static void assertApplicationManager(User user, List<Role> roles) {
+    public static boolean assertApplicationManager(User user, List<Role> roles) {
         if (user == null) {
             throw new UserRestrictionException("User is NULL");
         }
         if (user.isSuperUser()) {
-            return;
+            return false;
         }
         if (CollectionUtils.isEmpty(roles)) {
             throw new UserRestrictionException("Roles are empty");
@@ -71,7 +72,7 @@ public class UserPermissions {
                 throw new UserRestrictionException(String.format("User %s is institutionAdmin, but has no organizationGUID", user.getEmail()));
             }
             if (roles.stream().allMatch(role -> Objects.equals(role.getOrganizationGUID(), user.getOrganizationGUID()))) {
-                return;
+                return false;
             }
             throw new UserRestrictionException(String.format("User %s is institutionAdmin of %s, but does not own all roles %s",
                     user.getEmail(),
@@ -90,6 +91,7 @@ public class UserPermissions {
             throw new UserRestrictionException(
                     String.format("User %s does not own all Applications for the requested roles", user.getEmail()));
         }
+        return true;
     }
 
     public static void assertAuthority(User user, Authority authority) {

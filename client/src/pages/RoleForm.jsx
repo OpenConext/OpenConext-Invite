@@ -110,6 +110,11 @@ export const RoleForm = () => {
                     newProviders = providersToOptions(distinctValues(user.applications.concat(
                         user.userRoles.map(userRole => userRole.role.applicationMaps).flat()
                     ), "id"), I18n.locale);
+                } else if (!isEmpty(user.userApplications)) {
+                    const applicationMaps = user.userApplications.map(userApplication => userApplication.applicationMap);
+                    newProviders = providersToOptions(distinctValues(applicationMaps.concat(
+                        user.userRoles.map(userRole => userRole.role.applicationMaps).flat()
+                    ), "id"), I18n.locale);
                 } else {
                     newProviders = providersToOptions(distinctValues(user.userRoles
                         .map(userRole => userRole.role.applicationMaps).flat(), "id"), I18n.locale);
