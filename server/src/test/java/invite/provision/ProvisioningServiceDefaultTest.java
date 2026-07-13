@@ -92,7 +92,8 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
         ServeEvent event = getAllServeEvents().stream().filter(e -> e.getRequest().getUrl().equals("/api/scim/v2/Users")).toList().getFirst();
         Map<String, Object> userRequest = objectMapper.readValue(event.getRequest().getBodyAsString(), new TypeReference<>() {
         });
-        assertEquals(internalPlaceholderIdentifier, userRequest.get("id"));
+        assertEquals(internalPlaceholderIdentifier, userRequest.get("externalId"));
+        assertNull(userRequest.get("id"));
 
         RemoteProvisionedUser remoteProvisionedUser = remoteProvisionedUserRepository.findByRemoteScimIdentifier(remoteScimIdentifier).get();
         assertEquals(remoteScimIdentifier, remoteProvisionedUser.getRemoteIdentifier());

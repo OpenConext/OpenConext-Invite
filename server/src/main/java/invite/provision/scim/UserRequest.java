@@ -47,7 +47,7 @@ public class UserRequest implements Serializable {
         //Add a default phone number for remote systems that require that
         this.phoneNumbers = Collections.singletonList(new PhoneNumber("+31600000000"));
         if (StringUtils.hasText(user.getInternalPlaceholderIdentifier())) {
-            this.id = user.getInternalPlaceholderIdentifier();
+            this.externalId = user.getInternalPlaceholderIdentifier();
         }
     }
 
