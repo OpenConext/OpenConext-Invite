@@ -50,6 +50,7 @@ class RoleControllerTest extends AbstractTest {
                 true,
                 "ad93daef-0911-e511-80d0-005056956c1a",
                 "From me",
+                null,
                 application("1", EntityType.SAML20_SP));
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
@@ -84,6 +85,7 @@ class RoleControllerTest extends AbstractTest {
                 true,
                 null,
                 "From me",
+                null,
                 application("1", EntityType.SAML20_SP));
 
         given()
@@ -105,9 +107,18 @@ class RoleControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
 
         Instant defaultExpiryDate = Instant.now().plus(365, ChronoUnit.DAYS);
-        RoleRequest roleRequest = new RoleRequest("New", "New desc", null, defaultExpiryDate,
-                false, false, true,
-                UUID.randomUUID().toString(), "From me", application("1", EntityType.SAML20_SP));
+        RoleRequest roleRequest = new RoleRequest(
+                "New",
+                "New desc",
+                null,
+                defaultExpiryDate,
+                false,
+                false,
+                true,
+                UUID.randomUUID().toString(),
+                "From me",
+                "https://eduid.nl/trust/linked-institution",
+                application("1", EntityType.SAML20_SP));
 
         super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1"));
         super.stubForManageProvisioning(List.of("1"));
@@ -125,6 +136,7 @@ class RoleControllerTest extends AbstractTest {
         assertNotNull(result.get("id"));
         Role roleFromDB = roleRepository.findById(Long.valueOf((Integer) result.get("id"))).get();
         assertEquals(ORGANISATION_GUID, roleFromDB.getOrganizationGUID());
+        assertEquals("https://eduid.nl/trust/linked-institution", roleFromDB.getRequestedAuthnContext());
         assertEquals(roleRequest.getDefaultExpiryDate().truncatedTo(ChronoUnit.DAYS),
                 roleFromDB.getDefaultExpiryDate().truncatedTo(ChronoUnit.DAYS));
     }
@@ -134,9 +146,18 @@ class RoleControllerTest extends AbstractTest {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
-        RoleRequest roleRequest = new RoleRequest("New", "New desc", 365, null,
-                false, false, true,
-                "ad93daef-0911-e511-80d0-005056956c1a", "From me", Set.of());
+        RoleRequest roleRequest = new RoleRequest(
+                "New",
+                "New desc",
+                365,
+                null,
+                false,
+                false,
+                true,
+                "ad93daef-0911-e511-80d0-005056956c1a",
+                "From me",
+                null,
+                Set.of());
 
 
         given()
@@ -158,9 +179,18 @@ class RoleControllerTest extends AbstractTest {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
         Set<ApplicationUsage> applicationUsages = application("1", EntityType.SAML20_SP);
         applicationUsages.iterator().next().setLandingPage("nope");
-        RoleRequest roleRequest = new RoleRequest("New", "New desc", 365, null,
-                false, false, true,
-                "ad93daef-0911-e511-80d0-005056956c1a", "From me", applicationUsages);
+        RoleRequest roleRequest = new RoleRequest(
+                "New",
+                "New desc",
+                365,
+                null,
+                false,
+                false,
+                true,
+                "ad93daef-0911-e511-80d0-005056956c1a",
+                "From me",
+                null,
+                applicationUsages);
 
         given()
                 .when()
@@ -820,6 +850,7 @@ class RoleControllerTest extends AbstractTest {
                 false,
                 false,
                 "ad93daef-0911-e511-80d0-005056956c1a",
+                null,
                 null,
                 application("1", EntityType.SAML20_SP)
         );
