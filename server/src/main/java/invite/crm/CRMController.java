@@ -288,8 +288,11 @@ public class CRMController {
                                         ),
                                         user.getUserRoles().stream()
                                                 .map(userRole -> userRole.getRole())
-                                                .filter(r -> StringUtils.hasText(r.getCrmRoleId()))
-                                                .map(r -> new Authorisation(r.getCrmRoleAbbrevation(), r.getCrmRoleName()))
+                                                .filter(role -> StringUtils.hasText(role.getCrmRoleId()))
+                                                .map(role -> new Authorisation(
+                                                        role.getCrmRoleAbbrevation(),
+                                                        role.getCrmRoleName(),
+                                                        role.getCrmRoleId()))
                                                 .toList()
                                 )).toList());
         if (LOG.isDebugEnabled()) {

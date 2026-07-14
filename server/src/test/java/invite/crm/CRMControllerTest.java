@@ -725,6 +725,7 @@ class CRMControllerTest extends AbstractMailTest {
         Authorisation authorisation = profile.authorisations().getFirst();
         assertEquals("SUPER_ADMIN", authorisation.abbbrevation());
         assertEquals(SUPER_ADMIN_NAME, authorisation.role());
+        assertNotNull(authorisation.roleId());
     }
 
     @Test
