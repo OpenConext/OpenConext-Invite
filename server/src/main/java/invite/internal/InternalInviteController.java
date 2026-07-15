@@ -38,6 +38,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
@@ -401,6 +402,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                     )})})})
     public ResponseEntity<InvitationResponse> newInvitation(@Validated @RequestBody InvitationRequest invitationRequest,
                                                             @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        LOG.debug(String.format("newInvitation by %s for user: %s", remoteUser.getName(), String.join(", ", invitationRequest.getInvites())));
         return this.invitationOperations.sendInvitation(invitationRequest, null, remoteUser);
     }
 
@@ -409,6 +411,8 @@ public class InternalInviteController implements ApplicationResource, Invitation
     @Hidden
     public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
                                                                  @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        LOG.debug(String.format("resendInvitation by %s", remoteUser.getName()));
+
         return this.invitationOperations.resendInvitation(id, null, remoteUser);
     }
 
@@ -418,6 +422,8 @@ public class InternalInviteController implements ApplicationResource, Invitation
     @Hidden
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
                                                  @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        LOG.debug(String.format("UserRoles byRole by %s", remoteUser.getName()));
+
         return this.userRoleOperations.userRolesByRole(roleId,
                 role -> RemoteUserPermissions.assertApplicationAccess(remoteUser, role));
     }

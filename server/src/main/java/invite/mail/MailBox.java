@@ -17,6 +17,8 @@ import invite.model.UserRole;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.SneakyThrows;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -35,6 +37,8 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class MailBox {
+
+    private static final Log LOG = LogFactory.getLog(MailBox.class);
 
     private final JavaMailSender mailSender;
     private final String clientUrl;
@@ -133,8 +137,15 @@ public class MailBox {
         }
         images.put("logoSurfBlack", "templates/logo-surf-black.png");
 
+        String cause;
+        if (provisionable instanceof User user) {
+            cause = user.getSub();
+        } else {
+            cause = provisionable.getName();
+        }
         sendMail(String.format("invitation_%s", language.name()),
                 title,
+                cause,
                 variables,
                 images,
                 invitation.getEmail());
@@ -184,6 +195,7 @@ public class MailBox {
         }
         return sendMail(String.format("role_expiration_%s", lang),
                 title,
+                "RoleExpirationNotifier",
                 variables,
                 Collections.emptyMap(),
                 userRole.getUser().getEmail());
@@ -193,7 +205,12 @@ public class MailBox {
         return LocaleContextHolder.getLocale().getLanguage();
     }
 
-    private String sendMail(String templateName, String subject, Map<String, Object> variables, Map<String, String> images, String... to) throws MessagingException, IOException {
+    private String sendMail(String templateName,
+                            String subject,
+                            String cause,
+                            Map<String, Object> variables,
+                            Map<String, String> images,
+                            String... to) throws MessagingException, IOException {
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
 
@@ -205,6 +222,13 @@ public class MailBox {
         helper.setFrom(emailFrom);
 
         addInlineImages(helper, images);
+        message.saveChanges();
+
+        LOG.info(String.format("Sending email %s to %s by user %s with ID %s",
+                subject,
+                String.join(", ", to),
+                cause,
+                message.getMessageID()));
 
         doSendMail(message);
         return htmlText;
