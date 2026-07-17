@@ -100,7 +100,7 @@ jobs:
 
       - name: Build Changelog
         id: changelog
-        uses: ardalanamini/auto-changelog@v4
+        uses: ardalanamini/auto-changelog@v5
         with:
           default-commit-type: New Features
           github-token: ${{ github.token }}
