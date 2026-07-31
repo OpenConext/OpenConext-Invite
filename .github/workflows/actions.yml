@@ -47,7 +47,7 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
       - name: Set up MySQL
-        uses: shogo82148/actions-setup-mysql@v1
+        uses: shogo82148/actions-setup-mysql@v1.52.1
         with:
           distribution: "mariadb"
           mysql-version: "10.6"
