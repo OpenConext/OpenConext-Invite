@@ -11,7 +11,7 @@ Providers te sturen.
 |   |   |
 |---|---|
 | Service Provider | Een applicatie bij de instelling, waar een gast-gebruiker toegang moet krijgen |
-| SCIM client  | De applicatie die de gebruikersinformatie naar de Serice Providers stuurt; De Invite-applicatie backend |
+| SCIM client  | De applicatie die de gebruikersinformatie naar de Service Providers stuurt; De Invite-applicatie backend |
 
 ## Authenticatie
 
@@ -26,7 +26,7 @@ De invite-applicatie ondersteunt op dit moment de volgende authenticatiemethoden
   De client stuurt een `Authorization: Bearer ...` header met een vooraf
   verstrekt token.
 
-## Akties
+## Acties
 
 De endpoints bij de instellingen ondersteunen de volgende operaties:
 
@@ -51,9 +51,9 @@ in het SCIM protocol de inlognaam voor de gebruiker als deze bij de Service
 Provider in gaat loggen.
 
 Voor de gebruikers die via de invite-applicatie beheerd worden, gebruiken we de
-eduPersonPrincipalName (eppn) of het eduID pseudoniem voor de indentifiers,
+eduPersonPrincipalName (eppn) of het eduID pseudoniem voor de identifiers,
 zodat ze ook bij een SAML of oidc authenticatie herkend kunnen worden. Voor
-gestgebruik met eduID heeft
+gastgebruik met eduID heeft
 [de eduID identifier](https://servicedesk.surf.nl/wiki/spaces/IAM/pages/128910006/Attributes+in+SURFconext#AttributesinSURFconext-eduIDeduID)
 de voorkeur.
 
@@ -202,7 +202,7 @@ Location: https://example.com/v1/Users/{UserID at SP}
 ### Verwijder gebruiker
 
 Gebruikers worden na het verlopen van hun laatste rol bij een applicatie
-verwijderd uit SURConext Invite, en ook bij alle service providers waar de
+verwijderd uit SURFconext Invite, en ook bij alle service providers waar de
 gebruiker is aangemaakt.
 
 #### Request
