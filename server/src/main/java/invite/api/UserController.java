@@ -125,11 +125,24 @@ public class UserController {
 
     @GetMapping("institutionAdmins")
     @Transactional(readOnly = true)
-    public ResponseEntity<List<Map<String, String>>> institutionAdmins(@Parameter(hidden = true) User user) {
+    public ResponseEntity<List<Map<String, Object>>> institutionAdmins(@Parameter(hidden = true) User user,
+                                                                       @RequestParam(value = "includeMe", required = false, defaultValue = "false") boolean includeMe) {
         LOG.debug(String.format("/institutionAdmins for user %s", user.getEduPersonPrincipalName()));
 
         UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
-        List<Map<String, String>> users = userRepository.findInstitutionAdminsPerOrganizationGUID(user.getId(), user.getOrganizationGUID());
+        Long id = includeMe ? -1L : user.getId();
+        List<Map<String, Object>> users = userRepository.findInstitutionAdminsPerOrganizationGUID(id, user.getOrganizationGUID());
+
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("applicationManagers")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> applicationManagers(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/applicationManagers for user %s", user.getEduPersonPrincipalName()));
+
+        UserPermissions.assertAuthority(user, Authority.INSTITUTION_ADMIN);
+        List<Map<String, Object>> users = userRepository.findApplicationManagersPerOrganizationGUID(user.getOrganizationGUID());
 
         return ResponseEntity.ok(users);
     }
@@ -268,8 +281,45 @@ public class UserController {
         UserPermissions.assertSuperUser(user);
 
         this.provisioningService.deleteUserRequest(user);
+
         userRepository.delete(other);
         return Results.deleteResult();
+    }
+
+    @PutMapping("/removeInstitutionAdmin/{userId}")
+    public ResponseEntity<Map<String, Integer>> removeInstitutionAdmin(@PathVariable("userId") Long userId, @Parameter(hidden = true) User user) {
+        User other = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        LOG.debug(String.format("removeInstitutionAdmin for user %s by %s",
+                other.getEduPersonPrincipalName(), user.getEduPersonPrincipalName()));
+        UserPermissions.assertInstitutionAdmin(user);
+        if (!other.isInstitutionAdminByInvite()) {
+            throw new UserRestrictionException("Not allowed to removeInstitutionAdmin that are not invited");
+        }
+        if (!Objects.equals(user.getOrganizationGUID(), other.getOrganizationGUID())) {
+            throw new UserRestrictionException("Not allowed to removeInstitutionAdmin from different institution");
+        }
+        other.setInstitutionAdmin(false);
+        other.setOrganizationGUID(null);
+        other.setInstitutionAdminByInvite(false);
+
+        userRepository.save(other);
+        return Results.okResult();
+    }
+
+    @PutMapping("/removeApplicationManager/{userId}")
+    public ResponseEntity<Map<String, Integer>> removeApplicationManager(@PathVariable("userId") Long userId,
+                                                                         @Parameter(hidden = true) User user) {
+        User other = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        LOG.debug(String.format("removeApplicationManager for user %s by %s",
+                other.getEduPersonPrincipalName(), user.getEduPersonPrincipalName()));
+        UserPermissions.assertInstitutionAdmin(user);
+
+        other.getUserApplications().clear();
+
+        userRepository.save(other);
+        return Results.okResult();
     }
 
     @GetMapping("/institution-admins/{roleId}")
@@ -280,7 +330,7 @@ public class UserController {
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));
 
-        User userFromDB = userRepository.getReferenceById(user.getId());
+        User userFromDB = userRepository.findById(user.getId()).orElseThrow(() -> new NotFoundException("User not found"));
         UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
 
         List<User> users = userRepository.findInstitutionAdminsPerRole(role.getId());

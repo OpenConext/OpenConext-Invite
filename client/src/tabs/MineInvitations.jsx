@@ -62,7 +62,7 @@ export const MineInvitations = () => {
         {
             key: "created_at",
             header: I18n.t("invitations.createdAt"),
-            mapper: invitation => shortDateFromEpoch(invitation.createdAt, false)
+            mapper: invitation => shortDateFromEpoch(invitation.createdAt, true)
         },
         {
             key: "expiry_date",

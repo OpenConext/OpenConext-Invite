@@ -61,7 +61,7 @@ export const Home = () => {
                   label={I18n.t("tabs.invitations")}>
                 <MineInvitations/>
             </Page> : null,
-        (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) ?
+        (user && user.superUser) ?
             <Page key="tokens"
                   name="tokens"
                   label={I18n.t("tabs.tokens")}>

@@ -248,7 +248,7 @@ export const InvitationForm = () => {
         const res = required.every(attr => !isEmpty(invitation[attr])) &&
             (!isEmpty(selectedRoles) || invitationIsForAdmin || invitation.intendedAuthority === AUTHORITIES.APPLICATION_MANAGER) &&
             !(invitation.intendedAuthority === AUTHORITIES.INSTITUTION_ADMIN && isEmpty(invitation.organizationGUID)) &&
-            (!isEmpty(selectedApplications) || invitation.intendedAuthority !== AUTHORITIES.INSTITUTION_ADMIN);
+            (!isEmpty(selectedApplications) || invitation.intendedAuthority !== AUTHORITIES.APPLICATION_MANAGER);
         return res;
     }
 
@@ -343,20 +343,23 @@ export const InvitationForm = () => {
 
 
     const authorityChanged = option => {
+        const applicationManagerAuthority = option.value === AUTHORITIES.APPLICATION_MANAGER;
+        const adminAuthority = option.value === AUTHORITIES.SUPER_USER || option.value === AUTHORITIES.INSTITUTION_ADMIN;
         setInvitation({
             ...invitation,
             intendedAuthority: option.value,
+            eduIDOnly: applicationManagerAuthority || adminAuthority ? false : invitation.eduIDOnly,
             roleExpiryDate: defaultRoleExpiryDate(selectedRoles),
             organizationGUID: option.value !== AUTHORITIES.INSTITUTION_ADMIN ? null :
                 (user.institutionAdmin ? user.organizationGUID : null)
         });
-        if (option.value === AUTHORITIES.SUPER_USER || option.value === AUTHORITIES.INSTITUTION_ADMIN) {
+        if (adminAuthority) {
             setSelectedRoles([]);
         }
         if (option.value !== AUTHORITIES.INSTITUTION_ADMIN) {
             setOrganizationGUIDIdentityProvider({});
         }
-        if (option.value === AUTHORITIES.APPLICATION_MANAGER) {
+        if (applicationManagerAuthority) {
             setSelectedRoles([]);
             setOrganizationGUIDIdentityProvider({});
         }

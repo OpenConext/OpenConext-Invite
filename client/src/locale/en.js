@@ -40,7 +40,8 @@ const en = {
             profile: "Profile",
             tokens: "Tokens",
             logout: "Log out",
-            audit: "Role history"
+            audit: "Role history",
+            colleagues: "Institution roles"
         },
     },
     tabs: {
@@ -135,6 +136,8 @@ const en = {
         deleteConfirmation: "Are you absolutely sure you want to delete user {{name}}? There is no undo button.",
         institutionAdmins: "Your fellow Institution administrators are:",
         onlyInstitutionAdmins: "You are the only Institution admin within your organisation",
+        removeInstitutionAdminConfirmation: "Are you sure you want to remove the institution admin rights from {{userName}}",
+        removeInstitutionAdminFlash: "Institution rights are removed from {{userName}}"
     },
     role: {
         copyUrn: "Copy urn",
@@ -591,6 +594,10 @@ const en = {
         searchPlaceHolder: "Search for role history",
         title: "The audittrail of Roles",
         rolePlaceHolder: "Filter by role",
+    },
+    institutionAdmins: {
+        title: "Institution administrators and application managers",
+        searchPlaceHolder: "Search..."
     }
 }
 

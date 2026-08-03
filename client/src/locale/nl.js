@@ -40,7 +40,8 @@ const nl = {
             profile: "Profiel",
             tokens: "Tokens",
             logout: "Uitloggen",
-            audit: "Rol historie"
+            audit: "Rol historie",
+            colleagues: "Instellingsrollen"
         },
     },
     tabs: {
@@ -134,7 +135,10 @@ const nl = {
         deleteFlash: "Gebruiker {{name}} is verwijderd",
         deleteConfirmation: "Weet je heel zeker dat je gebruiker {{name}} wilt verwijderen? Er is geen undo functionaliteit.",
         institutionAdmins: "Je collega-instellingsbeheerders zijn:",
-        onlyInstitutionAdmins: "Je bent de enige instellingsbeheerder binnen je organisatie",    },
+        onlyInstitutionAdmins: "Je bent de enige instellingsbeheerder binnen je organisatie",
+        removeInstitutionAdminConfirmation: "Weet je zeker dat je de beheerdersrechten voor de instelling wilt intrekken bij {{userName}}?",
+        removeInstitutionAdminFlash: "De beheerdersrechten voor de instelling zijn ingetrokken bij {{userName}}",
+    },
     role: {
         copyUrn: "Copy urn",
         userInfo: "{{nbr}} leden & verloopt {{period}}",
@@ -591,8 +595,11 @@ const nl = {
         searchPlaceHolder: "Zoeken naar rolgeschiedenis",
         title: "Het auditspoor van rollen",
         rolePlaceHolder: "Filteren op rol",
+    },
+    institutionAdmins: {
+        title: "Beheerders van de instelling",
+        searchPlaceHolder: "Zoeken..."
     }
-
 }
 
 export default nl;

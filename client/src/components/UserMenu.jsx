@@ -33,7 +33,8 @@ export const UserMenu = ({user, actions}) => {
 
     const renderMenu = adminLinks => {
         const authority = highestAuthority(user);
-        const apiTokenLink = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER || authority === AUTHORITIES.APPLICATION_MANAGER;
+        const apiTokenLink = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER ||
+            authority === AUTHORITIES.APPLICATION_MANAGER || authority === AUTHORITIES.INSTITUTION_ADMIN;
         return (<>
                 <ul>
                     {user.superUser && adminLinks.map(l =>
@@ -42,6 +43,9 @@ export const UserMenu = ({user, actions}) => {
                         </li>)}
                     {apiTokenLink && <li>
                         <Link onClick={toggleUserMenu} to={`/tokens`}>{I18n.t(`header.links.tokens`)}</Link>
+                    </li>}
+                    {(!user.superUser && user.institutionAdmin && user.organizationGUID) && <li>
+                        <Link onClick={toggleUserMenu} to={`/institution-admins`}>{I18n.t(`header.links.colleagues`)}</Link>
                     </li>}
                     {(user.superUser || (user.institutionAdmin && user.organizationGUID)) && <li>
                         <Link onClick={toggleUserMenu} to={`/audit`}>{I18n.t(`header.links.audit`)}</Link>

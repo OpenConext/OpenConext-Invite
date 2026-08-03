@@ -139,11 +139,42 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryRewriter
     List<User> findInstitutionAdminsPerRole(Long roleId);
 
     @Query(value = """
-            SELECT u.name, u.email FROM users u
+            SELECT
+                u.id,
+                u.name,
+                u.email,
+                u.last_activity AS lastActivity,
+                u.created_at AS createdAt,
+                u.schac_home_organization,
+                x.roles
+            FROM users u
+            INNER JOIN (
+                SELECT
+                    ua.user_id,
+                    GROUP_CONCAT(DISTINCT r.name ORDER BY r.name SEPARATOR ', ') AS roles
+                FROM user_applications ua
+                INNER JOIN application_usages au ON au.application_id = ua.application_id
+                INNER JOIN roles r ON r.id = au.role_id
+                WHERE r.organization_guid = ?1
+                GROUP BY ua.user_id
+            ) x ON x.user_id = u.id;
+            """,
+            nativeQuery = true)
+    List<Map<String, Object>> findApplicationManagersPerOrganizationGUID(String organizationGUID);
+
+    @Query(value = """
+            SELECT u.id,
+                    u.name,
+                    u.email,
+                    u.last_activity as lastActivity,
+                    u.created_at as createdAt,
+                    u.schac_home_organization,
+                    u.institution_admin,
+                    u.institution_admin_by_invite FROM users u
                     WHERE u.id <> ?1 AND u.organization_guid = ?2 AND u.institution_admin = 1
             """,
             nativeQuery = true)
-    List<Map<String, String>> findInstitutionAdminsPerOrganizationGUID(Long id, String organizationGUID);
+    List<Map<String, Object>> findInstitutionAdminsPerOrganizationGUID(Long id, String organizationGUID);
 
     @Override
     default String rewrite(String query, Sort sort) {

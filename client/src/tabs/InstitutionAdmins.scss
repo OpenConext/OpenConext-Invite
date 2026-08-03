@@ -1,0 +1,64 @@
+table.institutionAdmins {
+
+    thead {
+        th {
+            &.icon {
+                width: 25px;
+            }
+
+            &.name {
+                width: 25%;
+            }
+
+            &.authority {
+                width: 16%;
+                text-align: center;
+            }
+
+            &.schac_home_organization {
+                width: 14%;
+            }
+
+            &.createdAt {
+                width: 14%;
+            }
+
+            &.lastActivity {
+                width: 14%;
+            }
+
+            &.roles {
+                width: 16%;
+            }
+
+            &.actions {
+                width: 60px;
+            }
+        }
+    }
+
+    tbody {
+        td.authority {
+            text-align: center;
+        }
+
+        td.actions {
+            text-align: center;
+
+            svg {
+                cursor: pointer;
+            }
+        }
+
+        td.roles {
+            ul {
+                list-style: disc;
+
+                li {
+                    margin-left: 20px;
+                }
+            }
+        }
+
+    }
+}

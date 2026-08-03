@@ -99,8 +99,21 @@ export function institutionAdminsbyRole(roleId) {
     return fetchJson(`/api/v1/users/institution-admins/${roleId}`, {}, {}, false);
 }
 
-export function institutionAdmins() {
-    return fetchJson("/api/v1/users/institutionAdmins", {}, {}, false);
+export function applicationManagers() {
+    return fetchJson("/api/v1/users/applicationManagers", {}, {}, false);
+}
+
+export function institutionAdmins(includeMe=false) {
+    const queryPart = includeMe ? "?includeMe=true" : ""
+    return fetchJson(`/api/v1/users/institutionAdmins${queryPart}`, {}, {}, false);
+}
+
+export function removeInstitutionAdmin(user) {
+    return postPutJson(`/api/v1/users/removeInstitutionAdmin/${user.id}`, {}, "PUT", false);
+}
+
+export function removeApplicationManager(user) {
+    return postPutJson(`/api/v1/users/removeApplicationManager/${user.id}`, {}, "PUT", false);
 }
 
 export function searchUsers(pagination = {}) {

@@ -29,6 +29,7 @@ import {flushSync} from "react-dom";
 import {UserTokens} from "./UserTokens";
 import {Busy} from "./Busy";
 import {UserRoleAudits} from "../tabs/UserRoleAudits";
+import {InstitutionAdmins} from "../tabs/InstitutionAdmins";
 
 
 export const App = () => {
@@ -121,6 +122,7 @@ export const App = () => {
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={true}/>}/>
                         <Route path="login" element={<Login/>}/>
+                        <Route path="institution-admins" element={<InstitutionAdmins/>}/>
                         <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
                         {(user && user.superUser) &&
                             <Route path="system/:tab?" element={<System/>}/>

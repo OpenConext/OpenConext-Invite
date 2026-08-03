@@ -198,6 +198,33 @@ class UserPermissionsTest extends WithApplicationTest {
     }
 
     @Test
+    void assertValidApplicationManagerInvitation() {
+        Application application = new Application("manageIdentifier", EntityType.SAML20_SP);
+        List<Application> applications = List.of(application);
+
+        //Not an application manager invitation, so no checks are done at all, even with a null user
+        UserPermissions.assertValidApplicationManagerInvitation(null, Authority.MANAGER, applications);
+
+        //Null user with an application manager invitation
+        assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidApplicationManagerInvitation(null, Authority.APPLICATION_MANAGER, applications));
+
+        //Super user is always allowed
+        User superUser = new User(true, Map.of());
+        UserPermissions.assertValidApplicationManagerInvitation(superUser, Authority.APPLICATION_MANAGER, applications);
+
+        //Institution admin is allowed
+        User institutionAdmin = new User();
+        institutionAdmin.setInstitutionAdmin(true);
+        UserPermissions.assertValidApplicationManagerInvitation(institutionAdmin, Authority.APPLICATION_MANAGER, applications);
+
+        //Regular user is not allowed
+        User user = new User();
+        assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidApplicationManagerInvitation(user, Authority.APPLICATION_MANAGER, applications));
+    }
+
+    @Test
     void assertRoleAccessApplicationManager() {
         Set<ApplicationUsage> applicationUsages = application(UUID.randomUUID().toString(), EntityType.SAML20_SP);
         Role role = new Role("role", "description", applicationUsages, 365, false, false);

@@ -470,6 +470,188 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void institutionAdminsIncludeMe() throws Exception {
+        userRepository.findAll().forEach(user ->{
+            user.setOrganizationGUID(ORGANISATION_GUID);
+            user.setInstitutionAdmin(true);
+            userRepository.save(user);
+        });
+        userRepository.flush();
+
+        //Institution admin is enriched with Manage information
+        super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        List<Map<String, String>> admins = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("includeMe", true)
+                .get("/api/v1/users/institutionAdmins")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(8, admins.size());
+    }
+
+    @Test
+    void institutionAdminsForbidden() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/institutionAdmins")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void removeApplicationManager() throws Exception {
+        User applicationManager = userRepository.findBySubIgnoreCase(APPLICATION_MANAGER_SUB).get();
+        assertFalse(applicationManager.getUserApplications().isEmpty());
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", applicationManager.getId())
+                .put("/api/v1/users/removeApplicationManager/{userId}")
+                .then()
+                .statusCode(200);
+
+        User updated = userRepository.findById(applicationManager.getId()).get();
+        assertTrue(updated.getUserApplications().isEmpty());
+    }
+
+    @Test
+    void removeApplicationManagerForbidden() throws Exception {
+        User applicationManager = userRepository.findBySubIgnoreCase(APPLICATION_MANAGER_SUB).get();
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", applicationManager.getId())
+                .put("/api/v1/users/removeApplicationManager/{userId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void removeApplicationManagerNotFound() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", 999999L)
+                .put("/api/v1/users/removeApplicationManager/{userId}")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void removeInstitutionAdmin() throws Exception {
+        User other = userRepository.findBySubIgnoreCase(INVITER_SUB).get();
+        other.setInstitutionAdmin(true);
+        other.setInstitutionAdminByInvite(true);
+        other.setOrganizationGUID(ORGANISATION_GUID);
+        userRepository.save(other);
+        userRepository.flush();
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", other.getId())
+                .put("/api/v1/users/removeInstitutionAdmin/{userId}")
+                .then()
+                .statusCode(200);
+
+        User updated = userRepository.findById(other.getId()).get();
+        assertFalse(updated.isInstitutionAdmin());
+        assertFalse(updated.isInstitutionAdminByInvite());
+        assertNull(updated.getOrganizationGUID());
+    }
+
+    @Test
+    void removeInstitutionAdminNotInvited() throws Exception {
+        User other = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", other.getId())
+                .put("/api/v1/users/removeInstitutionAdmin/{userId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void removeInstitutionAdminDifferentInstitution() throws Exception {
+        User other = userRepository.findBySubIgnoreCase(INVITER_SUB).get();
+        other.setInstitutionAdmin(true);
+        other.setInstitutionAdminByInvite(true);
+        other.setOrganizationGUID(UUID.randomUUID().toString());
+        userRepository.save(other);
+        userRepository.flush();
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", other.getId())
+                .put("/api/v1/users/removeInstitutionAdmin/{userId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void removeInstitutionAdminForbiddenCaller() throws Exception {
+        User other = userRepository.findBySubIgnoreCase(INSTITUTION_ADMIN_SUB).get();
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParam("userId", other.getId())
+                .put("/api/v1/users/removeInstitutionAdmin/{userId}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
     void searchByApplicationStrictMode() throws Exception {
         //Institution admin is enriched with Manage information
         super.stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
@@ -625,6 +807,28 @@ class UserControllerTest extends AbstractTest {
         User user = users.getFirst();
         assertTrue(user.isInstitutionAdmin());
         assertEquals(user.getOrganizationGUID(), role.getOrganizationGUID());
+    }
+
+    @Test
+    void institutionAdminsbyRoleWhenCallerIsIncludedInResult() throws Exception {
+        //The institution admin is a member of the same organization as the role and therefore
+        //shows up in its own result-list. This used to trigger a Hibernate proxy / Jackson
+        //serialization error because the caller was first loaded with getReferenceById.
+        Role role = roleRepository.findByName("Wiki").get();
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        List<User> users = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("roleId", role.getId())
+                .get("/api/v1/users/institution-admins/{roleId}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, users.size());
+        assertEquals(INSTITUTION_ADMIN_SUB, users.getFirst().getEduPersonPrincipalName());
     }
 
     @Test
