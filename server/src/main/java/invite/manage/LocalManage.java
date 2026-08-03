@@ -28,6 +28,7 @@ public final class LocalManage implements Manage {
     private static final Log LOG = LogFactory.getLog(LocalManage.class);
 
     private final Map<EntityType, List<Map<String, Object>>> allProviders;
+
     private final DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();
 
     public LocalManage(ObjectMapper objectMapper) {
@@ -174,4 +175,31 @@ public final class LocalManage implements Manage {
                 .filter(provider -> Objects.equals(provider.get("institutionGuid"), organisationGUID))
                 .toList();
     }
+
+    @Override
+    public List<Map<String, Object>> policiesByServiceProviders(List<String> serviceProviderEntityIds) {
+        if (serviceProviderEntityIds.isEmpty()) {
+            return List.of();
+        }
+        return this.allProviders.get(EntityType.POLICY).stream()
+                .filter(policy -> {
+                    List<Map<String, String>> serviceProviderIds = (List<Map<String, String>>)
+                            getData(policy).getOrDefault("serviceProviderIds", List.of());
+                    return serviceProviderIds.stream()
+                            .anyMatch(m -> serviceProviderEntityIds.contains(m.get("name")));
+                })
+                .toList();
+    }
+
+    @Override
+    public Map<String, Object> updatePolicy(Map<String, Object> policy) {
+        return policy;
+    }
+
+
+    private Map<String, Object> getData(Map<String, Object> provider) {
+        return (Map<String, Object>) provider.get("data");
+    }
+
+
 }

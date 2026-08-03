@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "1",
+    "version": 0,
+    "type": "policy",
+    "revision": {
+      "number": 0,
+      "created": "2025-12-19T14:43:49.818+00:00",
+      "updatedBy": "urn:collab:person:example.com:admin"
+    },
+    "data": {
+      "metaDataFields": {},
+      "name": "Regular Test Policy",
+      "entityid": "Regular Test Policy",
+      "description": "A user from 'okke' is only allowed to access all connected Service Providers when he/she has the value 'test' for attribute 'urn:mace:dir:attribute-def:eduPersonAffiliation'",
+      "serviceProviderIds": [
+        {
+          "name": "https://network"
+        }
+      ],
+      "identityProviderIds": [
+        {
+          "name": "http://mock-idp"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "urn:mace:dir:attribute-def:eduPersonAffiliation",
+          "value": "test",
+          "groupID": 0,
+          "negated": false,
+          "index": 0
+        }
+      ],
+      "loas": [],
+      "denyAdvice": "Access Denied EN",
+      "denyRule": false,
+      "allAttributesMustMatch": false,
+      "userDisplayName": "",
+      "authenticatingAuthorityName": "",
+      "denyAdviceNl": "Access Denied NL",
+      "active": true,
+      "type": "reg",
+      "revisionnote": "test",
+      "policyId": "urn:surfconext:xacml:policy:id:regular_test_policy",
+      "eid": 88260
+    }
+  },
+  {
+    "_id": "29d9c813-441e-4cb7-adda-7a8b03d0b50f",
+    "version": 1,
+    "type": "policy",
+    "revision": {
+      "number": 1,
+      "created": "2026-01-20T15:00:50.287+00:00",
+      "updatedBy": "urn:collab:person:surfnet.nl:test"
+    },
+    "data": {
+      "metaDataFields": {},
+      "name": "Test",
+      "entityid": "Test",
+      "description": "A user is only allowed something",
+      "serviceProviderIds": [
+        {
+          "name": "https://wiki"
+        }
+      ],
+      "identityProviderIds": [],
+      "attributes": [
+        {
+          "name": "urn:mace:dir:attribute-def:isMemberOf",
+          "value": "test-team",
+          "groupID": 0,
+          "negated": false,
+          "index": 0
+        }
+      ],
+      "loas": [],
+      "denyAdvice": "en",
+      "denyRule": false,
+      "allAttributesMustMatch": false,
+      "userDisplayName": "",
+      "authenticatingAuthorityName": "",
+      "denyAdviceNl": "nl",
+      "active": true,
+      "type": "reg",
+      "revisionnote": "test",
+      "policyId": "urn:surfconext:xacml:policy:id:test",
+      "eid": 88263
+    }
+  }
+]

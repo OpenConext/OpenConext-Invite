@@ -9,6 +9,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 
 public class ResilientErrorHandler implements ResponseErrorHandler {
 
@@ -29,4 +30,9 @@ public class ResilientErrorHandler implements ResponseErrorHandler {
                 response.getStatusText(),
                 new String(response.getBody().readAllBytes())));
     }
+
+    protected static boolean ignoreError(Map<String, Object> errorMap) {
+        return errorMap.containsKey("validations") && ((String) errorMap.get("validations")).contains("No data is changed");
+    }
+
 }

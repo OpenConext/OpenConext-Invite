@@ -42,6 +42,10 @@ public interface Manage {
 
     List<Map<String, Object>> providersByInstitutionalGUID(List<String> organisationGUIDs);
 
+    Map<String, Object> updatePolicy(Map<String, Object> policy);
+
+    List<Map<String, Object>> policiesByServiceProviders(List<String> serviceProviderEntityIds);
+
     default List<Map<String, Object>> transformProvider(List<Map<String, Object>> providers) {
         //Defensive because of Manage misbehavior
         if (CollectionUtils.isEmpty(providers)) {

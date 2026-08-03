@@ -2,6 +2,10 @@ package invite.manage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -18,6 +22,9 @@ import static java.util.stream.Collectors.joining;
 public class RemoteManage implements Manage {
 
     private static final Log LOG = LogFactory.getLog(RemoteManage.class);
+
+    private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {
+    };
 
     private final String url;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -197,6 +204,34 @@ public class RemoteManage implements Manage {
             LOG.debug(String.format("Got %d results for identityProvidersByInstitutionalGUID", identityProviders.size()));
         }
         return transformProvider(identityProviders);
+    }
+
+    @Override
+    public List<Map<String, Object>> policiesByServiceProviders(List<String> serviceProviderEntityIds) {
+        if (serviceProviderEntityIds.isEmpty()) {
+            return List.of();
+        }
+        Map<String, Object> query = Map.of(
+                "data.serviceProviderIds.name", Map.of("$in", serviceProviderEntityIds)
+        );
+        String policyUrl = String.format("%s/manage/api/internal/rawSearch/%s", url, EntityType.POLICY.collectionName());
+        return restTemplate.postForEntity(policyUrl, query, List.class).getBody();
+    }
+
+    @Override
+    public Map<String, Object> updatePolicy(Map<String, Object> policy) {
+        String policyUrl = String.format("%s/manage/api/internal/metadata", url);
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(policyUrl, HttpMethod.PUT, new HttpEntity<>(policy), PARAMETERIZED_TYPE_REFERENCE);
+        return checkNoChangeResponse(responseEntity, policy);
+    }
+
+    private Map<String, Object> checkNoChangeResponse(ResponseEntity<Map<String, Object>> responseEntity, Map<String, Object> provider) {
+        Map<String, Object> body = responseEntity.getBody();
+        if (body == null || ResilientErrorHandler.ignoreError(body)) {
+            //See ResilientErrorHandler#handleError. Any no-data-changed error is thrown there
+            return provider;
+        }
+        return body;
     }
 
     private List<Map<String, Object>> getRemoteMetaData(String type) {
