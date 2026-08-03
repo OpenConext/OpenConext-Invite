@@ -1,7 +1,7 @@
 import React from 'react';
 import {App} from './pages/App';
 import ReactDOM from 'react-dom/client';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router";
 import "react-tooltip/dist/react-tooltip.css";
 //Always keep these two last
 import './index.scss';

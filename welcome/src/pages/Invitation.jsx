@@ -9,7 +9,7 @@ import DOMPurify from "dompurify";
 import {Button, Loader, Toaster, ToasterType} from "@surfnet/sds";
 import {getParameterByName} from "../utils/QueryParameters";
 import {DateTime} from "luxon";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";

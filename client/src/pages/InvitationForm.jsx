@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";

@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {fetchRoles, searchUserRoleAudits} from "../api";
 import {isEmpty} from "../utils/Utils";

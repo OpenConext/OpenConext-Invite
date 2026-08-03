@@ -7,7 +7,7 @@ import "./Users.scss";
 import {shortDateFromEpoch} from "../utils/Date";
 
 import {chipTypeForUserRole, invitationExpiry} from "../utils/Authority";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {deleteInvitation, resendInvitation, searchInvitations} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";

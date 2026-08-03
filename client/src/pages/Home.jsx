@@ -5,7 +5,7 @@ import Logo from "../icons/Owl_Emblem.svg";
 import Tabs from "../components/Tabs";
 import "./Home.scss";
 import {UnitHeader} from "../components/UnitHeader";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {Users} from "../tabs/Users";
 import {Page} from "../components/Page";
 import {Roles} from "../tabs/Roles";

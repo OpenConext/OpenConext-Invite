@@ -6,7 +6,7 @@ import HappyLogo from "../icons/landing/undraw_festivities_tvvj.svg?url";
 import {login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty} from "../utils/Utils";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 import {useEffect, useRef, useState} from "react";
 
 export const Login = () => {

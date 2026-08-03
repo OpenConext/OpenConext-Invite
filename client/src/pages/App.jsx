@@ -1,5 +1,5 @@
 import './App.scss';
-import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
+import {Navigate, Route, Routes, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
 import {Loader} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";

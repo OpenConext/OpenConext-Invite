@@ -4,7 +4,7 @@ import I18n from "../locale/I18n";
 import "./Application.scss";
 import WebsiteIcon from "../icons/network-information.svg";
 import {Chip} from "@surfnet/sds";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";

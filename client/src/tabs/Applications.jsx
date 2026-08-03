@@ -6,7 +6,7 @@ import {applicationsFromManage} from "../api";
 import {stopEvent} from "../utils/Utils";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {useAppStore} from "../stores/AppStore";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {mergeProvidersProvisioningsRoles} from "../utils/Manage";
 
 /*

@@ -2,7 +2,7 @@ import React from "react";
 import "./Header.scss";
 import {Logo, LogoColor, LogoType} from "@surfnet/sds";
 import {UserMenu} from "./UserMenu";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 

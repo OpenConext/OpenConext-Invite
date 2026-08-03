@@ -9,7 +9,7 @@ import "./Users.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";

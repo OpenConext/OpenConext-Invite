@@ -4,7 +4,7 @@ import Logo from "./Logo";
 import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 
 export const RoleCard = ({
                              application,

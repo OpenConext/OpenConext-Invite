@@ -7,7 +7,7 @@ import {Button, Card, CardType, Checkbox, Chip, ChipType} from "@surfnet/sds";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {roleName} from "../utils/Manage";
 import MultipleIcon from "../icons/multi-role.svg";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 
 export const InvitationRoleCard = ({
                                        role,

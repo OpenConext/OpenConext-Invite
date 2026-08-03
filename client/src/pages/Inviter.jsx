@@ -5,7 +5,7 @@ import {Button} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg?url";
 import DOMPurify from "dompurify";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import {AUTHORITIES} from "../utils/UserRole";
 

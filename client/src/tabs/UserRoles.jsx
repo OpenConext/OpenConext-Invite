@@ -7,7 +7,7 @@ import AlarmBell from "../icons/alarm_bell.svg";
 import "./Users.scss";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, futureDate, shortDateFromEpoch} from "../utils/Date";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {allowedToRenewUserRole, AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
 import ConfirmationDialog from "../components/ConfirmationDialog";

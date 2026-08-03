@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Button, ButtonSize, Checkbox, Chip, Tooltip} from "@surfnet/sds";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication} from "../api";
 import {isEmpty, stopEvent} from "../utils/Utils";

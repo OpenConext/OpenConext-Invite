@@ -8,7 +8,7 @@ import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {isEmpty} from "../utils/Utils";
 import DOMPurify from "dompurify";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 
 export const UnitHeaderInviter = ({
                                       role,

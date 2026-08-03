@@ -1,7 +1,7 @@
 import React from "react";
 import "./BreadCrumb.scss";
 import {useAppStore} from "../stores/AppStore";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {isEmpty} from "../utils/Utils";
 import DOMPurify from "dompurify";
 import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";

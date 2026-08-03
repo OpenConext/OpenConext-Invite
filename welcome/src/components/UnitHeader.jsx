@@ -5,7 +5,7 @@ import Logo from "./Logo";
 import {isEmpty, stopEvent} from "../utils/Utils";
 
 import {Button, ButtonType, MenuButton} from "@surfnet/sds";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router";
 import I18n from "../locale/I18n";
 
 export const UnitHeader = ({

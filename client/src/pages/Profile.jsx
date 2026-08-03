@@ -3,7 +3,7 @@ import {institutionAdmins, other} from "../api";
 import I18n from "../locale/I18n";
 import "./Profile.scss";
 import {Loader} from "@surfnet/sds";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
 import {UnitHeader} from "../components/UnitHeader";

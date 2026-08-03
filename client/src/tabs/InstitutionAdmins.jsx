@@ -6,7 +6,7 @@ import {Entities} from "../components/Entities";
 import {applicationManagers, institutionAdmins, removeApplicationManager, removeInstitutionAdmin} from "../api";
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./InstitutionAdmins.scss";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
 import {AUTHORITIES} from "../utils/UserRole";

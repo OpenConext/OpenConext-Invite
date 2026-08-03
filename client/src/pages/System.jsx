@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import I18n from "../locale/I18n";
 import "./System.scss";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";

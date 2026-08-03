@@ -3,7 +3,7 @@ import {institutionAdminsbyRole, managersByRoleId, roleByID} from "../api";
 import I18n from "../locale/I18n";
 import "./Role.scss";
 import {ButtonType, Loader, Tooltip} from "@surfnet/sds";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import WebsiteIcon from "../icons/network-information.svg";

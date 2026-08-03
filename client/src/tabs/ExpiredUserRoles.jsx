@@ -4,7 +4,7 @@ import "./ExpiredUserRoles.scss";
 import {Chip, Loader} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {chipTypeForUserRole} from "../utils/Authority";
 import {expiryUserRoles} from "../api";
 import {stopEvent} from "../utils/Utils";

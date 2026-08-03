@@ -14,7 +14,7 @@ import {RoleCard} from "./RoleCard";
 import DOMPurify from "dompurify";
 import ConfirmationDialog from "./ConfirmationDialog";
 import {deleteUser} from "../api";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 
 export const User = ({user, other, config, currentUser, otherInstitutionAdmins}) => {

@@ -4,7 +4,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
 import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {allIdentityProviders, apiTokens, createToken, deleteToken, generateToken} from "../api";
 import {dateFromEpoch} from "../utils/Date";
 import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";

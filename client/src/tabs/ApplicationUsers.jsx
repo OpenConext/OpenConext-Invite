@@ -9,7 +9,7 @@ import "./ApplicationUsers.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {useAppStore} from "../stores/AppStore";

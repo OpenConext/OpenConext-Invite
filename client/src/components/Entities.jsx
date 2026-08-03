@@ -7,7 +7,7 @@ import {headerIcon} from "../utils/Forms";
 import "./Entities.scss";
 import {Button, Loader, Pagination, Tooltip} from "@surfnet/sds";
 import {pageCount, searchParameterFromQueryParams, storeSearchQueryParameter} from "../utils/Pagination";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 
 export const Entities = ({
                              modelName,
