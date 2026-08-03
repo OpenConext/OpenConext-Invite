@@ -60,4 +60,12 @@ public class AccessLogger {
         ));
         log.info(String.format("%s user with sub %s", event, user.getSub()));
     }
+
+    public static void authentication(Log log, Event event, String sub) {
+        MDC.setContextMap(Map.of(
+                "type", String.format("%s User", event),
+                "userId", sub
+        ));
+        log.info(String.format("%s user with sub %s", event, sub));
+    }
 }
