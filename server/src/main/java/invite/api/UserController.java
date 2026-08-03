@@ -8,6 +8,8 @@ import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;
 import invite.manage.EntityType;
 import invite.manage.Manage;
+import invite.logging.AccessLogger;
+import invite.logging.Event;
 import invite.model.*;
 import invite.provision.Provisioning;
 import invite.provision.ProvisioningService;
@@ -223,8 +225,11 @@ public class UserController {
     }
 
     @GetMapping("logout")
-    public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request, @Parameter(hidden = true) User user) {
         LOG.debug("/logout");
+        if (user != null) {
+            AccessLogger.authentication(LOG, Event.Logout, user.getSub());
+        }
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
         if (session != null) {

@@ -1,6 +1,8 @@
 package invite.security;
 
 import invite.manage.Manage;
+import invite.logging.AccessLogger;
+import invite.logging.Event;
 import invite.model.User;
 import invite.provision.ProvisioningService;
 import invite.repository.UserRepository;
@@ -82,6 +84,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             }
             userRepository.save(user);
         });
+        AccessLogger.authentication(LOG, Event.Login, sub);
         OidcUserInfo oidcUserInfo = new OidcUserInfo(newClaims);
         return new DefaultOidcUser(oidcUser.getAuthorities(), oidcUser.getIdToken(), oidcUserInfo);
     }
