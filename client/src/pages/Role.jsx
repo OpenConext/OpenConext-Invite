@@ -162,7 +162,7 @@ export const Role = () => {
     const logo = role.logo;
     const urn = urnFromRole(config.groupUrnPrefix, role);
     const isInviter = highestAuthority(user) === AUTHORITIES.INVITER;
-
+    const showCrm = user.superUser || user.institutionAdmin;
     return (
         <div className="mod-role">
             {isInviter &&
@@ -214,7 +214,7 @@ export const Role = () => {
                                 <Tooltip tip={I18n.t("roles.unknownInManageToolTip")} standalone={true}
                                          clickable={true}/>
                             </div>}
-                        {!isEmpty(role.crmRoleId) &&
+                        {(!isEmpty(role.crmRoleId) && showCrm) &&
                             <div className={"meta-data-row"}>
                                 <CrmIcon/>
                                 <div>{`CRM: ${role.crmRoleName} (${role.crmRoleAbbrevation})`}</div>

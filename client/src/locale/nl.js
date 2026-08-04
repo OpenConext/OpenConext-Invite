@@ -177,7 +177,7 @@ const nl = {
         yourRole: "Jouw rol",
         description: "Omschrijving",
         descriptionPlaceHolder: "Omschrijving van het doel van de rol",
-        isCrm: "CRM",
+        isCrm: "mijnSURF rol",
         noResults: "Geen rollen gevonden",
         noMember: "Geen lid",
         searchPlaceHolder: "Zoek rollen...",

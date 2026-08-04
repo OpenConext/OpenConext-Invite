@@ -176,7 +176,7 @@ const en = {
         yourRole: "Your role",
         description: "Description",
         descriptionPlaceHolder: "The description of the role",
-        isCrm: "CRM",
+        isCrm: "mineSURF role",
         noResults: "No roles are found",
         noMember: "No member",
         searchPlaceHolder: "Search for roles...",

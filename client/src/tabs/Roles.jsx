@@ -99,6 +99,8 @@ export const Roles = () => {
         );
     }
 
+    const showCrm = user.superUser || user.institutionAdmin;
+
     const columns = [
         {
             nonSortable: true,
@@ -124,20 +126,23 @@ export const Roles = () => {
         },
         {
             key: "name",
+            class: showCrm ? "" : "no-crm",
             header: I18n.t("roles.accessRole"),
             mapper: role => <span>{role.name}</span>
         },
         {
             key: "description",
+            class: showCrm ? "" : "no-crm",
             header: I18n.t("roles.description"),
             mapper: role => <span className={"cut-of-lines"}>{role.description}</span>
         },
-        {
-            key: "crm",
-            nonSortable: true,
-            header: I18n.t("roles.isCrm"),
-            mapper: role => <Checkbox name="crm" value={!isEmpty(role.crmRoleId)} readOnly={true}/>
-        },
+        showCrm ?
+            {
+                key: "crm",
+                nonSortable: true,
+                header: I18n.t("roles.isCrm"),
+                mapper: role => <Checkbox name="crm" value={!isEmpty(role.crmRoleId)} readOnly={true}/>
+            } : null,
         {
             nonSortable: true,
             key: "authority",
@@ -155,7 +160,7 @@ export const Roles = () => {
             mapper: role => role.userRoleCount
         }
 
-    ];
+    ].filter(tab => tab !== null);
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
     const isAllowedToCreateNewRole = isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user);

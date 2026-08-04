@@ -49,20 +49,30 @@ div.mod-roles {
         thead {
             th {
                 &.applicationName {
-                    width: 25%;
+                    width: 20%;
                 }
 
                 &.name {
                     width: 15%;
+
+                    &.no-crm {
+                        width: 20%;
+                    }
                 }
 
                 &.description {
-                    width: 25%;
+                    width: 20%;
+
+                    &.no-crm {
+                        width: 35%;
+                    }
                 }
+
                 &.crm {
-                    width: 10%;
+                    width: 15%;
                     text-align: center;
                 }
+
                 &.authority {
                     width: 15%;
                     text-align: center;
@@ -73,12 +83,14 @@ div.mod-roles {
                     text-align: center;
                 }
 
+
             }
         }
 
         tbody {
             td.authority, td.defaultExpiryDays, td.userRoleCount, td.crm {
                 text-align: center;
+
                 input[type=checkbox] + label {
                     margin: 0 auto;
                 }
@@ -95,5 +107,6 @@ div.mod-roles {
 
         }
     }
+
 
 }
