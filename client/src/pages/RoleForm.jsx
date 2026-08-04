@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
@@ -10,6 +10,7 @@ import {
     consequencesRoleDeletion,
     createRole,
     deleteRole,
+    eduidIdentityProvider,
     hasProvisionings,
     me,
     requestedAuthnContextValues,
@@ -23,7 +24,7 @@ import {UnitHeader} from "../components/UnitHeader";
 import RoleIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import InputField from "../components/InputField";
 import {constructShortName} from "../validations/regExps";
-import {distinctValues, isEmpty} from "../utils/Utils";
+import {distinctValues, isEmpty, splitListSemantically} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {providersToOptions} from "../utils/Manage";
@@ -75,6 +76,8 @@ export const RoleForm = () => {
     const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[0]);
     const [requestedAuthnContextOptions, setRequestedAuthnContextOptions] = useState([]);
     const [allowedToEditApplication, setAllowedToEditApplication] = useState(isUserAllowed(AUTHORITIES.APPLICATION_MANAGER, user));
+    const [eduIDIdP, setEduIDIdP] = useState(null);
+    const [acrValues, setACRValues] = useState({});
 
     useEffect(() => {
             const newRole = id === "new";
@@ -160,9 +163,11 @@ export const RoleForm = () => {
                         }
                     });
                 }
-                requestedAuthnContextValues()
+                Promise.all([eduidIdentityProvider(), requestedAuthnContextValues()])
                     .then(res => {
-                        const acrContexts = Object.entries(res)
+                        setEduIDIdP(res[0]);
+                        setACRValues(res[1]);
+                        const acrContexts = Object.entries(res[1])
                             .map(arr => ({value: arr[1], label: I18n.t(`requestedAuthnContext.${arr[0]}`)}));
                         setRequestedAuthnContextOptions(acrContexts);
                     });
@@ -174,6 +179,31 @@ export const RoleForm = () => {
             })
         },
         [id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const acrWarning = useMemo(() => {
+            if (isEmpty(role.requestedAuthnContext) || isEmpty(eduIDIdP) || isEmpty(applications)) {
+                return null;
+            }
+            //Filter out the applications that are not present in the mfaEntities of the eduIDIdp
+            //or where the MFA level does not equal the requestedAuthnContext. If the requestedAuthnContext === TransparentAuthnContext,
+            //then we skip the warning
+            const mfaEntities = eduIDIdP.mfaEntities;
+            const acrValue = role.requestedAuthnContext;
+            const applicationsMissingMfa = applications
+                .filter(application => !isEmpty(application))
+                .filter(application => {
+                const mfa = mfaEntities.find(mfa => mfa.name === application.entityid);
+                return isEmpty(mfa) || (mfa.level !== acrValue && mfa.level !== acrValues.TransparentAuthnContext);
+            });
+            if (isEmpty(applicationsMissingMfa)) {
+                return null;
+            }
+            const applicationNames = splitListSemantically(applicationsMissingMfa.map(app => app.label), I18n.t("forms.and"));
+            return DOMPurify.sanitize(I18n.t("invitations.requestedAuthnContextWarning",
+                {applications: applicationNames}));
+
+        },
+        [role.requestedAuthnContext, eduIDIdP, applications, acrValues])
 
     const validateApplication = (index, value) => {
         if (!isEmpty(value)) {
@@ -237,7 +267,7 @@ export const RoleForm = () => {
 
     const updateUserIfNecessary = (path, flashMessage) => {
         if (user.userRoles
-            .some(userRole => userRole.role.id === role.id)
+                .some(userRole => userRole.role.id === role.id)
             || !isEmpty(user.userApplications)) {
             //We need to refresh the roles of the User to ensure 100% consistency
             me()
@@ -525,8 +555,14 @@ export const RoleForm = () => {
                         toolTip={I18n.t("tooltips.requestedAuthnContextTooltip")}
                         placeholder={I18n.t("invitations.requestedAuthnContextPlaceHolder")}
                         clearable={true}
-                        onChange={option => setRole({...role, requestedAuthnContext: option === null ? null : option.value})}
+                        onChange={option => setRole({
+                            ...role,
+                            requestedAuthnContext: option === null ? null : option.value
+                        })}
                     >
+                        {acrWarning &&
+                            <p className="warning" dangerouslySetInnerHTML={{__html: acrWarning}}/>}
+
                     </SelectField>}
 
                 <ExpandableSwitchField

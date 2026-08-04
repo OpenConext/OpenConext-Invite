@@ -176,7 +176,7 @@ const en = {
         yourRole: "Your role",
         description: "Description",
         descriptionPlaceHolder: "The description of the role",
-        isCrm: "mineSURF role",
+        isCrm: "mijnSURF role",
         noResults: "No roles are found",
         noMember: "No member",
         searchPlaceHolder: "Search for roles...",
@@ -263,8 +263,8 @@ const en = {
         eduIDOnly: "eduID only",
         requestedAuthnContext: "ACR value",
         requestedAuthnContextPlaceHolder: "Choose a ACR value for user stepup...",
-        requestedAuthnContextWarning: "To enforce the selected ACR also on the application(s) {{applications}} associated " +
-            "with the role(s) {{roles}}, additional configuration is needed on the eduID Identity Provider. " +
+        requestedAuthnContextWarning: "To enforce the selected ACR also on the application(s) {{applications}}, " +
+            "additional configuration is needed on the eduID Identity Provider. " +
             "Please contact <a href=\"mailto:support@surfconext.nl\">support@surfconext.nl</a> to request this change.",
         new: "Invite role manager or inviter",
         newInvitation: "Invite inviter",

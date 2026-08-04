@@ -85,6 +85,11 @@
             margin-top: 6px;
         }
 
+        p.warning {
+            margin-top: 14px;
+            color: var(--sds--color--orange--500);
+        }
+
         div.role-auditable {
             grid-column-start: first;
             margin-top: 25px;

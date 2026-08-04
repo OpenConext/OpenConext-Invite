@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
@@ -16,7 +16,6 @@ import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {
     allApplicationsFromManage,
     allIdentityProviders,
-    eduidIdentityProvider,
     newInvitation,
     requestedAuthnContextValues,
     rolesByApplication
@@ -25,7 +24,7 @@ import {Button, ButtonType, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
-import {isEmpty, splitListSemantically, stopEvent} from "../utils/Utils";
+import {isEmpty, stopEvent} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {DateField} from "../components/DateField";
@@ -33,7 +32,6 @@ import EmailField from "../components/EmailField";
 import {deriveExpirationDate, displayExpiryDate, futureDate, longDateFormat} from "../utils/Date";
 import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
-import DOMPurify from "dompurify";
 import {ExpandableSwitchField} from "../components/ExpandableSwitchField";
 import Select from "react-select";
 import {providersToOptions} from "../utils/Manage";
@@ -75,8 +73,6 @@ export const InvitationForm = () => {
     const [customRoleExpiryDate, setCustomRoleExpiryDate] = useState(false);
     const [initial, setInitial] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [eduIDIdP, setEduIDIdP] = useState(null);
-    const [acrValues, setACRValues] = useState({});
     const [language, setLanguage] = useState(I18n.locale === "en" ? languageOptions[0] : languageOptions[1]);
     const required = ["intendedAuthority", "invites"];
     const [removeRoleBy, setRemoveRoleBy] = useState(removeByOptions[1]);
@@ -129,48 +125,14 @@ export const InvitationForm = () => {
                     setIdentityProviders(identityProviderOptions);
                 });
         }
-        Promise.all([eduidIdentityProvider(), requestedAuthnContextValues()])
+        requestedAuthnContextValues()
             .then(res => {
-                setEduIDIdP(res[0]);
-                setACRValues(res[1]);
-                const acrContexts = Object.entries(res[1])
-                    .map(arr => ({value: arr[1], label: I18n.t(`requestedAuthnContext.${arr[0]}`) }));
+                const acrContexts = Object.entries(res)
+                    .map(arr => ({value: arr[1], label: I18n.t(`requestedAuthnContext.${arr[0]}`)}));
                 setRequestedAuthnContextOptions(acrContexts);
             });
 
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
-
-    const acrWarning = useMemo(() => {
-            if (isEmpty(invitation.requestedAuthnContext) || isEmpty(eduIDIdP) || isEmpty(selectedRoles)) {
-                return null;
-            }
-            //Filter out the roles that are linked to applications that are not present in the mfaEntities of the eduIDIdp
-            //or where the MFA level does not equal the requestedAuthnContext. If the requestedAuthnContext === TransparentAuthnContext,
-            //then we skip the warning
-            const mfaEntities = eduIDIdP.mfaEntities;
-            const acrValue = invitation.requestedAuthnContext;
-            const missingEntities = selectedRoles.reduce((acc, role) => {
-                const missingMfaApps = role.applicationMaps
-                    .filter(app => {
-                        const mfa = mfaEntities.find(mfa => mfa.name === app.entityid);
-                        return isEmpty(mfa) || (mfa.level !== acrValue && mfa.level !== acrValues.TransparentAuthnContext);
-                    });
-                if (!isEmpty(missingMfaApps)) {
-                    acc.applications = acc.applications.concat(missingMfaApps.map(app => app[`name:${I18n.locale}`] || app["name:en"]));
-                    acc.roles.push(role.name)
-                }
-                return acc;
-            }, {applications: [], roles: []})
-            if (isEmpty(missingEntities.roles)) {
-                return null;
-            }
-            const roleNames = splitListSemantically(missingEntities.roles, I18n.t("forms.and"));
-            const applicationNames = splitListSemantically(missingEntities.applications, I18n.t("forms.and"));
-            return DOMPurify.sanitize(I18n.t("invitations.requestedAuthnContextWarning",
-                {roles: roleNames, applications: applicationNames}));
-
-        },
-        [invitation.requestedAuthnContext, eduIDIdP, selectedRoles, acrValues])
 
     const setInitialRole = markedRoles => {
         const urlSearchParams = new URLSearchParams(window.location.search);
@@ -571,10 +533,8 @@ export const InvitationForm = () => {
                                     clearable={true}
                                     disabled={!overrideSettingsAllowed}
                                     onChange={requestedAuthnContextChanged}
-                                >
-                                    {acrWarning &&
-                                        <p className="warning" dangerouslySetInnerHTML={{__html: acrWarning}}/>}
-                                </SelectField>}
+                                />
+                            }
 
                             {(invitation.intendedAuthority !== AUTHORITIES.GUEST && !isInviter &&
                                     !skipRoles) &&

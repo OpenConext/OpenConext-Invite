@@ -265,7 +265,7 @@ const nl = {
         requestedAuthnContext: "ACR waarde",
         requestedAuthnContextPlaceHolder: "Kies een ACR waarde voor de gebruiker stepup...",
         requestedAuthnContextWarning: "Om de geselecteerde ACR ook af te dwingen op de applicatie(s) {{applications}} " +
-            "die gekoppeld zijn aan de rol(len) {{roles}}, is aanvullende configuratie nodig voor de eduID-identiteitsprovider. " +
+            ", is aanvullende configuratie nodig voor de eduID-identiteitsprovider. " +
             "Neem contact op met <a href=\"mailto: support@surfconext.nl\">support@surfconext.nl</a> om deze wijziging aan te vragen.",
         new: "Nodig rolmanager of uitnodiger uit",
         newInvitation: "Nodig uitnodiger uit",
