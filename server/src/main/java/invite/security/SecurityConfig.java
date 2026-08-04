@@ -47,7 +47,7 @@ import java.util.Locale;
 @EnableWebSecurity
 @Configuration
 @EnableMethodSecurity
-@EnableConfigurationProperties({ExternalApiConfiguration.class})
+@EnableConfigurationProperties({ExternalApiConfiguration.class, SuperAdmin.class})
 public class SecurityConfig {
 
     public static final String API_TOKEN_HEADER = "X-API-TOKEN";
@@ -64,7 +64,7 @@ public class SecurityConfig {
     private final Environment environment;
     private final Manage manage;
     private final String crmApiKeyHeader;
-
+    private final SuperAdmin superAdmin;
     private final RequestHeaderRequestMatcher apiTokenRequestMatcher = new RequestHeaderRequestMatcher(API_TOKEN_HEADER);
     private final boolean allowForEduIDOnlyEnforcementForNonGuests;
     private final boolean inviteAcceptAddLoginHint;
@@ -80,6 +80,7 @@ public class SecurityConfig {
                           @Value("${oidcng.resource-server-id}") String clientId,
                           @Value("${oidcng.resource-server-secret}") String secret,
                           Manage manage,
+                          SuperAdmin superAdmin,
                           @Value("${crm.api-key-header}") String crmApiKeyHeader,
                           @Value("${feature.allow-for-eduid-only-enforcement-for-non-guests}") boolean allowForEduIDOnlyEnforcementForNonGuests,
                           @Value("${feature.invite-accept-add-login_hint}") boolean inviteAcceptAddLoginHint) {
@@ -94,6 +95,7 @@ public class SecurityConfig {
         this.environment = environment;
         this.manage = manage;
         this.crmApiKeyHeader = crmApiKeyHeader;
+        this.superAdmin = superAdmin;
         this.allowForEduIDOnlyEnforcementForNonGuests = allowForEduIDOnlyEnforcementForNonGuests;
         this.inviteAcceptAddLoginHint = inviteAcceptAddLoginHint;
     }
@@ -173,7 +175,13 @@ public class SecurityConfig {
                                         authorizationRequestResolver(this.clientRegistrationRepository)
                                 )
                         ).userInfoEndpoint(userInfoEndpointConfigurer -> userInfoEndpointConfigurer.oidcUserService(
-                                new CustomOidcUserService(manage, userRepository, provisioningService, entitlement, organizationGuidPrefix)))
+                                new CustomOidcUserService(
+                                        manage,
+                                        userRepository,
+                                        provisioningService,
+                                        entitlement,
+                                        organizationGuidPrefix,
+                                        superAdmin)))
                 )
                 //We need a reference to the securityContextRepository to update the authentication after an InstitutionAdmin invitation accept
                 .securityContext(securityContextConfigurer ->

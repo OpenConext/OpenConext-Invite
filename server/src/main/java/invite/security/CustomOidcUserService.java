@@ -35,17 +35,20 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     private final String entitlement;
     private final String organizationGuidPrefix;
     private final OidcUserService delegate;
+    private final SuperAdmin superAdmin;
 
     public CustomOidcUserService(Manage manage,
                                  UserRepository userRepository,
                                  ProvisioningService provisioningService,
                                  String entitlement,
-                                 String organizationGuidPrefix) {
+                                 String organizationGuidPrefix,
+                                 SuperAdmin superAdmin) {
         this.manage = manage;
         this.userRepository = userRepository;
         this.provisioningService = provisioningService;
         this.entitlement = entitlement;
         this.organizationGuidPrefix = organizationGuidPrefix;
+        this.superAdmin = superAdmin;
         delegate = new OidcUserService();
     }
 
@@ -77,11 +80,13 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
                 try {
                     provisioningService.updateUserRequest(user);
                 } catch (RuntimeException e) {
-                    //We choose to ignore these, because remote provisioning errors may not prevent login flow
+                    //We choose to ignore these, because remote provisioning errors should not prevent login flow
                     LOG.error("Error in updateUserRequest", e);
                 }
-
             }
+            //Might be that the user is promoted or demoted
+            boolean isSuperUser = this.superAdmin.getUsers().contains(user.getSub());
+            user.setSuperUser(isSuperUser);
             userRepository.save(user);
         });
         AccessLogger.authentication(LOG, Event.Login, sub);
