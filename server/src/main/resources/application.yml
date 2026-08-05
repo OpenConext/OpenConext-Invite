@@ -106,6 +106,7 @@ crm:
 super-admin:
   users:
     - "urn:collab:person:example.com:admin"
+    - "urn:collab:person:example.com:super"
 
 institution-admin:
   entitlement: "urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke"
