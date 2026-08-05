@@ -179,6 +179,7 @@ public class InvitationController implements InvitationResource {
                                       "roleIdentifiers": [
                                         99
                                       ],
+                                      "manageIdentifiers": [],
                                       "roleExpiryDate": 1760788376,
                                       "expiryDate": 1730461976
                                     }

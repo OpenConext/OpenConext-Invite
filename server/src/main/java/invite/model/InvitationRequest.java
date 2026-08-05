@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -37,13 +38,13 @@ public class InvitationRequest implements Serializable {
 
     private boolean suppressSendingEmails;
 
-    private List<String> invites;
+    private List<String> invites = new ArrayList<>();
 
-    private List<Invite> invitesWithInternalPlaceholderIdentifiers;
+    private List<Invite> invitesWithInternalPlaceholderIdentifiers = new ArrayList<>();
 
-    private List<Long> roleIdentifiers;
+    private List<Long> roleIdentifiers = new ArrayList<>();
 
-    private List<ManageIdentifier> manageIdentifiers;
+    private List<ManageIdentifier> manageIdentifiers = new ArrayList<>();
 
     private String organizationGUID;
 
