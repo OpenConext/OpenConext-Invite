@@ -12,7 +12,7 @@
   "dependencies": {
     "@surfnet/sds": "^0.0.164",
     "@vitejs/plugin-react": "^6.0.5",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.13",
     "i18n-js": "^4.5.1",
     "isomorphic-dompurify": "~3.19.0",
     "js-cookie": "^3.0.8",
