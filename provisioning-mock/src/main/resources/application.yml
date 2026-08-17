@@ -10,10 +10,14 @@ mock-server-base-url: http://localhost:8081
 invite-server-ms-redirect-url: http://localhost:8888/api/v1/users/ms-accept-return
 
 spring:
+  jackson:
+    use-jackson2-defaults: true
+  http:
+    converters:
+      preferred-json-mapper: jackson2
   jpa:
     properties:
       hibernate:
-        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
         dialect: org.hibernate.dialect.MariaDBDialect
     open-in-view: false
   datasource:

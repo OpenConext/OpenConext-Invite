@@ -20,7 +20,7 @@ and then export the correct the `JAVA_HOME`. For example on macOS:
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home/
 ```
 
-MariaDB and Mailpit in docker for local development
+MariaDB and Mailpit in docker for local development.
 
 ```bash
 docker compose up -d

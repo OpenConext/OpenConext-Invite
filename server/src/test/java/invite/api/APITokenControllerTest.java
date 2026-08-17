@@ -87,6 +87,8 @@ class APITokenControllerTest extends AbstractTest {
 
         APIToken apiTokenFromDB = apiTokenRepository.findById(Long.valueOf(apiToken.get("id").toString())).get();
         assertEquals(HashGenerator.hashToken(token), apiTokenFromDB.getHashedValue());
+        //createdAt must be serialized as an epoch (seconds since 1970), not as an ISO-8601 string, to match client expectations
+        assertEquals(apiTokenFromDB.getCreatedAt().getEpochSecond(), ((Number) apiToken.get("createdAt")).longValue());
     }
 
     @Test

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -25,6 +27,7 @@ public class Provisioning implements Serializable {
     private ProvisioningType provisioningType;
 
     @Column
+    @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode message;
 
     @Enumerated(EnumType.STRING)
