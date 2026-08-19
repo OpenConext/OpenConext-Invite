@@ -15,7 +15,9 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class APITokenControllerTest extends AbstractTest {
 
@@ -35,6 +37,8 @@ class APITokenControllerTest extends AbstractTest {
                 .as(new TypeRef<>() {
                 });
         assertEquals(2, tokens.size());
+        //createdAt must be serialized as a numeric epoch, not an ISO-8601 string, to match client expectations
+        tokens.forEach(token -> assertInstanceOf(Number.class, token.get("createdAt")));
     }
 
     @Test
@@ -87,8 +91,12 @@ class APITokenControllerTest extends AbstractTest {
 
         APIToken apiTokenFromDB = apiTokenRepository.findById(Long.valueOf(apiToken.get("id").toString())).get();
         assertEquals(HashGenerator.hashToken(token), apiTokenFromDB.getHashedValue());
-        //createdAt must be serialized as an epoch (seconds since 1970), not as an ISO-8601 string, to match client expectations
-        assertEquals(apiTokenFromDB.getCreatedAt().getEpochSecond(), ((Number) apiToken.get("createdAt")).longValue());
+        //createdAt must be serialized as an epoch (seconds since 1970), not as an ISO-8601 string, to match client expectations.
+        //Use a tolerance instead of exact equality: the DB column has second-level precision and can round the
+        //in-memory (sub-second) value up by up to a second compared to the value embedded in this response.
+        assertInstanceOf(Number.class, apiToken.get("createdAt"));
+        long createdAtEpochSecond = ((Number) apiToken.get("createdAt")).longValue();
+        assertTrue(Math.abs(apiTokenFromDB.getCreatedAt().getEpochSecond() - createdAtEpochSecond) <= 1);
     }
 
     @Test
