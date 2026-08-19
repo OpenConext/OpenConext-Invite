@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Add "Application Manager" Role (see [#693](https://github.com/OpenConext/OpenConext-Invite/issues/693))
 - Add Application Manager (see [#693](https://github.com/OpenConext/OpenConext-Invite/issues/693))
 - Make acr's configurable (see [#722](https://github.com/OpenConext/OpenConext-Invite/issues/722))
+- Migrated to Spring Boot 4.1.0 (see [#722](https://github.com/OpenConext/OpenConext-Invite/issues/775))
 
 ## 1.1.15
 
