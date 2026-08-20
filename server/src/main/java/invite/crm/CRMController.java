@@ -2,6 +2,8 @@ package invite.crm;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import invite.api.ApplicationResource;
+import invite.api.RoleOperations;
 import invite.audit.UserRoleAuditService;
 import invite.config.HashGenerator;
 import invite.exception.InvalidInputException;
@@ -28,6 +30,7 @@ import invite.model.UserRoleAudit;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
 import invite.repository.ApplicationRepository;
+import invite.repository.ApplicationUsageRepository;
 import invite.repository.InvitationRepository;
 import invite.repository.OrganisationRepository;
 import invite.repository.RoleRepository;
@@ -37,9 +40,12 @@ import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -65,6 +71,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +88,7 @@ import static invite.api.InvitationOperations.identityProviderName;
 
 @RestController
 @Transactional
-public class CRMController {
+public class CRMController implements ApplicationResource {
 
     private static final Log LOG = LogFactory.getLog(CRMController.class);
 
@@ -90,7 +97,10 @@ public class CRMController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
+    @Getter
     private final ApplicationRepository applicationRepository;
+    @Getter
+    private final ApplicationUsageRepository applicationUsageRepository;
     private final ProvisioningService provisioningService;
     private final MailBox mailBox;
     private final Manage manage;
@@ -99,6 +109,7 @@ public class CRMController {
     private final Provisionable provisionable = () -> "SURF CRM";
     private final InvitationRepository invitationRepository;
     private final OrganisationRepository organisationRepository;
+    private final RoleOperations roleOperations;
 
 
     @SuppressWarnings("unchecked")
@@ -109,6 +120,7 @@ public class CRMController {
                          RoleRepository roleRepository,
                          UserRoleRepository userRoleRepository,
                          ApplicationRepository applicationRepository,
+                         ApplicationUsageRepository applicationUsageRepository,
                          ProvisioningService provisioningService,
                          ObjectMapper objectMapper,
                          MailBox mailBox, Manage manage,
@@ -121,12 +133,14 @@ public class CRMController {
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
+        this.applicationUsageRepository = applicationUsageRepository;
         this.provisioningService = provisioningService;
         this.mailBox = mailBox;
         this.manage = manage;
         this.userRoleAuditService = userRoleAuditService;
         this.invitationRepository = invitationRepository;
         this.organisationRepository = organisationRepository;
+        this.roleOperations = new RoleOperations(this);
         Map<String, Map<String, Object>> crmConfigRaw = objectMapper.readValue(crmConfigResource.getInputStream(), new TypeReference<>() {
         });
         this.crmConfig = crmConfigRaw.entrySet().stream()
@@ -141,6 +155,76 @@ public class CRMController {
                         crmConfigEntry -> crmConfigEntry
                 ));
         LOG.debug(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void reconcileCrmRolesWithConfig() {
+        List<Role> crmRoles = roleRepository.findByCrmRoleIdIsNotNull();
+        int reconciled = 0;
+        int deleted = 0;
+        for (Role role : crmRoles) {
+            try {
+                CRMConfigEntry crmConfigEntry = this.crmConfig.get(role.getCrmRoleAbbrevation());
+                if (crmConfigEntry == null) {
+                    //crm_config.json is the authoritative source - a sabCode no longer present in it means
+                    //the role itself (and everything tied to it) must be removed, not just its applications
+                    deleteObsoleteCrmRole(role);
+                    deleted++;
+                } else if (reconcileRoleApplications(role, crmConfigEntry)) {
+                    reconciled++;
+                }
+            } catch (RuntimeException e) {
+                //A single unreachable Manage / provisioning failure must never abort application startup
+                LOG.error(String.format("Error reconciling CRM role %s based on crm_config.json", role.getName()), e);
+            }
+        }
+        LOG.info(String.format("CRM startup sync: reconciled applications for %s, deleted %s of %s CRM-linked roles",
+                reconciled, deleted, crmRoles.size()));
+    }
+
+    private void deleteObsoleteCrmRole(Role role) {
+        LOG.warn(String.format("CRM sabCode %s for role %s is no longer present in crm_config.json, deleting the role and its associated data",
+                role.getCrmRoleAbbrevation(), role.getName()));
+        provisioningService.deleteGroupRequest(role);
+        provisioningService.deleteUserRequest(role);
+        roleRepository.deleteRoleById(role.getId());
+    }
+
+    private boolean reconcileRoleApplications(Role role, CRMConfigEntry crmConfigEntry) {
+        Set<ApplicationUsage> desiredApplicationUsages = crmConfigEntry.crmManageIdentifiers().stream()
+                .map(crmManageIdentifier -> {
+                    Optional<Map<String, Object>> provider = manage
+                            .providerByEntityID(crmManageIdentifier.manageType(), crmManageIdentifier.manageEntityID());
+                    if (provider.isEmpty()) {
+                        LOG.warn(String.format("CRM configured Manage entity %s not found for role %s, skipping",
+                                crmManageIdentifier, role.getName()));
+                    }
+                    return provider;
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(provider -> {
+                    String manageId = (String) provider.get("id");
+                    EntityType manageType = EntityType.valueOf(((String) provider.get("type")).toUpperCase());
+                    Application application = applicationRepository.findByManageIdAndManageTypeOrderById(manageId, manageType)
+                            .orElseGet(() -> applicationRepository.save(new Application(manageId, manageType)));
+                    String landingPage = (String) provider.get("url");
+                    return new ApplicationUsage(application, landingPage);
+                })
+                .collect(Collectors.toSet());
+        Set<String> desiredIdentifiers = desiredApplicationUsages.stream()
+                .map(applicationUsage -> applicationUsage.getApplication().getManageId())
+                .collect(Collectors.toSet());
+        List<String> previousApplicationIdentifiers = role.applicationIdentifiers();
+        if (new HashSet<>(previousApplicationIdentifiers).equals(desiredIdentifiers)) {
+            return false;
+        }
+        role.setApplicationUsages(desiredApplicationUsages);
+        roleOperations.syncRoleApplicationUsages(role);
+        Role saved = roleRepository.save(role);
+        provisioningService.updateGroupRequest(previousApplicationIdentifiers, saved, false);
+        LOG.info(String.format("Reconciled applications for CRM role %s based on crm_config.json", role.getName()));
+        return true;
     }
 
     @PostMapping(value = "/crm/profile", produces = MediaType.APPLICATION_JSON_VALUE)

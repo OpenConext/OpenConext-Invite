@@ -21,6 +21,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import jakarta.mail.Address;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 
@@ -43,6 +44,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class CRMControllerTest extends AbstractMailTest {
 
     public static final String SUPER_ADMIN_NAME = "SUPER_ADMIN_NAME";
+
+    @Autowired
+    private CRMController crmController;
 
     @Test
     void contactProvisioningNewUser() throws JsonProcessingException {
@@ -1201,6 +1205,50 @@ class CRMControllerTest extends AbstractMailTest {
         assertEquals(1, user.getUserRoles().size());
     }
 
+
+    @Test
+    void reconcileCrmRolesWithConfigOnStartup() throws JsonProcessingException {
+        //Seeded "Mail" role is a CRM role for sabCode CONVER, but its application (id 5, https://calendar)
+        //no longer matches what crm_config.json configures for CONVER (id 6, https://cloud) - see #764
+        Role mail = roleRepository.findByName("Mail").get();
+        assertEquals(1, mail.getApplicationUsages().size());
+        assertEquals("5", mail.getApplicationUsages().iterator().next().getApplication().getManageId());
+
+        super.stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://cloud");
+        //Force everything through the SCIM provisioning, like other CRM tests do
+        super.stubForManageProvisioning(List.of("5"));
+        super.stubForCreateScimRole();
+        super.stubForCreateScimUser();
+        super.stubForUpdateScimRole();
+        super.stubForDeleteScimRole();
+
+        crmController.reconcileCrmRolesWithConfig();
+
+        Role reconciled = roleRepository.findByName("Mail").get();
+        assertEquals(1, reconciled.getApplicationUsages().size());
+        ApplicationUsage applicationUsage = reconciled.getApplicationUsages().iterator().next();
+        assertEquals("6", applicationUsage.getApplication().getManageId());
+        assertTrue(StringUtils.hasText(applicationUsage.getLandingPage()));
+    }
+
+    @Test
+    void deleteObsoleteCrmRole() {
+        //Isolate this test from the seeded "Mail" CRM role, which is still valid and would otherwise
+        //also be touched by reconcileCrmRolesWithConfig - see reconcileCrmRolesWithConfigOnStartup
+        roleRepository.delete(roleRepository.findByName("Mail").get());
+
+        //seedCRMData() creates a role with sabCode "SUPER_ADMIN", which is not configured in crm_config.json
+        this.seedCRMData();
+        Role obsoleteRole = roleRepository.findByName("CRM_ROLE").get();
+        User kbUser = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
+        assertTrue(kbUser.getUserRoles().stream().anyMatch(userRole -> userRole.getRole().getId().equals(obsoleteRole.getId())));
+
+        crmController.reconcileCrmRolesWithConfig();
+
+        assertTrue(roleRepository.findById(obsoleteRole.getId()).isEmpty());
+        kbUser = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
+        assertTrue(kbUser.getUserRoles().stream().noneMatch(userRole -> userRole.getRole().getId().equals(obsoleteRole.getId())));
+    }
 
     @Test
     void sync() throws JsonProcessingException {

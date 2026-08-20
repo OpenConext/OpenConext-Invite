@@ -193,7 +193,11 @@ public class Role implements Serializable, Provisionable {
     }
 
     public void setApplicationUsages(Set<ApplicationUsage> applicationUsages) {
-        this.applicationUsages = applicationUsages;
+        //Mutate the existing collection in place - replacing the field reference outright breaks Hibernate's
+        //orphan-removal tracking whenever this is called on an already-managed (attached) Role
+        Set<ApplicationUsage> newApplicationUsages = new HashSet<>(applicationUsages);
+        this.applicationUsages.clear();
+        this.applicationUsages.addAll(newApplicationUsages);
         this.applicationUsages.forEach(applicationUsage -> applicationUsage.setRole(this));
     }
 
