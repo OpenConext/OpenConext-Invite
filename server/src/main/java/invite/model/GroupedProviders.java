@@ -1,10 +1,13 @@
 package invite.model;
 
+import invite.utils.InstantAnalyzer;
 import org.springframework.context.i18n.LocaleContextHolder;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public record GroupedProviders(Map<String, Object> provider, List<Role> roles, String logoName) {
@@ -21,6 +24,12 @@ public record GroupedProviders(Map<String, Object> provider, List<Role> roles, S
         return roles.stream().map(role -> role.getName()).collect(Collectors.joining(", "));
     }
 
+    public String getRolesExpirationDate() {
+        Stream<Instant> expirationDates = roles.stream().map(role -> role.deriveExpirationDate());
+        String language = preferredLanguageWithFallback()[0];
+        return InstantAnalyzer.analyze(expirationDates, language);
+    }
+
     public String getLogo() {
         return (String) provider.get("logo");
     }
@@ -29,7 +38,6 @@ public record GroupedProviders(Map<String, Object> provider, List<Role> roles, S
         String[] languages = preferredLanguageWithFallback();
         return (String) provider.getOrDefault(name + languages[0], provider.get(name + languages[1]));
     }
-
 
     private String[] preferredLanguageWithFallback() {
         String language = LocaleContextHolder.getLocale().getLanguage();

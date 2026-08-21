@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -87,6 +88,7 @@ public class MailBox {
         Map<String, Object> variables = new HashMap<>();
         variables.put("groupedProviders", groupedProviders);
         variables.put("title", title);
+        variables.put("language", language.name());
         if (provisionable instanceof User user) {
             Optional<IdentityProvider> identityProvider = idPMetaDataResolver
                     .getIdentityProvider(user.getSchacHomeOrganization());
@@ -106,7 +108,9 @@ public class MailBox {
         if (invitation.getRoles().stream()
                 .anyMatch(invitationRole -> StringUtils.hasText(invitationRole.getRole().getInviterDisplayName()))) {
             variables.put("displaySenderName", splitListSemantically(invitation.getRoles().stream()
-                    .map(invitationRole -> invitationRole.getRole().getInviterDisplayName()).toList()));
+                    .map(invitationRole -> invitationRole.getRole().getInviterDisplayName())
+                    .filter(Objects::nonNull)
+                    .toList()));
         } else {
             variables.put("displaySenderName", provisionable.getName());
         }

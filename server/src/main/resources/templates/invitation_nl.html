@@ -30,7 +30,8 @@
         <p>{{displaySenderName}} (van {{institutionName}}) wil je toegang geven tot:</p>
         <ul>
             {{#groupedProviders}}
-            <li style="margin-bottom: 4px;font-weight: 600;">{{name}} - als {{rolesDisplay}}</li>
+            <li style="margin-bottom: 4px;font-weight: 600;">{{name}} - als {{rolesDisplay}}
+                <span style="font-weight: 400;">(voor {{rolesExpirationDate}})</span></li>
             {{/groupedProviders}}
         </ul>
         {{/invitation.anyRoles}}
