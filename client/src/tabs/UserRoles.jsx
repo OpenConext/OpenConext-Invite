@@ -24,7 +24,8 @@ export const UserRoles = ({role, guests}) => {
     const navigate = useNavigate();
     const {user, setFlash, config} = useAppStore(state => state);
 
-    const removeNotAllowed = highestAuthority(user) === AUTHORITIES.INVITER && !guests;
+    const removeNotAllowed = (highestAuthority(user) === AUTHORITIES.INVITER && !guests) || isEmpty(role.crmRoleId);
+
     const [userRoles, setUserRoles] = useState([]);
     const [selectedUserRoles, setSelectedUserRoles] = useState({});
     const [allSelected, setAllSelected] = useState(false);
@@ -80,7 +81,7 @@ export const UserRoles = ({role, guests}) => {
     const showCheckAllHeader = () => {
         return Object.entries(selectedUserRoles)
             .filter(entry => entry[1].allowed)
-            .length > 0;
+            .length > 0 && isEmpty(role.crmRoleId);
     }
 
     const doUpdateEndDate = (userRole, newEndDate, showConfirmation) => {
@@ -232,7 +233,7 @@ export const UserRoles = ({role, guests}) => {
     }
 
     const displayEndDate = userRole => {
-        const allowed = allowedToRenewUserRole(user, userRole, false);
+        const allowed = allowedToRenewUserRole(user, userRole, false) && isEmpty(role.crmRoleId);
         if (allowed) {
             return (
                 <MinimalDateField
@@ -249,7 +250,7 @@ export const UserRoles = ({role, guests}) => {
     }
 
     const actionIcons = userRole => {
-        if (!selectedUserRoles[userRole.id].allowed) {
+        if (!selectedUserRoles[userRole.id].allowed || !isEmpty(role.crmRoleId)) {
             return null;
         }
         return (
@@ -293,7 +294,7 @@ export const UserRoles = ({role, guests}) => {
                           name={"allSelected"}
                           onChange={selectAll}/> : null,
             mapper: userRole => {
-                const allowed = selectedUserRoles[userRole.id].allowed;
+                const allowed = selectedUserRoles[userRole.id].allowed && isEmpty(role.crmRoleId);
                 return (
                     <div className="check">
                         {allowed ? <Checkbox name={pseudoGuid()}
