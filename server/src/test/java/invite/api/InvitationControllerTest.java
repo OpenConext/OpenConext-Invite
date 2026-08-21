@@ -361,7 +361,7 @@ class InvitationControllerTest extends AbstractTest {
                 .body(acceptInvitation)
                 .post("/api/v1/invitations/accept")
                 .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+                .statusCode(HttpStatus.NOT_ACCEPTABLE.value());
     }
 
     @Test

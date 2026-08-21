@@ -2,6 +2,7 @@ package invite.api;
 
 
 import invite.exception.NotFoundException;
+import invite.exception.RemoteException;
 import invite.exception.UserRestrictionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,6 +68,8 @@ public class DefaultErrorController implements ErrorController {
                         HttpStatus.valueOf((int) result.get("status")) : INTERNAL_SERVER_ERROR;
 
             }
+        } else if (error instanceof RemoteException remoteException) {
+            statusCode = HttpStatus.resolve(remoteException.getStatusCode().value());
         } else {
             if (!(error instanceof NotFoundException || error instanceof NoResourceFoundException)) {
                 boolean logStackTrace = !(error instanceof UserRestrictionException || error instanceof invite.exception.RemoteException);

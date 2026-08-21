@@ -58,6 +58,22 @@ export const Invitation = ({authenticated}) => {
                                 });
                                 localStorage.setItem(MAY_ACCEPT, "true");
                                 setConfirmationOpen(true);
+                            } else if (e.response && e.response.status === 406) {
+                                e.response.json().then(j => {
+                                    setConfirmation({
+                                        cancel: null,
+                                        action: () => logout().then(() => login(config, true, hashParam)),
+                                        warning: false,
+                                        error: true,
+                                        question: I18n.t("invitationAccept.crmOrganisationMismatch", {
+                                            message: j.message
+                                        }),
+                                        confirmationHeader: I18n.t("confirmationDialog.error"),
+                                        confirmationTxt: I18n.t("invitationAccept.login")
+                                    });
+                                    localStorage.setItem(MAY_ACCEPT, "true");
+                                    setConfirmationOpen(true);
+                                })
                             } else {
                                 localStorage.removeItem(MAY_ACCEPT);
                                 handleError(e);

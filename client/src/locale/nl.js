@@ -404,7 +404,8 @@ const nl = {
         login: "Inloggen",
         loginWithSub: "Inloggen",
         emailMismatch: "De uitnodiger heeft aangegeven dat je de uitnodiging dient te accepteren met e-mailadres {{email}}, " +
-            "maar je bent ingelogd met een account met een ander e-mailadres. Log opnieuw in met een ander account."
+            "maar je bent ingelogd met een account met een ander e-mailadres. Log opnieuw in met een ander account.",
+        crmOrganisationMismatch: "Je bent al lid van een andere CRM-organisatie. Log in met een ander account.<br/><br/> Bericht van de server: {{message}}"
     },
     inviter: {
         welcome: "Welkom, {{name}}",

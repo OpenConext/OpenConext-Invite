@@ -78,13 +78,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -598,7 +592,7 @@ public class InvitationController implements InvitationResource {
         Organisation organisation = user.getOrganisation();
         if (StringUtils.hasText(invitationCrmContactId) && organisation != null) {
             AtomicBoolean throwException = new AtomicBoolean(false);
-            if (!organisation.getCrmOrganisationId().equals(invitation.getCrmOrganisationId()))  {
+            if (!Objects.equals(organisation.getCrmOrganisationId(), invitation.getCrmOrganisationId())) {
                 throwException.set(true);
             }
             Optional<User> optionalUser = userRepository.findByCrmContactIdAndOrganisation(
@@ -610,7 +604,7 @@ public class InvitationController implements InvitationResource {
             });
             if (throwException.get()) {
                 throw new RemoteException(HttpStatus.NOT_ACCEPTABLE,
-                        String.format("User %s with CRM contactID %s is not allowed to accept an invitation from Organisation %s, check the database for constraint violations",
+                        String.format("User %s with CRM contactID %s is not allowed to accept an invitation from Organisation %s",
                                 user.getEmail(),
                                 user.getCrmContactId(),
                                 invitation.getCrmOrganisationId()

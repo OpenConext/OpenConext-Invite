@@ -34,7 +34,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -238,10 +240,12 @@ public class UserController {
     }
 
     @GetMapping("logout")
-    public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request, @Parameter(hidden = true) User user) {
+    public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request,
+                                                       @Parameter(hidden = true) Authentication authentication) {
         LOG.debug("/logout");
-        if (user != null) {
-            AccessLogger.authentication(LOG, Event.Logout, user.getSub());
+        if (authentication instanceof OAuth2AuthenticationToken authenticationToken) {
+            String sub = authenticationToken.getPrincipal().getAttribute("sub");
+            AccessLogger.authentication(LOG, Event.Logout, sub);
         }
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
