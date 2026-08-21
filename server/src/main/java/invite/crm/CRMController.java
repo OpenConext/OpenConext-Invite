@@ -167,7 +167,7 @@ public class CRMController implements ApplicationResource {
                 CRMConfigEntry crmConfigEntry = this.crmConfig.get(role.getCrmRoleAbbrevation());
                 if (crmConfigEntry == null) {
                     //crm_config.json is the authoritative source - a sabCode no longer present in it means
-                    //the role itself (and everything tied to it) must be removed, not just its applications
+                    //the role itself (and everything tied to it) must be removed
                     deleteObsoleteCrmRole(role);
                     deleted++;
                 } else if (reconcileRoleApplications(role, crmConfigEntry)) {
@@ -219,6 +219,8 @@ public class CRMController implements ApplicationResource {
         if (new HashSet<>(previousApplicationIdentifiers).equals(desiredIdentifiers)) {
             return false;
         }
+        //Stage the desired (transient) set first - syncRoleApplicationUsages reads role.getApplicationUsages()
+        //as its "client-submitted" input and replaces it with a refined set that reuses existing DB rows
         role.setApplicationUsages(desiredApplicationUsages);
         roleOperations.syncRoleApplicationUsages(role);
         Role saved = roleRepository.save(role);
