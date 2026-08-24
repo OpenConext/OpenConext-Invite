@@ -3,6 +3,8 @@ package invite.model;
 import invite.WithApplicationTest;
 import invite.config.RequestedAuthnContext;
 import invite.manage.EntityType;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -12,6 +14,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InvitationTest extends WithApplicationTest {
 
@@ -64,4 +67,13 @@ class InvitationTest extends WithApplicationTest {
         assertEquals(inviter.getName(), invitation.getInviterEmail().get("name"));
     }
 
+    @Test
+    void inviterEmailNormalization() {
+        Invitation invitation = new Invitation();
+        invitation.setEmail("John Doe <jdoe@gmail.com>");
+        assertEquals("jdoe@gmail.com", invitation.getEmail());
+
+        invitation.setEmail("\"Joe Doe\" <jdoe@gmail.com>");
+        assertEquals("jdoe@gmail.com", invitation.getEmail());
+    }
 }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import invite.api.InvitationOperations;
 import invite.config.RequestedAuthnContext;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +23,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -120,6 +123,7 @@ public class Invitation implements Serializable {
     @Transient
     private boolean emailEqualityConflict = false;
 
+    @SneakyThrows
     public Invitation(Authority intendedAuthority,
                       String hash,
                       String email,
@@ -148,7 +152,9 @@ public class Invitation implements Serializable {
         roles.forEach(role -> role.setInvitation(this));
         this.applications = applications;
         applications.forEach(application -> application.setInvitation(this));
-        this.email = email;
+        //Parse the email, before saving
+        InternetAddress address = new InternetAddress(email);
+        this.email = address.getAddress();
         this.expiryDate = expiryDate == null ? Instant.now().plus(Period.ofDays(14)) : expiryDate;
         this.roleExpiryDate = this.roleExpiryDate(roles, roleExpiryDate, intendedAuthority);
         this.createdAt = Instant.now();
@@ -199,4 +205,9 @@ public class Invitation implements Serializable {
         return Collections.emptyMap();
     }
 
+    @SneakyThrows
+    public void setEmail(String email) {
+        InternetAddress address = new InternetAddress(email);
+        this.email = address.getAddress();
+    }
 }
