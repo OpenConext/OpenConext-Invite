@@ -3,8 +3,6 @@ package invite.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import invite.api.InvitationOperations;
-import invite.config.RequestedAuthnContext;
-import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -153,8 +151,7 @@ public class Invitation implements Serializable {
         this.applications = applications;
         applications.forEach(application -> application.setInvitation(this));
         //Parse the email, before saving
-        InternetAddress address = new InternetAddress(email);
-        this.email = address.getAddress();
+        this.setEmail(email);
         this.expiryDate = expiryDate == null ? Instant.now().plus(Period.ofDays(14)) : expiryDate;
         this.roleExpiryDate = this.roleExpiryDate(roles, roleExpiryDate, intendedAuthority);
         this.createdAt = Instant.now();

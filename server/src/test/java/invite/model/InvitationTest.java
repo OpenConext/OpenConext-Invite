@@ -1,10 +1,7 @@
 package invite.model;
 
 import invite.WithApplicationTest;
-import invite.config.RequestedAuthnContext;
 import invite.manage.EntityType;
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -14,7 +11,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InvitationTest extends WithApplicationTest {
 
@@ -24,7 +20,7 @@ class InvitationTest extends WithApplicationTest {
 
         Invitation invitation = new Invitation(Authority.GUEST, "hash", "john@example.com", false, false, null, false, "Please join..", Language.en, new User(),
                 null, Instant.now().plus(30, ChronoUnit.DAYS),
-                Set.of(new InvitationRole(role)), Set.of(),null);
+                Set.of(new InvitationRole(role)), Set.of(), null);
 
         assertEquals(13, Instant.now().until(invitation.getExpiryDate(), ChronoUnit.DAYS));
         assertEquals(29, Instant.now().until(invitation.getRoleExpiryDate(), ChronoUnit.DAYS));
@@ -74,6 +70,27 @@ class InvitationTest extends WithApplicationTest {
         assertEquals("jdoe@gmail.com", invitation.getEmail());
 
         invitation.setEmail("\"Joe Doe\" <jdoe@gmail.com>");
+        assertEquals("jdoe@gmail.com", invitation.getEmail());
+    }
+
+    @Test
+    void inviterEmailNormalizationInConstructor() {
+        Invitation invitation = new Invitation(
+                Authority.GUEST,
+                UUID.randomUUID().toString(),
+                "John Doe <jdoe@gmail.com>",
+                false,
+                false,
+                null,
+                false,
+                "Auto generated",
+                Language.en,
+                new User(),
+                Instant.now().plus(30, ChronoUnit.DAYS),
+                Instant.now().plus(365 * 5, ChronoUnit.DAYS),
+                Set.of(),
+                Set.of(),
+                null);
         assertEquals("jdoe@gmail.com", invitation.getEmail());
     }
 }
