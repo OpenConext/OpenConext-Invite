@@ -867,6 +867,27 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void profileWithOrgGUIDReturnsUniqueUsers() {
+        this.seedCRMData();
+        this.seedAdditionalCRMRole();
+        ProfileResponse profileResponse = given()
+                .when()
+                .header(API_KEY_HEADER, "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("guid", CRM_ORGANIZATION_ID)
+                .get("/api/profile")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(0, profileResponse.code());
+        assertEquals("OK", profileResponse.message());
+        assertEquals(1, profileResponse.profiles().size());
+
+        Profile profile = profileResponse.profiles().getFirst();
+        assertEquals(2, profile.authorisations().size());
+    }
+
+    @Test
     void profileWithGuidRole() {
         this.seedCRMData();
         ProfileResponse profileResponse = given()
@@ -1297,6 +1318,23 @@ class CRMControllerTest extends AbstractMailTest {
         userRepository.save(user);
 
 
+    }
+
+    private void seedAdditionalCRMRole() {
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get();
+        Role role = new Role();
+        role.setCrmRoleId(UUID.randomUUID().toString());
+        role.setCrmRoleAbbrevation("ADMIN");
+        role.setCrmRoleName("ADMIN_NAME");
+        role.setName("CRM_ROLE_ADMIN");
+        role.setShortName("crm_role_admin");
+        role.setOrganisation(organisation);
+        role.setIdentifier(UUID.randomUUID().toString());
+        role.setOrganizationGUID(UUID.randomUUID().toString());
+        roleRepository.save(role);
+        User user = userRepository.findBySubIgnoreCase(KB_USER_SUB).get();
+        user.addUserRole(new UserRole(Authority.GUEST, role));
+        userRepository.save(user);
     }
 
 }

@@ -350,6 +350,9 @@ public class CRMController implements ApplicationResource {
         } else {
             users = userRepository.findByOrganisationNotNull();
         }
+        users = users.stream()
+                .collect(Collectors.toMap(User::getId, user -> user, (a, b) -> a, LinkedHashMap::new))
+                .values().stream().toList();
         if (users.isEmpty()) {
             LOG.debug("Returning empty results query for /api/profile");
             ProfileResponse profileResponse = crmUserNotFoundOrNoRoles();
