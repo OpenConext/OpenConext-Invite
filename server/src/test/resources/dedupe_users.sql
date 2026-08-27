@@ -4,7 +4,7 @@
 -- corrected value with '_' in the same position (unique constraint `users_unique_sub` means
 -- these ended up as two separate user rows instead of one). This script merges the '@' row
 -- into the '_' row across every table with a foreign key to users(id) -- user_roles,
--- user_applications, remote_provisioned_users, api_tokens, invitations -- plus the
+-- remote_provisioned_users, api_tokens, invitations -- plus the
 -- denormalized user_roles_audit table, then deletes the '@' row.
 --
 -- All FKs to users(id) are ON DELETE CASCADE, so simply deleting the '@' row without first
@@ -12,12 +12,8 @@
 -- provisioning records, api tokens and invitations. Run the dry-run section first and review
 -- its output before running the transactional section.
 --
--- Usage: mysql -u root invite < server/src/test/resources/dedupe_users.sql
+-- Usage: mysql -u root invite < dedupe_users.sql
 --
--- Take a backup first, e.g.:
---   mysqldump -u root invite users user_roles user_applications remote_provisioned_users \
---     api_tokens invitations user_roles_audit > invite_dedupe_backup.sql
-
 -- ============================================================================
 -- DRY RUN -- read-only, run this first and review before proceeding
 -- ============================================================================
@@ -48,12 +44,6 @@ FROM user_roles ur
          JOIN user_dedup_map m ON ur.user_id = m.source_id
          JOIN user_roles ur2 ON ur2.user_id = m.target_id AND ur2.role_id = ur.role_id;
 
--- user_applications rows that will be DROPPED because the target user already has that application
-SELECT ua.*
-FROM user_applications ua
-         JOIN user_dedup_map m ON ua.user_id = m.source_id
-         JOIN user_applications ua2 ON ua2.user_id = m.target_id AND ua2.application_id = ua.application_id;
-
 -- remote_provisioned_users rows that will be DROPPED because the target user already has that provisioning record
 SELECT rpu.*
 FROM remote_provisioned_users rpu
@@ -64,7 +54,6 @@ FROM remote_provisioned_users rpu
 -- Row counts before the fix, for a sanity check against the "after" counts at the bottom of this script
 SELECT (SELECT COUNT(*) FROM users) AS users_before,
        (SELECT COUNT(*) FROM user_roles) AS user_roles_before,
-       (SELECT COUNT(*) FROM user_applications) AS user_applications_before,
        (SELECT COUNT(*) FROM remote_provisioned_users) AS remote_provisioned_users_before,
        (SELECT COUNT(*) FROM api_tokens) AS api_tokens_before,
        (SELECT COUNT(*) FROM invitations) AS invitations_before;
@@ -83,15 +72,6 @@ DELETE ur FROM user_roles ur
 UPDATE user_roles ur
     JOIN user_dedup_map m ON ur.user_id = m.source_id
     SET ur.user_id = m.target_id;
-
--- user_applications (unique on user_id, application_id)
-DELETE ua FROM user_applications ua
-    JOIN user_dedup_map m ON ua.user_id = m.source_id
-    JOIN user_applications ua2 ON ua2.user_id = m.target_id AND ua2.application_id = ua.application_id;
-
-UPDATE user_applications ua
-    JOIN user_dedup_map m ON ua.user_id = m.source_id
-    SET ua.user_id = m.target_id;
 
 -- remote_provisioned_users (unique on user_id, manage_provisioning_id)
 DELETE rpu FROM remote_provisioned_users rpu
@@ -141,7 +121,6 @@ HAVING cnt > 1;
 -- Row counts after the fix, to compare against the "before" counts above
 SELECT (SELECT COUNT(*) FROM users) AS users_after,
        (SELECT COUNT(*) FROM user_roles) AS user_roles_after,
-       (SELECT COUNT(*) FROM user_applications) AS user_applications_after,
        (SELECT COUNT(*) FROM remote_provisioned_users) AS remote_provisioned_users_after,
        (SELECT COUNT(*) FROM api_tokens) AS api_tokens_after,
        (SELECT COUNT(*) FROM invitations) AS invitations_after;
