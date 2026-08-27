@@ -7,10 +7,16 @@
 -- DRY RUN -- read-only, run this first and review before proceeding
 -- ============================================================================
 
--- Rows that will be updated
-SELECT id, sub, email, REPLACE(sub, '@', '_') AS new_sub
+-- Snapshot of every row this script will update, taken before anything is modified.
+-- Kept around so the STATEMENTS TO BE EXECUTED section below can print exactly what FIX will do.
+CREATE TEMPORARY TABLE sub_normalize_map AS
+SELECT id, sub AS old_sub, REPLACE(sub, '@', '_') AS new_sub
 FROM users
 WHERE sub LIKE '%@%';
+
+-- Rows that will be updated
+SELECT *
+FROM sub_normalize_map;
 
 -- Safety check: normalized values that would collide with an existing user's sub
 -- (either another '@' row normalizing to the same value, or an existing '_' row --
@@ -25,12 +31,23 @@ GROUP BY new_sub
 HAVING cnt > 1;
 
 -- ============================================================================
--- FIX -- only proceed once the dry-run output above shows no collisions
+-- STATEMENTS TO BE EXECUTED -- individual UPDATE statements, for manual/visual inspection
+-- before FIX runs. This is exactly what FIX (below) will do, row by row.
+-- ============================================================================
+
+SELECT CONCAT('UPDATE users SET sub = ', QUOTE(new_sub), ' WHERE id = ', id, ';') AS statement
+FROM sub_normalize_map
+ORDER BY id;
+
+-- ============================================================================
+-- FIX -- only proceed once the dry-run and statement output above show no collisions
 -- ============================================================================
 
 UPDATE users
 SET sub = REPLACE(sub, '@', '_')
 WHERE sub LIKE '%@%';
+
+DROP TEMPORARY TABLE sub_normalize_map;
 
 -- ============================================================================
 -- VERIFY
