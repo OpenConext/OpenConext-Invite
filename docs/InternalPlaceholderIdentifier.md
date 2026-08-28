@@ -63,12 +63,4 @@ in the API and UI to encourage its use as a transient "stand-in".
 
 When the user accepts the invitation, the system sends a SCIM `POST /v1/Users`
 message to the institution's provisioning endpoint. The
-`internalPlaceholderIdentifier` is sent as the `id` in this message.
-
-### Identifier Transition
-
-The system will use the `id` returned by your SCIM server in the response to
-that initial POST for all future updates (e.g., role changes or group
-memberships). This allows the institution to replace the temporary placeholder
-with a permanent identifier (such as a UUID or eduID URN) for all subsequent
-SCIM messages.
+`internalPlaceholderIdentifier` is sent as the `externalId` in this message.
