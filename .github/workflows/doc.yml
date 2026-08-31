@@ -45,7 +45,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           java-version: '21'
-          distribution: 'adopt'
+          distribution: 'temurin'
           cache: 'maven'
         if: ${{ steps.changes.outputs.server == 'true' ||  github.event_name == 'workflow_dispatch' }}
       - name: Set up MySQL
