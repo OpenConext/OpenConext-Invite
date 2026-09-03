@@ -23,6 +23,7 @@ or Selfservice Portal.
 
 - [API documentation](./api/)
 - [SCIM Protocol description](./SCIM/)
+- [Sequence Diagram](./flow/)
 - [Archimate Model](./Archi/?view=id-942fd1b8aeda45388631ddde7877a745)
 - [Swagger](https://invite.test.surfconext.nl/ui/swagger-ui/index.html)
 - [Code](https://github.com/OpenConext/OpenConext-Invite/)
