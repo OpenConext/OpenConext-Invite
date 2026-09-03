@@ -1,3 +1,10 @@
+# Sequence diagram
+
+Dit beschrijft de mogelijke flow voor het aanmaken van een rol
+en het uitnodigen van een gebruiker voor die rol in een applicatie.
+
+## Diagram
+
 ```mermaid
 sequenceDiagram
     actor Admin as IDM Administrator
