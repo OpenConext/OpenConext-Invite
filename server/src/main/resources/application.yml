@@ -1,9 +1,6 @@
 ---
 server:
   port: 8888
-  error:
-    path: "/error"
-    include-message: always
   forward-headers-strategy: framework
   servlet:
     session:
@@ -62,6 +59,10 @@ spring:
   mail:
     host: localhost
     port: 1025
+  web:
+    error:
+      path: "/error"
+      include-message: always
 
 crypto:
   development-mode: True

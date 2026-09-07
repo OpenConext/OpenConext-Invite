@@ -10,6 +10,8 @@ import invite.manage.ManageIdentifier;
 import invite.model.*;
 import invite.provision.ProvisioningService;
 import invite.provision.scim.OperationType;
+import invite.repository.RemoteProvisionedGroupRepository;
+import invite.repository.RemoteProvisionedUserRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import invite.repository.UserRoleRepository;
@@ -64,12 +66,16 @@ public class UserRoleController implements UserRoleResource {
     private final Config config;
     private final UserRoleOperations userRoleOperations;
     private final UserRoleAuditService userRoleAuditService;
+    private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
+    private final RemoteProvisionedGroupRepository remoteProvisionedGroupRepository;
 
     public UserRoleController(UserRoleRepository userRoleRepository,
                               RoleRepository roleRepository,
                               UserRepository userRepository,
                               ProvisioningService provisioningService,
                               UserRoleAuditService userRoleAuditService,
+                              RemoteProvisionedUserRepository remoteProvisionedUserRepository,
+                              RemoteProvisionedGroupRepository remoteProvisionedGroupRepository,
                               Config config) {
         this.userRoleRepository = userRoleRepository;
         this.roleRepository = roleRepository;
@@ -77,6 +83,8 @@ public class UserRoleController implements UserRoleResource {
         this.provisioningService = provisioningService;
         this.config = config;
         this.userRoleAuditService = userRoleAuditService;
+        this.remoteProvisionedUserRepository = remoteProvisionedUserRepository;
+        this.remoteProvisionedGroupRepository = remoteProvisionedGroupRepository;
         this.userRoleOperations = new UserRoleOperations(this);
     }
 
@@ -259,6 +267,34 @@ public class UserRoleController implements UserRoleResource {
             userRoleRepository.deleteUserRoleById(id);
             AccessLogger.userRole(LOG, Event.Deleted, userFromDB, userRole);
         }
+        return Results.deleteResult();
+    }
+
+    @DeleteMapping("/by_provisioned_scim/{remote_user_scim_identifier}/{remote_group_scim_identifier}")
+    @Operation(summary = "Delete Role from a User by remote SCIM identifiers",
+            description = "Lookup the User and Role by their remote provisioned SCIM identifiers and delete the UserRole")
+    public ResponseEntity<Void> deleteUserRoleByProvisionedScim(
+            @PathVariable("remote_user_scim_identifier") String remoteUserScimIdentifier,
+            @PathVariable("remote_group_scim_identifier") String remoteGroupScimIdentifier,
+            @Parameter(hidden = true) User apiUser) {
+        LOG.debug(String.format("DELETE user_roles/by_provisioned_scim/%s/%s for apiuser %s",
+                remoteUserScimIdentifier, remoteGroupScimIdentifier, apiUser.getEduPersonPrincipalName()));
+        UserPermissions.assertInstitutionAdmin(apiUser);
+
+        User user = remoteProvisionedUserRepository.findByRemoteScimIdentifier(remoteUserScimIdentifier)
+                .map(RemoteProvisionedUser::getUser)
+                .orElseThrow(() -> new NotFoundException("RemoteProvisionedUser not found"));
+        Role role = remoteProvisionedGroupRepository.findByRemoteScimIdentifier(remoteGroupScimIdentifier)
+                .map(RemoteProvisionedGroup::getRole)
+                .orElseThrow(() -> new NotFoundException("RemoteProvisionedGroup not found"));
+        UserRole userRole = user.userRoleForRole(role).orElseThrow(() -> new NotFoundException("UserRole not found"));
+
+        userRoleAuditService.logAction(userRole, UserRoleAudit.ActionType.DELETE);
+        // Deprovision the user for all provisionings which are exclusively used in this userRole
+        provisioningService.deleteUserRoleRequest(userRole);
+        userRoleRepository.deleteUserRoleById(userRole.getId());
+        AccessLogger.userRole(LOG, Event.Deleted, user, userRole);
+
         return Results.deleteResult();
     }
 

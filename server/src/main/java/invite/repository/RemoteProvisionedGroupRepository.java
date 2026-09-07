@@ -12,5 +12,7 @@ public interface RemoteProvisionedGroupRepository extends JpaRepository<RemotePr
 
     Optional<RemoteProvisionedGroup> findByManageProvisioningIdAndRole(String manageId, Role role);
 
+    Optional<RemoteProvisionedGroup> findByRemoteScimIdentifier(String remoteScimIdentifier);
+
 }
 

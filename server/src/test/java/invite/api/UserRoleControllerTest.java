@@ -414,6 +414,78 @@ class UserRoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void deleteUserRoleByProvisionedScim() throws Exception {
+        List<UserRole> userRoles = userRoleRepository.findByRoleName("Wiki");
+        UserRole guestUserRole = userRoles.stream().filter(userRole -> userRole.getAuthority().equals(Authority.GUEST)).findFirst().get();
+
+        String remoteUserScimIdentifier = UUID.randomUUID().toString();
+        String remoteGroupScimIdentifier = UUID.randomUUID().toString();
+        remoteProvisionedGroupRepository.save(new RemoteProvisionedGroup(guestUserRole.getRole(), remoteGroupScimIdentifier, "8"));
+        remoteProvisionedUserRepository.save(new RemoteProvisionedUser(guestUserRole.getUser(), remoteUserScimIdentifier, "8"));
+        stubForUpdateScimRolePatch();
+        stubForDeleteScimUser();
+
+        given()
+                .when()
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("remoteUserScimIdentifier", remoteUserScimIdentifier)
+                .pathParams("remoteGroupScimIdentifier", remoteGroupScimIdentifier)
+                .delete("/api/external/v1/user_roles/by_provisioned_scim/{remoteUserScimIdentifier}/{remoteGroupScimIdentifier}")
+                .then()
+                .statusCode(204);
+
+        assertFalse(userRoleRepository.findById(guestUserRole.getId()).isPresent());
+    }
+
+    @Test
+    void deleteUserRoleByProvisionedScimUserNotFound() {
+        given()
+                .when()
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("remoteUserScimIdentifier", "bogus-user")
+                .pathParams("remoteGroupScimIdentifier", "bogus-group")
+                .delete("/api/external/v1/user_roles/by_provisioned_scim/{remoteUserScimIdentifier}/{remoteGroupScimIdentifier}")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    void deleteUserRoleByProvisionedScimGroupNotFound() {
+        UserRole userRole = userRoleRepository.findByRoleName("Wiki").stream().findFirst().get();
+        String remoteUserScimIdentifier = UUID.randomUUID().toString();
+        remoteProvisionedUserRepository.save(new RemoteProvisionedUser(userRole.getUser(), remoteUserScimIdentifier, "8"));
+
+        given()
+                .when()
+                .header(API_TOKEN_HEADER, API_TOKEN_HASH)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("remoteUserScimIdentifier", remoteUserScimIdentifier)
+                .pathParams("remoteGroupScimIdentifier", "bogus-group")
+                .delete("/api/external/v1/user_roles/by_provisioned_scim/{remoteUserScimIdentifier}/{remoteGroupScimIdentifier}")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    void deleteUserRoleByProvisionedScimInvalidAPIToken() {
+        given()
+                .when()
+                .header(API_TOKEN_HEADER, "bogus")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("remoteUserScimIdentifier", "bogus-user")
+                .pathParams("remoteGroupScimIdentifier", "bogus-group")
+                .delete("/api/external/v1/user_roles/by_provisioned_scim/{remoteUserScimIdentifier}/{remoteGroupScimIdentifier}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
     void userRoleProvisioningEmail() throws Exception {
         List<Long> roleIdentifiers = List.of(
                 roleRepository.findByName("Network").get().getId(),
