@@ -168,8 +168,8 @@ public interface Manage {
                                 applicationMap = new HashMap<>(applicationMap);
                             }
                             applicationMap.put("landingPage", applicationUsage.getLandingPage());
-                            List<Map<String, Object>> policies = policiesByServiceProviders(List.of((String) applicationMap.get("entityid")));
-                            applicationMap.put("policies", policies);
+                            List<Map<String, Object>> policies = policiesByServiceProviders(List.of((String) applicationMap.getOrDefault("entityid", "nope")));
+                            applicationMap.put("policies", policies != null ? policies : List.of());
                             return applicationMap;
                         })
                         .toList()));
