@@ -80,9 +80,9 @@ class CRMControllerTest extends AbstractMailTest {
         User user = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation)
                 .get();
         assertEquals(1, user.getUserRoles().size());
-        //Assert that both uid and sub have the '@' replaced with an '_'
+        //Assert that only sub have the '@' replaced with an '_'
         assertEquals("urn:collab:person:hardewijk.org:new_user", user.getSub());
-        assertEquals("new_user", user.getUid());
+        assertEquals("new@user", user.getUid());
 
         UserRole userRole = user.getUserRoles().iterator().next();
         assertFalse(userRole.isGuestRoleIncluded());

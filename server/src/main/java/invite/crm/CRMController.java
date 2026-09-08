@@ -707,8 +707,7 @@ public class CRMController implements ApplicationResource {
                 crmContact.getEmail());
         //Need to keep track of this, for reporting back to CRM API consumers
         unsavedUser.setMiddleName(crmContact.getMiddlename());
-        String uid = crmContact.getUid();
-        unsavedUser.setUid(StringUtils.hasText(uid) ? uid.replace("@", "_") : uid);
+        unsavedUser.setUid(crmContact.getUid());
         unsavedUser.setCrmContactId(crmContact.getContactId());
         unsavedUser.setOrganisation(organisation);
         User user = userRepository.save(unsavedUser);
