@@ -559,7 +559,7 @@ public class CRMController {
     }
 
     private String constructSub(String schacHomeOrganisation, String uid) {
-        return String.format("%s:%s:%s", collabPersonPrefix, schacHomeOrganisation, uid);
+        return String.format("%s:%s:%s", collabPersonPrefix, schacHomeOrganisation, uid.replace("@", "_"));
     }
 
     private List<CRMRole> syncCrmRoles(CRMContact crmContact, User user) {
