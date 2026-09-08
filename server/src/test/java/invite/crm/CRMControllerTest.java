@@ -53,7 +53,7 @@ class CRMControllerTest extends AbstractMailTest {
         CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
         String crmContactID = UUID.randomUUID().toString();
         String crmOrganisationID = UUID.randomUUID().toString();
-        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "new_user", "hardewijk.org", true);
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "new@user", "hardewijk.org", true);
         //These two applications are linked to the 'BVW' CRM role
         stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
         stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
@@ -80,6 +80,9 @@ class CRMControllerTest extends AbstractMailTest {
         User user = userRepository.findByCrmContactIdAndOrganisation(crmContactID, organisation)
                 .get();
         assertEquals(1, user.getUserRoles().size());
+        //Assert that both uid and sub have the '@' replaced with an '_'
+        assertEquals("urn:collab:person:hardewijk.org:new_user", user.getSub());
+        assertEquals("new_user", user.getUid());
 
         UserRole userRole = user.getUserRoles().iterator().next();
         assertFalse(userRole.isGuestRoleIncluded());

@@ -666,7 +666,7 @@ public class CRMController implements ApplicationResource {
     }
 
     private boolean provisionUser(CRMContact crmContact, Organisation organisation) {
-        String sub = constructSub(crmContact.getSchacHomeOrganisation(), crmContact.getUid());
+        String sub = this.constructSub(crmContact.getSchacHomeOrganisation(), crmContact.getUid());
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
         User user = optionalUser.orElseGet(() -> createUser(crmContact, sub, organisation));
         if (optionalUser.isPresent()) {
@@ -707,7 +707,8 @@ public class CRMController implements ApplicationResource {
                 crmContact.getEmail());
         //Need to keep track of this, for reporting back to CRM API consumers
         unsavedUser.setMiddleName(crmContact.getMiddlename());
-        unsavedUser.setUid(crmContact.getUid());
+        String uid = crmContact.getUid();
+        unsavedUser.setUid(StringUtils.hasText(uid) ? uid.replace("@", "_") : uid);
         unsavedUser.setCrmContactId(crmContact.getContactId());
         unsavedUser.setOrganisation(organisation);
         User user = userRepository.save(unsavedUser);
@@ -720,7 +721,7 @@ public class CRMController implements ApplicationResource {
     }
 
     private String constructSub(String schacHomeOrganisation, String uid) {
-        return String.format("%s:%s:%s", collabPersonPrefix, schacHomeOrganisation, uid);
+        return String.format("%s:%s:%s", collabPersonPrefix, schacHomeOrganisation, uid.replace("@", "_"));
     }
 
     private List<CRMRole> syncCrmRoles(CRMContact crmContact, User user) {
