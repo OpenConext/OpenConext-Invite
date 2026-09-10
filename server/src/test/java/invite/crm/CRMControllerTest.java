@@ -1256,6 +1256,25 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void contactNonExistingRole() {
+        CRMRole crmRole = new CRMRole("roleId", "nada", "noppes");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "guest", "example.com", false);
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+    }
+        @Test
     void deleteObsoleteCrmRole() {
         //Isolate this test from the seeded "Mail" CRM role, which is still valid and would otherwise
         //also be touched by reconcileCrmRolesWithConfig - see reconcileCrmRolesWithConfigOnStartup

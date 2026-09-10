@@ -6,7 +6,6 @@ import invite.api.ApplicationResource;
 import invite.api.RoleOperations;
 import invite.audit.UserRoleAuditService;
 import invite.config.HashGenerator;
-import invite.exception.InvalidInputException;
 import invite.exception.NotFoundException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
@@ -154,7 +153,7 @@ public class CRMController implements ApplicationResource {
                         crmConfigEntry -> crmConfigEntry.code(),
                         crmConfigEntry -> crmConfigEntry
                 ));
-        LOG.debug(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
+        LOG.info(String.format("Parsed %s entries from %s", this.crmConfig.size(), crmConfigResource.getDescription()));
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -235,13 +234,12 @@ public class CRMController implements ApplicationResource {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> contact(@RequestBody CRMContact crmContact) {
-        LOG.debug("POST /api/external/v1/crm: " + crmContact);
+        LOG.info("POST /api/external/v1/crm: " + crmContact);
 
-        List<CRMRole> distinctRoles = crmContact.getRoles().stream()
+        List<CRMRole> distinctRoles = new ArrayList<>(crmContact.getRoles().stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(CRMRole::getRoleId, r -> r, (a, b) -> a, LinkedHashMap::new))
-                .values().stream()
-                .collect(Collectors.toCollection(ArrayList::new));
+                .values());
         crmContact.setRoles(distinctRoles);
 
         boolean created;
@@ -268,12 +266,12 @@ public class CRMController implements ApplicationResource {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> delete(@RequestBody CRMContact crmContact) {
-        LOG.debug("DELETE /api/external/v1/crm: " + crmContact);
+        LOG.info("DELETE /api/external/v1/crm: " + crmContact);
 
         List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
                 crmContact.getContactId(), crmContact.getOrganisation().getOrganisationId());
         invitations.forEach(invitation -> {
-            LOG.debug("Deleting CRM invitation: " + invitation.getEmail());
+            LOG.info("Deleting CRM invitation: " + invitation.getEmail());
             this.invitationRepository.delete(invitation);
         });
         String organisationId = crmContact.getOrganisation().getOrganisationId();
@@ -285,7 +283,7 @@ public class CRMController implements ApplicationResource {
                             .filter(userRole -> !StringUtils.hasText(userRole.getRole().getCrmRoleId()))
                             .count();
                     if (inviteNativeUserRolesCount == 0L) {
-                        LOG.debug("Deleting CRM user: " + user.getEmail());
+                        LOG.info("Deleting CRM user: " + user.getEmail());
                         user.getUserRoles().forEach(crmUserRole ->
                                 this.userRoleAuditService.logAction(crmUserRole, UserRoleAudit.ActionType.DELETE));
                         this.provisioningService.deleteUserRequest(user);
@@ -295,7 +293,7 @@ public class CRMController implements ApplicationResource {
                                 .filter(userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId()))
                                 .toList();
 
-                        LOG.debug("Deleting all CRM roles (but not deleting the user) for user: " + user.getEmail());
+                        LOG.info("Deleting all CRM roles (but not deleting the user) for user: " + user.getEmail());
                         crmUserRoles.forEach(crmUserRole -> {
                             this.userRoleAuditService.logAction(crmUserRole, UserRoleAudit.ActionType.DELETE);
                             this.provisioningService.deleteUserRoleRequest(crmUserRole);
@@ -320,10 +318,8 @@ public class CRMController implements ApplicationResource {
                                                  @RequestParam(value = "idp", required = false) String idpSchacHomeOrganisation,
                                                  @RequestParam(value = "guid", required = false) String crmOrganisationId,
                                                  @RequestParam(value = "role", required = false) String crmRoleName) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("query for profiles: uid=%s, idp=%s, guid=%s, role=%s",
-                    userUid, idpSchacHomeOrganisation, crmOrganisationId, crmRoleName));
-        }
+        LOG.info(String.format("query for profiles: uid=%s, idp=%s, guid=%s, role=%s",
+                userUid, idpSchacHomeOrganisation, crmOrganisationId, crmRoleName));
         List<User> users;
         if (StringUtils.hasText(userUid) && StringUtils.hasText(idpSchacHomeOrganisation)) {
             String sub = this.constructSub(idpSchacHomeOrganisation, userUid);
@@ -354,7 +350,7 @@ public class CRMController implements ApplicationResource {
                 .collect(Collectors.toMap(User::getId, user -> user, (a, b) -> a, LinkedHashMap::new))
                 .values().stream().toList();
         if (users.isEmpty()) {
-            LOG.debug("Returning empty results query for /api/profile");
+            LOG.info("Returning empty results query for /api/profile");
             ProfileResponse profileResponse = crmUserNotFoundOrNoRoles();
             return ResponseEntity.ok(profileResponse);
         }
@@ -384,9 +380,7 @@ public class CRMController implements ApplicationResource {
                                                         role.getCrmRoleId()))
                                                 .toList()
                                 )).toList());
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Results for /api/profile %s", profileResponse));
-        }
+        LOG.info(String.format("Results for /api/profile %s", profileResponse));
         return ResponseEntity.ok(profileResponse);
     }
 
@@ -397,14 +391,10 @@ public class CRMController implements ApplicationResource {
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<Map<String, ConnectionStatusResponse>> connectionStatus(@RequestBody ConnectionStatus connectionStatus) {
         String crmOrganisationId = connectionStatus.organisationId();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("/crm/api/v1/profiles for crmOrganisationId %s", crmOrganisationId));
-        }
+        LOG.info(String.format("/crm/api/v1/profiles for crmOrganisationId %s", crmOrganisationId));
         Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(crmOrganisationId);
         if (optionalOrganisation.isEmpty()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("/crm/api/v1/profiles No organisation found for %s", crmOrganisationId));
-            }
+            LOG.info(String.format("/crm/api/v1/profiles No organisation found for %s", crmOrganisationId));
             return ResponseEntity.ok(Map.of());
         }
         Organisation organisation = optionalOrganisation.get();
@@ -467,9 +457,7 @@ public class CRMController implements ApplicationResource {
                                 CRMStatusCode.InProcess.getStatusCode()
                         )
                 ));
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("/crm/api/v1/profiles Returning %s", responseMap));
-        }
+        LOG.info(String.format("/crm/api/v1/profiles Returning %s", responseMap));
         return ResponseEntity.ok(responseMap);
     }
 
@@ -479,9 +467,7 @@ public class CRMController implements ApplicationResource {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<ResendInvitationResponse> resendInvitation(@RequestBody ResendInvitation resendInvitation) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("/crm/api/v1/invite/resend for %s", resendInvitation));
-        }
+        LOG.info(String.format("/crm/api/v1/invite/resend for %s", resendInvitation));
         List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(resendInvitation.crmContatcId(),
                 resendInvitation.crmOrganisationId());
         invitations.forEach(invitation -> {
@@ -502,9 +488,7 @@ public class CRMController implements ApplicationResource {
         });
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         ResendInvitationResponse response = new ResendInvitationResponse(timestamp, 200, "ok", "Resend invitation");
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("/crm/api/v1/invite/resend returning %s", response));
-        }
+        LOG.info(String.format("/crm/api/v1/invite/resend returning %s", response));
         return ResponseEntity.ok(response);
     }
 
@@ -514,14 +498,14 @@ public class CRMController implements ApplicationResource {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> remove(@RequestBody RemoveRoles removeRoles) {
-        LOG.debug("POST /crm/api/v1/invite/remove: " + removeRoles);
+        LOG.info("POST /crm/api/v1/invite/remove: " + removeRoles);
 
         Optional<Organisation> optionalOrganisation = organisationRepository.findByCrmOrganisationId(removeRoles.crmOrganisationId());
         optionalOrganisation
                 .flatMap(organisation -> userRepository
                         .findByCrmContactIdAndOrganisation(removeRoles.crmContatcId(), organisation))
                 .ifPresent(user -> {
-                    LOG.debug("Removing roles from CRM user: " + user.getEmail());
+                    LOG.info("Removing roles from CRM user: " + user.getEmail());
 
                     Predicate<UserRole> predicate = userRole -> StringUtils.hasText(userRole.getRole().getCrmRoleId());
                     user.getUserRoles().stream()
@@ -541,9 +525,7 @@ public class CRMController implements ApplicationResource {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<List<CRMOrganisation>> organisations() {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("/crm/api/v1/organisations called");
-        }
+        LOG.info("/crm/api/v1/organisations called");
 
         List<Organisation> organisations = organisationRepository.findByCrmOrganisationIdIsNotNull();
         List<CRMOrganisation> crmOrganisations = organisations.stream()
@@ -553,9 +535,7 @@ public class CRMController implements ApplicationResource {
                         organisation.getCrmOrganisationName()
                 ))
                 .toList();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("/crm/api/v1/organisations returning %s", crmOrganisations));
-        }
+        LOG.info(String.format("/crm/api/v1/organisations returning %s", crmOrganisations));
         return ResponseEntity.ok(crmOrganisations);
     }
 
@@ -580,7 +560,7 @@ public class CRMController implements ApplicationResource {
     @SecurityRequirement(name = API_HEADER_SCHEME_NAME)
     @PreAuthorize("hasRole('CRM')")
     public ResponseEntity<String> send(@RequestBody SendInvitation sendInvitation) {
-        LOG.debug("POST /crm/api/v1/invite/send: " + sendInvitation);
+        LOG.info("POST /crm/api/v1/invite/send: " + sendInvitation);
 
         if (CollectionUtils.isEmpty(sendInvitation.roles())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Roles are required for /crm/api/v1/invite/send");
@@ -600,7 +580,7 @@ public class CRMController implements ApplicationResource {
 
     @GetMapping(value = "/api/external/v1/system/crm/sync", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Map<CRMSync, List<Map<String, String>>>>> syncReport(@Parameter(hidden = true) User user) {
-        LOG.debug("GET /api/v1/crm");
+        LOG.info("GET /api/v1/crm");
 
         UserPermissions.assertSuperUser(user);
         List<Role> crmRoles = roleRepository.findByCrmRoleIdIsNotNull();
@@ -690,7 +670,7 @@ public class CRMController implements ApplicationResource {
                 });
         userRepository.save(user);
 
-        LOG.debug(String.format("Provisioned user %s with roles %s",
+        LOG.info(String.format("Provisioned user %s with roles %s",
                 user.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
 
         return optionalUser.isEmpty();
@@ -712,7 +692,7 @@ public class CRMController implements ApplicationResource {
         unsavedUser.setOrganisation(organisation);
         User user = userRepository.save(unsavedUser);
 
-        LOG.debug(String.format("Created new user %s with sub %s",
+        LOG.info(String.format("Created new user %s with sub %s",
                 user.getEmail(), sub));
 
         this.provisioningService.newUserRequest(user);
@@ -724,7 +704,7 @@ public class CRMController implements ApplicationResource {
     }
 
     private List<CRMRole> syncCrmRoles(CRMContact crmContact, User user) {
-        LOG.debug(String.format("Start syncing crmRoles %s for user %s", crmContact.getRoles(), user.getEmail()));
+        LOG.info(String.format("Start syncing crmRoles %s for user %s", crmContact.getRoles(), user.getEmail()));
         // Removes roles no longer present in CRM
         user.getUserRoles().removeIf(userRole -> {
             Role role = userRole.getRole();
@@ -744,7 +724,7 @@ public class CRMController implements ApplicationResource {
                 .filter(crmRole -> currentRoles.stream()
                         .noneMatch(role -> crmRole.getRoleId().equalsIgnoreCase(role.getCrmRoleId())))
                 .toList();
-        LOG.debug(String.format("Finished syncing crmRoles %s for user %s", crmContact.getRoles(), user.getEmail()));
+        LOG.info(String.format("Finished syncing crmRoles %s for user %s", crmContact.getRoles(), user.getEmail()));
         return crmRoles;
     }
 
@@ -798,10 +778,10 @@ public class CRMController implements ApplicationResource {
 
             Optional<String> idpName = identityProviderName(manage, invitation);
             if (crmContact.isSuppressInvitation()) {
-                LOG.debug(String.format("Not actualy sending invitation to user %s for roles %s, because suppressInvitation is set to true",
+                LOG.info(String.format("Not actualy sending invitation to user %s for roles %s, because suppressInvitation is set to true",
                         invitation.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
             } else {
-                LOG.debug(String.format("Sending invitation to user %s for roles %s",
+                LOG.info(String.format("Sending invitation to user %s for roles %s",
                         invitation.getEmail(), roles.stream().map(Role::getName).collect(Collectors.joining(","))));
                 mailBox.sendInviteMail(this.provisionable, invitation, groupedProviders, Language.en, idpName);
             }
@@ -821,7 +801,8 @@ public class CRMController implements ApplicationResource {
     private Optional<Role> createRole(CRMOrganisation crmOrganisation, CRMRole crmRole, Organisation organisation) {
         CRMConfigEntry crmConfigEntry = this.crmConfig.get(crmRole.getSabCode());
         if (crmConfigEntry == null) {
-            throw new InvalidInputException("CRM sabCode is not configured: " + crmRole.getSabCode());
+            LOG.error(String.format("Missing CRM sabCode in the configuration: %s", crmRole));
+            return Optional.empty();
         }
         if (crmConfigEntry.crmManageIdentifiers().isEmpty()) {
             return Optional.empty();
