@@ -7,6 +7,8 @@ import {headerIcon} from "../utils/Forms";
 import "./Entities.scss";
 import {Button, Loader, Pagination, Tooltip} from "@surfnet/sds";
 import {pageCount, searchParameterFromQueryParams, storeSearchQueryParameter} from "../utils/Pagination";
+import {getStoredSearchQuery, storeSearchQuery} from "../utils/SearchQueryStorage";
+import {useSearchGroup} from "../utils/SearchGroupContext";
 import {useNavigate} from "react-router";
 
 export const Entities = ({
@@ -41,7 +43,13 @@ export const Entities = ({
                              busy = false
                          }) => {
 
-    const [query, setQuery] = useState("");
+    //Tabs sharing a SearchGroupContext (e.g. all Home tabs, or all tabs of one Role) carry
+    //the search text over when switching between them; standalone pages fall back to a key
+    //scoped to this page and model, so unrelated pages never leak search text into each other.
+    const searchGroup = useSearchGroup();
+    const searchQueryKey = searchGroup ? `group:${searchGroup}` : `${window.location.pathname}:${modelName}`;
+
+    const [query, setQuery] = useState(() => getStoredSearchQuery(searchQueryKey));
     const [sorted, setSorted] = useState(searchParameterFromQueryParams("sort", false, defaultSort));
     const [reverse, setReverse] = useState("DESC" === searchParameterFromQueryParams("sortDirection", false, "ASC"));
     const [page, setPage] = useState(searchParameterFromQueryParams("page", true, 1));
@@ -55,6 +63,14 @@ export const Entities = ({
         }
     }, [displaySearch, inputFocus])
 
+    //Restore the results for a query that was persisted when the user last left this tab
+    useEffect(() => {
+        if (query) {
+            callCustomSearch(query, sorted, reverse, page);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const newEntity = () => {
         if (newEntityFunc) {
             newEntityFunc();
@@ -67,6 +83,7 @@ export const Entities = ({
         const newQuery = e.target.value;
         const currentQuery = query;
         setQuery(newQuery);
+        storeSearchQuery(searchQueryKey, newQuery);
         //When the user changes the query text we reset the page number
         const queryChanged = currentQuery !== newQuery;
         if (queryChanged) {

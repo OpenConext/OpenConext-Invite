@@ -21,6 +21,7 @@ import DOMPurify from "dompurify";
 import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {displayExpiryDate, futureDate} from "../utils/Date";
+import {SearchGroupContext} from "../utils/SearchGroupContext";
 
 export const Role = () => {
     const {id, tab = "users"} = useParams();
@@ -88,7 +89,14 @@ export const Role = () => {
                         />
                     </Page>
                 ];
-                setTabs(newTabs.filter(tab => tab !== null));
+                const filteredTabs = newTabs.filter(tab => tab !== null);
+                setTabs(filteredTabs);
+                //Ensure the URL always reflects the actually active tab - even the default one - so a tab
+                //switch always results in a distinct, stable URL (see Home.jsx for the same pattern)
+                const resolvedTab = filteredTabs.some(t => t.props.name === currentTab) ?
+                    currentTab : filteredTabs[0].props.name;
+                setCurrentTab(resolvedTab);
+                navigate(`/roles/${id}/${resolvedTab}`, {replace: true});
                 if (res.unknownInManage) {
                     setFlash(I18n.t("roles.unknownInManageDisabled"), "error");
                 }
@@ -223,10 +231,12 @@ export const Role = () => {
                     </div>
                 </UnitHeader>}
             <div className="mod-role">
-                <Tabs activeTab={currentTab}
-                      tabChanged={tabChanged}>
-                    {tabs}
-                </Tabs>
+                <SearchGroupContext.Provider value={`role-${id}`}>
+                    <Tabs activeTab={currentTab}
+                          tabChanged={tabChanged}>
+                        {tabs}
+                    </Tabs>
+                </SearchGroupContext.Provider>
             </div>
         </div>);
 };

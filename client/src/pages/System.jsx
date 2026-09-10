@@ -10,6 +10,7 @@ import {RolesUnknownInManage} from "../tabs/RolesUnknownInManage";
 import {Invitations} from "../tabs/Invitations";
 import {ExpiredUserRoles} from "../tabs/ExpiredUserRoles";
 import {PerformanceSeed} from "../tabs/PerformanceSeed";
+import {SearchGroupContext} from "../utils/SearchGroupContext";
 
 
 export const System = () => {
@@ -52,6 +53,13 @@ export const System = () => {
         },
         [currentTab])
 
+    //Ensure the URL always reflects the actually active tab - even the default one - so a tab
+    //switch always results in a distinct, stable URL (see Home.jsx for the same pattern)
+    useEffect(() => {
+            navigate(`/system/${currentTab}`, {replace: true});
+        },
+        []);// eslint-disable-line react-hooks/exhaustive-deps
+
     const tabChanged = (name) => {
         setCurrentTab(name);
         navigate(`/system/${name}`);
@@ -59,10 +67,12 @@ export const System = () => {
 
     return (<>
         <div className="mod-system">
-            <Tabs activeTab={currentTab}
-                  tabChanged={tabChanged}>
-                {tabs}
-            </Tabs>
+            <SearchGroupContext.Provider value="system">
+                <Tabs activeTab={currentTab}
+                      tabChanged={tabChanged}>
+                    {tabs}
+                </Tabs>
+            </SearchGroupContext.Provider>
         </div>
     </>);
 };

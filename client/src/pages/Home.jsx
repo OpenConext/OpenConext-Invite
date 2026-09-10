@@ -15,6 +15,7 @@ import {ApplicationUsers} from "../tabs/ApplicationUsers";
 import Applications from "../tabs/Applications";
 import {isEmpty} from "../utils/Utils";
 import {MineInvitations} from "../tabs/MineInvitations";
+import {SearchGroupContext} from "../utils/SearchGroupContext";
 
 export const Home = () => {
     const {tab = "roles"} = useParams();
@@ -99,10 +100,12 @@ export const Home = () => {
                             svgClick={() => winkOwl()}>
                     <p>{I18n.t("header.subTitle")}</p>
                 </UnitHeader>
-                <Tabs activeTab={currentTab}
-                      tabChanged={tabChanged}>
-                    {tabs}
-                </Tabs>
+                <SearchGroupContext.Provider value="home">
+                    <Tabs activeTab={currentTab}
+                          tabChanged={tabChanged}>
+                        {tabs}
+                    </Tabs>
+                </SearchGroupContext.Provider>
             </div>
         </div>
     );
