@@ -1256,6 +1256,60 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void reconcileCrmRoleKeepsExistingApplicationWhenAnotherIsRemoved() throws JsonProcessingException {
+        //Regression test for https://github.com/OpenConext/OpenConext-Invite/issues/764 - reconciling a role with
+        //multiple applications used to throw a DataIntegrityViolationException (duplicate application_usages_unique)
+        //when only some applications were removed from crm_config.json, because the kept application was staged as a
+        //brand new transient ApplicationUsage instead of reusing the existing DB row
+        CRMRole crmRole = new CRMRole(UUID.randomUUID().toString(), "AAI", "AAIverantwoordelijke");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, "aai@user", "hogeschool.org", true);
+
+        //AAI in crm_config.json is configured with two applications of the same type: https://wiki and https://network
+        stubForManageProvidersByEntityID(EntityType.SAML20_SP, "https://wiki", "https://network");
+        stubForManageProvisioning(List.of("5"));
+        stubForCreateScimRole();
+        stubForCreateScimUser();
+        stubForUpdateScimRole();
+        stubForDeleteScimRole();
+
+        given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        Organisation organisation = organisationRepository.findByCrmOrganisationId(crmOrganisationID)
+                .orElseThrow(() -> new NotFoundException("Organisation not found: " + crmOrganisationID));
+        Role role = roleRepository.findByCrmRoleIdAndOrganisation(crmRole.getRoleId(), organisation)
+                .orElseThrow(() -> new NotFoundException("Role not found"));
+        Set<String> previousManageIds = role.getApplicationUsages().stream()
+                .map(applicationUsage -> applicationUsage.getApplication().getManageId())
+                .collect(java.util.stream.Collectors.toSet());
+        assertEquals(2, previousManageIds.size());
+
+        //Simulate an operator removing "https://network" from crm_config.json for the AAI sabCode
+        Map<String, CRMConfigEntry> crmConfig = (Map<String, CRMConfigEntry>)
+                org.springframework.test.util.ReflectionTestUtils.getField(crmController, "crmConfig");
+        crmConfig.put("AAI", new CRMConfigEntry("AAI", "AAIverantwoordelijke",
+                List.of(new CRMManageIdentifier(EntityType.SAML20_SP, "https://wiki"))));
+
+        //Must not throw a DataIntegrityViolationException for the kept "https://wiki" application usage
+        crmController.reconcileCrmRolesWithConfig();
+
+        Role reconciled = roleRepository.findByCrmRoleIdAndOrganisation(crmRole.getRoleId(), organisation).get();
+        assertEquals(1, reconciled.getApplicationUsages().size());
+        String remainingManageId = reconciled.getApplicationUsages().iterator().next().getApplication().getManageId();
+        assertTrue(previousManageIds.contains(remainingManageId));
+    }
+
+    @Test
     void contactNonExistingRole() {
         CRMRole crmRole = new CRMRole("roleId", "nada", "noppes");
         String crmContactID = UUID.randomUUID().toString();

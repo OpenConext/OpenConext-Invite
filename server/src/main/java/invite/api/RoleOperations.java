@@ -35,10 +35,19 @@ public class RoleOperations {
     }
 
     public void syncRoleApplicationUsages(Role role) {
+        syncRoleApplicationUsages(role, role.getApplicationUsages());
+    }
+
+    //Resolves desiredApplicationUsages against the database without ever staging them onto role.applicationUsages first.
+    //When role is an already-managed (attached) entity, staging unresolved/transient ApplicationUsage instances onto it
+    //before this method's repository queries run would dirty the persistence context and trigger an auto-flush mid-resolution,
+    //causing Hibernate to insert those transient duplicates before the reused/orphaned rows are reconciled -
+    //see https://github.com/OpenConext/OpenConext-Invite/issues/764
+    public void syncRoleApplicationUsages(Role role, Set<ApplicationUsage> desiredApplicationUsages) {
         ApplicationRepository applicationRepository = appRepositoryResource.getApplicationRepository();
         ApplicationUsageRepository applicationUsageRepository = appRepositoryResource.getApplicationUsageRepository();
         //This is the disadvantage of having to save references from Manage
-        Set<ApplicationUsage> applicationUsages = role.getApplicationUsages().stream()
+        Set<ApplicationUsage> applicationUsages = desiredApplicationUsages.stream()
                 .map(applicationUsageFromClient -> {
                     Application application = applicationUsageFromClient.getApplication();
                     Application applicationFromDB = applicationRepository

@@ -218,10 +218,11 @@ public class CRMController implements ApplicationResource {
         if (new HashSet<>(previousApplicationIdentifiers).equals(desiredIdentifiers)) {
             return false;
         }
-        //Stage the desired (transient) set first - syncRoleApplicationUsages reads role.getApplicationUsages()
-        //as its "client-submitted" input and replaces it with a refined set that reuses existing DB rows
-        role.setApplicationUsages(desiredApplicationUsages);
-        roleOperations.syncRoleApplicationUsages(role);
+        //role is an already-managed entity here (loaded via roleRepository.findByCrmRoleIdIsNotNull), so the desired
+        //set must be resolved against the DB before it is ever assigned to role.applicationUsages - staging the
+        //unresolved (transient) set first would dirty the persistence context and trigger an auto-flush mid-resolution,
+        //causing duplicate-key inserts for applications that should have been reused instead of re-created
+        roleOperations.syncRoleApplicationUsages(role, desiredApplicationUsages);
         Role saved = roleRepository.save(role);
         provisioningService.updateGroupRequest(previousApplicationIdentifiers, saved, false);
         LOG.info(String.format("Reconciled applications for CRM role %s based on crm_config.json", role.getName()));

@@ -506,6 +506,21 @@ public abstract class AbstractTest {
                 .withBody(body)));
     }
 
+    //Unlike stubForManageProviderByEntityID, this differentiates multiple entityIds of the same EntityType by
+    //matching on the request body, so each is stubbed distinctly instead of the last registration winning for all
+    protected void stubForManageProvidersByEntityID(EntityType entityType, String... entityIds) throws JsonProcessingException {
+        String path = String.format("/manage/api/internal/rawSearch/%s", entityType.name().toLowerCase());
+        for (String entityId : entityIds) {
+            Optional<Map<String, Object>> provider = localManage.providerByEntityID(entityType, entityId);
+            String body = objectMapper.writeValueAsString(provider.isPresent() ? List.of(provider.get()) : Collections.emptyList());
+            stubFor(post(urlPathMatching(path))
+                    .withRequestBody(containing(entityId))
+                    .willReturn(aResponse()
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(body)));
+        }
+    }
+
     protected void stubForDeleteScimUser() {
         stubFor(delete(urlPathMatching("/api/scim/v2/Users/(.*)"))
                 .willReturn(aResponse()
