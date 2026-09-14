@@ -3,8 +3,6 @@ package invite.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,13 +30,11 @@ public class Auditable implements Serializable {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    @PrePersist
     public void prePersist() {
         createdAt = Instant.now();
         createdBy = currentUser();
     }
 
-    @PreUpdate
     public void preUpdate() {
         updatedAt = Instant.now();
         updatedBy = currentUser();

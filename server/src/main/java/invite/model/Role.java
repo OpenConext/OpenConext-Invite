@@ -104,6 +104,16 @@ public class Role implements Serializable, Provisionable {
     @Transient
     private List<Map<String, Object>> applicationMaps;
 
+    @PrePersist
+    public void prePersist() {
+        auditable.prePersist();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        auditable.preUpdate();
+    }
+
     public Role(Long id,
                 String name,
                 String description,
