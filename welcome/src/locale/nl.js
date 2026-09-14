@@ -105,6 +105,7 @@ const nl = {
         continue: "Doorgaan",
         emailMismatch: "De uitnodiger heeft aangegeven dat je de uitnodiging dient te accepteren met e-mailadres {{email}}, " +
             "maar je bent ingelogd met een account met een ander mailadres. Log opnieuw in met een ander account.",
+        crmOrganisationMismatch: "Je bent al lid van een andere CRM-organisatie. Log in met een ander account.<br/><br/> Bericht van de server: {{message}}",
         inviteRedeemUrl: "Je nieuwe rol vereist een Microsoft account. Druk op Doorgaan om deze te registreren.",
         graphEmailViolation: "Je nieuwe rol vereist een Microsoft account, alleen microsoft ondersteunt je e-mail niet. Er wordt geen MS account voor je aangemaakt.",
         // userWaitTime: "Je nieuwe rol {{role}} vereist externe provisioning. Je ontvangt een e-mail als dit is afgerond (inschatting ~{{waitTime}}).",
