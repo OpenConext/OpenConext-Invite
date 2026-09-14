@@ -70,9 +70,10 @@ public class DefaultErrorController implements ErrorController {
             }
         } else if (error instanceof RemoteException remoteException) {
             statusCode = HttpStatus.resolve(remoteException.getStatusCode().value());
+            LOG.error(String.format("Error occurred; %s", error), error);
         } else {
             if (!(error instanceof NotFoundException || error instanceof NoResourceFoundException)) {
-                boolean logStackTrace = !(error instanceof UserRestrictionException || error instanceof invite.exception.RemoteException);
+                boolean logStackTrace = !(error instanceof UserRestrictionException);
                 LOG.error(String.format("Error occurred; %s", error), logStackTrace ? error : null);
             }
             //https://github.com/spring-projects/spring-boot/issues/3057
