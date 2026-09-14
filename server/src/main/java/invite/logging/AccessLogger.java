@@ -20,7 +20,7 @@ public class AccessLogger {
                 "applications", applications(role),
                 "roleId", role.getId().toString()
         ));
-        log.info(String.format("%s role %s", event, role.getName()));
+        log.info(String.format("%s role %s by user %s", event, role.getName(), provisionable.getName()));
     }
 
     private static String applications(Role role) {
@@ -37,7 +37,7 @@ public class AccessLogger {
                 "applications", applications(role),
                 "roleId", role.getId().toString()
         ));
-        log.info(String.format("%s userRole %s", event, role.getName()));
+        log.info(String.format("%s userRole %s by user %s", event, role.getName(), user.getSub()));
     }
 
     public static void invitation(Log log, Event event, Invitation invitation) {
@@ -50,7 +50,7 @@ public class AccessLogger {
                 "applications", roles.stream().map(AccessLogger::applications).collect(Collectors.joining(", ")),
                 "roles", String.join(",", roles.stream().map(Role::getName).toList())
         ));
-        log.info(String.format("%s invitation for %s", event, invitation.getEmail()));
+        log.info(String.format("%s invitation for %s by user %s", event, invitation.getEmail(), inviter != null ? inviter.getSub() : invitation.getRemoteApiUser()));
     }
 
     public static void user(Log log, Event event, User user) {
