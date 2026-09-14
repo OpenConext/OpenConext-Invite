@@ -19,7 +19,10 @@ import invite.repository.RemoteProvisionedUserRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import invite.security.UserPermissions;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -100,6 +103,7 @@ public class UserController {
     }
 
     @GetMapping("config")
+    @Operation(summary = "Get user configuration", description = "Get configuration information and authentication status for the current user session")
     public ResponseEntity<Config> config(User user,
                                          @RequestParam(value = "guest", required = false, defaultValue = "false") boolean guest) {
         LOG.debug("GET /config");
@@ -114,6 +118,7 @@ public class UserController {
     }
 
     @GetMapping("me")
+    @Operation(summary = "Get current authenticated user", description = "Retrieve user details and roles for the currently authenticated user")
     @Transactional(readOnly = true)
     public ResponseEntity<User> me(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/me for user %s", user.getEduPersonPrincipalName()));
@@ -126,6 +131,7 @@ public class UserController {
     }
 
     @GetMapping("institutionAdmins")
+    @Operation(summary = "Get institution admins", description = "Retrieve list of institution admins for the current user's organization")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> institutionAdmins(@Parameter(hidden = true) User user,
                                                                        @RequestParam(value = "includeMe", required = false, defaultValue = "false") boolean includeMe) {
@@ -139,6 +145,7 @@ public class UserController {
     }
 
     @GetMapping("applicationManagers")
+    @Operation(summary = "Get application managers", description = "Retrieve list of application managers for the current user's organization")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> applicationManagers(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/applicationManagers for user %s", user.getEduPersonPrincipalName()));
@@ -150,6 +157,7 @@ public class UserController {
     }
 
     @GetMapping("other/{id}")
+    @Operation(summary = "Get user details by ID", description = "Retrieve details and roles for a specific user by their ID")
     @Transactional(readOnly = true)
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/other/%s for user %s", id, user.getEduPersonPrincipalName()));
@@ -170,6 +178,7 @@ public class UserController {
     }
 
     @GetMapping("search")
+    @Operation(summary = "Search users", description = "Search and paginate all users (super user only)")
     @Transactional(readOnly = true)
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
                                                             @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
@@ -201,6 +210,7 @@ public class UserController {
     }
 
     @GetMapping("search-by-application")
+    @Operation(summary = "Search users by application", description = "Search and paginate users and their roles within the institution admin's organization")
     @Transactional(readOnly = true)
     public ResponseEntity<Page<UserRoles>> searchByApplication(@Parameter(hidden = true) User user,
                                                                @RequestParam(value = "query", required = false, defaultValue = "") String query,
@@ -234,12 +244,14 @@ public class UserController {
     }
 
     @GetMapping("login")
+    @Operation(summary = "User login redirect", description = "Redirect user to client or welcome application login flow")
     public View login(@RequestParam(value = "app", required = false, defaultValue = "client") String app) {
         LOG.debug(String.format("/login for app: %s", app));
         return new RedirectView(app.equals("client") ? config.getClientUrl() : config.getWelcomeUrl(), false);
     }
 
     @GetMapping("logout")
+    @Operation(summary = "User logout", description = "Clear authentication session and log out current user")
     public ResponseEntity<Map<String, Integer>> logout(HttpServletRequest request,
                                                        @Parameter(hidden = true) Authentication authentication) {
         LOG.debug("/logout");
@@ -256,6 +268,7 @@ public class UserController {
     }
 
     @GetMapping("ms-accept-return/{manageId}/{userId}")
+    @Operation(summary = "Microsoft invitation accept return", description = "Handle callback redirect after Microsoft graph invitation acceptance")
     public View msAcceptReturn(@PathVariable("manageId") String manageId, @PathVariable("userId") Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -277,6 +290,12 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @Operation(summary = "Delete a user", description = "Delete an existing user by ID (super user only)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public ResponseEntity<Void> delete(@PathVariable("userId") Long userId, @Parameter(hidden = true) User user) {
         User other = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -291,6 +310,7 @@ public class UserController {
     }
 
     @PutMapping("/removeInstitutionAdmin/{userId}")
+    @Operation(summary = "Remove institution admin rights", description = "Remove institution admin status from an invited user")
     public ResponseEntity<Map<String, Integer>> removeInstitutionAdmin(@PathVariable("userId") Long userId, @Parameter(hidden = true) User user) {
         User other = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -312,6 +332,7 @@ public class UserController {
     }
 
     @PutMapping("/removeApplicationManager/{userId}")
+    @Operation(summary = "Remove application manager rights", description = "Clear application manager applications for a user")
     public ResponseEntity<Map<String, Integer>> removeApplicationManager(@PathVariable("userId") Long userId,
                                                                          @Parameter(hidden = true) User user) {
         User other = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
@@ -327,6 +348,7 @@ public class UserController {
     }
 
     @GetMapping("/institution-admins/{roleId}")
+    @Operation(summary = "Get institution admins by role", description = "Retrieve institution admins associated with a specific role")
     @Transactional(readOnly = true)
     public ResponseEntity<List<User>> institutionAdminsbyRole(@PathVariable Long roleId,
                                                    @Parameter(hidden = true) User user) {
@@ -342,7 +364,8 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-        @PostMapping("error")
+    @PostMapping("error")
+    @Operation(summary = "Log frontend error", description = "Log client-side error payload on the server")
     public ResponseEntity<Map<String, Integer>> error(@RequestBody Map<String, Object> payload,
                                                       @Parameter(hidden = true) User user) throws
             JsonProcessingException, UnknownHostException {

@@ -41,6 +41,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -237,6 +238,12 @@ public class InvitationController implements InvitationResource {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete an invitation", description = "Delete an existing invitation by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Invitation deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Invitation not found")
+    })
     public ResponseEntity<Void> deleteInvitation(@PathVariable("id") Long id,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/deleteInvitation/%s by user %s", id, user.getEduPersonPrincipalName()));
@@ -256,6 +263,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Resend an invitation", description = "Resend an existing invitation by ID to the invitee")
     public ResponseEntity<Map<String, Integer>> resendInvitation(@PathVariable("id") Long id,
                                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("ResendInvitation with id %s by user %s ", id, user.getEduPersonPrincipalName()));
@@ -265,6 +273,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("public")
+    @Operation(summary = "Get invitation by hash", description = "Retrieve an open invitation using its secure hash token")
     @Transactional(readOnly = true)
     public ResponseEntity<Invitation> getInvitation(@RequestParam("hash") String hash) {
         LOG.debug(String.format("getInvitation with hash %s", hash));
@@ -277,6 +286,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("all")
+    @Operation(summary = "Get all open invitations", description = "Retrieve all open invitations (super user only)")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Invitation>> all(@Parameter(hidden = true) User user) {
         LOG.debug("GET /all invitations");
@@ -286,6 +296,7 @@ public class InvitationController implements InvitationResource {
 
 
     @PostMapping("accept")
+    @Operation(summary = "Accept an invitation", description = "Accept an invitation using invitation ID and hash token")
     public ResponseEntity<Map<String, Object>> accept(@Validated @RequestBody AcceptInvitation acceptInvitation,
                                                       Authentication authentication,
                                                       HttpServletRequest servletRequest,
@@ -476,6 +487,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("roles/{roleId}")
+    @Operation(summary = "Get open invitations by Role", description = "Retrieve all open invitations for a specific role ID")
     public ResponseEntity<List<Invitation>> byRole(@PathVariable("roleId") Long roleId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /roles/%s by user %s", roleId, user.getEduPersonPrincipalName()));
 
@@ -488,6 +500,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("search")
+    @Operation(summary = "Search invitations", description = "Search and paginate invitations optionally filtered by role ID and search query")
     @Transactional(readOnly = true)
     public ResponseEntity<Page<Map<String, Object>>> search(@Parameter(hidden = true) User user,
                                                             @RequestParam(value = "roleId", required = false) Long roleId,
@@ -572,6 +585,7 @@ public class InvitationController implements InvitationResource {
     }
 
     @GetMapping("/mine")
+    @Operation(summary = "Get my invitations", description = "Retrieve all open invitations created by the current authenticated user")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Invitation>> mine(@Parameter(hidden = true) User user) {
         LOG.debug("GET /mine invitations");

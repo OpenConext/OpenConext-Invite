@@ -16,6 +16,7 @@ import invite.repository.RoleRepository;
 import invite.repository.UserRoleRepository;
 import invite.security.UserPermissions;
 import invite.seed.PerformanceSeed;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -73,6 +74,7 @@ public class SystemController {
     }
 
     @GetMapping("/cron/cleanup")
+    @Operation(summary = "Trigger cron resource cleanup", description = "Clean up expired invitations and tokens (super user only)")
     public ResponseEntity<Map<String, Object>> cronCleanup(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/cron/cleanup for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
@@ -81,6 +83,7 @@ public class SystemController {
     }
 
     @GetMapping("/cron/expiry-notifications")
+    @Operation(summary = "Trigger cron role expiry notifications", description = "Send notifications for roles that are about to expire (super user only)")
     public ResponseEntity<Map<String, List<String>>> expiryNotifications(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/cron/expiry-notifications for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
@@ -88,6 +91,7 @@ public class SystemController {
     }
 
     @GetMapping("/expiry-user-roles")
+    @Operation(summary = "Get expiring user roles", description = "Retrieve user roles that will expire within the next 30 days (super user only)")
     public ResponseEntity<List<UserRole>> expiryUserRoles(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/expiry-user-roles for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
@@ -98,6 +102,7 @@ public class SystemController {
     }
 
     @GetMapping("/unknown-roles")
+    @Operation(summary = "Get unknown roles", description = "Retrieve roles with unknown Manage application metadata (super user only)")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Role>> unknownRoles(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("/unknown-roles for user %s", user.getEduPersonPrincipalName()));
@@ -108,6 +113,7 @@ public class SystemController {
     }
 
     @PutMapping("/performance-seed")
+    @Operation(summary = "Seed performance test data", description = "Generate seed roles and users for performance testing (super user only)")
     public ResponseEntity<Map<String, Object>> performanceSeed(@Parameter(hidden = true) User user,
                                                                @RequestParam(value = "numberOfRole", required = false, defaultValue = "500") int numberOfRole,
                                                                @RequestParam(value = "numberOfUsers", required = false, defaultValue = "75000") int numberOfUsers) {
@@ -121,6 +127,7 @@ public class SystemController {
     }
 
     @GetMapping("/landing-page-fix")
+    @Operation(summary = "Fix missing landing pages", description = "Update missing application landing pages from Manage provider metadata (super user only)")
     public ResponseEntity<Map<String, Integer>> landingPageFix(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("landing-page-fix for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertSuperUser(user);
