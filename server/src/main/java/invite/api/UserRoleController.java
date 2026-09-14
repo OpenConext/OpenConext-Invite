@@ -91,6 +91,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("roles/{roleId}")
+    @Operation(summary = "Get UserRoles by Role", description = "Get all UserRoles for the specified Role")
     @Transactional(readOnly = true)
     public ResponseEntity<List<UserRole>> byRole(@PathVariable("roleId") Long roleId,
                                                  @Parameter(hidden = true) User user) {
@@ -101,6 +102,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("managers/{roleId}")
+    @Operation(summary = "Get managers by Role", description = "Get all managers for the specified Role")
     @Transactional(readOnly = true)
     public ResponseEntity<List<String>> managersByRole(@PathVariable("roleId") Long roleId,
                                                        @Parameter(hidden = true) User user) {
@@ -115,6 +117,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("/consequences/{roleId}")
+    @Operation(summary = "Get consequences of deleting a Role", description = "Get all UserRoles and user information that will be affected by deleting the specified Role")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> consequencesDeleteRole(@PathVariable("roleId") Long roleId,
                                                                             @Parameter(hidden = true) User user) {
@@ -133,6 +136,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @GetMapping("/search/{roleId}/{guests}")
+    @Operation(summary = "Search UserRoles with pagination", description = "Search and paginate UserRoles for the specified Role, filtered by guest status and search query")
     @Transactional(readOnly = true)
     public ResponseEntity<Page<?>> searchPaginated(@PathVariable("roleId") Long roleId,
                                                    @PathVariable("guests") boolean guests,
@@ -222,6 +226,7 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @PutMapping("")
+    @Operation(summary = "Update UserRole expiration date", description = "Update the expiration end date of an existing UserRole")
     public ResponseEntity<Map<String, Integer>> updateUserRoleExpirationDate(@Validated @RequestBody UpdateUserRole updateUserRole,
                                                                              @Parameter(hidden = true) User user) {
         LOG.debug(String.format("PUT user_roles for user %s", user.getEduPersonPrincipalName()));
@@ -240,6 +245,12 @@ public class UserRoleController implements UserRoleResource {
     }
 
     @DeleteMapping("/{id}/{isGuest}")
+    @Operation(summary = "Delete UserRole", description = "Delete an existing UserRole by ID, or update authority if guest role is included")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Role deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "404", description = "UserRole not found")
+    })
     public ResponseEntity<Void> deleteUserRole(@PathVariable("id") Long id,
                                                @PathVariable("isGuest") Boolean isGuest,
                                                @Parameter(hidden = true) User user) {
@@ -277,6 +288,7 @@ public class UserRoleController implements UserRoleResource {
             description = "Lookup the User and Role by their remote provisioned SCIM identifiers and delete the UserRole")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "UserRole deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "404", description = "User or Role not found")
     })
     public ResponseEntity<Void> deleteUserRoleByProvisionedScim(

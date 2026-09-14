@@ -12,6 +12,7 @@ import invite.model.User;
 import invite.repository.ApplicationRepository;
 import invite.repository.RoleRepository;
 import invite.security.UserPermissions;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.logging.Log;
@@ -71,6 +72,7 @@ public class ManageController {
     }
 
     @GetMapping("/provider/{type}/{id}")
+    @Operation(summary = "Get provider by type and ID", description = "Retrieve identity or service provider metadata by entity type and ID (super user only)")
     public ResponseEntity<Map<String, Object>> providerById(@PathVariable("type") EntityType type,
                                                             @PathVariable("id") String id,
                                                             @Parameter(hidden = true) User user) {
@@ -81,6 +83,7 @@ public class ManageController {
     }
 
     @GetMapping("/eduid-identity-provider")
+    @Operation(summary = "Get eduID identity provider", description = "Retrieve eduID identity provider metadata from Manage")
     public ResponseEntity<Map<String, Object>> eduIDIdentityProvider(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/eduIDIdentityProvider type: %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.INVITER);
@@ -90,6 +93,7 @@ public class ManageController {
     }
 
     @GetMapping("/requested-authn-context-values")
+    @Operation(summary = "Get requested authn context values", description = "Retrieve map of configured ACR requirement keys and URLs")
     public ResponseEntity<Map<String, String>> requestedAuthnContextValues() {
         LOG.debug("GET /manage/requestedAuthnContextValues");
         Map<String, String> acrMap = config.getAcrRequirements().stream()
@@ -98,6 +102,7 @@ public class ManageController {
     }
 
     @GetMapping("/providers")
+    @Operation(summary = "Get all service providers and relying parties", description = "Retrieve SAML20 SP and OIDC10 RP providers from Manage (super user only)")
     public ResponseEntity<List<Map<String, Object>>> providers(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/providers for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
@@ -106,6 +111,7 @@ public class ManageController {
     }
 
     @GetMapping("/identity-providers")
+    @Operation(summary = "Get identity providers", description = "Retrieve identity providers with institution GUID from Manage (super user only)")
     public ResponseEntity<List<Map<String, Object>>> identityProviders(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/identity-providers for user %s", user.getEduPersonPrincipalName()));
         UserPermissions.assertAuthority(user, Authority.SUPER_USER);
@@ -117,6 +123,7 @@ public class ManageController {
     }
 
     @GetMapping("/organization-guid-validation/{organizationGUID}")
+    @Operation(summary = "Validate organization GUID", description = "Retrieve identity provider matching the specified organization GUID (super user only)")
     public ResponseEntity<Map<String, Object>> organizationGUIDValidation(@Parameter(hidden = true) User user,
                                                                           @PathVariable("organizationGUID") String organizationGUID) {
         LOG.debug(String.format("GET /manage/organization-guid-validation guid: %s for user %s", organizationGUID, user.getEduPersonPrincipalName()));
@@ -131,6 +138,7 @@ public class ManageController {
 
 
     @GetMapping("/all-applications")
+    @Operation(summary = "Get all applications", description = "Retrieve provider metadata for all registered applications (super user only)")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> allApplications(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/all-applications for user %s", user.getEduPersonPrincipalName()));
@@ -156,6 +164,7 @@ public class ManageController {
     }
 
     @GetMapping("/applications")
+    @Operation(summary = "Get applications for current user", description = "Retrieve accessible applications and provisioning configurations for the authenticated user")
     @Transactional(readOnly = true)
     public ResponseEntity<Map<String, List<Map<String, Object>>>> applications(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/applications for user %s", user.getEduPersonPrincipalName()));
@@ -206,6 +215,7 @@ public class ManageController {
     }
 
     @GetMapping("/provisionings/{id}")
+    @Operation(summary = "Check provisioning exists for ID", description = "Check if provisioning exists in Manage for the specified application manage ID")
     public ResponseEntity<Boolean> provisionings(@PathVariable("id") String id,
                                                  @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /manage/provisionings for user %s", user.getEduPersonPrincipalName()));

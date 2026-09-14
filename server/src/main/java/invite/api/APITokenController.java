@@ -8,7 +8,10 @@ import invite.model.Authority;
 import invite.model.User;
 import invite.repository.APITokenRepository;
 import invite.security.UserPermissions;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -50,6 +53,7 @@ public class APITokenController {
     }
 
     @GetMapping("")
+    @Operation(summary = "Get API tokens by institution", description = "Retrieve API tokens for the authenticated user or organization")
     @Transactional(readOnly = true)
     public ResponseEntity<List<APIToken>> apiTokensByInstitution(@Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET /tokens for user %s", user.getEduPersonPrincipalName()));
@@ -61,6 +65,7 @@ public class APITokenController {
     }
 
     @GetMapping("generate-token")
+    @Operation(summary = "Generate a new API token", description = "Generate a new unhashed API token and store it temporarily in the session")
     @Transactional(readOnly = true)
     public ResponseEntity<Map<String, String>> generateToken(@Parameter(hidden = true) User user,
                                                              @Parameter(hidden = true) HttpServletRequest request) {
@@ -72,6 +77,7 @@ public class APITokenController {
     }
 
     @PostMapping("")
+    @Operation(summary = "Create an API token", description = "Create and persist a new API token using the token generated in the current session")
     public ResponseEntity<APIToken> create(@Validated @RequestBody APIToken apiTokenRequest,
                                            @Parameter(hidden = true) User user,
                                            @Parameter(hidden = true) HttpServletRequest request) {
@@ -100,6 +106,12 @@ public class APITokenController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete an API token", description = "Delete an existing API token by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "API token deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "404", description = "API token not found")
+    })
     public ResponseEntity<Void> deleteToken(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("DELETE /tokens/deleteToken with id %s for user %s", id.toString(), user.getEduPersonPrincipalName()));
 

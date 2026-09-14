@@ -23,7 +23,10 @@ import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
 import invite.repository.UserRoleRepository;
 import invite.security.UserPermissions;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.Getter;
 import org.apache.commons.logging.Log;
@@ -112,6 +115,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @GetMapping("")
+    @Operation(summary = "Get roles by application", description = "Search and paginate roles accessible to the authenticated user")
     @Transactional(readOnly = true)
     public ResponseEntity<Page<Role>> rolesByApplication(@Parameter(hidden = true) User user,
                                                          @RequestParam(value = "force", required = false, defaultValue = "true") boolean force,
@@ -162,6 +166,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @GetMapping("{id}")
+    @Operation(summary = "Get role by ID", description = "Retrieve role details by its unique identifier")
     @Transactional(readOnly = true)
     public ResponseEntity<Role> role(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/role/%s for user %s", id, user.getEduPersonPrincipalName()));
@@ -175,6 +180,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @GetMapping("/application/{manageId}")
+    @Operation(summary = "Get roles by application manage ID", description = "Retrieve all roles associated with a specific application manage ID")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Role>> rolesPerApplicationId(@PathVariable("manageId") String manageId, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/rolesPerApplicationId for user %s", user.getEduPersonPrincipalName()));
@@ -215,6 +221,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @PostMapping("")
+    @Operation(summary = "Create a new role", description = "Create a new role with associated applications and permissions")
     public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
                                         @Parameter(hidden = true) User user) {
         LOG.debug(String.format("POST /roles/ for user %s", user.getEduPersonPrincipalName()));
@@ -236,6 +243,7 @@ public class RoleController implements ApplicationResource {
     }
 
     @PutMapping("")
+    @Operation(summary = "Update an existing role", description = "Update role name, description, and application usages")
     @Retryable(
             retryFor = {SQLTransactionRollbackException.class},
             maxAttempts = 3,
@@ -253,6 +261,12 @@ public class RoleController implements ApplicationResource {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a role", description = "Delete an existing role by ID and clean up associated group requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Role deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Role not found")
+    })
     public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id,
                                            @Parameter(hidden = true) User user) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new NotFoundException("Role not found"));
