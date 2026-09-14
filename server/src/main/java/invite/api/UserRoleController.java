@@ -18,6 +18,7 @@ import invite.repository.UserRoleRepository;
 import invite.security.UserPermissions;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.Getter;
 import org.apache.commons.logging.Log;
@@ -272,7 +273,12 @@ public class UserRoleController implements UserRoleResource {
 
     @DeleteMapping("/by_provisioned_scim/{remote_user_scim_identifier}/{remote_group_scim_identifier}")
     @Operation(summary = "Delete Role from a User by remote SCIM identifiers",
-            description = "Lookup the User and Role by their remote provisioned SCIM identifiers and delete the UserRole")
+            description = "Lookup the User and Role by their remote provisioned SCIM identifiers and delete the UserRole",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Role successfully deleted"),
+                    @ApiResponse(responseCode = "401", description = "Authentication failed"),
+                    @ApiResponse(responseCode = "404", description = "User or Role not found")
+            })
     public ResponseEntity<Void> deleteUserRoleByProvisionedScim(
             @PathVariable("remote_user_scim_identifier") String remoteUserScimIdentifier,
             @PathVariable("remote_group_scim_identifier") String remoteGroupScimIdentifier,
