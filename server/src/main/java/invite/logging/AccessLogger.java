@@ -20,7 +20,7 @@ public class AccessLogger {
                 "applications", applications(role),
                 "roleId", role.getId().toString()
         ));
-        log.info(String.format("%s role %s by user $s", event, role.getName(), provisionable.getName()));
+        log.info(String.format("%s role %s by user %s", event, role.getName(), provisionable.getName()));
     }
 
     private static String applications(Role role) {
