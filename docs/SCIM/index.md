@@ -26,6 +26,17 @@ De invite-applicatie ondersteunt op dit moment de volgende authenticatiemethoden
   De client stuurt een `Authorization: Bearer ...` header met een vooraf
   verstrekt token.
 
+## Aanvragen
+
+Stuur de gegevens voor het SCIM endpoint naar support@surfconext.nl. Vermeld in ieder geval:
+
+- De omgeving waarop je aan wil sluiten: SURFconext productie of SURFconext test
+- De volledige url van het SCIM endpoint
+- Door welke instelling dit endpoint gebruikt gaat worden
+- Welk SAML-attribuut of openid claim je als 'username' in het SAML bericht verwacht
+- De username/wachtwoord voor basic auth of het bearer-token voor header authenticatie. Voor productiekoppelingen het wachtwoord of token via een beveiligde dienst, zoals bijvoorbeeld SURFfilesender, verzenden.
+- Voor welke (op SURFconext aangesloten) applicaties gebruiker en rollen moeten worden doorgegeven. Bij voorkeur het client-id of entity-id.
+
 ## Acties
 
 De endpoints bij de instellingen ondersteunen de volgende operaties:
