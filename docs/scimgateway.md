@@ -1,9 +1,9 @@
 # scimgateway
 
-***LET OP!! We raden aan om SCIM berichten direct en near-realtime af te
-handelen in een eigen IDM of IAM platform. !!**
+**LET OP!! We raden aan om SCIM berichten direct en near-realtime af te
+handelen in een eigen IDM of IAM platform.**
 Als dit niet mogelijk is, kan bijvoorbeeld deze [Scimgateway](https://github.com/jelhub/scimgateway)
-gebruikt worden. **Deze software wordt niet gemaakt of ondersteund door SURF**.*
+gebruikt worden. **Deze software wordt niet gemaakt of ondersteund door SURF.**
 
 ## Wat is scimgateway
 
@@ -22,7 +22,7 @@ applicatie te koppelen
 endpoint te maken specifiek voor de applicatie. Dit kan door de API's van
 de applicatie aan te roepen of rechtstreeks gebruikers in de applicatiedatabase
 aan te maken.
-- Een SCIM koppelinhg te maken voor een legacy Identity Management systeem.
+- Een SCIM koppeling te maken voor een legacy Identity Management systeem.
 Door de gebruikers in een standaard database of LDAP te schrijven, kan een
 niet-realtime IdM deze database periodiek uitlezen en verwerken.
 
