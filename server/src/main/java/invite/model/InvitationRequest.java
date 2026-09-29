@@ -4,7 +4,6 @@ import invite.config.RequestedAuthnContext;
 import invite.exception.InvalidInputException;
 import invite.manage.ManageIdentifier;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +17,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class InvitationRequest implements Serializable {
 
     @NotNull
@@ -52,6 +50,40 @@ public class InvitationRequest implements Serializable {
 
     @NotNull
     private Instant expiryDate;
+
+    private boolean notifyInviter;
+
+    public InvitationRequest(Authority intendedAuthority,
+                             String message,
+                             Language language,
+                             boolean enforceEmailEquality,
+                             boolean eduIDOnly,
+                             String requestedAuthnContext,
+                             boolean guestRoleIncluded,
+                             boolean suppressSendingEmails,
+                             List<String> invites,
+                             List<Invite> invitesWithInternalPlaceholderIdentifiers,
+                             List<Long> roleIdentifiers,
+                             List<ManageIdentifier> manageIdentifiers,
+                             String organizationGUID,
+                             Instant roleExpiryDate,
+                             Instant expiryDate) {
+        this.intendedAuthority = intendedAuthority;
+        this.message = message;
+        this.language = language;
+        this.enforceEmailEquality = enforceEmailEquality;
+        this.eduIDOnly = eduIDOnly;
+        this.requestedAuthnContext = requestedAuthnContext;
+        this.guestRoleIncluded = guestRoleIncluded;
+        this.suppressSendingEmails = suppressSendingEmails;
+        this.invites = invites;
+        this.invitesWithInternalPlaceholderIdentifiers = invitesWithInternalPlaceholderIdentifiers;
+        this.roleIdentifiers = roleIdentifiers;
+        this.manageIdentifiers = manageIdentifiers;
+        this.organizationGUID = organizationGUID;
+        this.roleExpiryDate = roleExpiryDate;
+        this.expiryDate = expiryDate;
+    }
 
     public void verify() {
         if (CollectionUtils.isEmpty(invitesWithInternalPlaceholderIdentifiers) && CollectionUtils.isEmpty(invites)) {

@@ -1,0 +1,5 @@
+Hi {{inviter.name}},
+
+Your invitation for {{roles}} was accepted by user {{name}}.
+
+{{> footer_en.txt}}

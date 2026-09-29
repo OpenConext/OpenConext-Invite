@@ -75,6 +75,9 @@ public class Role implements Serializable, Provisionable {
     @Column(name = "inviter_display_name")
     private String inviterDisplayName;
 
+    @Column(name = "notify_inviter")
+    private boolean notifyInviter;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organisation_id")
     @JsonIgnore
@@ -175,6 +178,7 @@ public class Role implements Serializable, Provisionable {
         this.overrideSettingsAllowed = roleRequest.isOverrideSettingsAllowed();
         this.organizationGUID = roleRequest.getOrganizationGUID();
         this.inviterDisplayName = roleRequest.getInviterDisplayName();
+        this.notifyInviter = roleRequest.isNotifyInviter();
         this.applicationUsages = roleRequest.getApplicationUsages();
         this.requestedAuthnContext = roleRequest.getRequestedAuthnContext();
     }

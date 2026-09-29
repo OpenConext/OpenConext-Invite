@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +17,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class RoleRequest implements Serializable{
@@ -56,5 +54,32 @@ public class RoleRequest implements Serializable{
     private String requestedAuthnContext;
 
     private Set<ApplicationUsage> applicationUsages = new HashSet<>();
+
+    @Schema(description = "If true, the inviter receives an email when an invitation for this role is accepted", defaultValue = "false")
+    private boolean notifyInviter;
+
+    public RoleRequest(String name,
+                       String description,
+                       Integer defaultExpiryDays,
+                       Instant defaultExpiryDate,
+                       boolean enforceEmailEquality,
+                       boolean eduIDOnly,
+                       boolean overrideSettingsAllowed,
+                       String organizationGUID,
+                       String inviterDisplayName,
+                       String requestedAuthnContext,
+                       Set<ApplicationUsage> applicationUsages) {
+        this.name = name;
+        this.description = description;
+        this.defaultExpiryDays = defaultExpiryDays;
+        this.defaultExpiryDate = defaultExpiryDate;
+        this.enforceEmailEquality = enforceEmailEquality;
+        this.eduIDOnly = eduIDOnly;
+        this.overrideSettingsAllowed = overrideSettingsAllowed;
+        this.organizationGUID = organizationGUID;
+        this.inviterDisplayName = inviterDisplayName;
+        this.requestedAuthnContext = requestedAuthnContext;
+        this.applicationUsages = applicationUsages;
+    }
 
 }

@@ -649,6 +649,13 @@ export const RoleForm = () => {
                 {(!initial && isEmpty(role.inviterDisplayName) && customInviterDisplayName) &&
                     <ErrorIndicator msg={I18n.t("invitations.inviterDisplayNameError")}/>}
 
+                <SwitchField name={"notifyInviter"}
+                             value={role.notifyInviter || false}
+                             onChange={val => setRole({...role, notifyInviter: val})}
+                             label={I18n.t("invitations.notifyInviter")}
+                             info={I18n.t("tooltips.notifyInviterTooltip")}
+                />
+
                 <SwitchField name={"overrideSettingsAllowed"}
                              value={role.overrideSettingsAllowed}
                              onChange={value => setRole({...role, overrideSettingsAllowed: value})}

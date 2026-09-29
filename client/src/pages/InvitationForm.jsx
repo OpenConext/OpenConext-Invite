@@ -148,20 +148,24 @@ export const InvitationForm = () => {
                 enforceEmailEquality: initialRole.enforceEmailEquality,
                 eduIDOnly: initialRole.eduIDOnly,
                 requestedAuthnContext: initialRole.requestedAuthnContext,
+                notifyInviter: (initialRole.isUserRole ? initialRole.role : initialRole).notifyInviter || false,
                 roleExpiryDate: deriveExpirationDate(initialRole.isUserRole ? initialRole.role : initialRole)
             })
             setOriginalRoleId(initialRole.isUserRole ? initialRole.role.id : initialRole.id);
         } else {
             let roleExpiryDate = futureDate(366);
+            let notifyInviter = false;
             if (markedRoles.length === 1) {
                 const role = markedRoles[0]
                 roleExpiryDate = deriveExpirationDate(role.isUserRole ? role.role : role);
+                notifyInviter = (role.isUserRole ? role.role : role).notifyInviter || false;
                 setSelectedRoles(markedRoles);
             }
             setInvitation({
                 ...invitation,
                 intendedAuthority: isGuest ? AUTHORITIES.GUEST : AUTHORITIES.INVITER,
-                roleExpiryDate: roleExpiryDate
+                roleExpiryDate: roleExpiryDate,
+                notifyInviter: notifyInviter
             })
         }
     }
@@ -293,7 +297,9 @@ export const InvitationForm = () => {
                 intendedAuthority: intendedAuthority,
                 enforceEmailEquality: enforceEmailEquality,
                 eduIDOnly: eduIDOnly,
-                requestedAuthnContext: requestedAuthnContext
+                requestedAuthnContext: requestedAuthnContext,
+                notifyInviter: newSelectedOptions
+                    .some(role => (role.isUserRole ? role.role : role).notifyInviter) || false
             })
         }
     }
@@ -545,6 +551,15 @@ export const InvitationForm = () => {
                                              info={I18n.t("tooltips.guestRoleIncludedTooltip")}
                                 />
 
+                            }
+
+                            {!skipRoles &&
+                                <SwitchField name={"notifyInviter"}
+                                             value={invitation.notifyInviter || false}
+                                             onChange={val => setInvitation({...invitation, notifyInviter: val})}
+                                             label={I18n.t("invitations.notifyInviter")}
+                                             info={I18n.t("tooltips.notifyInviterTooltip")}
+                                />
                             }
 
                             {(overrideSettingsAllowed && !skipRoles) &&

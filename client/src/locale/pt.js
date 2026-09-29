@@ -295,6 +295,7 @@ const pt = {
         messagePlaceholder: "Add an optional personal note to your invitation",
         invite: "Send invite",
         guestRoleIncluded: "Add the user role?",
+        notifyInviter: "Notify me when accepted?",
         invalidEmails: "Invalid email addresses removed: {{emails}}.",
         createFlash: "Invitation was sent",
         delete: "Revoke",
@@ -458,6 +459,7 @@ const pt = {
         removeUserRole: "Remove all selected user roles",
         removeOneUserRole: "Remove this user role",
         guestRoleIncludedTooltip: "Do you also want to grant the invitees the user role when they accept the invitation?",
+        notifyInviterTooltip: "Do you want to receive an email when the invitation is accepted?",
         expiredUserRole: "This role will expire soon",
     },
     confirmationDialog: {

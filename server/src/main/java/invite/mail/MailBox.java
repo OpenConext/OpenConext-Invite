@@ -205,6 +205,30 @@ public class MailBox {
                 userRole.getUser().getEmail());
     }
 
+    @SneakyThrows
+    public String sendInvitationAcceptedMail(Invitation invitation, User inviter, User invitee) {
+        String lang = preferredLanguage().toLowerCase();
+        if (!subjects.containsKey(lang)) {
+            lang = "en";
+        }
+        String title = String.format(subjects.get(lang).get("invitationAccepted"), invitee.getName());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("title", title);
+        variables.put("name", invitee.getName());
+        variables.put("inviter", inviter);
+        variables.put("roles", splitListSemantically(invitation.getRoles().stream()
+                .map(invitationRole -> invitationRole.getRole().getName()).toList()));
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        return sendMail(String.format("invitation_accepted_%s", lang),
+                title,
+                invitee.getName(),
+                variables,
+                Map.of("logoSurfBlack", "templates/logo-surf-black.png"),
+                inviter.getEmail());
+    }
+
     private String preferredLanguage() {
         return LocaleContextHolder.getLocale().getLanguage();
     }

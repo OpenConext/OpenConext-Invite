@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{title}}</title>
+</head>
+<body>
+<div class="main" style="font-family: Helvetica, Arial, sans-serif;line-height: 18px;font-size: 14px;color: #353535;">
+    <div class="head" style="background-color: #f5f5f5;padding: 30px 0 20px 60px;">
+        {{#environment}}
+        <p style="font-weight: bold;margin-bottom: 20px">
+            This mail is from the {{environment}} environment
+        </p>
+        {{/environment}}
+        <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px;">
+        <p class="title" style="font-weight: 600;font-size: 38px;line-height: 38px; margin: 0;margin-bottom: 10px;">Invitation accepted</p>
+    </div>
+    <div class="middle" style="padding: 20px 0 40px 60px;max-width: 600px;">
+        <p>Hi {{inviter.name}},</p>
+        <p>Your invitation for <em>{{roles}}</em> was accepted by user {{name}}.</p>
+    </div>
+    {{> footer_en.html}}
+</div>
+</body>
+</html>

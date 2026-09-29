@@ -339,6 +339,10 @@ public class InvitationController implements InvitationResource {
         invitation.setSubInvitee(sub);
         invitationRepository.save(invitation);
         AccessLogger.invitation(LOG, Event.Accepted, invitation);
+        User invitationInviter = invitation.getInviter();
+        if (invitation.isNotifyInviter() && invitationInviter != null && StringUtils.hasText(invitationInviter.getEmail())) {
+            mailBox.sendInvitationAcceptedMail(invitation, invitationInviter, user);
+        }
 
         /*
          * Chicken & egg problem. The user including his / hers roles must be first provisioned, and then we

@@ -80,6 +80,9 @@ public class Invitation implements Serializable {
     @Column(name = "guest_role_included")
     private boolean guestRoleIncluded;
 
+    @Column(name = "notify_inviter")
+    private boolean notifyInviter;
+
     @Column(name = "created_at")
     private Instant createdAt;
 

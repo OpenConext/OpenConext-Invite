@@ -1,10 +1,12 @@
 {
   "en": {
     "newInvitation": "Invitation for %s at SURFconext Invite",
-    "roleExpirationNotification": "%s role %s expiration notification"
+    "roleExpirationNotification": "%s role %s expiration notification",
+    "invitationAccepted": "Invitation accepted by %s"
   },
   "nl": {
     "newInvitation": "Uitnodiging voor %s bij SURFconext Invite",
-    "roleExpirationNotification": "%s rol %s verloopt"
+    "roleExpirationNotification": "%s rol %s verloopt",
+    "invitationAccepted": "Uitnodiging geaccepteerd door %s"
   }
 }

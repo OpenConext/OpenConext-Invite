@@ -135,6 +135,7 @@ public class InvitationOperations {
                                 .collect(toSet()),
                         invite.getInternalPlaceholderIdentifier())
                 ).toList();
+        invitations.forEach(invitation -> invitation.setNotifyInviter(invitationRequest.isNotifyInviter()));
         if (user == null) {
             invitations.forEach(invitation -> invitation.setRemoteApiUser(remoteUser.getName()));
         }

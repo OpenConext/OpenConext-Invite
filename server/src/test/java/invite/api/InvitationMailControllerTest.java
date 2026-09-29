@@ -13,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InvitationMailControllerTest extends AbstractMailTest {
@@ -81,6 +82,64 @@ class InvitationMailControllerTest extends AbstractMailTest {
         String htmlContent = mimeMessageParsers.getFirst().getHtmlContent();
 
         assertTrue(htmlContent.contains("wiki@university.com"));
+    }
+
+    @Test
+    void acceptNotifiesInviter() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "user@new.com");
+        String hash = Authority.GUEST.name();
+        Invitation invitation = invitationRepository.findByHash(hash).get();
+        invitation.setNotifyInviter(true);
+        invitationRepository.save(invitation);
+        String inviterEmail = invitation.getInviter().getEmail();
+
+        stubForManageProvisioning(List.of("5"));
+        stubForCreateScimUser();
+        stubForCreateScimRole();
+        stubForUpdateScimRole();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(new AcceptInvitation(hash, invitation.getId()))
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+
+        MimeMessageParser message = super.mailMessage();
+        String userName = userRepository.findBySubIgnoreCase("user@new.com").get().getName();
+        assertTrue(message.getHtmlContent().contains("was accepted by user " + userName));
+        assertTrue(message.getPlainContent().contains("was accepted by user " + userName));
+        assertTrue(message.getTo().stream().anyMatch(address -> address.toString().contains(inviterEmail)));
+    }
+
+    @Test
+    void acceptDoesNotNotifyInviterByDefault() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", "user@new.com");
+        String hash = Authority.GUEST.name();
+        Invitation invitation = invitationRepository.findByHash(hash).get();
+
+        stubForManageProvisioning(List.of("5"));
+        stubForCreateScimUser();
+        stubForCreateScimRole();
+        stubForUpdateScimRole();
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(new AcceptInvitation(hash, invitation.getId()))
+                .post("/api/v1/invitations/accept")
+                .then()
+                .statusCode(201);
+
+        Thread.sleep(500);
+        assertEquals(0, receivedMailCount());
     }
 
 }

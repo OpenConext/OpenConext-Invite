@@ -54,6 +54,10 @@ public class AbstractMailTest extends AbstractTest {
         return parser.parse();
     }
 
+    protected int receivedMailCount() {
+        return greenMail.getReceivedMessages().length;
+    }
+
     @SneakyThrows
     protected void deleteMailMessages() {
         greenMail.purgeEmailFromAllMailboxes();
