@@ -89,6 +89,7 @@ public interface Manage {
                     "scim_update_role_put_method",
                     "scim_user_identifier",
                     "scim_user_provisioning_only",
+                    "scim_email_type",
                     "eva_url",
                     "eva_token",
                     "eva_guest_account_duration",

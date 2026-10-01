@@ -7,6 +7,7 @@ import invite.provision.ScimUserIdentifier;
 import lombok.Getter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -43,7 +44,14 @@ public class UserRequest implements Serializable {
         this.externalId = resolvedUserName;
         this.name = new Name(user.getName(), user.getFamilyName(), user.getGivenName());
         this.displayName = user.getName();
-        this.emails = List.of(new Email("other",user.getEmail()));
+        if (CollectionUtils.isEmpty(provisioning.getScimEmailTypes())) {
+            this.emails = List.of(new Email("other",user.getEmail()));
+        } else {
+            this.emails = provisioning.getScimEmailTypes()
+                    .stream()
+                    .map(emailType -> new Email(emailType, user.getEmail()))
+                    .toList();
+        }
         //Add a default phone number for remote systems that require that
         this.phoneNumbers = Collections.singletonList(new PhoneNumber("+31600000000"));
         if (StringUtils.hasText(user.getInternalPlaceholderIdentifier())) {

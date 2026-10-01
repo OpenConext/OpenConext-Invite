@@ -22,6 +22,7 @@ public class Provisioning {
     private final String scimPassword;
     private final String scimBearerToken;
     private final ScimUserIdentifier scimUserIdentifier;
+    private final List<String> scimEmailTypes;
     private final String evaToken;
     private final boolean scimUpdateRolePutMethod;
     private final boolean scimUserProvisioningOnly;
@@ -54,6 +55,10 @@ public class Provisioning {
         this.scimUpdateRolePutMethod = updateRolePutMethod != null && (boolean) updateRolePutMethod;
         Object userProvisioningOnly = provider.get("scim_user_provisioning_only");
         this.scimUserProvisioningOnly = userProvisioningOnly != null && (boolean) userProvisioningOnly;
+        Object emailTypes = provider.get("scim_email_type");
+        this.scimEmailTypes = emailTypes instanceof List<?> list ?
+                list.stream().map(String::valueOf).filter(StringUtils::hasText).distinct().toList() :
+                emailTypes instanceof String type && StringUtils.hasText(type) ? List.of(type) : List.of();
         this.evaUrl = (String) provider.get("eva_url");
         this.evaToken = (String) provider.get("eva_token");
         this.graphUrl = (String) provider.get("graph_url");

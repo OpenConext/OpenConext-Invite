@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -116,6 +117,50 @@ class UserRequestTest {
         UserRequest userRequest = new UserRequest(user, provisioning);
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
+    }
+
+    @Test
+    void emailTypeDefaultsToOther() {
+        UserRequest userRequest = new UserRequest(user, getProvisioningWithEmailTypes(null));
+        assertEmails(userRequest, "other");
+        userRequest = new UserRequest(user, getProvisioningWithEmailTypes(List.of()));
+        assertEmails(userRequest, "other");
+    }
+
+    @Test
+    void emailTypeConfigured() {
+        UserRequest userRequest = new UserRequest(user, getProvisioningWithEmailTypes(List.of("work")));
+        assertEmails(userRequest, "work");
+    }
+
+    @Test
+    void emailTypeSingleStringValue() {
+        UserRequest userRequest = new UserRequest(user, getProvisioningWithEmailTypes("home"));
+        assertEmails(userRequest, "home");
+    }
+
+    @Test
+    void emailTypeMultiple() {
+        UserRequest userRequest = new UserRequest(user, getProvisioningWithEmailTypes(List.of("other", "work", "work", "")));
+        assertEmails(userRequest, "other", "work");
+    }
+
+    private void assertEmails(UserRequest userRequest, String... expectedTypes) {
+        assertEquals(List.of(expectedTypes), userRequest.getEmails().stream().map(Email::getType).toList());
+        userRequest.getEmails().forEach(email -> assertEquals(user.getEmail(), email.getValue()));
+    }
+
+    private Provisioning getProvisioningWithEmailTypes(Object emailTypes) {
+        Map<String, Object> provider = new HashMap<>(Map.of(
+                "provisioning_type", ProvisioningType.scim.name(),
+                "scim_url", "http://localhost",
+                "scim_user", "user",
+                "scim_password", "secret"
+        ));
+        if (emailTypes != null) {
+            provider.put("scim_email_type", emailTypes);
+        }
+        return new Provisioning(provider);
     }
 
     private Provisioning getProvisioning(ScimUserIdentifier scimUserIdentifier) {
