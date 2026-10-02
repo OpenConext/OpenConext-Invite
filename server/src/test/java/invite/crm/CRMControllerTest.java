@@ -23,6 +23,7 @@ import jakarta.mail.Address;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Type;
@@ -41,6 +42,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles(value = "dev", inheritProfiles = false)
 class CRMControllerTest extends AbstractMailTest {
 
     public static final String SUPER_ADMIN_NAME = "SUPER_ADMIN_NAME";
