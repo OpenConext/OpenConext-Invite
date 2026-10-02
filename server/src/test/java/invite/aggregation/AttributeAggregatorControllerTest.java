@@ -30,12 +30,27 @@ class AttributeAggregatorControllerTest extends AbstractTest {
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("sub", GUEST_SUB)
-                .queryParam("SPentityID", "")
+                .queryParam("SPentityID", "https://research")
                 .get("/api/external/v1/aa/{sub}")
                 .as(new TypeRef<>() {
                 });
         assertEquals(1, roles.size());
         assertTrue(roles.get(0).get("id").startsWith("urn:mace:surf.nl:test.surfaccess.nl:"));
+    }
+
+    @Test
+    void getGroupMembershipsWithSemiColon() throws JsonProcessingException {
+        stubForManageProviderByEntityID(SAML20_SP, "https://research");
+        List<Map<String, String>> res = given()
+                .when()
+                .auth().preemptive().basic("aa", "secret")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("SPentityID", "https://research")
+                .get("/api/external/v1/aa/{id}","tak:post:sub;1")
+                .as(new TypeRef<>() {
+                });
+        assertTrue(res.isEmpty());
     }
 
     @Test

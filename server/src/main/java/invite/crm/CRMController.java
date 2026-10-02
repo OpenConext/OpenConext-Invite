@@ -45,6 +45,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -109,6 +111,7 @@ public class CRMController implements ApplicationResource {
     private final InvitationRepository invitationRepository;
     private final OrganisationRepository organisationRepository;
     private final RoleOperations roleOperations;
+    private final Environment environment;
 
 
     @SuppressWarnings("unchecked")
@@ -125,7 +128,8 @@ public class CRMController implements ApplicationResource {
                          MailBox mailBox, Manage manage,
                          UserRoleAuditService userRoleAuditService,
                          InvitationRepository invitationRepository,
-                         OrganisationRepository organisationRepository) throws IOException {
+                         OrganisationRepository organisationRepository,
+                         Environment environment) throws IOException {
         this.userRepository = userRepository;
         this.collabPersonPrefix = collabPersonPrefix;
         this.inviterName = inviterName;
@@ -139,6 +143,7 @@ public class CRMController implements ApplicationResource {
         this.userRoleAuditService = userRoleAuditService;
         this.invitationRepository = invitationRepository;
         this.organisationRepository = organisationRepository;
+        this.environment = environment;
         this.roleOperations = new RoleOperations(this);
         Map<String, Map<String, Object>> crmConfigRaw = objectMapper.readValue(crmConfigResource.getInputStream(), new TypeReference<>() {
         });
@@ -158,6 +163,9 @@ public class CRMController implements ApplicationResource {
 
     @EventListener(ApplicationReadyEvent.class)
     public void reconcileCrmRolesWithConfig() {
+        if (environment.acceptsProfiles(Profiles.of("test"))) {
+            return;
+        }
         List<Role> crmRoles = roleRepository.findByCrmRoleIdIsNotNull();
         int reconciled = 0;
         int deleted = 0;
