@@ -24,3 +24,8 @@
     background-color: white;
     padding: 25px 60px 0 0;
 }
+
+// The SDS body color differs from Access, which uses the curve-react foreground color
+.authorized-header {
+    color: var(--foreground);
+}
