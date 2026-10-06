@@ -126,6 +126,48 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void organizationsWithoutOrganizationGUID() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/organizations", "urn:collab:person:example.com:admin");
+
+        List<?> organizations = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(List.class);
+        assertTrue(organizations.isEmpty());
+    }
+
+    @Test
+    void organizationsWithSurfCrmId() throws Exception {
+        Map<String, Object> identityProvider = localManage.identityProvidersByInstitutionalGUID(ORGANISATION_GUID).get(0);
+        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp")).willReturn(aResponse()
+                .withHeader("Content-Type", "application/json")
+                .withBody(objectMapper.writeValueAsString(List.of(identityProvider)))));
+
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/organizations",
+                "urn:collab:person:example.com:admin", userInfo -> {
+                    userInfo.put("surf-crm-id", ORGANISATION_GUID);
+                    return userInfo;
+                });
+
+        List<Map<String, Object>> organizations = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(new TypeRef<>() {
+                });
+        assertEquals(1, organizations.size());
+        assertEquals(identityProvider.get("_id"), organizations.get(0).get("id"));
+        assertNotNull(organizations.get(0).get("name"));
+        assertEquals(ORGANISATION_GUID, userRepository.findBySubIgnoreCase("urn:collab:person:example.com:admin")
+                .orElseThrow().getSurfCrmId());
+    }
+
+    @Test
     void meWithUserApplicationMap() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", APPLICATION_MANAGER_SUB);
         //For UserApplication enrichments

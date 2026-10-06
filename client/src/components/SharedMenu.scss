@@ -1,0 +1,81 @@
+.brand-button {
+    height: auto !important;
+}
+
+a.brand-logo svg,
+a.brand-logo img {
+    width: 161px;
+    height: auto;
+}
+
+.organization-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    text-align: left;
+}
+
+.organization-status {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.organization-name-static {
+    cursor: default;
+}
+
+.organization-caret {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.organization-switch-content {
+    min-width: 240px;
+    // DropdownMenuContent renders through a portal, so it isn't a DOM descendant of
+    // [data-slot="sidebar-container"] — style its links via its own className instead.
+    a {
+        color: black;
+        text-decoration: none;
+    }
+}
+
+.organization-option-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Figma pins the "Support" group (SURF Servicedesk) to the bottom of the sidebar,
+// separated from the rest of the menu groups above it.
+.custom-group {
+    margin-top: auto;
+}
+
+// Positioning anchor for the sidebar toggle, which curve-react's SidebarProvider
+// renders full-height/full-width around <Sidebar> — see SharedMenu.jsx for why the
+// trigger lives outside <Sidebar> as a sibling of this wrapper.
+[data-slot="sidebar-wrapper"] {
+    position: relative;
+}
+
+[data-slot="sidebar-container"], [data-slot="sidebar-menu-item"] {
+    a {
+        color: black;
+        text-decoration: none;
+    }
+}
+
+// The SDS styles set another font family (Source Sans Pro) on the body, Access leads with the curve-react
+// font (Source Sans 3 Variable, via --font-sans) for the application shell.
+[data-slot="sidebar-wrapper"],
+[data-slot="sidebar-container"],
+[data-slot="dropdown-menu-content"],
+.authorized-header,
+.invite-footer {
+    font-family: var(--font-sans);
+}

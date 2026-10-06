@@ -130,6 +130,28 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("organizations")
+    @Operation(summary = "Get organizations of the current user", description = "Retrieve the identity providers (organizations) of the surf-crm-id of the current user, identified by their Manage identifier")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> organizations(@Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/organizations for user %s", user.getEduPersonPrincipalName()));
+
+        if (!StringUtils.hasText(user.getSurfCrmId())) {
+            return ResponseEntity.ok(List.of());
+        }
+        //The id is the Manage identifier of the identity provider, the name is the English name as displayed in Access
+        List<Map<String, Object>> organizations = manage.identityProvidersByInstitutionalGUID(user.getSurfCrmId())
+                .stream()
+                .map(idp -> {
+                    Map<String, Object> organization = new HashMap<>();
+                    organization.put("id", idp.get("_id"));
+                    organization.put("name", idp.get("name:en"));
+                    return organization;
+                })
+                .toList();
+        return ResponseEntity.ok(organizations);
+    }
+
     @GetMapping("institutionAdmins")
     @Operation(summary = "Get institution admins", description = "Retrieve list of institution admins for the current user's organization")
     @Transactional(readOnly = true)

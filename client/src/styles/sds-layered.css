@@ -1,0 +1,8 @@
+/*
+ * The SDS styles (still used by the pages that are not yet migrated) live in a cascade layer between the
+ * curve-react component layer and the Tailwind utilities: curve-react's preflight reset does not break them,
+ * while the utilities used by the Access-like application shell still win over them.
+ */
+@layer theme, base, components, sds, utilities;
+@import "@surfnet/sds/styles/sds.css" layer(sds);
+@import "@surfnet/sds/cjs/index.css" layer(sds);

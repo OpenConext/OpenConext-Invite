@@ -5,6 +5,8 @@ server:
   servlet:
     session:
       cookie:
+        #Do not share the default JSESSIONID with other applications (e.g. Access) running on the same host
+        name: INVITE_SESSION
         secure: false
 
 spring:

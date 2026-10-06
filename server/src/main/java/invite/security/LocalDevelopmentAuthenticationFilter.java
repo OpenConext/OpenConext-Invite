@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,7 +33,7 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
 
     private void populateSecurityContext() {
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("OPENID"));
-        Map<String, Object> claims = Map.of(
+        Map<String, Object> defaultClaims = Map.of(
                 "eduperson_principal_name", SUB,
                 "email", "email",
                 "family_name", "Doe",
@@ -42,6 +43,9 @@ public class LocalDevelopmentAuthenticationFilter implements Filter {
                 "scope", "openid",
                 "sub", SUB,
                 "uids", List.of("super"));
+        //Same as in Access, the surf-crm-id is used to find the organizations (identity providers) in Manage
+        Map<String, Object> claims = new HashMap<>(defaultClaims);
+        claims.put("surf-crm-id", "ad93daef-0911-e511-80d0-005056956c1a");
         OidcIdToken idtoken = new OidcIdToken(
                 UUID.randomUUID().toString(),
                 Instant.now(),

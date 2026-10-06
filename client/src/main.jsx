@@ -3,17 +3,20 @@ import {App} from './pages/App';
 import ReactDOM from 'react-dom/client';
 import {BrowserRouter, Route, Routes} from "react-router";
 import "react-tooltip/dist/react-tooltip.css";
-//Always keep these two last
+import './styles/sds-layered.css';
+import {Toaster, TooltipProvider} from "@surfnet/curve-react";
+import "@surfnet/curve-react/styles.css";
+import "./tailwind.css";
 import './index.scss';
-import '@surfnet/sds/styles/sds.css';
-//Do not change the order of @surfnet.sds style imports
-import '@surfnet/sds/cjs/index.css';
 
 const root = ReactDOM.createRoot(document.getElementById("app"));
 root.render(
-    <BrowserRouter>
-        <Routes>
-            <Route path="/*" element={<App/>}/>
-        </Routes>
-    </BrowserRouter>
+    <TooltipProvider>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/*" element={<App/>}/>
+            </Routes>
+        </BrowserRouter>
+        <Toaster/>
+    </TooltipProvider>
 );

@@ -2,6 +2,10 @@ import './App.scss';
 import {Navigate, Route, Routes, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
 import {Loader} from "@surfnet/sds";
+import {SidebarInset, SidebarProvider} from "@surfnet/curve-react";
+import {SharedMenu} from "../components/SharedMenu";
+import {AuthorizedHeader} from "../components/AuthorizedHeader";
+import {InviteFooter} from "../components/InviteFooter";
 import {useAppStore} from "../stores/AppStore";
 import {configuration, csrf, me} from "../api";
 import {Login} from "./Login";
@@ -9,7 +13,6 @@ import {Home} from "./Home";
 import {Flash} from "../components/Flash";
 import {Header} from "../components/Header";
 import {Footer} from "../components/Footer";
-import {BreadCrumb} from "../components/BreadCrumb";
 import {Invitation} from "./Invitation";
 import {login} from "../utils/Login";
 import {NotFound} from "./NotFound";
@@ -99,38 +102,52 @@ export const App = () => {
         return <Loader/>
     }
 
+    if (authenticated) {
+        return (
+            <div className="invite invite-authenticated">
+                <Flash/>
+                {impersonator && <Impersonating/>}
+                <SidebarProvider className="app-shell">
+                    <SharedMenu/>
+                    <SidebarInset>
+                        <AuthorizedHeader/>
+                        <div className="container">
+                            <Routes>
+                                <Route path="/" element={<Navigate replace to="home"/>}/>
+                                <Route path="home/:tab?" element={<Home/>}/>
+                                <Route path="profile/:id?" element={<Profile/>}/>
+                                <Route path="role/:id" element={<RoleForm/>}/>
+                                <Route path="invitation/:id" element={<InvitationForm/>}/>
+                                <Route path="inviter" element={<Inviter/>}/>
+                                <Route path="roles/:id/:tab?" element={<Role/>}/>
+                                <Route path="applications/:manageId" element={<Application/>}/>
+                                <Route path="tokens" element={<UserTokens/>}/>
+                                <Route path="audit" element={<UserRoleAudits/>}/>
+                                <Route path="invitation/accept"
+                                       element={<Invitation authenticated={true}/>}/>
+                                <Route path="login" element={<Login/>}/>
+                                <Route path="institution-admins" element={<InstitutionAdmins/>}/>
+                                <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
+                                {(user && user.superUser) &&
+                                    <Route path="system/:tab?" element={<System/>}/>
+                                }
+                                <Route path="*" element={<NotFound/>}/>
+                            </Routes>
+                        </div>
+                        <InviteFooter/>
+                    </SidebarInset>
+                </SidebarProvider>
+            </div>
+        );
+    }
+
     return (
         <div className="invite">
             <div className="container">
                 <Flash/>
                 <Header/>
                 {impersonator && <Impersonating/>}
-
-                {authenticated && <BreadCrumb/>}
-                {authenticated &&
-                    <Routes>
-                        <Route path="/" element={<Navigate replace to="home"/>}/>
-                        <Route path="home/:tab?" element={<Home/>}/>
-                        <Route path="profile/:id?" element={<Profile/>}/>
-                        <Route path="role/:id" element={<RoleForm/>}/>
-                        <Route path="invitation/:id" element={<InvitationForm/>}/>
-                        <Route path="inviter" element={<Inviter/>}/>
-                        <Route path="roles/:id/:tab?" element={<Role/>}/>
-                        <Route path="applications/:manageId" element={<Application/>}/>
-                        <Route path="tokens" element={<UserTokens/>}/>
-                        <Route path="audit" element={<UserRoleAudits/>}/>
-                        <Route path="invitation/accept"
-                               element={<Invitation authenticated={true}/>}/>
-                        <Route path="login" element={<Login/>}/>
-                        <Route path="institution-admins" element={<InstitutionAdmins/>}/>
-                        <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
-                        {(user && user.superUser) &&
-                            <Route path="system/:tab?" element={<System/>}/>
-                        }
-                        <Route path="*" element={<NotFound/>}/>
-                    </Routes>}
-                {!authenticated &&
-                    <Routes>
+                <Routes>
                         <Route path="/" element={<Navigate replace to="login"/>}/>
                         <Route path="/home" element={<Navigate replace to="login"/>}/>
                         <Route path="invitation/accept"
@@ -140,9 +157,9 @@ export const App = () => {
                         <Route path="missingAttributes" element={<MissingAttributes/>}/>
                         <Route path="/home/login" element={<Busy/>}/>
                         <Route path="/*" element={<NotFound/>}/>
-                    </Routes>}
+                </Routes>
             </div>
-            {<Footer/>}
+            <Footer/>
         </div>
     );
 }

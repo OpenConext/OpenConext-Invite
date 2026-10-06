@@ -1,0 +1,22 @@
+footer.invite-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    border-top: 1px solid var(--border);
+
+    a {
+        opacity: 0.7;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+        color: var(--sidebar-foreground);
+        text-decoration: none;
+        white-space: nowrap;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}

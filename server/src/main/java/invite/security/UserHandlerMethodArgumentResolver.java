@@ -134,6 +134,10 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             return new User(attributes);
         }
         return optionalUser.map(user -> {
+            //Same as in Access: the surf-crm-id of the login is stored, but never for an impersonated user
+            if (!validImpersonation.get() && user.getId() != null && user.updateSurfCrmId(attributes)) {
+                userRepository.save(user);
+            }
             if (user.isInstitutionAdmin() && StringUtils.hasText(user.getOrganizationGUID())) {
                 String organizationGUID = user.getOrganizationGUID();
                 if (validImpersonation.get()) {

@@ -1,19 +1,44 @@
-.user-menu {
-    margin-left: auto;
-    z-index: 4;
+.user-menu-trigger {
+    height: auto;
 
-    color: black;
-
-    button.sds--user-info--button {
-        background-color: white;
-
-        svg {
-            color: var(--sds--palette--main-color--400);
-        }
-    }
-
-    .sds--user-info--textual p.name, .sds--user-info--textual p.role {
-        color: white;
+    svg {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
     }
 }
 
+.user-menu-textual {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.3;
+}
+
+.user-menu-name {
+    font-size: 16px;
+}
+
+.user-menu-organization {
+    font-size: 14px;
+    color: var(--muted-foreground, #525252);
+}
+
+.user-menu-content {
+    min-width: 220px;
+
+    .user-menu-name {
+        display: block;
+        font-weight: 600;
+    }
+
+    .user-menu-organization {
+        display: block;
+        font-weight: 400;
+    }
+
+    a {
+        text-decoration: none;
+        color: black;
+    }
+}

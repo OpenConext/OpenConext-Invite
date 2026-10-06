@@ -2,6 +2,11 @@
 @use "styles/forms";
 @use "styles/responsive";
 
+:root {
+    // curve-react form and menu elements use text-sm, which Access sets to 16px as well
+    --text-sm: 1rem;
+}
+
 body:after {
     position: fixed;
     width: 109px;

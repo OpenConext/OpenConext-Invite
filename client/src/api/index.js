@@ -87,6 +87,10 @@ export function configuration() {
 }
 
 //Users
+export function organizations() {
+    return fetchJson("/api/v1/users/organizations", {}, {}, false);
+}
+
 export function me() {
     return fetchJson("/api/v1/users/me", {}, {}, false);
 }

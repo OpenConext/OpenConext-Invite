@@ -44,6 +44,8 @@ import static invite.security.InstitutionAdmin.*;
 @SuppressWarnings("unchecked")
 public class User implements Serializable, Provisionable {
 
+    public static final String SURF_CRM_ID = "surf-crm-id";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -85,6 +87,10 @@ public class User implements Serializable, Provisionable {
 
     @Column(name = "organization_guid")
     private String organizationGUID;
+
+    //The surf-crm-id claim of the user, used to find the organizations (identity providers) of the user in Manage
+    @Column(name = "surf_crm_id")
+    private String surfCrmId;
 
     @Column(name = "institution_admin")
     @NotNull
@@ -147,6 +153,7 @@ public class User implements Serializable, Provisionable {
         if (!StringUtils.hasText(this.organizationGUID)) {
             this.organizationGUID = (String) attributes.get("surf-crm-id");
         }
+        this.surfCrmId = (String) attributes.get(SURF_CRM_ID);
         this.applications = (List<Map<String, Object>>) attributes.getOrDefault(APPLICATIONS, Collections.emptyList());
         this.institution = (Map<String, Object>) attributes.getOrDefault(INSTITUTION, Collections.emptyMap());
         this.createdAt = Instant.now();
@@ -317,6 +324,16 @@ public class User implements Serializable, Provisionable {
 
         this.updateRemoteAttributes(attributes);
         return changed;
+    }
+
+    @JsonIgnore
+    public boolean updateSurfCrmId(Map<String, Object> attributes) {
+        String newSurfCrmId = (String) attributes.get(SURF_CRM_ID);
+        if (StringUtils.hasText(newSurfCrmId) && !newSurfCrmId.equals(this.surfCrmId)) {
+            this.surfCrmId = newSurfCrmId;
+            return true;
+        }
+        return false;
     }
 
     @JsonIgnore
