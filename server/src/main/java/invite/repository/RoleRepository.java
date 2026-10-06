@@ -91,10 +91,10 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
 
     @Query(value = """
             SELECT r.name as name, r.description as description, r.urn as urn FROM roles r
-                WHERE r.crm_role_id IS NULL
+                WHERE r.crm_role_id IS NULL AND r.organization_guid = ?1
             """,
             nativeQuery = true)
-    List<Map<String, String>> summary();
+    List<Map<String, String>> summary(String organizationGUID);
 
     List<Role> findByApplicationUsagesApplicationManageId(String manageId);
 

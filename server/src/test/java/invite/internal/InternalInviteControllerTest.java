@@ -302,16 +302,18 @@ class InternalInviteControllerTest extends AbstractTest {
 
     @Test
     void rolesSummary() {
+
         List<Map<String, String>> roles = given()
                 .when()
                 .auth().preemptive().basic("access", "secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .get("/api/external/v1/internal/invite/roles-summary")
+                .pathParams("organizationGUID", ORGANISATION_GUID)
+                .get("/api/external/v1/internal/invite/roles-summary/{organizationGUID}")
                 .as(new TypeRef<>() {
                 });
 
-        assertEquals(5, roles.size());
+        assertEquals(3, roles.size());
         List.of("name", "description","urn")
                 .forEach(attr -> assertTrue(roles.stream().allMatch(role -> role.containsKey(attr))));
     }

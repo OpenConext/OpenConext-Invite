@@ -110,14 +110,15 @@ public class InternalInviteController implements ApplicationResource, Invitation
         return ResponseEntity.ok(roles);
     }
 
-    @GetMapping("/roles-summary")
+    @GetMapping("/roles-summary/{organizationGUID}")
     @PreAuthorize("hasAnyRole('ACCESS')")
     @Transactional(readOnly = true)
     @Hidden
-    public ResponseEntity<List<Map<String, String>>> rolesSummary(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+    public ResponseEntity<List<Map<String, String>>> rolesSummary(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser,
+                                                                  @PathVariable("organizationGUID") String organizationGUID) {
         LOG.debug(String.format("/roles-summary for user %s", remoteUser.getName()));
 
-        List<Map<String, String>> roles = roleRepository.summary();
+        List<Map<String, String>> roles = roleRepository.summary(organizationGUID);
         return ResponseEntity.ok(roles);
     }
 
