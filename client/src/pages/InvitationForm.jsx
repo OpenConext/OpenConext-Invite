@@ -288,7 +288,7 @@ export const InvitationForm = () => {
             if (!overrideSettingsAllowed) {
                 enforceEmailEquality = newSelectedOptions.some(role => role.enforceEmailEquality) || enforceEmailEquality;
                 eduIDOnly = newSelectedOptions.some(role => role.eduIDOnly) || eduIDOnly;
-                const rolesWithRequestedAuthnContext = newSelectedOptions.filter(role => isEmpty(role.requestedAuthnContext));
+                const rolesWithRequestedAuthnContext = newSelectedOptions.filter(role => !isEmpty(role.requestedAuthnContext));
                 requestedAuthnContext = isEmpty(rolesWithRequestedAuthnContext) ? requestedAuthnContext :
                     rolesWithRequestedAuthnContext[0].requestedAuthnContext;
             }
@@ -297,7 +297,7 @@ export const InvitationForm = () => {
                 intendedAuthority: intendedAuthority,
                 enforceEmailEquality: enforceEmailEquality,
                 eduIDOnly: eduIDOnly,
-                requestedAuthnContext: requestedAuthnContext,
+                requestedAuthnContext: eduIDOnly ? requestedAuthnContext : null,
                 notifyInviter: newSelectedOptions
                     .some(role => (role.isUserRole ? role.role : role).notifyInviter) || false
             })
@@ -313,10 +313,12 @@ export const InvitationForm = () => {
     const authorityChanged = option => {
         const applicationManagerAuthority = option.value === AUTHORITIES.APPLICATION_MANAGER;
         const adminAuthority = option.value === AUTHORITIES.SUPER_USER || option.value === AUTHORITIES.INSTITUTION_ADMIN;
+        const eduIDOnly = applicationManagerAuthority || adminAuthority ? false : invitation.eduIDOnly;
         setInvitation({
             ...invitation,
             intendedAuthority: option.value,
-            eduIDOnly: applicationManagerAuthority || adminAuthority ? false : invitation.eduIDOnly,
+            eduIDOnly: eduIDOnly,
+            requestedAuthnContext: eduIDOnly ? invitation.requestedAuthnContext : null,
             roleExpiryDate: defaultRoleExpiryDate(selectedRoles),
             organizationGUID: option.value !== AUTHORITIES.INSTITUTION_ADMIN ? null :
                 (user.institutionAdmin ? user.organizationGUID : null)
