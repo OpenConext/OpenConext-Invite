@@ -137,7 +137,7 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
 
     user.highestAuthority = I18n.t(`access.${highestAuthority(user, false)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
-        ["lastActivity", true], ["organizationGUID"]];
+        ["lastActivity", true]];
     const filteredUserRoles = user.userRoles
         .filter(filterUserRole)
         .filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);
@@ -161,6 +161,7 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                             value={user.crmContactId}
                             name={I18n.t(`users.crmContactId`)}/>
             }
+            {attribute(attributes.length, "organizationGUID")}
             {(currentUser.superUser && user.crmOrganisation) &&
                 <InputField noInput={true}
                             disabled={true}
