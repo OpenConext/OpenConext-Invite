@@ -10,6 +10,7 @@ import WebsiteIcon from "../icons/network-information.svg";
 import PersonIcon from "../icons/persons.svg";
 import CrmIcon from "@surfnet/sds/icons/illustrative-icons/database-check.svg";
 import InstitutionAdminIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
+import SvgAllowanceNoTalking from "@surfnet/sds/icons/functional-icons/allowance-no-talking.svg";
 import {allowedToEditRole, AUTHORITIES, highestAuthority, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
@@ -81,13 +82,13 @@ export const Role = () => {
                           label={I18n.t("tabs.allPendingInvitations")}>
                         <Invitations role={res}/>
                     </Page>,
-                    <Page key="maintainers"
-                          name="maintainers"
-                          label={I18n.t("tabs.userRoles")}>
+                    isEmpty(res.crmRoleId) ? <Page key="maintainers"
+                                                   name="maintainers"
+                                                   label={I18n.t("tabs.userRoles")}>
                         <UserRoles role={res}
                                    guests={false}
                         />
-                    </Page>
+                    </Page> : null
                 ];
                 const filteredTabs = newTabs.filter(tab => tab !== null);
                 setTabs(filteredTabs);
@@ -138,7 +139,7 @@ export const Role = () => {
 
     const getActions = () => {
         const actions = [];
-        if (allowedToEditRole(user, role)) {
+        if (allowedToEditRole(user, role) && isEmpty(role.crmRoleId)) {
             actions.push({
                 buttonType: ButtonType.Primary,
                 name: I18n.t("forms.edit"),
@@ -148,7 +149,7 @@ export const Role = () => {
                 }
             });
         }
-        if (highestAuthority(user) === AUTHORITIES.INVITER) {
+        if (highestAuthority(user) === AUTHORITIES.INVITER && isEmpty(role.crmRoleId)) {
             actions.push({
                 buttonType: ButtonType.Primary,
                 name: I18n.t("invitations.newGuest"),
@@ -181,7 +182,9 @@ export const Role = () => {
             {!isInviter &&
                 <UnitHeader obj={({...role, logo: logo})}
                             displayDescription={true}
-                            actions={getActions()}>
+                            actions={getActions()}
+                            customAction={<p className="badge-alert">
+                                <SvgAllowanceNoTalking/> {I18n.t("role.crmRoleImmutable")}</p>}>
                     <div className={"urn-container"}>
                         <span>{I18n.t("role.copyUrn")}</span>
                         <ClipBoardCopy txt={urn} transparentBackground={true}/>
@@ -207,7 +210,7 @@ export const Role = () => {
                                     nbr: role.userRoleCount,
                                     period: displayExpiryDate(
                                         !isEmpty(role.defaultExpiryDate) ? new Date(role.defaultExpiryDate * 1000) :
-                                        futureDate(role.defaultExpiryDays))
+                                            futureDate(role.defaultExpiryDays))
                                 }))
                             }}/>
                         </div>

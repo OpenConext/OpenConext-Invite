@@ -146,8 +146,8 @@ const nl = {
         roleInfoNoEndDate: "Rol heeft <strong>geen einddatum</strong>",
         contactAdmin: "Contact rolmanager(s)",
         institutionAdmin: "Institution admins: {{names}}",
-        noInstitutionAdmin: "Er zijn geen instellings-admins voor deze rol"
-
+        noInstitutionAdmin: "Er zijn geen instellings-admins voor deze rol",
+        crmRoleImmutable: "CRM rollen zijn read-only"
     },
     roles: {
         title: "Toegangsrollen",

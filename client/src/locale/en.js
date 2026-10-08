@@ -146,7 +146,8 @@ const en = {
         roleInfoNoEndDate: "Role has <strong>no end date</strong>",
         contactAdmin: "Contact role manager(s)",
         institutionAdmin: "Institution admins: {{names}}",
-        noInstitutionAdmin: "There are no institution admins for this role"
+        noInstitutionAdmin: "There are no institution admins for this role",
+        crmRoleImmutable: "CRM roles are read-only"
     },
     roles: {
         title: "Access Roles",

@@ -258,7 +258,7 @@ export const Invitations = ({
     }
 
     const columns = [
-        {
+        isEmpty(role.crmRoleId) ? {
             nonSortable: true,
             key: "check",
             header: showCheckAllHeader() ? <Checkbox value={allSelected}
@@ -270,7 +270,7 @@ export const Invitations = ({
                                                                         value={selectedInvitations[invitation.id].selected}/> :
                     <Tooltip tip={I18n.t("invitations.notAllowed")}/>}
             </div>
-        },
+        } : null,
         {
             key: "email",
             header: I18n.t("users.email"),
@@ -309,12 +309,13 @@ export const Invitations = ({
             header: I18n.t("invitations.expiryDate"),
             mapper: invitation => invitationExpiry(invitation)
         },
-        {
+        isEmpty(role.crmRoleId) ? {
             key: "adminIcons",
             nonSortable: true,
             header: "",
             mapper: invitation => actionIcons(invitation)
-        }];
+        } : null]
+        .filter(col => !isEmpty(col));
 
     return (<div className="mod-invitations">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}

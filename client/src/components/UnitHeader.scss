@@ -118,4 +118,16 @@
         z-index: 99;
     }
 
+    p.badge-alert {
+        display: flex;
+        flex-wrap: balance;
+        align-content: center;
+        gap: 15px;
+        background-color: white;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid darkgrey;
+        max-height: 40px;
+    }
+
 }
