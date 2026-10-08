@@ -258,7 +258,7 @@ export const Invitations = ({
     }
 
     const columns = [
-        isEmpty(role.crmRoleId) ? {
+        isEmpty(role?.crmRoleId) ? {
             nonSortable: true,
             key: "check",
             header: showCheckAllHeader() ? <Checkbox value={allSelected}
@@ -309,7 +309,7 @@ export const Invitations = ({
             header: I18n.t("invitations.expiryDate"),
             mapper: invitation => invitationExpiry(invitation)
         },
-        isEmpty(role.crmRoleId) ? {
+        isEmpty(role?.crmRoleId) ? {
             key: "adminIcons",
             nonSortable: true,
             header: "",
