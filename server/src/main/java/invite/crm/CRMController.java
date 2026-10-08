@@ -741,12 +741,11 @@ public class CRMController implements ApplicationResource {
         Optional<User> optionalUser =
                 userRepository.findByCrmContactIdAndOrganisation(
                         crmContact.getContactId(), organisation);
-        //Idempotency - if all outstanding open invitations have exact the same roles for this contact / organisation then do nothing
         List<Invitation> invitations = invitationRepository
                 .findByCrmContactIdAndCrmOrganisationIdAndStatus(crmContact.getContactId(),
                         organisation.getCrmOrganisationId(), Status.OPEN);
         if (!invitations.isEmpty()) {
-            //However, there is an edge-case where the new invitation contains new roles or has roles deleted compared to the last existing open invitation
+            //When the mail address or roles are different we delete all outstanding invitations and proceed
             Invitation lastInvitation = invitations.stream()
                     .max(Comparator.comparing(Invitation::getCreatedAt))
                     .orElseThrow(() -> new NoSuchElementException("The last will be the first"));
@@ -757,16 +756,18 @@ public class CRMController implements ApplicationResource {
             Set<String> crmRoleIds = crmContact.getRoles().stream()
                     .map(CRMRole::getRoleId)
                     .collect(Collectors.toSet());
-            String crmRoleNames = crmContact.getRoles().stream().map(crmRole -> crmRole.getName()).collect(Collectors.joining(", "));
-            if (invitationCrmRoleIds.equals(crmRoleIds)) {
-                LOG.info(String.format("Not sending invitation to %s as there is already an outstanding invitation with roles %s",
-                        crmContact.getEmail(),
+            String crmRoleNames = crmContact.getRoles().stream()
+                    .map(CRMRole::getName)
+                    .collect(Collectors.joining(", "));
+            if (lastInvitation.getEmail().equalsIgnoreCase(crmContact.getEmail()) && invitationCrmRoleIds.equals(crmRoleIds)) {
+                LOG.info(String.format("Not sending mail because there is an outstanding invitations to %s and exact the same roles %s",
+                        lastInvitation.getEmail(),
                         crmRoleNames));
                 return false;
             } else {
-                //We delete all outstanding invitations and proceed
-                LOG.info(String.format("Deleting all outstanding invitations to %s as there is a new invitation with different roles %s",
+                LOG.info(String.format("Deleting all outstanding invitations to %s as there is a new invitation with different email %s or different roles %s",
                         crmContact.getEmail(),
+                        lastInvitation.getEmail(),
                         crmRoleNames));
                 invitationRepository.deleteAll(invitations);
             }
