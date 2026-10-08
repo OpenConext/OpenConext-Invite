@@ -101,6 +101,8 @@ const en = {
         schacHomeOrganization: "Institution",
         lastActivity: "Last activity",
         organizationGUID: "Organization GUID",
+        crmOrganisation: "CRM Organisation",
+        crmContactId: "CRM Contact ID",
         eduPersonPrincipalName: "EPPN",
         sub: "Sub",
         singleUser: "user",

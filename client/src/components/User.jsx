@@ -155,6 +155,18 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                                                      confirm={confirmation.action}
                                                      question={confirmation.question}/>}
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
+            {(currentUser.superUser && user.crmContactId) &&
+                <InputField noInput={true}
+                            disabled={true}
+                            value={user.crmContactId}
+                            name={I18n.t(`users.crmContactId`)}/>
+            }
+            {(currentUser.superUser && user.organisation) &&
+                <InputField noInput={true}
+                            disabled={true}
+                            value={`${user.organisation.crmOrganisationId} (${user.organisation.crmOrganisationAbbrevation})`}
+                            name={I18n.t(`users.crmOrganisation`)}/>
+            }
             {(currentUser.superUser && other && currentUser.id !== user.id) &&
                 <div className="span-row">
                     <Button type={ButtonType.Delete}

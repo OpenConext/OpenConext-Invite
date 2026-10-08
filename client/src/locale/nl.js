@@ -101,6 +101,8 @@ const nl = {
         schacHomeOrganization: "Instelling",
         lastActivity: "Laatst actief",
         organizationGUID: "Organisatie GUID",
+        crmOrganisation: "CRM Organisatie",
+        crmContactId: "CRM Contact ID",
         eduPersonPrincipalName: "EPPN",
         sub: "Sub",
         singleUser: "gebruiker",
