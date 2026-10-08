@@ -161,10 +161,10 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                             value={user.crmContactId}
                             name={I18n.t(`users.crmContactId`)}/>
             }
-            {(currentUser.superUser && user.organisation) &&
+            {(currentUser.superUser && user.crmOrganisation) &&
                 <InputField noInput={true}
                             disabled={true}
-                            value={`${user.organisation.crmOrganisationId} (${user.organisation.crmOrganisationAbbrevation})`}
+                            value={`${user.crmOrganisation.crmOrganisationId} (${user.crmOrganisation.crmOrganisationAbbrevation})`}
                             name={I18n.t(`users.crmOrganisation`)}/>
             }
             {(currentUser.superUser && other && currentUser.id !== user.id) &&

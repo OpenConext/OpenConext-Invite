@@ -111,7 +111,12 @@ public class User implements Serializable, Provisionable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organisation_id")
+    @JsonIgnore
     private Organisation organisation;
+
+    //Only populated by the user details endpoint, as the lazy organisation can't be serialized outside a session
+    @Transient
+    private Organisation crmOrganisation;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<UserRole> userRoles = new HashSet<>();

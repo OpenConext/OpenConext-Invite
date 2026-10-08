@@ -790,6 +790,45 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    void meForUserWithOrganisation() throws Exception {
+        //Regression: the lazy organisation must not be serialized, as there is no session left at that point
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", KB_USER_SUB);
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/me")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .as(User.class);
+        assertEquals(KB_USER_SUB, user.getSub());
+        assertNull(user.getCrmOrganisation());
+    }
+
+    @Test
+    void otherWithOrganisation() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", SUPER_SUB);
+        Long id = userRepository.findBySubIgnoreCase(KB_USER_SUB).get().getId();
+
+        User user = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("id", id)
+                .get("/api/v1/users/other/{id}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .as(User.class);
+        assertNotNull(user.getCrmOrganisation());
+        assertNotNull(user.getCrmOrganisation().getCrmOrganisationId());
+    }
+
+    @Test
     void institutionAdminsbyRole() throws Exception {
         AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_WIKI_SUB);
         Role role = roleRepository.findByName("Wiki").get();

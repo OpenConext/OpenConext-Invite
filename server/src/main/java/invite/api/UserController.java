@@ -183,6 +183,7 @@ public class UserController {
         LOG.debug(String.format("/other/%s for user %s", id, user.getEduPersonPrincipalName()));
 
         User other = userRepository.findDetailsById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        other.setCrmOrganisation(other.getOrganisation());
         List<Role> roles = other.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.addManageMetaData(roles);
         if (!user.isSuperUser()) {
