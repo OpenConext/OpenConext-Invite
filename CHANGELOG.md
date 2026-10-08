@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Make acr's configurable (see [#722](https://github.com/OpenConext/OpenConext-Invite/issues/722))
 - Migrated to Spring Boot 4.1.0 (see [#722](https://github.com/OpenConext/OpenConext-Invite/issues/775))
 
+## 1.1.16
+
+- Fix for Attribute Aggregation id's
+
 ## 1.1.15
 
 - Fix for duplicate CRM roles
