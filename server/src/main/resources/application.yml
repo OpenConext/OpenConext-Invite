@@ -147,7 +147,7 @@ config:
   environment: ${gui.disclaimer.content}
   # Feature toggle for the left-hand (SURF Access) menu. Set to False for organizations that run Invite without SURF Access:
   # the client then renders no menu and the Invite server never calls the Access menu endpoint (see the access: section)
-  access-menu-enabled: True
+  access-menu-enabled: true
   acr-requirements:
     - key: EduIDLinkedInstitution
       url: "https://eduid.nl/trust/linked-institution"

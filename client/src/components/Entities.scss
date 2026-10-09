@@ -54,7 +54,8 @@
         }
 
         &.only-search {
-            justify-content: flex-end;
+            // Same position as with a "new" button: search on the left
+            justify-content: flex-start;
         }
 
         &.search-align-left {

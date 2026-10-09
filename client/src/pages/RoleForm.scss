@@ -26,6 +26,7 @@
         p.applications-intro {
             grid-column-start: first;
             margin-top: 12px;
+            margin-bottom: 16px;
         }
 
         .section-separator {
@@ -45,10 +46,6 @@
             align-items: flex-start;
             gap: 16px;
             position: relative;
-
-            @media (max-width: vars.$medium) {
-                flex-direction: column;
-            }
 
             .select-field-container {
                 display: flex;
@@ -79,6 +76,27 @@
             button[data-slot="button"] {
                 align-self: flex-end;
                 flex-shrink: 0;
+            }
+
+            @media (max-width: vars.$medium) {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+
+                // In a column the flex-basis is a height, so the fixed 280px would leave a large gap
+                .select-field-container, .input-field-container {
+                    flex: 0 0 auto;
+                    width: 100%;
+                }
+
+                .input-field-container {
+                    margin-top: 16px;
+                }
+
+                button[data-slot="button"] {
+                    align-self: flex-start;
+                    margin-top: 16px;
+                }
             }
         }
 

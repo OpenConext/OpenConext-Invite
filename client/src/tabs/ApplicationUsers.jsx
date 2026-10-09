@@ -129,6 +129,7 @@ export const ApplicationUsers = () => {
                       newLabel={I18n.t("invitations.newInvite")}
                       showNew={isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, currentUser)}
                       newEntityFunc={() => navigate(`/invitation/new?institution=true`)}
+                      hideHeading={true}
                       hideTitle={searching}
                       busy={searching}/>
         </div>

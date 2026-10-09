@@ -90,7 +90,7 @@ export const Home = () => {
         <div className="home">
             <div className="mod-home-container">
                 <h1>{heading}</h1>
-                {currentTab === "roles" && <p className="intro">{I18n.t("roles.intro")}</p>}
+                <p className="intro">{I18n.t(`tabs.intro.${currentTab}`)}</p>
                 <SearchGroupContext.Provider value="home">
                     <Tabs activeTab={currentTab}
                           tabChanged={tabChanged}>

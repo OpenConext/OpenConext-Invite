@@ -45,6 +45,14 @@ const nl = {
         },
     },
     tabs: {
+        intro: {
+            roles: "Rollen geven toegang tot specifieke applicatie(s) en kun je toekennen aan gebruikers.",
+            users: "Alle gebruikers van Invite, met hun functie en laatste activiteit.",
+            applications: "De applicaties die aan Invite gekoppeld zijn en de rollen die er toegang toe geven.",
+            tokens: "API-tokens geven externe systemen toegang tot de Invite API.",
+            applicationUsers: "De gebruikers met een rol voor de applicaties van jouw organisatie.",
+            invitations: "De uitnodigingen die je hebt verstuurd en die nog niet geaccepteerd zijn.",
+        },
         home: "Home",
         applications: "Applicaties",
         users: "Gebruikers",

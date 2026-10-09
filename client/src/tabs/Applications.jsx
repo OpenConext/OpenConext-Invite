@@ -85,6 +85,7 @@ const Applications = () => {
                       defaultSort="name"
                       columns={columns}
                       busy={searching}
+                      hideHeading={true}
                       hideTitle={searching}
                       title={I18n.t("applications.applicationFound", {nbr: applications.length})}
                       customNoEntities={I18n.t(`applications.noResults`)}

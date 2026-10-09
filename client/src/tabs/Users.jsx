@@ -149,6 +149,7 @@ export const Users = () => {
                       newLabel={currentUser.superUser ? I18n.t("invitations.newInvite") : null}
                       showNew={isUserAllowed(AUTHORITIES.SUPER_USER, currentUser)}
                       newEntityFunc={() => navigate(`/invitation/new?maintainer=true`)}
+                      hideHeading={true}
                       hideTitle={searching}
                       customNoEntities={I18n.t(`users.noResults`)}
                       searchAttributes={["name", "email", "schacHomeOrganization"]}

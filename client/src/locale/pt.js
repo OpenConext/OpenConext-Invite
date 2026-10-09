@@ -44,6 +44,14 @@ const pt = {
         },
     },
     tabs: {
+        intro: {
+            roles: "As funções dão acesso a aplicações específicas e podem ser atribuídas a utilizadores.",
+            users: "Todos os utilizadores do Invite, com a sua função e última atividade.",
+            applications: "As aplicações ligadas ao Invite e as funções que dão acesso às mesmas.",
+            tokens: "Os tokens de API dão a sistemas externos acesso à API do Invite.",
+            applicationUsers: "Os utilizadores com uma função para as aplicações da sua organização.",
+            invitations: "Os convites que enviou e que ainda não foram aceites.",
+        },
         home: "Home",
         applications: "Applications",
         users: "Users",

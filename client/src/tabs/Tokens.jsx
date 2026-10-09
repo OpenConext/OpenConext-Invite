@@ -251,7 +251,8 @@ export const Tokens = () => {
                     customNoEntities={I18n.t(`tokens.noEntities`)}
                     loading={false}
                     inputFocus={true}
-                    hideTitle={false}
+                    hideHeading={true}
+                      hideTitle={false}
                 />}
         </div>
     );

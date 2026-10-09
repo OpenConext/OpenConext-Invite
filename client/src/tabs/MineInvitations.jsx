@@ -74,6 +74,7 @@ export const MineInvitations = () => {
         <Entities entities={invitations}
                   modelName="invitations"
                   defaultSort="email"
+                  hideHeading={true}
                   title={I18n.t("invitations.mine")}
                   columns={columns}
                   customNoEntities={I18n.t(`invitations.noResults`)}

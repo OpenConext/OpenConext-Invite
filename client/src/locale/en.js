@@ -45,6 +45,14 @@ const en = {
         },
     },
     tabs: {
+        intro: {
+            roles: "Roles give access to specific application(s) and can be assigned to users.",
+            users: "All users of Invite, with their function and last activity.",
+            applications: "The applications connected to Invite and the roles that give access to them.",
+            tokens: "API tokens give external systems access to the Invite API.",
+            applicationUsers: "The users who hold a role for the applications of your organization.",
+            invitations: "The invitations you have sent that have not been accepted yet.",
+        },
         home: "Home",
         applications: "Applications",
         users: "Users",
