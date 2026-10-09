@@ -1,6 +1,6 @@
 import {Spinner} from "@surfnet/curve-react";
 import {InfoTooltip} from "../components/InfoTooltip";
-import {DatabaseIcon as CrmIcon, ChalkboardTeacherIcon as InstitutionAdminIcon} from "@phosphor-icons/react";
+import {ChalkboardTeacherIcon as InstitutionAdminIcon, ChatCircleSlashIcon as SvgAllowanceNoTalking, DatabaseIcon as CrmIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import {institutionAdminsbyRole, managersByRoleId, roleByID} from "../api";
 import I18n from "../locale/I18n";
@@ -81,13 +81,13 @@ export const Role = () => {
                           label={I18n.t("tabs.allPendingInvitations")}>
                         <Invitations role={res}/>
                     </Page>,
-                    <Page key="maintainers"
-                          name="maintainers"
-                          label={I18n.t("tabs.userRoles")}>
+                    isEmpty(res.crmRoleId) ? <Page key="maintainers"
+                                                   name="maintainers"
+                                                   label={I18n.t("tabs.userRoles")}>
                         <UserRoles role={res}
                                    guests={false}
                         />
-                    </Page>
+                    </Page> : null
                 ];
                 const filteredTabs = newTabs.filter(tab => tab !== null);
                 setTabs(filteredTabs);
@@ -138,7 +138,7 @@ export const Role = () => {
 
     const getActions = () => {
         const actions = [];
-        if (allowedToEditRole(user, role)) {
+        if (allowedToEditRole(user, role) && isEmpty(role.crmRoleId)) {
             actions.push({
                 name: I18n.t("forms.edit"),
                 perform: () => {
@@ -147,7 +147,7 @@ export const Role = () => {
                 }
             });
         }
-        if (highestAuthority(user) === AUTHORITIES.INVITER) {
+        if (highestAuthority(user) === AUTHORITIES.INVITER && isEmpty(role.crmRoleId)) {
             actions.push({
                 name: I18n.t("invitations.newGuest"),
                 perform: () => navigate(`/invitation/new?maintainer=false`, {state: role.id})
@@ -179,7 +179,9 @@ export const Role = () => {
             {!isInviter &&
                 <UnitHeader obj={({...role, logo: logo})}
                             displayDescription={true}
-                            actions={getActions()}>
+                            actions={getActions()}
+                            customAction={<p className="badge-alert">
+                                <SvgAllowanceNoTalking/> {I18n.t("role.crmRoleImmutable")}</p>}>
                     <div className={"urn-container"}>
                         <span>{I18n.t("role.copyUrn")}</span>
                         <ClipBoardCopy txt={urn}/>
@@ -205,7 +207,7 @@ export const Role = () => {
                                     nbr: role.userRoleCount,
                                     period: displayExpiryDate(
                                         !isEmpty(role.defaultExpiryDate) ? new Date(role.defaultExpiryDate * 1000) :
-                                        futureDate(role.defaultExpiryDays))
+                                            futureDate(role.defaultExpiryDays))
                                 }))
                             }}/>
                         </div>

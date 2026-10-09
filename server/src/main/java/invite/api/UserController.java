@@ -7,11 +7,18 @@ import invite.menu.AccessMenuClient;
 import invite.config.Config;
 import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;
-import invite.manage.EntityType;
-import invite.manage.Manage;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
-import invite.model.*;
+import invite.manage.EntityType;
+import invite.manage.Manage;
+import invite.model.Authority;
+import invite.model.Invitation;
+import invite.model.RemoteProvisionedUser;
+import invite.model.Role;
+import invite.model.RoleSummary;
+import invite.model.User;
+import invite.model.UserRole;
+import invite.model.UserRoles;
 import invite.provision.Provisioning;
 import invite.provision.ProvisioningService;
 import invite.provision.graph.GraphClient;
@@ -44,7 +51,15 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -53,7 +68,12 @@ import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -182,7 +202,8 @@ public class UserController {
     public ResponseEntity<User> details(@PathVariable("id") Long id, @Parameter(hidden = true) User user) {
         LOG.debug(String.format("/other/%s for user %s", id, user.getEduPersonPrincipalName()));
 
-        User other = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        User other = userRepository.findDetailsById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        other.setCrmOrganisation(other.getOrganisation());
         List<Role> roles = other.getUserRoles().stream().map(UserRole::getRole).toList();
         manage.addManageMetaData(roles);
         if (!user.isSuperUser()) {
@@ -216,15 +237,15 @@ public class UserController {
         query = queryHasText ? URLDecoder.decode(query, Charset.defaultCharset()) : query;
         String parsedQuery = queryHasText ? FullSearchQueryParser.parse(query) : "";
         boolean noSearchTokens = parsedQuery.equals("*");
-        Page<Map<String, Object>> usersPage ;
+        Page<Map<String, Object>> usersPage;
         if (queryHasText && !noSearchTokens) {
-            usersPage =  userRepository.searchByPageWithKeyword(parsedQuery, pageable);
+            usersPage = userRepository.searchByPageWithKeyword(parsedQuery, pageable);
         } else if (noSearchTokens) {
             //Rare condition if users search on kb.nl, at@ex where all the parsed tokens are < 3 characters
             query = query.toUpperCase() + "%";
-            usersPage =  userRepository.searchByPageWithStrictMode(query, pageable);
+            usersPage = userRepository.searchByPageWithStrictMode(query, pageable);
         } else {
-            usersPage =  userRepository.searchByPage(pageable);
+            usersPage = userRepository.searchByPage(pageable);
         }
         return ResponseEntity.ok(usersPage);
     }
@@ -371,7 +392,7 @@ public class UserController {
     @Operation(summary = "Get institution admins by role", description = "Retrieve institution admins associated with a specific role")
     @Transactional(readOnly = true)
     public ResponseEntity<List<User>> institutionAdminsbyRole(@PathVariable Long roleId,
-                                                   @Parameter(hidden = true) User user) {
+                                                              @Parameter(hidden = true) User user) {
         LOG.debug(String.format("GET institution-admins/%s for user %s", roleId, user.getEduPersonPrincipalName()));
 
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new NotFoundException("Role not found"));

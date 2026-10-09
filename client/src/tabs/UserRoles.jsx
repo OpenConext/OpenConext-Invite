@@ -269,7 +269,7 @@ export const UserRoles = ({role, guests}) => {
                 </div>
             </div>);
     }
-    const columns = [
+    const columns = [isEmpty(role.crmRoleId) ?
         {
             nonSortable: true,
             key: "check",
@@ -284,7 +284,7 @@ export const UserRoles = ({role, guests}) => {
                     </div>
                 );
             }
-        },
+        } : null,
         {
             key: "name",
             header: I18n.t("users.name_email"),
@@ -329,14 +329,14 @@ export const UserRoles = ({role, guests}) => {
             header: I18n.t("userRoles.createdAt"),
             mapper: userRole => shortDateFromEpoch(userRole.createdAt, false)
         },
-        {
+        isEmpty(role.crmRoleId) ? {
             key: "adminIcons",
             nonSortable: true,
             hasLink: true,
             header: "",
             mapper: userRole => actionIcons(userRole)
-        },
-    ];
+        } : null,
+    ].filter(col => !isEmpty(col));
 
     const isAllowedToSeeUserDetails =
         isUserAllowed(AUTHORITIES.SUPER_USER, user) || isUserAllowed(AUTHORITIES.INSTITUTION_ADMIN, user);

@@ -127,7 +127,7 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
 
     user.highestAuthority = I18n.t(`access.${highestAuthority(user, false)}`);
     const attributes = [["name"], ["sub"], ["eduPersonPrincipalName"], ["schacHomeOrganization"], ["email"], ["highestAuthority"],
-        ["lastActivity", true], ["organizationGUID"]];
+        ["lastActivity", true]];
     const filteredUserRoles = user.userRoles
         .filter(filterUserRole)
         .filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser);
@@ -145,6 +145,19 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                                                      confirm={confirmation.action}
                                                      question={confirmation.question}/>}
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
+            {(currentUser.superUser && user.crmContactId) &&
+                <InputField noInput={true}
+                            disabled={true}
+                            value={user.crmContactId}
+                            name={I18n.t(`users.crmContactId`)}/>
+            }
+            {attribute(attributes.length, "organizationGUID")}
+            {(currentUser.superUser && user.crmOrganisation) &&
+                <InputField noInput={true}
+                            disabled={true}
+                            value={`${user.crmOrganisation.crmOrganisationId} (${user.crmOrganisation.crmOrganisationAbbrevation})`}
+                            name={I18n.t(`users.crmOrganisation`)}/>
+            }
             {(currentUser.superUser && other && currentUser.id !== user.id) &&
                 <div className="span-row">
                     <Button variant="destructive" size="icon" onClick={() => doDeleteUser(true)} aria-label={I18n.t("forms.delete")}><TrashIcon/></Button>

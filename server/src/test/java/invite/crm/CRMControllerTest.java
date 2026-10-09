@@ -305,6 +305,59 @@ class CRMControllerTest extends AbstractMailTest {
     }
 
     @Test
+    void contactInviteNewUserWithEmailAdjustment() throws Exception {
+        CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
+        String crmContactID = UUID.randomUUID().toString();
+        String crmOrganisationID = UUID.randomUUID().toString();
+        CRMContact crmContact = createCrmContact(crmContactID, crmOrganisationID, crmRole, null, null, false);
+        stubForManageProviderByEntityID(EntityType.OIDC10_RP, "https://calendar");
+        stubForManageProviderByEntityID(EntityType.SAML20_SP, "https://storage");
+
+        String response = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", response);
+        assertEquals("jdoe@example.com", mailMessage().getTo().getFirst().toString());
+
+        List<Invitation> invitations = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitations.size());
+
+        deleteMailMessages();
+        //Same roles, but the email address of the contact has changed in the CRM
+        crmContact.setEmail("new.address@example.com");
+
+        String newResponse = given()
+                .when()
+                .accept(ContentType.JSON)
+                .header(API_KEY_HEADER, "secret")
+                .contentType(ContentType.JSON)
+                .body(crmContact)
+                .post("/crm/profile")
+                .then()
+                .extract()
+                .asString();
+        assertEquals("created", newResponse);
+
+        List<Invitation> invitationsAfterSyncs = invitationRepository.findByCrmContactIdAndCrmOrganisationId(
+                crmContactID, crmOrganisationID);
+        assertEquals(1, invitationsAfterSyncs.size());
+        assertNotEquals(invitations.getFirst().getId(), invitationsAfterSyncs.getFirst().getId());
+        assertEquals("new.address@example.com", invitationsAfterSyncs.getFirst().getEmail());
+        //The previous invitation to the old address should be deleted
+        assertTrue(invitationRepository.findById(invitations.getFirst().getId()).isEmpty());
+
+        assertEquals("new.address@example.com", mailMessage().getTo().getFirst().toString());
+    }
+
+    @Test
     void contactInviteNewUserSuppressEmail() throws Exception {
         CRMRole crmRole = new CRMRole("roleId", "BVW", "Super");
         String crmContactID = UUID.randomUUID().toString();

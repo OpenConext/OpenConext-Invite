@@ -109,6 +109,8 @@ const nl = {
         schacHomeOrganization: "Instelling",
         lastActivity: "Laatst actief",
         organizationGUID: "Organisatie GUID",
+        crmOrganisation: "CRM Organisatie",
+        crmContactId: "CRM Contact ID",
         eduPersonPrincipalName: "EPPN",
         sub: "Sub",
         singleUser: "gebruiker",
@@ -154,8 +156,8 @@ const nl = {
         roleInfoNoEndDate: "Rol heeft <strong>geen einddatum</strong>",
         contactAdmin: "Contact rolmanager(s)",
         institutionAdmin: "Institution admins: {{names}}",
-        noInstitutionAdmin: "Er zijn geen instellings-admins voor deze rol"
-
+        noInstitutionAdmin: "Er zijn geen instellings-admins voor deze rol",
+        crmRoleImmutable: "CRM rollen zijn read-only"
     },
     roles: {
         deleteRole: "Rol verwijderen",
