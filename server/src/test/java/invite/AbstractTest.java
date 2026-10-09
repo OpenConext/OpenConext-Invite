@@ -124,6 +124,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 "spring.security.oauth2.client.provider.oidcng.jwk-set-uri=http://localhost:8081/jwk-set",
                 "manage.url: http://localhost:8081",
                 "myconext.uri: http://localhost:8081/myconext/api/invite/provision-eduid",
+                "access.menu-uri: http://localhost:8081/access/api/external/v1/menu",
                 "manage.enabled: true",
                 "spring.task.scheduling.enabled=false",
                 "spring.jpa.properties.hibernate.format_sql=false",

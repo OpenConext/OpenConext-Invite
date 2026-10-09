@@ -3,6 +3,7 @@ package invite.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import crypto.KeyStore;
+import invite.access.AccessMenuClient;
 import invite.config.Config;
 import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;
@@ -40,6 +41,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -78,6 +80,7 @@ public class UserController {
     private final RemoteProvisionedUserRepository remoteProvisionedUserRepository;
     private final GraphClient graphClient;
     private final ProvisioningService provisioningService;
+    private final AccessMenuClient accessMenuClient;
 
     @Autowired
     public UserController(Config config,
@@ -90,10 +93,12 @@ public class UserController {
                           @Value("${config.eduid-idp-schac-home-organization}") String eduidIdpSchacHomeOrganization,
                           @Value("${config.server-url}") String serverBaseURL,
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix,
-                          ProvisioningService provisioningService) {
+                          ProvisioningService provisioningService,
+                          AccessMenuClient accessMenuClient) {
         this.invitationRepository = invitationRepository;
         this.roleRepository = roleRepository;
         this.provisioningService = provisioningService;
+        this.accessMenuClient = accessMenuClient;
         this.config = config.withGroupUrnPrefix(groupUrnPrefix);
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
@@ -130,26 +135,19 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("organizations")
-    @Operation(summary = "Get organizations of the current user", description = "Retrieve the identity providers (organizations) of the surf-crm-id of the current user, identified by their Manage identifier")
-    @Transactional(readOnly = true)
-    public ResponseEntity<List<Map<String, Object>>> organizations(@Parameter(hidden = true) User user) {
-        LOG.debug(String.format("/organizations for user %s", user.getEduPersonPrincipalName()));
+    @GetMapping("menu")
+    @Operation(summary = "Get the menu of the current user", description = "Retrieve the menu model (the names of the menu items the user is allowed to see, the organizations and the current organization) of the SURF Access shell. SURF Access decides which items are visible")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public ResponseEntity<Map<String, Object>> menu(@Parameter(hidden = true) User user,
+                                                    @RequestParam(value = "organizationId", required = false) String organizationId) {
+        LOG.debug(String.format("/menu for user %s", user.getEduPersonPrincipalName()));
 
-        if (!StringUtils.hasText(user.getSurfCrmId())) {
-            return ResponseEntity.ok(List.of());
+        if (!config.isAccessMenuEnabled()) {
+            //Invite without SURF Access: Access is never called
+            return ResponseEntity.ok(AccessMenuClient.disabled());
         }
-        //The id is the Manage identifier of the identity provider, the name is the English name as displayed in Access
-        List<Map<String, Object>> organizations = manage.identityProvidersByInstitutionalGUID(user.getSurfCrmId())
-                .stream()
-                .map(idp -> {
-                    Map<String, Object> organization = new HashMap<>();
-                    organization.put("id", idp.get("_id"));
-                    organization.put("name", idp.get("name:en"));
-                    return organization;
-                })
-                .toList();
-        return ResponseEntity.ok(organizations);
+        //The sub is taken from the authenticated user, never from the request. If Access is not available we fall back to Invite only
+        return ResponseEntity.ok(accessMenuClient.menu(user.getSub(), organizationId));
     }
 
     @GetMapping("institutionAdmins")

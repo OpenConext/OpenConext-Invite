@@ -22,22 +22,30 @@ import {
 import {useAppStore} from "../stores/AppStore";
 import {ACCESS_URL, allMenuGroups, mainMenuItems} from "../utils/MenuItems";
 import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
-import {organizations as fetchOrganizations} from "../api";
+import {menu as fetchMenu} from "../api";
 import logoUrl from "../icons/logo2.svg?url";
 
 export const SharedMenu = () => {
 
     const user = useAppStore(state => state.user);
 
-    const [organizations, setOrganizations] = useState([]);
+    //The menu model (visible items, organizations, current organization) is owned by SURF Access
+    const [menuModel, setMenuModel] = useState({menuItems: [], organizations: []});
 
     useEffect(() => {
-        fetchOrganizations().then(res => setOrganizations(res || [])).catch(() => setOrganizations([]));
+        fetchMenu(new URLSearchParams(window.location.search).get("organizationId"))
+            .then(res => setMenuModel(res || {menuItems: [], organizations: []}))
+            .catch(() => setMenuModel({menuItems: [mainMenuItems.invite], organizations: []}));
     }, []);
 
-    //The first organization is the current one, same as the default in Access
-    const currentOrganization = organizations[0];
+    const organizations = menuModel.organizations || [];
+    const currentOrganization = menuModel.currentOrganization || organizations[0];
     const canSwitchOrganization = organizations.length > 1;
+
+    const visibleGroups = allMenuGroups
+        .map(group => ({...group, items: group.items.filter(item => (menuModel.menuItems || []).includes(item.name))}))
+        .filter(group => group.items.length > 0);
+    const hrefFor = item => `${ACCESS_URL}${item.path.replace("organizationId", currentOrganization?.id)}`;
 
     const organizationButtonContent = (
         <>
@@ -90,7 +98,7 @@ export const SharedMenu = () => {
                 <SidebarSeparator/>
             </SidebarHeader>
             <SidebarContent>
-                {allMenuGroups.map((group, index) =>
+                {visibleGroups.map((group, index) =>
                     <SidebarGroup key={index} className={group.className}>
                         {group.label &&
                             <SidebarGroupLabel>{I18n.t(`navigation.${group.label}`)}</SidebarGroupLabel>}
@@ -104,7 +112,7 @@ export const SharedMenu = () => {
                                                                    <item.Logo/>
                                                                    <span>{I18n.t(`navigation.${item.name}`)}</span>
                                                                </Link> :
-                                                               <a href={`${ACCESS_URL}${item.path}`}>
+                                                               <a href={hrefFor(item)}>
                                                                    <item.Logo/>
                                                                    <span>{I18n.t(`navigation.${item.name}`)}</span>
                                                                </a>}/>

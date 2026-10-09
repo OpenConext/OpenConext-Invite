@@ -39,7 +39,7 @@ export const App = () => {
 
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const {user, impersonator, authenticated, reload} = useAppStore(state => state);
+    const {user, impersonator, authenticated, reload, config} = useAppStore(state => state);
 
     useEffect(() => {
         csrf().then(token => {
@@ -108,7 +108,8 @@ export const App = () => {
                 <Flash/>
                 {impersonator && <Impersonating/>}
                 <SidebarProvider className="app-shell">
-                    <SharedMenu/>
+                    {/* Organizations running Invite without SURF Access have no left-hand menu */}
+                    {config.accessMenuEnabled !== false && <SharedMenu/>}
                     <SidebarInset>
                         <AuthorizedHeader/>
                         <div className="container">

@@ -18,6 +18,27 @@ open question 2 (independent deployability of the Invite UI) and 1 (is a page re
 
 ---------------------------------------------------------------------------------------------------
 
+## 0a. Update 2026-10-09: option C implemented in a reduced form (menu API in Access)
+
+Decision: **no shared package for now** – the shell components stay duplicated in Access and Invite (the `OpenConext/access-shell` repo is unused). Only the
+**menu visibility rules moved to the Access server**; Access and Invite run on **different domains**, so the Invite browser cannot use the Access session cookie.
+
+| Piece | Where |
+|---|---|
+| Rules (port of `doMenuItemsForUser` + feature filtering) | Access `access.menu.MenuService` |
+| `GET /api/v1/menu?organizationId=` (session) → `{menuItems, organizations, currentOrganization, user}` | Access `MenuController`, used by the Access client (`api/index.js#menu`) |
+| `GET /api/external/v1/menu?sub=&organizationId=` (HTTP basic, role `MENU`, `menu.user/password` in `application.yml`) | Access, used by the Invite **server** only |
+| `GET /api/v1/users/menu?organizationId=` (Invite session, `sub` from the session, never from the request; fallback `{menuItems:["invite"],fallback:true}` when Access is down/404) | Invite `UserController` + `invite.access.AccessMenuClient` (`access.menu-uri/username/password`) |
+| Invite client | `api/index.js#menu`, `SharedMenu.jsx` filters the static `allMenuGroups` with `menuItems`; organisations from the response |
+
+Feature toggle for organizations that run Invite **without** Access: `config.access-menu-enabled` in the Invite `application.yml` (default `True`, also when the key is missing),
+exposed as `accessMenuEnabled` in `GET /api/v1/users/config`. When `False` the Invite client renders no left-hand menu and `GET /api/v1/users/menu` returns an empty model without calling Access.
+
+Removed: Invite `GET /api/v1/users/organizations` (Manage lookup by `surf-crm-id`); the `users.surf_crm_id` column and its claim handling are still in place (unused by the menu now).
+Deploy notes: configure `menu.user/password` in Access and the same credentials as `access.username/password` + `access.menu-uri` in Invite for every environment.
+
+---------------------------------------------------------------------------------------------------
+
 ## 1. Original goal and the questions asked
 
 **Goal (first request):** give the Invite application a UI overhaul so it resembles SURF Access

@@ -87,8 +87,10 @@ export function configuration() {
 }
 
 //Users
-export function organizations() {
-    return fetchJson("/api/v1/users/organizations", {}, {}, false);
+//The menu model is owned by SURF Access, the Invite server fetches it for the current user
+export function menu(organizationId) {
+    const query = organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : "";
+    return fetchJson(`/api/v1/users/menu${query}`, {}, {}, false);
 }
 
 export function me() {

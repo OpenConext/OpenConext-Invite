@@ -126,33 +126,20 @@ class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    void organizationsWithoutOrganizationGUID() throws Exception {
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/organizations", "urn:collab:person:example.com:admin");
+    void menu() throws Exception {
+        String sub = "urn:collab:person:example.com:admin";
+        stubFor(get(urlPathMatching("/access/api/external/v1/menu"))
+                .withQueryParam("sub", equalTo(sub))
+                .withQueryParam("organizationId", equalTo("7"))
+                .withBasicAuth("invite", "secret")
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(objectMapper.writeValueAsString(Map.of(
+                                "menuItems", List.of("home", "invite"),
+                                "organizations", List.of(Map.of("id", 1, "name", "Org")))))));
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/menu?organizationId=7", sub);
 
-        List<?> organizations = given()
-                .when()
-                .filter(accessCookieFilter.cookieFilter())
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .get(accessCookieFilter.apiURL())
-                .as(List.class);
-        assertTrue(organizations.isEmpty());
-    }
-
-    @Test
-    void organizationsWithSurfCrmId() throws Exception {
-        Map<String, Object> identityProvider = localManage.identityProvidersByInstitutionalGUID(ORGANISATION_GUID).get(0);
-        stubFor(post(urlPathMatching("/manage/api/internal/search/saml20_idp")).willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withBody(objectMapper.writeValueAsString(List.of(identityProvider)))));
-
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/organizations",
-                "urn:collab:person:example.com:admin", userInfo -> {
-                    userInfo.put("surf-crm-id", ORGANISATION_GUID);
-                    return userInfo;
-                });
-
-        List<Map<String, Object>> organizations = given()
+        Map<String, Object> menu = given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .accept(ContentType.JSON)
@@ -160,11 +147,56 @@ class UserControllerTest extends AbstractTest {
                 .get(accessCookieFilter.apiURL())
                 .as(new TypeRef<>() {
                 });
-        assertEquals(1, organizations.size());
-        assertEquals(identityProvider.get("_id"), organizations.get(0).get("id"));
-        assertNotNull(organizations.get(0).get("name"));
-        assertEquals(ORGANISATION_GUID, userRepository.findBySubIgnoreCase("urn:collab:person:example.com:admin")
-                .orElseThrow().getSurfCrmId());
+        assertEquals(List.of("home", "invite"), menu.get("menuItems"));
+        assertEquals(1, ((List<?>) menu.get("organizations")).size());
+    }
+
+    @Test
+    void configExposesAccessMenuEnabled() {
+        Map<String, Object> res = given()
+                .when()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get("/api/v1/users/config")
+                .as(new TypeRef<>() {
+                });
+        assertTrue((Boolean) res.get("accessMenuEnabled"));
+    }
+
+    @Test
+    void menuAccessUnavailable() throws Exception {
+        stubFor(get(urlPathMatching("/access/api/external/v1/menu"))
+                .willReturn(aResponse().withStatus(500)));
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/menu", "urn:collab:person:example.com:admin");
+
+        Map<String, Object> menu = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(new TypeRef<>() {
+                });
+        //Invite stays usable without Access
+        assertEquals(List.of("invite"), menu.get("menuItems"));
+        assertTrue((Boolean) menu.get("fallback"));
+    }
+
+    @Test
+    void menuUnknownUserInAccess() throws Exception {
+        stubFor(get(urlPathMatching("/access/api/external/v1/menu"))
+                .willReturn(aResponse().withStatus(404)));
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/menu", "urn:collab:person:example.com:admin");
+
+        Map<String, Object> menu = given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .get(accessCookieFilter.apiURL())
+                .as(new TypeRef<>() {
+                });
+        assertEquals(List.of("invite"), menu.get("menuItems"));
     }
 
     @Test

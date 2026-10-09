@@ -98,6 +98,12 @@ myconext:
   username: invite
   password: secret
 
+# The menu of the (SURF Access) shell is owned by Access. Invite fetches it server-to-server, as Access runs on another domain
+access:
+  menu-uri: "http://localhost:8886/api/external/v1/menu"
+  username: invite
+  password: secret
+
 oidcng:
   discovery-url: "https://connect.test2.surfconext.nl/oidc/.well-known/openid-configuration"
   introspect-url: "https://connect.test2.surfconext.nl/oidc/introspect"
@@ -139,6 +145,9 @@ config:
   eduid-idp-schac-home-organization: "test.eduid.nl"
   languages: "nl, en"
   environment: ${gui.disclaimer.content}
+  # Feature toggle for the left-hand (SURF Access) menu. Set to False for organizations that run Invite without SURF Access:
+  # the client then renders no menu and the Invite server never calls the Access menu endpoint (see the access: section)
+  access-menu-enabled: True
   acr-requirements:
     - key: EduIDLinkedInstitution
       url: "https://eduid.nl/trust/linked-institution"

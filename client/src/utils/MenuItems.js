@@ -44,7 +44,7 @@ export const allMenuGroups = [
     {
         label: "applications",
         items: [
-            {name: mainMenuItems.yourApps, path: "/home", Logo: ScreenIcon},
+            {name: mainMenuItems.yourApps, path: "/organization/organizationId", Logo: ScreenIcon},
             {name: mainMenuItems.catalogue, path: "/catalogue", Logo: LaptopIcon},
             {name: mainMenuItems.accessibleApps, path: "/accessible-apps", Logo: ConnectedIcon}
         ]
@@ -60,8 +60,8 @@ export const allMenuGroups = [
     {
         label: "organisation",
         items: [
-            {name: mainMenuItems.idp, path: "/home", Logo: LaptopFloatIcon},
-            {name: mainMenuItems.users, path: "/home", Logo: UserIcon},
+            {name: mainMenuItems.idp, path: "/idp/organizationId", Logo: LaptopFloatIcon},
+            {name: mainMenuItems.users, path: "/users/organizationId", Logo: UserIcon},
             {name: mainMenuItems.statistics, path: "/statistics", Logo: StatsIcon}
         ]
     },
