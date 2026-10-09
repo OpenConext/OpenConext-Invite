@@ -15,8 +15,9 @@ import {
 
 // The sidebar is a copy of the SURF Access sidebar. Every item points to the Access
 // application, except for "invite" (Roles), which is this application.
-export const ACCESS_URL = (import.meta.env.VITE_ACCESS_URL ||
-    (import.meta.env.DEV ? "http://localhost:3002" : "")).replace(/\/$/, "");
+// The base url of SURF Access comes from the server (config.access-url), so one build works in every environment.
+// VITE_ACCESS_URL is only a fallback for local development.
+export const accessUrl = config => ((config && config.accessUrl) || import.meta.env.VITE_ACCESS_URL || "").replace(/\/$/, "");
 
 export const mainMenuItems = {
     home: "home",

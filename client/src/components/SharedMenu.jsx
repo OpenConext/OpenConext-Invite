@@ -20,7 +20,7 @@ import {
     SidebarSeparator
 } from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore";
-import {ACCESS_URL, allMenuGroups, mainMenuItems} from "../utils/MenuItems";
+import {accessUrl, allMenuGroups, mainMenuItems} from "../utils/MenuItems";
 import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 import {menu as fetchMenu} from "../api";
 import logoUrl from "../icons/logo2.svg?url";
@@ -28,6 +28,7 @@ import logoUrl from "../icons/logo2.svg?url";
 export const SharedMenu = () => {
 
     const user = useAppStore(state => state.user);
+    const ACCESS_URL = accessUrl(useAppStore(state => state.config));
 
     //The menu model (visible items, organizations, current organization) is owned by SURF Access
     const [menuModel, setMenuModel] = useState({menuItems: [], organizations: []});

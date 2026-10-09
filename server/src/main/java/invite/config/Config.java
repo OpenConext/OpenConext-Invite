@@ -31,6 +31,8 @@ public class Config {
     private List<RequestedAuthnContext> acrRequirements;
     //Organizations that use Invite without SURF Access hide the left-hand menu: no menu is shown and Access is never called
     private boolean accessMenuEnabled = true;
+    //The base url of SURF Access, the target of the links in the left-hand menu
+    private String accessUrl;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -47,6 +49,7 @@ public class Config {
         this.environment = base.environment;
         this.acrRequirements = base.acrRequirements;
         this.accessMenuEnabled = base.accessMenuEnabled;
+        this.accessUrl = base.accessUrl;
     }
 
     public Config withAuthenticated(boolean authenticated) {

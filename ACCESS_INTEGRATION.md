@@ -34,6 +34,9 @@ Decision: **no shared package for now** – the shell components stay duplicated
 Feature toggle for organizations that run Invite **without** Access: `config.access-menu-enabled` in the Invite `application.yml` (default `True`, also when the key is missing),
 exposed as `accessMenuEnabled` in `GET /api/v1/users/config`. When `False` the Invite client renders no left-hand menu and `GET /api/v1/users/menu` returns an empty model without calling Access.
 
+The links of the Invite menu point to Access through `config.access-url` (returned as `accessUrl` by `/api/v1/users/config`), so one client build works in every environment
+(`VITE_ACCESS_URL` is only a local fallback). Set it in the external `application.yml` of every environment, e.g. `config.access-url: https://<access host>`.
+
 Removed: Invite `GET /api/v1/users/organizations` (Manage lookup by `surf-crm-id`); the `users.surf_crm_id` column and its claim handling are still in place (unused by the menu now).
 Deploy notes: configure `menu.user/password` in Access and the same credentials as `access.username/password` + `access.menu-uri` in Invite for every environment.
 
