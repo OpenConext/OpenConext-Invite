@@ -1,5 +1,5 @@
-import {Button, Spinner} from "@surfnet/curve-react";
-import {ArrowLeftIcon, PlusIcon, TrashIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription, Button, Spinner} from "@surfnet/curve-react";
+import {ArrowLeftIcon, InfoIcon, PlusIcon, TrashIcon} from "@phosphor-icons/react";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Link, useLocation, useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
@@ -399,15 +399,16 @@ export const RoleForm = () => {
                 </h2>
 
                 {(!isNewRole && user.superUser) &&
-                    <div className="role-auditable">
-                        <p dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(I18n.t("roles.auditable", {
+                    <Alert variant="info" className="role-auditable">
+                        <InfoIcon/>
+                        <AlertDescription dangerouslySetInnerHTML={{
+                            __html: sanitize(I18n.t("roles.auditable", {
                                 name: role.name,
                                 createdBy: role.auditable.createdBy,
                                 createdAt: dateFromEpoch(role.auditable.createdAt)
                             }))
                         }}/>
-                    </div>
+                    </Alert>
                 }
 
                 <InputField name={I18n.t("roles.name")}

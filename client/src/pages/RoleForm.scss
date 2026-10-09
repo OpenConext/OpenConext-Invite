@@ -121,9 +121,6 @@
             grid-column-start: first;
             margin-top: 24px;
 
-            button[data-slot="button"] {
-                max-width: 240px;
-            }
         }
 
         em.info {
@@ -136,22 +133,9 @@
             color: var(--warning);
         }
 
-        div.role-auditable {
+        .role-auditable {
             grid-column-start: first;
-            margin-top: 25px;
-            border-radius: .375rem;
-            padding: 10px;
-            background-color: var(--muted);
-
-            span {
-                font-weight: 600;
-            }
-        }
-
-        span.label {
-            grid-column-start: first;
-            font-weight: 600;
-            margin-top: 32px;
+            margin-top: 20px;
         }
 
         .role-expiry-date-container {
@@ -174,7 +158,7 @@
                     width: 150px;
 
                     .select-inner__control {
-                        height: 48px;
+                        height: vars.$control-height;
                     }
                 }
 
@@ -189,12 +173,11 @@
             }
         }
 
+        section.actions {
+            grid-column-start: first;
+            border-top: 1px solid var(--border);
+            margin-top: 32px;
+            padding: 24px 0;
+        }
     }
-
-}
-.mod-role-form .role-form section.actions {
-    grid-column-start: first;
-    border-top: 1px solid var(--border);
-    margin-top: 32px;
-    padding: 24px 0;
 }
