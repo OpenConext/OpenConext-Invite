@@ -158,9 +158,10 @@ const nl = {
 
     },
     roles: {
+        deleteRole: "Rol verwijderen",
         backToRoles: "Terug naar rollen",
         newTitle: "Nieuwe rol",
-        applicationsIntro: "Gebruikers met deze rol krijgen automatisch toegang tot onderstaande applicaties als SCIM-provisioning correct is ingericht.",
+        applicationsIntro: "Gebruikers met deze rol krijgen automatisch toegang tot onderstaande applicaties als SCIM-provisioning correct is ingericht. Zie de <a href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/74226086/Connect+to+SCIM\" target=\"_blank\" rel=\"noopener noreferrer\">documentatie</a> voor meer informatie.",
         heading: "Rollen",
         intro: "Rollen geven toegang tot specifieke applicatie(s) en kun je toekennen aan gebruikers.",
         applications: "Applicaties",
@@ -353,6 +354,7 @@ const nl = {
         }
     },
     forms: {
+        update: "Bijwerken",
         copy: "Kopiëren",
         copied: "Gekopieerd naar klembord",
         optional: "optioneel",

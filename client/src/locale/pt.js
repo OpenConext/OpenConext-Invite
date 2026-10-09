@@ -151,9 +151,10 @@ const pt = {
         noInstitutionAdmin: "There is not institution admins"
     },
     roles: {
+        deleteRole: "Eliminar função",
         backToRoles: "Voltar às funções",
         newTitle: "Nova função",
-        applicationsIntro: "Os utilizadores com esta função obtêm automaticamente acesso às aplicações abaixo se o provisionamento SCIM estiver configurado corretamente.",
+        applicationsIntro: "Os utilizadores com esta função obtêm automaticamente acesso às aplicações abaixo se o provisionamento SCIM estiver configurado corretamente. Consulte a <a href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/74226086/Connect+to+SCIM\" target=\"_blank\" rel=\"noopener noreferrer\">documentação</a> para mais informações.",
         heading: "Funções",
         intro: "As funções dão acesso a aplicações específicas e podem ser atribuídas a utilizadores.",
         applications: "Aplicações",
@@ -337,6 +338,7 @@ const pt = {
         }
     },
     forms: {
+        update: "Atualizar",
         copy: "Copiar",
         copied: "Copiado para a área de transferência",
         optional: "opcional",

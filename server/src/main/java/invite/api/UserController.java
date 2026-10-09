@@ -3,7 +3,7 @@ package invite.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import crypto.KeyStore;
-import invite.access.AccessMenuClient;
+import invite.menu.AccessMenuClient;
 import invite.config.Config;
 import invite.exception.NotFoundException;
 import invite.exception.UserRestrictionException;

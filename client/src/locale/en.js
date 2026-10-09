@@ -157,9 +157,10 @@ const en = {
         noInstitutionAdmin: "There are no institution admins for this role"
     },
     roles: {
+        deleteRole: "Delete role",
         backToRoles: "Back to roles",
         newTitle: "New role",
-        applicationsIntro: "Users with this role automatically get access to the applications below if SCIM provisioning is configured correctly.",
+        applicationsIntro: "Users with this role automatically get access to the applications below if SCIM provisioning is configured correctly. See the <a href=\"https://servicedesk.surf.nl/wiki/spaces/IAM/pages/74226086/Connect+to+SCIM\" target=\"_blank\" rel=\"noopener noreferrer\">documentation</a> for more information.",
         heading: "Roles",
         intro: "Roles give access to specific application(s) and can be assigned to users.",
         applications: "Applications",
@@ -352,6 +353,7 @@ const en = {
         }
     },
     forms: {
+        update: "Update",
         copy: "Copy",
         copied: "Copied to clipboard",
         optional: "optional",

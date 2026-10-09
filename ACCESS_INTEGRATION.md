@@ -28,7 +28,7 @@ Decision: **no shared package for now** – the shell components stay duplicated
 | Rules (port of `doMenuItemsForUser` + feature filtering) | Access `access.menu.MenuService` |
 | `GET /api/v1/menu?organizationId=` (session) → `{menuItems, organizations, currentOrganization, user}` | Access `MenuController`, used by the Access client (`api/index.js#menu`) |
 | `GET /api/external/v1/menu?sub=&organizationId=` (HTTP basic, role `MENU`, `menu.user/password` in `application.yml`) | Access, used by the Invite **server** only |
-| `GET /api/v1/users/menu?organizationId=` (Invite session, `sub` from the session, never from the request; fallback `{menuItems:["invite"],fallback:true}` when Access is down/404) | Invite `UserController` + `invite.access.AccessMenuClient` (`access.menu-uri/username/password`) |
+| `GET /api/v1/users/menu?organizationId=` (Invite session, `sub` from the session, never from the request; fallback `{menuItems:["invite"],fallback:true}` when Access is down/404) | Invite `UserController` + `invite.menu.AccessMenuClient` (`access.menu-uri/username/password`) |
 | Invite client | `api/index.js#menu`, `SharedMenu.jsx` filters the static `allMenuGroups` with `menuItems`; organisations from the response |
 
 Feature toggle for organizations that run Invite **without** Access: `config.access-menu-enabled` in the Invite `application.yml` (default `True`, also when the key is missing),

@@ -12,6 +12,23 @@
         margin-bottom: 16px;
     }
 
+    .role-title {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        column-gap: 24px;
+
+        button.delete-role {
+            color: var(--destructive);
+            gap: 8px;
+
+            &:hover {
+                color: var(--destructive);
+                background-color: var(--danger-subtle);
+            }
+        }
+    }
+
     .role-form {
         @include mixins.page;
         @include mixins.form;

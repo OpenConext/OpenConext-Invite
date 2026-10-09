@@ -23,7 +23,7 @@ import {
 import "./RoleForm.scss";
 import InputField from "../components/InputField";
 import {constructShortName} from "../validations/regExps";
-import {distinctValues, isEmpty, splitListSemantically} from "../utils/Utils";
+import {distinctValues, isEmpty, sanitize, splitListSemantically} from "../utils/Utils";
 import ErrorIndicator from "../components/ErrorIndicator";
 import SelectField from "../components/SelectField";
 import {providersToOptions} from "../utils/Manage";
@@ -62,6 +62,8 @@ export const RoleForm = () => {
     const [identityProviders, setIdentityProviders] = useState([]);
     const [isNewRole, setNewRole] = useState(true);
     const [loading, setLoading] = useState(true);
+    //The name as stored, so the title does not change while typing
+    const [savedName, setSavedName] = useState("");
     const [initial, setInitial] = useState(true);
     const [alreadyExists, setAlreadyExists] = useState({});
     const [confirmation, setConfirmation] = useState({});
@@ -125,6 +127,7 @@ export const RoleForm = () => {
                 setProviders(newProviders);
                 setNewRole(newRole);
                 const name = newRole ? "" : res[0].name;
+                setSavedName(name);
                 const breadcrumbPath = [
                     {path: "/home", value: I18n.t("tabs.home")},
                     {path: "/home/roles", value: I18n.t("tabs.roles")},
@@ -469,7 +472,8 @@ export const RoleForm = () => {
                 <h2 className="section-separator">
                     {I18n.t("roles.applicationDetails")}
                 </h2>
-                <p className="applications-intro">{I18n.t("roles.applicationsIntro")}</p>
+                <p className="applications-intro"
+                   dangerouslySetInnerHTML={{__html: sanitize(I18n.t("roles.applicationsIntro"))}}/>
                 {applications.map((application, index) =>
                     <div className="application-container" key={index}>
                         <div className="select-field-container">
@@ -662,10 +666,8 @@ export const RoleForm = () => {
                 />
 
                 <section className="actions">
-                    {(!isNewRole && allowedToEditApplication) &&
-                        <Button variant="destructive" size="icon" onClick={() => doDelete(true)} aria-label={I18n.t("forms.delete")}><TrashIcon/></Button>}
                     <Button variant="outline" onClick={() => navigate(isNewRole ? "/home/roles" : `/roles/${role.id}`)}>{I18n.t("forms.cancel")}</Button>
-                    <Button disabled={disabledSubmit} onClick={submit}>{I18n.t("forms.save")}</Button>
+                    <Button disabled={disabledSubmit} onClick={submit}>{I18n.t(isNewRole ? "forms.save" : "forms.update")}</Button>
                 </section>
 
             </>
@@ -706,7 +708,13 @@ export const RoleForm = () => {
                   to={isNewRole ? "/home/roles" : `/roles/${role.id}`}>
                 <ArrowLeftIcon/>{I18n.t("roles.backToRoles")}
             </Link>
-            <h1>{I18n.t(`roles.${isNewRole ? "newTitle" : "edit"}`, {name: role.name})}</h1>
+            <div className="role-title">
+                <h1>{isNewRole ? I18n.t("roles.newTitle") : savedName}</h1>
+                {(!isNewRole && allowedToEditApplication) &&
+                    <Button variant="ghost" className="delete-role" onClick={() => doDelete(true)}>
+                        <TrashIcon/>{I18n.t("roles.deleteRole")}
+                    </Button>}
+            </div>
             <div className={"role-form"}>
                 {renderForm()}
             </div>
