@@ -1,9 +1,10 @@
+import {Badge} from "@surfnet/curve-react";
+import {WarningCircleIcon as AlertLogo} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import {rolesPerApplicationManageId} from "../api";
 import I18n from "../locale/I18n";
 import "./Application.scss";
 import WebsiteIcon from "../icons/network-information.svg";
-import {Chip} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
@@ -11,8 +12,7 @@ import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {deriveApplicationAttributes} from "../utils/Manage";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import {Entities} from "../components/Entities";
-import {authorityForRole, chipTypeForUserRole} from "../utils/Authority";
-import AlertLogo from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import {authorityForRole, badgeVariantForUserRole} from "../utils/Authority";
 
 export const Application = () => {
     const {manageId} = useParams();
@@ -90,11 +90,10 @@ export const Application = () => {
             key: "authority",
             header: I18n.t("roles.authority"),
             mapper: role => {
-                const type = chipTypeForUserRole(role.authority);
+                const type = badgeVariantForUserRole(role.authority);
                 const authority = authorityForRole(user, role);
-                return <Chip type={type}
-                             label={isEmpty(authority) ? I18n.t("roles.noMember") :
-                                 I18n.t(`access.${authority}`)}/>
+                return <Badge variant={type}>{isEmpty(authority) ? I18n.t("roles.noMember") :
+                                 I18n.t(`access.${authority}`)}</Badge>
             }
         },
         {

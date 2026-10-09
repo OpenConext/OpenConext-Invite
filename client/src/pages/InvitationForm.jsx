@@ -1,8 +1,10 @@
+import {Button} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {XIcon as CloseIcon, IdentificationBadgeIcon as UserIcon, CaretUpIcon as UpIcon, CaretDownIcon as DownIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
 import {
     allowedAuthoritiesForInvitation,
     AUTHORITIES,
@@ -10,9 +12,6 @@ import {
     isUserAllowed,
     markAndFilterRoles
 } from "../utils/UserRole";
-import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
-import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
-import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {
     allApplicationsFromManage,
     allIdentityProviders,
@@ -20,7 +19,6 @@ import {
     requestedAuthnContextValues,
     rolesByApplication
 } from "../api";
-import {Button, ButtonType, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -475,11 +473,10 @@ export const InvitationForm = () => {
                     <div className="card-containers">
                         <span className={"label"}>
                             {I18n.t("invitations.inviterRole.roles")}
-                            <Tooltip tip={I18n.t("tooltips.rolesTooltip")}/>
+                            <InfoTooltip tip={I18n.t("tooltips.rolesTooltip")}/>
                         </span>
                         {roles.map((role, index) => renderUserRole(role, index, selectedRoles.some(r => r.value === role.value),
-                            (e, value) => {
-                                const checked = e.target.checked;
+                            (checked, value) => {
                                 const roleSelected = roles.find(r => r.value === value);
                                 const newSelectedRoles = checked ? selectedRoles.concat(roleSelected) : selectedRoles.filter(r => r.value !== roleSelected.value);
                                 rolesChanged(newSelectedRoles);
@@ -634,12 +631,8 @@ export const InvitationForm = () => {
 
                 </InviterContainer>
                 <section className="actions">
-                    <Button type={ButtonType.Secondary}
-                            txt={I18n.t("forms.cancel")}
-                            onClick={() => navigate(-1)}/>
-                    <Button disabled={disabledSubmit || isSubmitting}
-                            txt={I18n.t("invitations.invite")}
-                            onClick={submit}/>
+                    <Button variant="outline" onClick={() => navigate(-1)}>{I18n.t("forms.cancel")}</Button>
+                    <Button disabled={disabledSubmit || isSubmitting} onClick={submit}>{I18n.t("invitations.invite")}</Button>
                 </section>
 
 

@@ -1,6 +1,7 @@
+import {WarningIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription} from "@surfnet/curve-react";
 import "./InviteOnly.scss";
 import I18n from "../locale/I18n";
-import {Toaster, ToasterType} from "@surfnet/sds";
 import DOMPurify from "dompurify";
 import React from "react";
 import {Page} from "../components/Page";
@@ -24,19 +25,18 @@ export const InviteOnly = () => {
             <div className="invite-only">
                 <h1>{I18n.t("inviteOnly.welcome")}</h1>
                 <p className="roles">{I18n.t("inviteOnly.roles")}</p>
-                <Toaster message={""}
-                         toasterType={ToasterType.Warning}
-                         children={
-                             <div className="warning">
-                                 <p className={"info"}
-                                    dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("inviteOnly.info"))}}/>
-
-                                 <span>{I18n.t("inviteOnly.preLogin")}</span>
-                                 <a href="/login" onClick={doLogin}>{I18n.t("inviteOnly.login")}</a>
-                                 <span>{I18n.t("inviteOnly.postLogin")}</span>
-                             </div>
-                         }
-                />
+                <Alert variant="warning">
+                    <WarningIcon/>
+                    <AlertDescription>
+                        <div className="warning">
+                            <p className={"info"}
+                               dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("inviteOnly.info"))}}/>
+                            <span>{I18n.t("inviteOnly.preLogin")}</span>
+                            <a href="/login" onClick={doLogin}>{I18n.t("inviteOnly.login")}</a>
+                            <span>{I18n.t("inviteOnly.postLogin")}</span>
+                        </div>
+                    </AlertDescription>
+                </Alert>
 
             </div>
         </Page>)

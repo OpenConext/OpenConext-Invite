@@ -1,5 +1,21 @@
-$background: #eaebf0;
+
 $br: 6px;
 // Screen
 $max-width: 1248px;
 $medium: 824px;
+
+$tablet-width: 1024px;
+$mobile-width: 820px;
+
+$page-padding: 25px 60px 25px 50px;
+
+// One height for all form controls and buttons, and a small spacing scale (same as in Access).
+$control-height: 40px;
+$gap-xs: 8px;
+$gap-sm: 12px;
+$gap-md: 16px;
+$gap-lg: 24px;
+$title-size-xl: 30px;
+$outline-inset: 2px;
+$filter-width: 440px;
+$status-column-width: 104px;

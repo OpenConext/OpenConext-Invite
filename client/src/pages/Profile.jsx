@@ -1,13 +1,13 @@
+import {Spinner} from "@surfnet/curve-react";
+import {IdentificationCardIcon as Logo} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import {institutionAdmins, other} from "../api";
 import I18n from "../locale/I18n";
 import "./Profile.scss";
-import {Loader} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
 import {UnitHeader} from "../components/UnitHeader";
-import Logo from "@surfnet/sds/icons/functional-icons/id-1.svg";
 import {dateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
 
@@ -59,7 +59,7 @@ export const Profile = () => {
     }, [user]);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (

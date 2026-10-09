@@ -1,11 +1,11 @@
+import {Badge, Spinner} from "@surfnet/curve-react";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./ExpiredUserRoles.scss";
-import {Chip, Loader} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
 import {useNavigate} from "react-router";
-import {chipTypeForUserRole} from "../utils/Authority";
+import {badgeVariantForUserRole} from "../utils/Authority";
 import {expiryUserRoles} from "../api";
 import {stopEvent} from "../utils/Utils";
 
@@ -26,7 +26,7 @@ export const ExpiredUserRoles = () => {
         [])
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const openRole = (e, userRole) => {
@@ -57,8 +57,7 @@ export const ExpiredUserRoles = () => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: userRole => <Chip type={chipTypeForUserRole(userRole.authority)}
-                                      label={I18n.t(`access.${userRole.authority}`)}/>
+            mapper: userRole => <Badge variant={badgeVariantForUserRole(userRole.authority)}>{I18n.t(`access.${userRole.authority}`)}</Badge>
         },
         {
             key: "createdAt",

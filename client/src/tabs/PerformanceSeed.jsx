@@ -1,7 +1,7 @@
+import {Button, Spinner} from "@surfnet/curve-react";
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import "./PerformanceSeed.scss";
-import {Button, Loader} from "@surfnet/sds";
 import {performanceSeed} from "../api";
 
 
@@ -11,7 +11,7 @@ export const PerformanceSeed = () => {
     const [millis, setMillis] = useState(0);
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const doPerformanceSeed = () => {
@@ -29,9 +29,7 @@ export const PerformanceSeed = () => {
             <div className="mod-performance-seed">
                 <div className="actions">
                     <p>{I18n.t("system.performanceSeedInfo")}</p>
-                    <Button onClick={doPerformanceSeed}
-                            txt={I18n.t("system.performanceSeed")}
-                    />
+                    <Button onClick={doPerformanceSeed}>{I18n.t("system.performanceSeed")}</Button>
                 </div>
                 {seed &&
                     <div className="results">

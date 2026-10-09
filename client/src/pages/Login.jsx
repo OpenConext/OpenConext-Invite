@@ -1,4 +1,4 @@
-import {Button, ButtonSize, ButtonType} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
 import './Login.scss';
 import I18n from "../locale/I18n";
 import DOMPurify from "dompurify";
@@ -42,11 +42,7 @@ export const Login = () => {
                     <div className="header-left">
                         <h2 className={"header-title"}
                             dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.header.title"))}}/>
-                        <Button onClick={doLogin}
-                                txt={I18n.t("landing.header.login")}
-                                type={ButtonType.Primary}
-                                ref={buttonRef}
-                                size={ButtonSize.Full}/>
+                        <Button className="w-full" onClick={doLogin} ref={buttonRef}>{I18n.t("landing.header.login")}</Button>
                         <p className={"sup"}
                            dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("landing.header.sup"))}}/>
                     </div>

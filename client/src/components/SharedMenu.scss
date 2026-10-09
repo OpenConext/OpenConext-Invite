@@ -69,19 +69,3 @@ a.brand-logo img {
         text-decoration: none;
     }
 }
-
-// The SDS styles set another font family (Source Sans Pro) and antialiased font smoothing on the body and its
-// elements, which renders the text lighter than in Access. Access leads: curve-react font (Source Sans 3 Variable,
-// via --font-sans) and default font smoothing for the application shell.
-:is([data-slot="sidebar-wrapper"],
-[data-slot="sidebar-container"],
-[data-slot="dropdown-menu-content"],
-.authorized-header,
-.invite-footer) {
-    font-family: var(--font-sans);
-
-    &, * {
-        -webkit-font-smoothing: auto;
-        -moz-osx-font-smoothing: auto;
-    }
-}

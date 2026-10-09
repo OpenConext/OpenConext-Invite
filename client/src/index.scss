@@ -1,11 +1,6 @@
-@use "styles/tooltip";
+@use "styles/design-system";
 @use "styles/forms";
 @use "styles/responsive";
-
-:root {
-    // curve-react form and menu elements use text-sm, which Access sets to 16px as well
-    --text-sm: 1rem;
-}
 
 body:after {
     position: fixed;
@@ -23,16 +18,75 @@ body:after {
     transform: rotate(45deg);
 }
 
-$min-width-pixels: 620px;
+strong {
+    font-weight: 600;
+}
 
-.sds--card--big {
-    width: $min-width-pixels;
+h1.large {
+    font-weight: 600;
+}
 
-    @media (max-width: 680px) {
-        width: 100%;
+.radio-options-group {
+    display: flex;
+    gap: 1rem;
+
+    &.column {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    &.row {
+        flex-direction: row;
+    }
+
+    .radio-item {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        label {
+            cursor: pointer;
+        }
+
+        > [data-slot="radio-group-item"] {
+            margin-top: 3px;
+        }
+
+        .radio-item-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .radio-item-description {
+            display: block;
+            color: var(--muted-foreground);
+        }
     }
 }
 
+.tabs-menu {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid var(--border);
 
+    a {
+        color: var(--muted-foreground);
+        text-decoration: none;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 36px;
+        padding: 5px 25px;
 
+        &.active {
+            font-weight: 600;
+            color: black;
+            border-bottom: 3px solid var(--primary);
+        }
 
+        &.disabled {
+            cursor: not-allowed;
+            color: var(--muted-foreground);
+        }
+    }
+}

@@ -1,7 +1,7 @@
+import {Button} from "@surfnet/curve-react";
 import React, {useEffect} from "react";
 import I18n from "../locale/I18n";
 import "./Inviter.scss";
-import {Button} from "@surfnet/sds";
 import {useAppStore} from "../stores/AppStore";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg?url";
 import DOMPurify from "dompurify";
@@ -46,8 +46,7 @@ export const Inviter = () => {
                     <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("inviter.info"))}}/>
                 </div>
                 <div className={"actions"}>
-                    <Button txt={I18n.t("inviter.sendInvite")}
-                            onClick={() => navigate("/invitation/new")}/>
+                    <Button onClick={() => navigate("/invitation/new")}>{I18n.t("inviter.sendInvite")}</Button>
                 </div>
                 <h3 className={"sub-info"}>{I18n.t("inviter.manage")}</h3>
                 {user.userRoles

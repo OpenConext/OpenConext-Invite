@@ -2,12 +2,7 @@
 
 
 .unit-header-container {
-    background-color: vars.$background;
-    padding: 15px 0 25px 0;
-
-    @media (max-width: vars.$medium) {
-        padding: 15px 15px 25px 15px;
-    }
+    padding: 0 0 8px 0;
 
     width: 100%;
 
@@ -15,18 +10,31 @@
         display: flex;
         align-items: center;
 
+        gap: 4px;
+        margin: 4px 0;
+        width: fit-content;
+        position: relative;
+
         span {
-            margin-right: 6px;
+            white-space: nowrap;
         }
 
-        .copy-to-clipboard {
-            margin-top: 6px;
+        // Inline next to the label instead of absolutely positioned at the end of an input
+        section.copy-to-clipboard {
+            position: static;
+            display: flex;
+        }
+
+        // Bubble above the icon, not over the label
+        div.copied {
+            right: auto;
+            left: 100%;
+            top: -8px;
+            white-space: nowrap;
         }
     }
 
     .unit-header {
-        max-width: vars.$max-width;
-        margin: 0 auto;
         width: 100%;
         display: flex;
 
@@ -40,7 +48,7 @@
             align-items: center;
 
             svg {
-                width: 76px;
+                width: 56px;
                 height: auto;
                 margin-bottom: auto;
 
@@ -51,8 +59,8 @@
             }
 
             img {
-                max-height: 135px;
-                max-width: 135px;
+                max-height: 80px;
+                max-width: 80px;
                 border-radius: 5px;
                 margin-bottom: auto;
             }
@@ -61,7 +69,7 @@
                 svg {
                     width: 28px;
                     height: auto;
-                    color: var(--sds--color--green--300);
+                    color: var(--success);
                     margin-top: 10px;
                 }
             }
@@ -92,30 +100,17 @@
 
     .action-menu-container {
         display: flex;
-        flex-direction: column;
-        gap: 20px;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 12px;
         margin-left: 25px;
 
         @media (max-width: vars.$medium) {
             margin-top: 20px;
         }
 
-        button {
-            width: 100%;
-            min-width: 150px;
-
-            &.sds--btn--secondary {
-                min-width: 180px;
-            }
-        }
     }
 
-    .other-options, .sds--user-info--dropdown {
-        background-color: vars.$background;
-    }
 
-    .sds--menu-button .sds--user-info--dropdown {
-        z-index: 99;
-    }
 
 }

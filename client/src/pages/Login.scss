@@ -7,7 +7,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 2;
-    background-color: vars.$background;
+    background-color: var(--muted);
 
     .mod-login-container {
         background-color: white;
@@ -21,7 +21,7 @@
         }
 
         &.bottom {
-            background-color: vars.$background;
+            background-color: var(--muted);
         }
 
         .mod-login {
@@ -63,7 +63,7 @@
                 margin-right: 40px;
                 width: 50%;
 
-                button.sds--btn--primary {
+                button[data-slot="button"] {
                     width: 280px;
                     padding: 15px 60px;
                     font-size: 22px;

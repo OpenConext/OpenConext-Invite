@@ -12,7 +12,7 @@
     .invitation-container {
         margin: 0 auto;
 
-        .sds--toaster {
+        [data-slot="alert"] {
             max-width: initial;
             margin: 25px 0;
         }

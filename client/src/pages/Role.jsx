@@ -1,15 +1,15 @@
+import {Spinner} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {DatabaseIcon as CrmIcon, ChalkboardTeacherIcon as InstitutionAdminIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import {institutionAdminsbyRole, managersByRoleId, roleByID} from "../api";
 import I18n from "../locale/I18n";
 import "./Role.scss";
-import {ButtonType, Loader, Tooltip} from "@surfnet/sds";
 import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
 import WebsiteIcon from "../icons/network-information.svg";
 import PersonIcon from "../icons/persons.svg";
-import CrmIcon from "@surfnet/sds/icons/illustrative-icons/database-check.svg";
-import InstitutionAdminIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import {allowedToEditRole, AUTHORITIES, highestAuthority, isUserAllowed, urnFromRole} from "../utils/UserRole";
 import Tabs from "../components/Tabs";
 import {Page} from "../components/Page";
@@ -140,7 +140,6 @@ export const Role = () => {
         const actions = [];
         if (allowedToEditRole(user, role)) {
             actions.push({
-                buttonType: ButtonType.Primary,
                 name: I18n.t("forms.edit"),
                 perform: () => {
                     clearFlash();
@@ -150,7 +149,6 @@ export const Role = () => {
         }
         if (highestAuthority(user) === AUTHORITIES.INVITER) {
             actions.push({
-                buttonType: ButtonType.Primary,
                 name: I18n.t("invitations.newGuest"),
                 perform: () => navigate(`/invitation/new?maintainer=false`, {state: role.id})
             });
@@ -164,7 +162,7 @@ export const Role = () => {
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const logo = role.logo;
@@ -184,7 +182,7 @@ export const Role = () => {
                             actions={getActions()}>
                     <div className={"urn-container"}>
                         <span>{I18n.t("role.copyUrn")}</span>
-                        <ClipBoardCopy txt={urn} transparentBackground={true}/>
+                        <ClipBoardCopy txt={urn}/>
                     </div>
                     <div className={"meta-data"}>
                         <div className={"meta-data-row"}>
@@ -219,8 +217,7 @@ export const Role = () => {
                         {role.unknownInManage &&
                             <div className="meta-data-row unknown-in-manage">
                                 <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")} </span>
-                                <Tooltip tip={I18n.t("roles.unknownInManageToolTip")} standalone={true}
-                                         clickable={true}/>
+                                <InfoTooltip tip={I18n.t("roles.unknownInManageToolTip")}/>
                             </div>}
                         {(!isEmpty(role.crmRoleId) && showCrm) &&
                             <div className={"meta-data-row"}>

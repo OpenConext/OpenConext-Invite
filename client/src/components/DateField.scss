@@ -1,4 +1,4 @@
-@use "../styles/vars.scss";
+@use "../styles/vars" as *;
 
 .date-field {
     display: flex;
@@ -8,7 +8,7 @@
     label.date-field-label {
         display: inline-block;
         margin: 12px 0 6px 0;
-        min-width: 210px;
+        min-width: 0;
         color: black;
         position: relative;
         font-weight: 600;
@@ -16,12 +16,12 @@
 
     span.tool-tip-section {
         font-size: 14px;
-        color: var(--sds--color--gray--200);
+        color: var(--muted-foreground);
         cursor: pointer;
         padding: 0 4px;
 
         &:hover {
-            color: var(--sds--color--blue--300);
+            color: var(--primary);
         }
     }
 
@@ -29,18 +29,17 @@
         display: flex;
         width: 240px;
         position: relative;
-        border-radius: vars.$br;
+        border-radius: 6px;
 
-        &:focus {
+        &:focus-within {
             outline: none;
-            box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
         }
 
         div.calendar-icon svg {
             position: absolute;
             right: 12px;
             top: 12px;
-            color: var(--sds--color--blue--500);
+            color: var(--primary-strong);
             cursor: pointer;
             width: 20px;
             height: auto;
@@ -57,21 +56,23 @@
         input[type="text"] {
             display: block;
             width: 100%;
-            border-radius: vars.$br;
-            border: 1px solid var(--sds--color--gray--400);
+            border-radius: 6px;
+            border: 1px solid var(--input);
             line-height: 33px;
             padding: 16px;
             font-size: 14px;
-            height: 48px;
+            height: $control-height;
 
+            // Same focus look as the Select field: a 1px foreground border
             &:focus {
                 outline: none;
-                box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
+                box-shadow: none;
+                border-color: var(--foreground);
             }
 
             &[disabled] {
                 cursor: not-allowed;
-                background-color: vars.$background;
+                background-color: var(--muted);
             }
         }
 
@@ -83,5 +84,49 @@
 
     .react-datepicker__month {
         min-height: 195px;
+    }
+
+    .react-datepicker__current-month {
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .date-field-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 8px;
+
+        button {
+            display: flex;
+            padding: 4px;
+            cursor: pointer;
+
+            &:disabled {
+                opacity: 0.3;
+                cursor: default;
+            }
+        }
+
+        .month-year {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 18px;
+            font-weight: 600;
+
+            select {
+                font: inherit;
+                cursor: pointer;
+                border-radius: 6px;
+                padding: 0 4px;
+
+                &:focus {
+                    outline: none;
+                    border: 1px solid var(--foreground);
+                }
+            }
+        }
     }
 }

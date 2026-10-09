@@ -1,22 +1,16 @@
-.unit-header .image {
+@use "../styles/vars" as *;
 
-    svg path.right-eye {
-        fill: #ffffff;
-    }
+.home {
+    .mod-home-container {
 
-    svg path.upper-tongue {
-        fill: #f57900;
-    }
-
-    &.wink {
-        transform: skewX(3deg);
-
-        svg path.right-eye {
-            fill: black;
+        h1 {
+            font-size: $title-size-xl;
+            line-height: 1.2;
         }
 
-        svg path.upper-tongue {
-            fill: #c00;
+        p.intro {
+            margin-top: 12px;
+            color: var(--foreground);
         }
     }
 }

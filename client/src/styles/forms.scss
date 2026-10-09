@@ -1,7 +1,9 @@
-.sds--loading {
-    position: fixed;
-    top: 35%;
-    left: 49%;
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    width: 100%;
 }
 
 .cut-of-lines {
@@ -12,19 +14,8 @@
     word-break: break-word;
 }
 
-.sds--card {
-    margin-bottom: 25px;
-    background-color: var(--sds--color--white);
-    border-radius: 0.175rem;
-    box-shadow: 0 0.1rem 0.1rem 0 var(--sds--color--pitch-black--dimmed--25);
-}
-
-button.sds--btn span {
-    text-align: center;
-}
-
 section.actions {
-    border-top: 2px solid #e0e0df;
+    border-top: 2px solid var(--border);
     display: flex;
     gap: 25px;
     justify-content: flex-end;
@@ -32,8 +23,3 @@ section.actions {
     padding: 30px 0;
     position: relative;
 }
-
-sup.required {
-    color: var(--sds--color--red--500);
-}
-

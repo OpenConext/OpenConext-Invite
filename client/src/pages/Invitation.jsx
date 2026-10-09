@@ -1,3 +1,5 @@
+import {InfoIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription, Button, Spinner} from "@surfnet/curve-react";
 import React, {useEffect, useState} from "react";
 import {acceptInvitation, invitationByHash, logout} from "../api";
 import I18n from "../locale/I18n";
@@ -6,7 +8,6 @@ import "../styles/circle.scss";
 import {login} from "../utils/Login";
 import ErrorIndicator from "../components/ErrorIndicator";
 import DOMPurify from "dompurify";
-import {Button, Loader, Toaster, ToasterType} from "@surfnet/sds";
 import {getParameterByName} from "../utils/QueryParameters";
 import {DateTime} from "luxon";
 import {useNavigate} from "react-router";
@@ -163,7 +164,10 @@ export const Invitation = ({authenticated}) => {
                 {expired &&
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.expiredInfo", {email: invitation.email}))}}/>}
                 {!expired && <>
-                    <Toaster toasterType={ToasterType.Info} message={html}/>
+                    <Alert variant="info">
+                        <InfoIcon/>
+                        <AlertDescription dangerouslySetInnerHTML={{__html: html}}/>
+                    </Alert>
                 </>}
                 {!expired &&
                     <section className="step-container">
@@ -180,16 +184,14 @@ export const Invitation = ({authenticated}) => {
                                               dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
                         <p className="info"
                            dangerouslySetInnerHTML={{__html: I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}}/>
-                        <Button onClick={proceed}
-                                txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
-                                centralize={true}/>
+                        <Button onClick={proceed}>{I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}</Button>
                     </section>}
             </>
         )
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
     return (
         <div className="mod-user-invitation">

@@ -1,7 +1,7 @@
 @use "../styles/vars.scss";
 
 .impersonator {
-    background-color: var(--sds--color--yellow--200);
+    background-color: var(--warning-subtle);
     display: flex;
     align-items: center;
     padding: 5px 2px;
@@ -10,7 +10,7 @@
         width: 32px;
         height: auto;
         margin: 4px 15px 0 15px;
-        color: var(--sds--color--yellow--500);
+        color: var(--warning);
     }
 
     button {

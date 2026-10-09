@@ -17,7 +17,7 @@
             }
 
             &.unknown-in-manage {
-                color: var(--sds--color--red--500);
+                color: var(--destructive);
                 font-weight: 600;
             }
         }
@@ -53,7 +53,7 @@
             }
 
             .unknown-in-manage {
-                color: var(--sds--color--red--500);
+                color: var(--destructive);
                 font-weight: 600;
 
                 svg {

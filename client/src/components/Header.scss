@@ -1,35 +1,34 @@
-@use "../styles/vars.scss";
+@use "../styles/vars" as *;
 
 .header-container {
-
-    background-color: var(--sds--palette--main-color--400);
-    color: var(--sds--color--white);
-    margin: 0 auto;
-    padding: 5px 0 10px 0;
+    background-color: white;
+    border-bottom: 1px solid var(--border);
 
     .header-inner {
-        position: relative;
-        transition: margin 150ms ease-in-out;
+        box-sizing: border-box;
         display: flex;
         align-items: center;
         width: 100%;
         margin: 0 auto;
-        max-width: vars.$max-width;
+        max-width: $max-width;
+        min-height: 72px;
+        padding: 0 40px;
 
-        @media (max-width: vars.$medium) {
-            padding: 0 15px;
+        @media (max-width: $mobile-width) {
+            min-height: 64px;
+            padding: 0 20px;
         }
 
         a.logo {
-            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
             text-decoration: none;
+
+            img {
+                height: 40px;
+                width: auto;
+            }
         }
-
     }
-
 }
-
-
-
-
-

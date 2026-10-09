@@ -1,17 +1,17 @@
+import {Badge, Button, Checkbox} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {WarningCircleIcon as AlertLogo} from "@phosphor-icons/react";
 import "./Roles.scss";
 import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, ButtonSize, Checkbox, Chip, Tooltip} from "@surfnet/sds";
 import {useNavigate} from "react-router";
 import {AUTHORITIES, highestAuthority, isUserAllowed, markAndFilterRoles} from "../utils/UserRole";
 import {rolesByApplication} from "../api";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
-import {authorityForRole, chipTypeForUserRole} from "../utils/Authority";
 import VoidImage from "../icons/undraw_void_-3-ggu.svg";
-import AlertLogo from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
 import DOMPurify from "dompurify";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 
@@ -92,74 +92,60 @@ export const Roles = () => {
             <div className="institution-admin-welcome">
                 {logo ? <img src={logo} alt="logo"/> : <VoidImage/>}
                 <p>{I18n.t("institutionAdmin.welcome", {name: name})}</p>
-                <Button txt={I18n.t("institutionAdmin.create")}
-                        size={ButtonSize.Full}
-                        onClick={() => navigate("/role/new")}/>
+                <Button className="w-full" onClick={() => navigate("/role/new")}>{I18n.t("institutionAdmin.create")}</Button>
             </div>
         );
     }
 
     const showCrm = user.superUser || user.institutionAdmin;
 
+    const maxApplicationBadges = 2;
+    const applicationBadges = role => {
+        if (role.unknownInManage) {
+            return <span className="unknown-in-manage"><AlertLogo/>{I18n.t("roles.unknownInManage")}
+                <InfoTooltip tip={I18n.t("roles.unknownInManageToolTip")}/>
+            </span>;
+        }
+        const names = [...new Set((role.applicationMaps || [])
+            .filter(app => !isEmpty(app))
+            .map(app => app[`name:${I18n.locale}`] || app["name:en"]))];
+        return (
+            <div className="application-badges">
+                {names.slice(0, maxApplicationBadges).map(name => <Badge key={name} variant="outline">{name}</Badge>)}
+                {names.length > maxApplicationBadges && <span className="more">+{names.length - maxApplicationBadges}</span>}
+            </div>
+        );
+    }
+
     const columns = [
         {
-            nonSortable: true,
-            key: "logo",
-            header: "",
-            mapper: role => role.unknownInManage ? <div className="role-icon unknown-in-manage"><AlertLogo/></div> :
-                <div className="role-icon">
-                    {typeof role.logo === "string" ? <img src={role.logo} alt="logo"/> : role.logo}
-                </div>
+            key: "name",
+            header: I18n.t("roles.accessRole"),
+            mapper: role => <span className="role-name">{role.name}</span>
+        },
+        {
+            key: "description",
+            header: I18n.t("roles.description"),
+            mapper: role => <span className={"cut-of-lines"}>{role.description}</span>
         },
         {
             nonSortable: true,
             key: "applicationName",
-            header: I18n.t("roles.applicationName"),
-            mapper: role => role.unknownInManage ?
-                <span className="unknown-in-manage">{I18n.t("roles.unknownInManage")}
-                    <Tooltip tip={I18n.t("roles.unknownInManageToolTip")}
-                             standalone={true}
-                             clickable={true}/>
-                </span>
-                :
-                <span>{role.applicationName}</span>
-        },
-        {
-            key: "name",
-            class: showCrm ? "" : "no-crm",
-            header: I18n.t("roles.accessRole"),
-            mapper: role => <span>{role.name}</span>
-        },
-        {
-            key: "description",
-            class: showCrm ? "" : "no-crm",
-            header: I18n.t("roles.description"),
-            mapper: role => <span className={"cut-of-lines"}>{role.description}</span>
+            header: I18n.t("roles.applications"),
+            mapper: applicationBadges
         },
         showCrm ?
             {
                 key: "crm",
                 nonSortable: true,
                 header: I18n.t("roles.isCrm"),
-                mapper: role => <Checkbox name="crm" value={!isEmpty(role.crmRoleId)} readOnly={true}/>
+                mapper: role => <div className="crm-check"><Checkbox checked={!isEmpty(role.crmRoleId)} disabled={true}/></div>
             } : null,
-        {
-            nonSortable: true,
-            key: "authority",
-            header: I18n.t("roles.authority"),
-            mapper: role => {
-                const authority = authorityForRole(user, role);
-                const label = authority ? I18n.t(`access.${authority}`) : I18n.t("roles.noMember");
-                return <Chip type={chipTypeForUserRole(authority)}
-                             label={label}/>
-            }
-        },
         {
             key: "userRoleCount",
             header: I18n.t("roles.userRoleCount"),
             mapper: role => role.userRoleCount
         }
-
     ].filter(tab => tab !== null);
 
     const isSuperUser = isUserAllowed(AUTHORITIES.SUPER_USER, user);
@@ -193,11 +179,11 @@ export const Roles = () => {
                     customNoEntities={I18n.t(`roles.noResults`)}
                     loading={false}
                     inputFocus={!searching}
+                    hideHeading={true}
                     hideTitle={searching}
                     customSearch={user.superUser ? search : null}
                     totalElements={user.superUser ? totalElements : null}
                     rowLinkMapper={isUserAllowed(AUTHORITIES.INVITER, user) ? openRole : null}
-                    rowClassNameResolver={entity => (entity.applications || []).length > 1 ? "multi-role" : ""}
                     busy={searching}
                 />}
         </div>

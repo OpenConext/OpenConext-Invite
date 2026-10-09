@@ -1,4 +1,4 @@
-@use "../styles/vars.scss";
+@use "../styles/vars.scss" as *;
 
 .select-field {
     display: flex;
@@ -8,10 +8,30 @@
     label {
         display: inline-block;
         margin: 12px 0 6px 0;
-        min-width: 210px;
+        min-width: 0;
         color: black;
         position: relative;
-        font-weight: 600;
+        --tw-font-weight: var(--font-weight-medium);
+        font-weight: var(--font-weight-medium);
+
+        svg {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        svg.alert-triangle {
+            position: absolute;
+            top: -2px;
+            margin-left: 6px;
+        }
+
+        .optional {
+            margin-left: 4px;
+            font-weight: 400;
+            color: var(--muted-foreground);
+        }
+
     }
 
     .input-select-inner {
@@ -22,49 +42,104 @@
             width: 240px;
         }
 
-        border: 1px solid var(--sds--color--gray--300);
-        border-radius: vars.$br;
-        font-size: 16px;
-        min-height: 40px;
+        border: 1px solid var(--border);
+        border-radius: $br;
+        background-color: var(--background);
+        min-height: $control-height;
 
         &.creatable {
-            min-height: 48px;
+            height: auto;
+            min-height: $control-height;
         }
 
         .select-inner__control {
             height: 100%;
             padding-left: 8px;
             border: none;
-            border-radius: vars.$br;
+            border-radius: $br;
+            min-height: $control-height;
+        }
+
+        // Same focus look as regular inputs: a 1px foreground border, drawn on the outer wrapper
+        &:focus-within {
+            border-color: var(--foreground);
         }
 
         .select-inner__control--is-focused {
             outline: none;
-            box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
-            border: 1px solid var(--sds--color--gray--300) !important;
-            min-height: 48px;
+            border: none !important;
+            box-shadow: none !important;
+            min-height: $control-height;
+        }
+
+        // Design system: a disabled control is the regular control at 50% opacity
+        &.select-inner--is-disabled {
+            opacity: 0.5;
+
+            .select-inner__control--is-disabled {
+                background-color: transparent;
+            }
+
+            .select-inner__single-value--is-disabled {
+                color: var(--foreground);
+            }
         }
 
         &[disabled] {
-            background-color: vars.$background;
+            background-color: var(--muted);
             cursor: not-allowed;
         }
 
-        .select-inner__indicators {
-            cursor: pointer;
-        }
     }
 
     .select-inner__single-value--is-disabled {
-        color: black;
+        color: var(--muted-foreground);
     }
 
     .select-inner--is-disabled {
         cursor: not-allowed;
+        border: 1px solid var(--border);
     }
 
+    // The page background is --muted as well, so a --muted field would look see-through.
     .select-inner__control--is-disabled {
-        background-color: vars.$background;
+        background-color: var(--border);
+        border: 1px solid var(--border);
         border-radius: 6px;
+    }
+
+    .option-with-description {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+
+        .option-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .option-label {
+            font-weight: var(--font-weight-medium);
+        }
+
+        .option-description {
+            color: var(--muted-foreground);
+        }
+    }
+
+    p.select-info {
+        margin-top: 8px;
+        color: var(--muted-foreground);
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        &.under-label {
+            margin: 0 0 8px 0;
+        }
     }
 }

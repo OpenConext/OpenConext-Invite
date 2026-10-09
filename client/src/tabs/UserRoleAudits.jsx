@@ -1,3 +1,4 @@
+import {DatabaseIcon as Logo} from "@phosphor-icons/react";
 import "./UserRoleAudits.scss";
 import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
@@ -12,7 +13,6 @@ import {defaultPagination, pageCount} from "../utils/Pagination";
 import {shortDateFromEpoch} from "../utils/Date";
 import SelectField from "../components/SelectField";
 import {UnitHeader} from "../components/UnitHeader";
-import Logo from "@surfnet/sds/icons/illustrative-icons/database-hand.svg";
 
 export const UserRoleAudits = () => {
     const {user} = useAppStore(state => state);

@@ -7,7 +7,7 @@
     background-color: white;
 
     &.bottom {
-        background-color: vars.$background;
+        background-color: var(--muted);
     }
 
     .mod-login {
@@ -119,7 +119,7 @@
             span.admin-function {
                 align-items: center;
                 display: flex;
-                background-color: #b2e4fe;
+                background-color: var(--info-subtle);
                 border-radius: 40px;
                 padding: 2px 8px;
                 font-size: 13px;

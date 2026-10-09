@@ -37,7 +37,7 @@ section.user {
         margin: 20px 0 10px 0;
     }
 
-    .sds--card {
+    [data-slot="card"] {
         margin-bottom: 40px;
     }
 
@@ -62,24 +62,8 @@ section.user {
                 margin-left: 0;
                 margin-top: 20px;
 
-                .sds--text-field, .sds--text-field--shape {
-                    width: 100%;
-                }
             }
 
-            input[type=search] {
-                flex-grow: 2;
-                min-width: 360px;
-
-                @media (max-width: vars.$medium) {
-                    min-width: 0;
-                }
-            }
-
-            .sds--text-field--icon svg {
-                width: calc(15em / 16);
-                height: calc(15em / 16)
-            }
 
         }
 
@@ -94,7 +78,7 @@ section.user {
             width: auto;
             margin: 0 35px auto 0;
             border-radius: vars.$br;
-            border: 1px solid var(--sds--color--gray--300);
+            border: 1px solid var(--border);
             padding: 16px;
 
         }

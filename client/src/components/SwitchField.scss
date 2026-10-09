@@ -2,18 +2,16 @@
     display: flex;
 
     margin-top: 20px;
+    padding-bottom: 10px;
 
+    &.no-top-margin {
+        margin-top: 0;
+    }
     &:not(.last) {
-        border-bottom: 1px solid var(--sds--color--gray--200);
-        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
     }
 
     align-items: center;
-
-
-    .sds--tooltip-parent {
-        margin-left: auto;
-    }
 
     .inner-switch {
         display: flex;
@@ -22,13 +20,19 @@
     }
 
     .switch-label {
-        font-weight: 600;
+        font-weight: 500;
+        position: relative;
+
     }
 
     .switch-info {
-        font-size: 14px;
-        color: var(--sds--color--gray--500);
+        color: var(--muted-foreground);
     }
+
+    [data-slot="switch"] {
+        margin-left: auto;
+    }
+
 }
 
 

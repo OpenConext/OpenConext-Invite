@@ -1,9 +1,9 @@
+import {ShieldCheckIcon as Logo} from "@phosphor-icons/react";
 import React, {useEffect} from "react";
 import I18n from "../locale/I18n";
 import "./UserTokens.scss";
 import {useAppStore} from "../stores/AppStore";
 import {UnitHeader} from "../components/UnitHeader";
-import Logo from "@surfnet/sds/icons/illustrative-icons/shield-check.svg";
 import {Tokens} from "../tabs/Tokens";
 
 export const UserTokens = () => {

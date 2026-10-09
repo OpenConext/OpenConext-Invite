@@ -1,0 +1,11 @@
+@use "../styles/vars" as *;
+
+.search-field {
+    width: 320px;
+    flex-shrink: 0;
+    height: $control-height;
+
+    @media (max-width: $medium) {
+        width: 100%;
+    }
+}

@@ -1,5 +1,5 @@
+import {Badge} from "@surfnet/curve-react";
 import {isEmpty} from "./Utils";
-import {Chip, ChipType} from "@surfnet/sds";
 import {AUTHORITIES} from "./UserRole";
 import {shortDateFromEpoch} from "./Date";
 import I18n from "../locale/I18n";
@@ -22,23 +22,23 @@ export const authorityForUserOverview = user => {
     return authorities[authorities.length - 1];
 }
 
-export const chipTypeForUserRole = authority => {
+export const badgeVariantForUserRole = authority => {
     if (isEmpty(authority)) {
-        return ChipType.Status_warning;
+        return "warning";
     }
     switch (authority) {
         case AUTHORITIES.SUPER_USER:
-            return ChipType.Status_success;
+            return "success";
         case AUTHORITIES.INSTITUTION_ADMIN:
-            return ChipType.Support_500;
+            return "info";
         case AUTHORITIES.MANAGER:
-            return ChipType.Support_400;
+            return "secondary";
         case AUTHORITIES.INVITER:
-            return ChipType.Support_100;
+            return "outline";
         case AUTHORITIES.GUEST:
-            return ChipType.Status_default;
+            return "outline";
         default:
-            return ChipType.Status_default;
+            return "outline";
     }
 }
 
@@ -47,9 +47,7 @@ export const invitationExpiry = invitation => {
         new Date(invitation.expiry_date);
     const expired = expiryDate < new Date();
     if (expired) {
-        return <Chip
-            type={ChipType.Status_error}
-            label={I18n.t("invitations.statuses.expired")}/>
+        return <Badge variant="danger">{I18n.t("invitations.statuses.expired")}</Badge>
     }
     return shortDateFromEpoch(invitation.expiry_date || invitation.expiryDate * 1000, false);
 }

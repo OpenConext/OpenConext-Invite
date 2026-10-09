@@ -1,0 +1,28 @@
+.confirmation-dialog {
+    &.large-width {
+        max-width: 40rem;
+    }
+
+    [data-slot="dialog-title"].error {
+        color: var(--destructive);
+    }
+
+    // Centers the title/question, matching the design's alert-dialog look,
+    // while keeping the action buttons left-aligned instead of the base
+    // Dialog's default right-aligned footer.
+    &.centered {
+        [data-slot="dialog-header"] {
+            align-items: center;
+            text-align: center;
+        }
+
+        p.confirmation-question {
+            text-align: center;
+            color: var(--muted-foreground);
+        }
+
+        [data-slot="dialog-footer"] {
+            justify-content: flex-start;
+        }
+    }
+}

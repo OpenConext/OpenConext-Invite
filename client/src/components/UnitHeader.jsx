@@ -1,11 +1,12 @@
-import React, {useState} from "react";
+import {Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@surfnet/curve-react";
+import {CaretDownIcon} from "@phosphor-icons/react";
+import React from "react";
 import "./UnitHeader.scss";
 
 import Logo from "./Logo";
-import {isEmpty, stopEvent} from "../utils/Utils";
+import {isEmpty} from "../utils/Utils";
 
-import {Button, ButtonType, MenuButton} from "@surfnet/sds";
-import {Link, useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 
@@ -23,40 +24,10 @@ export const UnitHeader = ({
                                displayDescription
                            }) => {
 
-    const [showDropDown, setShowDropDown] = useState(false);
-
     const navigate = useNavigate();
-    const performAction = action => e => {
-        stopEvent(e);
-        !action.disabled && action.perform();
-    }
-
-    const otherOptions = (chevronActions, firstTime, auditLogPath, history, queryParam) => {
-        return (
-            <ul className={"other-options"}>
-                {chevronActions.map((action, index) => <li key={index} onClick={performAction(action)}>
-                    <a href={`/${action.name}`}>{action.name}</a>
-                </li>)}
-                {(history && auditLogPath) &&
-                    <li onClick={() => navigate(`/audit-logs/${auditLogPath}?${queryParam}`)}>
-                        <Link to={`/audit-logs/${auditLogPath}?${queryParam}`}>
-                            {I18n.t("home.history")}
-                        </Link>
-                    </li>}
-                {firstTime &&
-                    <li onClick={performAction({perform: firstTime})}>
-                        <a href={"/" + I18n.t("home.firstTime")}>
-                            {I18n.t("home.firstTime")}
-                        </a>
-                    </li>}
-            </ul>
-        )
-    }
 
     const queryParam = `name=${encodeURIComponent(breadcrumbName || name)}&back=${encodeURIComponent(window.location.pathname)}`;
-    const nonChevronActions = (actions || []).filter(action => action.buttonType !== ButtonType.Chevron);
-    const chevronActions = (actions || []).filter(action => action.buttonType === ButtonType.Chevron);
-    const showChevronAction = (history && auditLogPath) || firstTime || chevronActions.length > 0;
+    const showChevronAction = (history && auditLogPath) || firstTime;
     return (
         <div className="unit-header-container">
             <div className="unit-header">
@@ -74,21 +45,31 @@ export const UnitHeader = ({
                 </div>
                 {!isEmpty(actions) &&
                     <div className="action-menu-container">
-                        {nonChevronActions.map((action, index) =>
+                        {(actions || []).map((action, index) =>
                             <Button key={index}
-                                    onClick={() => !action.disabled && action.perform()}
-                                    txt={action.name}
-                                    cancelButton={action.buttonType === ButtonType.Secondary}/>)
+                                    variant={action.secondary ? "outline" : "default"}
+                                    onClick={() => !action.disabled && action.perform()}>{action.name}</Button>)
                         }
                         {showChevronAction &&
-                            <div tabIndex={1}
-                                 onBlur={() => setTimeout(() => setShowDropDown(false), 125)}>
-                                <MenuButton txt={I18n.t("home.otherOptions")}
-                                            isOpen={showDropDown}
-                                            toggle={() => setShowDropDown(!showDropDown)}
-                                            buttonType={ButtonType.Secondary}
-                                            children={otherOptions(chevronActions, firstTime, auditLogPath, history, queryParam)}/>
-                            </div>}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger render={
+                                    <Button variant="outline">
+                                        <span>{I18n.t("home.otherOptions")}</span>
+                                        <CaretDownIcon/>
+                                    </Button>
+                                }/>
+                                <DropdownMenuContent align="end" className="action-menu-content">
+                                    {(history && auditLogPath) &&
+                                        <DropdownMenuItem
+                                            onClick={() => navigate(`/audit-logs/${auditLogPath}?${queryParam}`)}>
+                                            {I18n.t("home.history")}
+                                        </DropdownMenuItem>}
+                                    {firstTime &&
+                                        <DropdownMenuItem onClick={() => firstTime()}>
+                                            {I18n.t("home.firstTime")}
+                                        </DropdownMenuItem>}
+                                </DropdownMenuContent>
+                            </DropdownMenu>}
                     </div>}
                 {customAction && customAction}
             </div>

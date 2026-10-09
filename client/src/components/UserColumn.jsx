@@ -1,7 +1,8 @@
+import {Badge} from "@surfnet/curve-react";
+import {InfoTooltip} from "./InfoTooltip";
 import React from "react";
 import I18n from "../locale/I18n";
 import "./UserColumn.scss";
-import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {dateFromEpoch} from "../utils/Date";
 
 export const UserColumn = ({entity, currentUser, gotoInvitation, hideEmail = false, showMe = true}) => {
@@ -11,7 +12,7 @@ export const UserColumn = ({entity, currentUser, gotoInvitation, hideEmail = fal
     }
     return (
         <div className="user-name-email-container">
-            <Tooltip tip={entity.invite ?
+            <InfoTooltip tip={entity.invite ?
                 I18n.t("users.inviteTooltip", {
                     email: entity.invitee_email,
                     name: entity.user.name,
@@ -20,10 +21,7 @@ export const UserColumn = ({entity, currentUser, gotoInvitation, hideEmail = fal
                 entity.user && entity.created_at ? I18n.t("users.userTooltip", {
                     username: entity.user.username,
                     date: dateFromEpoch(entity.created_at)
-                }) : entity.user.username}
-                     standalone={true}
-                     children={
-                         <div className="user-name-email">
+                }) : entity.user.username}><div className="user-name-email">
                              <span className="name">{entity.invite ? "-" : entity.user && entity.user.name}</span>
                              {entity.invite &&
                                  <span className="email">
@@ -32,9 +30,9 @@ export const UserColumn = ({entity, currentUser, gotoInvitation, hideEmail = fal
                 </span>}
                              {(!entity.invite && !hideEmail) &&
                                  <span className="email">{entity.user && entity.user.email}</span>}
-                         </div>}/>
+                         </div></InfoTooltip>
             {(showMe && !entity.invite && entity.user.id === currentUser.id) &&
-                <Chip type={ChipType.Main_400} label={I18n.t("models.users.me")}/>}
+                <Badge variant="default">{I18n.t("models.users.me")}</Badge>}
         </div>
     );
 }

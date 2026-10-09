@@ -1,5 +1,4 @@
-import ArrowDown from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
-import ArrowUp from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
+import {CaretDownIcon as ArrowDown, CaretUpDownIcon, CaretUpIcon as ArrowUp} from "@phosphor-icons/react";
 import React from "react";
 
 export function headerIcon(column, sorted, reverse) {
@@ -9,5 +8,5 @@ export function headerIcon(column, sorted, reverse) {
     if (column.key === sorted) {
         return reverse ? <ArrowDown/> : <ArrowUp/>
     }
-    return null;
+    return <CaretUpDownIcon/>;
 }

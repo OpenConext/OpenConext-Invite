@@ -1,9 +1,9 @@
+import {Badge, Button, Card, CardContent} from "@surfnet/curve-react";
 import React from "react";
 import "./RoleCard.scss";
 import Logo from "./Logo";
 import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
-import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
 import {useNavigate} from "react-router";
 
 export const RoleCard = ({
@@ -23,7 +23,7 @@ export const RoleCard = ({
                 <MoreLessText txt={application.roleDescription} cutOffNumber={80}/>
             </section>
             <div className="launch">
-                <Button txt={I18n.t("inviter.details")} onClick={() => navigate(`/roles/${application.roleId}`)}/>
+                <Button onClick={() => navigate(`/roles/${application.roleId}`)}>{I18n.t("inviter.details")}</Button>
             </div>
 
         </div>;
@@ -32,9 +32,9 @@ export const RoleCard = ({
     return (
         <div className={className}>
             {isNew &&
-                <Chip label={I18n.t("proceed.new")} type={ChipType.Status_error}/>
+                <Badge variant="danger">{I18n.t("proceed.new")}</Badge>
             }
-            <Card key={index} cardType={CardType.Big} children={children}/>
+            <Card key={index}><CardContent>{children}</CardContent></Card>
         </div>
     );
 }

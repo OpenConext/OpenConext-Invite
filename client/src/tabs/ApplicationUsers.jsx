@@ -1,10 +1,11 @@
+import {Spinner} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {IdentificationBadgeIcon as UserIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {searchUsersByApplication} from "../api";
-import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./ApplicationUsers.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
@@ -70,14 +71,12 @@ export const ApplicationUsers = () => {
             key: "icon",
             header: "",
             mapper: user => <div className="member-icon">
-                <Tooltip standalone={true}
-                         children={<UserIcon/>}
-                         tip={I18n.t("tooltips.userIcon",
+                <InfoTooltip tip={I18n.t("tooltips.userIcon",
                              {
                                  name: user.name,
                                  createdAt: dateFromEpoch(user.createdAt),
                                  lastActivity: dateFromEpoch(user.lastActivity)
-                             })}/>
+                             })}><UserIcon/></InfoTooltip>
             </div>
         },
         {
@@ -119,7 +118,7 @@ export const ApplicationUsers = () => {
 
     return (
         <div className="mod-application-users">
-            {searching && <Loader/>}
+            {searching && <div className="loading-container"><Spinner className="size-8"/></div>}
             <Entities entities={users}
                       modelName="users"
                       defaultSort="name"

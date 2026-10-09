@@ -1,0 +1,25 @@
+nav.language-selector {
+    ul {
+        display: flex;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        gap: 8px;
+    }
+
+    a {
+        color: var(--muted-foreground);
+        text-decoration: none;
+
+        &.is-active {
+            color: var(--foreground);
+            font-weight: 600;
+        }
+    }
+
+    .divider {
+        margin-left: 8px;
+        color: var(--muted-foreground);
+    }
+}

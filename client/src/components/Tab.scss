@@ -1,149 +1,23 @@
-@use "../styles/vars.scss";
-
-
-.tab {
-    min-width: 110px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    border-bottom: 0.25rem solid transparent;
-    font-weight: 600;
-    border-top: 0.1875rem solid transparent;
-
-    &.busy {
-        min-width: 85px;
-    }
-
-    &:first-child {
-        margin-left: 0;
-    }
-
-    &:last-child {
-        margin-right: 0;
-    }
-
-    @media (max-width: vars.$medium) {
-        margin: 0;
-    }
-
-    svg {
-        width: 20px;
-        font-size: 18px;
-        height: auto;
-        margin-right: 10px;
-    }
-
-    &:not(.read-only):hover {
-        background-color: var(--sds--palette--support-color--100);
-
-        span.tab-label, svg {
-            color: black;
-        }
+.tabs-menu {
+    a.tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        border-bottom: 3px solid transparent;
 
         svg {
-            fill: black;
-        }
-    }
-
-    &:not(.active) {
-        span.tab-label, svg {
-            color: var(--sds--color--black);
+            width: 20px;
+            height: auto;
         }
 
-        svg {
-            color: var(--sds--color--black);
-        }
-
-
-        &.read-only {
-            cursor: not-allowed;
-
-            span.tab-label, svg {
-                color: var(--sds--color--gray--300);
-            }
+        span.notifier {
+            display: inline-flex;
 
             svg {
-                fill: var(--sds--color--gray--300);
+                width: 16px;
+                color: var(--destructive);
             }
         }
     }
-
-    &.active {
-        color: var(--sds--color--black);
-        border-bottom-color: var(--sds--palette--support-color--400);
-        box-shadow: 0 0.0625rem 0 0 var(--sds--palette--support-color--400);
-        background-color: var(--sds--color--white);
-
-        span.tab-label, svg {
-            color: var(--sds--color--black);
-        }
-
-        svg {
-            fill: var(--sds--color--black);
-
-        }
-    }
-
-    button {
-        padding: var(--sds--space--1-and-a-half) var(--sds--space--2);
-        min-height: 3rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        margin: auto;
-    }
-
-    .sds--badge--number {
-        margin-left: 4px;
-    }
-
-    span.notifier {
-        position: absolute;
-        right: -8px;
-        top: 0;
-
-        svg.alert-circle {
-            width: 16px;
-            height: auto;
-        }
-
-        @media (max-width: vars.$medium) {
-            top: 8px;
-            right: 4px;
-        }
-
-    }
-
-    &.collaborations {
-        svg {
-            width: 28px;
-        }
-    }
-
-    &.collaboration_requests {
-        svg {
-            width: 22px;
-        }
-
-    }
-
-    &.serviceConnectionRequests {
-        svg {
-            width: 32px;
-            height: auto;
-        }
-
-    }
-
-    &.apikeys {
-        svg {
-            width: 28px;
-        }
-    }
-
-    span.tab-label {
-        font-weight: 600;
-    }
 }
-
-

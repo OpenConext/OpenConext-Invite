@@ -5,11 +5,6 @@
 
 
     .profile-container {
-        max-width: vars.$max-width;
-        margin: 0 auto;
-
-        @media (max-width: vars.$medium) {
-            padding: 0 15px;
+        margin-left: 54px;
         }
-    }
 }

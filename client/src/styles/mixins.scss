@@ -4,21 +4,15 @@
 @mixin input-field {
     label {
         display: inline-block;
-        min-width: 210px;
+        min-width: 0;
         color: black;
         position: relative;
-        margin: 12px 0 var(--sds--space--1);
+        margin: 12px 0 0.5rem;
     }
 }
 
 @mixin page {
-    max-width: vars.$max-width;
     width: 100%;
-    margin: 0 auto;
-
-    @media (max-width: vars.$medium) {
-        padding: 0 15px;
-    }
 
 }
 
@@ -34,21 +28,21 @@
         grid-template-columns: [first] 1fr;
     }
 
-    .input-field, .select-field, .date-field, .error-indication, .sds--checkbox-container {
+    .input-field, .select-field, .date-field, .error-indication, .checkbox-container {
         grid-column-start: first;
     }
 
-    .input-field, .select-field, .date-field, .sds--checkbox-container {
+    .input-field, .select-field, .date-field, .checkbox-container {
         margin-top: 20px;
 
         &.inner-switch {
             margin-top: 0;
             padding-bottom: 15px;
-            border-bottom: 1px solid var(--sds--color--gray--200);
+            border-bottom: 1px solid var(--border);
         }
     }
 
-    .user-role .sds--checkbox-container {
+    .user-role .checkbox-container {
         margin-top: 0;
         @media (max-width: vars.$medium) {
             margin-bottom: 20px;
@@ -59,7 +53,7 @@
         grid-column-start: first;
         margin-top: 30px;
         padding: 25px 0;
-        border-top: 2px solid var(--sds--color--gray--200);
+        border-top: 2px solid var(--border);
         display: flex;
         justify-content: flex-end;
         position: relative;
@@ -68,7 +62,7 @@
             margin-left: 25px;
         }
 
-        button.sds--btn--delete, button.sds--btn--delete--secondary {
+        button.delete {
             margin-right: auto;
             margin-left: 0;
         }

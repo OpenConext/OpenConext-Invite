@@ -1,10 +1,8 @@
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import React, {useEffect, useState} from "react";
-import Logo from "../icons/Owl_Emblem.svg";
 import Tabs from "../components/Tabs";
 import "./Home.scss";
-import {UnitHeader} from "../components/UnitHeader";
 import {useNavigate, useParams} from "react-router";
 import {Users} from "../tabs/Users";
 import {Page} from "../components/Page";
@@ -20,7 +18,6 @@ import {SearchGroupContext} from "../utils/SearchGroupContext";
 export const Home = () => {
     const {tab = "roles"} = useParams();
     const [currentTab, setCurrentTab] = useState(tab);
-    const [winking, setWinking] = useState(false);
 
     const user = useAppStore((state) => state.user)
     const navigate = useNavigate();
@@ -88,18 +85,12 @@ export const Home = () => {
         });
     }
 
-    const winkOwl = () => {
-        setWinking(true);
-        setTimeout(() => setWinking(false), 850);
-    }
-
+    const heading = currentTab === "roles" ? I18n.t("roles.heading") : I18n.t(`tabs.${currentTab}`);
     return (
         <div className="home">
             <div className="mod-home-container">
-                <UnitHeader obj={({name: I18n.t("home.access"), svg: Logo, style: winking ? "wink" : ""})}
-                            svgClick={() => winkOwl()}>
-                    <p>{I18n.t("header.subTitle")}</p>
-                </UnitHeader>
+                <h1>{heading}</h1>
+                {currentTab === "roles" && <p className="intro">{I18n.t("roles.intro")}</p>}
                 <SearchGroupContext.Provider value="home">
                     <Tabs activeTab={currentTab}
                           tabChanged={tabChanged}>

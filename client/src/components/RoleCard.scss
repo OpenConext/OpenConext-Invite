@@ -2,27 +2,23 @@
 
 .card-container {
 
-    button.sds--chips {
-        background-color: #FFD700;
+    &.inviter-selected [data-slot="card"] {
+        border-color: var(--success);
+        background-color: var(--success-subtle);
     }
 
-    &.inviter-selected .sds--card {
-        border-color: var(--sds--color--green--300);
-        background-color: var(--sds--color--green--100);
+    &.inviter [data-slot="card"] {
+        background-color: var(--muted);
     }
 
-    &.inviter .sds--card {
-        background-color: var(--sds--color--gray--100);
-    }
-
-    &.pointer .sds--card {
+    &.pointer [data-slot="card"] {
         cursor: pointer;
     }
 
     &.is-new {
         position: relative;
 
-        .sds--chips {
+        [data-slot="badge"] {
             position: absolute;
             top: -16px;
             left: -22px;
@@ -30,20 +26,20 @@
 
         @keyframes glow {
             0% {
-                box-shadow: 1px 0.13rem 0.13rem 0 #FFD700;
-                border: 0.0625rem solid #FFD700;
+                box-shadow: 1px 0.13rem 0.13rem 0 var(--warning);
+                border: 0.0625rem solid var(--warning);
             }
             50% {
-                box-shadow: 1px 0.16rem 0.16rem 0 #eac602;
-                border: 0.0625rem solid #eac602;
+                box-shadow: 1px 0.16rem 0.16rem 0 var(--warning-hover);
+                border: 0.0625rem solid var(--warning-hover);
             }
             100% {
-                box-shadow: 1px 0.13rem 0.13rem 0 #FFD700;
-                border: 0.0625rem solid #FFD700;
+                box-shadow: 1px 0.13rem 0.13rem 0 var(--warning);
+                border: 0.0625rem solid var(--warning);
             }
         }
 
-        .sds--card {
+        [data-slot="card"] {
             animation: glow 2.5s infinite;
         }
 
@@ -58,14 +54,9 @@
             align-items: flex-start;
         }
 
-        .sds--checkbox-container {
+        [data-slot="checkbox"] {
             margin-right: 25px;
             cursor: pointer;
-
-            input[type=checkbox]:not(:checked) + label {
-                cursor: pointer;
-                background-color: white;
-            }
         }
 
         img.provider, svg.provider, svg.multi-role {
@@ -73,7 +64,7 @@
             width: auto;
             margin: 0 35px auto 0;
             border-radius: vars.$br;
-            border: 1px solid var(--sds--color--gray--300);
+            border: 1px solid var(--border);
             padding: 16px;
 
             @media (max-width: vars.$medium) {

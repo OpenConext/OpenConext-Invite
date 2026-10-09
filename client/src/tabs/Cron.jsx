@@ -1,7 +1,7 @@
+import {Button} from "@surfnet/curve-react";
 import React, {useState} from "react";
 import I18n from "../locale/I18n";
 import "./Cron.scss";
-import {Button} from "@surfnet/sds";
 import "./Users.scss";
 import {cronCleanup, cronExpiryNotifications} from "../api";
 import {isEmpty} from "../utils/Utils";
@@ -17,10 +17,8 @@ export const Cron = () => {
         return <div className="mod-cron">
             <div className="actions">
                 <span>{I18n.t("system.cronInfo")}</span>
-                {isEmpty(results) && <Button onClick={() => cronCleanup().then(res => setResults(res))}
-                                             txt={I18n.t("system.trigger")}/>}
-                {!isEmpty(results) && <Button onClick={() => setResults({})}
-                                              txt={I18n.t("system.clear")}/>}
+                {isEmpty(results) && <Button onClick={() => cronCleanup().then(res => setResults(res))}>{I18n.t("system.trigger")}</Button>}
+                {!isEmpty(results) && <Button onClick={() => setResults({})}>{I18n.t("system.clear")}</Button>}
 
             </div>
             {!isEmpty(results) &&
@@ -35,10 +33,8 @@ export const Cron = () => {
             <div className="actions">
                 <span>{I18n.t("system.cronNotificationsInfo")}</span>
                 {isEmpty(mailResults) &&
-                    <Button onClick={() => cronExpiryNotifications().then(res => setMailResults(res))}
-                            txt={I18n.t("system.trigger")}/>}
-                {!isEmpty(mailResults) && <Button onClick={() => setMailResults({})}
-                                                  txt={I18n.t("system.clear")}/>}
+                    <Button onClick={() => cronExpiryNotifications().then(res => setMailResults(res))}>{I18n.t("system.trigger")}</Button>}
+                {!isEmpty(mailResults) && <Button onClick={() => setMailResults({})}>{I18n.t("system.clear")}</Button>}
 
             </div>
             {!isEmpty(mailResults) &&

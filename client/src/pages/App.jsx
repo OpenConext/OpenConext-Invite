@@ -1,7 +1,7 @@
+import {Spinner} from "@surfnet/curve-react";
 import './App.scss';
 import {Navigate, Route, Routes, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
-import {Loader} from "@surfnet/sds";
 import {SidebarInset, SidebarProvider} from "@surfnet/curve-react";
 import {SharedMenu} from "../components/SharedMenu";
 import {AuthorizedHeader} from "../components/AuthorizedHeader";
@@ -99,7 +99,7 @@ export const App = () => {
     }, [reload, impersonator]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     if (authenticated) {

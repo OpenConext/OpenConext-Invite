@@ -1,12 +1,12 @@
+import {Badge} from "@surfnet/curve-react";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./MineInvitations.scss";
-import {Chip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import "./Users.scss";
 import {shortDateFromEpoch} from "../utils/Date";
 
-import {chipTypeForUserRole, invitationExpiry} from "../utils/Authority";
+import {badgeVariantForUserRole, invitationExpiry} from "../utils/Authority";
 import {invitationsMine} from "../api";
 import {useAppStore} from "../stores/AppStore";
 import {INVITATION_STATUS} from "../utils/UserRole";
@@ -42,8 +42,7 @@ export const MineInvitations = () => {
         {
             key: "intended_authority",
             header: I18n.t("users.authority"),
-            mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intendedAuthority)}
-                                        label={I18n.t(`access.${invitation.intendedAuthority}`)}/>
+            mapper: invitation => <Badge variant={badgeVariantForUserRole(invitation.intendedAuthority)}>{I18n.t(`access.${invitation.intendedAuthority}`)}</Badge>
         },
         {
             key: "intendedRoles",

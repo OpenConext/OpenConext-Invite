@@ -1,11 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Tooltip} from "@surfnet/sds";
+import {InfoTooltip} from "./InfoTooltip";
 import "./EmailField.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import {validEmailRegExp} from "../validations/regExps";
-import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
-import MailIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import {IdentificationBadgeIcon as MailIcon, XIcon as CloseIcon} from "@phosphor-icons/react";
 
 export default function EmailField({
                                        name,
@@ -42,9 +41,9 @@ export default function EmailField({
     const displayEmail = email => {
         const indexOf = email.indexOf("<");
         if (indexOf > -1) {
-            return <Tooltip tip={email.substring(indexOf + 1, email.length - 1)}
-                            standalone={true}
-                            children={<span>{email.substring(0, indexOf).trim()}</span>}/>;
+            return <InfoTooltip tip={email.substring(indexOf + 1, email.length - 1)}>
+                <span>{email.substring(0, indexOf).trim()}</span>
+            </InfoTooltip>;
         }
         return <span>{email}</span>;
     }
@@ -109,8 +108,7 @@ export default function EmailField({
     return (
         <div className={`email-field ${error ? "error" : ""}`}>
             <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
-                <Tooltip
-                    tip={`${I18n.t("tooltips.inviteesTooltip")}`}/>
+                <InfoTooltip tip={I18n.t("tooltips.inviteesTooltip")}/>
             </label>
             <div className={`inner-email-field ${error ? "error" : ""}`}>
                 {emails.map((mail, index) =>

@@ -1,6 +1,6 @@
 .mod-role {
     .urn-container {
-        background-color: var(--sds--color--gray--100);
+        background-color: var(--muted);
         border-radius: 8px;
         padding: 0 4px;
         max-width: 100px;
@@ -25,7 +25,7 @@
             }
 
             &.unknown-in-manage {
-                color: var(--sds--color--red--500);
+                color: var(--destructive);
                 font-weight: 600;
             }
         }

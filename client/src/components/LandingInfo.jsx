@@ -1,3 +1,4 @@
+import {Badge} from "@surfnet/curve-react";
 import React from "react";
 import DOMPurify from "dompurify";
 import I18n from "../locale/I18n";
@@ -6,7 +7,6 @@ import AuthenticationLogo from "../icons/landing/undraw_authentication_re_svpt.s
 import EnterLogo from "../icons/landing/undraw_enter_uhqk.svg?url";
 import SCIMLogo from "../icons/landing/undraw_subscriptions_re_k7jj.svg?url";
 import "./LandingInfo.scss";
-import {Chip, ChipType} from "@surfnet/sds"
 
 export const LandingInfo = () => {
 
@@ -18,7 +18,7 @@ export const LandingInfo = () => {
                     <div className={"info-title"}>
                         <h2>{info[0]}</h2>
                         {info[2] && <div className={"admin-function-container"}>
-                            <Chip label={I18n.t("landing.adminFunction")} type={ChipType.Main_400}/>
+                            <Badge variant="default">{I18n.t("landing.adminFunction")}</Badge>
                         </div>}
                     </div>
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(info[1])}}/>

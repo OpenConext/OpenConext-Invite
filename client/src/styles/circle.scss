@@ -16,7 +16,7 @@ $width: 70px;
         width: $width;
         height: $width;
         border-radius: 50%;
-        border: solid 5px var(--sds--color--gray--200);
+        border: solid 5px var(--border);
         position: absolute;
         top: 0;
         left: 0;
@@ -26,34 +26,34 @@ $width: 70px;
     &.one-third:before {
         @include colored-borders;
         border: solid 5px transparent;
-        border-top-color: var(--sds--palette--main-color--400);
+        border-top-color: var(--primary);
         z-index: 2;
     }
 
     &.one-third:after {
         @include colored-borders;
-        border-top-color: var(--sds--palette--main-color--400);
+        border-top-color: var(--primary);
         transform: rotate(78deg);
     }
 
     &.two-third:before {
         @include colored-borders;
         border: solid 5px transparent;
-        border-top-color: var(--sds--palette--main-color--400);
+        border-top-color: var(--primary);
         z-index: 2;
     }
 
     &.two-third:after {
         @include colored-borders;
-        border-top-color: var(--sds--palette--main-color--400);
-        border-right-color: var(--sds--palette--main-color--400);
+        border-top-color: var(--primary);
+        border-right-color: var(--primary);
         transform: rotate(102deg);
     }
 
     &.two-quarters:before {
         @include colored-borders;
-        border-top-color: var(--sds--palette--main-color--400);
-        border-right-color: var(--sds--palette--main-color--400);
+        border-top-color: var(--primary);
+        border-right-color: var(--primary);
     }
 
     span {
@@ -62,7 +62,7 @@ $width: 70px;
     }
 
     &.full {
-        border: solid 5px var(--sds--palette--main-color--400);
+        border: solid 5px var(--primary);
         border-radius: 50%;
 
         span {

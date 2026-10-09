@@ -52,3 +52,38 @@ export const searchParameterFromQueryParams = (parameterName, isNumeric, default
     const value = parameterByName || defaultValue;
     return isNumeric ? parseInt(value, 10) : value;
 }
+
+//https://gist.github.com/kottenator/9d936eb3e4e3c3e02598
+export const pageRangeWithDots = (page, totalResults) => {
+    const delta = 2,
+        left = page - delta,
+        right = page + delta + 1,
+        range = [],
+        rangeWithDots = [];
+    let l;
+
+    for (let i = 1; i <= totalResults; i++) {
+        if (i === 1 || i === totalResults || (i >= left && i < right)) {
+            range.push(i);
+        }
+    }
+
+    for (const i of range) {
+        if (l) {
+            if (i - l === 2) {
+                rangeWithDots.push(l + 1);
+            } else if (i - l !== 1) {
+                rangeWithDots.push("...");
+            }
+        }
+        rangeWithDots.push(i);
+        l = i;
+    }
+    return rangeWithDots;
+}
+
+export const pageHref = nbr => {
+    const url = new URL(window.location);
+    url.searchParams.set("page", nbr);
+    return url.pathname + url.search;
+}

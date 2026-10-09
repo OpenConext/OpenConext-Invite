@@ -11,13 +11,13 @@ table {
         tr {
             margin-bottom: 15px;
             display: block;
-            border-bottom: 3px solid var(--sds--color--gray--300);
+            border-bottom: 3px solid var(--border);
         }
 
         td {
             display: flex;
             text-align: right;
-            border-bottom: 1px dotted var(--sds--color--blue--100);
+            border-bottom: 1px dotted var(--info-subtle);
 
             padding: 8px 0;
 

@@ -2,19 +2,12 @@
 
 
 .unit-header-inviter-container {
-    background-color: vars.$background;
-    padding: 15px 0 25px 0;
+    padding: 0 0 8px 0;
 
     width: 100%;
 
-    @media (max-width: vars.$medium) {
-        padding: 15px 15px 25px 15px;
-    }
-
 
     .unit-header {
-        max-width: vars.$max-width;
-        margin: 0 auto;
         width: 100%;
         display: flex;
         align-items: center;
@@ -25,7 +18,7 @@
             background-color: white;
             padding: 15px 20px;
             border-radius: 12px;
-            box-shadow: 0 0.1rem 0.1rem 0 var(--sds--color--pitch-black--dimmed--25);
+            box-shadow: 0 0.1rem 0.1rem 0 rgba(0,0,0,.25);
             @media (max-width: vars.$medium) {
                 width: 100%;
                 flex-direction: column;
@@ -104,19 +97,9 @@
         button {
             width: 100%;
             min-width: 150px;
-
-            &.sds--btn--secondary {
-                min-width: 180px;
-            }
         }
     }
 
-    .other-options, .sds--user-info--dropdown {
-        background-color: vars.$background;
-    }
 
-    .sds--menu-button .sds--user-info--dropdown {
-        z-index: 99;
-    }
 
 }

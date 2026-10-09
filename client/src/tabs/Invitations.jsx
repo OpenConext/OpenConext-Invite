@@ -1,20 +1,20 @@
+import {Badge, Button, Checkbox} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {TrashIcon as TrashIcon, PaperPlaneTiltIcon as ResendIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./Invitations.scss";
-import {Button, ButtonSize, ButtonType, Checkbox, Chip, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import "./Users.scss";
 import {shortDateFromEpoch} from "../utils/Date";
 
-import {chipTypeForUserRole, invitationExpiry} from "../utils/Authority";
+import {badgeVariantForUserRole, invitationExpiry} from "../utils/Authority";
 import {useNavigate} from "react-router";
 import {deleteInvitation, resendInvitation, searchInvitations} from "../api";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {useAppStore} from "../stores/AppStore";
-import {isEmpty, pseudoGuid} from "../utils/Utils";
+import {isEmpty} from "../utils/Utils";
 import {allowedToDeleteInvitation, AUTHORITIES, INVITATION_STATUS, isUserAllowed} from "../utils/UserRole";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
-import ResendIcon from "@surfnet/sds/icons/functional-icons/go-to-other-website.svg";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import debounce from "lodash.debounce";
 
@@ -92,8 +92,7 @@ export const Invitations = ({
         })
     }, 375);
 
-    const onCheck = invitation => e => {
-        const checked = e.target.checked;
+    const onCheck = invitation => checked => {
         const newSelectedInvitations = {...selectedInvitations}
         newSelectedInvitations[invitation.id].selected = checked;
         setSelectedInvitations(newSelectedInvitations);
@@ -102,8 +101,7 @@ export const Invitations = ({
         }
     }
 
-    const selectAll = e => {
-        const checked = e.target.checked;
+    const selectAll = checked => {
         setAllSelected(checked);
         const newSelectedInvitations = {...selectedInvitations}
         Object.values(newSelectedInvitations).forEach(inv => inv.selected = checked);
@@ -207,27 +205,11 @@ export const Invitations = ({
         return (
             <div className="admin-actions">
                 <div>
-                    <Tooltip standalone={true}
-                             anchorId={"remove-members"}
-                             tip={I18n.t("tooltips.removeInvitation")}
-                             children={
-                                 <Button onClick={() => doDeleteInvitations(true)}
-                                         size={ButtonSize.Small}
-                                         type={ButtonType.Secondary}
-                                         txt={I18n.t("invitations.delete")}/>
-                             }/>
+                    <InfoTooltip tip={I18n.t("tooltips.removeInvitation")}><Button variant="outline" size="sm" onClick={() => doDeleteInvitations(true)}>{I18n.t("invitations.delete")}</Button></InfoTooltip>
                 </div>
 
                 <div>
-                    <Tooltip standalone={true}
-                             anchorId={"remove-members"}
-                             tip={I18n.t("tooltips.resendInvitation")}
-                             children={
-                                 <Button onClick={() => doResendInvitations(true)}
-                                         size={ButtonSize.Small}
-                                         type={ButtonType.Secondary}
-                                         txt={I18n.t("invitations.resend")}/>
-                             }/>
+                    <InfoTooltip tip={I18n.t("tooltips.resendInvitation")}><Button variant="outline" size="sm" onClick={() => doResendInvitations(true)}>{I18n.t("invitations.resend")}</Button></InfoTooltip>
                 </div>
             </div>);
     }
@@ -239,20 +221,10 @@ export const Invitations = ({
         return (
             <div className="admin-icons">
                 <div onClick={() => doResendInvitationsFromActionLink(invitation, true)}>
-                    <Tooltip standalone={true}
-                             anchorId={"remove-members"}
-                             tip={I18n.t("tooltips.resendOneInvitation")}
-                             children={
-                                 <ResendIcon/>
-                             }/>
+                    <InfoTooltip tip={I18n.t("tooltips.resendOneInvitation")}><ResendIcon/></InfoTooltip>
                 </div>
                 <div onClick={() => doDeleteInvitationsFromActionLink(invitation, true)}>
-                    <Tooltip standalone={true}
-                             anchorId={"remove-members"}
-                             tip={I18n.t("tooltips.removeOneInvitation")}
-                             children={
-                                 <TrashIcon/>
-                             }/>
+                    <InfoTooltip tip={I18n.t("tooltips.removeOneInvitation")}><TrashIcon/></InfoTooltip>
                 </div>
             </div>);
     }
@@ -261,14 +233,10 @@ export const Invitations = ({
         {
             nonSortable: true,
             key: "check",
-            header: showCheckAllHeader() ? <Checkbox value={allSelected}
-                                                     name={"allSelected"}
-                                                     onChange={selectAll}/> : null,
+            header: showCheckAllHeader() ? <Checkbox checked={allSelected} onCheckedChange={selectAll}/> : null,
             mapper: invitation => <div className="check">
-                {selectedInvitations[invitation.id].allowed ? <Checkbox name={pseudoGuid()}
-                                                                        onChange={onCheck(invitation)}
-                                                                        value={selectedInvitations[invitation.id].selected}/> :
-                    <Tooltip tip={I18n.t("invitations.notAllowed")}/>}
+                {selectedInvitations[invitation.id].allowed ? <Checkbox onCheckedChange={onCheck(invitation)} checked={selectedInvitations[invitation.id].selected}/> :
+                    <InfoTooltip tip={I18n.t("invitations.notAllowed")}/>}
             </div>
         },
         {
@@ -279,8 +247,7 @@ export const Invitations = ({
         {
             key: "intended_authority",
             header: I18n.t("users.authority"),
-            mapper: invitation => <Chip type={chipTypeForUserRole(invitation.intended_authority)}
-                                        label={I18n.t(`access.${invitation.intended_authority}`)}/>
+            mapper: invitation => <Badge variant={badgeVariantForUserRole(invitation.intended_authority)}>{I18n.t(`access.${invitation.intended_authority}`)}</Badge>
         },
         {
             key: "intendedRoles",

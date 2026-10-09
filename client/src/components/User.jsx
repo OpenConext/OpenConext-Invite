@@ -1,3 +1,6 @@
+import {Button, Card, CardContent} from "@surfnet/curve-react";
+import {TrashIcon} from "@phosphor-icons/react";
+import {SearchField} from "./SearchField";
 import React, {useEffect, useRef, useState} from "react";
 import "./User.scss";
 import InputField from "./InputField";
@@ -5,10 +8,8 @@ import {dateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
-import {Button, ButtonType, Card, CardType} from "@surfnet/sds";
 import {isEmpty} from "../utils/Utils";
 import {deriveRemoteApplicationAttributes, reduceApplicationFromUserRoles} from "../utils/Manage";
-import SearchIcon from "@surfnet/sds/icons/functional-icons/search.svg";
 import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
 import DOMPurify from "dompurify";
@@ -54,21 +55,10 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
     const renderSearch = (value, valueSetter, placeholder, valueReference) => {
         return (
             <div className={`search standalone`}>
-                <div className={"sds--text-field sds--text-field--has-icon"}>
-                    <div className="sds--text-field--shape">
-                        <div className="sds--text-field--input-and-icon">
-                            <input className={"sds--text-field--input"}
-                                   type="search"
-                                   onChange={e => valueSetter(e.target.value)}
-                                   value={value}
-                                   ref={valueReference}
-                                   placeholder={placeholder}/>
-                            <span className="sds--text-field--icon">
-                                    <SearchIcon/>
-                                </span>
-                        </div>
-                    </div>
-                </div>
+                <SearchField inputRef={valueReference}
+                             onChange={e => valueSetter(e.target.value)}
+                             value={value}
+                             placeholder={placeholder}/>
             </div>
         )
     };
@@ -112,7 +102,7 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                 </section>
             </div>;
         return (
-            <Card key={index} cardType={CardType.Big} children={children}/>
+            <Card key={index}><CardContent>{children}</CardContent></Card>
         );
     }
 
@@ -157,8 +147,7 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
             {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
             {(currentUser.superUser && other && currentUser.id !== user.id) &&
                 <div className="span-row">
-                    <Button type={ButtonType.Delete}
-                            onClick={() => doDeleteUser(true)}/>
+                    <Button variant="destructive" size="icon" onClick={() => doDeleteUser(true)} aria-label={I18n.t("forms.delete")}><TrashIcon/></Button>
                 </div>
             }
             {user.institutionAdmin && <div>

@@ -1,13 +1,37 @@
-@use "../styles/vars";
+@use "../styles/vars" as *;
 
 .mod-entities {
-
-    max-width: vars.$max-width;
     width: 100%;
-    margin: 0 auto;
 
-    @media (max-width: vars.$medium) {
-        padding: 0 15px;
+    p.no-entities {
+        margin: 25px 0;
+    }
+
+    svg.impersonate {
+        width: 26px;
+        height: auto;
+        cursor: pointer;
+        color: var(--primary);
+    }
+
+    div.chip-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    [data-slot="badge"] {
+        white-space: nowrap;
+    }
+
+    [data-slot="table-cell"] {
+        position: relative;
+    }
+
+    .row-link-overlay {
+        position: absolute;
+        inset: 0;
+        outline-offset: -2px;
     }
 
 
@@ -18,91 +42,61 @@
     .entities-search {
         display: flex;
         align-items: center;
-        padding: 32px 0 28px 0;
+        padding: 18px 0 18px 0;
         min-height: 40px;
-        justify-content: flex-end;
+        justify-content: space-between;
 
-        @media (max-width: vars.$medium) {
+        h2 {
+            margin-right: auto;
+            @media (max-width: $medium) {
+                margin-bottom: 15px
+            }
+        }
+
+        &.only-search {
+            justify-content: flex-end;
+        }
+
+        &.search-align-left {
+            justify-content: flex-start;
+        }
+
+        @media (max-width: $medium) {
             flex-direction: column;
             align-items: normal;
         }
 
         button {
             margin-left: 25px;
-            @media (max-width: vars.$medium) {
+            @media (max-width: $medium) {
                 margin-left: 0;
                 margin-top: 15px
             }
         }
 
-        h2 {
-            margin-right: auto;
-            @media (max-width: vars.$medium) {
-                margin-bottom: 15px
-            }
-
-        }
-
-        .sds--loading-container {
-            flex-direction: row;
-            align-items: flex-start;
-            margin-right: auto;
-
-            .sds--loading {
-                position: inherit;
-            }
-        }
-
         .search-filter {
-            display: flex;
-            width: 320px;
-            margin-right: 40px;
-            @media (max-width: vars.$medium) {
-                flex-direction: column;
-                margin: 15px 0;
-            }
-            .select-field {
-                width: 100%;
-            }
+            margin: 0 auto 0 20px;
+            min-width: 180px;
         }
 
         div.filter-select__value-container {
-            min-height: 46px;
+            min-height: $control-height;
         }
 
         div.filter-select__control {
-            min-height: 46px;
+            min-height: $control-height;
             min-width: 240px;
-            border-color: var(--sds--color--gray--400);
+            border-color: var(--input);
         }
 
         .search {
             position: relative;
             display: flex;
 
-            @media (max-width: vars.$medium) {
+            @media (max-width: $medium) {
                 margin-left: 0;
                 margin-top: 20px;
-
-                .sds--text-field, .sds--text-field--shape {
-                    width: 100%;
-                }
             }
-
-            input[type=search] {
-                flex-grow: 2;
-                min-width: 360px;
-
-                @media (max-width: vars.$medium) {
-                    min-width: 0;
-                }
-            }
-
-            .sds--text-field--icon svg {
-                width: calc(15em / 16);
-                height: calc(15em / 16)
-            }
-
         }
 
     }
@@ -125,39 +119,60 @@
             }
         }
 
-        .sds--pagination {
-            margin-top: 25px;
+
+    }
+
+    [data-slot="table-container"] {
+        border: 1px solid var(--border, #d6d3d1);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    [data-slot="pagination"] {
+        margin-top: 25px;
+
+        // Design system: page numbers use the foreground colour without underline.
+        a {
+            color: var(--foreground);
+            text-decoration: none;
         }
     }
 
-    svg.impersonate {
-        width: 26px;
-        height: auto;
-        cursor: pointer;
-        color: var(--sds--color--blue--400);
-
-    }
-
-
     table {
         width: 100%;
+        background-color: white;
         table-layout: fixed;
 
         thead {
             th {
+                background-color: var(--muted);
+                height: 40px;
+                font-size: var(--text-xs-font-size, 14px);
+                font-weight: 400;
+
+                // inline-flex (not flex) so the wrapper stays an inline-level box: any
+                // per-page `text-align` set on the th itself (the long-standing pattern
+                // for centering/right-aligning a column, e.g. Organization.scss's
+                // `th.status`) still positions it, while the label + sort icon lay out
+                // as a row internally.
+                .th-content {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                }
 
                 &.sortable {
                     cursor: pointer;
 
                     svg {
-                        width: 16px;
-                        height: auto;
-                        margin-left: 18px;
+                        width: 12px;
+                        height: 12px;
+                        flex-shrink: 0;
                     }
                 }
 
                 &.icon {
-                    width: 44px;
+                    width: 64px;
                     padding-right: 0;
                     padding-left: 0;
                 }
@@ -195,12 +210,14 @@
 
         tbody {
             tr {
+                height: 64px;
+
                 &.clickable {
                     cursor: pointer;
                 }
 
-                &.multi-role {
-                    color: var(--sds--color--green--500)
+                &.not-allowed {
+                    cursor: not-allowed;
                 }
 
                 .action-icons-container {
@@ -214,7 +231,7 @@
                     margin: auto 0;
 
                     svg {
-                        color: var(--sds--color--gray--400);
+                        color: var(--muted-foreground);
                         cursor: pointer;
                         margin: 0 5px;
                         width: 20px;
@@ -238,6 +255,7 @@
             td {
                 word-break: break-word;
                 vertical-align: middle;
+                font-size: var(--text-sm-font-size, 16px);
 
                 &.center {
                     text-align: center;
@@ -249,8 +267,7 @@
 
                 &.icon {
                     text-align: center;
-                    padding-left: 0;
-                    padding-right: 0;
+                    padding: 12px;
 
                     div.member-icon {
                         display: flex;
@@ -267,9 +284,9 @@
 
                     img {
                         border-radius: 4px;
-                        width: 75px;
+                        width: 80px;
                         height: auto;
-                        margin-right: 10px;
+                        margin-right: 5px;
                     }
 
                     svg.multi-role {
@@ -279,13 +296,31 @@
                     }
                 }
 
-                .sds--chips span {
-                    white-space: nowrap;
+                &.icon {
+                    img {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 6px;
+                    }
+
+                    svg {
+                        width: 40px;
+                        height: auto;
+                        color: var(--muted-foreground);
+                        border-radius: 6px;
+
+                        &.impersonate {
+                            width: 26px;
+                            height: auto;
+                            cursor: pointer;
+                            color: var(--primary);
+                        }
+                    }
                 }
 
                 svg.bin-svg {
                     &:hover {
-                        color: var(--sds--color--red--400);
+                        color: var(--destructive);
                     }
                 }
             }
@@ -297,20 +332,9 @@
         flex-direction: column;
 
         span.email {
-            color: var(--sds--color--gray--400);
+            color: var(--muted-foreground);
             word-break: keep-all;
         }
-    }
-
-    div.chip-container {
-
-        .sds--chips {
-            margin: 0 auto;
-        }
-    }
-
-    .sds--pagination a {
-        font-weight: normal;
     }
 
 }

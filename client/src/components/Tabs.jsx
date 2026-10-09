@@ -12,27 +12,21 @@ const Tabs = ({children, className, activeTab, tabChanged}) => {
 
     return (
         <>
-            <div className="tabs-container">
-                {<div className={`tabs ${className || ""}`}>
-
-                    {filteredChildren.map(child => {
-                        const {label, name, notifier, readOnly} = child.props;
-
-                        return (
-                            <Tab
-                                activeTab={activeTab}
-                                readOnly={readOnly}
-                                key={name}
-                                name={name}
-                                notifier={notifier}
-                                label={label}
-                                onClick={tab => tabChanged(tab)}
-                                className={className}
-                            />
-                        );
-                    })}
-                </div>}
-            </div>
+            {filteredChildren.length > 1 && <div className="tabs-menu">
+                {filteredChildren.map(child => {
+                    const {label, name, notifier, readOnly} = child.props;
+                    return (
+                        <Tab activeTab={activeTab}
+                             readOnly={readOnly}
+                             key={name}
+                             name={name}
+                             notifier={notifier}
+                             label={label}
+                             onClick={tab => tabChanged(tab)}
+                             className={className}/>
+                    );
+                })}
+            </div>}
             {filteredChildren.map(child => {
                 if (child.props.name !== activeTab) {
                     return undefined;

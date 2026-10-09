@@ -1,7 +1,8 @@
 import React from "react";
-import AlertIcon from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import {WarningCircleIcon as AlertIcon} from "@phosphor-icons/react";
 import "./Tab.scss";
-import {BadgeNumber} from "@surfnet/sds";
+import {Badge} from "@surfnet/curve-react";
+import {stopEvent} from "../utils/Utils";
 
 export default function Tab({
                                 name,
@@ -15,35 +16,27 @@ export default function Tab({
                                 busy,
                             }) {
 
-    const onClickInner = () => {
+    const onClickInner = e => {
+        stopEvent(e);
         if (!readOnly) {
             onClick(name);
         }
     };
 
-
-    className += ` tab ${name}`;
-
-    if (activeTab === name) {
-        className += " active";
-    }
-    if (readOnly) {
-        className += " read-only";
-    }
-    if (busy) {
-        className += " busy";
-    }
     let chipCount = null;
     if (label && label.indexOf("(") > -1) {
         const count = label.substring(label.indexOf("(") + 1, label.indexOf(")"));
         label = label.substring(0, label.indexOf("(") - 1);
-        chipCount = <BadgeNumber value={count} small={true}/>
+        chipCount = <Badge variant="secondary" className="tab-count">{count}</Badge>
     }
 
+    const classes = [className, "tab", name, activeTab === name ? "active" : "", readOnly ? "disabled" : "", busy ? "busy" : ""]
+        .filter(c => c).join(" ");
     return (
-        <div className={className} onClick={onClickInner}>
+        <a href={`/${name}`} className={classes} onClick={onClickInner}
+           aria-current={activeTab === name ? "page" : undefined}>
+            {Icon && <Icon/>}{label}{chipCount}
             {notifier && <span className="notifier"><AlertIcon/></span>}
-            <button className={"tab-label"}>{Icon && <Icon/>}{label}{chipCount}</button>
-        </div>
+        </a>
     );
 }

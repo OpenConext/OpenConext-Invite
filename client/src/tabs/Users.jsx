@@ -1,19 +1,19 @@
+import {Badge} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {IdentificationBadgeIcon as UserIcon, ChalkboardTeacherIcon as ImpersonateIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {other, searchUsers} from "../api";
-import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./Users.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
-import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
-import {authorityForUserOverview, chipTypeForUserRole} from "../utils/Authority";
+import {authorityForUserOverview, badgeVariantForUserRole} from "../utils/Authority";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 
 
@@ -73,14 +73,12 @@ export const Users = () => {
             key: "icon",
             header: "",
             mapper: user => <div className="member-icon">
-                <Tooltip standalone={true}
-                         children={<UserIcon/>}
-                         tip={I18n.t("tooltips.userIcon",
+                <InfoTooltip tip={I18n.t("tooltips.userIcon",
                              {
                                  name: user.name,
                                  createdAt: dateFromEpoch(user.createdAt, false),
                                  lastActivity: dateFromEpoch(user.lastActivity, false)
-                             })}/>
+                             })}><UserIcon/></InfoTooltip>
             </div>
         },
         {
@@ -102,8 +100,7 @@ export const Users = () => {
             header: I18n.t("users.highestAuthority"),
             mapper: user => {
                 const authority = authorityForUserOverview(user);
-                return <Chip type={chipTypeForUserRole(authority)}
-                             label={I18n.t(`access.${authority || "No member"}`)}/>
+                return <Badge variant={badgeVariantForUserRole(authority)}>{I18n.t(`access.${authority || "No member"}`)}</Badge>
             }
         },
         {
@@ -135,14 +132,12 @@ export const Users = () => {
             hasLink: true,
             header: "",
             mapper: user => (currentUser.id !== user.id) ?
-                <Tooltip standalone={true}
-                         children={<ImpersonateIcon className="impersonate"
-                                                    onClick={() => impersonate(user)}/>}
-                         tip={I18n.t("tooltips.impersonateIcon",
+                <InfoTooltip tip={I18n.t("tooltips.impersonateIcon",
                              {
                                  name: user.name
-                             })}/>
-                : <Chip type={ChipType.Main_400} label={I18n.t("forms.you")}/>
+                             })}><ImpersonateIcon className="impersonate"
+                                                    onClick={() => impersonate(user)}/></InfoTooltip>
+                : <Badge variant="default">{I18n.t("forms.you")}</Badge>
         })
     }
     return (

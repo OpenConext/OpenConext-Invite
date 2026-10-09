@@ -1,5 +1,7 @@
+import {Button, Spinner} from "@surfnet/curve-react";
+import {ArrowLeftIcon, PlusIcon, TrashIcon} from "@phosphor-icons/react";
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {useLocation, useNavigate, useParams} from "react-router";
+import {Link, useLocation, useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {AUTHORITIES, isUserAllowed, urnFromRole} from "../utils/UserRole";
@@ -18,10 +20,7 @@ import {
     updateRole,
     validate
 } from "../api";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
-import {UnitHeader} from "../components/UnitHeader";
-import RoleIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import InputField from "../components/InputField";
 import {constructShortName} from "../validations/regExps";
 import {distinctValues, isEmpty, splitListSemantically} from "../utils/Utils";
@@ -470,6 +469,7 @@ export const RoleForm = () => {
                 <h2 className="section-separator">
                     {I18n.t("roles.applicationDetails")}
                 </h2>
+                <p className="applications-intro">{I18n.t("roles.applicationsIntro")}</p>
                 {applications.map((application, index) =>
                     <div className="application-container" key={index}>
                         <div className="select-field-container">
@@ -512,8 +512,7 @@ export const RoleForm = () => {
                                 })}/>}
                         </div>
                         {(applications.length !== 1 && allowedToEditApplication) &&
-                            <Button type={ButtonType.Delete}
-                                    onClick={() => deleteApplication(index)}/>
+                            <Button variant="destructive" size="icon" onClick={() => deleteApplication(index)} aria-label={I18n.t("forms.delete")}><TrashIcon/></Button>
                         }
                     </div>
                 )}
@@ -523,9 +522,7 @@ export const RoleForm = () => {
                     })}/>}
                 {allowedToEditApplication &&
                     <div className="application-actions">
-                        <Button txt={I18n.t("roles.addApplication")}
-                                disabled={applications.length !== 0 && (providers.length === applications.length || isEmpty(applications[0]))}
-                                onClick={addApplication}/>
+                        <Button variant="outline" disabled={applications.length !== 0 && (providers.length === applications.length || isEmpty(applications[0]))} onClick={addApplication}><PlusIcon/>{I18n.t("roles.addApplication")}</Button>
                     </div>
                 }
 
@@ -666,14 +663,9 @@ export const RoleForm = () => {
 
                 <section className="actions">
                     {(!isNewRole && allowedToEditApplication) &&
-                        <Button type={ButtonType.Delete}
-                                onClick={() => doDelete(true)}/>}
-                    <Button type={ButtonType.Secondary}
-                            txt={I18n.t("forms.cancel")}
-                            onClick={() => navigate(isNewRole ? "/home/roles" : `/roles/${role.id}`)}/>
-                    <Button disabled={disabledSubmit}
-                            txt={I18n.t("forms.save")}
-                            onClick={submit}/>
+                        <Button variant="destructive" size="icon" onClick={() => doDelete(true)} aria-label={I18n.t("forms.delete")}><TrashIcon/></Button>}
+                    <Button variant="outline" onClick={() => navigate(isNewRole ? "/home/roles" : `/roles/${role.id}`)}>{I18n.t("forms.cancel")}</Button>
+                    <Button disabled={disabledSubmit} onClick={submit}>{I18n.t("forms.save")}</Button>
                 </section>
 
             </>
@@ -681,7 +673,7 @@ export const RoleForm = () => {
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (
@@ -710,13 +702,11 @@ export const RoleForm = () => {
                     </div>}
             </ConfirmationDialog>}
 
-            <UnitHeader
-                obj={({
-                    name: I18n.t(`roles.${isNewRole ? "new" : "edit"}`, {name: role.name}),
-                    svg: RoleIcon,
-                    style: "small"
-                })}
-            />
+            <Link className="back-link"
+                  to={isNewRole ? "/home/roles" : `/roles/${role.id}`}>
+                <ArrowLeftIcon/>{I18n.t("roles.backToRoles")}
+            </Link>
+            <h1>{I18n.t(`roles.${isNewRole ? "newTitle" : "edit"}`, {name: role.name})}</h1>
             <div className={"role-form"}>
                 {renderForm()}
             </div>

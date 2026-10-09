@@ -1,17 +1,17 @@
+import {Badge, Spinner} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {IdentificationBadgeIcon as UserIcon, TrashIcon as TrashIcon} from "@phosphor-icons/react";
 import React, {useCallback, useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
-import {Chip, ChipType, Loader, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import {applicationManagers, institutionAdmins, removeApplicationManager, removeInstitutionAdmin} from "../api";
-import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
 import "./InstitutionAdmins.scss";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
 import {AUTHORITIES} from "../utils/UserRole";
-import {chipTypeForUserRole} from "../utils/Authority";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import {badgeVariantForUserRole} from "../utils/Authority";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {isEmpty} from "../utils/Utils";
 
@@ -44,7 +44,7 @@ export const InstitutionAdmins = () => {
     }, [currentUser.institutionAdmin, currentUser.organizationGUID, loadAdmins, navigate]);
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     const columns = [
@@ -53,14 +53,12 @@ export const InstitutionAdmins = () => {
             key: "icon",
             header: "",
             mapper: user => <div className="member-icon">
-                <Tooltip standalone={true}
-                         children={<UserIcon/>}
-                         tip={I18n.t("tooltips.userIcon",
+                <InfoTooltip tip={I18n.t("tooltips.userIcon",
                              {
                                  name: user.name,
                                  createdAt: dateFromEpoch(user.createdAt, false),
                                  lastActivity: dateFromEpoch(user.lastActivity, false)
-                             })}/>
+                             })}><UserIcon/></InfoTooltip>
             </div>
         },
         {
@@ -82,8 +80,7 @@ export const InstitutionAdmins = () => {
             header: I18n.t("users.highestAuthority"),
             mapper: user => {
                 const authority = user.institution_admin ? AUTHORITIES.INSTITUTION_ADMIN : AUTHORITIES.APPLICATION_MANAGER;
-                return <Chip type={chipTypeForUserRole(authority)}
-                             label={I18n.t(`access.${authority}`)}/>
+                return <Badge variant={badgeVariantForUserRole(authority)}>{I18n.t(`access.${authority}`)}</Badge>
             }
         },
         {
@@ -111,7 +108,7 @@ export const InstitutionAdmins = () => {
                     span onClick={() => doRemoveInstitutionAdmin(user, true)}>
                     <TrashIcon/>
                 </span> : null)
-                : <Chip type={ChipType.Main_400} label={I18n.t("forms.you")}/>
+                : <Badge variant="default">{I18n.t("forms.you")}</Badge>
         }
     ].filter(column => column !== null);
 

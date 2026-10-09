@@ -2,80 +2,91 @@
 @use "../styles/vars";
 
 .mod-role-form {
+    a.back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        color: var(--primary-strong);
+        margin-bottom: 16px;
+    }
+
     .role-form {
         @include mixins.page;
         @include mixins.form;
+        grid-template-columns: [first] minmax(0, 640px);
+        column-gap: 0;
+
+        textarea {
+            min-height: vars.$control-height;
+            height: vars.$control-height;
+        }
+
+        p.applications-intro {
+            grid-column-start: first;
+            margin-top: 12px;
+        }
 
         .section-separator {
             grid-column-start: first;
-            margin-top: 30px;
+            margin-top: 40px;
+            font-size: 1.5rem;
+            font-weight: 500;
         }
 
         .switch-field {
             grid-column-start: first;
         }
 
-        section.copy-to-clipboard {
-            display: flex;
-        }
-
         .application-container {
-            grid-column: 1/-1;
+            grid-column-start: first;
             display: flex;
+            align-items: flex-start;
+            gap: 16px;
             position: relative;
 
             @media (max-width: vars.$medium) {
                 flex-direction: column;
             }
 
-            .select-field {
-                width: 100%;
-
-                @media (max-width: vars.$medium) {
-                    width: 100%;
-                }
-
-            }
-
             .select-field-container {
                 display: flex;
                 flex-direction: column;
-                width: 47%;
+                flex: 0 0 280px;
+                max-width: 100%;
             }
 
             .input-field-container {
-                width: 47%;
-                margin-left: 40px;
-
-                .inner-input-field input {
-                    min-height: 48px;
-                    margin-top: -2px;
-                }
-
-                @media (max-width: vars.$medium) {
-                    width: 100%;
-                    margin-left: 0;
-                }
+                flex: 1 1 auto;
+                min-width: 0;
             }
 
-            button {
-                position: absolute;
-                right: 0;
-                top: 60px;
-
-                @media (max-width: vars.$medium) {
-                    position: initial;
-                    margin-left: 0;
-                }
+            // Both fields start at the same height, so their labels and controls line up
+            .select-field, .input-field, [data-slot="field"] {
+                margin-top: 0;
             }
 
+            .select-field label {
+                margin: 0 0 10px 0;
+            }
+
+            label {
+                line-height: 24px;
+                height: 24px;
+            }
+
+            button[data-slot="button"] {
+                align-self: flex-end;
+                flex-shrink: 0;
+            }
         }
 
         .application-actions {
             grid-column-start: first;
-            margin-top: 30px;
+            margin-top: 24px;
 
-            button.sds--btn {
+            button[data-slot="button"] {
                 max-width: 240px;
             }
         }
@@ -87,7 +98,7 @@
 
         p.warning {
             margin-top: 14px;
-            color: var(--sds--color--orange--500);
+            color: var(--warning);
         }
 
         div.role-auditable {
@@ -95,7 +106,7 @@
             margin-top: 25px;
             border-radius: .375rem;
             padding: 10px;
-            background-color: var(--sds--color--gray--100);
+            background-color: var(--muted);
 
             span {
                 font-weight: 600;
@@ -112,12 +123,12 @@
             grid-column-start: first;
             display: flex;
             flex-direction: column;
-            border-bottom: 1px solid var(--sds--color--gray--200);
+            border-bottom: 1px solid var(--border);
             padding-bottom: 15px;
 
             p.label {
                 font-weight: 600;
-                margin: 12px var(--sds--space--1) 0 0;
+                margin: 12px 0.5rem 0 0;
             }
 
             .role-expiry-date {
@@ -145,4 +156,10 @@
 
     }
 
+}
+.mod-role-form .role-form section.actions {
+    grid-column-start: first;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+    padding: 24px 0;
 }

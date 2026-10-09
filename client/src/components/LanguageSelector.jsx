@@ -31,11 +31,11 @@ export const LanguageSelector = () => {
 
     const languages = config.languages.split(",").map(lang => lang.trim());
     return (
-        <nav className="sds--language-switcher sds--text--body--small" aria-label="Language">
+        <nav className="language-selector" aria-label="Language">
             <ul>
                 {languages.map((lang, index) =>
                     <li key={index}>{renderLocaleChooser(lang)}
-                        {(index + 1) < languages.length && <span className="sds--language-sds--divider">|</span>}
+                        {(index + 1) < languages.length && <span className="divider">|</span>}
                     </li>
                 )}
             </ul>

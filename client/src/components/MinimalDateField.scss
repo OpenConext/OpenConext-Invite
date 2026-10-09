@@ -11,10 +11,10 @@
         height: auto;
         margin-right: 10px;
         cursor: pointer;
-        color: var(--sds--color--gray--500);
+        color: var(--muted-foreground);
 
         &:hover {
-            color: var(--sds--color--black);
+            color: var(--foreground);
         }
     }
 

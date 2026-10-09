@@ -1,12 +1,14 @@
 import React from "react";
-import ArrowRight from "@surfnet/sds/icons/functional-icons/arrow-right-2.svg";
+import {CaretRightIcon as ArrowRight} from "@phosphor-icons/react";
 
-import {Tooltip} from "@surfnet/sds";
+import {Field, FieldDescription, FieldLabel, Input, Textarea, Tooltip, TooltipContent, TooltipTrigger} from "@surfnet/curve-react";
+import {InfoIcon, WarningIcon as AlertIcon} from "@phosphor-icons/react";
 import "./InputField.scss";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, sanitize} from "../utils/Utils";
 import ClipBoardCopy from "./ClipBoardCopy";
 import {validUrlRegExp} from "../validations/regExps";
-import {useNavigate} from "react-router";
+import {Link} from "react-router";
+import I18n from "../locale/I18n.js";
 
 export default function InputField({
                                        onChange,
@@ -17,6 +19,7 @@ export default function InputField({
                                        toolTip = null,
                                        onBlur = () => true,
                                        onEnter = null,
+                                       onEscape = null,
                                        multiline = false,
                                        copyClipBoard = false,
                                        link = null,
@@ -33,48 +36,60 @@ export default function InputField({
                                        isInteger = false,
                                        isUrl = false,
                                        customClassName = "",
-                                       required = false
+                                       required = false,
+                                       info = null,
+                                        isAlert = false,
+                                       optional = false
                                    }) {
-    const navigate = useNavigate();
     placeholder = disabled ? "" : placeholder;
-    let className = "sds--text-field--input";
-    if (error) {
-        className += "error ";
-    }
     const validExternalLink = externalLink && !isEmpty(value) && validUrlRegExp.test(value);
-    const isError = error ? "sds--text-field--status-error" : "";
-    const topClassName = `input-field sds--text-field ${isError} ${customClassName}`;
+
+    const onKeyDown = e => {
+        if (onEnter && e.key === "Enter") {//enter
+            onEnter(e);
+        } else if (onEscape && e.key === "Escape") {//escape
+            onEscape(e);
+        }
+    };
+
     return (
-        <div className={topClassName}>
-            {(name && displayLabel) && <label htmlFor={name}>{name}{required && <sup className="required">*</sup>}
-                {toolTip && <Tooltip tip={toolTip}/>}
-            </label>}
+        <Field className={`input-field ${customClassName}`} data-invalid={error}>
+            {(name && displayLabel) && <FieldLabel htmlFor={name}>{name}{required && <sup className="required">*</sup>}
+                {optional && <span className="optional">{I18n.t("forms.optional")}</span>}
+                {isAlert && <Tooltip>
+                    <TooltipTrigger render={<AlertIcon weight="fill" className="alert-triangle"/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("forms.changeRequest"))}}/></TooltipContent>
+                </Tooltip>}
+                {toolTip && <Tooltip>
+                    <TooltipTrigger render={<InfoIcon/>}/>
+                    <TooltipContent><span dangerouslySetInnerHTML={{__html: sanitize(toolTip)}}/></TooltipContent>
+                </Tooltip>}
+            </FieldLabel>}
             <div className="inner-input-field">
                 {(!multiline && !noInput) &&
-                    <input type={isInteger ? "number" : isUrl ? "url" : "text"}
+                    <Input type={isInteger ? "number" : isUrl ? "url" : "text"}
                            disabled={disabled}
                            value={value || ""}
                            onChange={onChange}
                            onBlur={onBlur}
                            id={name}
                            maxLength={maxLength}
+                           max={isInteger ? maxLength : null}
                            min={0}
                            ref={onRef}
                            placeholder={placeholder}
-                           className={`${className} sds--text-field--input`}
-                           onKeyDown={e => {
-                               if (onEnter && e.keyCode === 13) {//enter
-                                   onEnter(e);
-                               }
-                           }}/>}
+                           required={required}
+                           aria-invalid={error}
+                           onKeyDown={onKeyDown}/>}
                 {(multiline && !noInput) &&
-                    <textarea disabled={disabled}
-                              value={value}
+                    <Textarea disabled={disabled}
+                              value={value || ""}
                               onChange={onChange}
                               onBlur={onBlur}
                               id={name}
-
-                              className={`${className} sds--text-area ${large ? "large" : ""} ${small ? "small" : ""}`}
+                              required={required}
+                              aria-invalid={error}
+                              className={`${large ? "large" : ""} ${small ? "small" : ""}`}
                               onKeyDown={e => {
                                   if (onEnter && e.keyCode === 13) {//enter
                                       onEnter(e);
@@ -83,10 +98,10 @@ export default function InputField({
                               placeholder={placeholder}
                               cols={cols}/>}
                 {button && button}
-                {copyClipBoard && <ClipBoardCopy txt={value} right={true} input={true}/>}
-                {link && <div className="input-field-link" onClick={() => navigate(link)}>
+                {copyClipBoard && <ClipBoardCopy txt={value}/>}
+                {link && <Link to={link} className="input-field-link">
                     <ArrowRight/>
-                </div>}
+                </Link>}
                 {validExternalLink &&
                     <div className={`input-field-link`}>
                         <a href={value} rel="noopener noreferrer" target="_blank">
@@ -95,6 +110,7 @@ export default function InputField({
                     </div>}
                 {noInput && <span className="no-input">{value}</span>}
             </div>
-        </div>
+            {info && <FieldDescription>{info}</FieldDescription>}
+        </Field>
     );
 }

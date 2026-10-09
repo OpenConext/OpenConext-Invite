@@ -1,6 +1,6 @@
 import React from "react";
-import CloseIcon from "@surfnet/sds/icons/functional-icons/close.svg";
-import {Tooltip} from "@surfnet/sds";
+import {XIcon as CloseIcon} from "@phosphor-icons/react";
+import {InfoTooltip} from "./InfoTooltip";
 import "./CreatableField.scss";
 import {isEmpty, stopEvent} from "../utils/Utils";
 
@@ -20,7 +20,7 @@ export const CreatableField = ({
     return (
         <div className={`creatable-field ${error ? "error" : ""}`}>
             <label htmlFor={name}>{name}
-                {toolTip && <Tooltip tip={toolTip}/>}
+                {toolTip && <InfoTooltip tip={toolTip}/>}
             </label>
             <div className={`inner-creatable-field ${error ? "error" : ""}${disabled ? "disabled" : ""}`}>
                 {values.map(val =>

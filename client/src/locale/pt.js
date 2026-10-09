@@ -143,12 +143,18 @@ const pt = {
         noInstitutionAdmin: "There is not institution admins"
     },
     roles: {
+        backToRoles: "Voltar às funções",
+        newTitle: "Nova função",
+        applicationsIntro: "Os utilizadores com esta função obtêm automaticamente acesso às aplicações abaixo se o provisionamento SCIM estiver configurado corretamente.",
+        heading: "Funções",
+        intro: "As funções dão acesso a aplicações específicas e podem ser atribuídas a utilizadores.",
+        applications: "Aplicações",
         title: "Access Roles",
         applicationName: "Application",
         auditable: "Role <span>{{name}}</span> was created by <span>{{createdBy}}</span> at {{createdAt}}",
-        roleDetails: "Role details",
+        roleDetails: "Descrição da função",
         invitationDetails: "Invitation details",
-        applicationDetails: "Application(s) this role applies to",
+        applicationDetails: "Aplicações",
         addApplication: "Add application",
         multiple: "Multiple applications",
         applicationPlaceholder: "Choose an application...",
@@ -323,6 +329,9 @@ const pt = {
         }
     },
     forms: {
+        copy: "Copiar",
+        copied: "Copiado para a área de transferência",
+        optional: "opcional",
         none: "None",
         notApplicable: "N/A",
         you: "You",

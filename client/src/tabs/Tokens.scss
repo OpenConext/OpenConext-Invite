@@ -46,7 +46,7 @@ div.mod-tokens {
                 .container {
                     display: flex;
 
-                    .sds--checkbox-container {
+                    [data-slot="checkbox"] {
                         margin: auto;
                     }
                 }
@@ -74,13 +74,13 @@ div.mod-tokens {
             display: flex;
             align-items: center;
             white-space: nowrap;
-            color: var(--sds--color--blue--400);
+            color: var(--info);
             text-decoration: underline;
             margin-right: 60px;
 
             svg {
                 margin: 0 20px -2px 5px;
-                fill: var(--sds--color--blue--400);;
+                fill: var(--info);;
                 height: 22px;
             }
         }
@@ -116,10 +116,6 @@ div.mod-tokens {
 
             .description {
                 margin-bottom: 25px;
-            }
-
-            section.copy-to-clipboard {
-                display: flex;
             }
 
         }

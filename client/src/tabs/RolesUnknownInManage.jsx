@@ -1,15 +1,15 @@
+import {Badge, Spinner} from "@surfnet/curve-react";
+import {WarningCircleIcon as AlertLogo} from "@phosphor-icons/react";
 import "./RolesUnknownInManage.scss";
 import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Chip, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {rolesUnknownInManage} from "../api";
 import {stopEvent} from "../utils/Utils";
-import {chipTypeForUserRole} from "../utils/Authority";
-import AlertLogo from "@surfnet/sds/icons/functional-icons/alert-circle.svg";
+import {badgeVariantForUserRole} from "../utils/Authority";
 import {deriveApplicationAttributes} from "../utils/Manage";
 
 export const RolesUnknownInManage = () => {
@@ -70,9 +70,8 @@ export const RolesUnknownInManage = () => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: role => <Chip type={chipTypeForUserRole(role.authority)}
-                                  label={role.isUserRole ? I18n.t(`access.${role.authority}`) :
-                                      I18n.t("roles.noMember")}/>
+            mapper: role => <Badge variant={badgeVariantForUserRole(role.authority)}>{role.isUserRole ? I18n.t(`access.${role.authority}`) :
+                                      I18n.t("roles.noMember")}</Badge>
         },
         {
             key: "userRoleCount",
@@ -83,7 +82,7 @@ export const RolesUnknownInManage = () => {
     ];
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (

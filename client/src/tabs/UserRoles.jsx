@@ -1,22 +1,23 @@
+import {Badge, Button, Checkbox} from "@surfnet/curve-react";
+import {InfoTooltip} from "../components/InfoTooltip";
+import {TrashIcon as TrashIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "./UserRoles.scss";
-import {Button, ButtonSize, ButtonType, Checkbox, Chip, ChipType, Tooltip} from "@surfnet/sds";
 import {Entities} from "../components/Entities";
 import AlarmBell from "../icons/alarm_bell.svg";
 import "./Users.scss";
 import {useAppStore} from "../stores/AppStore";
 import {dateFromEpoch, futureDate, shortDateFromEpoch} from "../utils/Date";
 import {useNavigate} from "react-router";
-import {chipTypeForUserRole} from "../utils/Authority";
+import {badgeVariantForUserRole} from "../utils/Authority";
 import {allowedToRenewUserRole, AUTHORITIES, highestAuthority, isUserAllowed} from "../utils/UserRole";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import {deleteUserRole, searchUserRolesByRoleId, updateUserRoleEndData} from "../api";
-import {isEmpty, pseudoGuid, stopEvent} from "../utils/Utils";
+import {isEmpty, stopEvent} from "../utils/Utils";
 import {MinimalDateField} from "../components/MinimalDateField";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import debounce from "lodash.debounce";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
 
 const oneMonthMillis = 1000 * 60 * 60 * 24 * 30;
 
@@ -107,8 +108,7 @@ export const UserRoles = ({role, guests}) => {
         }
     };
 
-    const onCheck = userRole => e => {
-        const checked = e.target.checked;
+    const onCheck = userRole => checked => {
         const newSelectedUserRoles = {...selectedUserRoles}
         newSelectedUserRoles[userRole.id].selected = checked;
         setSelectedUserRoles(newSelectedUserRoles);
@@ -117,8 +117,7 @@ export const UserRoles = ({role, guests}) => {
         }
     }
 
-    const selectAll = e => {
-        const checked = e.target.checked;
+    const selectAll = checked => {
         setAllSelected(checked);
         const newSelectedUserRoles = {...selectedUserRoles}
         Object.values(newSelectedUserRoles).forEach(inv => inv.selected = checked);
@@ -220,12 +219,10 @@ export const UserRoles = ({role, guests}) => {
         //show waring indication if endDate is within one month
         if ((now.getTime() + oneMonthMillis) > endDate.getTime()) {
             return (
-                <Tooltip standalone={true}
-                         children={<div className={"alarm-bell"}><AlarmBell/></div>}
-                         tip={I18n.t("tooltips.expiredUserRole",
+                <InfoTooltip tip={I18n.t("tooltips.expiredUserRole",
                              {
                                  date: dateFromEpoch(userRole.endDate, false)
-                             })}/>
+                             })}><div className={"alarm-bell"}><AlarmBell/></div></InfoTooltip>
 
             );
         }
@@ -256,12 +253,7 @@ export const UserRoles = ({role, guests}) => {
         return (
             <div className="admin-icons">
                 <div onClick={() => doDeleteUserRolesFromActionLink(true, userRole)}>
-                    <Tooltip standalone={true}
-                             anchorId={"remove-members"}
-                             tip={I18n.t("tooltips.removeOneUserRole")}
-                             children={
-                                 <TrashIcon/>
-                             }/>
+                    <InfoTooltip tip={I18n.t("tooltips.removeOneUserRole")}><TrashIcon/></InfoTooltip>
                 </div>
             </div>);
     }
@@ -273,15 +265,7 @@ export const UserRoles = ({role, guests}) => {
         return (
             <div className="admin-actions">
                 <div>
-                    <Tooltip standalone={true}
-                             anchorId={"remove-members"}
-                             tip={I18n.t("tooltips.removeUserRole")}
-                             children={
-                                 <Button onClick={() => doDeleteUserRoles(true)}
-                                         size={ButtonSize.Small}
-                                         type={ButtonType.Secondary}
-                                         txt={I18n.t("userRoles.delete")}/>
-                             }/>
+                    <InfoTooltip tip={I18n.t("tooltips.removeUserRole")}><Button variant="outline" size="sm" onClick={() => doDeleteUserRoles(true)}>{I18n.t("userRoles.delete")}</Button></InfoTooltip>
                 </div>
             </div>);
     }
@@ -290,16 +274,12 @@ export const UserRoles = ({role, guests}) => {
             nonSortable: true,
             key: "check",
             header: (!removeNotAllowed && showCheckAllHeader()) ?
-                <Checkbox value={allSelected}
-                          name={"allSelected"}
-                          onChange={selectAll}/> : null,
+                <Checkbox checked={allSelected} onCheckedChange={selectAll}/> : null,
             mapper: userRole => {
                 const allowed = selectedUserRoles[userRole.id].allowed && isEmpty(role.crmRoleId);
                 return (
                     <div className="check">
-                        {allowed ? <Checkbox name={pseudoGuid()}
-                                             onChange={onCheck(userRole)}
-                                             value={selectedUserRoles[userRole.id].selected}/> : null
+                        {allowed ? <Checkbox onCheckedChange={onCheck(userRole)} checked={selectedUserRoles[userRole.id].selected}/> : null
                         }
                     </div>
                 );
@@ -319,7 +299,7 @@ export const UserRoles = ({role, guests}) => {
             nonSortable: true,
             header: "",
             mapper: userRole => userRole.user_id === user.id ?
-                <Chip label={I18n.t("forms.you")} type={ChipType.Status_info}/> : null
+                <Badge variant="info">{I18n.t("forms.you")}</Badge> : null
         },
         {
             key: "schac_home_organization",
@@ -329,8 +309,7 @@ export const UserRoles = ({role, guests}) => {
         {
             key: "authority",
             header: I18n.t("roles.authority"),
-            mapper: userRole => <Chip type={chipTypeForUserRole(guests ? AUTHORITIES.GUEST : userRole.authority)}
-                                      label={I18n.t(`access.${guests ? AUTHORITIES.GUEST : userRole.authority}`)}/>
+            mapper: userRole => <Badge variant={badgeVariantForUserRole(guests ? AUTHORITIES.GUEST : userRole.authority)}>{I18n.t(`access.${guests ? AUTHORITIES.GUEST : userRole.authority}`)}</Badge>
         },
         {
             key: "expiry-warning",

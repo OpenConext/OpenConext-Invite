@@ -1,11 +1,13 @@
 import {useNavigate} from "react-router";
-import {Button, ButtonType, Tooltip} from "@surfnet/sds";
+import {Button} from "@surfnet/curve-react";
+import {InfoTooltip} from "./InfoTooltip";
+import {sanitize} from "../utils/Utils";
 import I18n from "../locale/I18n";
 import React from "react";
 import {highestAuthority} from "../utils/UserRole";
 
 import "./Impersonating.scss";
-import ImpersonateIcon from "@surfnet/sds/icons/illustrative-icons/presentation-amphitheater.svg";
+import {ChalkboardTeacherIcon as ImpersonateIcon} from "@phosphor-icons/react";
 import DOMPurify from "dompurify";
 import {useAppStore} from "../stores/AppStore";
 
@@ -16,12 +18,10 @@ export const Impersonating = () => {
     const authority = highestAuthority(currentUser);
     const userRole = I18n.t(`access.${authority}`);
     return <div className="impersonator ">
-        <Tooltip children={<ImpersonateIcon/>}
-                 standalone={true}
-                 tip={I18n.t("impersonate.impersonatorTooltip", {
-                     currentUser: currentUser.name,
-                     impersonator: impersonator.name
-                 })}/>
+        <InfoTooltip tip={I18n.t("impersonate.impersonatorTooltip", {
+            currentUser: currentUser.name,
+            impersonator: impersonator.name
+        })}><ImpersonateIcon/></InfoTooltip>
 
         <p dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(I18n.t("impersonate.impersonator", {
@@ -29,12 +29,13 @@ export const Impersonating = () => {
                 role: userRole
             }))
         }}/>
-        <Button type={ButtonType.Secondary}
+        <Button variant="secondary"
                 onClick={() => {
                     stopImpersonation();
                     setFlash(I18n.t("impersonate.flash.clearedImpersonation"));
                     navigate("/");
-                }}
-                txt={I18n.t("impersonate.exit")}/>
+                }}>
+            <span dangerouslySetInnerHTML={{__html: sanitize(I18n.t("impersonate.exit"))}}/>
+        </Button>
     </div>
 }

@@ -1,3 +1,9 @@
+import DOMPurify from "isomorphic-dompurify";
+
+export function sanitize(text) {
+    return DOMPurify.sanitize(text, {ADD_ATTR: ["target"]});
+}
+
 export function stopEvent(e) {
     if (e !== undefined && e !== null) {
         e.preventDefault();

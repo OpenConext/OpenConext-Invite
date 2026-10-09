@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
 
-    .sds--chips {
+    [data-slot="badge"] {
         margin: 0 15px;
     }
 }

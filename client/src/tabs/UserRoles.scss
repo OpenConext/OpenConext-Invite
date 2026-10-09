@@ -66,12 +66,12 @@
                     padding: 0;
                     text-align: center;
 
-                    .sds--tooltip-container {
+                    [data-slot="tooltip-trigger"] {
                         width: 100%;
                     }
 
                     div.alarm-bell {
-                        background-color: #FEF8D3;
+                        background-color: var(--warning-subtle);
                         padding: 6px 0;
                         border-radius: 50%;
                         display: flex;
@@ -80,10 +80,10 @@
                     svg {
                         margin: auto;
                         width: 22px;
-                        fill: #FEF8D3;
+                        fill: var(--warning-subtle);
 
                         path {
-                            stroke: #FFC100;
+                            stroke: var(--warning);
                             stroke-width: 2;
                         }
                     }

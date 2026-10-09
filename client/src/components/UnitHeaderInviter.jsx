@@ -1,9 +1,9 @@
+import {Button} from "@surfnet/curve-react";
 import React from "react";
 import "./UnitHeaderInviter.scss";
 
 import Logo from "./Logo";
 
-import {Button} from "@surfnet/sds";
 import I18n from "../locale/I18n";
 import {MoreLessText} from "./MoreLessText";
 import {isEmpty} from "../utils/Utils";
@@ -46,9 +46,7 @@ export const UnitHeaderInviter = ({
                 </div>
                 <div className="action-menu-container">
                     {inviteAllowed &&
-                        <Button
-                            onClick={() => navigate(`/invitation/new?maintainer=false`, {state: role.id})}
-                            txt={I18n.t("invitations.newGuest")}/>
+                        <Button onClick={() => navigate(`/invitation/new?maintainer=false`, {state: role.id})}>{I18n.t("invitations.newGuest")}</Button>
                     }
                 </div>
             </div>

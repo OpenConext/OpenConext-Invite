@@ -3,20 +3,13 @@
 div.mod-roles {
 
     .more-results-available {
-        max-width: vars.$max-width;
         width: 100%;
-        margin: 20px auto 0 auto;
+        margin: 20px 0 0 0;
     }
 
     .guest-only {
-
-        max-width: vars.$max-width;
         width: 100%;
-        margin: 25px auto 15px auto;
-
-        @media (max-width: vars.$medium) {
-            padding: 0 15px;
-        }
+        margin: 25px 0 15px 0;
     }
 
     .institution-admin-welcome {
@@ -24,10 +17,6 @@ div.mod-roles {
         align-items: center;
         flex-direction: column;
         margin-top: 25px;
-
-        @media (max-width: vars.$medium) {
-            padding: 0 15px;
-        }
 
         svg {
             width: 240px;
@@ -48,65 +37,89 @@ div.mod-roles {
 
         thead {
             th {
-                &.applicationName {
-                    width: 20%;
-                }
-
                 &.name {
-                    width: 15%;
-
-                    &.no-crm {
-                        width: 20%;
-                    }
+                    width: 22%;
                 }
 
                 &.description {
-                    width: 20%;
+                    width: 30%;
+                }
 
-                    &.no-crm {
-                        width: 35%;
-                    }
+                &.applicationName {
+                    width: 24%;
                 }
 
                 &.crm {
-                    width: 15%;
-                    text-align: center;
-                }
-
-                &.authority {
-                    width: 15%;
-                    text-align: center;
+                    width: 10%;
                 }
 
                 &.userRoleCount {
-                    width: 10%;
-                    text-align: center;
+                    width: 14%;
                 }
 
+                &.crm, &.userRoleCount {
+                    text-align: center;
 
+                    .th-content {
+                        display: flex;
+                        justify-content: center;
+                    }
+                }
             }
         }
 
         tbody {
-            td.authority, td.defaultExpiryDays, td.userRoleCount, td.crm {
-                text-align: center;
+            tr {
+                height: auto;
+            }
 
-                input[type=checkbox] + label {
-                    margin: 0 auto;
+            td {
+                padding-top: 16px;
+                padding-bottom: 16px;
+            }
+
+            td.name {
+                font-weight: 500;
+            }
+
+            td.userRoleCount, td.crm {
+                text-align: center;
+            }
+
+            // Center the checkbox in the column, under the centered header
+            // curve-react drops the right padding of a cell that contains a checkbox
+            td.crm {
+                padding-right: 8px;
+            }
+
+            td.crm .crm-check {
+                display: flex;
+                justify-content: center;
+            }
+
+            .application-badges {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 6px;
+
+                .more {
+                    color: var(--muted-foreground);
                 }
             }
 
             .unknown-in-manage {
-                color: var(--sds--color--red--500);
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                color: var(--destructive);
                 font-weight: 600;
 
                 svg {
-                    margin-left: 15px;
+                    flex-shrink: 0;
                 }
             }
-
         }
     }
-
 
 }

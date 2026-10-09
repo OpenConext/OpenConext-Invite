@@ -4,7 +4,7 @@
 .mod-invitation-form {
 
     &.inviter {
-        background-color: vars.$background;
+        background-color: var(--muted);
     }
 
     .invitation-form {
@@ -14,7 +14,7 @@
         &.inviter {
             max-width: 820px;
 
-            .email-field label, .sds--text-field label, .select-field label {
+            .email-field label, [data-slot="field"] label, .select-field label {
                 font-size: 22px;
             }
         }
@@ -42,7 +42,7 @@
             .select-field.requested-authn-context {
                 margin-top: 0;
                 padding-bottom: 20px;
-                border-bottom: 1px solid var(--sds--color--gray--200);
+                border-bottom: 1px solid var(--border);
             }
         }
 
@@ -55,7 +55,7 @@
             margin-top: 25px;
             padding: 25px 155px 25px 25px;
             border-radius: 0.175rem;
-            border: 1px solid var(--sds--color--gray--400);
+            border: 1px solid var(--muted-foreground);
             background-color: white;
 
             @media (max-width: vars.$medium) {
@@ -66,7 +66,7 @@
         .card-containers {
             padding: 25px;
             border-radius: 0.175rem;
-            border: 1px solid var(--sds--color--gray--400);
+            border: 1px solid var(--muted-foreground);
             background-color: white;
 
             span.label {
@@ -101,24 +101,17 @@
 
         }
 
-        .sds--radio-options {
-            width: 380px;
-
-            .sds--text-field-container div:last-child {
-                margin-left: auto;
-            }
-        }
 
         .role-expiry-date-container {
             grid-column-start: first;
             display: flex;
             flex-direction: column;
-            border-bottom: 1px solid var(--sds--color--gray--200);
+            border-bottom: 1px solid var(--border);
             padding-bottom: 15px;
 
             p.label {
                 font-weight: 600;
-                margin: 12px var(--sds--space--1) 0 0;
+                margin: 12px 0.5rem 0 0;
             }
 
             .role-expiry-date {

@@ -1,14 +1,13 @@
+import {Button, Checkbox, Spinner} from "@surfnet/curve-react";
+import {TrashIcon as TrashIcon, CaretLeftIcon as ChevronLeft} from "@phosphor-icons/react";
 import "./Tokens.scss";
 import {useAppStore} from "../stores/AppStore";
 import React, {useCallback, useEffect, useState} from "react";
 import {Entities} from "../components/Entities";
 import I18n from "../locale/I18n";
-import {Button, ButtonType, Checkbox, Loader} from "@surfnet/sds";
 import {useNavigate} from "react-router";
 import {allIdentityProviders, apiTokens, createToken, deleteToken, generateToken} from "../api";
 import {dateFromEpoch} from "../utils/Date";
-import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
-import ChevronLeft from "@surfnet/sds/icons/functional-icons/arrow-left-2.svg";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import DOMPurify from "dompurify";
 import InputField from "../components/InputField";
@@ -171,13 +170,9 @@ export const Tokens = () => {
                         <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
 
                     <section className="actions">
-                        <Button type={ButtonType.Secondary}
-                                txt={I18n.t("forms.cancel")}
-                                onClick={() => setNewToken(false)}/>
-                        <Button txt={I18n.t("forms.save")}
-                                disabled={!initial && (isEmpty(description) ||
-                                    (user.superUser && isEmpty(organizationGUIDIdentityProvider.institutionGuid)))}
-                                onClick={() => submitNewToken()}/>
+                        <Button variant="outline" onClick={() => setNewToken(false)}>{I18n.t("forms.cancel")}</Button>
+                        <Button disabled={!initial && (isEmpty(description) ||
+                                    (user.superUser && isEmpty(organizationGUIDIdentityProvider.institutionGuid)))} onClick={() => submitNewToken()}>{I18n.t("forms.save")}</Button>
                     </section>
                 </div>
             </Page>
@@ -208,10 +203,7 @@ export const Tokens = () => {
                 key: "superUserToken",
                 header: I18n.t("tokens.superUserToken"),
                 mapper: token => <div className="container">
-                    <Checkbox value={token.superUserToken}
-                              name={""}
-                              onChange={() => true}
-                              readOnly={true}/>
+                    <Checkbox checked={token.superUserToken} disabled={true}/>
                 </div>
             } : null,
         {
@@ -236,7 +228,7 @@ export const Tokens = () => {
     ].filter(column => column !== null)
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
     return (
