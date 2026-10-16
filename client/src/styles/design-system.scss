@@ -142,9 +142,15 @@ h1, h2, h3, [data-slot="card-title"] {
     --ring: var(--foreground);
 }
 
+// curve-react >= 0.8 emits the plain input styles after the input-group control reset, so the
+// input inside a group got its own border, radius and focus ring (the ring then excluded the
+// addon icon). The group draws the border and focus ring; the control inside must stay bare.
 [data-slot="input-group"] input[data-slot="input-group-control"] {
     height: 100%;
     background-color: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 [data-slot="input"]:disabled,

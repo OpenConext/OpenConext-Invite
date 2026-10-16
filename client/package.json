@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
-    "@surfnet/curve-react": "^0.5.1",
+    "@surfnet/curve-react": "^0.8.0",
     "@vitejs/plugin-react": "^6.0.5",
     "dompurify": "^3.4.16",
     "i18n-js": "^4.5.1",
