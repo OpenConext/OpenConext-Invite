@@ -4,6 +4,7 @@ import {Alert, AlertAction, AlertDescription} from "@surfnet/curve-react";
 import {WarningIcon, XCircleIcon, XIcon} from "@phosphor-icons/react";
 import {toast} from "sonner";
 import {useAppStore} from "../stores/AppStore"
+import "./Flash.scss";
 
 export const Flash = () => {
 
@@ -21,15 +22,17 @@ export const Flash = () => {
 
     if (isAlert) {
         return (
-            <Alert variant={flash.type === "error" ? "destructive" : "default"}>
-                {flash.type === "error" ? <XCircleIcon/> : <WarningIcon/>}
-                <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(flash.msg)}}/>
-                {flash.action && <button type="button" className="alert-action"
-                                          onClick={flash.action}>{flash.actionLabel}</button>}
-                <AlertAction>
-                    <button type="button" onClick={clearFlash}><XIcon/></button>
-                </AlertAction>
-            </Alert>
+            <div className="flash-container">
+                <Alert variant={flash.type === "error" ? "danger" : "default"}>
+                    {flash.type === "error" ? <WarningIcon/> : null}
+                    <AlertDescription dangerouslySetInnerHTML={{__html: sanitize(flash.msg)}}/>
+                    {flash.action && <button type="button" className="alert-action"
+                                             onClick={flash.action}>{flash.actionLabel}</button>}
+                    <AlertAction>
+                        <button type="button" onClick={clearFlash}><XIcon/></button>
+                    </AlertAction>
+                </Alert>
+            </div>
         );
     }
     return null;
