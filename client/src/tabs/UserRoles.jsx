@@ -350,7 +350,6 @@ export const UserRoles = ({role, guests}) => {
             navigate(path);
         }
     }
-
     return (<div className="mod-user-roles">
         {confirmationOpen && <ConfirmationDialog isOpen={confirmationOpen}
                                                  cancel={confirmation.cancel}
@@ -359,7 +358,6 @@ export const UserRoles = ({role, guests}) => {
                                                  confirmationHeader={confirmation.confirmationHeader}
                                                  isError={confirmation.error}
                                                  question={confirmation.question}/>}
-
         <Entities entities={userRoles}
                   modelName="userRoles"
                   defaultSort="name"

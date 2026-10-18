@@ -174,7 +174,7 @@ export const Role = () => {
             {isInviter &&
                 <UnitHeaderInviter role={role}
                                    userRole={userRole}
-                                   inviteAllowed={currentTab !== "maintainers"}
+                                   inviteAllowed={currentTab !== "maintainers" && !role.unknownInManage}
                                    managerEmails={managerEmails}/>}
             {!isInviter &&
                 <UnitHeader obj={({...role, logo: logo})}

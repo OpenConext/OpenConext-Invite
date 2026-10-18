@@ -123,9 +123,9 @@ export const reduceApplicationFromUserRoles = (userRoles, locale) => {
     //Now get all applicationMaps flattened and return sorted
     const applicationMaps = userRoles
         .map(userRole => userRole.role.applicationMaps)
-        .flat()
-        //Applications that do not exist any longer in Manage, are marked as unknown server side
-        .filter(applicationMap => !applicationMap.unknown);
+        .flat();
+        //Applications that do not exist any longer in Manage, are marked as unknown server side, but we do show them
+        // .filter(applicationMap => !applicationMap.unknown);
     return applicationMaps.sort((app1, app2) =>
         app1.applicationName.localeCompare(app2.applicationName) || app1.roleName.localeCompare(app2.roleName)
     );
