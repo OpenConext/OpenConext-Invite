@@ -212,6 +212,11 @@ export function allIdentityProviders() {
     return fetchJson("/api/v1/manage/identity-providers");
 }
 
+export function applicationsForInstitutionAdmin() {
+    return fetchJson("/api/v1/manage/application-institution-admin");
+}
+
+
 //Roles
 export function rolesByApplication(force = true, pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {force: !!force});

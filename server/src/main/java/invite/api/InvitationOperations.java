@@ -6,6 +6,7 @@ import invite.exception.NotFoundException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
+import invite.manage.EntityType;
 import invite.manage.Manage;
 import invite.model.Application;
 import invite.model.Authority;
@@ -20,11 +21,13 @@ import invite.model.Provisionable;
 import invite.model.RecipientInvitationURL;
 import invite.model.Role;
 import invite.model.User;
+import invite.repository.ApplicationRepository;
 import invite.repository.InvitationRepository;
 import invite.security.RemoteUser;
 import invite.security.RemoteUserPermissions;
 import invite.security.UserPermissions;
 import invite.validation.EmailFormatValidator;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -41,6 +44,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
@@ -76,15 +81,28 @@ public class InvitationOperations {
                 .map(id -> invitationResource.getRoleRepository().findById(id)
                         .filter(role -> !StringUtils.hasText(role.getCrmRoleId()))
                         .orElseThrow(() -> new NotFoundException("Role not found"))).toList();
+        //The requested applications are selected from the owned SP's and RP's from Manage. There might be no
+        //applications for in invite, so create run-time if needed
+        ApplicationRepository applicationRepository = invitationResource.getApplicationRepository();
         List<Application> requestedApplications = invitationRequest.getManageIdentifiers().stream()
-                .map(manageIdentifier -> invitationResource.getApplicationRepository()
-                        .findByManageIdAndManageTypeOrderById(manageIdentifier.manageId(), manageIdentifier.manageType()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(manageIdentifier -> applicationRepository
+                        .findByManageIdAndManageTypeOrderById(manageIdentifier.manageId(), manageIdentifier.manageType())
+                        .orElseGet(() -> applicationRepository.save(new Application(manageIdentifier.manageId(), manageIdentifier.manageType()))))
                 .toList();
         if (user != null) {
             UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
-            UserPermissions.assertValidApplicationManagerInvitation(user, intendedAuthority, requestedApplications);
+            if (Authority.APPLICATION_MANAGER.equals(intendedAuthority)) {
+                //We need to verify if each application is owned by the institution
+                Map<EntityType, List<Application>> applicationsByType = requestedApplications.stream()
+                        .collect(Collectors.groupingBy(Application::getManageType));
+                Manage manage = this.invitationResource.getManage();
+                List<Map<String, Object>> requestedProviders = applicationsByType.entrySet().stream()
+                        .map(entry -> manage.providersByIdIn(entry.getKey(), entry.getValue().stream().map(Application::getManageId).toList()))
+                        .flatMap(Collection::stream)
+                        .toList();
+                UserPermissions.assertValidApplicationManagerInvitation(user, intendedAuthority, requestedProviders);
+            }
+
         } else {
             RemoteUserPermissions.assertApplicationAccess(remoteUser, requestedRoles);
         }

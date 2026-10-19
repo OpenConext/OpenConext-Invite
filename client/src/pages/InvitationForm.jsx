@@ -15,7 +15,7 @@ import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {
     allApplicationsFromManage,
-    allIdentityProviders,
+    allIdentityProviders, applicationsForInstitutionAdmin,
     newInvitation,
     requestedAuthnContextValues,
     rolesByApplication
@@ -91,9 +91,12 @@ export const InvitationForm = () => {
                         I18n.t("roles.multiple"), I18n.t("forms.and"), "name", false);
                     setInitialRole(markedRoles);
                     setRoles(markedRoles);
-                    if (user.institutionAdmin && !isEmpty(user.applications)) {
-                        const options = providersToOptions(user.applications);
-                        setApplications(options);
+                    if (user.institutionAdmin && !user.superUser) {
+                        applicationsForInstitutionAdmin()
+                            .then(ownedApplications => {
+                                const options = providersToOptions(ownedApplications);
+                                setApplications(options);
+                            })
                     }
                 })
         } else {

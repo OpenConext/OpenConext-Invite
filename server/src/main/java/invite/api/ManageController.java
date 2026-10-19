@@ -6,8 +6,6 @@ import invite.manage.EntityType;
 import invite.manage.Manage;
 import invite.model.Application;
 import invite.model.Authority;
-import invite.config.RequestedAuthnContext;
-import invite.model.Role;
 import invite.model.User;
 import invite.repository.ApplicationRepository;
 import invite.repository.RoleRepository;
@@ -36,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
 import static invite.SwaggerOpenIdConfig.OPEN_ID_SCHEME_NAME;
@@ -197,9 +194,12 @@ public class ManageController {
         List<Map<String, Object>> provisionings = manage.provisioning(applications.stream()
                 .map(Application::getManageId)
                 .toList());
+        if (CollectionUtils.isEmpty(user.getUserApplications())) {
+            providers = providers.stream()
+                    .filter(provider -> (Long) provider.get("roleCount") > 0L).toList();
+        }
         return ResponseEntity.ok(Map.of(
-                "providers", providers.stream()
-                        .filter(provider -> (Long) provider.get("roleCount") > 0L).toList(),
+                "providers", providers,
                 "provisionings", sanitizeProvisionings(provisionings)
         ));
     }
@@ -224,5 +224,12 @@ public class ManageController {
 
         List<Map<String, Object>> provisionings = manage.provisioning(List.of(id));
         return ResponseEntity.ok(!provisionings.isEmpty());
+    }
+
+    @GetMapping("/application-institution-admin")
+    public ResponseEntity<List<Map<String, Object>>> applicationsInstitutionAdmin(@Parameter(hidden = true) User user) {
+        Map<String, Object> institution = user.getInstitution();
+        List<Map<String, Object>> providers = manage.providersByInstitutionalGUID(List.of((String) institution.get("institutionGuid")));
+        return ResponseEntity.ok(providers);
     }
 }

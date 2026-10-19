@@ -183,7 +183,7 @@ export const Role = () => {
                 <UnitHeader obj={({...role, logo: logo})}
                             displayDescription={true}
                             actions={getActions()}
-                            customAction={<p className="badge-alert">
+                            customAction={isEmpty(role.crmRoleId) ? null : <p className="badge-alert">
                                 <SvgAllowanceNoTalking/> {I18n.t("role.crmRoleImmutable")}</p>}>
                     <div className={"urn-container"}>
                         <span>{I18n.t("role.copyUrn")}</span>
