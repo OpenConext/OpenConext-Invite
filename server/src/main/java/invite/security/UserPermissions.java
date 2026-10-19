@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -165,7 +166,9 @@ public class UserPermissions {
         }
     }
 
-    public static void assertValidApplicationManagerInvitation(User user, Authority intendedAuthority, List<Application> applications) {
+    public static void assertValidApplicationManagerInvitation(User user,
+                                                               Authority intendedAuthority,
+                                                               List<Map<String, Object>> applications) {
         if (!Authority.APPLICATION_MANAGER.equals(intendedAuthority)) {
             return;
         }
@@ -177,8 +180,16 @@ public class UserPermissions {
             return;
         }
         if (!user.isInstitutionAdmin()) {
-            throw new UserRestrictionException(String.format("Invalid invation by %s for application %s",
-                    user.getEmail(), applications.stream().map(application -> application.getManageId()).collect(Collectors.joining(", "))));
+            throw new UserRestrictionException(String.format("Invalid invitation by non-institutionAdmin %s for applications %s",
+                    user.getEmail(), applications.stream()
+                            .map(app -> (String) app.get("entityid"))
+                            .collect(Collectors.joining(", "))));
+        }
+        if (applications.stream().anyMatch(app -> !Objects.equals(user.getOrganizationGUID(), app.get("institutionGuid")) )) {
+            throw new UserRestrictionException(String.format("Invalid invitation by %s for applications %s",
+                    user.getEmail(), applications.stream()
+                            .map(app -> (String) app.get("entityid"))
+                            .collect(Collectors.joining(", "))));
         }
     }
 

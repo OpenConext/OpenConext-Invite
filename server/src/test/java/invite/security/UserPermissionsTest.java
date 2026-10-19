@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.security.SecureRandom;
 import java.util.*;
 
+import static invite.AbstractTest.ORGANISATION_GUID;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -199,8 +200,12 @@ class UserPermissionsTest extends WithApplicationTest {
 
     @Test
     void assertValidApplicationManagerInvitation() {
-        Application application = new Application("manageIdentifier", EntityType.SAML20_SP);
-        List<Application> applications = List.of(application);
+
+        Map<String, Object> application = Map.of(
+                "institutionGuid", ORGANISATION_GUID,
+                "entityid", "https://mock.idp");
+
+        List<Map<String, Object>> applications = List.of(application);
 
         //Not an application manager invitation, so no checks are done at all, even with a null user
         UserPermissions.assertValidApplicationManagerInvitation(null, Authority.MANAGER, applications);
@@ -216,12 +221,19 @@ class UserPermissionsTest extends WithApplicationTest {
         //Institution admin is allowed
         User institutionAdmin = new User();
         institutionAdmin.setInstitutionAdmin(true);
+        institutionAdmin.setOrganizationGUID(ORGANISATION_GUID);
         UserPermissions.assertValidApplicationManagerInvitation(institutionAdmin, Authority.APPLICATION_MANAGER, applications);
 
         //Regular user is not allowed
         User user = new User();
         assertThrows(UserRestrictionException.class, () ->
                 UserPermissions.assertValidApplicationManagerInvitation(user, Authority.APPLICATION_MANAGER, applications));
+
+        //Institution admin is allowed, but organization needs to be equal as the coin:institution_guid of all the applications
+        institutionAdmin.setOrganizationGUID("nope");
+        assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidApplicationManagerInvitation(institutionAdmin, Authority.APPLICATION_MANAGER,
+                        applications));
     }
 
     @Test
