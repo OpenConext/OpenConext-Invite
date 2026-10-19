@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {isEmpty, sanitize} from "../utils/Utils";
 import {Alert, AlertAction, AlertDescription} from "@surfnet/curve-react";
-import {WarningIcon, XCircleIcon, XIcon} from "@phosphor-icons/react";
+import {WarningIcon, XIcon} from "@phosphor-icons/react";
 import {toast} from "sonner";
 import {useAppStore} from "../stores/AppStore"
 import "./Flash.scss";

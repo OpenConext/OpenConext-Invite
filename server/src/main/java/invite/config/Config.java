@@ -33,6 +33,8 @@ public class Config {
     private boolean accessMenuEnabled = true;
     //The base url of SURF Access, the target of the links in the left-hand menu
     private String accessUrl;
+    //Shows the floating feedback widget that mails the feedback (and optional screenshot) to the support address
+    private boolean feedbackWidgetEnabled;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -50,6 +52,7 @@ public class Config {
         this.acrRequirements = base.acrRequirements;
         this.accessMenuEnabled = base.accessMenuEnabled;
         this.accessUrl = base.accessUrl;
+        this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;
     }
 
     public Config withAuthenticated(boolean authenticated) {

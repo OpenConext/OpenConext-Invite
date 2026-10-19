@@ -140,6 +140,10 @@ export function logout() {
     return fetchJson("/api/v1/users/logout");
 }
 
+export function sendFeedback(formData) {
+    return postPutJson("/api/v1/feedback", formData, "POST");
+}
+
 export function reportError(error) {
     return postPutJson("/api/v1/users/error", error, "post");
 }

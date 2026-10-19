@@ -355,7 +355,33 @@ const en = {
             mine: "Mine"
         }
     },
+    feedback: {
+        title: "Provide Feedback",
+        info: "Like what you see? Have a suggestion? Let us know what you think here.",
+        disclaimer: "We will use this information to fix problems, improve our products and help you. We may follow up with you regarding your feedback. For more information, please review our <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Privacy Notice</a>.",
+        help: "Need help?",
+        helpInfo: "For questions or issues, please reach out to us at <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a>",
+        send: "Provide feedback",
+        flash: "Your feedback has been sent. Thanks!",
+        widgetLabel: "Feedback",
+        includeScreenshot: "I agree to have a screenshot of the current page automatically included in the feedback message",
+        tooLarge: "The screenshot is too large (max 5MB). It was not attached.",
+        preview: {
+            to: "To",
+            from: "From",
+            subject: "Subject",
+            date: "Date",
+            subjectLineInfo: "Preview feedback mail",
+            subjectLine: "Feedback",
+            messagePlaceholder: "Your message will appear here...",
+            screenshotLabel: "Attached screenshot",
+            greeting: "Hello,",
+            providedFeedback: "{{name}} has provided the following feedback:",
+            followUp: "Follow-up questions can be sent to {{email}}",
+        },
+    },
     forms: {
+        submit: "Submit",
         update: "Update",
         copy: "Copy",
         copied: "Copied to clipboard",

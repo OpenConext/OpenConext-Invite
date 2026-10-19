@@ -353,7 +353,33 @@ const pt = {
             mine: "Os meus"
         }
     },
+    feedback: {
+        title: "Dar comentários",
+        info: "Gosta do que vê? Tem uma sugestão? Diga-nos aqui o que pensa.",
+        disclaimer: "Utilizaremos estas informações para corrigir problemas, melhorar os nossos produtos e ajudá-lo. Poderemos contactá-lo sobre os seus comentários. Para mais informações, consulte o nosso <a class='actionable' target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://edu.nl/fcgbd\">Aviso de Privacidade</a>.",
+        help: "Precisa de ajuda?",
+        helpInfo: "Para dúvidas ou problemas, contacte-nos em <a class='actionable' href='mailto:support@surf.nl'>support@surf.nl</a>",
+        send: "Dar comentários",
+        flash: "Os seus comentários foram enviados. Obrigado!",
+        widgetLabel: "Comentários",
+        includeScreenshot: "Concordo que seja incluída automaticamente uma captura de ecrã da página atual na mensagem de comentários",
+        tooLarge: "A captura de ecrã é demasiado grande (máx. 5 MB). Não foi anexada.",
+        preview: {
+            to: "Para",
+            from: "De",
+            subject: "Assunto",
+            date: "Data",
+            subjectLineInfo: "Pré-visualização da mensagem de comentários",
+            subjectLine: "Comentários",
+            messagePlaceholder: "A sua mensagem aparecerá aqui...",
+            screenshotLabel: "Captura de ecrã anexada",
+            greeting: "Olá,",
+            providedFeedback: "{{name}} deu os seguintes comentários:",
+            followUp: "As perguntas de seguimento podem ser enviadas para {{email}}",
+        },
+    },
     forms: {
+        submit: "Enviar",
         update: "Atualizar",
         copy: "Copiar",
         copied: "Copiado para a área de transferência",

@@ -1,0 +1,11 @@
+Hi,
+User {{ user.name }} has provided the following feedback for {{ env }} at {{ date }}:
+{{#url}}
+Page URL: {{ url }}
+{{/url}}
+
+{{ message }}
+
+Follow-up questions can be sent to {{ user.email }}
+
+{{> footer_en.txt}}

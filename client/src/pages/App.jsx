@@ -33,6 +33,7 @@ import {UserTokens} from "./UserTokens";
 import {Busy} from "./Busy";
 import {UserRoleAudits} from "../tabs/UserRoleAudits";
 import {InstitutionAdmins} from "../tabs/InstitutionAdmins";
+import {UserFeedbackWidget} from "../components/UserFeedbackWidget";
 
 
 export const App = () => {
@@ -112,6 +113,7 @@ export const App = () => {
                     {config.accessMenuEnabled !== false && <SharedMenu/>}
                     <SidebarInset>
                         <AuthorizedHeader/>
+                        {config.feedbackWidgetEnabled && <UserFeedbackWidget/>}
                         <div className="container">
                             <Routes>
                                 <Route path="/" element={<Navigate replace to="home"/>}/>

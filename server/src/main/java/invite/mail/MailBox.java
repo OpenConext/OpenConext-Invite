@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -27,6 +28,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +49,7 @@ public class MailBox {
     private final String welcomeUrl;
     private final String emailFrom;
     private final String contactEmail;
+    private final String supportEmail;
     private final String environment;
 
     private final Map<String, Map<String, String>> subjects;
@@ -59,6 +63,7 @@ public class MailBox {
                    JavaMailSender mailSender,
                    String emailFrom,
                    String contactEmail,
+                   String supportEmail,
                    String clientUrl,
                    String welcomeUrl,
                    String environment,
@@ -68,6 +73,7 @@ public class MailBox {
         this.manage = manage;
         this.emailFrom = emailFrom;
         this.contactEmail = contactEmail;
+        this.supportEmail = supportEmail;
         this.clientUrl = clientUrl;
         this.welcomeUrl = welcomeUrl;
         this.environment = environment;
@@ -229,6 +235,29 @@ public class MailBox {
                 inviter.getEmail());
     }
 
+    @SneakyThrows
+    public void sendFeedbackMail(User user, String message, String url, byte[] screenshotBytes,
+                                 String screenshotName, String screenshotContentType) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("user", user);
+        variables.put("title", "Invite feedback form");
+        variables.put("date", LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+        variables.put("message", message.replaceAll("\n", "<br/>"));
+        variables.put("url", url);
+        if (!environment.equalsIgnoreCase("prod")) {
+            variables.put("environment", environment);
+        }
+        variables.put("env", environment);
+        MailAttachment attachment = null;
+        if (screenshotBytes != null && screenshotBytes.length > 0) {
+            attachment = new MailAttachment(
+                    screenshotName == null ? "feedback.png" : screenshotName,
+                    screenshotBytes,
+                    screenshotContentType == null ? "image/png" : screenshotContentType);
+        }
+        sendMail("feedback_en", "Feedback", user.getEmail(), variables, Map.of(), attachment, supportEmail);
+    }
+
     private String preferredLanguage() {
         return LocaleContextHolder.getLocale().getLanguage();
     }
@@ -238,6 +267,16 @@ public class MailBox {
                             String cause,
                             Map<String, Object> variables,
                             Map<String, String> images,
+                            String... to) throws MessagingException, IOException {
+        return sendMail(templateName, subject, cause, variables, images, null, to);
+    }
+
+    private String sendMail(String templateName,
+                            String subject,
+                            String cause,
+                            Map<String, Object> variables,
+                            Map<String, String> images,
+                            MailAttachment attachment,
                             String... to) throws MessagingException, IOException {
         String htmlText = this.mailTemplate(templateName + ".html", variables);
         String plainText = this.mailTemplate(templateName + ".txt", variables);
@@ -250,6 +289,9 @@ public class MailBox {
         helper.setFrom(emailFrom);
 
         addInlineImages(helper, images);
+        if (attachment != null) {
+            helper.addAttachment(attachment.filename(), new ByteArrayResource(attachment.bytes()), attachment.contentType());
+        }
         message.saveChanges();
 
         LOG.info(String.format("Sending email %s to %s by user %s with ID %s",
@@ -286,6 +328,10 @@ public class MailBox {
                 .collect(Collectors.joining(", ")) + separator +
                 values.get(values.size() - 1);
 
+    }
+
+
+    private record MailAttachment(String filename, byte[] bytes, String contentType) {
     }
 
 }

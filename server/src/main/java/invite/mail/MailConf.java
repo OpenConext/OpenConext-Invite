@@ -20,13 +20,14 @@ public class MailConf {
     public MailBox mailBox(Config config,
                            @Value("${email.from}") String emailFrom,
                            @Value("${email.contactEmail}") String contactEmail,
+                           @Value("${email.supportEmail}") String supportEmail,
                            @Value("${email.environment}") String env,
                            IdPMetaDataResolver idPMetaDataResolver,
                            Manage manage,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
         return new MailBox(objectMapper, idPMetaDataResolver, mailSender, emailFrom,
-                contactEmail, config.getClientUrl(), config.getWelcomeUrl(), env, manage);
+                contactEmail, supportEmail, config.getClientUrl(), config.getWelcomeUrl(), env, manage);
     }
 
 
