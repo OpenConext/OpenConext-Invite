@@ -63,6 +63,12 @@ a.brand-logo img {
     position: relative;
 }
 
+// curve-react >= 0.6 hardcodes the menu button font-size to .875rem in its CSS module. Before that
+// it used the text-sm utility, which design-system.scss overrides to 1rem. Keep the menu at 16px.
+[data-slot="sidebar-container"] [data-slot="sidebar-menu-button"] {
+    font-size: 1rem;
+}
+
 [data-slot="sidebar-container"], [data-slot="sidebar-menu-item"] {
     a {
         color: black;
