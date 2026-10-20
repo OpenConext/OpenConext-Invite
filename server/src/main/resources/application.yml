@@ -138,6 +138,8 @@ config:
   welcome-url: "http://localhost:4000"
   server-url: "http://localhost:8888"
   server-welcome-url: "http://localhost:8888"
+  # Base url of SURF Access, the Invite menu links (all but Roles) point here
+  access-url: "http://localhost:3002"
   eduid-entity-id: "https://login.test2.eduid.nl"
   role-search-required: False
   past-date-allowed: True
