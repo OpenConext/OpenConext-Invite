@@ -15,6 +15,7 @@ import {
 import {CaretDownIcon} from "@phosphor-icons/react";
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
+import {markExplicitLogout} from "../utils/Login";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 
 export const UserMenu = ({user}) => {
@@ -29,7 +30,8 @@ export const UserMenu = ({user}) => {
     const logoutUser = () => {
         logout().then(() => {
             //The sidebar and header are only for authenticated users, so switch to the public layout directly
-            navigate("/login", {state: "force"});
+            markExplicitLogout();
+            navigate("/login");
             useAppStore.setState(() => ({authenticated: false, user: {}, impersonator: null, breadcrumbPath: []}));
         });
     }

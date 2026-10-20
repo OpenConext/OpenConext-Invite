@@ -4,14 +4,11 @@ import I18n from "../locale/I18n";
 import DOMPurify from "dompurify";
 import {LandingInfo} from "../components/LandingInfo";
 import HappyLogo from "../icons/landing/undraw_startled_-8-p0r.svg?url";
-import {login} from "../utils/Login";
+import {consumeExplicitLogout, login} from "../utils/Login";
 import {useAppStore} from "../stores/AppStore";
-import {isEmpty} from "../utils/Utils";
-import {useLocation} from "react-router";
 import {useEffect, useRef, useState} from "react";
 
 export const Login = () => {
-    const location = useLocation();
     const [spin, setSpin] = useState(false);
 
     const config = useAppStore((state) => state.config);
@@ -26,8 +23,7 @@ export const Login = () => {
 
 
     const doLogin = () => {
-        const force = location.state === "force";
-        login(config, !isEmpty(force));
+        login(config, consumeExplicitLogout());
     }
 
     const toggleSpin = () => {
