@@ -1,6 +1,6 @@
 import {Spinner} from "@surfnet/curve-react";
 import './App.scss';
-import {Navigate, Route, Routes, useNavigate} from "react-router";
+import {Navigate, Route, Routes, useLocation, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
 import {SidebarInset, SidebarProvider} from "@surfnet/curve-react";
 import {SharedMenu} from "../components/SharedMenu";
@@ -40,6 +40,7 @@ export const App = () => {
 
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const location = useLocation();
     const {user, impersonator, authenticated, reload, config} = useAppStore(state => state);
 
     useEffect(() => {
@@ -135,6 +136,27 @@ export const App = () => {
                                     <Route path="system/:tab?" element={<System/>}/>
                                 }
                                 <Route path="*" element={<NotFound/>}/>
+                            </Routes>
+                        </div>
+                        <InviteFooter/>
+                    </SidebarInset>
+                </SidebarProvider>
+            </div>
+        );
+    }
+
+    //A user that is unknown to Invite is sent to the dead end page, but can still be known to SURF Access and use its menu
+    if (location.pathname === "/deadend" && config.accessMenuEnabled !== false) {
+        return (
+            <div className="invite invite-authenticated">
+                <Flash/>
+                <SidebarProvider className="app-shell">
+                    <SharedMenu/>
+                    <SidebarInset>
+                        <AuthorizedHeader/>
+                        <div className="container">
+                            <Routes>
+                                <Route path="deadend" element={<InviteOnly/>}/>
                             </Routes>
                         </div>
                         <InviteFooter/>

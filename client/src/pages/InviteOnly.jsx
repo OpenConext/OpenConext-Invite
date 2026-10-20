@@ -13,6 +13,8 @@ import {logout} from "../api";
 export const InviteOnly = () => {
 
     const config = useAppStore((state) => state.config);
+    //The title is only shown when there is no SURF Access menu around the page
+    const menuEnabled = config.accessMenuEnabled !== false;
 
     const doLogin = e => {
         stopEvent(e);
@@ -22,8 +24,8 @@ export const InviteOnly = () => {
     }
     return (
         <Page>
-            <div className="invite-only">
-                <h1>{I18n.t("inviteOnly.welcome")}</h1>
+            <div className={`invite-only${menuEnabled ? " with-menu" : ""}`}>
+                {!menuEnabled && <h1>{I18n.t("inviteOnly.welcome")}</h1>}
                 <p className="roles">{I18n.t("inviteOnly.roles")}</p>
                 <Alert variant="warning">
                     <WarningIcon/>
@@ -31,9 +33,11 @@ export const InviteOnly = () => {
                         <div className="warning">
                             <p className={"info"}
                                dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("inviteOnly.info"))}}/>
-                            <span>{I18n.t("inviteOnly.preLogin")}</span>
-                            <a href="/login" onClick={doLogin}>{I18n.t("inviteOnly.login")}</a>
-                            <span>{I18n.t("inviteOnly.postLogin")}</span>
+                            {!menuEnabled && <>
+                                <span>{I18n.t("inviteOnly.preLogin")}</span>
+                                <a href="/login" onClick={doLogin}>{I18n.t("inviteOnly.login")}</a>
+                                <span>{I18n.t("inviteOnly.postLogin")}</span>
+                            </>}
                         </div>
                     </AlertDescription>
                 </Alert>

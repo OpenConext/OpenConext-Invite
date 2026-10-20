@@ -130,7 +130,8 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                 });
         HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
         String requestURI = request.getRequestURI();
-        if (optionalUser.isEmpty() && requestURI.equals("/api/v1/users/config")) {
+        //The menu of a user that is unknown to Invite is still owned by SURF Access
+        if (optionalUser.isEmpty() && (requestURI.equals("/api/v1/users/config") || requestURI.equals("/api/v1/users/menu"))) {
             return new User(attributes);
         }
         return optionalUser.map(user -> {
