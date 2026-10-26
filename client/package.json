@@ -45,7 +45,7 @@
     "nth-check": "^3.0.1",
     "react-json-view-lite": "^2.5.0",
     "sass": "^1.102.0",
-    "vite": "^8.2.0",
+    "vite": "^8.2.4",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.11"
   },
