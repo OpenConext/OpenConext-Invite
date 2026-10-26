@@ -166,6 +166,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
             List<Role> rolesByApplication = roleRepository.findByApplicationUsagesApplicationManageIdIn(manageIdentifiers);
             roles.addAll(rolesByApplication);
         }
+        manage.addManageMetaData(roles);
         return ResponseEntity.ok(roles);
     }
 
