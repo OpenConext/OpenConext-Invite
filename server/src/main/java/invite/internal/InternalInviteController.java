@@ -3,7 +3,6 @@ package invite.internal;
 import invite.api.*;
 import invite.exception.InvalidInputException;
 import invite.exception.NotFoundException;
-import invite.exception.UserRestrictionException;
 import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.mail.MailBox;
@@ -69,6 +68,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     private final InvitationOperations invitationOperations;
     private final UserRoleOperations userRoleOperations;
     private final String groupUrnPrefix;
+    private final UserRepository userRepository;
 
 
     public InternalInviteController(RoleRepository roleRepository,
@@ -79,7 +79,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                     Manage manage,
                                     InvitationRepository invitationRepository,
                                     ProvisioningService provisioningService,
-                                    @Value("${voot.group_urn_domain}") String groupUrnPrefix) {
+                                    @Value("${voot.group_urn_domain}") String groupUrnPrefix, UserRepository userRepository) {
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.applicationRepository = applicationRepository;
@@ -92,6 +92,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
         this.userRoleOperations = new UserRoleOperations(this);
         this.roleOperations = new RoleOperations(this);
         this.invitationOperations = new InvitationOperations(this);
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/roles")
@@ -132,6 +133,39 @@ public class InternalInviteController implements ApplicationResource, Invitation
 
         List<Role> roles = roleRepository
                 .findByOrganizationGUIDAndApplicationUsagesApplicationManageId(organizationGUID, manageId);
+        return ResponseEntity.ok(roles);
+    }
+
+    @GetMapping("/roles-mine/{sub}")
+    @PreAuthorize("hasAnyRole('ACCESS')")
+    @Transactional(readOnly = true)
+    @Hidden
+    public ResponseEntity<List<Role>> rolesMine(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser,
+                                                @PathVariable("sub") String sub) {
+        LOG.debug(String.format("/roles-mine by remoteUser %s for user %s", remoteUser.getName(), sub));
+
+        Optional<User> optionalUser = this.userRepository.findBySubIgnoreCase(sub);
+        if (optionalUser.isEmpty()) {
+            LOG.debug(String.format("/roles-mine for unknown user %s, return empty list", sub));
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+        User user = optionalUser.get();
+
+        //Needs to be modifiable
+        List<Role> roles = user.getUserRoles().stream()
+                .filter(userRole -> !userRole.getAuthority().equals(Authority.GUEST))
+                .map(UserRole::getRole)
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (user.isInstitutionAdmin()) {
+            List<Role> rolesByOrganizationGUID = roleRepository.findByOrganizationGUID(user.getOrganizationGUID());
+            roles.addAll(rolesByOrganizationGUID);
+        } else {
+            List<String > manageIdentifiers = user.getUserApplications().stream()
+                    .map(userApplication -> userApplication.getApplication().getManageId())
+                    .toList();
+            List<Role> rolesByApplication = roleRepository.findByApplicationUsagesApplicationManageIdIn(manageIdentifiers);
+            roles.addAll(rolesByApplication);
+        }
         return ResponseEntity.ok(roles);
     }
 
