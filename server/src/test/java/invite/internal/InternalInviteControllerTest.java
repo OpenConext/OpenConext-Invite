@@ -318,4 +318,64 @@ class InternalInviteControllerTest extends AbstractTest {
                 .forEach(attr -> assertTrue(roles.stream().allMatch(role -> role.containsKey(attr))));
     }
 
+    @Test
+    void rolesMineInstitutionAdmin() {
+        //Institution admin has no user roles, but all roles of the organization
+        List<String> names = rolesMine(INSTITUTION_ADMIN_SUB);
+        assertEquals(Set.of("Network", "Research", "Wiki"), Set.copyOf(names));
+        assertEquals(3, names.size());
+    }
+
+    @Test
+    void rolesMineApplicationManager() {
+        //No user roles, but manages application 6 which is used by the role Storage
+        assertEquals(List.of("Storage"), rolesMine(APPLICATION_MANAGER_SUB));
+    }
+
+    @Test
+    void rolesMineManager() {
+        //Only the user role, no institution admin and no applications
+        assertEquals(List.of("Wiki"), rolesMine(MANAGE_SUB));
+    }
+
+    @Test
+    void rolesMineGuest() {
+        //The guest only has GUEST user roles, which are filtered out
+        assertTrue(rolesMine(GUEST_SUB).isEmpty());
+    }
+
+    @Test
+    void rolesMineSubIgnoreCase() {
+        assertEquals(List.of("Wiki"), rolesMine(MANAGE_SUB.toUpperCase()));
+    }
+
+    @Test
+    void rolesMineUnknownUser() {
+        assertTrue(rolesMine("urn:collab:person:example.com:nope").isEmpty());
+    }
+
+    @Test
+    void rolesMineForbiddenForSpDashboard() {
+        given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .pathParam("sub", MANAGE_SUB)
+                .get("/api/external/v1/internal/invite/roles-mine/{sub}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    private List<String> rolesMine(String sub) {
+        List<Role> roles = given()
+                .when()
+                .auth().preemptive().basic("access", "secret")
+                .accept(ContentType.JSON)
+                .pathParam("sub", sub)
+                .get("/api/external/v1/internal/invite/roles-mine/{sub}")
+                .as(new TypeRef<>() {
+                });
+        return roles.stream().map(Role::getName).toList();
+    }
+
 }
