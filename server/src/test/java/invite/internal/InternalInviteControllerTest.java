@@ -366,8 +366,27 @@ class InternalInviteControllerTest extends AbstractTest {
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
+    @Test
+    void rolesMineHasManageMetaData() {
+        List<Role> roles = rolesMineRoles(APPLICATION_MANAGER_SUB);
+        assertEquals(1, roles.size());
+        List<Map<String, Object>> applicationMaps = roles.getFirst().getApplicationMaps();
+        assertEquals(2, applicationMaps.size());
+        applicationMaps.forEach(applicationMap -> {
+            assertNull(applicationMap.get("unknown"));
+            assertNotNull(applicationMap.get("id"));
+        });
+    }
+
     private List<String> rolesMine(String sub) {
-        List<Role> roles = given()
+        return rolesMineRoles(sub).stream().map(Role::getName).toList();
+    }
+
+    private List<Role> rolesMineRoles(String sub) {
+        //Manage is called for the applications of the returned roles, stub all seeded applications
+        stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "2", "3", "4"));
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
+        return given()
                 .when()
                 .auth().preemptive().basic("access", "secret")
                 .accept(ContentType.JSON)
@@ -375,7 +394,6 @@ class InternalInviteControllerTest extends AbstractTest {
                 .get("/api/external/v1/internal/invite/roles-mine/{sub}")
                 .as(new TypeRef<>() {
                 });
-        return roles.stream().map(Role::getName).toList();
     }
 
 }
