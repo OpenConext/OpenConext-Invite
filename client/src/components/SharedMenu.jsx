@@ -23,6 +23,7 @@ import {useAppStore} from "../stores/AppStore";
 import {accessUrl, allMenuGroups, mainMenuItems} from "../utils/MenuItems";
 import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 import {menu as fetchMenu} from "../api";
+import {persistOrganization, readRequestedOrganization, stripOrganizationParam} from "../utils/Organization";
 import logoUrl from "../icons/logo2.svg?url";
 
 export const SharedMenu = () => {
@@ -34,8 +35,15 @@ export const SharedMenu = () => {
     const [menuModel, setMenuModel] = useState({menuItems: [], organizations: []});
 
     useEffect(() => {
-        fetchMenu(new URLSearchParams(window.location.search).get("organizationId"))
-            .then(res => setMenuModel(res || {menuItems: [], organizations: []}))
+        fetchMenu(readRequestedOrganization())
+            .then(res => {
+                if (res?.currentOrganization?.id) {
+                    //Store what Access resolved, so an unknown organizationId can't end up in storage
+                    persistOrganization(res.currentOrganization.id);
+                }
+                stripOrganizationParam();
+                setMenuModel(res || {menuItems: [], organizations: []});
+            })
             .catch(() => setMenuModel({menuItems: [mainMenuItems.invite], organizations: []}));
     }, []);
 
@@ -81,6 +89,7 @@ export const SharedMenu = () => {
                                     <DropdownMenuGroup>
                                         {organizations.map(org =>
                                             <DropdownMenuItem key={org.id}
+                                                              onClick={() => persistOrganization(org.id)}
                                                               render={
                                                                   <a href={`${ACCESS_URL}/home?organizationId=${encodeURIComponent(org.id)}`}>
                                                                       <span className="organization-option-name">{org.name}</span>
