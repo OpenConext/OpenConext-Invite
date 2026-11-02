@@ -62,14 +62,14 @@ export const Invitation = ({authenticated}) => {
                                 e.response.json().then(j => {
                                     setConfirmation({
                                         cancel: null,
-                                        action: () => logout().then(() => login(config, true, hashParam)),
+                                        action: () => setConfirmationOpen(false),
                                         warning: false,
                                         error: true,
                                         question: I18n.t("invitationAccept.crmOrganisationMismatch", {
                                             message: j.message
                                         }),
                                         confirmationHeader: I18n.t("confirmationDialog.error"),
-                                        confirmationTxt: I18n.t("invitationAccept.login")
+                                        confirmationTxt: I18n.t("forms.ok")
                                     });
                                     localStorage.setItem(MAY_ACCEPT, "true");
                                     setConfirmationOpen(true);
