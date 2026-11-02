@@ -453,7 +453,7 @@ const en = {
         loginWithSub: "Log in",
         emailMismatch: "The inviter has indicated that you must accept this invitation with email address {{email}}, " +
             "but you have logged in with an account with a different email address. Please log in in with a different account.",
-        crmOrganisationMismatch: "You already have a membership of a different CRM organisation. Please log in in with a different account.<br/><br/> Message from the server: {{message}}"
+        crmOrganisationMismatch: "You already have a membership of a different CRM organisation. Close the browser and accept the invitation with a different account.<br/><br/> Message from the server: {{message}}"
     },
     inviter: {
         welcome: "Welcome, {{name}}",
