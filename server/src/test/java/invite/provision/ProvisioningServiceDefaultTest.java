@@ -226,6 +226,24 @@ class ProvisioningServiceDefaultTest extends AbstractTest {
     }
 
     @Test
+    void deleteGroupRequestWhenScimGroupAlreadyGone() throws JsonProcessingException {
+        // SCIM 404 on DELETE must be treated as success (RFC 7644); otherwise local
+        // remote_provisioned_* rows stay and role deletes retry forever.
+        Role role = roleRepository.findByName("Calendar").get();
+
+        RemoteProvisionedGroup remoteProvisionedGroup = new RemoteProvisionedGroup(role, UUID.randomUUID().toString(), "7");
+        remoteProvisionedGroupRepository.save(remoteProvisionedGroup);
+
+        this.stubForManageProvisioning(List.of("1"));
+        this.stubForDeleteScimRoleNotFound();
+
+        assertDoesNotThrow(() -> provisioningService.deleteGroupRequest(role));
+        Optional<RemoteProvisionedGroup> remoteProvisionedGroupOptional =
+                remoteProvisionedGroupRepository.findByManageProvisioningIdAndRole("7", role);
+        assertTrue(remoteProvisionedGroupOptional.isEmpty());
+    }
+
+    @Test
     void updateEvaUserRequest() throws JsonProcessingException {
         User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
         //See server/src/main/resources/manage/provisioning.json, applicationId="3"
