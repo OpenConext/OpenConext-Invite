@@ -146,9 +146,20 @@ public class InvitationController implements InvitationResource {
     @Operation(summary = "Invite member for existing Role",
             description = """
                     Invite a member for an existing role. An invitation email will be sent. Do not forget to set guestRoleIncluded to true.
-                    At least one email must be either present in invites or invitesWithInternalPlaceholderIdentifiers.
-                    When using the invitations you can also specify the
-                    internalPlaceholderIdentifier, which will be used as the externalId in the SCIM POST to /User.
+
+                    **intendedAuthority** (required): the authority granted to the invitee upon acceptance of the invitation. Possible values are
+                    `SUPER_USER`, `INSTITUTION_ADMIN`, `APPLICATION_MANAGER`, `MANAGER`, `INVITER` and `GUEST`.
+
+                    **invites / invitesWithInternalPlaceholderIdentifiers** (at least one required): specify the recipients of the invitation in exactly one of these two
+                    arrays, do not populate both. Use `invites`, a list of email addresses, when the invitees do not have a pre-provisioned internal ID.
+                    Use `invitesWithInternalPlaceholderIdentifiers`, a list of objects with `email` and `internalPlaceholderIdentifier`, to bridge
+                    the institution's local identity management system with eduID (pre-provisioning). At least one email address must be present
+                    in the chosen array. The optional `internalPlaceholderIdentifier` is a transient stand-in for a permanent identifier,
+                    e.g. a staff number. When the invitee accepts the invitation, the `internalPlaceholderIdentifier` is sent as the `externalId`
+                    of the user resource in the initial SCIM `POST /Users` provisioning message. After the acceptance and provisioning, the system
+                    transitions to the permanent identifier (the eduID value) in subsequent SCIM updates.
+
+                    **language** (optional): the language of the invitation email. Supported values are `en` (English) and `nl` (Dutch).
                     """,
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
