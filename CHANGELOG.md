@@ -5,17 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.2.2
+
+- Treat SCIM DELETE 404 as success so provisioned rows are cleaned up
+  (see [#864](https://github.com/OpenConext/OpenConext-Invite/pull/864))
+- Left-align table content in mobile list view (see [#862](https://github.com/OpenConext/OpenConext-Invite/pull/862))
+- Always apply horizontal padding on invitation form
+  (see [#861](https://github.com/OpenConext/OpenConext-Invite/pull/861))
+- Urn based API call returning role id, name and description, with a 404 if the urn does not exist
+  (see [#860](https://github.com/OpenConext/OpenConext-Invite/issues/860))
+- Clear error message when accepting an invitation for a role of a different organization
+  (see [#801](https://github.com/OpenConext/OpenConext-Invite/issues/801))
+- Document invitation request details in Swagger
+- New internal endpoint for Access integration
+- Dependency updates (DOMPurify, Vite, undici, brace-expansion, MariaDB JDBC driver)
+
+## 1.2.1
+
+- Institution admins can only invite Application Managers for applications offered by their own institution, validated
+  in the backend (see [#851](https://github.com/OpenConext/OpenConext-Invite/issues/851))
+- Show roles of applications unknown in Manage on the user details page
+  (see [#809](https://github.com/OpenConext/OpenConext-Invite/issues/809))
+- Show CRM info (organization GUID, CRM contact ID) on the user screen
+  (see [#839](https://github.com/OpenConext/OpenConext-Invite/issues/839))
+- Allow re-inviting a CRM role with a new email address
+  (see [#843](https://github.com/OpenConext/OpenConext-Invite/issues/843))
+- Make SAB-roles completely read-only for institution admins
+  (see [#797](https://github.com/OpenConext/OpenConext-Invite/issues/797))
+- Bugfixes for lazy loading and undefined `Role.crmRoleId`
+- Completed Portuguese translations
+- Bugfix for empty `role.requestedAuthnContext`
+
 ## 1.2.0
 
 - Remove IdentityProvider for non-super-admins (see [#755](https://github.com/OpenConext/OpenConext-Invite/issues/755))
 - Allow disabling of login_hint (see [#754](https://github.com/OpenConext/OpenConext-Invite/issues/754))
-- Hide “Add inviter” / “Add role manager” button for users without permission (see [#750](https://github.com/OpenConext/OpenConext-Invite/issues/750))
-- List of applications for institution admin in Role form (see [#727](https://github.com/OpenConext/OpenConext-Invite/issues/727))
+- Hide “Add inviter” / “Add role manager” button for users without permission
+  (see [#750](https://github.com/OpenConext/OpenConext-Invite/issues/750))
+- List of applications for institution admin in Role form
+  (see [#727](https://github.com/OpenConext/OpenConext-Invite/issues/727))
 - Read-only info CRM rol eigenschappen (see [#735](https://github.com/OpenConext/OpenConext-Invite/issues/735))
-- Move internalPlaceholderIdentifier to externalId in SCIM / POST Users (see [#771](https://github.com/OpenConext/OpenConext-Invite/issues/771))
-- Log ip, username and endpoint on "Access Denied" (see [#713](https://github.com/OpenConext/OpenConext-Invite/issues/713))
+- Move internalPlaceholderIdentifier to externalId in SCIM / POST Users
+  (see [#771](https://github.com/OpenConext/OpenConext-Invite/issues/771))
+- Log ip, username and endpoint on "Access Denied"
+  (see [#713](https://github.com/OpenConext/OpenConext-Invite/issues/713))
 - Remove external links from mails (see [#612](https://github.com/OpenConext/OpenConext-Invite/issues/612))
-- Introduce After/On expiration selection option when sending invite (see [#610](https://github.com/OpenConext/OpenConext-Invite/issues/610))
+- Introduce After/On expiration selection option when sending invite
+  (see [#610](https://github.com/OpenConext/OpenConext-Invite/issues/610))
 - Add "Application Manager" Role (see [#693](https://github.com/OpenConext/OpenConext-Invite/issues/693))
 - Add Application Manager (see [#693](https://github.com/OpenConext/OpenConext-Invite/issues/693))
 - Make acr's configurable (see [#722](https://github.com/OpenConext/OpenConext-Invite/issues/722))
@@ -371,7 +407,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Bugfix for migrated users
 - Idempotency bugfix for manage queries
 - Refactor the GitHub action for building the app and publishing the docker
-- Rename confusingly misspelled lifecy(c)le config
+- Rename confusingly misspelled lifecy (c)le config
 - Enable metrics
 
 ## [0.0.5] - 17-02-2024
