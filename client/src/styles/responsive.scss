@@ -16,14 +16,14 @@ table {
 
         td {
             display: flex;
-            text-align: right;
+            text-align: left;
             border-bottom: 1px dotted var(--info-subtle);
 
             padding: 8px 0;
 
             &:before {
                 content: attr(data-label);
-                margin-right: auto;
+                margin-right: 15px;
                 font-weight: bold;
                 font-size: 14px;
                 color: black;
