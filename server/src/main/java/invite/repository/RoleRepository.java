@@ -120,6 +120,8 @@ public interface RoleRepository extends JpaRepository<Role, Long>, QueryRewriter
 
     List<Role> findByCrmRoleIdIsNotNull();
 
+    Optional<Role> findByUrn(String urn);
+
     @Override
     default String rewrite(String query, Sort sort) {
         Sort.Order userRoleCount = sort.getOrderFor("userRoleCount");
