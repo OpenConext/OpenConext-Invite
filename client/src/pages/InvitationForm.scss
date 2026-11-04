@@ -10,6 +10,7 @@
     .invitation-form {
         @include mixins.page;
         @include mixins.form;
+        padding: 0 15px;
 
         &.inviter {
             max-width: 820px;
