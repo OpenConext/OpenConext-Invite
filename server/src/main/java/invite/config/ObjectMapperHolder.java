@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Primary;
 public class ObjectMapperHolder {
 
     public static final ObjectMapper objectMapper = new ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .registerModule(new JavaTimeModule())
             .registerModule(new Jdk8Module());

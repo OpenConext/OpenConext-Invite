@@ -55,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.Serializable;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.sql.SQLTransactionRollbackException;
@@ -152,7 +153,7 @@ public class RoleController implements ApplicationResource {
             if (user.isInstitutionAdmin()) {
                 rolesPage = roleRepository.searchByPageAndOrganizationGUID(user.getOrganizationGUID(), pageable);
             } else {
-                List<String > manageIdentifiers = user.getUserApplications().stream()
+                List<String> manageIdentifiers = user.getUserApplications().stream()
                         .map(userApplication -> userApplication.getApplication().getManageId())
                         .toList();
                 List<Role> roles = roleRepository.findByApplicationUsagesApplicationManageIdIn(manageIdentifiers);
@@ -177,6 +178,25 @@ public class RoleController implements ApplicationResource {
         UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
         manage.addManageMetaData(List.of(role));
         return ResponseEntity.ok(role);
+    }
+
+    @GetMapping("/urn/{urn}")
+    @Operation(summary = "Get role by URN", description = "Retrieve role details by its URN")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Map<String, ? extends Serializable>> roleByUrn(@PathVariable("urn") String urn, @Parameter(hidden = true) User user) {
+        LOG.debug(String.format("/roleByUrn/%s for user %s", urn, user.getEduPersonPrincipalName()));
+
+        User userFromDB = userRepository.getReferenceById(user.getId());
+        Role role = roleRepository.findByUrn(urn).orElseThrow(() -> new NotFoundException("Role not found"));
+
+        UserPermissions.assertRoleAccess(userFromDB, role, Authority.INVITER);
+
+        return ResponseEntity.ok(Map.of(
+                "id", role.getId(),
+                "name", role.getName(),
+                "short_name", role.getShortName(),
+                "description", role.getDescription()
+        ));
     }
 
     @GetMapping("/application/{manageId}")

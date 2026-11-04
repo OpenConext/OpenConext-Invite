@@ -2,7 +2,6 @@ package invite.api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import invite.AbstractTest;
 import invite.AccessCookieFilter;
 import invite.DefaultPage;
@@ -28,10 +27,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
 import static invite.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RoleControllerTest extends AbstractTest {
 
@@ -671,6 +672,28 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void roleByUrn() throws Exception {
+        //Because the user is changed and provisionings are queried
+        stubForManageProvisioning(List.of());
+
+        Role roleDB = roleRepository.search("wiki", 1).get(0);
+        Map<String, Object> roleMap = given()
+                .when()
+                .auth()
+                .oauth2(opaqueAccessToken(
+                        "urn:collab:person:example.com:inviter_wiki_sub",
+                        "introspect.json",
+                        "jdoe@example.com"))
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .pathParams("urn", roleDB.getUrn())
+                .get("/api/external/v1/roles/urn/{urn}")
+                .as(new TypeRef<>() {
+                });
+        assertEquals(roleMap.get("name"), roleDB.getName());
+    }
+
+    @Test
     void deleteRole() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of("4"));
@@ -926,7 +949,7 @@ class RoleControllerTest extends AbstractTest {
                 .findFirst().orElseThrow(() -> new NotFoundException("No Group patch request found"));
         //GroupRequest can not be deserialized from String due to missing constructors and setters
         Map<String, Object> groupRequest = objectMapper.readValue(serveEvent.getRequest().getBodyAsString(), new TypeReference<>() {
-        }) ;
+        });
         List<Map<String, String>> operations = (List<Map<String, String>>) groupRequest.get("Operations");
         Map<String, String> operation = operations.getFirst();
         assertEquals("replace", operation.get("op"));
@@ -972,7 +995,7 @@ class RoleControllerTest extends AbstractTest {
                 .findFirst().orElseThrow(() -> new NotFoundException("No Group patch request found"));
         //GroupRequest can not be deserialized from String due to missing constructors and setters
         Map<String, Object> groupRequest = objectMapper.readValue(serveEvent.getRequest().getBodyAsString(), new TypeReference<>() {
-        }) ;
+        });
         assertEquals("changed", groupRequest.get("displayName"));
         assertEquals(userRoles.size(), ((List<Map<String, String>>) groupRequest.get("members")).size());
     }
