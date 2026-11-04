@@ -48,6 +48,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -615,6 +616,27 @@ public class ProvisioningServiceDefault implements ProvisioningService {
                     provisioning.getEntityId()));
 
             return body;
+        } catch (HttpStatusCodeException e) {
+            // RFC 7644 §3.6: a previously deleted resource MUST yield 404. Treat DELETE + 404 as
+            // success so local remote_provisioned_* rows are cleaned up and role/user deletes
+            // do not retry the same SCIM DELETE forever.
+            if (HttpMethod.DELETE.equals(requestEntity.getMethod())
+                    && e.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
+                LOG.info(String.format(
+                        "Remote %s already deleted (HTTP 404) at %s for provisioning-entityId %s; treating DELETE as success",
+                        api.getDisplay(),
+                        requestEntity.getUrl(),
+                        provisioning.getEntityId()));
+                return null;
+            }
+            String errorMessage = String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
+                    api,
+                    provisioning.getEntityId(),
+                    requestEntity.getUrl(),
+                    requestEntity.getMethod(),
+                    requestEntity.getBody());
+            LOG.error(errorMessage, e);
+            throw new RemoteException(HttpStatus.BAD_REQUEST, errorMessage, e);
         } catch (RuntimeException e) {
             String errorMessage = String.format("Error %s SCIM request (entityID %s) to %s with %s httpMethod and body %s",
                     api,

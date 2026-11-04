@@ -527,6 +527,12 @@ public abstract class AbstractTest {
                         .withStatus(201)));
     }
 
+    protected void stubForDeleteScimUserNotFound() {
+        stubFor(delete(urlPathMatching("/api/scim/v2/Users/(.*)"))
+                .willReturn(aResponse()
+                        .withStatus(404)));
+    }
+
     protected void stubForDeleteEvaUser() {
         stubFor(post(urlPathMatching("/eva/api/v1/guest/disable/(.*)"))
                 .willReturn(aResponse()
@@ -543,6 +549,12 @@ public abstract class AbstractTest {
         stubFor(delete(urlPathMatching("/api/scim/v2/Groups/(.*)"))
                 .willReturn(aResponse()
                         .withStatus(201)));
+    }
+
+    protected void stubForDeleteScimRoleNotFound() {
+        stubFor(delete(urlPathMatching("/api/scim/v2/Groups/(.*)"))
+                .willReturn(aResponse()
+                        .withStatus(404)));
     }
 
     protected String stubForCreateScimRole() throws JsonProcessingException {
