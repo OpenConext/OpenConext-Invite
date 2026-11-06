@@ -11,17 +11,17 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@surfnet/sds": "^0.0.164",
+    "@phosphor-icons/react": "^2.1.10",
+    "@surfnet/curve-react": "^0.9.0",
     "dompurify": "^3.4.17",
     "i18n-js": "^4.5.3",
     "isomorphic-dompurify": "^4.6.0",
     "js-cookie": "^3.0.8",
     "luxon": "^3.7.2",
     "react": "^19.2.8",
-    "react-copy-to-clipboard": "^5.1.1",
     "react-dom": "^19.2.8",
     "react-router": "8.3.0",
-    "react-tooltip": "^5.30.1",
+    "sonner": "^2.0.7",
     "timeago.js": "^4.0.2",
     "word-wrap": "^1.2.5",
     "zustand": "^5.0.14"
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "4.3.3",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -39,6 +40,7 @@
     "globals": "^17.9.0",
     "http-proxy-middleware": "^4.2.0",
     "sass": "^1.102.0",
+    "tailwindcss": "4.3.3",
     "vite": "^8.2.4",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.10"

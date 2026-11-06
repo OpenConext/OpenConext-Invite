@@ -1,31 +1,17 @@
-@use "../styles/vars.scss";
-
 .mod-profile {
     width: 100%;
 
-
     .profile-container {
-        max-width: vars.$medium;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        gap: 40px;
+        width: 100%;
+        max-width: 960px;
         margin: 0 auto;
-        @media (max-width: vars.$medium) {
-            padding: 0 15px;
-        }
+        padding: 64px 0;
 
-        .welcome-logo img {
-            margin: 25px 0;
-            width: 185px;
-            height: auto;
-            border: 4px solid var(--sds--color--blue--400);
-            padding: 10px 20px;
-            border-radius: 50%;
+        @media (max-width: 1040px) {
+            padding: 32px 15px;
         }
-
-        h2 {
-            margin: 0 0 25px 0;
-        }
-
     }
 }

@@ -24,6 +24,8 @@ const en = {
     header: {
         title: "SURFconext Invite",
         subTitle: "Everything will be Owl right",
+        support: "Support",
+        supportLink: "https://surf.nl",
         links: {
             login: "Log in",
             switchApp: "Go to {{app}}",
@@ -56,7 +58,10 @@ const en = {
             "The reference number for this exception is {{reference}}."
     },
     profile: {
-        welcome: "Welcome, {{name}}",
+        welcome: "Welcome {{name}}",
+        loggedInVia: "Logged in via {{institution}}",
+        useOtherAccount: "Use another account",
+        rolesInfo: "These are the applications you can access via your role <strong>{{role}}</strong>.",
         info: "Here are the educational applications you can access through SURFconext Invite",
         toaster: "You are logged in with the institution {{institution}} (",
         changeThis: "change this",
@@ -85,6 +90,13 @@ const en = {
     },
     invitationAccept: {
         hi: "Hi{{name}},",
+        invitedTitle: "You have been invited for the {{plural}} {{roles}}",
+        expiredTitle: "This invitation is no longer valid",
+        validity: "This role is valid for {{duration}}.",
+        applicationsHeader: "This role gives access to the following application(s):",
+        acceptInfo: "By logging in you accept the role and can get started.",
+        loginToAccept: "Log in to accept the role",
+        receivedFrom: "Invitation received from:",
         nextStep: "Next: enjoy your new role",
         expired: "This invitation has expired at {{expiryDate}}",
         expiredInfo: "Please contact the person that invited you and ask this person to send you a new invite.",
@@ -116,7 +128,7 @@ const en = {
         progress: "2",
         goto: "Visit application",
         nextStep: "Next: go to the application",
-        launch: "Launch",
+        launch: "Open",
         new: "New"
     },
     tooltips: {
@@ -135,6 +147,7 @@ const en = {
         termsLink: "https://support.surfconext.nl/terms-en",
         privacy: "Privacy policy",
         privacyLink: "https://support.surfconext.nl/privacy-en",
+        privacyTerms: "Privacy & terms",
         surfLink: "https://surf.nl",
     },
     expirations: {

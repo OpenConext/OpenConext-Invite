@@ -1,27 +1,6 @@
-@use "styles/tooltip";
+@use "styles/design-system";
 @use "styles/forms";
-@use "styles/vars";
 
-$min-width-pixels: 620px;
-
-.sds--toaster {
-    width: $min-width-pixels;
-    margin: 25px 0;
-    @media (max-width: vars.$medium) {
-        width: 90vw;
-    }
-}
-
-.sds--card--big {
-    width: $min-width-pixels;
-    @media (max-width: vars.$medium) {
-        max-width: 90vw;
-    }
-}
-
-.sds--modal--container.full {
-    @media (max-width: vars.$medium) {
-        max-width: 90vw;
-    }
-
+strong {
+    font-weight: 600;
 }

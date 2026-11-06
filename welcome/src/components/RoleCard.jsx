@@ -2,39 +2,33 @@ import React from "react";
 import "./RoleCard.scss";
 import Logo from "./Logo";
 import I18n from "../locale/I18n";
-import {MoreLessText} from "./MoreLessText";
-import {Button, Card, CardType, Chip, ChipType} from "@surfnet/sds";
+import {Badge, Button} from "@surfnet/curve-react";
 import {isEmpty, sanitizeURL} from "../utils/Utils";
 
-export const RoleCard = ({index, application, isNew = false, skipLaunch = false}) => {
+export const RoleCard = ({application, isNew = false}) => {
 
-    const children =
-        <div key={index} className="user-role">
-            <Logo src={application.logo} alt={"provider"} className={"provider"}/>
-            <section className={"user-role-info"}>
-                <p>{application.roleName}</p>
-                <h3>{application.applicationName}</h3>
-                <MoreLessText txt={application.roleDescription} cutOffNumber={120}/>
-            </section>
-            {(!skipLaunch && !isEmpty(application.landingPage)) &&
-                <div className={"launch"}>
-                    <Button txt={I18n.t("proceed.launch")} onClick={e => {
-                        const href = sanitizeURL(application.landingPage);
-                        if (e.metaKey || e.ctrlKey) {
-                            window.open(href, '_blank');
-                        } else {
-                            window.location.href = href;
-                        }
-                    }}/>
-                </div>
-            }
-        </div>;
+    const launch = e => {
+        const href = sanitizeURL(application.landingPage);
+        if (e.metaKey || e.ctrlKey) {
+            window.open(href, '_blank');
+        } else {
+            window.location.href = href;
+        }
+    }
+
     return (
-        <div className={`card-container  ${isNew ? "is-new" : ""}`}>
-            {isNew &&
-                <Chip label={I18n.t("proceed.new")} type={ChipType.Status_error}/>
-            }
-            <Card key={index} cardType={CardType.Big} children={children}/>
+        <div className="application-card">
+            <Logo src={application.logo} alt={application.name} className="provider"/>
+            <div className="application-info">
+                <div className="application-title">
+                    <h3>{application.name}</h3>
+                    {isNew && <Badge variant="info">{I18n.t("proceed.new")}</Badge>}
+                </div>
+                <p className="organisation">{application.organisation}</p>
+                <p className="description">{application.description}</p>
+            </div>
+            {!isEmpty(application.landingPage) &&
+                <Button variant="outline" onClick={launch}>{I18n.t("proceed.launch")}</Button>}
         </div>
     );
 }

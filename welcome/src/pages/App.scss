@@ -3,9 +3,13 @@
     flex-direction: column;
     min-height: 100vh;
     position: relative;
+    background-color: var(--muted);
     width: 100%;
 }
 
-.sds--modal.sds--backdrop {
-    z-index: 99;
+.invite .app-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    width: 100%;
 }

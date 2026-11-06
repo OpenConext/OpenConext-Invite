@@ -1,0 +1,58 @@
+/*
+ * App-level Tailwind v4 entry.
+ *
+ * The compiled @surfnet/curve-react/styles.css (imported first in main.jsx) already
+ * ships Tailwind's preflight, the design-token CSS variables (:root / .dark /
+ * .theme-*), and the component utilities. So here we pull in Tailwind WITHOUT
+ * preflight (granular imports, no `tailwindcss/preflight.css`) to avoid a second
+ * base reset, and re-declare the token -> color mapping so app-authored utilities
+ * like `bg-primary` / `text-foreground` resolve to the same theme variables.
+ */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/*
+ * The app's SCSS never uses @apply, but plain CSS values like `overflow: hidden`
+ * read as utility-class candidates to Tailwind's source scanner (e.g. a bare
+ * `.hidden` rule), which collides with variant pairs curve-react's own compiled
+ * CSS relies on (e.g. `hidden md:block` on the Sidebar) since both land in the
+ * same shared `utilities` layer. Exclude .scss from candidate scanning.
+ */
+@source not "**/*.scss";
+
+/*
+ * The bare word "hidden" also shows up in JSX/comments (e.g. `aria-hidden`), which would
+ * emit an app-level `.hidden` that overrides curve-react's `md:block` on the Sidebar.
+ */
+@source not inline("hidden");
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-strong: var(--primary-strong);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}

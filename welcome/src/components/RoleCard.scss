@@ -1,93 +1,69 @@
-@use "../styles/vars.scss";
-
-.card-container {
-
-    button.sds--chips {
-        background-color: #FFD700;
-    }
-
-    &.is-new {
-        position: relative;
-
-        .sds--chips {
-            position: absolute;
-            top: -16px;
-            left: -22px;
-
-            @media (max-width: vars.$medium) {
-                left: -10px;
-            }
-
-        }
-
-        @keyframes glow {
-            0% {
-                box-shadow: 1px 0.13rem 0.13rem 0 #FFD700;
-                border: 0.0625rem solid #FFD700;
-            }
-            50% {
-                box-shadow: 1px 0.16rem 0.16rem 0 #eac602;
-                border: 0.0625rem solid #eac602;
-            }
-            100% {
-                box-shadow: 1px 0.13rem 0.13rem 0 #FFD700;
-                border: 0.0625rem solid #FFD700;
-            }
-        }
-
-        .sds--card {
-            animation: glow 2.5s infinite;
-        }
-
-    }
-
-    .user-role {
-        display: flex;
-        align-items: center;
-
-        @media (max-width: vars.$medium) {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        img, svg {
-            height: 90px;
-            width: auto;
-            margin: 0 35px auto 0;
-            border-radius: vars.$br;
-            border: 1px solid var(--sds--color--gray--300);
-            padding: 16px;
-            @media (max-width: 680px) {
-                margin: 0 auto 20px 0;
-            }
-        }
-.launches {
+.application-card {
     display: flex;
-    flex-direction: column;
-    gap: 25px;
+    align-items: flex-start;
+    gap: 20px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 146px;
+    padding: 20px;
+    overflow: hidden;
+    background-color: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
 
-}
-        .launch {
-            margin-left: auto;
+    img.provider, svg.provider {
+        flex-shrink: 0;
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
 
-            button {
-                margin-left: 15px;
-            }
+    .application-info {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        overflow: hidden;
 
-            @media (max-width: 680px) {
-                margin: 20px auto 0 0;
-                button {
-                    margin-left: 0;
-                }
-            }
+        .application-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
 
-        }
-
-
-        .user-role-info {
             h3 {
-                margin: 10px 0;
+                margin: 0;
+                font-size: 20px;
+                line-height: 28px;
+                font-weight: 600;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
+
+        p.organisation {
+            font-size: 14px;
+            line-height: 20px;
+            color: var(--muted-foreground);
+        }
+
+        p.description {
+            flex: 1 1 0;
+            min-height: 0;
+            overflow: hidden;
+            line-height: 24px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-word;
+        }
+    }
+
+    button {
+        flex-shrink: 0;
+        min-width: 120px;
     }
 }

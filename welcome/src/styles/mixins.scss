@@ -7,7 +7,7 @@
         min-width: 210px;
         color: black;
         position: relative;
-        margin: 12px 0 var(--sds--space--1);
+        margin: 12px 0 4px;
     }
 }
 
@@ -29,18 +29,18 @@
     display: grid;
     grid-template-columns: [first] 1fr [second] 1fr;
 
-    .input-field, .select-field, .date-field, .error-indication, .sds--checkbox-container  {
+    .input-field, .select-field, .date-field, .error-indication, [data-slot="checkbox"]  {
         grid-column-start: first;
     }
 
-    .input-field, .select-field, .date-field, .sds--checkbox-container{
+    .input-field, .select-field, .date-field, [data-slot="checkbox"]{
         margin-top: 20px;
     }
     .actions {
         grid-column-start: first;
         margin-top: 30px;
         padding: 25px 0;
-        border-top: 2px solid var(--sds--color--gray--200);
+        border-top: 2px solid var(--border);
         display: flex;
         justify-content: flex-end;
         position: relative;
@@ -49,7 +49,7 @@
             margin-left: 25px;
         }
 
-        button.sds--btn--delete, button.sds--btn--delete--secondary  {
+        button[data-variant="destructive"]  {
             margin-right: auto;
             margin-left: 0;
         }

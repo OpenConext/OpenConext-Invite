@@ -1,35 +1,22 @@
-@use "../styles/vars.scss";
-
 .header-container {
-
-    background-color: var(--sds--palette--main-color--400);
-    color: var(--sds--color--white);
-    margin: 0 auto;
-    padding: 5px 0 10px 0;
+    background-color: var(--muted);
+    border-bottom: 1px solid var(--border);
 
     .header-inner {
-        position: relative;
-        transition: margin 150ms ease-in-out;
+        box-sizing: border-box;
         display: flex;
         align-items: center;
+        justify-content: flex-end;
+        gap: 16px;
         width: 100%;
-        margin: 0 auto;
-        max-width: vars.$medium;
+        min-height: 72px;
+        padding: 0 40px;
 
-        @media (max-width: vars.$medium) {
-            padding: 0 15px;
-        }
-
-        a.logo {
-            margin-top: 10px;
+        a.support-link {
+            color: var(--foreground);
+            font-weight: 500;
             text-decoration: none;
+            padding: 6px 16px;
         }
-
     }
-
 }
-
-
-
-
-

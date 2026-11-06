@@ -2,19 +2,17 @@ import React, {useEffect, useState} from "react";
 import {acceptInvitation, invitationByHash, logout, me} from "../api";
 import I18n from "../locale/I18n";
 import "./Invitation.scss";
-import "../styles/circle.scss";
 import {login} from "../utils/Login";
 import ErrorIndicator from "../components/ErrorIndicator";
 import DOMPurify from "dompurify";
-import {Button, Loader, Toaster, ToasterType} from "@surfnet/sds";
+import {Button, Spinner} from "@surfnet/curve-react";
 import {getParameterByName} from "../utils/QueryParameters";
-import {DateTime} from "luxon";
+import {DateTime, Duration} from "luxon";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
-import {organisationName} from "../utils/Manage";
-import HighFive from "../icons/high-five.svg?url";
+import {initials} from "../utils/Manage";
 
 const MAY_ACCEPT = "mayAccept";
 const HAS_LOGGED_IN_AGAIN = "hasLoggedInAgain"
@@ -158,65 +156,81 @@ export const Invitation = ({authenticated}) => {
         });
     }
 
+    const validity = (invitationRole) => {
+        const days = isEmpty(invitation.roleExpiryDate) ? invitationRole.role.defaultExpiryDays :
+            Math.round(DateTime.fromSeconds(invitation.roleExpiryDate).diffNow("days").days);
+        if (isEmpty(days)) {
+            return null;
+        }
+        const object = days < 60 ? {days: days} : days < 730 ? {months: Math.round(days / 30.44)} : {years: Math.round(days / 365.25)};
+        const duration = Duration.fromObject(object).reconfigure({locale: I18n.locale}).toHuman();
+        return I18n.t("invitationAccept.validity", {duration: duration});
+    }
+
+    const applicationNames = role => {
+        const names = (role.applicationMaps || [])
+            .filter(app => !app.unknown)
+            .map(app => app[`name:${I18n.locale}`] || app["name:en"]);
+        return [...new Set(names)].sort((a, b) => a.localeCompare(b)).join(", ");
+    }
+
     const renderLoginStep = () => {
         const rolesWithInviterDisplayName = invitation.roles
             .map(invitationRole => invitationRole.role)
             .find(role => !isEmpty(role.inviterDisplayName));
-        let html = DOMPurify.sanitize(I18n.t("invitationAccept.invited", {
-            type: I18n.t("invitationAccept.role"),
-            roles: splitListSemantically(invitation.roles
-                .map(invitationRole => `<strong>${invitationRole.role.name}</strong>${organisationName(invitationRole.role.applicationMaps)}`), I18n.t("forms.and")),
-            inviter: isEmpty(rolesWithInviterDisplayName) ? invitation.inviter.name : rolesWithInviterDisplayName.inviterDisplayName,
-            plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
-            email: invitation.inviter.email
-        }));
-        if (invitation.enforceEmailEquality) {
-            html += DOMPurify.sanitize(I18n.t("invitationAccept.enforceEmailEquality", {email: invitation.email}));
-        }
+        const inviterName = isEmpty(rolesWithInviterDisplayName) ? invitation.inviter.name : rolesWithInviterDisplayName.inviterDisplayName;
+        const roleNames = splitListSemantically(invitation.roles.map(invitationRole => invitationRole.role.name), I18n.t("forms.and"));
+        const plural = invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles");
 
         const expiryDate = DateTime.fromMillis(invitation.expiryDate * 1000).toLocaleString(DateTime.DATETIME_MED);
         const expiredMessage = I18n.t("invitationAccept.expired", {expiryDate: expiryDate});
         return (
             <>
-                <div className="welcome-logo">
-                    <img src={HighFive} alt={I18n.t("notFound.alt")}/>
-                </div>
-                {!expired && <h1>{I18n.t("invitationAccept.hi", {name: authenticated ? ` ${user.name}` : ""})}</h1>}
+                {!expired && <h1>{I18n.t("invitationAccept.invitedTitle", {plural: plural, roles: roleNames})}</h1>}
+                {expired && <h1>{I18n.t("invitationAccept.expiredTitle")}</h1>}
                 {expired &&
                     <p className="expired"><ErrorIndicator msg={expiredMessage}/></p>}
                 {expired &&
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.expiredInfo", {email: invitation.email}))}}/>}
+                {!expired && invitation.roles.map(invitationRole =>
+                    <div className="role-card" key={invitationRole.id}>
+                        <div className="role-card-header">
+                            <h2>{invitationRole.role.name}</h2>
+                            {validity(invitationRole) && <p>{validity(invitationRole)}</p>}
+                        </div>
+                        <div className="role-card-applications">
+                            <p className="muted">{I18n.t("invitationAccept.applicationsHeader")}</p>
+                            <p>{applicationNames(invitationRole.role)}</p>
+                        </div>
+                    </div>)}
+                {(!expired && invitation.enforceEmailEquality) &&
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.enforceEmailEquality", {email: invitation.email}))}}/>}
                 {!expired && <>
-                    <Toaster toasterType={ToasterType.Info} message={html}/>
+                    <p className="accept-info">{I18n.t("invitationAccept.acceptInfo")}</p>
+                    <div className="accept-actions">
+                        <Button onClick={proceed}>{I18n.t("invitationAccept.loginToAccept")}</Button>
+                        <p className="hint">
+                            {invitation.eduIDOnly ? I18n.t("invitationAccept.infoLoginEduIDOnly") :
+                                I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}
+                        </p>
+                    </div>
+                    <div className="inviter">
+                        <p>{I18n.t("invitationAccept.receivedFrom")}</p>
+                        <div className="inviter-identity">
+                            <div className="avatar" aria-hidden="true">{initials(inviterName)}</div>
+                            <div className="inviter-name">
+                                <span className="name">{inviterName}</span>
+                                <span className="email">{invitation.inviter.email}</span>
+                            </div>
+                        </div>
+                    </div>
                 </>}
-                {!expired &&
-                    <section className="step-container">
-                        <div className="step">
-                            <div className="circle two-quarters">
-                                <span>{I18n.t("invitationAccept.progress")}</span>
-                            </div>
-                            <div className="step-actions">
-                                <h4>{I18n.t("invitationAccept.login")}</h4>
-                                <span>{I18n.t("invitationAccept.nextStep")}</span>
-                            </div>
-                        </div>
-                        <div className={"info-block"}>
-                            {!authenticated &&
-                                <span dangerouslySetInnerHTML={{__html: `${I18n.t("invitationAccept.info")} `}}/>}
-                            {invitation.eduIDOnly && <span>{I18n.t("invitationAccept.infoLoginEduIDOnly")}</span>}
-                            {!invitation.eduIDOnly &&
-                                <span>{I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}</span>}
-                        </div>
-                        <Button onClick={proceed}
-                                txt={I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}
-                                centralize={true}/>
-                    </section>}
             </>
         )
     }
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
     return (
         <div className="mod-user-invitation">

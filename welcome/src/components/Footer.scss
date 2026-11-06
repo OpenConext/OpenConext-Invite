@@ -1,3 +1,27 @@
-footer.sds--footer {
+footer.public-footer {
     margin-top: auto;
+    background-color: var(--muted);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    min-height: 64px;
+
+    a.terms {
+        color: var(--muted-foreground);
+        font-size: 14px;
+        line-height: 20px;
+        text-decoration: none;
+
+        &:hover {
+            color: var(--foreground);
+        }
+    }
+
+    img {
+        display: block;
+        width: 60px;
+        height: 30px;
+    }
 }

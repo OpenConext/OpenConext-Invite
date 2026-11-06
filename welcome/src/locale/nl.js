@@ -24,6 +24,8 @@ const nl = {
     header: {
         title: "SURFconext Invite",
         subTitle: "Alles gaat uilstekend",
+        support: "Support",
+        supportLink: "https://surf.nl",
         links: {
             login: "Inloggen",
             switchApp: "Ga naar {{app}}",
@@ -56,7 +58,10 @@ const nl = {
             "Het foutmeldingsnummer is {{reference}}."
     },
     profile: {
-        welcome: "Welkom, {{name}}",
+        welcome: "Welkom {{name}}",
+        loggedInVia: "Ingelogd via {{institution}}",
+        useOtherAccount: "Ander account gebruiken",
+        rolesInfo: "Dit zijn de applicaties waar je via je rol <strong>{{role}}</strong> toegang toe hebt.",
         info: "Hier zijn de applicaties waar je via SURFconext Invite toegang toe hebt.",
         toaster: "Je bent ingelogd via {{institution}} (",
         changeThis: "wijzig",
@@ -84,6 +89,13 @@ const nl = {
         schacHomeOrganization: "schacHomeOrganisatie"
     },
     invitationAccept: {
+        invitedTitle: "Je bent uitgenodigd voor de {{plural}} {{roles}}",
+        expiredTitle: "Deze uitnodiging is niet meer geldig",
+        validity: "De rol is {{duration}} geldig.",
+        applicationsHeader: "Deze rol geeft toegang tot de volgende applicatie(s):",
+        acceptInfo: "Door in te loggen accepteer je de rol en kun je ermee aan de slag.",
+        loginToAccept: "Inloggen om de rol te accepteren",
+        receivedFrom: "Uitnodiging ontvangen van:",
         hi: "Hoi{{name}},",
         nextStep: "Volgende: veel plezier met je nieuwe rol",
         expired: "Deze uitnodiging is verlopen op {{expiryDate}}",
@@ -136,6 +148,7 @@ const nl = {
         termsLink: "https://support.surfconext.nl/terms-nl",
         privacy: "Privacybeleid",
         privacyLink: "https://support.surfconext.nl/privacy-nl",
+        privacyTerms: "Privacy & voorwaarden",
         surfLink: "https://surf.nl",
     },
     expirations: {

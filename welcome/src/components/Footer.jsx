@@ -1,33 +1,18 @@
 import React from "react";
 import I18n from "../locale/I18n";
 import "./Footer.scss"
-import {LanguageSelector} from "./LanguageSelector";
-import {Logo, LogoType} from "@surfnet/sds";
+import surfLogo from "../icons/surf-logo.svg?url";
 
 export const Footer = () => {
+
     return (
-        <footer className="sds--footer sds--footer--single-bar">
-            <div className="sds--page-container">
-                <div className="sds--footer--inner">
-                    <nav className="menu sds--text--body--small">
-                        <ul>
-                            <li>
-                                <a href={I18n.t("footer.termsLink")} target="_blank"
-                                   rel="noopener noreferrer"><span>{I18n.t("footer.terms")}</span></a>
-                            </li>
-                            <li>
-                                <a href={I18n.t("footer.privacyLink")} target="_blank"
-                                   rel="noopener noreferrer"><span>{I18n.t("footer.privacy")}</span></a>
-                            </li>
-                        </ul>
-                    </nav>
-                    <LanguageSelector/>
-                    <div className="sds--branding">
-                        <a href={I18n.t("footer.surfLink")} target="_blank"
-                           rel="noopener noreferrer">{<Logo label={""} position={LogoType.Bottom}/>}</a>
-                    </div>
-                </div>
-            </div>
+        <footer className="public-footer">
+            <a className="terms" href={I18n.t("footer.termsLink")} target="_blank" rel="noopener noreferrer">
+                {I18n.t("footer.privacyTerms")}
+            </a>
+            <a className="surf-logo" href={I18n.t("footer.surfLink")} target="_blank" rel="noopener noreferrer">
+                <img src={surfLogo} alt="SURF"/>
+            </a>
         </footer>
     );
 }

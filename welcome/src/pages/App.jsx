@@ -1,7 +1,7 @@
 import './App.scss';
 import {Navigate, Route, Routes, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
-import {Loader} from "@surfnet/sds";
+import {Spinner} from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore";
 import {configuration, csrf, me} from "../api";
 import {Login} from "./Login";
@@ -88,13 +88,13 @@ export const App = () => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) {
-        return <Loader/>
+        return <div className="loading-container"><Spinner className="size-8"/></div>
     }
 
 
     return (
         <div className="invite">
-            <div className="container">
+            <div className="app-content">
                 <Flash/>
                 <Header/>
                 {authenticated &&

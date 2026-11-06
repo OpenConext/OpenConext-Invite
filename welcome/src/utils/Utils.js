@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 export function stopEvent(e) {
     if (e !== undefined && e !== null) {
         e.preventDefault();
@@ -32,3 +34,7 @@ export const sanitizeURL = url => {
     return ["https:", "http:"].includes(protocol) ? url : "about:blank";
 }
 
+
+export function sanitize(text) {
+    return DOMPurify.sanitize(text, {ADD_ATTR: ["target"]});
+}

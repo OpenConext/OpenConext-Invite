@@ -36,3 +36,35 @@ export const reduceApplicationFromUserRoles = (userRoles, locale) => {
         app1.applicationName.localeCompare(app2.applicationName) || app1.roleName.localeCompare(app2.roleName)
     );
 }
+
+export const initials = name => {
+    const parts = (name || "").trim().split(/\s+/).filter(p => p.length > 0);
+    if (parts.length === 0) {
+        return "";
+    }
+    const first = parts[0].charAt(0);
+    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+    return (first + last).toUpperCase();
+}
+
+//One entry per role with the applications of that role
+export const groupApplicationsByRole = (userRoles, locale) => {
+    const roles = [];
+    userRoles.forEach(userRole => {
+        const applications = (userRole.role.applicationMaps || [])
+            //Applications that do not exist any longer in Manage, are marked as unknown server side
+            .filter(app => !app.unknown)
+            .map(app => ({
+                logo: app.logo,
+                landingPage: app.landingPage,
+                name: app[`name:${locale}`] || app["name:en"],
+                organisation: app[`OrganizationName:${locale}`] || app["OrganizationName:en"],
+                description: userRole.role.description
+            }))
+            .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        if (applications.length > 0) {
+            roles.push({id: userRole.role.id, roleName: userRole.role.name, applications});
+        }
+    });
+    return roles.sort((a, b) => a.roleName.localeCompare(b.roleName));
+}

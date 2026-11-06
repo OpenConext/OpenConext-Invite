@@ -20,7 +20,7 @@ div.invite-only {
         padding: 25px 25px 25px 0;
     }
 
-    .sds--toaster {
+    [data-slot="alert"] {
         min-width: 480px;
     }
 }

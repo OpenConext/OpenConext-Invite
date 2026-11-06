@@ -1,6 +1,7 @@
 import "./MissingAttributes.scss";
 import I18n from "../locale/I18n";
-import {Toaster, ToasterType} from "@surfnet/sds";
+import {WarningIcon} from "@phosphor-icons/react";
+import {Alert, AlertDescription} from "@surfnet/curve-react";
 import DOMPurify from "dompurify";
 import React from "react";
 import {Page} from "../components/Page";
@@ -28,10 +29,10 @@ export const MissingAttributes = () => {
                     {config.missingAttributes.map(attr =>
                         <li key={attr}>{I18n.t(`missingAttributes.${attr}`) }</li>)}
                 </ul>
-                <Toaster message={""}
-                         toasterType={ToasterType.Warning}
-                         children={
-                             <div className="warning">
+                <Alert variant="warning">
+                    <WarningIcon/>
+                    <AlertDescription>
+                        <div className="warning">
                                  <p className={"info"}
                                     dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("missingAttributes.info"))}}/>
 
@@ -39,8 +40,8 @@ export const MissingAttributes = () => {
                                  <a href="/login" onClick={doLogin}>{I18n.t("missingAttributes.login")}</a>
                                  <span>{I18n.t("missingAttributes.postLogin")}</span>
                              </div>
-                         }
-                />
+                    </AlertDescription>
+                </Alert>
 
             </div>
         </Page>)

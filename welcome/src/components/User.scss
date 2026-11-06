@@ -1,1 +1,16 @@
-@use "../styles/vars";
+section.role-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+
+    .role-applications {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+
+        @media (max-width: 820px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+}
