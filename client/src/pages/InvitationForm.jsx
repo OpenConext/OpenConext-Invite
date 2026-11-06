@@ -11,6 +11,8 @@ import {
     markAndFilterRoles
 } from "../utils/UserRole";
 import UserIcon from "@surfnet/sds/icons/functional-icons/id-2.svg";
+import TrashIcon from "@surfnet/sds/icons/functional-icons/bin.svg";
+import PlusIcon from "@surfnet/sds/icons/functional-icons/add.svg";
 import UpIcon from "@surfnet/sds/icons/functional-icons/arrow-up-2.svg";
 import DownIcon from "@surfnet/sds/icons/functional-icons/arrow-down-2.svg";
 import {
@@ -20,7 +22,7 @@ import {
     requestedAuthnContextValues,
     rolesByApplication
 } from "../api";
-import {Button, ButtonType, Tooltip} from "@surfnet/sds";
+import {Button, ButtonIconPlacement, ButtonType, Tooltip} from "@surfnet/sds";
 import "./InvitationForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
 import InputField from "../components/InputField";
@@ -34,6 +36,7 @@ import SwitchField from "../components/SwitchField";
 import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import {ExpandableSwitchField} from "../components/ExpandableSwitchField";
 import Select from "react-select";
+import {AuthorityExplanation} from "../components/AuthorityExplanation";
 import {providersToOptions} from "../utils/Manage";
 
 const DEFAULT_ROLE_EXPIRY_DAYS = 366;
@@ -45,6 +48,11 @@ export const InviterContainer = ({isInviter, children}) => {
         <div className="inviter-wrapper">{children}</div> : <>{children}</>
 
 }
+
+// The institution admin authority can not be chosen when inviting
+const invitableAuthorities = (user, selectedRoles) =>
+    allowedAuthoritiesForInvitation(user, selectedRoles)
+        .filter(authority => authority !== AUTHORITIES.INSTITUTION_ADMIN);
 
 export const InvitationForm = () => {
     const location = useLocation();
@@ -58,6 +66,8 @@ export const InvitationForm = () => {
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [applications, setApplications] = useState([]);
     const [selectedApplications, setSelectedApplications] = useState([]);
+    const [addRoleSlot, setAddRoleSlot] = useState(false);
+    const [addApplicationSlot, setAddApplicationSlot] = useState(false);
     const [originalRoleId, setOriginalRoleId] = useState(null);
     const [invitation, setInvitation] = useState({
         expiryDate: futureDate(30),
@@ -276,7 +286,7 @@ export const InvitationForm = () => {
             setSelectedRoles([])
             setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false, requestedAuthnContext: null})
         } else {
-            const allowedAuthorities = allowedAuthoritiesForInvitation(user, selectedOptions);
+            const allowedAuthorities = invitableAuthorities(user, selectedOptions);
             let intendedAuthority = invitation.intendedAuthority;
             //If the chosen authority is no longer allowed, then change it
             if (!allowedAuthorities.includes(invitation.intendedAuthority)) {
@@ -314,6 +324,8 @@ export const InvitationForm = () => {
 
 
     const authorityChanged = option => {
+        setAddRoleSlot(false);
+        setAddApplicationSlot(false);
         const applicationManagerAuthority = option.value === AUTHORITIES.APPLICATION_MANAGER;
         const adminAuthority = option.value === AUTHORITIES.SUPER_USER || option.value === AUTHORITIES.INSTITUTION_ADMIN;
         const eduIDOnly = applicationManagerAuthority || adminAuthority ? false : invitation.eduIDOnly;
@@ -354,6 +366,49 @@ export const InvitationForm = () => {
         )
     }
 
+    // Renders one single select per chosen item, plus an optional empty one. Only the first select has no trash icon.
+    const renderSelectSlots = ({selected, available, showEmpty, setShowEmpty, onChange, name, toolTip, placeholder, addTxt}) => {
+        const hasEmptySlot = isEmpty(selected) || showEmpty;
+        const slotCount = selected.length + (hasEmptySlot ? 1 : 0);
+        const removeSlot = index => {
+            if (index < selected.length) {
+                onChange(selected.filter((_, i) => i !== index));
+            } else {
+                setShowEmpty(false);
+            }
+        }
+        return (
+            <>
+                {Array.from({length: slotCount}, (_, index) =>
+                    <div className="select-slot" key={index}>
+                        <SelectField value={selected[index] || null}
+                                     options={available}
+                                     name={index === 0 ? name : null}
+                                     toolTip={index === 0 ? toolTip : null}
+                                     required={index === 0}
+                                     searchable={true}
+                                     placeholder={placeholder}
+                                     onChange={option => {
+                                         const newSelected = [...selected];
+                                         newSelected[index] = option;
+                                         setShowEmpty(false);
+                                         onChange(newSelected);
+                                     }}/>
+                        {index > 0 &&
+                            <span className="trash" onClick={() => removeSlot(index)}>
+                                <TrashIcon/>
+                            </span>}
+                    </div>)}
+                <Button type={ButtonType.Secondary}
+                        txt={addTxt}
+                        icon={<PlusIcon/>}
+                        iconPlacement={ButtonIconPlacement.Left}
+                        disabled={hasEmptySlot || isEmpty(available)}
+                        onClick={() => setShowEmpty(true)}/>
+            </>
+        );
+    }
+
     const renderFormElements = authorityOptions => {
         const skipRoles = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority);
         return (
@@ -371,7 +426,7 @@ export const InvitationForm = () => {
                     <ErrorIndicator msg={I18n.t("invitations.requiredEmail")}/>}
 
                 {(authorityOptions.length > 1 || (!isInviter && authorityOptions.length === 1)) &&
-                    <SelectField
+                    <div className="authority-field"><SelectField
                         value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                             || authorityOptions[authorityOptions.length - 1]}
                         options={authorityOptions}
@@ -381,8 +436,48 @@ export const InvitationForm = () => {
                         onChange={authorityChanged}
                         toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
                         clearable={false}
-                    />}
+                    /></div>}
 
+                {(!isInviter && !skipRoles && invitation.intendedAuthority !== AUTHORITIES.APPLICATION_MANAGER) &&
+                    <div className="roles-field">
+                        {renderSelectSlots({
+                            selected: selectedRoles,
+                            available: roles.filter(role => !selectedRoles.find(r => r.value === role.value)
+                                && isEmpty(role.crmRoleId)),
+                            showEmpty: addRoleSlot,
+                            setShowEmpty: setAddRoleSlot,
+                            onChange: rolesChanged,
+                            name: I18n.t("invitations.roles"),
+                            toolTip: I18n.t("tooltips.rolesTooltip"),
+                            placeholder: I18n.t(`invitations.rolesPlaceHolder${isEmpty(roles) ? "Loading" : ""}`),
+                            addTxt: I18n.t("invitations.addRole")
+                        })}
+                        {(!initial && isEmpty(selectedRoles) &&
+                                !skipRoles) &&
+                            <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
+                    </div>}
+
+                {invitation.intendedAuthority === AUTHORITIES.APPLICATION_MANAGER &&
+                    <div className="roles-field">
+                        {renderSelectSlots({
+                            selected: selectedApplications,
+                            available: applications.filter(app => !selectedApplications.find(a => a.value === app.value)),
+                            showEmpty: addApplicationSlot,
+                            setShowEmpty: setAddApplicationSlot,
+                            onChange: applicationsChanged,
+                            name: I18n.t("invitations.applications"),
+                            toolTip: I18n.t("tooltips.applicationsTooltip"),
+                            placeholder: I18n.t(`invitations.applicationsPlaceHolder${isEmpty(applications) ? "Loading" : ""}`),
+                            addTxt: I18n.t("invitations.addApplication")
+                        })}
+                        {(!initial && isEmpty(selectedApplications)) &&
+                            <ErrorIndicator msg={I18n.t("invitations.requiredApplication")}/>}
+                    </div>}
+
+                {!isInviter &&
+                    <div className="authority-explanation-slot">
+                        <AuthorityExplanation/>
+                    </div>}
                 {(user.superUser && AUTHORITIES.INSTITUTION_ADMIN === invitation.intendedAuthority) &&
                     <SelectField name={I18n.t("roles.identityProvider")}
                                  toolTip={I18n.t("tooltips.invitationIdentityProvider")}
@@ -400,41 +495,6 @@ export const InvitationForm = () => {
                     })}/>}
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
-
-
-                {(!isInviter && !skipRoles && invitation.intendedAuthority !== AUTHORITIES.APPLICATION_MANAGER) &&
-                    <>
-                        <SelectField value={selectedRoles}
-                                     options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
-                                         && isEmpty(role.crmRoleId))}
-                                     name={I18n.t("invitations.roles")}
-                                     toolTip={I18n.t("tooltips.rolesTooltip")}
-                                     isMulti={true}
-                                     required={true}
-                                     error={!initial && isEmpty(selectedRoles)}
-                                     searchable={true}
-                                     placeholder={I18n.t(`invitations.rolesPlaceHolder${isEmpty(roles) ? "Loading" : ""}`)}
-                                     onChange={rolesChanged}/>
-                        {(!initial && isEmpty(selectedRoles) &&
-                                !skipRoles) &&
-                            <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
-                    </>}
-
-                {invitation.intendedAuthority === AUTHORITIES.APPLICATION_MANAGER &&
-                    <>
-                        <SelectField value={selectedApplications}
-                                     options={applications.filter(app => !selectedApplications.find(a => a.value === app.value))}
-                                     name={I18n.t("invitations.applications")}
-                                     toolTip={I18n.t("tooltips.applicationsTooltip")}
-                                     isMulti={true}
-                                     required={true}
-                                     error={!initial && isEmpty(selectedApplications)}
-                                     searchable={true}
-                                     placeholder={I18n.t(`invitations.applicationsPlaceHolder${isEmpty(applications) ? "Loading" : ""}`)}
-                                     onChange={applicationsChanged}/>
-                        {(!initial && isEmpty(selectedApplications)) &&
-                            <ErrorIndicator msg={I18n.t("invitations.requiredApplication")}/>}
-                    </>}
 
                 <InputField name={I18n.t(isInviter ? "invitations.inviterRole.message" : "invitations.message")}
                             value={invitation.message}
@@ -459,7 +519,7 @@ export const InvitationForm = () => {
 
     const renderForm = () => {
         const disabledSubmit = !initial && !isValid();
-        const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
+        const authorityOptions = invitableAuthorities(user, selectedRoles)
             .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
         const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
         const skipRoles = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority)

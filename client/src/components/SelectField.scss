@@ -25,7 +25,7 @@
         border: 1px solid var(--sds--color--gray--300);
         border-radius: vars.$br;
         font-size: 16px;
-        min-height: 40px;
+        min-height: 48px;
 
         &.creatable {
             min-height: 48px;
@@ -33,6 +33,7 @@
 
         .select-inner__control {
             height: 100%;
+            min-height: 46px; // 48px minus the 1px border of .input-select-inner
             padding-left: 8px;
             border: none;
             border-radius: vars.$br;
@@ -42,7 +43,6 @@
             outline: none;
             box-shadow: 3px 3px 3px var(--sds--color--blue--200), -3px -3px 1px var(--sds--color--blue--200);
             border: 1px solid var(--sds--color--gray--300) !important;
-            min-height: 48px;
         }
 
         &[disabled] {

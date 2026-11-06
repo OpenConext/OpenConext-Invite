@@ -279,6 +279,15 @@ const pt = {
         requiredApplication: "É necessária pelo menos uma aplicação para convidar um gestor de aplicações",
         requiredOrganizationGUID: "É necessário um GUID de Organização válido para um convite de administrador institucional",
         intendedAuthority: "Perfil",
+        addRole: "Adicionar função",
+        addApplication: "Adicionar aplicação",
+        authorityExplanation: {
+            title: "Explicação do perfil",
+            guest: {name: "Utilizador", description: "Obtém acesso às aplicações através da função"},
+            inviter: {name: "Convidador", description: "Pode convidar utilizadores para a função, mas não tem acesso às aplicações"},
+            manager: {name: "Gestor de função", description: "Pode convidar convidadores e utilizadores para a função, mas não tem acesso às aplicações"},
+            roleCreator: {name: "Criador de funções", description: "Pode criar funções para aplicações específicas"}
+        },
         roles: "Grupos de acesso",
         inviterRoles: "Selecione os grupos de acesso para o novo convite",
         rolesPlaceHolder: "Escolha um ou mais grupos de acesso",

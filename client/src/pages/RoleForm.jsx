@@ -18,9 +18,10 @@ import {
     updateRole,
     validate
 } from "../api";
-import {Button, ButtonType, Loader} from "@surfnet/sds";
+import {Button, ButtonIconPlacement, ButtonType, Loader} from "@surfnet/sds";
 import "./RoleForm.scss";
 import {UnitHeader} from "../components/UnitHeader";
+import PlusIcon from "@surfnet/sds/icons/functional-icons/add.svg";
 import RoleIcon from "@surfnet/sds/icons/illustrative-icons/hierarchy.svg";
 import InputField from "../components/InputField";
 import {constructShortName} from "../validations/regExps";
@@ -523,7 +524,10 @@ export const RoleForm = () => {
                     })}/>}
                 {allowedToEditApplication &&
                     <div className="application-actions">
-                        <Button txt={I18n.t("roles.addApplication")}
+                        <Button type={ButtonType.Secondary}
+                                txt={I18n.t("roles.addApplication")}
+                                icon={<PlusIcon/>}
+                                iconPlacement={ButtonIconPlacement.Left}
                                 disabled={applications.length !== 0 && (providers.length === applications.length || isEmpty(applications[0]))}
                                 onClick={addApplication}/>
                     </div>
