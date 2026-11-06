@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.2.3
+
+- Invitation form: authority and roles / applications are displayed next to each other, with an explanation of the
+  authorities on the right (see [#1113](https://github.com/OpenConext/OpenConext-Invite/issues/1113))
+- The Authority dropdown in the invitation form no longer offers "Institution admin"
+- The Application manager authority is renamed to Role creator in the user interface
+- Institution admins page title renamed to "Maintainers from the institution"
+- "Add application" button in the role form is now a secondary button with a plus icon
+- All select fields now have a constant height of 48px, regardless of focus
+- Bugfix for undefined when inviting inviters as application manager
+- Bugfix for the application page crashing when the application is unknown in the user's roles
+
 ## 1.2.2
 
 - Treat SCIM DELETE 404 as success so provisioned rows are cleaned up

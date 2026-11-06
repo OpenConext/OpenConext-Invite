@@ -4,98 +4,111 @@
     <title>{{title}}</title>
 </head>
 <body>
-<div class="main" style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
-<div class="main" style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
-    <div class="header">
-        {{#institutionLogoUrl}}
-        <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;"/>
-        {{/institutionLogoUrl}}
-        {{#isInstitutionSurf}}
-        <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px;">
-        {{/isInstitutionSurf}}
-    </div>
-    <div class="head">
-        {{#environment}}
-        <p style="font-weight: bold;padding: 10px;margin:5px 0 15px 0;background-color: #f1f19b;">
-            Deze mail is van de {{environment}}-omgeving
-        </p>
-        {{/environment}}
-        {{#invitation.institutionAdminInvitation}}
-        <p>{{displaySenderName}} (van {{institutionName}}) heeft je uitgenodigd om
-            een instellings-admin te worden van instelling {{idpName}} om de applicaties van deze instelling te beheren.</p>
-        {{/invitation.institutionAdminInvitation}}
-
-        {{#invitation.anyRoles}}
-
-        <p>{{displaySenderName}} (van {{institutionName}}) wil je toegang geven tot:</p>
-        <ul>
-            {{#groupedProviders}}
-            <li style="margin-bottom: 4px;font-weight: 600;">{{name}} - als {{rolesDisplay}}
-                <span style="font-weight: 400;">(voor {{rolesExpirationDate}})</span></li>
-            {{/groupedProviders}}
-        </ul>
-        {{/invitation.anyRoles}}
-        {{#message}}
-        <div class="head" style="background-color: #DFF4FF;padding: 10px;margin:5px 0 15px 0;">
-            <p style="margin: 0;">
-                {{{message}}}
-            </p>
+<div class="main"
+     style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
+    <div class="main"
+         style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
+        <div class="header">
+            {{#institutionLogoUrl}}
+            <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;"/>
+            {{/institutionLogoUrl}}
+            {{#isInstitutionSurf}}
+            <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px;">
+            {{/isInstitutionSurf}}
         </div>
-        {{/message}}
-        {{#useEduID}}
-        <p>De rol(len) accepteer je door in te loggen met eduID. Als je deze nog niet hebt, kun je hem gelijk aanmaken.</p>
-        <table style="border-collapse: collapse; margin: 10px 0;">
-            <tr>
-                <td style="border-radius: 4px; background-color: #0077c8; padding: 0; line-height: 0;">
-                    <a class="button" href="{{{ url }}}" style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px 8px 10px">
-                        <table style="border-collapse: collapse;">
-                            <tr>
-                                <td style="vertical-align: middle; padding: 0;">
-                                    <img src="cid:eduIDLogo" alt="SURF logo" style="height: 32px; width: 32px;">
-                                </td>
-                                <td style="vertical-align: middle; padding-left: 12px;">
-                                    <span style="color: white;">Ga door met eduID</span>
-                                </td>
-                            </tr>
-                        </table>
-                    </a>
-                </td>
-            </tr>
-        </table>
-        <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
-        {{/useEduID}}
-        {{^useEduID}}
-        <p>De rol(len) accepteer je door in te loggen met SURFconext.</p>
-        <table style="border-collapse: collapse; margin: 10px 0;">
-            <tr>
-                <td style="border-radius: 4px; background-color: #0077c8; padding: 0;">
-                    <a class="button" href="{{{ url }}}" style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px;">
-                        <span style="color: white;">Ga door</span>
-                    </a>
-                </td>
-            </tr>
-        </table>
-        <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
-        {{/useEduID}}
-    </div>
-    <div class="footer" style="padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;font-size: 14px;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="text-align: left; vertical-align: middle; padding-right: 10px; line-height: 0;">
-                    <span>Deze uitnoding verloopt via</span>
-                    <a class="external" href="https://support.surfconext.nl/invite" style="color: #636363; text-decoration: underline;">SURFconext Invite</a>
-                    <span> • </span>
-                    <a class="external" href="https://support.surfconext.nl/privacy-nl" style="color: #636363; text-decoration: underline;">Privacy Policy</a>
-                    <span> • </span>
-                    <a class="external" href="https://support.surfconext.nl/terms-nl" style="color: #636363; text-decoration: underline;">Voorwaarden</a>
-                </td>
-                <td style="text-align: right; vertical-align: middle; white-space: nowrap; width: 100px; line-height: 0;">
-                    <a class="external" href="https://surf.nl/">
-                        <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px; width: 48px;">
-                    </a>
-                </td>
-            </tr>
-        </table>
+        <div class="head">
+            {{#environment}}
+            <p style="font-weight: bold;padding: 10px;margin:5px 0 15px 0;background-color: #f1f19b;">
+                Deze mail is van de {{environment}}-omgeving
+            </p>
+            {{/environment}}
+            {{#invitation.institutionAdminInvitation}}
+            <p>{{displaySenderName}} (van {{institutionName}}) heeft je uitgenodigd om
+                een instellings-admin te worden van instelling {{idpName}} om de applicaties van deze instelling te
+                beheren.</p>
+            {{/invitation.institutionAdminInvitation}}
+
+            {{#invitation.anyRoles}}
+            <p>{{displaySenderName}} (van {{institutionName}}) wil je toegang geven tot:</p>
+            <ul>
+                {{#groupedProviders}}
+                <li style="margin-bottom: 4px;font-weight: 600;">{{name}} - als {{rolesDisplay}}
+                    <span style="font-weight: 400;">(voor {{rolesExpirationDate}})</span></li>
+                {{/groupedProviders}}
+            </ul>
+            {{/invitation.anyRoles}}
+            {{#invitation.anyApplications}}
+            <p>{{displaySenderName}} (from {{institutionName}}) nodigt je uit als <strong>Role creator</strong>.</p>
+            {{/invitation.anyApplications}}
+            {{#message}}
+            <div class="head" style="background-color: #DFF4FF;padding: 10px;margin:5px 0 15px 0;">
+                <p style="margin: 0;">
+                    {{{message}}}
+                </p>
+            </div>
+            {{/message}}
+            {{#useEduID}}
+            <p>De uitnodiging accepteer je door in te loggen met eduID. Als je deze nog niet hebt, kun je hem gelijk
+                aanmaken.</p>
+            <table style="border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border-radius: 4px; background-color: #0077c8; padding: 0; line-height: 0;">
+                        <a class="button" href="{{{ url }}}"
+                           style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px 8px 10px">
+                            <table style="border-collapse: collapse;">
+                                <tr>
+                                    <td style="vertical-align: middle; padding: 0;">
+                                        <img src="cid:eduIDLogo" alt="SURF logo" style="height: 32px; width: 32px;">
+                                    </td>
+                                    <td style="vertical-align: middle; padding-left: 12px;">
+                                        <span style="color: white;">Ga door met eduID</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
+            {{/useEduID}}
+            {{^useEduID}}
+            <p>De uitnodiging accepteer je door in te loggen met SURFconext.</p>
+            <table style="border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border-radius: 4px; background-color: #0077c8; padding: 0;">
+                        <a class="button" href="{{{ url }}}"
+                           style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px;">
+                            <span style="color: white;">Ga door</span>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
+            {{/useEduID}}
+        </div>
+        <div class="footer"
+             style="padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;font-size: 14px;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="text-align: left; vertical-align: middle; padding-right: 10px; line-height: 0;">
+                        <span>Deze uitnoding verloopt via</span>
+                        <a class="external" href="https://support.surfconext.nl/invite"
+                           style="color: #636363; text-decoration: underline;">SURFconext Invite</a>
+                        <span> • </span>
+                        <a class="external" href="https://support.surfconext.nl/privacy-nl"
+                           style="color: #636363; text-decoration: underline;">Privacy Policy</a>
+                        <span> • </span>
+                        <a class="external" href="https://support.surfconext.nl/terms-nl"
+                           style="color: #636363; text-decoration: underline;">Voorwaarden</a>
+                    </td>
+                    <td style="text-align: right; vertical-align: middle; white-space: nowrap; width: 100px; line-height: 0;">
+                        <a class="external" href="https://surf.nl/">
+                            <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px; width: 48px;">
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
 

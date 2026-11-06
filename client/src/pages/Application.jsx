@@ -37,13 +37,15 @@ export const Application = () => {
                         .filter(role => role.applicationMaps.some(app => app.id === manageId))
                         .map(role => role.applicationMaps.filter(app => app.id === manageId))
                         .flat()[0];
-                    app.name = I18n.locale === "en" ? app["name:en"] || app["name:nl"] : app["name:nl"] || app["name:en"];
-                    app.description = I18n.locale === "en" ? app["OrganizationName:en"] || app["OrganizationName:nl"] : app["OrganizationName:nl"] || app["OrganizationName:en"];
-                    setApplication(app);
+                    if (!isEmpty(app)) {
+                        app.name = I18n.locale === "en" ? app["name:en"] || app["name:nl"] : app["name:nl"] || app["name:en"];
+                        app.description = I18n.locale === "en" ? app["OrganizationName:en"] || app["OrganizationName:nl"] : app["OrganizationName:nl"] || app["OrganizationName:en"];
+                        setApplication(app);
+                    }
                     const paths = [
                         {path: "/home", value: I18n.t("tabs.home")},
                         {path: "/home/applications", value: I18n.t("tabs.applications")},
-                        {value: app.name}
+                        {value: app?.name || ""}
                     ]
                     useAppStore.setState({
                         breadcrumbPath: paths
@@ -51,7 +53,9 @@ export const Application = () => {
                     // setTimeout(() => setLoading(false), 40);
                     setLoading(false);
                 })
-                .catch(() => navigate("/"))
+                .catch(() => {
+                    navigate("/");
+                })
         },
         [user]); // eslint-disable-line react-hooks/exhaustive-deps
 

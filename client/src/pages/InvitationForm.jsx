@@ -33,8 +33,18 @@ import {InvitationRoleCard} from "../components/InvitationRoleCard";
 import {ExpandableSwitchField} from "../components/ExpandableSwitchField";
 import Select from "react-select";
 import {providersToOptions} from "../utils/Manage";
+import {AuthorityExplanation} from "../components/AuthorityExplanation";
 
 const DEFAULT_ROLE_EXPIRY_DAYS = 366;
+
+// The institution admin authority can not be chosen when inviting
+const invitableAuthorities = (user, selectedRoles) =>
+    allowedAuthoritiesForInvitation(user, selectedRoles)
+        .filter(authority => authority !== AUTHORITIES.INSTITUTION_ADMIN);
+
+// Just enough width for the longest authority label: its characters plus room for padding and the dropdown indicator
+const authorityWidth = authorityOptions =>
+    `calc(${Math.max(...authorityOptions.map(option => option.label.length), 0)}ch + 90px)`;
 
 const removeByOptions = ["after", "on"].map(val => ({value: val, label: I18n.t(`invitations.${val}`)}))
 
@@ -274,7 +284,7 @@ export const InvitationForm = () => {
             setSelectedRoles([])
             setInvitation({...invitation, enforceEmailEquality: false, eduIDOnly: false, requestedAuthnContext: null})
         } else {
-            const allowedAuthorities = allowedAuthoritiesForInvitation(user, selectedOptions);
+            const allowedAuthorities = invitableAuthorities(user, selectedOptions);
             let intendedAuthority = invitation.intendedAuthority;
             //If the chosen authority is no longer allowed, then change it
             if (!allowedAuthorities.includes(invitation.intendedAuthority)) {
@@ -368,8 +378,9 @@ export const InvitationForm = () => {
                 {(!initial && isEmpty(invitation.invites)) &&
                     <ErrorIndicator msg={I18n.t("invitations.requiredEmail")}/>}
 
+                <div className="authority-roles-fields">
                 {(authorityOptions.length > 1 || (!isInviter && authorityOptions.length === 1)) &&
-                    <SelectField
+                    <div className="authority-field" style={{"--authority-width": authorityWidth(authorityOptions)}}><SelectField
                         value={authorityOptions.find(option => option.value === invitation.intendedAuthority)
                             || authorityOptions[authorityOptions.length - 1]}
                         options={authorityOptions}
@@ -379,8 +390,46 @@ export const InvitationForm = () => {
                         onChange={authorityChanged}
                         toolTip={I18n.t("tooltips.intendedAuthorityTooltip")}
                         clearable={false}
-                    />}
+                    /></div>}
 
+                {(!isInviter && !skipRoles && invitation.intendedAuthority !== AUTHORITIES.APPLICATION_MANAGER) &&
+                    <div className="roles-field">
+                        <SelectField value={selectedRoles}
+                                     options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
+                                         && isEmpty(role.crmRoleId))}
+                                     name={I18n.t("invitations.roles")}
+                                     toolTip={I18n.t("tooltips.rolesTooltip")}
+                                     isMulti={true}
+                                     required={true}
+                                     error={!initial && isEmpty(selectedRoles)}
+                                     searchable={true}
+                                     placeholder={I18n.t(`invitations.rolesPlaceHolder${isEmpty(roles) ? "Loading" : ""}`)}
+                                     onChange={rolesChanged}/>
+                        {(!initial && isEmpty(selectedRoles) &&
+                                !skipRoles) &&
+                            <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
+                    </div>}
+
+                {invitation.intendedAuthority === AUTHORITIES.APPLICATION_MANAGER &&
+                    <div className="roles-field">
+                        <SelectField value={selectedApplications}
+                                     options={applications.filter(app => !selectedApplications.find(a => a.value === app.value))}
+                                     name={I18n.t("invitations.applications")}
+                                     toolTip={I18n.t("tooltips.applicationsTooltip")}
+                                     isMulti={true}
+                                     required={true}
+                                     error={!initial && isEmpty(selectedApplications)}
+                                     searchable={true}
+                                     placeholder={I18n.t(`invitations.applicationsPlaceHolder${isEmpty(applications) ? "Loading" : ""}`)}
+                                     onChange={applicationsChanged}/>
+                        {(!initial && isEmpty(selectedApplications)) &&
+                            <ErrorIndicator msg={I18n.t("invitations.requiredApplication")}/>}
+                    </div>}
+                </div>
+                {!isInviter &&
+                    <div className="authority-explanation-slot">
+                        <AuthorityExplanation/>
+                    </div>}
                 {(user.superUser && AUTHORITIES.INSTITUTION_ADMIN === invitation.intendedAuthority) &&
                     <SelectField name={I18n.t("roles.identityProvider")}
                                  toolTip={I18n.t("tooltips.invitationIdentityProvider")}
@@ -398,41 +447,6 @@ export const InvitationForm = () => {
                     })}/>}
                 {!isEmpty(organizationGUIDIdentityProvider.institutionGuid) &&
                     <em className="info">{I18n.t("roles.organizationGUIDValue", {guid: organizationGUIDIdentityProvider.institutionGuid})}</em>}
-
-
-                {(!isInviter && !skipRoles && invitation.intendedAuthority !== AUTHORITIES.APPLICATION_MANAGER) &&
-                    <>
-                        <SelectField value={selectedRoles}
-                                     options={roles.filter(role => !selectedRoles.find(r => r.value === role.value)
-                                         && isEmpty(role.crmRoleId))}
-                                     name={I18n.t("invitations.roles")}
-                                     toolTip={I18n.t("tooltips.rolesTooltip")}
-                                     isMulti={true}
-                                     required={true}
-                                     error={!initial && isEmpty(selectedRoles)}
-                                     searchable={true}
-                                     placeholder={I18n.t(`invitations.rolesPlaceHolder${isEmpty(roles) ? "Loading" : ""}`)}
-                                     onChange={rolesChanged}/>
-                        {(!initial && isEmpty(selectedRoles) &&
-                                !skipRoles) &&
-                            <ErrorIndicator msg={I18n.t("invitations.requiredRole")}/>}
-                    </>}
-
-                {invitation.intendedAuthority === AUTHORITIES.APPLICATION_MANAGER &&
-                    <>
-                        <SelectField value={selectedApplications}
-                                     options={applications.filter(app => !selectedApplications.find(a => a.value === app.value))}
-                                     name={I18n.t("invitations.applications")}
-                                     toolTip={I18n.t("tooltips.applicationsTooltip")}
-                                     isMulti={true}
-                                     required={true}
-                                     error={!initial && isEmpty(selectedApplications)}
-                                     searchable={true}
-                                     placeholder={I18n.t(`invitations.applicationsPlaceHolder${isEmpty(applications) ? "Loading" : ""}`)}
-                                     onChange={applicationsChanged}/>
-                        {(!initial && isEmpty(selectedApplications)) &&
-                            <ErrorIndicator msg={I18n.t("invitations.requiredApplication")}/>}
-                    </>}
 
                 <InputField name={I18n.t(isInviter ? "invitations.inviterRole.message" : "invitations.message")}
                             value={invitation.message}
@@ -457,7 +471,7 @@ export const InvitationForm = () => {
 
     const renderForm = () => {
         const disabledSubmit = !initial && !isValid();
-        const authorityOptions = allowedAuthoritiesForInvitation(user, selectedRoles)
+        const authorityOptions = invitableAuthorities(user, selectedRoles)
             .map(authority => ({value: authority, label: I18n.t(`access.${authority}`)}));
         const overrideSettingsAllowed = selectedRoles.every(role => role.overrideSettingsAllowed);
         const skipRoles = [AUTHORITIES.SUPER_USER, AUTHORITIES.INSTITUTION_ADMIN].includes(invitation.intendedAuthority)

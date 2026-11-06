@@ -91,7 +91,7 @@ const en = {
     access: {
         SUPER_USER: "Superuser",
         INSTITUTION_ADMIN: "Institution admin",
-        APPLICATION_MANAGER: "Application manager",
+        APPLICATION_MANAGER: "Role creator",
         MANAGER: "Role manager",
         INVITER: "Inviter",
         GUEST: "User",
@@ -124,8 +124,8 @@ const en = {
         noRolesInstitutionAdmin: "You are an institution admin and you have no roles (but you might have access to applications)",
         noRolesInstitutionAdminOther: "{{name}} is an institution admin and has no roles (but might have access to applications)",
         noRolesNoApplicationsInstitutionAdmin: "You are an institution admin, but you have no roles and apparently your institution has also no access to applications",
-        noRolesInfoApplicationManager: "You have no roles, but are an application manager and has access to applications",
-        noRolesInfoApplicationManagerOther: "{{name}} has no roles, but is an application manager and has access to applications",
+        noRolesInfoApplicationManager: "You have no roles, but are an role creator and can create roles",
+        noRolesInfoApplicationManagerOther: "{{name}} has no roles, but is a role creator and can create roles",
         guestRoleOnly: "You are not an administrator. Are you looking for <a href='{{welcomeUrl}}'>the apps you can access</a>?",
         rolesInfo: "You have the following roles",
         applicationsInfo: "You have access to the following applications",
@@ -293,9 +293,16 @@ const en = {
         inviteesPlaceholder: "Invitee email addresses",
         requiredEmail: "At least one email address is required",
         requiredRole: "At least one role is required for an invitation",
-        requiredApplication: "At least one application is required for an application manager invitation",
+        requiredApplication: "At least one application is required for the 'role creator' invitation",
         requiredOrganizationGUID: "A valid Organization GUID is required for an institution admin invitation",
         intendedAuthority: "Authority",
+        authorityExplanation: {
+            title: "Authority explanation",
+            guest: {name: "User", description: "Gains access to applications through the role"},
+            inviter: {name: "Inviter", description: "Can invite users for the role, but has no access to the applications themselves"},
+            manager: {name: "Role manager", description: "Can invite inviters and users for the role, but has no access to the applications themselves"},
+            roleCreator: {name: "Role creator", description: "Can create roles for specific applications"}
+        },
         roles: "Roles",
         inviterRoles: "Select the roles for the new invitation",
         rolesPlaceHolder: "Choose one or more roles",
@@ -526,7 +533,7 @@ const en = {
         guestRoleIncludedTooltip: "Do you also want to grant the invitees the user role when they accept the invitation?",
         notifyInviterTooltip: "Do you want to receive an email when the invitation is accepted?",
         expiredUserRole: "This role will expire soon",
-        applicationsTooltip: "The invited users will become Application Manager after they have accepted",
+        applicationsTooltip: "The invited users will become Role creators after they have accepted",
     },
     confirmationDialog: {
         title: "Confirm",
@@ -665,7 +672,7 @@ const en = {
         rolePlaceHolder: "Filter by role",
     },
     institutionAdmins: {
-        title: "Institution administrators and application managers",
+        title: "Maintainers from the institution",
         searchPlaceHolder: "Search..."
     }
 }

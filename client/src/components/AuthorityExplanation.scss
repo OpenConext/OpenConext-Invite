@@ -1,0 +1,35 @@
+.authority-explanation {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 20px 16px;
+    border-radius: 8px;
+    background-color: #eaf0fc;
+    color: #0a0a0a;
+    font-size: 16px;
+    line-height: 24px;
+
+    svg {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        color: #1f4aa8;
+        fill: currentColor;
+    }
+
+    .content {
+        flex: 1;
+
+        p {
+            margin: 0;
+        }
+
+        .title, .name {
+            font-weight: 600;
+        }
+
+        .authority {
+            margin-top: 24px;
+        }
+    }
+}

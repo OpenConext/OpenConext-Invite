@@ -210,7 +210,9 @@ export const allowedAuthoritiesForInvitation = (user, selectedRoles) => {
     if (!isEmpty(user.userApplications)) {
         //if all the roles are linked to the userApplications of the user ,then everything excluding Application Manager and up is included
         //otherwise fall back to the userRole
-        const manageIdentifierRequired = selectedRoles.map(role => role.applicationUsages.map(appUsage => appUsage.application.manageId)).flat();
+        const manageIdentifierRequired = selectedRoles
+            .map(role => (role.isUserRole ? role.role : role).applicationUsages || [])
+            .flatMap(usages => usages.map(appUsage => appUsage.application.manageId));
         const manageIdentifiers = user.userApplications.map(userApp => userApp.application.manageId);
         const allRolesAllowed = manageIdentifierRequired.every(manageId => manageIdentifiers.includes(manageId));
         if (allRolesAllowed) {
