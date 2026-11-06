@@ -10,10 +10,12 @@ import invite.manage.Manage;
 import invite.model.Authority;
 import invite.model.GroupedProviders;
 import invite.model.Invitation;
+import invite.model.InvitationRole;
 import invite.model.Language;
 import invite.model.Provisionable;
 import invite.model.User;
 import invite.model.UserRole;
+import invite.utils.InstantAnalyzer;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.SneakyThrows;
@@ -26,8 +28,15 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.io.StringWriter;
@@ -38,6 +47,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class MailBox {
@@ -51,10 +61,33 @@ public class MailBox {
     private final String contactEmail;
     private final String supportEmail;
     private final String environment;
+    private final String productName;
 
     private final Map<String, Map<String, String>> subjects;
 
-    private final MustacheFactory mustacheFactory = new DefaultMustacheFactory("templates");
+    private static final String PRIVACY_URL_NL = "https://support.surfconext.nl/privacy-nl";
+    private static final String PRIVACY_URL_EN = "https://support.surfconext.nl/privacy";
+    private static final String LOGO_CONTENT_ID = "surfLogo";
+
+    private final MustacheFactory htmlMustacheFactory = new DefaultMustacheFactory(MailBox::templateReader);
+
+    //Plain-text mails must not be HTML-escaped: "Brown & Sons" would otherwise arrive as "Brown &amp; Sons"
+    private final MustacheFactory textMustacheFactory = new DefaultMustacheFactory(MailBox::templateReader) {
+        @Override
+        public void encode(String value, Writer writer) {
+            try {
+                writer.write(value);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    };
+
+    private static Reader templateReader(String resourceName) {
+        InputStream stream = MailBox.class.getClassLoader().getResourceAsStream("templates/" + resourceName);
+        return stream != null ? new InputStreamReader(stream, StandardCharsets.UTF_8) : null;
+    }
+
     private final IdPMetaDataResolver idPMetaDataResolver;
     private final Manage manage;
 
@@ -67,6 +100,7 @@ public class MailBox {
                    String clientUrl,
                    String welcomeUrl,
                    String environment,
+                   String productName,
                    Manage manage) throws IOException {
         this.mailSender = mailSender;
         this.idPMetaDataResolver = idPMetaDataResolver;
@@ -77,6 +111,7 @@ public class MailBox {
         this.clientUrl = clientUrl;
         this.welcomeUrl = welcomeUrl;
         this.environment = environment;
+        this.productName = productName;
         this.subjects = objectMapper.readValue(new ClassPathResource("/templates/subjects.json").getInputStream(), new TypeReference<>() {
         });
 
@@ -101,12 +136,13 @@ public class MailBox {
             variables.put("institutionName", identityProvider
                     .map(idp -> idp.getName())
                     .orElse(user.getSchacHomeOrganization()));
-            variables.put("institutionLogoUrl", identityProvider
-                    .flatMap(idp -> ImageEmbedder.fetchAsDataUrl(idp.getLogoUrl()))
-                    .orElse(null));
+            //Only absolute http(s) logos can be rendered by mail clients, base64 or relative ones are skipped
+            identityProvider
+                    .map(idp -> idp.getLogoUrl())
+                    .filter(logo -> logo != null && logo.matches("(?i)^https?://[^\\s\"'<>]+$"))
+                    .ifPresent(logo -> variables.put("senderLogoUrl", logo));
         } else {
             variables.put("institutionName", "SURF");
-            variables.put("isInstitutionSurf", true);
         }
         optionalIdpName.ifPresent(idpName -> variables.put("idpName", idpName));
         variables.put("roles", splitListSemantically(invitation.getRoles().stream()
@@ -121,7 +157,9 @@ public class MailBox {
             variables.put("displaySenderName", provisionable.getName());
         }
         if (StringUtils.hasText(invitation.getMessage())) {
-            variables.put("message", invitation.getMessage().replaceAll("\n", "<br/>"));
+            //Free text supplied by another user: {{message}} is raw for the plain text, {{{messageHtml}}} is escaped
+            variables.put("message", invitation.getMessage());
+            variables.put("messageHtml", htmlMessage(invitation.getMessage()));
         }
         List<GroupedProviders> applicationProviders = invitation.getApplications().stream()
                 .map(invitationApplication -> invitationApplication.getApplication())
@@ -130,6 +168,13 @@ public class MailBox {
                 .map(provider -> new GroupedProviders(provider, List.of(), null))
                 .toList();
         variables.put("applicationProviders", applicationProviders);
+        variables.put("applicationNames", applicationProviders.stream()
+                .map(GroupedProviders::getName).filter(Objects::nonNull).collect(Collectors.joining(", ")));
+        variables.put("roleCards", roleCards(invitation, groupedProviders, language));
+        variables.put("singleRole", invitation.getRoles().size() == 1);
+        variables.put("authorityGuest", intendedAuthority.equals(Authority.GUEST));
+        variables.put("authorityInviter", intendedAuthority.equals(Authority.INVITER));
+        variables.put("authorityManager", intendedAuthority.equals(Authority.MANAGER));
         variables.put("invitation", invitation);
         variables.put("intendedAuthority", invitation.getIntendedAuthority().translate(language.name()));
         variables.put("user", provisionable);
@@ -140,12 +185,8 @@ public class MailBox {
 
         variables.put("url", String.format("%s/invitation/accept?hash=%s", url, invitation.getHash()));
         variables.put("useEduID", invitation.isEduIDOnly());
-
-        Map<String, String> images = new HashMap<>();
-        if (invitation.isEduIDOnly()) {
-            images.put("eduIDLogo", "templates/eduID-logo-square.png");
-        }
-        images.put("logoSurfBlack", "templates/logo-surf-black.png");
+        variables.put("senderName", variables.get("displaySenderName"));
+        variables.put("senderOrganization", variables.get("institutionName"));
 
         String cause;
         if (provisionable instanceof User user) {
@@ -157,8 +198,27 @@ public class MailBox {
                 title,
                 cause,
                 variables,
-                images,
+                Map.of(),
                 invitation.getEmail());
+    }
+
+    //One card per role in the invitation mail: its name, how long it is valid and the applications it gives access to
+    private List<Map<String, Object>> roleCards(Invitation invitation, List<GroupedProviders> groupedProviders, Language language) {
+        return invitation.getRoles().stream()
+                .map(InvitationRole::getRole)
+                .map(role -> {
+                    Map<String, Object> card = new HashMap<>();
+                    card.put("name", role.getName());
+                    card.put("validity", InstantAnalyzer.analyze(Stream.of(role.deriveExpirationDate()), language.name()));
+                    card.put("applications", groupedProviders.stream()
+                            .filter(groupedProvider -> groupedProvider.roles().stream()
+                                    .anyMatch(r -> Objects.equals(r.getName(), role.getName())))
+                            .map(GroupedProviders::getName)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining(", ")));
+                    return card;
+                })
+                .toList();
     }
 
     private void addInlineImages(MimeMessageHelper helper, Map<String, String> imagePathsMap) {
@@ -231,7 +291,7 @@ public class MailBox {
                 title,
                 invitee.getName(),
                 variables,
-                Map.of("logoSurfBlack", "templates/logo-surf-black.png"),
+                Map.of(),
                 inviter.getEmail());
     }
 
@@ -242,8 +302,12 @@ public class MailBox {
         variables.put("user", user);
         variables.put("title", "Invite feedback form");
         variables.put("date", LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-        variables.put("message", message.replaceAll("\n", "<br/>"));
-        variables.put("url", url);
+        variables.put("message", message);
+        variables.put("messageHtml", htmlMessage(message));
+        //The url is client supplied and ends up in an href: only absolute http(s) links
+        if (url != null && url.matches("(?i)^https?://[^\\s\"'<>]+$")) {
+            variables.put("url", url);
+        }
         if (!environment.equalsIgnoreCase("prod")) {
             variables.put("environment", environment);
         }
@@ -278,13 +342,21 @@ public class MailBox {
                             Map<String, String> images,
                             MailAttachment attachment,
                             String... to) throws MessagingException, IOException {
-        String htmlText = this.mailTemplate(templateName + ".html", variables);
-        String plainText = this.mailTemplate(templateName + ".txt", variables);
+        variables.putIfAbsent("productName", this.productName);
+        boolean dutch = templateName.endsWith("_" + Language.nl.name());
+        variables.putIfAbsent("lang", dutch ? Language.nl.name() : Language.en.name());
+        variables.putIfAbsent("nl", dutch);
+        variables.putIfAbsent("supportEmail", this.supportEmail);
+        variables.putIfAbsent("privacyUrl", dutch ? PRIVACY_URL_NL : PRIVACY_URL_EN);
+        String htmlText = this.mailTemplate(htmlMustacheFactory, templateName + ".html", variables);
+        String plainText = this.mailTemplate(textMustacheFactory, templateName + ".txt", variables);
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setSubject(subject);
         setText(plainText, htmlText, helper);
+        //Inline (cid:) image: Gmail and Outlook strip inline SVG and data: URIs. Must be added after setText
+        helper.addInline(LOGO_CONTENT_ID, new ClassPathResource("templates/surf_logo.png"), "image/png");
         helper.setTo(to);
         helper.setFrom(emailFrom);
 
@@ -312,8 +384,16 @@ public class MailBox {
         new Thread(() -> mailSender.send(message)).start();
     }
 
-    private String mailTemplate(String templateName, Map<String, Object> context) {
+    private String mailTemplate(MustacheFactory mustacheFactory, String templateName, Map<String, Object> context) {
         return mustacheFactory.compile(templateName).execute(new StringWriter(), context).toString();
+    }
+
+    /**
+     * Free text from another user: HTML-escaped, with line breaks as {@code <br/>} because
+     * CSS white-space is ignored by e.g. Outlook. Use only with {{{messageHtml}}}.
+     */
+    private static String htmlMessage(String message) {
+        return HtmlUtils.htmlEscape(message).replaceAll("\r?\n", "<br/>");
     }
 
     private String splitListSemantically(List<String> values) {

@@ -1,5 +1,7 @@
+{{<layout_text.txt}}
+{{$content}}
 Hoi {{inviter.name}},
 
 Je uitnodiging voor {{roles}} is geaccepteerd door gebruiker {{name}}.
-
-{{> footer_nl.txt}}
+{{/content}}
+{{/layout_text.txt}}

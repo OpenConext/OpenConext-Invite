@@ -1,116 +1,50 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-</head>
-<body>
-<div class="main"
-     style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
-    <div class="main"
-         style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
-        <div class="header">
-            {{#institutionLogoUrl}}
-            <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;"/>
-            {{/institutionLogoUrl}}
-            {{#isInstitutionSurf}}
-            <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px;">
-            {{/isInstitutionSurf}}
-        </div>
-        <div class="head">
-            {{#environment}}
-            <p style="font-weight: bold;padding: 10px;margin:5px 0 15px 0;background-color: #f1f19b;">
-                Deze mail is van de {{environment}}-omgeving
-            </p>
-            {{/environment}}
-            {{#invitation.institutionAdminInvitation}}
-            <p>{{displaySenderName}} (van {{institutionName}}) heeft je uitgenodigd om
-                een instellings-admin te worden van instelling {{idpName}} om de applicaties van deze instelling te
-                beheren.</p>
-            {{/invitation.institutionAdminInvitation}}
-
-            {{#invitation.anyRoles}}
-            <p>{{displaySenderName}} (van {{institutionName}}) wil je toegang geven tot:</p>
-            <ul>
-                {{#groupedProviders}}
-                <li style="margin-bottom: 4px;font-weight: 600;">{{name}} - als {{rolesDisplay}}
-                    <span style="font-weight: 400;">(voor {{rolesExpirationDate}})</span></li>
-                {{/groupedProviders}}
-            </ul>
-            {{/invitation.anyRoles}}
-            {{#invitation.anyApplications}}
-            <p>{{displaySenderName}} (from {{institutionName}}) nodigt je uit als <strong>Role creator</strong>.</p>
-            {{/invitation.anyApplications}}
-            {{#message}}
-            <div class="head" style="background-color: #DFF4FF;padding: 10px;margin:5px 0 15px 0;">
-                <p style="margin: 0;">
-                    {{{message}}}
-                </p>
-            </div>
-            {{/message}}
-            {{#useEduID}}
-            <p>De uitnodiging accepteer je door in te loggen met eduID. Als je deze nog niet hebt, kun je hem gelijk
-                aanmaken.</p>
-            <table style="border-collapse: collapse; margin: 10px 0;">
-                <tr>
-                    <td style="border-radius: 4px; background-color: #0077c8; padding: 0; line-height: 0;">
-                        <a class="button" href="{{{ url }}}"
-                           style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px 8px 10px">
-                            <table style="border-collapse: collapse;">
-                                <tr>
-                                    <td style="vertical-align: middle; padding: 0;">
-                                        <img src="cid:eduIDLogo" alt="SURF logo" style="height: 32px; width: 32px;">
-                                    </td>
-                                    <td style="vertical-align: middle; padding-left: 12px;">
-                                        <span style="color: white;">Ga door met eduID</span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </a>
-                    </td>
-                </tr>
-            </table>
-            <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
-            {{/useEduID}}
-            {{^useEduID}}
-            <p>De uitnodiging accepteer je door in te loggen met SURFconext.</p>
-            <table style="border-collapse: collapse; margin: 10px 0;">
-                <tr>
-                    <td style="border-radius: 4px; background-color: #0077c8; padding: 0;">
-                        <a class="button" href="{{{ url }}}"
-                           style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px;">
-                            <span style="color: white;">Ga door</span>
-                        </a>
-                    </td>
-                </tr>
-            </table>
-            <p style="word-break: break-word">of kopieer deze link in je browser: {{{ url }}}</p>
-            {{/useEduID}}
-        </div>
-        <div class="footer"
-             style="padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;font-size: 14px;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="text-align: left; vertical-align: middle; padding-right: 10px; line-height: 0;">
-                        <span>Deze uitnoding verloopt via</span>
-                        <a class="external" href="https://support.surfconext.nl/invite"
-                           style="color: #636363; text-decoration: underline;">SURFconext Invite</a>
-                        <span> • </span>
-                        <a class="external" href="https://support.surfconext.nl/privacy-nl"
-                           style="color: #636363; text-decoration: underline;">Privacy Policy</a>
-                        <span> • </span>
-                        <a class="external" href="https://support.surfconext.nl/terms-nl"
-                           style="color: #636363; text-decoration: underline;">Voorwaarden</a>
-                    </td>
-                    <td style="text-align: right; vertical-align: middle; white-space: nowrap; width: 100px; line-height: 0;">
-                        <a class="external" href="https://surf.nl/">
-                            <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px; width: 48px;">
-                        </a>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-</div>
-
-</body>
-</html>
+{{<layout.html}}
+{{$heading}}{{#invitation.anyRoles}}Je bent uitgenodigd voor de rol{{^singleRole}}len{{/singleRole}} {{roles}}{{/invitation.anyRoles}}{{#invitation.anyApplications}}Je bent uitgenodigd als Role creator{{/invitation.anyApplications}}{{#invitation.institutionAdminInvitation}}Je bent uitgenodigd als instellings-admin{{/invitation.institutionAdminInvitation}}{{/heading}}
+{{$preheader}}{{displaySenderName}} ({{institutionName}}) heeft je uitgenodigd{{/preheader}}
+{{$content}}
+{{#invitation.institutionAdminInvitation}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">{{displaySenderName}} (van {{institutionName}}) heeft je uitgenodigd om een instellings-admin te worden van instelling {{idpName}} om de applicaties van deze instelling te beheren.</p>
+{{/invitation.institutionAdminInvitation}}
+{{#invitation.anyRoles}}
+{{#roleCards}}
+{{<ui_card.html}}
+{{$title}}{{name}}{{/title}}
+{{$description}}{{#authorityGuest}}Als gebruiker heb je toegang tot de applicaties van deze rol.{{/authorityGuest}}{{#authorityInviter}}Als uitnodiger heb je zelf geen toegang, maar mag je wel gebruikers uitnodigen.{{/authorityInviter}}{{#authorityManager}}Als rolmanager heb je zelf geen toegang, maar mag je wel anderen uitnodigen.{{/authorityManager}}<br>De rol is {{validity}} geldig.{{/description}}
+{{$caption}}Gebruikers met deze rol hebben toegang tot de volgende applicatie(s):{{/caption}}
+{{$items}}{{applications}}{{/items}}
+{{/ui_card.html}}
+{{/roleCards}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">Door in te loggen accepteer je de rol{{^singleRole}}len{{/singleRole}} en kun je ermee aan de slag.</p>
+{{/invitation.anyRoles}}
+{{#invitation.anyApplications}}
+{{<ui_card.html}}
+{{$title}}Role creator{{/title}}
+{{$description}}Als Role creator kun je rollen aanmaken voor de onderstaande applicaties.{{/description}}
+{{$caption}}Applicaties:{{/caption}}
+{{$items}}{{applicationNames}}{{/items}}
+{{/ui_card.html}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">Door in te loggen accepteer je de uitnodiging en kun je aan de slag.</p>
+{{/invitation.anyApplications}}
+{{#invitation.institutionAdminInvitation}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">Door in te loggen accepteer je de uitnodiging en kun je aan de slag.</p>
+{{/invitation.institutionAdminInvitation}}
+{{<ui_button.html}}
+{{$href}}{{url}}{{/href}}
+{{$label}}{{#useEduID}}Inloggen met eduID{{/useEduID}}{{^useEduID}}Inloggen{{/useEduID}} {{#invitation.anyRoles}}om de rol{{^singleRole}}len{{/singleRole}} te accepteren{{/invitation.anyRoles}}{{^invitation.anyRoles}}om de uitnodiging te accepteren{{/invitation.anyRoles}}{{/label}}
+{{$linkText}}{{url}}{{/linkText}}
+{{$width}}340{{/width}}
+{{/ui_button.html}}
+{{#useEduID}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:14px;line-height:20px;color:#525252;">De uitnodiging accepteer je door in te loggen met eduID. Als je deze nog niet hebt, kun je hem gelijk aanmaken.</p>
+{{/useEduID}}
+{{^useEduID}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:14px;line-height:20px;color:#525252;">De uitnodiging accepteer je door in te loggen met SURFconext.</p>
+{{/useEduID}}
+{{<ui_sender.html}}
+{{$caption}}Uitnodiging ontvangen van:{{/caption}}
+{{/ui_sender.html}}
+{{<ui_quote.html}}
+{{$caption}}Persoonlijk bericht van {{displaySenderName}}{{/caption}}
+{{/ui_quote.html}}
+{{/content}}
+{{/layout.html}}

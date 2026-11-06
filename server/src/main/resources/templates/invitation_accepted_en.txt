@@ -1,5 +1,7 @@
+{{<layout_text.txt}}
+{{$content}}
 Hi {{inviter.name}},
 
 Your invitation for {{roles}} was accepted by user {{name}}.
-
-{{> footer_en.txt}}
+{{/content}}
+{{/layout_text.txt}}

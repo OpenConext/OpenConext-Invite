@@ -1,9 +1,45 @@
-Je bent uitgenodigd voor SURFconext Invite.
-Klik op de link hieronder om de uitnodiging te accepteren.
+{{<layout_text.txt}}
+{{$content}}
+{{#invitation.institutionAdminInvitation}}
+{{displaySenderName}} (van {{institutionName}}) heeft je uitgenodigd om een instellings-admin te worden van instelling {{idpName}} om de applicaties van deze instelling te beheren.
 
+{{/invitation.institutionAdminInvitation}}
+{{#invitation.anyRoles}}
+Je bent uitgenodigd voor de rol{{^singleRole}}len{{/singleRole}} {{roles}}
+
+{{#roleCards}}
+{{name}}
+{{#authorityGuest}}Als gebruiker heb je toegang tot de applicaties van deze rol.{{/authorityGuest}}{{#authorityInviter}}Als uitnodiger heb je zelf geen toegang, maar mag je wel gebruikers uitnodigen.{{/authorityInviter}}{{#authorityManager}}Als rolmanager heb je zelf geen toegang, maar mag je wel anderen uitnodigen.{{/authorityManager}} De rol is {{validity}} geldig.
+Gebruikers met deze rol hebben toegang tot de volgende applicatie(s): {{applications}}
+
+{{/roleCards}}
+Door in te loggen accepteer je de rol{{^singleRole}}len{{/singleRole}} en kun je ermee aan de slag.
+
+{{/invitation.anyRoles}}
+{{#invitation.anyApplications}}
+Je bent uitgenodigd als Role creator
+
+Als Role creator kun je rollen aanmaken voor de onderstaande applicaties.
+Applicaties: {{applicationNames}}
+
+Door in te loggen accepteer je de uitnodiging en kun je aan de slag.
+
+{{/invitation.anyApplications}}
+{{#useEduID}}
+De uitnodiging accepteer je door in te loggen met eduID. Als je deze nog niet hebt, kun je hem gelijk aanmaken.
+{{/useEduID}}
+{{^useEduID}}
+De uitnodiging accepteer je door in te loggen met SURFconext.
+{{/useEduID}}
+
+{{#useEduID}}Inloggen met eduID{{/useEduID}}{{^useEduID}}Inloggen{{/useEduID}} {{#invitation.anyRoles}}om de rol{{^singleRole}}len{{/singleRole}} te accepteren{{/invitation.anyRoles}}{{^invitation.anyRoles}}om de uitnodiging te accepteren{{/invitation.anyRoles}}:
 {{{url}}}
 
-Je bent uitgenodigd om {{role}} te worden in SURFconext Invite. Als je niet op deze
-uitnodiging wilt ingaan, kun je dit bericht simpelweg terzijde leggen.
+Uitnodiging ontvangen van: {{senderName}} ({{senderOrganization}})
+{{#message}}
 
-{{> footer_nl.txt}}
+Persoonlijk bericht van {{displaySenderName}}:
+{{{message}}}
+{{/message}}
+{{/content}}
+{{/layout_text.txt}}

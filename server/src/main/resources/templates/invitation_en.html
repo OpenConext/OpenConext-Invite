@@ -1,114 +1,50 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-</head>
-<body>
-<div class="main"
-     style="width:617px;margin: 0 auto;padding:24px 32px;font-family:Helvetica, Arial, sans-serif;line-height: 150%;font-size: 18px;color: #000;">
-    <div class="header">
-        {{#institutionLogoUrl}}
-        <img src="{{institutionLogoUrl}}" alt="logo" style="height: 48px;"/>
-        {{/institutionLogoUrl}}
-        {{#isInstitutionSurf}}
-        <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px;">
-        {{/isInstitutionSurf}}
-    </div>
-    <div class="head">
-        {{#environment}}
-        <p style="font-weight: bold;padding: 10px;margin:5px 0 15px 0;background-color: #f1f19b;">
-            This mail is from the {{environment}} environment
-        </p>
-        {{/environment}}
-        {{#invitation.institutionAdminInvitation}}
-        <p>{{displaySenderName}} (from {{institutionName}}) has invited you to become
-            an institution admin for institution {{idpName}} to manage the applications of this institution.</p>
-        {{/invitation.institutionAdminInvitation}}
-
-        {{#invitation.anyRoles}}
-        <p>{{displaySenderName}} (from {{institutionName}}) would like to grant you access to:</p>
-        <ul>
-            {{#groupedProviders}}
-            <li style="margin-bottom: 4px;font-weight: 600;">{{name}} - as {{rolesDisplay}}
-                <span style="font-weight: 400;">(for {{rolesExpirationDate}})</span></li>
-            {{/groupedProviders}}
-        </ul>
-        {{/invitation.anyRoles}}
-
-        {{#invitation.anyApplications}}
-        <p>{{displaySenderName}} (from {{institutionName}}) has invited you to become <strong>Role creator</strong>.</p>
-        {{/invitation.anyApplications}}
-
-        {{#message}}
-        <div class="head" style="background-color: #DFF4FF;padding: 10px;margin:5px 0 15px 0;">
-            <p style="margin: 0;">
-                {{{message}}}
-            </p>
-        </div>
-        {{/message}}
-        {{#useEduID}}
-        <p>You accept the invitation by logging in with eduID. If you don't have one yet, you can create it right
-            away.</p>
-¬        <table style="border-collapse: collapse; margin: 10px 0;">
-            <tr>
-                <td style="border-radius: 4px; background-color: #0077c8; padding: 0; line-height: 0;">
-                    <a class="button" href="{{{ url }}}"
-                       style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px 8px 10px">
-                        <table style="border-collapse: collapse;">
-                            <tr>
-                                <td style="vertical-align: middle; padding: 0;">
-                                    <img src="cid:eduIDLogo" alt="SURF logo" style="height: 32px; width: 32px;">
-                                </td>
-                                <td style="vertical-align: middle; padding-left: 12px;">
-                                    <span style="color: white;">Continue with eduID</span>
-                                </td>
-                            </tr>
-                        </table>
-                    </a>
-                </td>
-            </tr>
-        </table>
-        <p style="word-break: break-word">or copy this link into your browser: {{{ url }}}</p>
-        {{/useEduID}}
-        {{^useEduID}}
-        <p>You accept the invitation by logging in with SURFconext.</p>
-        <table style="border-collapse: collapse; margin: 10px 0;">
-            <tr>
-                <td style="border-radius: 4px; background-color: #0077c8; padding: 0;">
-                    <a class="button" href="{{{ url }}}"
-                       style="border-radius: 4px;color: white;text-decoration: none;display: inline-block;padding: 8px 20px;">
-                        <span style="color: white;">Continue</span>
-                    </a>
-                </td>
-            </tr>
-        </table>
-        <p style="word-break: break-word">or copy this link into your browser: {{{ url }}}</p>
-        {{/useEduID}}
-    </div>
-    <div class="footer"
-         style="padding: 12px 0;line-height: 24px; color: #5E6873; border-top: 1px solid #888F99;font-size: 14px;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="text-align: left; vertical-align: middle; padding-right: 10px; line-height: 0;">
-                    <span>This invitation is sent via</span>
-                    <a class="external" href="https://support.surfconext.nl/invite"
-                       style="color: #636363; text-decoration: underline;">SURFconext Invite</a>
-                    <span> • </span>
-                    <a class="external" href="https://support.surfconext.nl/privacy"
-                       style="color: #636363; text-decoration: underline;">Privacy Policy</a>
-                    <span> • </span>
-                    <a class="external" href="https://support.surfconext.nl/terms-en"
-                       style="color: #636363; text-decoration: underline;">Terms of Use</a>
-                </td>
-                <td style="text-align: right; vertical-align: middle; white-space: nowrap; width: 100px; line-height: 0;">
-                    <a class="external" href="https://surf.nl/">
-                        <img src="cid:logoSurfBlack" alt="SURF logo" style="height: 48px; width: 48px;">
-                    </a>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
-
-</body>
-</html>
+{{<layout.html}}
+{{$heading}}{{#invitation.anyRoles}}You have been invited for the role{{^singleRole}}s{{/singleRole}} {{roles}}{{/invitation.anyRoles}}{{#invitation.anyApplications}}You have been invited as Role creator{{/invitation.anyApplications}}{{#invitation.institutionAdminInvitation}}You have been invited as institution admin{{/invitation.institutionAdminInvitation}}{{/heading}}
+{{$preheader}}{{displaySenderName}} ({{institutionName}}) invited you{{/preheader}}
+{{$content}}
+{{#invitation.institutionAdminInvitation}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">{{displaySenderName}} (from {{institutionName}}) has invited you to become an institution admin for institution {{idpName}} to manage the applications of this institution.</p>
+{{/invitation.institutionAdminInvitation}}
+{{#invitation.anyRoles}}
+{{#roleCards}}
+{{<ui_card.html}}
+{{$title}}{{name}}{{/title}}
+{{$description}}{{#authorityGuest}}As a user you have access to the applications of this role.{{/authorityGuest}}{{#authorityInviter}}As inviter you have no access yourself, but you can invite users.{{/authorityInviter}}{{#authorityManager}}As role manager you have no access yourself, but you can invite others.{{/authorityManager}}<br>The role is valid for {{validity}}.{{/description}}
+{{$caption}}Users with this role have access to the following application(s):{{/caption}}
+{{$items}}{{applications}}{{/items}}
+{{/ui_card.html}}
+{{/roleCards}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">By logging in you accept the role{{^singleRole}}s{{/singleRole}} and can get started.</p>
+{{/invitation.anyRoles}}
+{{#invitation.anyApplications}}
+{{<ui_card.html}}
+{{$title}}Role creator{{/title}}
+{{$description}}As Role creator you can create roles for the applications below.{{/description}}
+{{$caption}}Applications:{{/caption}}
+{{$items}}{{applicationNames}}{{/items}}
+{{/ui_card.html}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">By logging in you accept the invitation and can get started.</p>
+{{/invitation.anyApplications}}
+{{#invitation.institutionAdminInvitation}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:18px;line-height:28px;">By logging in you accept the invitation and can get started.</p>
+{{/invitation.institutionAdminInvitation}}
+{{<ui_button.html}}
+{{$href}}{{url}}{{/href}}
+{{$label}}{{#useEduID}}Log in with eduID{{/useEduID}}{{^useEduID}}Log in{{/useEduID}} {{#invitation.anyRoles}}to accept the role{{^singleRole}}s{{/singleRole}}{{/invitation.anyRoles}}{{^invitation.anyRoles}}to accept the invitation{{/invitation.anyRoles}}{{/label}}
+{{$linkText}}{{url}}{{/linkText}}
+{{$width}}340{{/width}}
+{{/ui_button.html}}
+{{#useEduID}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:14px;line-height:20px;color:#525252;">You accept the invitation by logging in with eduID. If you don't have one yet, you can create it right away.</p>
+{{/useEduID}}
+{{^useEduID}}
+<p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 24px 0;font-size:14px;line-height:20px;color:#525252;">You accept the invitation by logging in with SURFconext.</p>
+{{/useEduID}}
+{{<ui_sender.html}}
+{{$caption}}Invitation received from:{{/caption}}
+{{/ui_sender.html}}
+{{<ui_quote.html}}
+{{$caption}}Personal message from {{displaySenderName}}{{/caption}}
+{{/ui_quote.html}}
+{{/content}}
+{{/layout.html}}

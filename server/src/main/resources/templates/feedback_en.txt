@@ -1,11 +1,15 @@
-Hi,
-User {{ user.name }} has provided the following feedback for {{ env }} at {{ date }}:
+{{<layout_text.txt}}
+{{$signoff}}{{/signoff}}
+{{$content}}
+Hello,
+
+User {{user.name}} has provided the following feedback for environment {{env}} at {{date}}:
 {{#url}}
-Page URL: {{ url }}
+Page URL: {{{url}}}
 {{/url}}
 
-{{ message }}
+{{{message}}}
 
-Follow-up questions can be sent to {{ user.email }}
-
-{{> footer_en.txt}}
+Follow-up questions can be sent to {{user.email}}
+{{/content}}
+{{/layout_text.txt}}

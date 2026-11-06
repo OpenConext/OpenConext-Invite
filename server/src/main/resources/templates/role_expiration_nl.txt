@@ -1,9 +1,12 @@
-Beste {{user.name}},
+{{<layout_text.txt}}
+{{$content}}
+Hoi {{userRole.user.name}},
 
-Je {{authority}}-rol {{role.name}}{{#groupedProvider}}
-in de applicatie {{groupedProvider.name}}{{/groupedProvider}}
-zal over {{nbrOfDays}} dagen verlopen. Als je denkt dat dit een vergissing is,
-kun je contact opnemen met je contactpersoon bij je instelling om verlenging
-van je {{authority}}-rol aan te vragen.
+Je {{authority}}-rol {{userRole.role.name}}  in de applicatie {{groupedProvider.name}} zal over {{nbrOfDays}} dagen verlopen. Als je denkt dat dit een vergissing is, kun je contact opnemen met je contactpersoon bij de instelling om verlenging van je {{authority}}-rol aan te vragen.
+{{#groupedProvider}}
+{{groupedProvider.name}} ({{groupedProvider.organisation}}) - {{groupedProvider.rolesDisplay}}
+{{/groupedProvider}}
 
-{{> footer_nl.txt}}
+Indien je de rol niet wilt vernieuwen, kun je dit bericht negeren of verwijderen.
+{{/content}}
+{{/layout_text.txt}}

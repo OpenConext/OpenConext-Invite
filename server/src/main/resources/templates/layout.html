@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="{{lang}}" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>{{title}}</title>
+    <!-- No web font <link>: it would make every open request fonts.googleapis.com (tracking). 'Source Sans 3' is used when installed, otherwise the fallback stack -->
+    <!--[if mso]><style>td, p, h1, a, span { font-family: Arial, sans-serif !important; }</style><![endif]-->
+    <!--[if mso]>
+    <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+    <![endif]-->
+    <style>
+        /* Progressive enhancement only: every style that matters is also inline */
+        @media only screen and (max-width: 620px) {
+            .card-pad { padding: 32px 20px 24px 20px !important; }
+            .page-pad { padding: 0 !important; }
+            .card { border-radius: 0 !important; }
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;width:100%;background-color:#f5f5f4;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<div style="display:none;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#f5f5f4;">{{$preheader}}{{title}}{{/preheader}}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f4" style="background-color:#f5f5f4;">
+    <tr>
+        <td align="center" class="page-pad" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:24px 16px;">
+            <!--[if mso]><table role="presentation" width="709" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td><![endif]-->
+            <table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff"
+                   style="width:100%;max-width:709px;background-color:#ffffff;border-radius:18px;border-collapse:separate;">
+                <tr>
+                    <td class="card-pad" align="left" style="padding:64px 48px 32px 48px;font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;font-size:18px;line-height:28px;color:#0a0a0a;">
+                        {{#environment}}
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:0 0 24px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td bgcolor="#f1f19b" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;background-color:#f1f19b;padding:12px 16px;border-radius:8px;font-size:16px;line-height:24px;font-weight:bold;color:#0a0a0a;">
+                                    {{#nl}}Deze e-mail is afkomstig uit de {{environment}}-omgeving{{/nl}}{{^nl}}This mail is from the {{environment}} environment{{/nl}}
+                                </td>
+                            </tr>
+                        </table></td></tr></table>
+                        {{/environment}}
+                        <h1 style="margin:0 0 36px 0;font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;font-size:30px;line-height:36px;font-weight:600;color:#0a0a0a;">{{$heading}}{{title}}{{/heading}}</h1>
+                        {{$content}}{{/content}}
+                        {{$signoff}}
+                        <p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 16px 0;font-size:18px;line-height:28px;">{{#nl}}Heb je vragen? Stuur een e-mail naar{{/nl}}{{^nl}}Do you have any questions? Send an email to{{/nl}} <a href="mailto:{{supportEmail}}" style="color:#064bcb;text-decoration:underline;">{{supportEmail}}</a>.</p>
+                        <p style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;margin:0 0 8px 0;font-weight:600;">{{productName}} {{#nl}}supportteam{{/nl}}{{^nl}}support team{{/nl}}</p>
+                        {{/signoff}}
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:48px 0 0 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td colspan="2" height="1" bgcolor="#d6d3d1" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;height:1px;line-height:1px;font-size:1px;background-color:#d6d3d1;">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td align="left" valign="middle" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:16px 8px 0 8px;">
+                                    <img src="cid:surfLogo" width="71" height="36" alt="SURF" style="display:block;border:0;text-decoration:none;width:71px;height:36px;">
+                                </td>
+                                <td align="right" valign="middle" style="font-family:'Source Sans 3','Source Sans Pro',Helvetica,Arial,sans-serif;padding:16px 8px 0 8px;font-size:14px;line-height:20px;font-weight:500;color:#525252;">
+                                    <a href="{{privacyUrl}}" style="color:#525252;text-decoration:none;">{{#nl}}Privacy en voorwaarden{{/nl}}{{^nl}}Privacy and terms{{/nl}}</a>
+                                </td>
+                            </tr>
+                        </table></td></tr></table>
+                    </td>
+                </tr>
+            </table>
+            <!--[if mso]></td></tr></table><![endif]-->
+        </td>
+    </tr>
+</table>
+</body>
+</html>

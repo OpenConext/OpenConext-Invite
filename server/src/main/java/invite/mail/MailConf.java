@@ -22,12 +22,13 @@ public class MailConf {
                            @Value("${email.contactEmail}") String contactEmail,
                            @Value("${email.supportEmail}") String supportEmail,
                            @Value("${email.environment}") String env,
+                           @Value("${email.productName:SURFconext Invite}") String productName,
                            IdPMetaDataResolver idPMetaDataResolver,
                            Manage manage,
                            JavaMailSender mailSender,
                            ObjectMapper objectMapper) throws IOException {
         return new MailBox(objectMapper, idPMetaDataResolver, mailSender, emailFrom,
-                contactEmail, supportEmail, config.getClientUrl(), config.getWelcomeUrl(), env, manage);
+                contactEmail, supportEmail, config.getClientUrl(), config.getWelcomeUrl(), env, productName, manage);
     }
 
 

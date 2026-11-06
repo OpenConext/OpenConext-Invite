@@ -1,8 +1,12 @@
-Hi, {{user.name}}
+{{<layout_text.txt}}
+{{$content}}
+Hi {{userRole.user.name}},
 
-Your {{authority}} role {{role.name}} at the application {{groupedProvider.name}}
-will expire in {{nbrOfDays}} days. If you think this is a mistake, you can reach
-out to your contact person at your institution for a renewal of your {{authority}}
-role.
+Your {{authority}} role {{userRole.role.name}}  at the application {{groupedProvider.name}} will expire in {{nbrOfDays}} days. If you think this is a mistake, you can reach out to your contact person at your institution for a renewal of your {{authority}} role.
+{{#groupedProvider}}
+{{groupedProvider.name}} ({{groupedProvider.organisation}}) - {{groupedProvider.rolesDisplay}}
+{{/groupedProvider}}
 
-{{> footer_en.txt}}
+If you don't want to renew your role, just ignore or delete this message.
+{{/content}}
+{{/layout_text.txt}}
