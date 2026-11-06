@@ -378,6 +378,60 @@ class InternalInviteControllerTest extends AbstractTest {
         });
     }
 
+    @Test
+    void profile() {
+        User user = given()
+                .when()
+                .auth().preemptive().basic("access", "secret")
+                .accept(ContentType.JSON)
+                .pathParam("sub", MANAGE_SUB)
+                .get("/api/external/v1/internal/invite/profile/{sub}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .as(User.class);
+        assertEquals(MANAGE_SUB, user.getSub());
+    }
+
+    @Test
+    void profileIgnoreCase() {
+        User user = given()
+                .when()
+                .auth().preemptive().basic("access", "secret")
+                .accept(ContentType.JSON)
+                .pathParam("sub", MANAGE_SUB.toUpperCase())
+                .get("/api/external/v1/internal/invite/profile/{sub}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .as(User.class);
+        assertEquals(MANAGE_SUB, user.getSub());
+    }
+
+    @Test
+    void profileNotFound() {
+        given()
+                .when()
+                .auth().preemptive().basic("access", "secret")
+                .accept(ContentType.JSON)
+                .pathParam("sub", "urn:collab:person:example.com:nope")
+                .get("/api/external/v1/internal/invite/profile/{sub}")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void profileForbiddenForSpDashboard() {
+        given()
+                .when()
+                .auth().preemptive().basic("sp_dashboard", "secret")
+                .accept(ContentType.JSON)
+                .pathParam("sub", MANAGE_SUB)
+                .get("/api/external/v1/internal/invite/profile/{sub}")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
     private List<String> rolesMine(String sub) {
         return rolesMineRoles(sub).stream().map(Role::getName).toList();
     }

@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 
 @RestController
-@RequestMapping(value = { "/api/external/v1/internal/invite"},
+@RequestMapping(value = {"/api/external/v1/internal/invite"},
         produces = MediaType.APPLICATION_JSON_VALUE)
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class InternalInviteController implements ApplicationResource, InvitationResource, UserRoleResource {
@@ -123,6 +123,17 @@ public class InternalInviteController implements ApplicationResource, Invitation
         return ResponseEntity.ok(roles);
     }
 
+    @GetMapping("/profile/{userSub}")
+    @PreAuthorize("hasAnyRole('ACCESS')")
+    @Transactional(readOnly = true)
+    @Hidden
+    public ResponseEntity<User> profile(@Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser,
+                                        @PathVariable("userSub") String userSub) {
+        LOG.debug(String.format("/profile requested for %s by user %s", userSub, remoteUser.getName()));
+        User user = userRepository.findBySubIgnoreCase(userSub).orElseThrow(() -> new NotFoundException("User not found: " + userSub));
+        return ResponseEntity.ok(user);
+    }
+
     @GetMapping("/roles/{organizationGUID}/{manageId}")
     @PreAuthorize("hasRole('ACCESS')")
     @Transactional(readOnly = true)
@@ -160,7 +171,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
             List<Role> rolesByOrganizationGUID = roleRepository.findByOrganizationGUID(user.getOrganizationGUID());
             roles.addAll(rolesByOrganizationGUID);
         } else {
-            List<String > manageIdentifiers = user.getUserApplications().stream()
+            List<String> manageIdentifiers = user.getUserApplications().stream()
                     .map(userApplication -> userApplication.getApplication().getManageId())
                     .toList();
             List<Role> rolesByApplication = roleRepository.findByApplicationUsagesApplicationManageIdIn(manageIdentifiers);
@@ -189,7 +200,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
     @PreAuthorize("hasAnyRole('SP_DASHBOARD','ACCESS')")
     @Operation(summary = "Create a Role",
             description = "Create a Role linked to a SP in Manage. Note that the required application object needs to be pre-configured during deployment.",
-            security = { @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME) },
+            security = {@SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     useParameterTypeSchema = true,
                     content = {@Content(examples = {@ExampleObject(value = """
@@ -280,7 +291,7 @@ public class InternalInviteController implements ApplicationResource, Invitation
         }
         List<Map<String, Object>> providers = manage.identityProvidersByInstitutionalGUID(roleRequest.getOrganizationGUID());
         if (providers.isEmpty()) {
-            throw new InvalidInputException("There is no identityProvider with InstitutionalGUID: "+remoteUser.getOrganizationGUIDFallback());
+            throw new InvalidInputException("There is no identityProvider with InstitutionalGUID: " + remoteUser.getOrganizationGUIDFallback());
         }
 
         Role role = new Role(roleRequest);
