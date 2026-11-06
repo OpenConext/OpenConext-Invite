@@ -47,9 +47,40 @@
             }
         }
 
-        // Wide: [authority | roles | explanation]. The explanation sits in the third column and does not
-        // influence the row heights, so the fields below are not pushed down.
+        // Authority gets just enough width for its longest option, roles / applications take the remaining width
+        .authority-roles-fields {
+            display: flex;
+            gap: 50px;
+            align-items: flex-start;
+
+            .authority-field {
+                flex: 0 0 var(--authority-width, 200px);
+                min-width: 0;
+
+                .select-field label {
+                    min-width: 0;
+                }
+            }
+
+            .roles-field {
+                flex: 1;
+                min-width: 0;
+            }
+
+            @media (max-width: vars.$medium) {
+                flex-direction: column;
+                gap: 0;
+                align-items: stretch;
+
+                .authority-field {
+                    flex: none;
+                }
+            }
+        }
+
         &:not(.inviter) {
+            // Wide: [authority + roles | explanation]. The explanation starts at the top of the form and does not
+            // influence the row heights, so the fields are not pushed down.
             @media (min-width: 1101px) {
                 grid-template-columns: [first] minmax(0, 1fr) [second] minmax(0, 1fr) [third] minmax(0, 1fr);
 
@@ -57,17 +88,9 @@
                     grid-column-end: span 2;
                 }
 
-                .authority-field {
-                    grid-column: first;
-                }
-
-                .roles-field {
-                    grid-column: second;
-                }
-
                 .authority-explanation-slot {
                     grid-column: third;
-                    grid-row: span 6;
+                    grid-row: 1 / span 8;
                     position: relative;
                     margin-top: 20px;
 
@@ -80,60 +103,23 @@
                 }
             }
 
-            // Medium: [authority | roles], explanation below them
+            // Medium: explanation below the fields
             @media (min-width: #{vars.$medium + 1}) and (max-width: 1100px) {
-                .authority-field {
-                    grid-column: first;
-                }
-
-                .roles-field {
-                    grid-column: second;
+                .authority-roles-fields, .authority-explanation-slot {
+                    grid-column: 1 / -1;
                 }
 
                 .authority-explanation-slot {
-                    grid-column: 1 / -1;
                     margin-top: 20px;
                 }
             }
 
             // Narrow: everything stacked
             @media (max-width: vars.$medium) {
-                .authority-field, .roles-field, .authority-explanation-slot {
-                    grid-column: first;
-                }
-
                 .authority-explanation-slot {
+                    grid-column: first;
                     margin-top: 20px;
                 }
-            }
-        }
-
-        .roles-field {
-            .select-slot {
-                display: flex;
-                align-items: flex-end;
-                gap: 12px;
-
-                .select-field {
-                    flex: 1;
-                    min-width: 0;
-                }
-
-                .trash {
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    height: 48px;
-
-                    svg {
-                        width: 24px;
-                        height: auto;
-                    }
-                }
-            }
-
-            > .sds--btn {
-                margin-top: 20px;
             }
         }
 
