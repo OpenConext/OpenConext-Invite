@@ -21,7 +21,8 @@ open question 2 (independent deployability of the Invite UI) and 1 (is a page re
 ## 0a. Update 2026-10-09: option C implemented in a reduced form (menu API in Access)
 
 Decision: **no shared package for now** – the shell components stay duplicated in Access and Invite (the `OpenConext/access-shell` repo is unused). Only the
-**menu visibility rules moved to the Access server**; Access and Invite run on **different domains**, so the Invite browser cannot use the Access session cookie.
+**menu visibility rules moved to the Access server**; Access and Invite run on **different domains**, so the Invite browser cannot use the Access
+session cookie.
 
 | Piece | Where |
 |---|---|
@@ -31,14 +32,19 @@ Decision: **no shared package for now** – the shell components stay duplicated
 | `GET /api/v1/users/menu?organizationId=` (Invite session, `sub` from the session, never from the request; fallback `{menuItems:["invite"],fallback:true}` when Access is down/404) | Invite `UserController` + `invite.menu.AccessMenuClient` (`access.menu-uri/username/password`) |
 | Invite client | `api/index.js#menu`, `SharedMenu.jsx` filters the static `allMenuGroups` with `menuItems`; organisations from the response |
 
-Feature toggle for organizations that run Invite **without** Access: `config.access-menu-enabled` in the Invite `application.yml` (default `True`, also when the key is missing),
-exposed as `accessMenuEnabled` in `GET /api/v1/users/config`. When `False` the Invite client renders no left-hand menu and `GET /api/v1/users/menu` returns an empty model without calling Access.
+Feature toggle for organizations that run Invite **without** Access: `config.access-menu-enabled` in the Invite `application.yml` (default `True`,
+also when the key is missing),
+exposed as `accessMenuEnabled` in `GET /api/v1/users/config`. When `False` the Invite client renders no left-hand menu and `GET /api/v1/users/menu`
+returns an empty model without calling Access.
 
-The links of the Invite menu point to Access through `config.access-url` (returned as `accessUrl` by `/api/v1/users/config`), so one client build works in every environment
+The links of the Invite menu point to Access through `config.access-url` (returned as `accessUrl` by `/api/v1/users/config`), so one client build
+works in every environment
 (`VITE_ACCESS_URL` is only a local fallback). Set it in the external `application.yml` of every environment, e.g. `config.access-url: https://<access host>`.
 
-Removed: Invite `GET /api/v1/users/organizations` (Manage lookup by `surf-crm-id`); the `users.surf_crm_id` column and its claim handling are still in place (unused by the menu now).
-Deploy notes: configure `menu.user/password` in Access and the same credentials as `access.username/password` + `access.menu-uri` in Invite for every environment.
+Removed: Invite `GET /api/v1/users/organizations` (Manage lookup by `surf-crm-id`); the `users.surf_crm_id` column and its claim handling are still in
+place (unused by the menu now).
+Deploy notes: configure `menu.user/password` in Access and the same credentials as `access.username/password` + `access.menu-uri` in Invite for every
+environment.
 
 ---------------------------------------------------------------------------------------------------
 
@@ -61,6 +67,7 @@ pixel-perfect the same as Access and its links point to the Access application. 
 > the Invite application in the right-side content panel when the user clicks the Roles link. For this the Invite security
 > has to become a resource server and the Invite client needs to use proxy endpoints in the Access server to reroute them
 > server-to-server to Invite, adding the access_token obtained from the initial login.
+>
 > 1. How feasible is this?  2. What are the gotchas?  3. Is there a better way to prevent page refreshes and not
 > duplicate the entire menu?  4. Draft a plan.
 
@@ -72,6 +79,7 @@ links is based on the logged-in user in Access (see `access/client/src/utils/Men
 ## 2. Current state (what exists today)
 
 ### Repos and processes (local dev)
+
 | Thing | Location | Port | Notes |
 |---|---|---|---|
 | Invite repo (branch `feature/access`) | `/Users/harst001/projects/invite` | | `client/` (Vite + React 19.3), `server/` (Spring Boot, Maven) |
@@ -81,6 +89,7 @@ links is based on the logged-in user in Access (see `access/client/src/utils/Men
 | Access copy inside Invite (git-ignored) | `/Users/harst001/projects/invite/access` | – | **not** what runs; edits must be applied to `/Users/harst001/projects/access` too |
 
 ### Changes made in Invite so far (uncommitted, branch `feature/access`)
+
 - Client: `@surfnet/curve-react`, `@phosphor-icons/react`, Tailwind 4 (`@tailwindcss/vite`), react 19.3; `vite.config.js` (tailwind plugin,
   `preserveSymlinks`); `index.html` class `theme-surf-green`; `main.jsx` (TooltipProvider, Toaster, curve + tailwind CSS);
   `styles/sds-layered.css` (SDS CSS pushed into cascade layer `sds` between `components` and `utilities` so the curve preflight
@@ -98,6 +107,7 @@ links is based on the logged-in user in Access (see `access/client/src/utils/Men
   `application.yml` (`invite: http://localhost:3000`, `invite_same_tab: true`).
 
 ### Facts about the code that drive the options below
+
 - Invite is **already** an opaque-token resource server, but only for `/api/external/v1/**`
   (`server/.../security/SecurityConfig.java#jwtSecurityFilterChain`, introspection `oidcng.introspect-url`, RS id/secret `oidcng.resource-server-*`;
   local value `myconext.rs` is a placeholder). `UserHandlerMethodArgumentResolver` already handles `BearerTokenAuthentication`.
@@ -128,57 +138,71 @@ links is based on the logged-in user in Access (see `access/client/src/utils/Men
 | Independent deploy of Invite UI | yes | no (versioned package) | yes | yes |
 
 ### A. Web component + proxy (what was asked)
+
 Access mounts `<surf-invite>` (bundle served by Invite or Access) in its content panel; the element calls `/api/v1/invite-proxy/**` on Access;
 Access forwards to Invite with `Authorization: Bearer <access_token from the OIDC login>`; Invite validates it as resource server.
 
 ### B. Shared React package or Module Federation remote
+
 Invite UI exported as `@surf/invite-ui` (or a federated remote) and mounted by Access on route `/invite/*` in the same React tree: shared router,
 breadcrumb, CSRF, theme and menu. Both already run React 19.3 + curve-react. Invite UI keeps talking to the Invite API (CORS + cookie/bearer) or via a proxy.
 
 ### C. Shared shell
+
 Extract sidebar + header + breadcrumb + footer into one package (`@surf/access-shell`). Both apps render it; navigation between them is a full document
 load (masked with View Transitions API / prefetch / identical skeleton). Replaces the duplicated `client/src/components/SharedMenu.jsx`.
 
 ### D. iframe
+
 Invite inside Access; postMessage for URL/height/breadcrumb. Own session, no proxy.
 
 ---------------------------------------------------------------------------------------------------
 
 ## 4. Feasibility of option A and its gotchas (ordered by risk)
 
-**Verdict: feasible, a medium-size project. The three original go/no-go dependencies (token acceptance, token lifetime, `sub`) are resolved by D1-D3 (§0); claims via userinfo remain to be verified (S5).**
+**Verdict: feasible, a medium-size project. The three original go/no-go dependencies (token acceptance, token lifetime, `sub`) are resolved by D1-D3
+(§0); claims via userinfo remain to be verified (S5).**
 
-1. **Token lifetime vs session.** *(Mitigated by D2, see §4a.)* Access session 8h; access_token typically ~1h; scope `openid` only, no refresh token. After expiry every proxied call fails.
+1. **Token lifetime vs session.** *(Mitigated by D2, see §4a.)* Access session 8h; access_token typically ~1h; scope `openid` only, no refresh token.
+   After expiry every proxied call fails.
    Needs `offline_access`/refresh (is it allowed for the Access RP in OIDC-NG?) or a top-level re-auth on 401. XHR cannot re-login silently.
-2. **Token acceptance by Invite's RS.** *(Resolved by configuration, D1 – verify per environment.)* The Access RP in Manage must allow Invite's resource server (`allowedResourceServers`), and the RS id/secret must be
+2. **Token acceptance by Invite's RS.** *(Resolved by configuration, D1 – verify per environment.)* The Access RP in Manage must allow Invite's
+   resource server (`allowedResourceServers`), and the RS id/secret must be
    registered (change in another system). Verify the audience/scope semantics of OIDC-NG introspection.
 3. **Claims.** Introspection returns token data, not the userinfo claims Invite needs (name, email, `schac_home_organization`, `surf-crm-id`,
    `eduperson_entitlement` for institution-admin provisioning). Invite must call `/userinfo` with the bearer (cache by token hash) and re-run the provisioning
    currently done only in `CustomOidcUserService` at login. Extract that logic into a shared service.
-4. **Identity mapping.** *(Resolved, D3.)* Invite keys users by `sub`. Access and Invite are different OIDC clients – verify `sub` is identical (not pairwise) or every user is "not found".
-5. **Flows that must stay top-level**: invitation accept (`/invitation/accept`, eduID enforcement, `login_hint` in `AuthorizationRequestCustomizer`), e-mail deep links,
+4. **Identity mapping.** *(Resolved, D3.)* Invite keys users by `sub`. Access and Invite are different OIDC clients – verify `sub` is identical (not
+   pairwise) or every user is "not found".
+5. **Flows that must stay top-level**: invitation accept (`/invitation/accept`, eduID enforcement, `login_hint` in `AuthorizationRequestCustomizer`),
+   e-mail deep links,
    first-time users without an Invite account. Invite must remain deployable standalone; embedded mode is additional.
 6. **Two chains on `/api/v1/**`.** A bearer chain must be ordered **before** the session chain and selected by the `Authorization: Bearer` header
    (stateless, CSRF off). Otherwise the session chain answers 302/401.
 7. **CSRF.** The Access proxy is a session endpoint → protected by Access CSRF. The Invite UI must use Access's CSRF token, not Invite's `/api/v1/csrf`.
-8. **Proxy security.** Strict path allow-list (never `/api/external/**`, `/internal/**`); strip `Cookie`, `Set-Cookie`, `Authorization` from the browser request/response;
+8. **Proxy security.** Strict path allow-list (never `/api/external/**`, `/internal/**`); strip `Cookie`, `Set-Cookie`, `Authorization` from the
+   browser request/response;
    add the bearer server-side; forward only allow-listed headers; re-add `x-session-alive`; map 401 → Access re-auth signal; timeouts and size limits;
    audit log with the *user* (Invite will otherwise log the proxy); tokens at rest in the session table should be encrypted.
 9. **Impersonation.** Invite's `X-IMPERSONATE-ID` uses Invite user ids; Access impersonation is a different concept. Disable in embedded mode or map explicitly.
-10. **CSS isolation.** Shadow DOM isolates SDS global CSS, but SDS is written for `body.sds--color-palette--green`, `:root` and global `@font-face` → variables vanish
+10. **CSS isolation.** Shadow DOM isolates SDS global CSS, but SDS is written for `body.sds--color-palette--green`, `:root` and global `@font-face` →
+    variables vanish
     in a shadow root. Portals (react-select, react-datepicker, react-tooltip, SDS modals) render to `document.body`, outside the shadow root, and lose styling.
     A light-DOM element avoids this but keeps today's `@layer sds` workaround. Best fix: finish the SDS → curve-react migration of the Invite pages first.
 11. **Host integration.** URL ownership (`/invite/*` with router `basename` or memory router + sync), breadcrumb/flash/locale/active-menu bridging
     (custom events + attributes), scroll lock, z-index, focus, `lang` cookie, organisation context, unsaved-change prompts.
-12. **Operations.** Remote script = supply chain/CSP (`script-src`, SRI, versioned URL), CORS for the bundle, version skew between element and API, double-hop latency,
+12. **Operations.** Remote script = supply chain/CSP (`script-src`, SRI, versioned URL), CORS for the bundle, version skew between element and API,
+    double-hop latency,
     Access now depends on Invite availability for that panel.
 
 ### 4a. Design consequences of D1-D3 for option A
 
-**Refresh grant (D2) – what Access must do**
+#### Refresh grant (D2) – what Access must do
+
 - Add `refresh_token` to the grant types of the Access OpenID client (Manage) and request the scope that yields a refresh token
   (`offline_access` in many OPs; confirm for OIDC-NG). Add the scope to `spring.security.oauth2.client.registration.oidcng.scope`.
-- Access must **use** the token: register an `OAuth2AuthorizedClientManager` (`.refreshToken()` provider) and an explicit `OAuth2AuthorizedClientService`/repository
+- Access must **use** the token: register an `OAuth2AuthorizedClientManager` (`.refreshToken()` provider) and an explicit
+  `OAuth2AuthorizedClientService`/repository
   instead of the implicit session copy. The proxy asks the manager for the authorized client per request; Spring refreshes when expired (clock skew set).
 - Store the authorized client **server-side with encryption at rest** (JDBC `OAuth2AuthorizedClientService`, tokens encrypted with the existing `java-crypto`
   KeyStore pattern) rather than in the serialized HTTP session row. Delete it on logout (`/api/v1/users/logout`) and revoke at the OP if supported.
@@ -186,7 +210,8 @@ Invite inside Access; postMessage for URL/height/breadcrumb. Own session, no pro
   (lock per principal) and treat `invalid_grant` as "session over" → 401 with re-auth signal.
 - The refresh token outlives the 8h session unless limited; align its TTL with the session timeout and with the OP's SSO session policy.
 
-**Resource server (D1) – what Invite must do**
+#### Resource server (D1) – what Invite must do
+
 - The Invite RS id/secret must be known to the OP and listed as allowed resource server for Access's client; the introspection response must contain at
   least `active`, `sub`, `scope`, `exp` (+ `client_id`/`aud` to verify it was issued to Access's client; reject tokens of other clients).
 - Add a dedicated scope for the Invite UI API (e.g. `invite`) and require it in the bearer chain, so the existing external-API tokens cannot call the UI API
@@ -194,41 +219,51 @@ Invite inside Access; postMessage for URL/height/breadcrumb. Own session, no pro
 - Claims are still not in introspection output: call `/userinfo` with the bearer token and cache per token hash for a short TTL (see gotcha 3).
 
 **Same `sub` (D3)**
+
 - Keep `findBySubIgnoreCase(sub)` as the user key. Add a test with an Access-issued token and an existing Invite user.
 
 ---------------------------------------------------------------------------------------------------
 
 ## 5. Option C in detail – how does Invite know which menu items to render?
 
-Item visibility is derived from the **Access** user (`doMenuItemsForUser`: memberships/authority for the current organization, `manageIdentifier`, `config.features`,
+Item visibility is derived from the **Access** user (`doMenuItemsForUser`: memberships/authority for the current organization, `manageIdentifier`,
+`config.features`,
 `feedbackWidgetEnabled`, `superUser`). Invite has none of that data (its users/roles and `surfCrmId` are another model), so it must **ask Access**:
 
-1. **Shared package** exports the *presentational* shell only: `<AppSidebar model={…}>`, header, breadcrumb, footer, icons, translations. It takes a **menu model**
+1. **Shared package** exports the *presentational* shell only: `<AppSidebar model={…}>`, header, breadcrumb, footer, icons, translations. It takes a
+   **menu model**
    (groups, items, active item, organisation list, current organisation, `href`s) and contains **no visibility rules**.
 2. **Single source of truth = Access server.** New slim endpoint `GET /api/v1/menu?organizationId=` →
    `{menuItems:[names], organizations:[{id,name}], currentOrganization, user:{name, role}}`. The rules move from `MenuItems.js` to the server (port of
    `doMenuItemsForUser`, ~40 lines, unit-testable). Access's own client consumes the same endpoint, so both apps render identical menus by construction.
 3. **Invite fetches it cross-origin:** `fetch(ACCESS_URL + "/api/v1/menu", {credentials: "include"})`. Works because Access and Invite are same-site
-   (dev: `localhost` ports; prod: sibling subdomains), so the Access session cookie is sent. Needs CORS `allowedOrigins=<invite url>` + `allowCredentials` for that single
+   (dev: `localhost` ports; prod: sibling subdomains), so the Access session cookie is sent. Needs CORS `allowedOrigins=<invite url>` +
+   `allowCredentials` for that single
    read-only GET (no CSRF issue). No token relaying, no resource server.
 4. **Organisation context:** Access keeps it in `localStorage` on its own origin, unreadable by Invite. Invite passes the selection back via the existing
    `?organizationId=` redirect; the dropdown list comes from the same `/menu` response. The Invite-side `GET /api/v1/users/organizations`
    (surf-crm-id lookup) and the Manage-identifier mapping then become unnecessary and can be removed.
-5. **No Access session** (user only logged in at Invite, or expired): `/menu` → 401 → render a minimal shell (logo, "Roles" active, link to Access login) or top-level
+5. **No Access session** (user only logged in at Invite, or expired): `/menu` → 401 → render a minimal shell (logo, "Roles" active, link to Access
+   login) or top-level
    redirect to Access login (SSO makes it silent). Show a skeleton while loading; cache the last model in `sessionStorage` (cosmetic only).
 6. **Security:** menu visibility is cosmetic. Invite endpoints keep enforcing authority; a stale or forged menu cannot grant access.
 
-Remaining downside of C: still a document navigation between the apps (mitigations: `<link rel=prefetch>`, View Transitions API, identical shell → no visible flash).
+Remaining downside of C: still a document navigation between the apps (mitigations: `<link rel=prefetch>`, View Transitions API, identical shell → no
+visible flash).
 
 ---------------------------------------------------------------------------------------------------
 
 ## 6. Consequences
 
-- **A:** Access becomes a security-critical gateway (token store + proxy); Invite gains a second authentication mode; auth bugs affect both apps; outages couple.
+- **A:** Access becomes a security-critical gateway (token store + proxy); Invite gains a second authentication mode; auth bugs affect both apps;
+  outages couple.
   Gains: one continuous UI, independent deploy of the Invite UI bundle.
-- **B:** UI release coupling (package versioning or federation contract); simplest runtime; best UX; requires Invite UI to be build-compatible (React, curve-react, Tailwind versions).
-- **C:** Lowest risk; menu logic centralised (positive side effect: removes the client-side duplicated rules); keeps two apps and two sessions; one document navigation remains.
-- **D:** Cheap but brittle: IdP cannot be framed (needs an existing Invite session or top-level login first), cookies must be same-site, `frame-ancestors` CSP, scroll/height/a11y quirks.
+- **B:** UI release coupling (package versioning or federation contract); simplest runtime; best UX; requires Invite UI to be build-compatible (React,
+  curve-react, Tailwind versions).
+- **C:** Lowest risk; menu logic centralised (positive side effect: removes the client-side duplicated rules); keeps two apps and two sessions; one
+  document navigation remains.
+- **D:** Cheap but brittle: IdP cannot be framed (needs an existing Invite session or top-level login first), cookies must be same-site,
+  `frame-ancestors` CSP, scroll/height/a11y quirks.
 
 ## 7. Risks (summary)
 
@@ -245,6 +280,7 @@ Remaining downside of C: still a document navigation between the apps (mitigatio
 ## 7a. Open risks and assumptions
 
 ### Assumptions (to be confirmed or tested; owner in brackets)
+
 | # | Assumption | How to verify |
 |---|---|---|
 | S1 | D1: configuration of OIDC-NG/Manage for Invite's RS is done **in every environment** (local mock, test, prod), including `allowedResourceServers` and RS credentials [backend team] | scripted introspection call with a real Access token per environment |
@@ -257,6 +293,7 @@ Remaining downside of C: still a document navigation between the apps (mitigatio
 | S8 | The invitation-accept and e-mail deep-link flows stay on the standalone Invite app | product decision |
 
 ### Open risks
+
 | # | Risk | Likelihood | Impact | Mitigation / decision needed |
 |---|---|---|---|---|
 | R1 | Refresh-token race with rotation (parallel XHRs) invalidates the session | medium | users logged out at random | per-principal lock; test with parallel calls |
@@ -271,7 +308,6 @@ Remaining downside of C: still a document navigation between the apps (mitigatio
 | R10 | Local development: the `local` profile bypasses OIDC, so the bearer path cannot be exercised locally without extra work | high | medium | provide a local token stub / use the mock OP; add integration tests with wiremock introspection |
 | R11 | Embedded mode needs the Access session to exist; Invite-only users (invitees, role managers without Access account) have no Access session | medium | high UX | keep standalone Invite reachable; Access provisioning for them or a clear fallback |
 | R12 | Two repos/checkouts (`/Users/harst001/projects/access` vs `invite/access`) drift | medium | low | one canonical checkout; do not edit the git-ignored copy |
-
 
 ---------------------------------------------------------------------------------------------------
 
@@ -289,7 +325,9 @@ The three blockers of option A are removed by configuration/design (D1-D3), so t
 ## 9. Tasks
 
 ### Phase 0 – Spikes / decisions (1-2 days)
-- [ ] 0a *Verify D1*: introspect a real Access-login access_token as Invite's RS in each environment: accepted, `client_id`/`aud`/`scope` present, `/userinfo` works (S1, S4, S5)
+
+- [ ] 0a *Verify D1*: introspect a real Access-login access_token as Invite's RS in each environment: accepted, `client_id`/`aud`/`scope` present,
+      `/userinfo` works (S1, S4, S5)
 - [ ] 0b *Verify D2*: refresh grant on the Access client; token TTLs; rotation behaviour; parallel-refresh test (S2, R1)
 - [ ] 0c *Verify D3*: compare `sub` for a sample of users in both databases incl. eduID/guest/institution admins (S3)
 - [ ] 0d Real prod/test hostnames of both apps: same-site? cookie `SameSite`/`Domain` implications (C, D)
@@ -297,46 +335,63 @@ The three blockers of option A are removed by configuration/design (D1-D3), so t
 - [ ] 0f Decide A/B/C/D with the team (open questions in §10)
 
 ### Phase 1 – Option C (recommended first step)
-- [ ] Access server: `GET /api/v1/menu` (port `doMenuItemsForUser`, organisations, current org, user label); unit tests; CORS(credentials) limited to the Invite origin
+
+- [ ] Access server: `GET /api/v1/menu` (port `doMenuItemsForUser`, organisations, current org, user label); unit tests; CORS(credentials) limited to
+      the Invite origin
 - [ ] Shared package `@surf/access-shell` (sidebar, header, breadcrumb, footer, icons, i18n, SCSS incl. the font/smoothing/`--text-sm` fixes found in Invite);
       consume it from Access (replace `components/SharedMenu.jsx`, `AuthorizedHeader.jsx`) and Invite (replace the copies in `client/src/components/`)
-- [ ] Invite client: fetch `/menu` from Access, loading + 401 states, organisation dropdown from the response; remove `utils/MenuItems.js`, `organizations()` API call
+- [ ] Invite client: fetch `/menu` from Access, loading + 401 states, organisation dropdown from the response; remove `utils/MenuItems.js`,
+      `organizations()` API call
 - [ ] Invite server: remove `GET /api/v1/users/organizations` and the Manage lookup (keep `surf_crm_id` column only if still needed)
 - [ ] Masking of the navigation: prefetch + View Transitions; verify no flash
 - [ ] Access: keep `invite_same_tab` toggle semantics (same tab vs new tab) or retire it
 - [ ] Tests: server (`/menu` per user type), client (shell rendering from model), e2e (menu parity Access vs Invite for admin/member/guest/superuser)
 
 ### Phase 2 – Option A (only if chosen; after spikes)
-- [ ] Invite server: require scope `invite` and verify `client_id`/`aud` of the introspected token; bearer filter chain for UI paths ordered before the session chain; bearer user resolution with userinfo enrichment + institution-admin provisioning
-      (extract from `CustomOidcUserService`); keep `x-session-alive`; tests with `openIDConnectFlow` + wiremock helpers in `server/src/test/java/invite/AbstractTest.java`
-- [ ] Access server: add refresh grant scope to the client registration; `OAuth2AuthorizedClientManager` with refresh provider; encrypted JDBC `OAuth2AuthorizedClientService`; delete/revoke on logout; per-principal refresh lock
+
+- [ ] Invite server: require scope `invite` and verify `client_id`/`aud` of the introspected token; bearer filter chain for UI paths ordered before
+      the session chain; bearer user resolution with userinfo enrichment + institution-admin provisioning
+      (extract from `CustomOidcUserService`); keep `x-session-alive`; tests with `openIDConnectFlow` + wiremock helpers in
+      `server/src/test/java/invite/AbstractTest.java`
+- [ ] Access server: add refresh grant scope to the client registration; `OAuth2AuthorizedClientManager` with refresh provider; encrypted JDBC
+      `OAuth2AuthorizedClientService`; delete/revoke on logout; per-principal refresh lock
 - [ ] Access server: `InviteProxyController` (`/api/v1/invite-proxy/**`) with `RestClient`, uses the authorized-client manager per request, allow-lists,
       error mapping (401 → re-auth), audit log; feature toggle next to `config.invite_same_tab`
-- [ ] Invite client: embedded build (Vite lib → `surf-invite.js`, attributes `base-path`, `locale`, `api-base`; events `invite:breadcrumb|flash|unauthorized|navigate`);
+- [ ] Invite client: embedded build (Vite lib → `surf-invite.js`, attributes `base-path`, `locale`, `api-base`; events
+      `invite:breadcrumb|flash|unauthorized|navigate`);
       API layer base URL + CSRF source switch; no `window.location.reload` in embedded mode; router `basename`; standalone mode kept for invitation accept
 - [ ] Access client: lazy route `/invite/*`, versioned bundle URL + SRI, breadcrumb/flash/locale/organisation bridging, "Roles" → `/invite`
 - [ ] Backend config (other team): RS registration, `allowedResourceServers`, refresh grant + scope for the Access client, per environment
 - [ ] Hardening: CSP/CORS, token-expiry UX, e2e (login → Roles → create role → token expiry → back to same page), runbook, toggle default off
 
 ### Phase 2' – Option B (alternative to A)
-- [ ] Package Invite UI as `@surf/invite-ui` (or Module Federation remote); Access route `/invite/*`; shared router/breadcrumb/CSRF; decide API path (direct CORS+bearer vs proxy)
+
+- [ ] Package Invite UI as `@surf/invite-ui` (or Module Federation remote); Access route `/invite/*`; shared router/breadcrumb/CSRF; decide API path
+      (direct CORS+bearer vs proxy)
 
 ## 10. Open questions for the team
+
 1. Is "no page refresh" a hard requirement, or is a seamless-looking navigation (option C) sufficient?
 2. Must the Invite UI be deployable independently of Access (→ A) or may it be versioned together (→ B)?
 3. Are Access and Invite same-site in every environment (test/prod hostnames)?
-4. ~~Refresh token / RS acceptance~~ **Answered (D1, D2): configurable.** Remaining: refresh-token rotation, TTLs, scope name for Invite (`invite`?), and in which environments it will be configured and when.
+4. ~~Refresh token / RS acceptance~~ **Answered (D1, D2): configurable.** Remaining: refresh-token rotation, TTLs, scope name for Invite (`invite`?),
+   and in which environments it will be configured and when.
 5. ~~Is the `sub` identical?~~ **Answered (D3): yes.** Remaining: confirm for eduID/guest/provisioned users (S3).
 6. What should an Access user without an Invite account (or an Invite-only user without an Access session) see?
 7. Impersonation: should Access impersonation carry over into embedded Invite?
 8. Finish SDS → curve-react migration of the Invite pages before embedding (needed for shadow DOM; nice-to-have otherwise)?
 
 ## 11. How to continue in a new session
+
 - Read §2 for the current state; uncommitted work lives on branch `feature/access` of `/Users/harst001/projects/invite`
   (git status shows the client/server changes listed above; nothing committed or pushed).
-- Dev servers: Invite client `yarn dev` in `client/` (3000), Invite server from IntelliJ (8888, restart after Java changes, Flyway migration `V67_0` already applied locally),
+- Dev servers: Invite client `yarn dev` in `client/` (3000), Invite server from IntelliJ (8888, restart after Java changes, Flyway migration `V67_0`
+  already applied locally),
   Access client/server run from `/Users/harst001/projects/access` (3002 / 8886) – apply Access edits there, not only in `invite/access`.
-- Verify with Chrome (Claude in Chrome, existing sessions): `http://localhost:3002/home`, `http://localhost:3000/home/roles`; the sessions are real OIDC logins, never enter credentials.
-- Useful checks: computed styles (`getComputedStyle`) of `[data-slot="sidebar-menu-button"]` in both apps; `GET /api/v1/users/organizations`; `mysql -uinvite -psecret -h127.0.0.1 invite`.
-- Figma MCP is connected (user okke.harsta@surf.nl); main frame node `9904:2329`, sidebar `9841:35923`. Known Access-vs-Figma deviations (not changed because Access leads):
+- Verify with Chrome (Claude in Chrome, existing sessions): `http://localhost:3002/home`, `http://localhost:3000/home/roles`; the sessions are real
+  OIDC logins, never enter credentials.
+- Useful checks: computed styles (`getComputedStyle`) of `[data-slot="sidebar-menu-button"]` in both apps; `GET /api/v1/users/organizations`; `mysql
+  -uinvite -psecret -h127.0.0.1 invite`.
+- Figma MCP is connected (user okke.harsta@surf.nl); main frame node `9904:2329`, sidebar `9841:35923`. Known Access-vs-Figma deviations (not changed
+  because Access leads):
   row height 32 vs 36, group label 12px vs 14/20, organisation logo, extra "Gebruikers" item.

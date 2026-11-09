@@ -2,10 +2,11 @@
 
 Mails are rendered by `invite.mail.MailBox` with [mustache.java](https://github.com/spullara/mustache.java).
 Every mail has an HTML and a plain-text body per language: `<name>_en.html`, `<name>_en.txt`, `<name>_nl.html`, `<name>_nl.txt`.
-Subjects are in `subjects.json`. 
+Subjects are in `subjects.json`.
+
 ## How a mail is built
 
-```
+```text
 invitation_en.html            layout.html (page, card, h1, footer)
 {{<layout.html}}      ───────▶ {{$heading}}…{{/heading}}   default: {{title}}
   {{$heading}}…                {{$preheader}}…{{/preheader}}
@@ -32,7 +33,8 @@ not variables. The `{{$…}}` lines are the **blocks** being filled in, and `{{p
 **variables** supplied by `MailBox`. Everything else (the `<p style="…">`) is plain HTML copied into the `content` block.
 `{{> partial}}` (a plain include) is not used; inheritance replaces it because it lets us pass parameters.
 
-Variables available in every mail (added by `MailBox.sendMail`): `title` (subject), `productName` (property `email.productName`, default SURFconext Invite), `lang`, `nl` (boolean, use
+Variables available in every mail (added by `MailBox.sendMail`): `title` (subject), `productName` (property `email.productName`, default SURFconext
+Invite), `lang`, `nl` (boolean, use
 `{{#nl}}…{{/nl}}{{^nl}}…{{/nl}}` for language switches inside shared files), `supportEmail`, `privacyUrl`, and `environment`
 (only set when not prod; shows the yellow banner). Free-text from users is passed as `message` (raw, for `.txt`) and
 `messageHtml` (escaped, with `<br/>`, for `.html`).
