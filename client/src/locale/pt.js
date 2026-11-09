@@ -557,7 +557,7 @@ const pt = {
         idp: "My organisation",
         users: "SURF Access users",
         statistics: "Statistics",
-        serviceDesk: "SURF Servicedesk",
+        serviceDesk: "Support",
         feedback: "Help us improve",
     },
     footer: {

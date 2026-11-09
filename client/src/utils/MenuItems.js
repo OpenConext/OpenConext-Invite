@@ -70,8 +70,10 @@ export const allMenuGroups = [
         label: null,
         className: "custom-group",
         items: [
-            {name: mainMenuItems.serviceDesk, path: "/external/serviceDesk", Logo: HeadPhonesIcon},
             {name: mainMenuItems.feedback, path: "/feedback", Logo: FeedbackIcon}
         ]
     }
 ];
+
+// The support item is not part of the sidebar, it is rendered in the header (top right). Visibility is decided by SURF Access.
+export const supportMenuItem = {name: mainMenuItems.serviceDesk, path: "/external/serviceDesk", Logo: HeadPhonesIcon};

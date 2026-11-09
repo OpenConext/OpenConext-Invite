@@ -12,6 +12,8 @@ export const useAppStore = create(set => ({
         set(state => ({impersonator: null, user: state.impersonator}));
     },
     config: {},
+    //The ids of the visible menu items, decided by SURF Access and set by the SharedMenu
+    menuItems: [],
     missingAttributes: [],
     user: {},
     objectRole: "",

@@ -10,6 +10,7 @@ import {
     DropdownMenuTrigger,
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -24,6 +25,7 @@ import {accessUrl, allMenuGroups, mainMenuItems} from "../utils/MenuItems";
 import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 import {menu as fetchMenu} from "../api";
 import {persistOrganization, readRequestedOrganization, stripOrganizationParam} from "../utils/Organization";
+import {UserMenu} from "./UserMenu";
 import logoUrl from "../icons/logo2.svg?url";
 
 export const SharedMenu = () => {
@@ -43,8 +45,12 @@ export const SharedMenu = () => {
                 }
                 stripOrganizationParam();
                 setMenuModel(res || {menuItems: [], organizations: []});
+                useAppStore.setState({menuItems: res?.menuItems || []});
             })
-            .catch(() => setMenuModel({menuItems: [mainMenuItems.invite], organizations: []}));
+            .catch(() => {
+                setMenuModel({menuItems: [mainMenuItems.invite], organizations: []});
+                useAppStore.setState({menuItems: [mainMenuItems.invite]});
+            });
     }, []);
 
     const organizations = menuModel.organizations || [];
@@ -133,6 +139,13 @@ export const SharedMenu = () => {
                     </SidebarGroup>
                 )}
             </SidebarContent>
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <UserMenu user={user} variant="sidebar" organizationName={currentOrganization?.name}/>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
         </Sidebar>
     );
 }

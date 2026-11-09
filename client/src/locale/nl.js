@@ -559,7 +559,7 @@ const nl = {
         idp: "Mijn organisatie",
         users: "SURF Access gebruikers",
         statistics: "Statistieken",
-        serviceDesk: "SURF Servicedesk",
+        serviceDesk: "Support",
         feedback: "Help ons verbeteren",
     },
     footer: {
