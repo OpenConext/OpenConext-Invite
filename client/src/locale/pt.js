@@ -31,6 +31,8 @@ const pt = {
     header: {
         title: "SURFconext Invite",
         subTitle: "Gerir acesso às suas aplicações",
+        support: "Suporte",
+        supportLink: "https://surf.nl",
         links: {
             login: "Iniciar sessão",
             system: "Sistema",
@@ -440,6 +442,17 @@ const pt = {
         schacHomeOrganization: "schacHomeOrganization"
     },
     invitationAccept: {
+        invitedTitle: "Foi convidado para o {{plural}} {{roles}}",
+        invitedNoRolesTitle: "Foi convidado para se tornar {{authority}}",
+        expiredTitle: "Este convite já não é válido",
+        noAccessInviter: "Como {{authority}} não tem acesso próprio, mas pode convidar outros.",
+        validity: "O grupo de acesso é válido por {{duration}}.",
+        applicationsHeaderGuest: "Este grupo de acesso dá acesso às seguintes aplicações:",
+        applicationsHeader: "Os utilizadores com este grupo de acesso têm acesso às seguintes aplicações:",
+        acceptInfo: "Ao iniciar sessão aceita o grupo de acesso e pode começar.",
+        acceptInfoNoRoles: "Ao iniciar sessão aceita o convite e pode começar.",
+        loginToAccept: "Iniciar sessão para aceitar",
+        receivedFrom: "Convite recebido de:",
         hi: "Olá{{name}},",
         nextStep: "Próximo: aproveite o seu novo grupo de acesso",
         expired: "Este convite expirou em {{expiryDate}}",

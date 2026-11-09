@@ -82,7 +82,7 @@ export const App = () => {
                             .then(res => {
                                 useAppStore.setState(() => ({user: res, authenticated: true}));
                                 const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
-                                const newLocation = location.startsWith("/login") ? "/home" : location;
+                                const newLocation = (location.startsWith("/login") || location.startsWith("/home/login")) ? "/home" : location;
                                 localStorage.removeItem("location");
                                 flushSync(() => {
                                     navigate(newLocation, {replace: true})
@@ -167,20 +167,21 @@ export const App = () => {
     }
 
     return (
-        <div className="invite">
-            <div className="container">
-                <Flash/>
-                <Header/>
-                {impersonator && <Impersonating/>}
+        <div className="invite invite-public">
+            <Header/>
+            <Flash/>
+            {impersonator && <Impersonating/>}
+            <div className="public-content">
                 <Routes>
                         <Route path="/" element={<Navigate replace to="login"/>}/>
-                        <Route path="/home" element={<Navigate replace to="login"/>}/>
+                        {/* Transient state after accepting an invitation, while the session is reloaded. A relative */}
+                        {/* <Navigate to="login"/> here would resolve to /home/login and never leave it. */}
+                        <Route path="/home" element={<Busy/>}/>
                         <Route path="invitation/accept"
                                element={<Invitation authenticated={false}/>}/>
                         <Route path="login" element={<Login/>}/>
                         <Route path="deadend" element={<InviteOnly/>}/>
                         <Route path="missingAttributes" element={<MissingAttributes/>}/>
-                        <Route path="/home/login" element={<Busy/>}/>
                         <Route path="/*" element={<NotFound/>}/>
                 </Routes>
             </div>

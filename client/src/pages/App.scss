@@ -9,6 +9,21 @@
 .react-datepicker-popper {
     z-index: 3 !important;
 }
+.invite.invite-public {
+    background-color: var(--muted);
+
+    .flash-container {
+        padding-left: 0;
+    }
+
+    .public-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1 0 auto;
+        width: 100%;
+    }
+}
+
 .invite.invite-authenticated {
     background-color: var(--muted, #f5f5f4);
 

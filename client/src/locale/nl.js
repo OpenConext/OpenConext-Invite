@@ -30,6 +30,8 @@ const nl = {
     header: {
         title: "SURFconext Invite",
         subTitle: "Alles gaat uilstekend",
+        support: "Support",
+        supportLink: "https://surf.nl",
         links: {
             login: "Inloggen",
             system: "Systeem",
@@ -442,6 +444,17 @@ const nl = {
         schacHomeOrganization: "schacHomeOrganisatie"
     },
     invitationAccept: {
+        invitedTitle: "Je bent uitgenodigd voor de {{plural}} {{roles}}",
+        invitedNoRolesTitle: "Je bent uitgenodigd om {{authority}} te worden",
+        expiredTitle: "Deze uitnodiging is niet meer geldig",
+        noAccessInviter: "Als {{authority}} heb je zelf geen toegang, maar mag je wel anderen uitnodigen.",
+        validity: "De rol is {{duration}} geldig.",
+        applicationsHeaderGuest: "Deze rol geeft toegang tot de volgende applicatie(s):",
+        applicationsHeader: "Gebruikers met deze rol hebben toegang tot de volgende applicatie(s):",
+        acceptInfo: "Door in te loggen accepteer je de rol en kun je ermee aan de slag.",
+        acceptInfoNoRoles: "Door in te loggen accepteer je de uitnodiging en kun je aan de slag.",
+        loginToAccept: "Inloggen om de rol te accepteren",
+        receivedFrom: "Uitnodiging ontvangen van:",
         hi: "Hoi{{name}},",
         nextStep: "Volgende: veel plezier met deze rol",
         expired: "Deze uitnodiging is verlopen op {{expiryDate}}",

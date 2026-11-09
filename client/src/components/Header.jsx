@@ -1,15 +1,15 @@
 import React from "react";
 import "./Header.scss";
-import {Link} from "react-router";
-import logoUrl from "../icons/logo2.svg?url";
+import I18n from "../locale/I18n";
+import {LanguageSwitcher} from "./LanguageSwitcher";
 
 export const Header = () => {
     return (
         <div className="header-container">
             <div className="header-inner">
-                <Link className="logo" to={"/"}>
-                    <img src={logoUrl} alt="SURF Access"/>
-                </Link>
+                <LanguageSwitcher/>
+                <a className="support-link" href={I18n.t("header.supportLink")} target="_blank"
+                   rel="noopener noreferrer">{I18n.t("header.support")}</a>
             </div>
         </div>
     );

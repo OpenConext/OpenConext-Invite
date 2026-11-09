@@ -22,13 +22,16 @@
         width: auto;
     }
 
-    .react-datepicker__triangle {
-        display: none;
-    }
-
     .icon.left {
         margin-left: auto;
 
+    }
+}
+
+// The popup is rendered in a portal on the body, so these can't be nested in .minimal-date-field
+.react-datepicker-popper {
+    .react-datepicker__triangle {
+        display: none;
     }
 
     .react-datepicker__month {

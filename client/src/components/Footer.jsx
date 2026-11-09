@@ -1,25 +1,18 @@
 import React from "react";
 import I18n from "../locale/I18n";
 import "./Footer.scss"
-import {LanguageSelector} from "./LanguageSelector";
+import surfLogo from "../icons/surf-logo.svg?url";
 
 export const Footer = () => {
 
     return (
         <footer className="public-footer">
-            <nav className="menu">
-                <ul>
-                    <li>
-                        <a href={I18n.t("footer.termsLink")} target="_blank"
-                           rel="noopener noreferrer"><span>{I18n.t("footer.terms")}</span></a>
-                    </li>
-                    <li>
-                        <a href={I18n.t("footer.privacyLink")} target="_blank"
-                           rel="noopener noreferrer"><span>{I18n.t("footer.privacy")}</span></a>
-                    </li>
-                </ul>
-            </nav>
-            <LanguageSelector/>
+            <a className="terms" href={I18n.t("footer.termsLink")} target="_blank" rel="noopener noreferrer">
+                {I18n.t("footer.privacyTerms")}
+            </a>
+            <a className="surf-logo" href={I18n.t("footer.surfLink")} target="_blank" rel="noopener noreferrer">
+                <img src={surfLogo} alt="SURF"/>
+            </a>
         </footer>
     );
 }

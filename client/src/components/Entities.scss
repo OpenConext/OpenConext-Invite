@@ -108,7 +108,10 @@
         div.actions-header {
             position: absolute;
             left: 76px;
-            top: 2px;
+            top: 4px;
+            // curve-react's table container is `position: relative` and comes later in the DOM,
+            // so without a z-index it paints over these absolutely positioned actions.
+            z-index: 2;
 
             div.admin-actions {
                 display: flex;
@@ -199,9 +202,13 @@
                     text-align: right;
                 }
 
+                // The header labels make room for the actions that appear when rows are selected
                 &.hide {
-                    color: white;
                     cursor: default;
+
+                    .th-content {
+                        visibility: hidden;
+                    }
                 }
 
             }
@@ -254,6 +261,13 @@
             }
 
             td {
+                // Selection checkbox: centered like the header checkbox, so they line up vertically
+                div.check {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
                 word-break: break-word;
                 vertical-align: middle;
                 font-size: var(--text-sm-font-size, 16px);

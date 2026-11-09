@@ -1,34 +1,26 @@
-@use "../styles/vars" as *;
-
 .header-container {
-    background-color: white;
+    background-color: var(--muted);
     border-bottom: 1px solid var(--border);
 
     .header-inner {
         box-sizing: border-box;
         display: flex;
         align-items: center;
+        justify-content: flex-end;
+        gap: 16px;
         width: 100%;
-        margin: 0 auto;
-        max-width: $max-width;
         min-height: 72px;
         padding: 0 40px;
 
-        @media (max-width: $mobile-width) {
-            min-height: 64px;
+        @media (max-width: 820px) {
             padding: 0 20px;
         }
 
-        a.logo {
-            display: flex;
-            align-items: center;
-            padding: 8px 0;
+        a.support-link {
+            color: var(--foreground);
+            font-weight: 500;
             text-decoration: none;
-
-            img {
-                height: 40px;
-                width: auto;
-            }
+            padding: 6px 16px;
         }
     }
 }

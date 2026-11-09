@@ -2,6 +2,7 @@ import {Badge} from "@surfnet/curve-react";
 import {InfoTooltip} from "./InfoTooltip";
 import {XIcon as ResetIcon, PencilSimpleIcon as EditIcon} from "@phosphor-icons/react";
 import React, {useRef} from "react";
+import {createPortal} from "react-dom";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -55,6 +56,8 @@ export const MinimalDateField = ({
                 weekLabel="Week"
                 disabled={disabled}
                 todayButton={null}
+                // The table that contains this field clips overflow, so render the popup on the body
+                popperContainer={({children}) => createPortal(children, document.body)}
                 maxDate={maxDate}
                 minDate={pastDatesAllowed ? null : minimalDate}
             />

@@ -30,6 +30,8 @@ const en = {
     header: {
         title: "SURFconext Invite",
         subTitle: "Everything will be owl right",
+        support: "Support",
+        supportLink: "https://surf.nl",
         links: {
             login: "Log in",
             system: "System",
@@ -442,6 +444,17 @@ const en = {
         schacHomeOrganization: "schacHomeOrganization"
     },
     invitationAccept: {
+        invitedTitle: "You have been invited for the {{plural}} {{roles}}",
+        invitedNoRolesTitle: "You have been invited to become {{authority}}",
+        expiredTitle: "This invitation is no longer valid",
+        noAccessInviter: "As {{authority}} you have no access yourself, but you can invite others.",
+        validity: "This role is valid for {{duration}}.",
+        applicationsHeaderGuest: "This role gives access to the following application(s):",
+        applicationsHeader: "Users with this role have access to the following application(s):",
+        acceptInfo: "By logging in you accept the role and can get started.",
+        acceptInfoNoRoles: "By logging in you accept the invitation and can get started.",
+        loginToAccept: "Log in to accept the role",
+        receivedFrom: "Invitation received from:",
         hi: "Hi{{name}},",
         nextStep: "Next: enjoy your new role",
         expired: "This invitation has expired at {{expiryDate}}",

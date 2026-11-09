@@ -1,43 +1,141 @@
-@use "../styles/vars.scss";
-
 .mod-user-invitation {
-    max-width: 570px;
-    margin: 25px auto 40px auto;
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-
-    @media (max-width: 680px) {
-        padding: 0 15px;
-    }
+    padding: 40px 15px;
+    box-sizing: border-box;
 
     .invitation-container {
-        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 693px;
+        min-height: 500px;
+        padding: 40px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 
-        [data-slot="alert"] {
-            max-width: initial;
-            margin: 25px 0;
+        @media (max-width: 820px) {
+            padding: 24px 20px;
         }
 
-        p.info {
-            margin: 25px 0;
+        h1 {
+            margin: 0;
+            font-size: 30px;
+            line-height: 36px;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 28px;
         }
 
         .expired {
             display: inline-block;
-            font-size: 18px;
-            margin-top: 15px;
         }
 
-        .step {
+        .role-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+
+            .role-card-header {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 24px;
+
+                h2 {
+                    margin: 0;
+                    font-size: 24px;
+                    line-height: 32px;
+                    font-weight: 600;
+                    word-break: break-word;
+                }
+
+                p {
+                    font-size: 16px;
+                    line-height: 24px;
+                    color: var(--muted-foreground);
+                }
+            }
+
+            .role-card-applications {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding: 24px;
+                border-top: 1px solid var(--border);
+
+                p.muted {
+                    font-size: 16px;
+                    line-height: 24px;
+                    color: var(--muted-foreground);
+                }
+
+                p {
+                    word-break: break-word;
+                }
+            }
+        }
+
+        .accept-actions {
             display: flex;
-            align-content: center;
-            margin-bottom: 25px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+
+            p.hint {
+                font-size: 14px;
+                line-height: 20px;
+                color: var(--muted-foreground);
+            }
         }
 
-        .step-actions {
-            padding-top: 5px;
+        .inviter {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
 
+            .inviter-identity {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .avatar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 8px;
+                    background-color: #e4e9f8;
+                    font-weight: 600;
+                }
+
+                .inviter-name {
+                    display: flex;
+                    flex-direction: column;
+
+                    .name {
+                        font-weight: 600;
+                        line-height: 24px;
+                    }
+
+                    .email {
+                        font-size: 14px;
+                        line-height: 20px;
+                        color: var(--muted-foreground);
+                    }
+                }
+            }
         }
-
-
     }
 }

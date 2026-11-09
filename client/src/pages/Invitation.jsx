@@ -1,18 +1,16 @@
-import {InfoIcon} from "@phosphor-icons/react";
-import {Alert, AlertDescription, Button, Spinner} from "@surfnet/curve-react";
+import {Button, Spinner} from "@surfnet/curve-react";
 import React, {useEffect, useState} from "react";
 import {acceptInvitation, invitationByHash, logout} from "../api";
 import I18n from "../locale/I18n";
 import "./Invitation.scss";
-import "../styles/circle.scss";
 import {login} from "../utils/Login";
 import ErrorIndicator from "../components/ErrorIndicator";
 import DOMPurify from "dompurify";
 import {getParameterByName} from "../utils/QueryParameters";
-import {DateTime} from "luxon";
+import {DateTime, Duration} from "luxon";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
-import {splitListSemantically} from "../utils/Utils";
+import {initials, isEmpty, splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 
 const MAY_ACCEPT = "mayAccept";
@@ -20,7 +18,7 @@ const MAY_ACCEPT = "mayAccept";
 export const Invitation = ({authenticated}) => {
 
     const navigate = useNavigate();
-    const {user, config} = useAppStore(state => state);
+    const config = useAppStore(state => state.config);
 
     const [invitation, setInvitation] = useState({});
     const [loading, setLoading] = useState(true);
@@ -132,60 +130,77 @@ export const Invitation = ({authenticated}) => {
         });
     }
 
-    const organisationName = role => {
-        if (role.applicationMaps.length === 1) {
-            const name = role.applicationMaps[0][`OrganizationName:${I18n.locale}`] || role.applicationMaps[0]["OrganizationName:en"];
-            return ` (${name})`;
+    const validity = () => {
+        if (isEmpty(invitation.roleExpiryDate)) {
+            return null;
         }
-        const set = new Set(role.applicationMaps.map(app => app[`OrganizationName:${I18n.locale}`] || app["OrganizationName:en"]));
-        return ` (${splitListSemantically([...set], I18n.t("forms.and"))})`
+        const days = Math.round(DateTime.fromSeconds(invitation.roleExpiryDate).diffNow("days").days);
+        const object = days < 60 ? {days: days} : days < 730 ? {months: Math.round(days / 30.44)} : {years: Math.round(days / 365.25)};
+        const duration = Duration.fromObject(object).reconfigure({locale: I18n.locale}).toHuman();
+        return I18n.t("invitationAccept.validity", {duration: duration});
+    }
+
+    const applicationNames = role => {
+        const names = (role.applicationMaps || [])
+            .filter(app => !app.unknown)
+            .map(app => app[`name:${I18n.locale}`] || app["name:en"]);
+        return [...new Set(names)].sort((a, b) => a.localeCompare(b)).join(", ");
     }
 
     const renderLoginStep = () => {
-        const translation = invitation.roles.length === 0 ? "invitedNoRoles" : "invited";
-        const intentedAuthority = I18n.t(`access.${invitation.intendedAuthority}`);
-        let html = DOMPurify.sanitize(I18n.t(`invitationAccept.${translation}`, {
-            authority: `<strong>${intentedAuthority}</strong>`,
-            plural: invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles"),
-            roles: splitListSemantically(invitation.roles.map(role => `<strong>${role.role.name}</strong>${organisationName(role.role)}`), I18n.t("forms.and")),
-            inviter: invitation.inviter.name,
-            email: invitation.inviter.email
-        }));
-        if (invitation.enforceEmailEquality) {
-            html += DOMPurify.sanitize(I18n.t("invitationAccept.enforceEmailEquality", {email: invitation.email}));
-        }
+        const noRoles = invitation.roles.length === 0;
+        const isGuest = invitation.intendedAuthority === "GUEST";
+        const authority = I18n.t(`access.${invitation.intendedAuthority}`);
+        const roleNames = splitListSemantically(invitation.roles.map(role => role.role.name), I18n.t("forms.and"));
+        const plural = invitation.roles.length === 1 ? I18n.t("invitationAccept.role") : I18n.t("invitationAccept.roles");
+        const title = noRoles ?
+            I18n.t("invitationAccept.invitedNoRolesTitle", {authority: authority.toLowerCase()}) :
+            I18n.t("invitationAccept.invitedTitle", {plural: plural, roles: roleNames});
+        const hasNoAccess = ["INVITER", "MANAGER"].includes(invitation.intendedAuthority);
         const expiryDate = DateTime.fromMillis(invitation.expiryDate * 1000).toLocaleString(DateTime.DATETIME_MED);
         const expiredMessage = I18n.t("invitationAccept.expired", {expiryDate: expiryDate});
         return (
             <>
-                {!expired && <h1>{I18n.t("invitationAccept.hi", {name: authenticated ? ` ${user.name}` : ""})}</h1>}
+                <h1>{expired ? I18n.t("invitationAccept.expiredTitle") : title}</h1>
                 {expired &&
                     <p className="expired"><ErrorIndicator msg={expiredMessage}/></p>}
                 {expired &&
                     <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.expiredInfo", {email: invitation.email}))}}/>}
+                {!expired && invitation.roles.map(invitationRole =>
+                    <div className="role-card" key={invitationRole.id}>
+                        <div className="role-card-header">
+                            <h2>{invitationRole.role.name}</h2>
+                            {hasNoAccess && <p>{I18n.t("invitationAccept.noAccessInviter", {authority: authority.toLowerCase()})}</p>}
+                            {validity() && <p>{validity()}</p>}
+                        </div>
+                        <div className="role-card-applications">
+                            <p className="muted">{I18n.t(`invitationAccept.applicationsHeader${isGuest ? "Guest" : ""}`)}</p>
+                            <p>{applicationNames(invitationRole.role)}</p>
+                        </div>
+                    </div>)}
+                {(!expired && noRoles && hasNoAccess) &&
+                    <p>{I18n.t("invitationAccept.noAccessInviter", {authority: authority.toLowerCase()})}</p>}
+                {(!expired && invitation.enforceEmailEquality) &&
+                    <p dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(I18n.t("invitationAccept.enforceEmailEquality", {email: invitation.email}))}}/>}
                 {!expired && <>
-                    <Alert variant="info">
-                        <InfoIcon/>
-                        <AlertDescription dangerouslySetInnerHTML={{__html: html}}/>
-                    </Alert>
-                </>}
-                {!expired &&
-                    <section className="step-container">
-                        <div className="step">
-                            <div className="circle two-quarters">
-                                <span>{I18n.t("invitationAccept.progress")}</span>
-                            </div>
-                            <div className="step-actions">
-                                <h4>{I18n.t("invitationAccept.login")}</h4>
-                                <span>{I18n.t("invitationAccept.nextStep")}</span>
+                    <p className="accept-info">{I18n.t(`invitationAccept.acceptInfo${noRoles ? "NoRoles" : ""}`)}</p>
+                    <div className="accept-actions">
+                        <Button onClick={proceed}>{I18n.t("invitationAccept.loginToAccept")}</Button>
+                        <p className="hint">
+                            {I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}
+                        </p>
+                    </div>
+                    <div className="inviter">
+                        <p>{I18n.t("invitationAccept.receivedFrom")}</p>
+                        <div className="inviter-identity">
+                            <div className="avatar" aria-hidden="true">{initials(invitation.inviter.name)}</div>
+                            <div className="inviter-name">
+                                <span className="name">{invitation.inviter.name}</span>
+                                <span className="email">{invitation.inviter.email}</span>
                             </div>
                         </div>
-                        {!authenticated && <p className="info"
-                                              dangerouslySetInnerHTML={{__html: I18n.t("invitationAccept.info")}}/>}
-                        <p className="info"
-                           dangerouslySetInnerHTML={{__html: I18n.t(`invitationAccept.${authenticated ? "infoLoginAgain" : "infoLogin"}`)}}/>
-                        <Button onClick={proceed}>{I18n.t(`invitationAccept.${authenticated ? "login" : "loginWithSub"}`)}</Button>
-                    </section>}
+                    </div>
+                </>}
             </>
         )
     }

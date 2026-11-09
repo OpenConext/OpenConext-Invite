@@ -11,8 +11,12 @@ import {
     DropdownMenuTrigger
 } from "@surfnet/curve-react";
 import {CaretDownIcon, CheckIcon} from "@phosphor-icons/react";
+import {useAppStore} from "../stores/AppStore";
 
 export const LanguageSwitcher = () => {
+
+    const config = useAppStore(state => state.config);
+    const languages = (config.languages || "nl,en").split(",").map(lang => lang.trim());
 
     const handleChooseLocale = locale => {
         Cookies.set("lang", locale, {expires: 356, secure: document.location.protocol.endsWith("https")});
@@ -29,7 +33,7 @@ export const LanguageSwitcher = () => {
                 </Button>
             }/>
             <DropdownMenuContent align="end">
-                {["nl", "en"].map(locale =>
+                {languages.map(locale =>
                     <DropdownMenuItem key={locale} onClick={() => handleChooseLocale(locale)}>
                         <span className="language-option-name">{I18n.translations[locale].code}</span>
                         {I18n.locale === locale && <CheckIcon/>}
