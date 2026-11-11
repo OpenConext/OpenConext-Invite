@@ -144,6 +144,9 @@ const pt = {
         expiryDays: "Dias de expiração",
         roleExpiryTooltip: "Ordenar por grupo de acesso para ver quais irão expirar mais cedo",
         deleteFlash: "O utilizador {{name}} foi eliminado",
+        deleteUser: "Eliminar utilizador",
+        viewRole: "Ver grupo de acesso",
+        roleAccessInfo: "Este grupo de acesso dá acesso à(s) seguinte(s) aplicação(ões):",
         deleteConfirmation: "Confirma a eliminação do utilizador {{name}}? Não existe botão de desfazer.",
         institutionAdmins: "Os restantes administradores da sua instituição são:",
         onlyInstitutionAdmins: "É o único administrador da instituição na sua organização",
@@ -152,7 +155,7 @@ const pt = {
     },
     role: {
         copyUrn: "Copiar URN",
-        userInfo: "{{nbr}} membro(s) & expira {{period}}",
+        userInfo: "{{nbr}} membro(s) & data de término {{date}}",
         roleInfo: "Grupo de acesso válido por <strong>{{days}} dias</strong>",
         roleInfoNoEndDate: "O grupo de acesso não tem <strong>data de término</strong>",
         contactAdmin: "Contactar gestor(es)",

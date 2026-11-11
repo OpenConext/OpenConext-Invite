@@ -1,6 +1,6 @@
 import {Badge} from "@surfnet/curve-react";
 import {InfoTooltip} from "../components/InfoTooltip";
-import {IdentificationBadgeIcon as UserIcon, ChalkboardTeacherIcon as ImpersonateIcon} from "@phosphor-icons/react";
+import {ChalkboardTeacherIcon as ImpersonateIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import I18n from "../locale/I18n";
 import "../components/Entities.scss";
@@ -11,7 +11,7 @@ import {isEmpty, stopEvent} from "../utils/Utils";
 import debounce from "lodash.debounce";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
-import {dateFromEpoch, shortDateFromEpoch} from "../utils/Date";
+import {shortDateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, isUserAllowed} from "../utils/UserRole";
 import {authorityForUserOverview, badgeVariantForUserRole} from "../utils/Authority";
 import {defaultPagination, pageCount} from "../utils/Pagination";
@@ -68,19 +68,6 @@ export const Users = () => {
     }, 375);
 
     const columns = [
-        {
-            nonSortable: true,
-            key: "icon",
-            header: "",
-            mapper: user => <div className="member-icon">
-                <InfoTooltip tip={I18n.t("tooltips.userIcon",
-                             {
-                                 name: user.name,
-                                 createdAt: dateFromEpoch(user.createdAt, false),
-                                 lastActivity: dateFromEpoch(user.lastActivity, false)
-                             })}><UserIcon/></InfoTooltip>
-            </div>
-        },
         {
             key: "name",
             header: I18n.t("users.name_email"),

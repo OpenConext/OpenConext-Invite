@@ -98,3 +98,111 @@
         }
     }
 }
+
+.role-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card, white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    width: 100%;
+
+    .role-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 24px;
+
+        .role-card-title {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+
+            h3 {
+                margin: 0;
+                font-size: 24px;
+                line-height: 32px;
+                font-weight: 600;
+                overflow-wrap: anywhere;
+            }
+
+            p {
+                margin: 0;
+                line-height: 24px;
+                color: var(--muted-foreground);
+            }
+        }
+
+        button {
+            flex-shrink: 0;
+            min-width: 120px;
+        }
+    }
+
+    .role-card-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 24px;
+        border-top: 1px solid var(--border);
+
+        > p {
+            margin: 0;
+            color: var(--muted-foreground);
+        }
+    }
+
+    .role-card-applications {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+
+        @media (max-width: vars.$medium) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    .role-card-application {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 20px;
+        background-color: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+
+        img.provider, svg {
+            flex-shrink: 0;
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .application-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+
+            h4 {
+                margin: 0;
+                font-size: 20px;
+                line-height: 28px;
+                font-weight: 600;
+                overflow-wrap: anywhere;
+            }
+
+            p {
+                margin: 0;
+                font-size: 14px;
+                line-height: 20px;
+                color: var(--muted-foreground);
+            }
+        }
+    }
+}

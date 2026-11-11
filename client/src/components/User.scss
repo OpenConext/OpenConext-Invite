@@ -1,13 +1,88 @@
 @use "../styles/vars";
 
 section.user {
-    display: grid;
-    grid-template-columns: [first] 1fr [second] 1fr;
-    column-gap: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-bottom: 32px;
 
     @media (max-width: vars.$medium) {
-        grid-template-columns: [first] 1fr;
-        padding: 0 15px;
+        padding: 0 15px 32px 15px;
+    }
+
+    .user-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+
+        .user-identity {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+
+            .user-icon {
+                flex-shrink: 0;
+            }
+
+            .user-name-email {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 6px 0;
+                min-width: 0;
+
+                h1 {
+                    margin: 0;
+                    font-size: 30px;
+                    line-height: 36px;
+                    font-weight: 600;
+                }
+
+                p {
+                    margin: 0;
+                    line-height: 24px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+
+    .attributes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+
+        @media (max-width: vars.$medium) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .attribute {
+            display: flex;
+            flex-direction: column;
+
+            .attribute-label {
+                font-size: 14px;
+                line-height: 20px;
+                color: var(--muted-foreground);
+            }
+
+            .attribute-value {
+                line-height: 24px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    .role-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
 
     .span-row {
@@ -34,7 +109,10 @@ section.user {
     }
 
     h3.title {
-        margin: 20px 0 10px 0;
+        margin: 0;
+        font-size: 24px;
+        line-height: 32px;
+        font-weight: 600;
     }
 
     [data-slot="card"] {

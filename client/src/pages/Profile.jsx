@@ -1,5 +1,4 @@
 import {Spinner} from "@surfnet/curve-react";
-import {IdentificationCardIcon as Logo} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
 import {institutionAdmins, other} from "../api";
 import I18n from "../locale/I18n";
@@ -7,8 +6,6 @@ import "./Profile.scss";
 import {useNavigate, useParams} from "react-router";
 import {useAppStore} from "../stores/AppStore";
 import {User} from "../components/User";
-import {UnitHeader} from "../components/UnitHeader";
-import {dateFromEpoch} from "../utils/Date";
 import {isEmpty} from "../utils/Utils";
 
 export const Profile = () => {
@@ -64,12 +61,6 @@ export const Profile = () => {
 
     return (
         <div className="mod-profile">
-            <UnitHeader obj={({name: user.name, svg: Logo, style: "small"})}>
-                <p>{I18n.t(`profile.${id ? "info" : "your"}`, {
-                    name: user.name,
-                    createdAt: dateFromEpoch(user.createdAt)
-                })}</p>
-            </UnitHeader>
             <div className="profile-container">
                 <User user={user}
                       other={!isEmpty(id)}

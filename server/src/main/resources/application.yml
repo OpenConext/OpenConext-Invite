@@ -214,9 +214,9 @@ external-api-configuration:
       applications:
         - manageId: "4"
           manageType: SAML20_SP
-    - username: access
+    - username: access_dashboard
       displayName: "Access"
-      password: "secret"
+      password: "invite_access_dashboard_secret"
       organizationGUIDFallback: "5ede9c9b-3bbc-ea11-90fe-0050569571ea"
       scopes:
         - access

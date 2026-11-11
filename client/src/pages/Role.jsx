@@ -2,7 +2,7 @@ import {Spinner} from "@surfnet/curve-react";
 import {InfoTooltip} from "../components/InfoTooltip";
 import {ChalkboardTeacherIcon as InstitutionAdminIcon, ChatCircleSlashIcon as SvgAllowanceNoTalking, DatabaseIcon as CrmIcon} from "@phosphor-icons/react";
 import React, {useEffect, useState} from "react";
-import {institutionAdminsbyRole, managersByRoleId, roleByID} from "../api";
+import {institutionAdminsbyRole, managersByRoleId, roleByID, searchInvitations, searchUserRolesByRoleId} from "../api";
 import I18n from "../locale/I18n";
 import "./Role.scss";
 import {useNavigate, useParams} from "react-router";
@@ -20,7 +20,7 @@ import {deriveApplicationAttributes} from "../utils/Manage";
 import DOMPurify from "dompurify";
 import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
-import {displayExpiryDate, futureDate} from "../utils/Date";
+import {deriveExpirationDate, shortDateFromEpoch} from "../utils/Date";
 import {SearchGroupContext} from "../utils/SearchGroupContext";
 
 export const Role = () => {
@@ -31,7 +31,7 @@ export const Role = () => {
     const [userRole, setUserRole] = useState({});
     const [loading, setLoading] = useState(true);
     const [currentTab, setCurrentTab] = useState(tab);
-    const [tabs, setTabs] = useState([]);
+    const [counts, setCounts] = useState({});
     const [managerEmails, setManagerEmails] = useState([]);
     const [institutionAdmins, setInstitutionAdmins] = useState([]);
 
@@ -68,33 +68,11 @@ export const Role = () => {
                 if (isInviter) {
                     managersByRoleId(id).then(emails => setManagerEmails(emails));
                 }
-                const newTabs = [
-                    <Page key="guests"
-                          name="guests"
-                          label={I18n.t("tabs.guestRoles")}>
-                        <UserRoles role={res}
-                                   guests={true}
-                        />
-                    </Page>,
-                    <Page key="invitations"
-                          name="invitations"
-                          label={I18n.t("tabs.allPendingInvitations")}>
-                        <Invitations role={res}/>
-                    </Page>,
-                    isEmpty(res.crmRoleId) ? <Page key="maintainers"
-                                                   name="maintainers"
-                                                   label={I18n.t("tabs.userRoles")}>
-                        <UserRoles role={res}
-                                   guests={false}
-                        />
-                    </Page> : null
-                ];
-                const filteredTabs = newTabs.filter(tab => tab !== null);
-                setTabs(filteredTabs);
+                const tabNames = ["guests", "invitations", ...(isEmpty(res.crmRoleId) ? ["maintainers"] : [])];
+                loadCounts(res);
                 //Ensure the URL always reflects the actually active tab - even the default one - so a tab
                 //switch always results in a distinct, stable URL (see Home.jsx for the same pattern)
-                const resolvedTab = filteredTabs.some(t => t.props.name === currentTab) ?
-                    currentTab : filteredTabs[0].props.name;
+                const resolvedTab = tabNames.includes(currentTab) ? currentTab : tabNames[0];
                 setCurrentTab(resolvedTab);
                 navigate(`/roles/${id}/${resolvedTab}`, {replace: true});
                 if (res.unknownInManage) {
@@ -107,6 +85,50 @@ export const Role = () => {
             .catch(() => navigate("/"))
 
     }, [id]);// eslint-disable-line react-hooks/exhaustive-deps
+
+    //The number of items per tab, fetched as the total of a page with a single element
+    const loadCounts = roleToCount => {
+        const single = {pageNumber: 0, pageSize: 1};
+        const promises = [
+            searchUserRolesByRoleId(roleToCount.id, true, {...single}),
+            searchInvitations(roleToCount.id, {...single})
+        ];
+        if (isEmpty(roleToCount.crmRoleId)) {
+            promises.push(searchUserRolesByRoleId(roleToCount.id, false, {...single}));
+        }
+        Promise.all(promises).then(pages => setCounts({
+            guests: pages[0].totalElements,
+            invitations: pages[1].totalElements,
+            maintainers: pages[2] ? pages[2].totalElements : null
+        }));
+    }
+
+    const tabLabel = (key, name) => {
+        const count = counts[name];
+        return `${I18n.t(`tabs.${key}`)}${count === undefined || count === null ? "" : ` (${count})`}`;
+    }
+
+    const tabs = isEmpty(role) || isEmpty(role.id) ? [] : [
+        <Page key="guests"
+              name="guests"
+              label={tabLabel("guestRoles", "guests")}>
+            <UserRoles role={role}
+                       guests={true}
+            />
+        </Page>,
+        <Page key="invitations"
+              name="invitations"
+              label={tabLabel("allPendingInvitations", "invitations")}>
+            <Invitations role={role}/>
+        </Page>,
+        isEmpty(role.crmRoleId) ? <Page key="maintainers"
+                                        name="maintainers"
+                                        label={tabLabel("userRoles", "maintainers")}>
+            <UserRoles role={role}
+                       guests={false}
+            />
+        </Page> : null
+    ];
 
     const separator = (role, index) => {
         const l = role.applicationMaps.length;
@@ -141,6 +163,7 @@ export const Role = () => {
         if (allowedToEditRole(user, role) && isEmpty(role.crmRoleId)) {
             actions.push({
                 name: I18n.t("forms.edit"),
+                secondary: true,
                 perform: () => {
                     clearFlash();
                     navigate(`/role/${role.id}`)
@@ -158,6 +181,8 @@ export const Role = () => {
 
     const tabChanged = name => {
         setCurrentTab(name);
+        //Items might have been added or removed in the tab we are leaving
+        loadCounts(role);
         navigate(`/roles/${role.id}/${name}`);
     }
 
@@ -205,9 +230,7 @@ export const Role = () => {
                             <span dangerouslySetInnerHTML={{
                                 __html: DOMPurify.sanitize(I18n.t("role.userInfo", {
                                     nbr: role.userRoleCount,
-                                    period: displayExpiryDate(
-                                        !isEmpty(role.defaultExpiryDate) ? new Date(role.defaultExpiryDate * 1000) :
-                                            futureDate(role.defaultExpiryDays))
+                                    date: shortDateFromEpoch(deriveExpirationDate(role).getTime(), false)
                                 }))
                             }}/>
                         </div>

@@ -52,6 +52,18 @@ div.mod-tokens {
                 }
             }
 
+            td.secret, td.hashed_token {
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+
+            td.organizationGUID {
+                max-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
             td.trash {
                 text-align: right;
                 padding-right: 10px;

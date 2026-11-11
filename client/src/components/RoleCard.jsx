@@ -1,41 +1,41 @@
-import {Badge, Button, Card, CardContent} from "@surfnet/curve-react";
+import {Button} from "@surfnet/curve-react";
 import React from "react";
 import "./RoleCard.scss";
 import Logo from "./Logo";
 import I18n from "../locale/I18n";
-import {MoreLessText} from "./MoreLessText";
 import {useNavigate} from "react-router";
 import {isEmpty} from "../utils/Utils.js";
+import {deriveRemoteApplicationAttributes} from "../utils/Manage";
 
-export const RoleCard = ({
-                             application,
-                             index,
-                             isNew = false
-                         }) => {
+export const RoleCard = ({userRole}) => {
     const navigate = useNavigate();
+    const role = userRole.role;
+    const applications = role.applicationMaps || [];
+    applications.forEach(app => deriveRemoteApplicationAttributes(app, I18n.locale));
 
-    const children =
-        <div key={index} className="user-role">
-            <Logo src={application.logo} alt={"provider"} className={"provider"}/>
-            <section className={"user-role-info"}>
-                <p>{application.roleName} {application.authority &&
-                    <span>- {I18n.t(`access.${application.authority}`)}</span>}</p>
-                <h3>{(isEmpty(application.applicationName) || application.applicationName === "undefined") ? I18n.t("roles.unknownInManage") : application.applicationName}</h3>
-                <MoreLessText txt={application.roleDescription} cutOffNumber={80}/>
-            </section>
-            <div className="launch">
-                <Button onClick={() => navigate(`/roles/${application.roleId}`)}>{I18n.t("inviter.details")}</Button>
-            </div>
-
-        </div>;
-
-    const className = `card-container ${isNew ? "is-new" : ""}`;
     return (
-        <div className={className}>
-            {isNew &&
-                <Badge variant="danger">{I18n.t("proceed.new")}</Badge>
-            }
-            <Card key={index}><CardContent>{children}</CardContent></Card>
+        <div className="role-card" data-slot="card">
+            <div className="role-card-header">
+                <div className="role-card-title">
+                    <h3>{role.name}</h3>
+                    {userRole.authority && <p>{I18n.t(`access.${userRole.authority}`)}</p>}
+                </div>
+                <Button variant="outline" onClick={() => navigate(`/roles/${role.id}`)}>{I18n.t("users.viewRole")}</Button>
+            </div>
+            {!isEmpty(applications) &&
+                <div className="role-card-footer">
+                    <p>{I18n.t("users.roleAccessInfo")}</p>
+                    <div className="role-card-applications">
+                        {applications.map((application, index) =>
+                            <div key={index} className="role-card-application">
+                                <Logo src={application.logo} alt={"provider"} className={"provider"}/>
+                                <div className="application-info">
+                                    <h4>{(isEmpty(application.name) || application.name === "undefined") ? I18n.t("roles.unknownInManage") : application.name}</h4>
+                                    {!isEmpty(application.organizationName) && <p>{application.organizationName}</p>}
+                                </div>
+                            </div>)}
+                    </div>
+                </div>}
         </div>
     );
 }

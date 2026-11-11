@@ -1,15 +1,14 @@
 import {Button, Card, CardContent} from "@surfnet/curve-react";
-import {TrashIcon} from "@phosphor-icons/react";
+import {TrashIcon, UserCircleIcon} from "@phosphor-icons/react";
 import {SearchField} from "./SearchField";
 import React, {useEffect, useRef, useState} from "react";
 import "./User.scss";
-import InputField from "./InputField";
 import {dateFromEpoch} from "../utils/Date";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import I18n from "../locale/I18n";
 import Logo from "./Logo";
 import {isEmpty} from "../utils/Utils";
-import {deriveRemoteApplicationAttributes, reduceApplicationFromUserRoles} from "../utils/Manage";
+import {deriveRemoteApplicationAttributes} from "../utils/Manage";
 import {MoreLessText} from "./MoreLessText";
 import {RoleCard} from "./RoleCard";
 import DOMPurify from "dompurify";
@@ -43,14 +42,15 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
 
     const attribute = (index, name, isDate = false) => {
         const attr = user[name];
-        return (
-            <InputField noInput={true}
-                        key={index}
-                        disabled={true}
-                        value={attr ? (isDate ? dateFromEpoch(attr) : attr) : "-"}
-                        name={I18n.t(`users.${name}`)}/>
-        )
+        return renderAttribute(index, I18n.t(`users.${name}`), attr ? (isDate ? dateFromEpoch(attr) : attr) : "-");
     }
+
+    const renderAttribute = (index, label, value) => (
+        <div className="attribute" key={index}>
+            <span className="attribute-label">{label}</span>
+            <span className="attribute-value">{value}</span>
+        </div>
+    );
 
     const renderSearch = (value, valueSetter, placeholder, valueReference) => {
         return (
@@ -72,14 +72,6 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
         return role.name.toLowerCase().indexOf(queryLower) > -1 ||
             role.description.toLowerCase().indexOf(queryLower) > -1
     };
-
-    const renderRoleCard = (application, index) => {
-        return (
-            <RoleCard
-                application={application}
-                index={index}/>
-        )
-    }
 
     const filterApplication = (application, queryString) => {
         if (isEmpty(queryString)) {
@@ -134,7 +126,6 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
     const filteredApplications = (user.applications || []).filter(app => filterApplication(app, queryApplication));
     const filteredUserApplications = (user.userApplications || [])
         .map(app => app.applicationMap).filter(app => filterApplication(app, queryUserApplication));
-    const allCardApplications = reduceApplicationFromUserRoles(filteredUserRoles, I18n.locale);
 
     const hasRoles = !isEmpty(user.userRoles.filter(role => role.authority !== AUTHORITIES.GUEST || currentUser.superUser))
 
@@ -144,25 +135,29 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                                                      cancel={confirmation.cancel}
                                                      confirm={confirmation.action}
                                                      question={confirmation.question}/>}
-            {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
-            {(currentUser.superUser && user.crmContactId) &&
-                <InputField noInput={true}
-                            disabled={true}
-                            value={user.crmContactId}
-                            name={I18n.t(`users.crmContactId`)}/>
-            }
-            {attribute(attributes.length, "organizationGUID")}
-            {(currentUser.superUser && user.crmOrganisation) &&
-                <InputField noInput={true}
-                            disabled={true}
-                            value={`${user.crmOrganisation.crmOrganisationId} (${user.crmOrganisation.crmOrganisationAbbrevation})`}
-                            name={I18n.t(`users.crmOrganisation`)}/>
-            }
-            {(currentUser.superUser && other && currentUser.id !== user.id) &&
-                <div className="span-row">
-                    <Button variant="destructive" size="icon" onClick={() => doDeleteUser(true)} aria-label={I18n.t("forms.delete")}><TrashIcon/></Button>
+            <div className="user-header">
+                <div className="user-identity">
+                    <UserCircleIcon className="user-icon" size={48}/>
+                    <div className="user-name-email">
+                        <h1>{user.name}</h1>
+                        <p>{user.email}</p>
+                    </div>
                 </div>
-            }
+                {(currentUser.superUser && other && currentUser.id !== user.id) &&
+                    <Button variant="outline" onClick={() => doDeleteUser(true)}>
+                        <TrashIcon/>{I18n.t("users.deleteUser")}
+                    </Button>
+                }
+            </div>
+            <div className="attributes">
+                {attributes.map((attr, index) => attribute(index, attr[0], attr[1]))}
+                {(currentUser.superUser && user.crmContactId) &&
+                    renderAttribute("crmContactId", I18n.t("users.crmContactId"), user.crmContactId)}
+                {attribute(attributes.length, "organizationGUID")}
+                {(currentUser.superUser && user.crmOrganisation) &&
+                    renderAttribute("crmOrganisation", I18n.t("users.crmOrganisation"),
+                        `${user.crmOrganisation.crmOrganisationId} (${user.crmOrganisation.crmOrganisationAbbrevation})`)}
+            </div>
             {user.institutionAdmin && <div>
                 <p className="label">{isEmpty(otherInstitutionAdmins) ? I18n.t("users.onlyInstitutionAdmins") :
                     I18n.t("users.institutionAdmins",)}</p>
@@ -184,14 +179,14 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                 <p className={"span-row "}>{I18n.t(`users.noRolesInstitutionAdmin${other ? "Other" : ""}`, {name: user.name})}</p>}
             {(hasRoles) &&
                 <>
-                    <div className="roles-search span-row">
-                        <p>
-                            {I18n.t(`users.${other ? "rolesInfoOther" : "rolesInfo"}`, {name: user.name})}
-                        </p>
-                        {renderSearch(query, setQuery, I18n.t(`roles.searchPlaceHolder`), searchRef)}
+                    {filteredUserRoles.length > 3 &&
+                        <div className="roles-search span-row">
+                            {renderSearch(query, setQuery, I18n.t(`roles.searchPlaceHolder`), searchRef)}
+                        </div>}
+                    <div className="role-cards span-row">
+                        {filteredUserRoles.map((userRole, index) =>
+                            <RoleCard key={index} userRole={userRole}/>)}
                     </div>
-                    {allCardApplications
-                        .map((application, index) => renderRoleCard(application, index))}
                     {(filteredUserRoles.length === 0 && hasRoles) &&
                         <p>{I18n.t(`users.noRolesFound`)}</p>}
                 </>}
