@@ -18,12 +18,16 @@ import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
 import {markExplicitLogout} from "../utils/Login";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
+import {accessUrl} from "../utils/MenuItems";
 
 //variant sidebar: rendered in the footer of the sidebar, the menu opens to the right. Variant header: top right.
 export const UserMenu = ({user, variant = "header", organizationName}) => {
     const inSidebar = variant === "sidebar";
     const navigate = useNavigate();
     const clearFlash = useAppStore(state => state.clearFlash);
+    const config = useAppStore(state => state.config);
+    //When SURF Access is connected (config.access-menu-enabled) the profile lives in Access (config.access-url)
+    const accessProfileUrl = config.accessMenuEnabled !== false && accessUrl(config) ? `${accessUrl(config)}/profile` : null;
 
     const authority = highestAuthority(user);
     const roleName = I18n.t(`access.${highestAuthority(user, false)}`);
@@ -69,7 +73,9 @@ export const UserMenu = ({user, variant = "header", organizationName}) => {
                     </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator/>
-                {link("/profile", I18n.t("header.links.profile"))}
+                {accessProfileUrl ?
+                    <DropdownMenuItem render={<a href={accessProfileUrl}>{I18n.t("header.links.profile")}</a>}/> :
+                    link("/profile", I18n.t("header.links.profile"))}
                 {apiTokenLink && link("/tokens", I18n.t("header.links.tokens"))}
                 {(!user.superUser && user.institutionAdmin && user.organizationGUID) &&
                     link("/institution-admins", I18n.t("header.links.colleagues"))}
