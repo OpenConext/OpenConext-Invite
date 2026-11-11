@@ -3,6 +3,12 @@
 
     table.invitations {
 
+        ul.intended-roles {
+            list-style: disc;
+            margin: 0;
+            padding-left: 18px;
+        }
+
         thead {
             th {
                 &.check {
@@ -20,11 +26,11 @@
                 }
 
                 &.intendedRoles {
-                    width: 15%;
+                    width: 22%;
                 }
 
                 &.name {
-                    width: 26%;
+                    width: 22%;
                 }
 
                 &.created_at {
@@ -46,6 +52,16 @@
             td {
                 &.email {
                     word-break: keep-all;
+                    font-size: 95%;
+                }
+
+                &.intendedRoles {
+                    overflow-wrap: anywhere;
+                }
+
+                &.name {
+                    font-size: 90%;
+                    overflow-wrap: anywhere;
                 }
 
                 &.check {

@@ -253,7 +253,12 @@ export const Invitations = ({
             key: "intendedRoles",
             nonSortable: true,
             header: I18n.t("invitations.intendedRoles"),
-            mapper: invitation => invitation.intendedRoles
+            mapper: invitation => <ul className="intended-roles">
+                {(invitation.roles || [])
+                    .map(r => r.name)
+                    .sort((n1, n2) => n1.localeCompare(n2))
+                    .map(name => <li key={name}>{name}</li>)}
+            </ul>
         },
         {
             key: "name",
