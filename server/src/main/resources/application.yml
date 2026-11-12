@@ -205,6 +205,10 @@ external-api-configuration:
       password: "secret"
       scopes:
         - profile
+    - username: eduid
+      password: "secret"
+      scopes:
+        - eduid
     - username: sp_dashboard
       displayName: "SP Dashboard"
       password: "secret"

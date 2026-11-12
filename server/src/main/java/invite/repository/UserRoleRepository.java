@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Long>, Query
     List<UserRole> findByRole(Role role);
 
     List<UserRole> findByRoleAndAuthorityIn(Role role, List<Authority> authorities);
+
+    List<UserRole> findByRoleInAndAuthority(Collection<Role> roles, Authority authority);
 
     List<UserRole> findByRoleName(String roleName);
 

@@ -227,6 +227,7 @@ public class SecurityConfig {
                         "/api/external/v1/voot/**",
                         "/api/external/v1/teams/**",
                         "/api/external/v1/profile/**",
+                        "/api/external/v1/eduid/**",
                         "/api/external/v1/aa/**",
                         "/api/external/v1/deprovision/**",
                         "/api/external/v1/invite/crm/**",
