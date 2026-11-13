@@ -2,12 +2,22 @@ import {create} from 'zustand'
 
 const DARK_KEY = "darkMode";
 
-const readDark = () => {
+const darkQuery = typeof window !== "undefined" && window.matchMedia ?
+    window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+const storedDark = () => {
     try {
-        return localStorage.getItem(DARK_KEY) === "true";
+        const value = localStorage.getItem(DARK_KEY);
+        return value === null ? null : value === "true";
     } catch {
-        return false;
+        return null;
     }
+};
+
+// An explicit choice wins, otherwise follow the OS setting
+const readDark = () => {
+    const stored = storedDark();
+    return stored !== null ? stored : Boolean(darkQuery && darkQuery.matches);
 };
 
 const applyDark = dark => document.documentElement.classList.toggle("dark", dark);
@@ -53,3 +63,13 @@ export const useAppStore = create(set => ({
 }));
 
 applyDark(useAppStore.getState().dark);
+
+// Follow live OS changes until the user has made an explicit choice
+if (darkQuery) {
+    darkQuery.addEventListener("change", e => {
+        if (storedDark() === null) {
+            applyDark(e.matches);
+            useAppStore.setState({dark: e.matches});
+        }
+    });
+}
