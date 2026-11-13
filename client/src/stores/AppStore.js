@@ -2,13 +2,11 @@ import {create} from 'zustand'
 
 const DARK_KEY = "darkMode";
 
-const darkQuery = typeof window !== "undefined" && window.matchMedia ?
-    window.matchMedia("(prefers-color-scheme: dark)") : null;
+const darkQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
 
 const storedDark = () => {
     try {
-        const value = localStorage.getItem(DARK_KEY);
-        return value === null ? null : value === "true";
+        return localStorage.getItem(DARK_KEY);
     } catch {
         return null;
     }
@@ -17,10 +15,8 @@ const storedDark = () => {
 // An explicit choice wins, otherwise follow the OS setting
 const readDark = () => {
     const stored = storedDark();
-    return stored !== null ? stored : Boolean(darkQuery && darkQuery.matches);
+    return stored === null ? Boolean(darkQuery?.matches) : stored === "true";
 };
-
-const applyDark = dark => document.documentElement.classList.toggle("dark", dark);
 
 export const useAppStore = create(set => ({
     dark: readDark(),
@@ -31,7 +27,6 @@ export const useAppStore = create(set => ({
         } catch {
             // storage unavailable, the preference just isn't remembered
         }
-        applyDark(dark);
         return {dark};
     }),
     csrfToken: null,
@@ -62,14 +57,14 @@ export const useAppStore = create(set => ({
     breadcrumbPath: []
 }));
 
-applyDark(useAppStore.getState().dark);
+// The store is the single source of truth, the class on <html> just mirrors it
+const applyDark = ({dark}) => document.documentElement.classList.toggle("dark", dark);
+applyDark(useAppStore.getState());
+useAppStore.subscribe(applyDark);
 
 // Follow live OS changes until the user has made an explicit choice
-if (darkQuery) {
-    darkQuery.addEventListener("change", e => {
-        if (storedDark() === null) {
-            applyDark(e.matches);
-            useAppStore.setState({dark: e.matches});
-        }
-    });
-}
+darkQuery?.addEventListener("change", e => {
+    if (storedDark() === null) {
+        useAppStore.setState({dark: e.matches});
+    }
+});
