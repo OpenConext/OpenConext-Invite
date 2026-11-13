@@ -135,6 +135,8 @@ const en = {
         noApplicationsFound: "No applications are found.",
         rolesInfoOther: "{{name}} has the following roles",
         applicationsInfoOther: "{{name}} has access to the following applications",
+        roleCreatorInfo: "You can create roles for the following applications",
+        roleCreatorInfoOther: "{{name}} can create roles for the following applications",
         landingPage: "Landing page",
         access: "Access",
         organisation: "Organisation",

@@ -208,7 +208,7 @@ export const User = ({user, other, config, currentUser, otherInstitutionAdmins})
                     <h3 className={"title span-row "}>{I18n.t("users.applications")}</h3>
                     <div className="roles-search span-row">
                         <p>
-                            {I18n.t(`users.${other ? "applicationsInfoOther" : "applicationsInfo"}`, {name: user.name})}
+                            {I18n.t(`users.${other ? "roleCreatorInfoOther" : "roleCreatorInfo"}`, {name: user.name})}
                         </p>
                         {renderSearch(queryUserApplication, setQueryUserApplication, I18n.t(`users.applicationsSearchPlaceHolder`))}
                     </div>

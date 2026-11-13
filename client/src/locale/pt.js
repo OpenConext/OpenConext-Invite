@@ -134,6 +134,8 @@ const pt = {
         noApplicationsFound: "Nenhuma aplicação encontrada.",
         rolesInfoOther: "{{name}} tem os seguintes grupos de acesso",
         applicationsInfoOther: "{{name}} tem acesso às seguintes aplicações",
+        roleCreatorInfo: "You can create roles for the following applications",
+        roleCreatorInfoOther: "{{name}} can create roles for the following applications",
         landingPage: "Página inicial",
         access: "Acesso",
         organisation: "Organização",

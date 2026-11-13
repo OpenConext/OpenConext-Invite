@@ -135,6 +135,8 @@ const nl = {
         noApplicationsFound: "geen applicaties gevonden.",
         rolesInfoOther: "{{name}} heeft de volgende rollen",
         applicationsInfoOther: "{{name}} heeft toegang tot de volgende applicaties",
+        roleCreatorInfo: "Je kan rollen aanmaken voor de volgende applicaties",
+        roleCreatorInfoOther: "{{name}} kan rollen aanmaken voor de volgende applicaties",
         landingPage: "Landingspagina",
         access: "Access",
         organisation: "Aanbieder",
