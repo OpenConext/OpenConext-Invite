@@ -1,0 +1,79 @@
+name: Auto-merge Dependabot PRs
+
+on:
+  schedule:
+    # Nightly at 03:00 UTC
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-merge-dependabot-patch
+  cancel-in-progress: false
+
+env:
+  COOLDOWN_DAYS: "5"
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Collect open Dependabot PRs
+        id: prs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          numbers=$(gh pr list --author "dependabot[bot]" --state open \
+            --json number --jq '[.[].number] | join(" ")')
+          echo "numbers=${numbers}" >> "$GITHUB_OUTPUT"
+
+      - name: Merge eligible patch PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -u
+          is_minor_or_patch() {
+            local from="$1" to="$2"
+            [ "$from" = "$to" ] && return 1
+            [ "${from%%.*}" = "${to%%.*}" ]
+          }
+          now=$(date -u +%s)
+          for pr in ${{ steps.prs.outputs.numbers }}; do
+            title=$(gh pr view "$pr" --json title --jq '.title')
+            from=$(printf '%s' "$title" | sed -n 's/.*from[[:space:]]\([^[:space:]]*\) to .*/\1/p')
+            to=$(printf '%s' "$title" | sed -n 's/.*to[[:space:]]\([^[:space:]]*\)[[:space:]]*$/\1/p')
+            if [ -z "$from" ] || [ "$from" = "$to" ]; then
+              echo "PR #$pr: not a version update, skipping"
+              continue
+            fi
+            labels=$(gh pr view "$pr" --json labels --jq '[.[].name] | join(" ")')
+            if printf '%s' "$labels" | grep -qw 'github_actions'; then
+              kind="github-actions"
+            elif is_minor_or_patch "$from" "$to"; then
+              kind="minor/patch"
+            else
+              echo "PR #$pr: major update outside github-actions ($from -> $to), skipping"
+              continue
+            fi
+            created=$(gh pr view "$pr" --json createdAt --jq '.createdAt')
+            created_s=$(date -u -d "$created" +%s)
+            age_days=$(( (now - created_s) / 86400 ))
+            if [ "$age_days" -lt "$COOLDOWN_DAYS" ]; then
+              echo "PR #$pr: cooldown not reached (${age_days}/${COOLDOWN_DAYS} days), skipping"
+              continue
+            fi
+            if ! gh pr checks "$pr" >/dev/null 2>&1; then
+              echo "PR #$pr: not all checks are green, skipping"
+              continue
+            fi
+            mergeable=$(gh pr view "$pr" --json mergeable --jq '.mergeable')
+            if [ "$mergeable" != "MERGEABLE" ]; then
+              echo "PR #$pr: mergeable=${mergeable}, skipping"
+              continue
+            fi
+            echo "PR #$pr: merging $kind update $from -> $to"
+            gh pr merge "$pr" --squash --delete-branch
+          done
