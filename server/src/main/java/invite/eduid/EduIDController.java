@@ -29,6 +29,8 @@ import static invite.SwaggerOpenIdConfig.BASIC_AUTHENTICATION_SCHEME_NAME;
 @SecurityRequirement(name = BASIC_AUTHENTICATION_SCHEME_NAME)
 public class EduIDController {
 
+    private static final String EDUID_SUFFIX = "@eduid.nl";
+
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
 
@@ -50,6 +52,10 @@ public class EduIDController {
         }
         List<UserRole> userRoles = userRoleRepository.findByRoleInAndAuthority(roles, Authority.GUEST);
         Map<String, List<String>> roleNamesByEppn = userRoles.stream()
+                .filter(userRole -> {
+                    String eppn = userRole.getUser().getEduPersonPrincipalName();
+                    return eppn != null && eppn.endsWith(EDUID_SUFFIX);
+                })
                 .collect(Collectors.groupingBy(
                         userRole -> userRole.getUser().getEduPersonPrincipalName(),
                         LinkedHashMap::new,

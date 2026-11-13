@@ -1,6 +1,7 @@
 package invite.eduid;
 
 import invite.AbstractTest;
+import invite.model.User;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,12 @@ class EduIDControllerTest extends AbstractTest {
 
     @Test
     void guestsByOrganizationGUID() {
+        //Only users with an eppn ending with @eduid.nl are returned
+        String eppn = "ann@eduid.nl";
+        User ann = userRepository.findBySubIgnoreCase(GUEST_SUB).orElseThrow();
+        ann.setEduPersonPrincipalName(eppn);
+        userRepository.save(ann);
+
         List<Map<String, Object>> guests = given()
                 .when()
                 .auth().preemptive().basic("eduid", "secret")
@@ -30,19 +37,15 @@ class EduIDControllerTest extends AbstractTest {
                 .extract()
                 .as(new TypeRef<>() {
                 });
-        //Only the GUEST user roles of the roles of this organization: the manager of Wiki is excluded
-        assertEquals(2, guests.size());
+        //The Wiki manager is excluded (not a GUEST) as is George (eppn does not end with @eduid.nl)
+        assertEquals(1, guests.size());
 
-        Map<String, Object> ann = guests.stream()
-                .filter(m -> m.get("eduperson_principal_name").equals(GUEST_SUB)).findFirst().orElseThrow();
+        Map<String, Object> result = guests.get(0);
+        assertEquals(eppn, result.get("eduperson_principal_name"));
         @SuppressWarnings("unchecked")
-        List<String> annRoles = (List<String>) ann.get("roles");
-        assertEquals(2, annRoles.size());
-        assertTrue(annRoles.containsAll(List.of("Wiki", "Research")));
-
-        Map<String, Object> george = guests.stream()
-                .filter(m -> m.get("eduperson_principal_name").equals(KB_USER_SUB)).findFirst().orElseThrow();
-        assertEquals(List.of("Research"), george.get("roles"));
+        List<String> roles = (List<String>) result.get("roles");
+        assertEquals(2, roles.size());
+        assertTrue(roles.containsAll(List.of("Wiki", "Research")));
     }
 
     @Test
