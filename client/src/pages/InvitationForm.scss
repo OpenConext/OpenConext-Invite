@@ -133,7 +133,7 @@
             padding: 25px 155px 25px 25px;
             border-radius: 0.175rem;
             border: 1px solid var(--muted-foreground);
-            background-color: white;
+            background-color: var(--card, white);
 
             @media (max-width: vars.$medium) {
                 padding: 25px;
@@ -144,7 +144,7 @@
             padding: 25px;
             border-radius: 0.175rem;
             border: 1px solid var(--muted-foreground);
-            background-color: white;
+            background-color: var(--card, white);
 
             span.label {
                 font-weight: 600;

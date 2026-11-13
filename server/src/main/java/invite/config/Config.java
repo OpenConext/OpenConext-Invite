@@ -35,6 +35,8 @@ public class Config {
     private String accessUrl;
     //Shows the floating feedback widget that mails the feedback (and optional screenshot) to the support address
     private boolean feedbackWidgetEnabled;
+    //Feature toggle for the dark / light mode switcher; on unless explicitly disabled
+    private boolean themeSwitcherEnabled = true;
 
     public Config(Config base) {
         this.clientUrl = base.clientUrl;
@@ -53,6 +55,7 @@ public class Config {
         this.accessMenuEnabled = base.accessMenuEnabled;
         this.accessUrl = base.accessUrl;
         this.feedbackWidgetEnabled = base.feedbackWidgetEnabled;
+        this.themeSwitcherEnabled = base.themeSwitcherEnabled;
     }
 
     public Config withAuthenticated(boolean authenticated) {

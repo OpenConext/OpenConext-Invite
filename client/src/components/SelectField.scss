@@ -9,7 +9,7 @@
         display: inline-block;
         margin: 12px 0 6px 0;
         min-width: 0;
-        color: black;
+        color: var(--foreground, black);
         position: relative;
         --tw-font-weight: var(--font-weight-medium);
         font-weight: var(--font-weight-medium);

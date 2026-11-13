@@ -10,7 +10,7 @@
     background-color: var(--muted);
 
     .mod-login-container {
-        background-color: white;
+        background-color: var(--card, white);
 
         @media (max-width: vars.$medium) {
             padding: 0 15px;
@@ -48,7 +48,7 @@
             }
 
             &.info {
-                background-color: white;
+                background-color: var(--card, white);
                 border-radius: 16px;
                 padding: 25px 40px;
                 margin: 30px auto 0;

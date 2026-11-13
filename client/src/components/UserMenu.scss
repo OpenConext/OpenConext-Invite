@@ -52,7 +52,7 @@
 
     a {
         text-decoration: none;
-        color: black;
+        color: var(--foreground, black);
     }
 }
 

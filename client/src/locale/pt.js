@@ -562,6 +562,8 @@ const pt = {
         notAllowed: "Não autorizado"
     },
     navigation: {
+        lightMode: "Claro",
+        darkMode: "Escuro",
         home: "Home",
         yourApps: "Your apps",
         catalogue: "App catalog",

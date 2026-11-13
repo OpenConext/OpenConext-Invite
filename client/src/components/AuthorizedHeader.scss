@@ -15,7 +15,7 @@
     }
 
     .support-link {
-        color: black;
+        color: var(--foreground, black);
         text-decoration: none;
         padding: 0 8px;
     }
@@ -27,6 +27,6 @@
     justify-content: flex-end;
     gap: 25px;
     width: 100%;
-    background-color: white;
+    background-color: var(--card, white);
     padding: 25px 60px 0 0;
 }

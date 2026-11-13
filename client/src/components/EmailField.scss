@@ -9,13 +9,13 @@ div.email-field {
         display: inline-block;
         margin: 12px 0 6px 0;
         min-width: 0;
-        color: black;
+        color: var(--foreground, black);
         position: relative;
         font-weight: 600;
     }
 
     .inner-email-field {
-        background: white;
+        background: var(--card, white);
         display: flex;
         flex-wrap: wrap;
         width: 100%;

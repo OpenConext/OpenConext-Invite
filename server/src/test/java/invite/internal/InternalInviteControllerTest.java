@@ -283,7 +283,7 @@ class InternalInviteControllerTest extends AbstractTest {
     void rolesPerOrganizationApplicationId() {
         List<Role> roles = given()
                 .when()
-                .auth().preemptive().basic("access", "secret")
+                .auth().preemptive().basic("access_dashboard", "invite_access_dashboard_secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParam("organizationGUID", ORGANISATION_GUID)
@@ -305,7 +305,7 @@ class InternalInviteControllerTest extends AbstractTest {
 
         List<Map<String, String>> roles = given()
                 .when()
-                .auth().preemptive().basic("access", "secret")
+                .auth().preemptive().basic("access_dashboard", "invite_access_dashboard_secret")
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
                 .pathParams("organizationGUID", ORGANISATION_GUID)
@@ -382,7 +382,7 @@ class InternalInviteControllerTest extends AbstractTest {
     void profile() {
         User user = given()
                 .when()
-                .auth().preemptive().basic("access", "secret")
+                .auth().preemptive().basic("access_dashboard", "invite_access_dashboard_secret")
                 .accept(ContentType.JSON)
                 .pathParam("sub", MANAGE_SUB)
                 .get("/api/external/v1/internal/invite/profile/{sub}")
@@ -397,7 +397,7 @@ class InternalInviteControllerTest extends AbstractTest {
     void profileIgnoreCase() {
         User user = given()
                 .when()
-                .auth().preemptive().basic("access", "secret")
+                .auth().preemptive().basic("access_dashboard", "invite_access_dashboard_secret")
                 .accept(ContentType.JSON)
                 .pathParam("sub", MANAGE_SUB.toUpperCase())
                 .get("/api/external/v1/internal/invite/profile/{sub}")
@@ -412,7 +412,7 @@ class InternalInviteControllerTest extends AbstractTest {
     void profileNotFound() {
         given()
                 .when()
-                .auth().preemptive().basic("access", "secret")
+                .auth().preemptive().basic("access_dashboard", "invite_access_dashboard_secret")
                 .accept(ContentType.JSON)
                 .pathParam("sub", "urn:collab:person:example.com:nope")
                 .get("/api/external/v1/internal/invite/profile/{sub}")
@@ -442,7 +442,7 @@ class InternalInviteControllerTest extends AbstractTest {
         stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
         return given()
                 .when()
-                .auth().preemptive().basic("access", "secret")
+                .auth().preemptive().basic("access_dashboard", "invite_access_dashboard_secret")
                 .accept(ContentType.JSON)
                 .pathParam("sub", sub)
                 .get("/api/external/v1/internal/invite/roles-mine/{sub}")

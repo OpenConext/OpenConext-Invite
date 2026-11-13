@@ -1,7 +1,7 @@
 @use "../styles/vars.scss";
 
 div.mod-unknown-roles {
-    background: white;
+    background: var(--card, white);
 
     table.unknown-roles {
 

@@ -1,7 +1,7 @@
 @use "../styles/mixins";
 
 .mod-performance-seed-container {
-    background-color: white;
+    background-color: var(--card, white);
 
     .mod-performance-seed {
         @include mixins.page;

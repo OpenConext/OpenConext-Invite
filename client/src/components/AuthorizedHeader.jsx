@@ -3,6 +3,7 @@ import "./AuthorizedHeader.scss";
 import {BreadCrumb} from "./BreadCrumb";
 import {UserMenu} from "./UserMenu";
 import {LanguageSwitcher} from "./LanguageSwitcher";
+import {ThemeToggle} from "./ThemeToggle";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
 import {accessUrl, supportMenuItem} from "../utils/MenuItems";
@@ -19,6 +20,7 @@ export const AuthorizedHeader = () => {
             <BreadCrumb/>
             <div className="authorized-header-actions">
                 <LanguageSwitcher/>
+                <ThemeToggle/>
                 {accessMenuEnabled ?
                     menuItems.includes(supportMenuItem.name) &&
                     <a href={`${accessUrl(config)}${supportMenuItem.path}`} className="support-link">

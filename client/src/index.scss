@@ -80,7 +80,7 @@ h1.large {
 
         &.active {
             font-weight: 600;
-            color: black;
+            color: var(--foreground, black);
             border-bottom: 3px solid var(--primary);
         }
 

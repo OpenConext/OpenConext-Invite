@@ -5,7 +5,7 @@
     label {
         display: inline-block;
         min-width: 0;
-        color: black;
+        color: var(--foreground, black);
         position: relative;
         margin: 12px 0 0.5rem;
     }

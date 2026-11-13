@@ -152,6 +152,8 @@ config:
   access-menu-enabled: true
   # Shows the floating feedback widget in the client, the feedback is mailed to email.supportEmail
   feedback-widget-enabled: true
+  # Feature toggle: true shows the dark / light mode switcher in the headers, false hides it. Defaults to true when absent.
+  theme-switcher-enabled: true
   acr-requirements:
     - key: EduIDLinkedInstitution
       url: "https://eduid.nl/trust/linked-institution"

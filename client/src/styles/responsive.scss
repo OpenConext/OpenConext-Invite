@@ -26,7 +26,7 @@ table {
                 margin-right: 15px;
                 font-weight: bold;
                 font-size: 14px;
-                color: black;
+                color: var(--foreground, black);
             }
         }
     }

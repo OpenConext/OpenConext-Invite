@@ -564,6 +564,8 @@ const nl = {
         notAllowed: "Niet toegestaan"
     },
     navigation: {
+        lightMode: "Licht",
+        darkMode: "Donker",
         home: "Home",
         yourApps: "Jouw apps",
         catalogue: "App-catalogus",

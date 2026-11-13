@@ -564,6 +564,8 @@ const en = {
         notAllowed: "Not allowed"
     },
     navigation: {
+        lightMode: "Light",
+        darkMode: "Dark",
         home: "Home",
         yourApps: "Your apps",
         catalogue: "App catalog",

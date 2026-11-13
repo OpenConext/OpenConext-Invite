@@ -9,7 +9,7 @@
 
     textarea {
         height: 90px;
-        background-color: white;
+        background-color: var(--card, white);
 
         &.small {
             height: 51px;

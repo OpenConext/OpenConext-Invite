@@ -42,7 +42,7 @@ a.brand-logo img {
     // DropdownMenuContent renders through a portal, so it isn't a DOM descendant of
     // [data-slot="sidebar-container"] — style its links via its own className instead.
     a {
-        color: black;
+        color: var(--foreground, black);
         text-decoration: none;
     }
 }
@@ -75,7 +75,7 @@ a.brand-logo img {
 
 [data-slot="sidebar-container"], [data-slot="sidebar-menu-item"] {
     a {
-        color: black;
+        color: var(--foreground, black);
         text-decoration: none;
     }
 }
