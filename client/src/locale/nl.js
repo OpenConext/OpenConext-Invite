@@ -586,10 +586,10 @@ const nl = {
         noResults: "Yeah, no user-roles to be expired within one month"
     },
     requestedAuthnContext: {
-        EduIDLinkedInstitution: "EduID gekoppelde instelling",
-        EduIDValidatedName: "EduID gevalideerde naam",
-        ValidateNamesExternal: "EduID gevalideerde naam bij een externe (niet institutioneel) bron",
-        EduIDRequireStudentAffiliation: "EduID verplicht student affiliation",
+        EduIDLinkedInstitution: "eduID gekoppelde instelling",
+        EduIDValidatedName: "eduID gevalideerde naam",
+        ValidateNamesExternal: "eduID gevalideerde naam bij een externe (niet institutioneel) bron",
+        EduIDRequireStudentAffiliation: "eduID verplicht student affiliation",
         TransparentAuthnContext: "Application levert zelf ACR waarde"
     },
     userRoleAudit: {
