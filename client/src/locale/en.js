@@ -667,10 +667,10 @@ const en = {
         noResults: "Yeah, no user-roles to be expired within one month"
     },
     requestedAuthnContext: {
-        EduIDLinkedInstitution: "EduID linked institution",
-        EduIDValidatedName: "EduID validated name",
-        ValidateNamesExternal: "EduID validated name by an external (non institutional) source",
-        EduIDRequireStudentAffiliation: "EduID required student affiliation",
+        EduIDLinkedInstitution: "eduID linked institution",
+        EduIDValidatedName: "eduID validated name",
+        ValidateNamesExternal: "eduID validated name by an external (non institutional) source",
+        EduIDRequireStudentAffiliation: "eduID required student affiliation",
         TransparentAuthnContext: "Application provides ACR value"
     },
     userRoleAudit: {
