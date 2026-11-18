@@ -538,6 +538,39 @@ class InvitationControllerTest extends AbstractTest {
         assertFalse(invitationRepository.findByHash(Authority.GUEST.name()).isPresent());
     }
 
+    @Test
+    void deleteRolelessInvitationOfOtherInstitution() throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+        Invitation invitation = invitationRepository.findByHash(Authority.APPLICATION_MANAGER.name()).get();
+        assertTrue(invitation.getRoles().isEmpty());
+        invitation.setOrganizationGUID("other-institution-guid");
+        invitationRepository.save(invitation);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("id", invitation.getId())
+                .delete("/api/v1/invitations/{id}")
+                .then()
+                .statusCode(403);
+        assertTrue(invitationRepository.findByHash(Authority.APPLICATION_MANAGER.name()).isPresent());
+
+        invitation.setOrganizationGUID(ORGANISATION_GUID);
+        invitationRepository.save(invitation);
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("id", invitation.getId())
+                .delete("/api/v1/invitations/{id}")
+                .then()
+                .statusCode(204);
+    }
+
     private Invitation updateInvitationStatus(String hash, Status status) {
         Invitation invitation = invitationRepository.findByHash(hash).get();
         invitation.setStatus(status);

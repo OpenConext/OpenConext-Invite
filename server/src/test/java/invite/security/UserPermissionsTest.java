@@ -53,6 +53,16 @@ class UserPermissionsTest extends WithApplicationTest {
     }
 
     @Test
+    void assertInvalidInvitationWithoutRolesForNonInstitutionAdmin() {
+        User user = new User();
+        user.setApplications(List.of(Map.of("id", "1")));
+        assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidInvitation(user, Authority.INVITER, new ArrayList<>()));
+        assertThrows(UserRestrictionException.class, () ->
+                UserPermissions.assertValidInvitation(user, Authority.APPLICATION_MANAGER, new ArrayList<>()));
+    }
+
+    @Test
     void assertInvalidInvitationInstitutionAdmin() {
         User user = new User();
         user.setApplications(List.of(Map.of("id", "1")));

@@ -260,12 +260,9 @@ public class InvitationController implements InvitationResource {
         LOG.debug(String.format("/deleteInvitation/%s by user %s", id, user.getEduPersonPrincipalName()));
         //We need to assert validations on the roles soo we need to load them
         Invitation invitation = invitationRepository.findById(id).orElseThrow(() -> new NotFoundException("Invitation not found"));
-        List<Role> requestedRoles = invitation.getRoles().stream()
-                .map(InvitationRole::getRole).toList();
-        Authority intendedAuthority = invitation.getIntendedAuthority();
 
         User userFromDB = userRepository.getReferenceById(user.getId());
-        UserPermissions.assertValidInvitation(userFromDB, intendedAuthority, requestedRoles);
+        UserPermissions.assertInvitationAccess(userFromDB, invitation);
 
         AccessLogger.invitation(LOG, Event.Deleted, invitation);
         invitationRepository.delete(invitation);

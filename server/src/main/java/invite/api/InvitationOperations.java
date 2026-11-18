@@ -224,7 +224,7 @@ public class InvitationOperations {
                 .map(InvitationRole::getRole).toList();
         Authority intendedAuthority = invitation.getIntendedAuthority();
         if (user != null) {
-            UserPermissions.assertValidInvitation(user, intendedAuthority, requestedRoles);
+            UserPermissions.assertInvitationAccess(user, invitation);
         } else {
             RemoteUserPermissions.assertApplicationAccess(remoteUser, requestedRoles);
         }
