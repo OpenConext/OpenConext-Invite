@@ -278,6 +278,33 @@ class RoleControllerTest extends AbstractTest {
     }
 
     @Test
+    void updateRoleOfOtherInstitutionWithSpoofedOrganizationGUID() throws Exception {
+        stubForManageProvisioning(List.of());
+        stubForManageProvidersAllowedByIdP(ORGANISATION_GUID);
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+
+        Role roleDB = roleRepository.search("wiki", 1).get(0);
+        String originalDescription = roleDB.getDescription();
+        roleDB.setOrganizationGUID("other-institution-guid");
+        roleRepository.save(roleDB);
+
+        //Attacker claims their own organizationGUID in the request body
+        roleDB.setOrganizationGUID(ORGANISATION_GUID);
+        roleDB.setDescription("hijacked");
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(roleDB)
+                .put("/api/v1/roles")
+                .then()
+                .statusCode(403);
+        assertEquals(originalDescription, roleRepository.findById(roleDB.getId()).orElseThrow().getDescription());
+    }
+
+    @Test
     void updateApplications() throws Exception {
         //Because the user is changed and provisionings are queried
         stubForManageProvisioning(List.of());
