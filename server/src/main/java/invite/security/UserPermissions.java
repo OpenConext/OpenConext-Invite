@@ -3,6 +3,8 @@ package invite.security;
 import invite.exception.UserRestrictionException;
 import invite.model.Application;
 import invite.model.Authority;
+import invite.model.Invitation;
+import invite.model.InvitationRole;
 import invite.model.Role;
 import invite.model.User;
 import invite.model.UserRole;
@@ -118,6 +120,24 @@ public class UserPermissions {
             throw new UserRestrictionException(String.format("User %s is not an Authority %s", user.getEmail(), authority));
     }
 
+    public static void assertInvitationAccess(User user, Invitation invitation) {
+        if (user == null) {
+            throw new UserRestrictionException("User is NULL");
+        }
+        List<Role> roles = invitation.getRoles().stream().map(InvitationRole::getRole).toList();
+        if (roles.isEmpty() && !user.isSuperUser()) {
+            boolean institutionAdminOfInvitation = user.isInstitutionAdmin()
+                    && user.getOrganizationGUID() != null
+                    && user.getOrganizationGUID().equals(invitation.getOrganizationGUID());
+            boolean isInviter = invitation.getInviter() != null
+                    && Objects.equals(invitation.getInviter().getId(), user.getId());
+            if (!institutionAdminOfInvitation && !isInviter) {
+                throw new UserRestrictionException(String.format("Invalid access to invitation without roles by %s", user.getEmail()));
+            }
+        }
+        assertValidInvitation(user, invitation.getIntendedAuthority(), roles);
+    }
+
     public static void assertValidInvitation(User user, Authority intendedAuthority, List<Role> roles) {
         if (user == null) {
             throw new UserRestrictionException("User is NULL");
@@ -132,6 +152,11 @@ public class UserPermissions {
         }
         if (!user.isInstitutionAdmin() && intendedAuthority.equals(Authority.INSTITUTION_ADMIN)) {
             throw new UserRestrictionException("Invalid institution admin invitation by " + user.getEmail());
+        }
+        //Without roles there is nothing to verify the other checks against (empty collections match vacuously),
+        //so only institution admins may create / handle invitations without roles
+        if (roles.isEmpty() && !user.isInstitutionAdmin()) {
+            throw new UserRestrictionException("Invalid invitation without roles by " + user.getEmail());
         }
         //Institution admin needs to own all roles or be a member of the role for at least the authority of invitationo
         if (user.isInstitutionAdmin() && roles.stream()
