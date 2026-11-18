@@ -274,7 +274,9 @@ public class RoleController implements ApplicationResource {
         LOG.debug(String.format("PUT /roles/ for user %s", user.getEduPersonPrincipalName()));
 
         User userFromDB = userRepository.getReferenceById(user.getId());
-        UserPermissions.assertRoleAccess(userFromDB, role, Authority.MANAGER);
+        //Authorize against the role in the DB, never against client-supplied fields
+        Role persistedRole = roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));
+        UserPermissions.assertRoleAccess(userFromDB, persistedRole, Authority.MANAGER);
 
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), user.getEduPersonPrincipalName()));
         return saveOrUpdate(role, user);
