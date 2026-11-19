@@ -220,7 +220,7 @@ public class UserPermissions {
 
     public static void assertRoleAccess(User user, Role accessRole, Authority authority) {
         if (user == null) {
-            throw new UserRestrictionException("USer is NULL");
+            throw new UserRestrictionException("User is NULL");
         }
         LOG.debug(String.format("assertRoleAccess for user %s", user.getEduPersonPrincipalName()));
 
