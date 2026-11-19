@@ -110,9 +110,14 @@ public class DefaultErrorController implements ErrorController {
             fullPath = query != null ? path + "?" + query : path;
         }
 
-        LOG.warn(String.format("Authentication error: ip=%s, user=%s, method=%s, path=%s",
-                remoteIp, username, method, fullPath
-        ));
+        String message = String.format("Authentication error: ip=%s, user=%s, method=%s, path=%s",
+                remoteIp, username, method, fullPath);
+        if (StringUtils.hasText(authHeader)) {
+            LOG.warn(message);
+        } else {
+            //Non-preemptive clients first send a request without credentials, receive a 401 challenge and then retry
+            LOG.debug(message);
+        }
     }
 
 }
