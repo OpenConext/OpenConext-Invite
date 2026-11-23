@@ -4,6 +4,21 @@ export function sanitize(text) {
     return DOMPurify.sanitize(text, {ADD_ATTR: ["target"]});
 }
 
+// The application is served under this path, see the basename of the BrowserRouter in main.jsx
+export const BASENAME = "/roles";
+
+// The router adds the basename itself, so a location taken from window.location must be stripped before it is navigated to
+export function routerPath(pathname = window.location.pathname) {
+    if (pathname === BASENAME) {
+        return "/";
+    }
+    return pathname.startsWith(`${BASENAME}/`) ? pathname.substring(BASENAME.length) : pathname;
+}
+
+export function routerLocation() {
+    return routerPath() + window.location.search;
+}
+
 export function stopEvent(e) {
     if (e !== undefined && e !== null) {
         e.preventDefault();

@@ -4,7 +4,7 @@ import React from "react";
 import "./UnitHeader.scss";
 
 import Logo from "./Logo";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, routerPath} from "../utils/Utils";
 
 import {useNavigate} from "react-router";
 import I18n from "../locale/I18n";
@@ -26,7 +26,7 @@ export const UnitHeader = ({
 
     const navigate = useNavigate();
 
-    const queryParam = `name=${encodeURIComponent(breadcrumbName || name)}&back=${encodeURIComponent(window.location.pathname)}`;
+    const queryParam = `name=${encodeURIComponent(breadcrumbName || name)}&back=${encodeURIComponent(routerPath())}`;
     const showChevronAction = (history && auditLogPath) || firstTime;
     return (
         <div className="unit-header-container">

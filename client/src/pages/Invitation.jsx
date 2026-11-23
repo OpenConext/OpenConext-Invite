@@ -10,7 +10,7 @@ import {getParameterByName} from "../utils/QueryParameters";
 import {DateTime, Duration} from "luxon";
 import {useNavigate} from "react-router";
 import {useAppStore} from "../stores/AppStore";
-import {initials, isEmpty, splitListSemantically} from "../utils/Utils";
+import {initials, isEmpty, routerLocation, splitListSemantically} from "../utils/Utils";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 
 const MAY_ACCEPT = "mayAccept";
@@ -123,7 +123,7 @@ export const Invitation = ({authenticated}) => {
     const proceed = () => {
         setLoading(true);
         const hashParam = getParameterByName("hash", window.location.search);
-        const direction = window.location.pathname + window.location.search;
+        const direction = routerLocation();
         localStorage.setItem("location", direction);
         logout().then(() => {
             login(config, true, hashParam)

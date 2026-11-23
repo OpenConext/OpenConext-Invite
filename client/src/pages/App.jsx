@@ -23,7 +23,7 @@ import {Profile} from "./Profile";
 import {Role} from "./Role";
 import {RoleForm} from "./RoleForm";
 import {InvitationForm} from "./InvitationForm";
-import {isEmpty} from "../utils/Utils";
+import {isEmpty, routerLocation, routerPath} from "../utils/Utils";
 import {MissingAttributes} from "./MissingAttributes";
 import {Inviter} from "./Inviter";
 import {Application} from "./Application";
@@ -53,19 +53,19 @@ export const App = () => {
 
                     if (!res.authenticated) {
                         if (!res.name) {
-                            const direction = window.location.pathname + window.location.search;
+                            const direction = routerLocation();
                             localStorage.setItem("location", direction);
                         }
                         if (!isEmpty(res.missingAttributes)) {
                             route = "/missingAttributes"
                         } else {
-                            const pathname = localStorage.getItem("location") || window.location.pathname;
-                            const isInvitationAcceptFlow = window.location.pathname.startsWith("/invitation/accept")
+                            const pathname = localStorage.getItem("location") || routerPath();
+                            const isInvitationAcceptFlow = routerPath().startsWith("/invitation/accept")
                                 || pathname.startsWith("/invitation/accept");
                             if (res.name && !isInvitationAcceptFlow) {
                                 route = "/deadend"
                             } else if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/invitation/accept") || isInvitationAcceptFlow) {
-                                route = isInvitationAcceptFlow ? pathname : window.location.pathname + window.location.search;
+                                route = isInvitationAcceptFlow ? pathname : routerLocation();
                             }
                         }
                         if (!isEmpty(route)) {
@@ -81,7 +81,7 @@ export const App = () => {
                         me()
                             .then(res => {
                                 useAppStore.setState(() => ({user: res, authenticated: true}));
-                                const location = localStorage.getItem("location") || window.location.pathname + window.location.search;
+                                const location = localStorage.getItem("location") || routerLocation();
                                 const newLocation = (location.startsWith("/login") || location.startsWith("/home/login")) ? "/home" : location;
                                 localStorage.removeItem("location");
                                 flushSync(() => {
