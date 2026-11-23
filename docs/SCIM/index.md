@@ -105,7 +105,10 @@ Host: example.com
 Content-Length: ...
 Content-Type: application/json
 {
-  "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
+  "schemas":[
+    "urn:ietf:params:scim:schemas:core:2.0:User",
+    "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+  ],
   "externalId":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "name":{
@@ -126,12 +129,20 @@ Content-Type: application/json
       "type":"other",
       "value":"+31600000000"
     }
-  ]
+  ],
+  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User":{
+    "organization":"university.example.nl"
+  }
 }
 ```
 
 Het `phoneNumbers`-attribuut bevat altijd een dummy-nummer
 (`+31600000000`), omdat sommige systemen dit attribuut verplicht stellen.
+
+Via de enterprise extension (`urn:ietf:params:scim:schemas:extension:enterprise:2.0:User`)
+wordt het `schacHomeOrganization`-attribuut van de gebruiker (ontvangen tijdens het
+inloggen) meegestuurd als `organization`. Als de gebruiker geen schacHomeOrganization
+heeft, wordt de extension niet meegestuurd.
 
 #### Response
 
@@ -190,7 +201,10 @@ Host: example.com
 Content-Length: ...
 Content-Type: application/json
 {
-  "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
+  "schemas":[
+    "urn:ietf:params:scim:schemas:core:2.0:User",
+    "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+  ],
   "externalId":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "name":{
@@ -212,7 +226,10 @@ Content-Type: application/json
       "type":"other",
       "value":"+31600000000"
     }
-  ]
+  ],
+  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User":{
+    "organization":"university.example.nl"
+  }
 }
 ```
 
@@ -267,7 +284,10 @@ Host: example.com
 Content-Length: ...
 Content-Type: application/json
 {
-  "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
+  "schemas":[
+    "urn:ietf:params:scim:schemas:core:2.0:User",
+    "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+  ],
   "externalId":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "userName":"c2cd7d6e-63fc-493a-8746-62fb2d3f8806",
   "name":{
@@ -289,7 +309,10 @@ Content-Type: application/json
       "type":"other",
       "value":"+31600000000"
     }
-  ]
+  ],
+  "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User":{
+    "organization":"university.example.nl"
+  }
 }
 ```
 

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UserRequestTest {
 
@@ -117,6 +118,23 @@ class UserRequestTest {
         UserRequest userRequest = new UserRequest(user, provisioning);
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
+    }
+
+    @Test
+    void enterpriseExtensionContainsSchacHomeOrganization() {
+        UserRequest userRequest = new UserRequest(user, getProvisioning(ScimUserIdentifier.eduperson_principal_name));
+        assertEquals(List.of("urn:ietf:params:scim:schemas:core:2.0:User", UserRequest.ENTERPRISE_EXTENSION_URN),
+                userRequest.getSchemas());
+        assertEquals(user.getSchacHomeOrganization(), userRequest.getEnterpriseUser().getOrganization());
+    }
+
+    @Test
+    void enterpriseExtensionOmittedWithoutSchacHomeOrganization() {
+        ReflectionTestUtils.setField(user, "schacHomeOrganization", null);
+        UserRequest userRequest = new UserRequest(user, getProvisioning(ScimUserIdentifier.eduperson_principal_name));
+        assertEquals(List.of("urn:ietf:params:scim:schemas:core:2.0:User", UserRequest.ENTERPRISE_EXTENSION_URN),
+                userRequest.getSchemas());
+        assertNull(userRequest.getEnterpriseUser());
     }
 
     @Test
