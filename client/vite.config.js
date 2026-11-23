@@ -5,6 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+    // relative asset URLs so the app also works under a path prefix (eg /roles/)
+    base: './',
     resolve: {
         preserveSymlinks: true,
     },
@@ -21,8 +23,6 @@ export default defineConfig({
         globals: true
     },
     build: {
-        // relative asset URLs so the app also works under a path prefix (eg /roles/)
-        base: './',
         chunkSizeWarningLimit: 1000
     },
     server: {
