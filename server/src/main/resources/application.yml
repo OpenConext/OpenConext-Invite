@@ -134,7 +134,8 @@ gui:
     content: LOCAL
 
 config:
-  client-url: "http://localhost:3000"
+  # The UI is served under /roles; used for invitation mail links and the post login redirect
+  client-url: "http://localhost:3000/roles"
   welcome-url: "http://localhost:4000"
   server-url: "http://localhost:8888"
   server-welcome-url: "http://localhost:8888"

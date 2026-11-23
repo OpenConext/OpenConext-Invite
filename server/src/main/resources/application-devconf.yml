@@ -86,7 +86,7 @@ gui:
     content: DEV
 
 config:
-  client-url: "https://invite.dev.openconext.local"
+  client-url: "https://invite.dev.openconext.local/roles"
   welcome-url: "https://welcome.dev.openconext.local"
   server-url: "https://invite.dev.openconext.local"
   server-welcome-url: "https://welcome.dev.openconext.local"

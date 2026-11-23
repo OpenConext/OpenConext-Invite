@@ -306,7 +306,7 @@ class UserControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .get(accessCookieFilter.apiURL())
                 .header("Location");
-        assertEquals("http://localhost:3000", location);
+        assertEquals("http://localhost:3000/roles", location);
     }
 
     @Test

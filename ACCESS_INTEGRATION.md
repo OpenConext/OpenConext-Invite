@@ -55,7 +55,7 @@ environment.
 Code from Access is duplicated into Invite (Access is checked out in `invite/access`, git-ignored). Invite uses the
 same libs as Access (`@phosphor-icons/react ^2.1.10`, `@surfnet/curve-react ^0.5.1`). The left-side menu in Invite must be
 pixel-perfect the same as Access and its links point to the Access application. The Access menu item "Roles"
-(`/external/invite`) must point to the locally running Invite (`http://localhost:3000/home/roles`).
+(`/external/invite`) must point to the locally running Invite (`http://localhost:3000/roles/home/roles`).
 
 **Follow-up requests already done:** logo, font size / weight / font-smoothing alignment, organisation dropdown in Invite
 (from `surf-crm-id` stored on the Invite `users` table, resolved via Manage), redirect to Access
@@ -103,7 +103,7 @@ links is based on the logged-in user in Access (see `access/client/src/utils/Men
   `UserHandlerMethodArgumentResolver` stores the `surf-crm-id` claim on login; `LocalDevelopmentAuthenticationFilter` adds the claim in the `local` profile;
   `application.yml`: session cookie name `INVITE_SESSION`; tests in `UserControllerTest` (46 pass, full suite 454 pass).
 - Access (applied to both `invite/access` and `/Users/harst001/projects/access`): `App.jsx` handles `?organizationId=` (id **or** `manageIdentifier`),
-  `SharedMenu.jsx` + `MenuItems.js` (Roles → `config.invite + /home/roles` when `config.inviteSameTab`), `Config.java` field `inviteSameTab`,
+  `SharedMenu.jsx` + `MenuItems.js` (Roles → `config.invite + /roles/home/roles` when `config.inviteSameTab`), `Config.java` field `inviteSameTab`,
   `application.yml` (`invite: http://localhost:3000`, `invite_same_tab: true`).
 
 ### Facts about the code that drive the options below
@@ -388,7 +388,7 @@ The three blockers of option A are removed by configuration/design (D1-D3), so t
 - Dev servers: Invite client `yarn dev` in `client/` (3000), Invite server from IntelliJ (8888, restart after Java changes, Flyway migration `V67_0`
   already applied locally),
   Access client/server run from `/Users/harst001/projects/access` (3002 / 8886) – apply Access edits there, not only in `invite/access`.
-- Verify with Chrome (Claude in Chrome, existing sessions): `http://localhost:3002/home`, `http://localhost:3000/home/roles`; the sessions are real
+- Verify with Chrome (Claude in Chrome, existing sessions): `http://localhost:3002/home`, `http://localhost:3000/roles/home/roles`; the sessions are real
   OIDC logins, never enter credentials.
 - Useful checks: computed styles (`getComputedStyle`) of `[data-slot="sidebar-menu-button"]` in both apps; `GET /api/v1/users/organizations`; `mysql
   -uinvite -psecret -h127.0.0.1 invite`.

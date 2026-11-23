@@ -33,7 +33,7 @@ export default function Tab({
     const classes = [className, "tab", name, activeTab === name ? "active" : "", readOnly ? "disabled" : "", busy ? "busy" : ""]
         .filter(c => c).join(" ");
     return (
-        <a href={`/${name}`} className={classes} onClick={onClickInner}
+        <a href={`/roles/${name}`} className={classes} onClick={onClickInner}
            aria-current={activeTab === name ? "page" : undefined}>
             {Icon && <Icon/>}{label}{chipCount}
             {notifier && <span className="notifier"><AlertIcon/></span>}

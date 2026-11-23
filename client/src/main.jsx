@@ -10,7 +10,7 @@ import './index.scss';
 const root = ReactDOM.createRoot(document.getElementById("app"));
 root.render(
     <TooltipProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/roles">
             <Routes>
                 <Route path="/*" element={<App/>}/>
             </Routes>
