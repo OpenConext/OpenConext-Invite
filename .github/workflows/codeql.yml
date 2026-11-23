@@ -66,6 +66,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
@@ -82,7 +83,14 @@ jobs:
 
       # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
       # If this step fails, then you should remove it and run the build manually (see below)
+      # Autobuild downloads its own Maven distribution (the enforcer range is [3.8.7,)), which fails when
+      # Maven Central rate limits the runner (HTTP 429). Build the server with the preinstalled Maven instead.
+      - name: Build server
+        if: matrix.language == 'java-kotlin'
+        run: mvn -B -ntp -pl server -am -DskipTests -Dmaven.test.skip=true compile
+
       - name: Autobuild
+        if: matrix.language != 'java-kotlin'
         uses: github/codeql-action/autobuild@v4.39.3
 
       # ℹ️ Command-line programs to run using the OS shell.
