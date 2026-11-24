@@ -21,6 +21,7 @@ export const accessUrl = config => ((config && config.accessUrl) || import.meta.
 
 export const mainMenuItems = {
     home: "home",
+    access: "access",
     users: "users",
     idp: "idp",
     yourApps: "yourApps",
@@ -36,6 +37,13 @@ export const mainMenuItems = {
 
 // Paths are the Access paths. Items with internal: true are served by this application.
 export const allMenuGroups = [
+    {
+        //The only item for users that are not known in SURF Access: a link to the Access application
+        label: null,
+        items: [
+            {name: mainMenuItems.access, path: "/login", Logo: HomeIcon}
+        ]
+    },
     {
         label: null,
         items: [

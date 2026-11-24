@@ -564,6 +564,7 @@ const pt = {
     navigation: {
         lightMode: "Claro",
         darkMode: "Escuro",
+        access: "SURF Access",
         home: "Home",
         yourApps: "Your apps",
         catalogue: "App catalog",

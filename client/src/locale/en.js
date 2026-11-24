@@ -566,6 +566,7 @@ const en = {
     navigation: {
         lightMode: "Light",
         darkMode: "Dark",
+        access: "SURF Access",
         home: "Home",
         yourApps: "Your apps",
         catalogue: "App catalog",

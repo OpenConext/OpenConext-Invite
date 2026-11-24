@@ -566,6 +566,7 @@ const nl = {
     navigation: {
         lightMode: "Licht",
         darkMode: "Donker",
+        access: "SURF Access",
         home: "Home",
         yourApps: "Jouw apps",
         catalogue: "App-catalogus",
