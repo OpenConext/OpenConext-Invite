@@ -1,6 +1,7 @@
 package invite.provision.scim;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import invite.model.User;
 import invite.provision.Provisioning;
 import invite.provision.ScimUserIdentifier;
@@ -28,7 +29,9 @@ public class UserRequest implements Serializable {
 
     private static final Log LOG = LogFactory.getLog(UserRequest.class);
 
-    private final List<String> schemas = Collections.singletonList("urn:ietf:params:scim:schemas:core:2.0:User");
+    public static final String ENTERPRISE_EXTENSION_URN = "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User";
+
+    private final List<String> schemas = List.of("urn:ietf:params:scim:schemas:core:2.0:User", ENTERPRISE_EXTENSION_URN);
     private String externalId;
     private String userName;
     private final Name name;
@@ -37,6 +40,8 @@ public class UserRequest implements Serializable {
     private final boolean active = true;
     private final List<Email> emails;
     private final List<PhoneNumber> phoneNumbers;
+    @JsonProperty(ENTERPRISE_EXTENSION_URN)
+    private final EnterpriseUser enterpriseUser;
 
     public UserRequest(User user, Provisioning provisioning) {
         String resolvedUserName = this.resolveUserName(user, provisioning);
@@ -54,6 +59,9 @@ public class UserRequest implements Serializable {
         }
         //Add a default phone number for remote systems that require that
         this.phoneNumbers = Collections.singletonList(new PhoneNumber("+31600000000"));
+        this.enterpriseUser = StringUtils.hasText(user.getSchacHomeOrganization())
+                ? new EnterpriseUser(user.getSchacHomeOrganization())
+                : null;
         if (StringUtils.hasText(user.getInternalPlaceholderIdentifier())) {
             this.externalId = user.getInternalPlaceholderIdentifier();
         }

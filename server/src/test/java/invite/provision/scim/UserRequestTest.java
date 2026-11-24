@@ -1,5 +1,7 @@
 package invite.provision.scim;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import invite.config.ObjectMapperHolder;
 import invite.model.User;
 import invite.provision.Provisioning;
 import invite.provision.ProvisioningType;
@@ -14,6 +16,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UserRequestTest {
 
@@ -117,6 +121,45 @@ class UserRequestTest {
         UserRequest userRequest = new UserRequest(user, provisioning);
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getUserName());
         assertEquals(user.getEduPersonPrincipalName(), userRequest.getExternalId());
+    }
+
+    @Test
+    void enterpriseExtensionContainsSchacHomeOrganization() {
+        UserRequest userRequest = new UserRequest(user, getProvisioning(ScimUserIdentifier.eduperson_principal_name));
+        assertEquals(List.of("urn:ietf:params:scim:schemas:core:2.0:User", UserRequest.ENTERPRISE_EXTENSION_URN),
+                userRequest.getSchemas());
+        assertEquals(user.getSchacHomeOrganization(), userRequest.getEnterpriseUser().getOrganization());
+    }
+
+    @Test
+    void enterpriseExtensionOmittedWithoutSchacHomeOrganization() {
+        ReflectionTestUtils.setField(user, "schacHomeOrganization", null);
+        UserRequest userRequest = new UserRequest(user, getProvisioning(ScimUserIdentifier.eduperson_principal_name));
+        assertEquals(List.of("urn:ietf:params:scim:schemas:core:2.0:User", UserRequest.ENTERPRISE_EXTENSION_URN),
+                userRequest.getSchemas());
+        assertNull(userRequest.getEnterpriseUser());
+    }
+
+    @Test
+    void serializedJsonContainsEnterpriseExtension() throws Exception {
+        UserRequest userRequest = new UserRequest(user, getProvisioning(ScimUserIdentifier.eduperson_principal_name));
+        String json = ObjectMapperHolder.objectMapper.writeValueAsString(userRequest);
+        Map<String, Object> payload = ObjectMapperHolder.objectMapper.readValue(json, new TypeReference<>() {
+        });
+        assertEquals(List.of("urn:ietf:params:scim:schemas:core:2.0:User", UserRequest.ENTERPRISE_EXTENSION_URN),
+                payload.get("schemas"));
+        Map<String, Object> extension = (Map<String, Object>) payload.get(UserRequest.ENTERPRISE_EXTENSION_URN);
+        assertEquals(user.getSchacHomeOrganization(), extension.get("organization"));
+    }
+
+    @Test
+    void serializedJsonOmitsEnterpriseExtensionWithoutSchacHomeOrganization() throws Exception {
+        ReflectionTestUtils.setField(user, "schacHomeOrganization", null);
+        UserRequest userRequest = new UserRequest(user, getProvisioning(ScimUserIdentifier.eduperson_principal_name));
+        String json = ObjectMapperHolder.objectMapper.writeValueAsString(userRequest);
+        Map<String, Object> payload = ObjectMapperHolder.objectMapper.readValue(json, new TypeReference<>() {
+        });
+        assertFalse(payload.containsKey(UserRequest.ENTERPRISE_EXTENSION_URN));
     }
 
     @Test
