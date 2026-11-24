@@ -49,6 +49,8 @@ const pt = {
     },
     tabs: {
         intro: {
+            institutionAdmins: "Os colegas com uma função institucional na sua organização.",
+            audit: "Todas as alterações aos grupos de acesso criados pela sua organização",
             roles: "As funções dão acesso a aplicações específicas e podem ser atribuídas a utilizadores.",
             users: "Todos os utilizadores do Invite, com a sua função e última atividade.",
             applications: "As aplicações ligadas ao Invite e as funções que dão acesso às mesmas.",
@@ -56,6 +58,8 @@ const pt = {
             applicationUsers: "Os utilizadores com uma função para as aplicações da sua organização.",
             invitations: "Os convites que enviou e que ainda não foram aceites.",
         },
+        institutionAdmins: "Funções institucionais",
+        audit: "Histórico do grupo",
         home: "Início",
         applications: "Aplicações",
         users: "Utilizadores",

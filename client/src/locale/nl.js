@@ -48,6 +48,8 @@ const nl = {
     },
     tabs: {
         intro: {
+            institutionAdmins: "De collega's met een instellingsrol binnen je organisatie.",
+            audit: "Alle wijzigingen aan rollen die door je organisatie zijn aangemaakt",
             roles: "Rollen geven toegang tot specifieke applicatie(s) en kun je toekennen aan gebruikers.",
             users: "Alle gebruikers van Invite, met hun authoriteit en laatste activiteit.",
             applications: "De applicaties die aan Invite gekoppeld zijn en de rollen die er toegang toe geven.",
@@ -55,6 +57,8 @@ const nl = {
             applicationUsers: "De gebruikers met een rol voor de applicaties van jouw organisatie.",
             invitations: "De uitnodigingen die je hebt verstuurd en die nog niet geaccepteerd zijn.",
         },
+        institutionAdmins: "Instellingsrollen",
+        audit: "Rol historie",
         home: "Home",
         applications: "Applicaties",
         users: "Gebruikers",

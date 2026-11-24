@@ -17,7 +17,7 @@ import {CaretDownIcon, CaretRightIcon, UserCircleIcon} from "@phosphor-icons/rea
 import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
 import {markExplicitLogout} from "../utils/Login";
-import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
+import {highestAuthority} from "../utils/UserRole";
 import {accessUrl} from "../utils/MenuItems";
 
 //variant sidebar: rendered in the footer of the sidebar, the menu opens to the right. Variant header: top right.
@@ -29,10 +29,7 @@ export const UserMenu = ({user, variant = "header", organizationName}) => {
     //When SURF Access is connected (config.access-menu-enabled) the profile lives in Access (config.access-url)
     const accessProfileUrl = config.accessMenuEnabled !== false && accessUrl(config) ? `${accessUrl(config)}/profile` : null;
 
-    const authority = highestAuthority(user);
     const roleName = I18n.t(`access.${highestAuthority(user, false)}`);
-    const apiTokenLink = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER ||
-        authority === AUTHORITIES.APPLICATION_MANAGER || authority === AUTHORITIES.INSTITUTION_ADMIN;
 
     const logoutUser = () => {
         logout().then(() => {
@@ -76,11 +73,6 @@ export const UserMenu = ({user, variant = "header", organizationName}) => {
                 {accessProfileUrl ?
                     <DropdownMenuItem render={<a href={accessProfileUrl}>{I18n.t("header.links.profile")}</a>}/> :
                     link("/profile", I18n.t("header.links.profile"))}
-                {apiTokenLink && link("/tokens", I18n.t("header.links.tokens"))}
-                {(!user.superUser && user.institutionAdmin && user.organizationGUID) &&
-                    link("/institution-admins", I18n.t("header.links.colleagues"))}
-                {(user.superUser || (user.institutionAdmin && user.organizationGUID)) &&
-                    link("/audit", I18n.t("header.links.audit"))}
                 {user.superUser && link("/system", I18n.t("header.links.system"))}
                 <DropdownMenuItem onClick={logoutUser}>
                     {I18n.t("header.links.logout")}

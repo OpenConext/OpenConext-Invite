@@ -9,6 +9,8 @@ import {Page} from "../components/Page";
 import {Roles} from "../tabs/Roles";
 import {AUTHORITIES, highestAuthority} from "../utils/UserRole";
 import {Tokens} from "../tabs/Tokens";
+import {InstitutionAdmins} from "../tabs/InstitutionAdmins";
+import {UserRoleAudits} from "../tabs/UserRoleAudits";
 import {ApplicationUsers} from "../tabs/ApplicationUsers";
 import Applications from "../tabs/Applications";
 import {isEmpty} from "../utils/Utils";
@@ -21,6 +23,10 @@ export const Home = () => {
 
     const user = useAppStore((state) => state.user)
     const navigate = useNavigate();
+
+    const authority = highestAuthority(user);
+    const apiTokenLink = authority === AUTHORITIES.INVITER || authority === AUTHORITIES.MANAGER ||
+        authority === AUTHORITIES.APPLICATION_MANAGER || authority === AUTHORITIES.INSTITUTION_ADMIN;
 
     const tabs = [
         <Page key="roles"
@@ -59,7 +65,19 @@ export const Home = () => {
                   label={I18n.t("tabs.invitations")}>
                 <MineInvitations/>
             </Page> : null,
-        (user && user.superUser) ?
+        (user && !user.superUser && user.institutionAdmin && user.organizationGUID) ?
+            <Page key="institutionAdmins"
+                  name="institutionAdmins"
+                  label={I18n.t("tabs.institutionAdmins")}>
+                <InstitutionAdmins/>
+            </Page> : null,
+        (user && (user.superUser || (user.institutionAdmin && user.organizationGUID))) ?
+            <Page key="audit"
+                  name="audit"
+                  label={I18n.t("tabs.audit")}>
+                <UserRoleAudits/>
+            </Page> : null,
+        (user && (user.superUser || apiTokenLink)) ?
             <Page key="tokens"
                   name="tokens"
                   label={I18n.t("tabs.tokens")}>

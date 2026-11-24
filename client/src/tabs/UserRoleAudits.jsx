@@ -1,4 +1,3 @@
-import {DatabaseIcon as Logo} from "@phosphor-icons/react";
 import "./UserRoleAudits.scss";
 import {useAppStore} from "../stores/AppStore";
 import React, {useEffect, useState} from "react";
@@ -12,7 +11,6 @@ import debounce from "lodash.debounce";
 import {defaultPagination, pageCount} from "../utils/Pagination";
 import {shortDateFromEpoch} from "../utils/Date";
 import SelectField from "../components/SelectField";
-import {UnitHeader} from "../components/UnitHeader";
 
 export const UserRoleAudits = () => {
     const {user} = useAppStore(state => state);
@@ -33,12 +31,6 @@ export const UserRoleAudits = () => {
         fetchRoles()
             .then(res => {
                 setRoles(res);
-                useAppStore.setState({
-                    breadcrumbPath: [
-                        {path: "/home", value: I18n.t("tabs.home")},
-                        {value: I18n.t("header.links.audit")}
-                    ]
-                });
             })
     }, [user]);
 
@@ -119,9 +111,6 @@ export const UserRoleAudits = () => {
 
     return (
         <div className={"mod-user-role-audits"}>
-            <UnitHeader obj={({name: I18n.t("userRoleAudit.header"), svg: Logo, style: "small"})}>
-                <p>{I18n.t("userRoleAudit.info")}</p>
-            </UnitHeader>
             <Entities
                 entities={userRoleAudits}
                 modelName="userRoleAudit"

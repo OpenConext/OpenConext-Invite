@@ -29,10 +29,7 @@ import {Inviter} from "./Inviter";
 import {Application} from "./Application";
 import {System} from "./System";
 import {flushSync} from "react-dom";
-import {UserTokens} from "./UserTokens";
 import {Busy} from "./Busy";
-import {UserRoleAudits} from "../tabs/UserRoleAudits";
-import {InstitutionAdmins} from "../tabs/InstitutionAdmins";
 import {UserFeedbackWidget} from "../components/UserFeedbackWidget";
 
 
@@ -125,12 +122,9 @@ export const App = () => {
                                 <Route path="inviter" element={<Inviter/>}/>
                                 <Route path="roles/:id/:tab?" element={<Role/>}/>
                                 <Route path="applications/:manageId" element={<Application/>}/>
-                                <Route path="tokens" element={<UserTokens/>}/>
-                                <Route path="audit" element={<UserRoleAudits/>}/>
                                 <Route path="invitation/accept"
                                        element={<Invitation authenticated={true}/>}/>
                                 <Route path="login" element={<Login/>}/>
-                                <Route path="institution-admins" element={<InstitutionAdmins/>}/>
                                 <Route path="refresh-route/:path" element={<RefreshRoute/>}/>
                                 {(user && user.superUser) &&
                                     <Route path="system/:tab?" element={<System/>}/>

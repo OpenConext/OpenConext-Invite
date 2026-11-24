@@ -48,6 +48,8 @@ const en = {
     },
     tabs: {
         intro: {
+            institutionAdmins: "The colleagues with an institution role within your organization.",
+            audit: "All mutations to roles created by your organisation",
             roles: "Roles give access to specific application(s) and can be assigned to users.",
             users: "All users of Invite, with their authority and last activity.",
             applications: "The applications connected to Invite and the roles that give access to them.",
@@ -55,6 +57,8 @@ const en = {
             applicationUsers: "The users who hold a role for the applications of your organization.",
             invitations: "The invitations you have sent that have not been accepted yet.",
         },
+        institutionAdmins: "Institution roles",
+        audit: "Role history",
         home: "Home",
         applications: "Applications",
         users: "Users",
