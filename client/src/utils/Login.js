@@ -32,5 +32,5 @@ export function login(config, force = false, hash = null) {
         serverUrl = local ? "http://localhost:8888" :
             `${window.location.protocol}//${window.location.host}`
     }
-    window.location.href = sanitizeURL(`${serverUrl}/api/v1/users/login${params}`);
+    window.location.href = sanitizeURL(`${serverUrl}/roles/api/v1/users/login${params}`);
 }

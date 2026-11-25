@@ -83,106 +83,106 @@ export function health() {
 }
 
 export function configuration() {
-    return fetchJson("/api/v1/users/config", {}, {}, false);
+    return fetchJson("/roles/api/v1/users/config", {}, {}, false);
 }
 
 //Users
 //The menu model is owned by SURF Access, the Invite server fetches it for the current user
 export function menu(organizationId) {
     const query = organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : "";
-    return fetchJson(`/api/v1/users/menu${query}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/users/menu${query}`, {}, {}, false);
 }
 
 export function me() {
-    return fetchJson("/api/v1/users/me", {}, {}, false);
+    return fetchJson("/roles/api/v1/users/me", {}, {}, false);
 }
 
 export function other(id) {
-    return fetchJson(`/api/v1/users/other/${id}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/users/other/${id}`, {}, {}, false);
 }
 
 export function institutionAdminsbyRole(roleId) {
-    return fetchJson(`/api/v1/users/institution-admins/${roleId}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/users/institution-admins/${roleId}`, {}, {}, false);
 }
 
 export function applicationManagers() {
-    return fetchJson("/api/v1/users/applicationManagers", {}, {}, false);
+    return fetchJson("/roles/api/v1/users/applicationManagers", {}, {}, false);
 }
 
 export function institutionAdmins(includeMe=false) {
     const queryPart = includeMe ? "?includeMe=true" : ""
-    return fetchJson(`/api/v1/users/institutionAdmins${queryPart}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/users/institutionAdmins${queryPart}`, {}, {}, false);
 }
 
 export function removeInstitutionAdmin(user) {
-    return postPutJson(`/api/v1/users/removeInstitutionAdmin/${user.id}`, {}, "PUT", false);
+    return postPutJson(`/roles/api/v1/users/removeInstitutionAdmin/${user.id}`, {}, "PUT", false);
 }
 
 export function removeApplicationManager(user) {
-    return postPutJson(`/api/v1/users/removeApplicationManager/${user.id}`, {}, "PUT", false);
+    return postPutJson(`/roles/api/v1/users/removeApplicationManager/${user.id}`, {}, "PUT", false);
 }
 
 export function searchUsers(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
-    return fetchJson(`/api/v1/users/search?${queryPart}`);
+    return fetchJson(`/roles/api/v1/users/search?${queryPart}`);
 }
 
 export function searchUsersByApplication(pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
-    return fetchJson(`/api/v1/users/search-by-application?${queryPart}`);
+    return fetchJson(`/roles/api/v1/users/search-by-application?${queryPart}`);
 }
 
 export function csrf() {
-    return fetchJson("/api/v1/csrf", {}, {}, false);
+    return fetchJson("/roles/api/v1/csrf", {}, {}, false);
 }
 
 export function logout() {
-    return fetchJson("/api/v1/users/logout");
+    return fetchJson("/roles/api/v1/users/logout");
 }
 
 export function sendFeedback(formData) {
-    return postPutJson("/api/v1/feedback", formData, "POST");
+    return postPutJson("/roles/api/v1/feedback", formData, "POST");
 }
 
 export function reportError(error) {
-    return postPutJson("/api/v1/users/error", error, "post");
+    return postPutJson("/roles/api/v1/users/error", error, "post");
 }
 
 export function deleteUser(userId) {
-    return fetchDelete(`/api/v1/users/${userId}`);
+    return fetchDelete(`/roles/api/v1/users/${userId}`);
 }
 //Invitations
 export function invitationByHash(hash) {
-    return fetchJson(`/api/v1/invitations/public?hash=${hash}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/invitations/public?hash=${hash}`, {}, {}, false);
 }
 
 export function newInvitation(invitationRequest) {
-    return postPutJson("/api/v1/invitations", invitationRequest, "POST");
+    return postPutJson("/roles/api/v1/invitations", invitationRequest, "POST");
 }
 
 export function acceptInvitation(hash, invitationId) {
     const body = {hash: hash, invitationId: invitationId};
-    return postPutJson("/api/v1/invitations/accept", body, "POST", false);
+    return postPutJson("/roles/api/v1/invitations/accept", body, "POST", false);
 }
 
 export function invitationsByRoleId(roleId) {
-    return fetchJson(`/api/v1/invitations/roles/${roleId}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/invitations/roles/${roleId}`, {}, {}, false);
 }
 
 export function invitationsMine() {
-    return fetchJson("/api/v1/invitations/mine", {}, {}, false);
+    return fetchJson("/roles/api/v1/invitations/mine", {}, {}, false);
 }
 
 export function resendInvitation(invitationId) {
-    return postPutJson(`/api/v1/invitations/${invitationId}`, {}, "PUT");
+    return postPutJson(`/roles/api/v1/invitations/${invitationId}`, {}, "PUT");
 }
 
 export function deleteInvitation(invitationId) {
-    return fetchDelete(`/api/v1/invitations/${invitationId}`);
+    return fetchDelete(`/roles/api/v1/invitations/${invitationId}`);
 }
 
 export function allInvitations() {
-    return fetchJson(`/api/v1/invitations/all`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/invitations/all`, {}, {}, false);
 }
 
 export function searchInvitations(roleId, pagination = {}) {
@@ -190,142 +190,142 @@ export function searchInvitations(roleId, pagination = {}) {
         pagination.roleId = roleId;
     }
     const queryPart = paginationQueryParams(pagination, {})
-    return fetchJson(`/api/v1/invitations/search?${queryPart}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/invitations/search?${queryPart}`, {}, {}, false);
 }
 
 //Manage
 export function allProviders() {
-    return fetchJson("/api/v1/manage/providers");
+    return fetchJson("/roles/api/v1/manage/providers");
 }
 
 export function eduidIdentityProvider() {
-    return fetchJson("/api/v1/manage/eduid-identity-provider");
+    return fetchJson("/roles/api/v1/manage/eduid-identity-provider");
 }
 
 export function requestedAuthnContextValues() {
-    return fetchJson("/api/v1/manage/requested-authn-context-values");
+    return fetchJson("/roles/api/v1/manage/requested-authn-context-values");
 }
 
 export function applicationsFromManage() {
-    return fetchJson("/api/v1/manage/applications")
+    return fetchJson("/roles/api/v1/manage/applications")
 }
 
 export function allApplicationsFromManage() {
-    return fetchJson("/api/v1/manage/all-applications")
+    return fetchJson("/roles/api/v1/manage/all-applications")
 }
 
 export function hasProvisionings(manageId) {
-    return fetchJson(`/api/v1/manage/provisionings/${manageId}`);
+    return fetchJson(`/roles/api/v1/manage/provisionings/${manageId}`);
 }
 
 export function allIdentityProviders() {
-    return fetchJson("/api/v1/manage/identity-providers");
+    return fetchJson("/roles/api/v1/manage/identity-providers");
 }
 
 export function applicationsForInstitutionAdmin() {
-    return fetchJson("/api/v1/manage/application-institution-admin");
+    return fetchJson("/roles/api/v1/manage/application-institution-admin");
 }
 
 
 //Roles
 export function rolesByApplication(force = true, pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {force: !!force});
-    return fetchJson(`/api/v1/roles?${queryPart}`);
+    return fetchJson(`/roles/api/v1/roles?${queryPart}`);
 }
 
 export function rolesPerApplicationManageId(manageId) {
-    return fetchJson(`/api/v1/roles/application/${manageId}`);
+    return fetchJson(`/roles/api/v1/roles/application/${manageId}`);
 }
 
 export function roleByID(roleID, showErrorDialog = true) {
-    return fetchJson(`/api/v1/roles/${roleID}`, {}, {}, showErrorDialog);
+    return fetchJson(`/roles/api/v1/roles/${roleID}`, {}, {}, showErrorDialog);
 }
 
 export function createRole(role) {
-    return postPutJson("/api/v1/roles", role, "POST", false);
+    return postPutJson("/roles/api/v1/roles", role, "POST", false);
 }
 
 export function updateRole(role) {
-    return postPutJson("/api/v1/roles", role, "PUT", false);
+    return postPutJson("/roles/api/v1/roles", role, "PUT", false);
 }
 
 export function deleteRole(role) {
-    return fetchDelete(`/api/v1/roles/${role.id}`, false);
+    return fetchDelete(`/roles/api/v1/roles/${role.id}`, false);
 }
 
 //User roles
 export function managersByRoleId(roleId) {
-    return fetchJson(`/api/v1/user_roles/managers/${roleId}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/user_roles/managers/${roleId}`, {}, {}, false);
 }
 
 export function searchUserRolesByRoleId(roleId, isGuests, pagination = {}) {
     const queryPart = paginationQueryParams(pagination, {})
-    return fetchJson(`/api/v1/user_roles/search/${roleId}/${isGuests}?${queryPart}`, {}, {}, false);
+    return fetchJson(`/roles/api/v1/user_roles/search/${roleId}/${isGuests}?${queryPart}`, {}, {}, false);
 }
 
 export function updateUserRoleEndData(userRoleId, endDate) {
-    return postPutJson("/api/v1/user_roles", {userRoleId, endDate}, "PUT");
+    return postPutJson("/roles/api/v1/user_roles", {userRoleId, endDate}, "PUT");
 }
 
 export function consequencesRoleDeletion(roleId) {
-    return fetchJson(`/api/v1/user_roles/consequences/${roleId}`, {}, {}, true);
+    return fetchJson(`/roles/api/v1/user_roles/consequences/${roleId}`, {}, {}, true);
 }
 
 export function deleteUserRole(userRoleId, isGuest) {
-    return fetchDelete(`/api/v1/user_roles/${userRoleId}/${isGuest}`, false);
+    return fetchDelete(`/roles/api/v1/user_roles/${userRoleId}/${isGuest}`, false);
 }
 
 //API tokens
 export function apiTokens() {
-    return fetchJson("/api/v1/tokens");
+    return fetchJson("/roles/api/v1/tokens");
 }
 
 export function generateToken() {
-    return fetchJson("/api/v1/tokens/generate-token");
+    return fetchJson("/roles/api/v1/tokens/generate-token");
 }
 
 export function createToken(description, organizationGUID) {
     const body = {description: description, organizationGUID: organizationGUID};
-    return postPutJson("/api/v1/tokens", body, "POST");
+    return postPutJson("/roles/api/v1/tokens", body, "POST");
 }
 
 export function deleteToken(token) {
-    return fetchDelete(`/api/v1/tokens/${token.id}`);
+    return fetchDelete(`/roles/api/v1/tokens/${token.id}`);
 }
 
 
 //Validations
 export function validate(type, value) {
     return isEmpty(value) ? Promise.resolve({valid: true}) :
-        postPutJson("/api/v1/validations/validate", {type, value}, "POST");
+        postPutJson("/roles/api/v1/validations/validate", {type, value}, "POST");
 }
 
 //System
 export function cronCleanup() {
-    return fetchJson("/api/v1/system/cron/cleanup")
+    return fetchJson("/roles/api/v1/system/cron/cleanup")
 }
 
 export function cronExpiryNotifications() {
-    return fetchJson("/api/v1/system/cron/expiry-notifications")
+    return fetchJson("/roles/api/v1/system/cron/expiry-notifications")
 }
 
 export function expiryUserRoles() {
-    return fetchJson("/api/v1/system/expiry-user-roles")
+    return fetchJson("/roles/api/v1/system/expiry-user-roles")
 }
 
 export function performanceSeed() {
-    return postPutJson("/api/v1/system/performance-seed", {}, "PUT")
+    return postPutJson("/roles/api/v1/system/performance-seed", {}, "PUT")
 }
 
 export function rolesUnknownInManage() {
-    return fetchJson("/api/v1/system/unknown-roles")
+    return fetchJson("/roles/api/v1/system/unknown-roles")
 }
 //Audit
 export function searchUserRoleAudits(pagination = {}, roleId = null) {
     const queryPart = paginationQueryParams(pagination, {roleId: roleId});
-    return fetchJson(`/api/v1/user_roles_audit/search?${queryPart}`);
+    return fetchJson(`/roles/api/v1/user_roles_audit/search?${queryPart}`);
 }
 
 export function fetchRoles() {
-    return fetchJson("/api/v1/user_roles_audit/roles");
+    return fetchJson("/roles/api/v1/user_roles_audit/roles");
 }
