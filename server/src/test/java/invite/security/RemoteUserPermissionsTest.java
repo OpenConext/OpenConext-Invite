@@ -58,4 +58,26 @@ class RemoteUserPermissionsTest {
         RemoteUserPermissions.assertApplicationAccess(remoteUserDevMode, role);
     }
 
+    @Test
+    void assertApplicationAccessEmptyCollections() {
+        RemoteUser remoteUser = new RemoteUser("user", "secret", null, "ad93daef-0911-e511-80d0-005056956c1a",
+                List.of(Scope.sp_dashboard), List.of(new Application("1", EntityType.SAML20_SP)), false);
+        assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(remoteUser, List.of()));
+        assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertApplicationAccess(remoteUser, new Role()));
+    }
+
+    @Test
+    void assertOrganizationAccess() {
+        assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertOrganizationAccess(null, "guid"));
+        RemoteUser remoteUser = new RemoteUser("user", "secret", null, "guid", List.of(Scope.sp_dashboard), List.of(), false);
+        RemoteUserPermissions.assertOrganizationAccess(remoteUser, null);
+        RemoteUserPermissions.assertOrganizationAccess(remoteUser, "guid");
+        assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertOrganizationAccess(remoteUser, "other"));
+        //Without a fallback there is no own organization
+        remoteUser.setOrganizationGUIDFallback(null);
+        assertThrows(UserRestrictionException.class, () -> RemoteUserPermissions.assertOrganizationAccess(remoteUser, "guid"));
+        remoteUser.setScopes(List.of(Scope.access));
+        RemoteUserPermissions.assertOrganizationAccess(remoteUser, "other");
+    }
+
 }

@@ -286,12 +286,17 @@ public class InternalInviteController implements ApplicationResource, Invitation
                                     )})})})
     public ResponseEntity<Role> newRole(@Validated @RequestBody RoleRequest roleRequest,
                                         @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
+        //Only access-scoped remote users may create roles for another organization
+        RemoteUserPermissions.assertOrganizationAccess(remoteUser, roleRequest.getOrganizationGUID());
         if (!StringUtils.hasText(roleRequest.getOrganizationGUID())) {
             roleRequest.setOrganizationGUID(remoteUser.getOrganizationGUIDFallback());
         }
+        if (!StringUtils.hasText(roleRequest.getOrganizationGUID())) {
+            throw new InvalidInputException("OrganizationGUID is required, as there is no fallback configured for " + remoteUser.getName());
+        }
         List<Map<String, Object>> providers = manage.identityProvidersByInstitutionalGUID(roleRequest.getOrganizationGUID());
         if (providers.isEmpty()) {
-            throw new InvalidInputException("There is no identityProvider with InstitutionalGUID: " + remoteUser.getOrganizationGUIDFallback());
+            throw new InvalidInputException("There is no identityProvider with InstitutionalGUID: " + roleRequest.getOrganizationGUID());
         }
 
         Role role = new Role(roleRequest);
@@ -314,6 +319,9 @@ public class InternalInviteController implements ApplicationResource, Invitation
     public ResponseEntity<Role> updateRole(@Validated @RequestBody Role role,
                                            @Parameter(hidden = true) @AuthenticationPrincipal RemoteUser remoteUser) {
         LOG.debug(String.format("Update role '%s' by user %s", role.getName(), remoteUser.getName()));
+        if (role.getId() == null) {
+            throw new InvalidInputException("Role id is required for an update");
+        }
 
         Role updatedRole = saveOrUpdate(role, remoteUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedRole);
@@ -478,6 +486,12 @@ public class InternalInviteController implements ApplicationResource, Invitation
     private Role saveOrUpdate(Role role, RemoteUser remoteUser) {
         roleOperations.assertValidRole(role);
         roleOperations.setDefaultsValidRole(role);
+        //Authorize against the persisted role, never only against client-supplied fields
+        Role persistedRole = role.getId() == null ? null :
+                roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));
+        if (persistedRole != null) {
+            RemoteUserPermissions.assertApplicationAccess(remoteUser, persistedRole);
+        }
         RemoteUserPermissions.assertApplicationAccess(remoteUser, role);
 
         manage.addManageMetaData(List.of(role));
@@ -485,11 +499,10 @@ public class InternalInviteController implements ApplicationResource, Invitation
         List<String> previousApplicationIdentifiers = new ArrayList<>();
         boolean nameChanged = false;
         if (!isNew) {
-            Role previousRole = roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));
-            //We don't allow shortName, identifier or organizationGUID changes after creation
-            role.setShortName(previousRole.getShortName());
-            role.setIdentifier(previousRole.getIdentifier());
+            Role previousRole = persistedRole;
+            //We don't allow organizationGUID, shortName, identifier, URN, CRM or audit changes after creation
             role.setOrganizationGUID(previousRole.getOrganizationGUID());
+            role.copyImmutableAttributes(previousRole);
             previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
             nameChanged = !previousRole.getName().equals(role.getName());
         }

@@ -62,8 +62,9 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
 
         String sub = (String) newClaims.get("sub");
         Optional<User> optionalUser = userRepository.findBySubIgnoreCase(sub);
+        //An institution admin by entitlement is downgraded if the entitlement is no longer received, unless invited as institution admin
         boolean institutionAdmin = isInstitutionAdmin(claims, entitlement) ||
-                (optionalUser.isPresent() && isInstitutionAdmin(optionalUser.get()));
+                optionalUser.map(InstitutionAdmin::isInstitutionAdminByInvite).orElse(false);
         newClaims.put(INSTITUTION_ADMIN, institutionAdmin);
 
         String organizationGuid = institutionAdmin ? getOrganizationGuid(claims, organizationGuidPrefix, optionalUser)

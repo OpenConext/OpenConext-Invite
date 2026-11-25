@@ -293,4 +293,49 @@ class APITokenControllerTest extends AbstractTest {
         long postCount = apiTokenRepository.count();
         assertEquals(preCount - 1, postCount);
     }
+
+    @Test
+    void deleteTokenInstitutionAdminWithoutOrganizationGUID() throws Exception {
+        //Tokens of inviters have no organizationGUID
+        APIToken apiToken = apiTokenRepository.findByHashedValue(HashGenerator.hashToken(API_TOKEN_INVITER_USER_HASH)).get();
+        assertNull(apiToken.getOrganizationGUID());
+        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/me", GUEST_SUB, m -> {
+            m.put("eduperson_entitlement", List.of("urn:mace:surfnet.nl:surfnet.nl:sab:role:SURFconextverantwoordelijke"));
+            return m;
+        });
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).get();
+        assertTrue(user.isInstitutionAdmin());
+        assertNull(user.getOrganizationGUID());
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", apiToken.getId())
+                .delete("/api/v1/tokens/{id}")
+                .then()
+                .statusCode(403);
+        assertTrue(apiTokenRepository.existsById(apiToken.getId()));
+    }
+
+    @Test
+    void deleteTokenWithoutOwner() throws Exception {
+        APIToken apiToken = apiTokenRepository.save(new APIToken(null, "legacy", false, "Legacy", null));
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+
+        given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .pathParams("id", apiToken.getId())
+                .delete("/api/v1/tokens/{id}")
+                .then()
+                .statusCode(403);
+    }
+
 }

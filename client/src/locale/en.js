@@ -158,7 +158,9 @@ const en = {
         institutionAdmins: "Your fellow Institution administrators are:",
         onlyInstitutionAdmins: "You are the only Institution admin within your organisation",
         removeInstitutionAdminConfirmation: "Are you sure you want to remove the institution admin rights from {{userName}}",
-        removeInstitutionAdminFlash: "Institution rights are removed from {{userName}}"
+        removeInstitutionAdminFlash: "Institution rights are removed from {{userName}}",
+        removeApplicationManagerPartialFlash: "The rights of {{userName}} are removed for the applications of your institution. {{userName}} still manages applications of other institutions",
+        removeApplicationManagerNotAllowed: "The rights of {{userName}} can not be removed, because the applications are not owned by your institution"
     },
     role: {
         copyUrn: "Copy urn",

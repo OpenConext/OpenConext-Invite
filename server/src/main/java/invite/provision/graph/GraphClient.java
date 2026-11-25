@@ -56,7 +56,7 @@ public class GraphClient {
         }
 
         invitation.invitedUserDisplayName = user.getName();
-        String redeemUrl = String.format("%s/api/v1/invitations/ms-accept-return/%s/%s",
+        String redeemUrl = String.format("%s/api/v1/users/ms-accept-return/%s/%s",
                 serverUrl, provisioning.getId(), user.getId());
 
         LOG.debug("Graph invite redeem url will be : " + redeemUrl);

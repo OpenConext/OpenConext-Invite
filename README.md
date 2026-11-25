@@ -166,7 +166,8 @@ There are several security filters in Invite:
   the API users are stored in memory. Endpoints are also secured by scope.
 - API token header (`X-API-TOKEN`) generated for institutional_admins (or super_users) in the GUI. The user stored in
   the security context is the first user with the same organisational GUID (or super_user) as the user who has generated
-  the token.
+  the token. Tokens linked to a user only have the institution admin rights as long as this user is an institution admin
+  of the same organisation (or super_user).
 
 ### Provisioning Secrets
 

@@ -36,6 +36,14 @@ public class InstitutionAdmin {
                 user.isInstitutionAdminByInvite());
     }
 
+    /**
+     * Institution admins by invite keep their rights regardless of the entitlements received at login, in contrast to
+     * institution admins by entitlement.
+     */
+    public static boolean isInstitutionAdminByInvite(User user) {
+        return StringUtils.hasText(user.getOrganizationGUID()) && user.isInstitutionAdminByInvite();
+    }
+
     public static Optional<String> getOrganizationGuid(Map<String, Object> attributes,
                                                        String organizationGuidPrefix,
                                                        Optional<User> optionalUser) {

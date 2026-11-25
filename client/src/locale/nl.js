@@ -159,6 +159,8 @@ const nl = {
         onlyInstitutionAdmins: "Je bent de enige instellingsbeheerder binnen je organisatie",
         removeInstitutionAdminConfirmation: "Weet je zeker dat je de beheerdersrechten voor de instelling wilt intrekken bij {{userName}}?",
         removeInstitutionAdminFlash: "De beheerdersrechten voor de instelling zijn ingetrokken bij {{userName}}",
+        removeApplicationManagerPartialFlash: "De rechten van {{userName}} zijn ingetrokken voor de applicaties van jouw instelling. {{userName}} beheert nog applicaties van andere instellingen",
+        removeApplicationManagerNotAllowed: "De rechten van {{userName}} kunnen niet worden ingetrokken, omdat de applicaties niet van jouw instelling zijn",
     },
     role: {
         copyUrn: "Copy urn",

@@ -31,7 +31,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
 import static invite.security.SecurityConfig.API_TOKEN_HEADER;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RoleControllerTest extends AbstractTest {
@@ -1029,6 +1031,78 @@ class RoleControllerTest extends AbstractTest {
 
     private Role roleByName(String name, List<Role> roles) {
         return roles.stream().filter(role -> role.getName().equalsIgnoreCase(name)).findFirst().orElseThrow(IllegalArgumentException::new);
+    }
+
+    private int updateRole(String sub, Role role) throws Exception {
+        stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", sub);
+        super.stubForManagerProvidersByIdIn(EntityType.SAML20_SP, List.of("1", "3"));
+        super.stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
+        return given()
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .accept(ContentType.JSON)
+                .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
+                .contentType(ContentType.JSON)
+                .body(super.objectMapper.writeValueAsString(role))
+                .put("/api/v1/roles")
+                .statusCode();
+    }
+
+    @Test
+    void updateDoesNotChangeProtectedFields() throws Exception {
+        for (String sub : List.of(MANAGE_SUB, SUPER_SUB)) {
+            Role role = roleRepository.findByName("Wiki").get();
+            String urn = role.getUrn();
+            role.setUrn("urn:evil");
+            role.setTeamsOrigin(true);
+            role.setRemoteApiUser("spoofed");
+            role.setCrmRoleId("crm");
+            role.setCrmRoleName("SURFconextverantwoordelijke");
+            role.setCrmRoleAbbrevation("CONVER");
+
+            assertEquals(200, updateRole(sub, role));
+
+            Role reloaded = roleRepository.findByName("Wiki").get();
+            assertEquals(urn, reloaded.getUrn());
+            assertFalse(reloaded.isTeamsOrigin());
+            assertNull(reloaded.getRemoteApiUser());
+            assertNull(reloaded.getCrmRoleId());
+            assertNull(reloaded.getCrmRoleName());
+            assertNull(reloaded.getCrmRoleAbbrevation());
+        }
+    }
+
+    @Test
+    void updateCrmRoleWithoutCrmRoleIdKeepsApplicationsAndOrganisation() throws Exception {
+        Role role = roleRepository.findByName("Mail").get();
+        String crmRoleId = role.getCrmRoleId();
+        role.setCrmRoleId(null);
+        role.setApplicationUsages(Set.of(
+                new ApplicationUsage(new Application("6", EntityType.OIDC10_RP), "https://landingpage.com")));
+
+        assertEquals(200, updateRole(SUPER_SUB, role));
+
+        Role reloaded = roleRepository.findByName("Mail").get();
+        assertEquals(crmRoleId, reloaded.getCrmRoleId());
+        assertEquals(List.of("5"), reloaded.applicationIdentifiers());
+        assertTrue(roleRepository.findByCrmRoleIdAndOrganisation(crmRoleId,
+                organisationRepository.findByCrmOrganisationId(CRM_ORGANIZATION_ID).get()).isPresent());
+    }
+
+    @Test
+    void updateApplicationsByApplicationManager() throws Exception {
+        //The application manager owns application 6, the Storage role is linked to both 3 and 6
+        Role role = roleRepository.findByName("Storage").get();
+        role.setDescription("changed");
+        assertEquals(200, updateRole(APPLICATION_MANAGER_SUB, role));
+        assertEquals("changed", roleRepository.findByName("Storage").get().getDescription());
+
+        role.setApplicationUsages(Set.of(
+                new ApplicationUsage(new Application("6", EntityType.OIDC10_RP), "https://landingpage.com"),
+                new ApplicationUsage(new Application("1", EntityType.SAML20_SP), "https://landingpage.com")));
+        assertEquals(403, updateRole(APPLICATION_MANAGER_SUB, role));
+        assertEquals(Set.of("3", "6"), Set.copyOf(roleRepository.findByName("Storage").get().applicationIdentifiers()));
     }
 
 }

@@ -19,7 +19,7 @@ class GraphControllerTest extends AbstractTest {
                 .when()
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON)
-                .body(Map.of("inviteRedirectUrl", "http://localhost/api/v1/invitations/ms-accept-return/1/2"))
+                .body(Map.of("inviteRedirectUrl", "http://localhost/api/v1/users/ms-accept-return/1/2"))
                 .post("/graph/users")
                 .as(new TypeRef<>() {
                 });

@@ -90,7 +90,7 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             //For old superuser and institution admin tokens it does not make any difference security-wise which user we return
             //For inviters and managers (and all new tokens after 0.0.36 release) the user is linked to the API token
             User user = apiUsers.getFirst();
-            if (StringUtils.hasText(organizationGUID)) {
+            if (StringUtils.hasText(organizationGUID) && mayActForOrganization(user, organizationGUID)) {
                 //The overhead is needed / justified for API usage as this are stateless
                 addInstitutionAdminAttributes(user, organizationGUID, Map.of());
             }
@@ -123,7 +123,13 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
                     String impersonateId = webRequest.getHeader("X-IMPERSONATE-ID");
                     if (StringUtils.hasText(impersonateId) && user.isSuperUser()) {
                         validImpersonation.set(true);
-                        return userRepository.findById(Long.valueOf(impersonateId))
+                        long impersonateUserId;
+                        try {
+                            impersonateUserId = Long.parseLong(impersonateId.trim());
+                        } catch (NumberFormatException e) {
+                            throw new UserRestrictionException("Invalid impersonation id: " + impersonateId);
+                        }
+                        return userRepository.findById(impersonateUserId)
                                 .orElseThrow(() -> new UserRestrictionException("No user found in impersonation: " + impersonateId));
                     }
                     return user;
@@ -151,6 +157,21 @@ public class UserHandlerMethodArgumentResolver implements HandlerMethodArgumentR
             return user;
         }).orElseThrow(() -> new UserRestrictionException("No user found sub:" + sub));
 
+    }
+
+    /**
+     * The organizationGUID of an API token does not grant any rights on its own, as the user may have been downgraded since
+     * the token was created. A user that is no longer an institution admin only has the rights of the user's own roles.
+     */
+    private boolean mayActForOrganization(User user, String organizationGUID) {
+        if (user.isSuperUser()) {
+            return true;
+        }
+        if (user.isInstitutionAdmin() && !organizationGUID.equalsIgnoreCase(user.getOrganizationGUID())) {
+            //Prevent that the token can be used for the current organization of the user
+            throw new UserRestrictionException("API token is not valid for the current organization of user: " + user.getEmail());
+        }
+        return user.isInstitutionAdmin();
     }
 
     private void addInstitutionAdminAttributes(User user, String organizationGUID, Map<String, Object> claims) {

@@ -157,7 +157,9 @@ const pt = {
         institutionAdmins: "Os restantes administradores da sua instituição são:",
         onlyInstitutionAdmins: "É o único administrador da instituição na sua organização",
         removeInstitutionAdminConfirmation: "Tem a certeza de que pretende remover os direitos de administrador da instituição de {{userName}}?",
-        removeInstitutionAdminFlash: "Os direitos de administrador da instituição foram removidos de {{userName}}"
+        removeInstitutionAdminFlash: "Os direitos de administrador da instituição foram removidos de {{userName}}",
+        removeApplicationManagerPartialFlash: "Os direitos de {{userName}} foram removidos para as aplicações da sua instituição. {{userName}} ainda gere aplicações de outras instituições",
+        removeApplicationManagerNotAllowed: "Os direitos de {{userName}} não podem ser removidos, porque as aplicações não pertencem à sua instituição"
     },
     role: {
         copyUrn: "Copiar URN",

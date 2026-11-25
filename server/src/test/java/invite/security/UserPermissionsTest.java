@@ -283,5 +283,14 @@ class UserPermissionsTest extends WithApplicationTest {
         return user;
     }
 
+    @Test
+    void institutionAdminWithoutOrganizationGUIDOwnsNoRoles() {
+        User user = new User();
+        user.setInstitutionAdmin(true);
+        Role role = new Role();
+        role.setId(1L);
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertRoleAccess(user, role, Authority.GUEST));
+        assertThrows(UserRestrictionException.class, () -> UserPermissions.assertValidInvitation(user, Authority.GUEST, List.of(role)));
+    }
 
 }

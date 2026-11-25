@@ -120,10 +120,12 @@ public class APITokenController {
         if (apiToken.isSuperUserToken() && !user.isSuperUser()) {
             throw new UserRestrictionException("Non super-user not allowed to delete super-user token: " + user.getEmail());
         }
-        if (user.isInstitutionAdmin() && !apiToken.getOrganizationGUID().equals(user.getOrganizationGUID())) {
+        //Without organizationGUID there is nothing to compare with, and tokens of inviters and managers have no organizationGUID
+        if (user.isInstitutionAdmin() && !(StringUtils.hasText(user.getOrganizationGUID()) &&
+                user.getOrganizationGUID().equals(apiToken.getOrganizationGUID()))) {
             throw new UserRestrictionException("User not allowed to delete token for different organization: " + user.getEmail());
         }
-        if (!user.isSuperUser() && !user.isInstitutionAdmin() && !Objects.equals(user.getId(), apiToken.getOwner().getId())) {
+        if (!user.isSuperUser() && !user.isInstitutionAdmin() && !(apiToken.getOwner() != null && Objects.equals(user.getId(), apiToken.getOwner().getId()))) {
             throw new UserRestrictionException("User not allowed to delete token for different owner: " + user.getEmail());
         }
         apiTokenRepository.delete(apiToken);

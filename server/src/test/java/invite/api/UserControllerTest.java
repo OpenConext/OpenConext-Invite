@@ -6,13 +6,16 @@ import invite.AccessCookieFilter;
 import invite.DefaultPage;
 import invite.exception.NotFoundException;
 import invite.manage.EntityType;
+import invite.model.Application;
 import invite.model.Authority;
 import invite.model.RemoteProvisionedUser;
 import invite.model.Role;
 import invite.model.User;
+import invite.model.UserApplication;
 import invite.model.UserRole;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -582,14 +586,30 @@ class UserControllerTest extends AbstractTest {
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
-    @Test
-    void removeApplicationManager() throws Exception {
+    //Manage id 5 (https://calendar) is owned by the institution of the institution admin, manage id 6 is not
+    private User applicationManagerOf(List<String> manageIdentifiers) {
+        User existing = userRepository.findBySubIgnoreCase(APPLICATION_MANAGER_SUB).get();
+        existing.getUserApplications().clear();
+        //Save in between, as the inserts are executed before the deletes
+        userRepository.save(existing);
         User applicationManager = userRepository.findBySubIgnoreCase(APPLICATION_MANAGER_SUB).get();
-        assertFalse(applicationManager.getUserApplications().isEmpty());
+        manageIdentifiers.forEach(manageId -> applicationManager.addUserApplication(new UserApplication(
+                applicationRepository.findByManageIdAndManageTypeOrderById(manageId, EntityType.OIDC10_RP)
+                        .orElseGet(() -> applicationRepository.save(new Application(manageId, EntityType.OIDC10_RP))))));
+        userRepository.save(applicationManager);
+        assertEquals(Set.copyOf(manageIdentifiers), managedApplications());
+        return applicationManager;
+    }
 
-        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INSTITUTION_ADMIN_SUB);
+    private Set<String> managedApplications() {
+        return userRepository.findBySubIgnoreCase(APPLICATION_MANAGER_SUB).get().getUserApplications().stream()
+                .map(userApplication -> userApplication.getApplication().getManageId())
+                .collect(Collectors.toSet());
+    }
 
-        given()
+    private ValidatableResponse removeApplicationManager(String sub, User applicationManager) throws Exception {
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", sub);
+        return given()
                 .when()
                 .filter(accessCookieFilter.cookieFilter())
                 .header(accessCookieFilter.csrfToken().getHeaderName(), accessCookieFilter.csrfToken().getToken())
@@ -597,11 +617,56 @@ class UserControllerTest extends AbstractTest {
                 .contentType(ContentType.JSON)
                 .pathParam("userId", applicationManager.getId())
                 .put("/api/v1/users/removeApplicationManager/{userId}")
-                .then()
-                .statusCode(200);
+                .then();
+    }
 
-        User updated = userRepository.findById(applicationManager.getId()).get();
-        assertTrue(updated.getUserApplications().isEmpty());
+    @Test
+    void removeApplicationManagerOtherInstitution() throws Exception {
+        User applicationManager = applicationManagerOf(List.of("6"));
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("6"));
+
+        removeApplicationManager(INSTITUTION_ADMIN_SUB, applicationManager)
+                .statusCode(HttpStatus.FORBIDDEN.value());
+        assertEquals(Set.of("6"), managedApplications());
+    }
+
+    @Test
+    void removeApplicationManagerUnknownInManage() throws Exception {
+        User applicationManager = applicationManagerOf(List.of("5"));
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of());
+
+        removeApplicationManager(INSTITUTION_ADMIN_SUB, applicationManager)
+                .statusCode(HttpStatus.FORBIDDEN.value());
+        assertEquals(Set.of("5"), managedApplications());
+    }
+
+    @Test
+    void removeApplicationManagerOnlyOwnInstitution() throws Exception {
+        User applicationManager = applicationManagerOf(List.of("5", "6"));
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5", "6"));
+
+        removeApplicationManager(INSTITUTION_ADMIN_SUB, applicationManager)
+                .statusCode(HttpStatus.OK.value());
+        assertEquals(Set.of("6"), managedApplications());
+    }
+
+    @Test
+    void removeApplicationManagerSuperUser() throws Exception {
+        User applicationManager = applicationManagerOf(List.of("5", "6"));
+
+        removeApplicationManager(SUPER_SUB, applicationManager)
+                .statusCode(HttpStatus.OK.value());
+        assertEquals(Set.of(), managedApplications());
+    }
+
+    @Test
+    void removeApplicationManager() throws Exception {
+        User applicationManager = applicationManagerOf(List.of("5"));
+        stubForManagerProvidersByIdIn(EntityType.OIDC10_RP, List.of("5"));
+
+        removeApplicationManager(INSTITUTION_ADMIN_SUB, applicationManager)
+                .statusCode(HttpStatus.OK.value());
+        assertEquals(Set.of(), managedApplications());
     }
 
     @Test
@@ -946,6 +1011,8 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void msAcceptReturn() throws Exception {
+        super.stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", GUEST_SUB);
         super.stubForUpdateGraphUser(GUEST_SUB);
         super.stubForManageProviderById(EntityType.PROVISIONING, "9");
 
@@ -953,12 +1020,77 @@ class UserControllerTest extends AbstractTest {
         given().redirects()
                 .follow(false)
                 .when()
+                .filter(accessCookieFilter.cookieFilter())
                 .pathParams("manageId", "9")
                 .pathParams("userId", user.getId())
                 .get("/api/v1/users/ms-accept-return/{manageId}/{userId}")
                 .then()
                 .statusCode(302)
-                .header("Location", "http://localhost:4000/proceed?hash=GUEST&isRedirect=true");
+                .header("Location", "http://localhost:4000/profile");
+        verify(1, patchRequestedFor(urlPathEqualTo("/graph/users")));
+    }
+
+    @Test
+    void msAcceptReturnLoginRequired() throws Exception {
+        super.stubForUpdateGraphUser(GUEST_SUB);
+        super.stubForManageProviderById(EntityType.PROVISIONING, "9");
+
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).orElseThrow(() -> new NotFoundException("User not found"));
+        String path = "/api/v1/users/ms-accept-return/9/" + user.getId();
+        given().redirects()
+                .follow(false)
+                .when()
+                .get(path)
+                .then()
+                .statusCode(302)
+                .header("Location", "http://localhost:" + this.port + "/oauth2/authorization/oidcng");
+        verify(0, anyRequestedFor(urlPathEqualTo("/graph/users")));
+
+        //After the login the user is redirected to the callback again
+        super.stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow(path, GUEST_SUB);
+        assertTrue(accessCookieFilter.apiURL().contains(path));
+    }
+
+    @Test
+    void msAcceptReturnOtherUser() throws Exception {
+        super.stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        super.stubForUpdateGraphUser(GUEST_SUB);
+        super.stubForManageProviderById(EntityType.PROVISIONING, "9");
+
+        User user = userRepository.findBySubIgnoreCase(GUEST_SUB).orElseThrow(() -> new NotFoundException("User not found"));
+        //Other user and unknown user
+        for (Long userId : List.of(user.getId(), 99999999L)) {
+            given().redirects()
+                    .follow(false)
+                    .when()
+                    .filter(accessCookieFilter.cookieFilter())
+                    .pathParams("manageId", "9")
+                    .pathParams("userId", userId)
+                    .get("/api/v1/users/ms-accept-return/{manageId}/{userId}")
+                    .then()
+                    .statusCode(403);
+        }
+        verify(0, anyRequestedFor(urlPathEqualTo("/graph/users")));
+    }
+
+    @Test
+    void msAcceptReturnNotProvisioned() throws Exception {
+        super.stubForManageProvisioning(List.of());
+        AccessCookieFilter accessCookieFilter = openIDConnectFlow("/api/v1/users/login", INVITER_SUB);
+        User user = userRepository.findBySubIgnoreCase(INVITER_SUB).orElseThrow(() -> new NotFoundException("User not found"));
+        given().redirects()
+                .follow(false)
+                .when()
+                .filter(accessCookieFilter.cookieFilter())
+                .pathParams("manageId", "unknown")
+                .pathParams("userId", user.getId())
+                .get("/api/v1/users/ms-accept-return/{manageId}/{userId}")
+                .then()
+                .statusCode(302)
+                .header("Location", "http://localhost:4000/profile");
+        verify(0, anyRequestedFor(urlPathEqualTo("/graph/users")));
     }
 
     @Test

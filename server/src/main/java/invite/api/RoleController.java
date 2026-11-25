@@ -329,16 +329,19 @@ public class RoleController implements ApplicationResource {
 
         boolean isNew = role.getId() == null;
         List<String> previousApplicationIdentifiers = new ArrayList<>();
+        Role previousRole = isNew ? null :
+                roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));
+        if (!isNew) {
+            //We don't allow shortName, identifier, URN, CRM or audit changes after creation. Must be done before any of these are evaluated
+            role.copyImmutableAttributes(previousRole);
+        }
         Optional<UserRole> optionalUserRole = user.userRoleForRole(role);
         boolean immutableApplicationUsages = (!user.isSuperUser() &&
                 optionalUserRole.isPresent() && optionalUserRole.get().getAuthority().equals(Authority.MANAGER)) ||
                 StringUtils.hasText(role.getCrmRoleId());
         boolean nameChanged = false;
         if (!isNew) {
-            Role previousRole = roleRepository.findById(role.getId()).orElseThrow(() -> new NotFoundException("Role not found"));
-            //We don't allow shortName, identifier or organizationGUID changes after creation
-            role.setShortName(previousRole.getShortName());
-            role.setIdentifier(previousRole.getIdentifier());
+            //We don't allow organizationGUID changes after creation, except for super-users
             if (user.isSuperUser()) {
                 role.setOrganizationGUID(role.getOrganizationGUID());
             } else {
@@ -347,6 +350,8 @@ public class RoleController implements ApplicationResource {
             previousApplicationIdentifiers.addAll(previousRole.applicationIdentifiers());
             if (immutableApplicationUsages) {
                 role.setApplicationUsages(previousRole.getApplicationUsages());
+            } else {
+                UserPermissions.assertAddedApplications(user, previousRole, role);
             }
             nameChanged = !previousRole.getName().equals(role.getName());
         }

@@ -2,6 +2,7 @@ package invite.security;
 
 import invite.exception.UserRestrictionException;
 import invite.model.Application;
+import invite.model.Application;
 import invite.model.Authority;
 import invite.model.Invitation;
 import invite.model.InvitationRole;
@@ -13,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -160,7 +162,7 @@ public class UserPermissions {
         }
         //Institution admin needs to own all roles or be a member of the role for at least the authority of invitationo
         if (user.isInstitutionAdmin() && roles.stream()
-                .allMatch(role -> user.getOrganizationGUID().equals(role.getOrganizationGUID()))) {
+                .allMatch(role -> isInstitutionAdminOfRole(user, role))) {
             return;
         }
         if (!user.getUserApplications().isEmpty()) {
@@ -180,7 +182,7 @@ public class UserPermissions {
         Set<UserRole> userRoles = user.getUserRoles();
         boolean allowed = roles.stream()
                 .allMatch(role -> {
-                    boolean mayInviteByInstitutionAdmin = user.isInstitutionAdmin() && user.getOrganizationGUID().equals(role.getOrganizationGUID());
+                    boolean mayInviteByInstitutionAdmin = isInstitutionAdminOfRole(user, role);
                     boolean mayInviteByApplication = mayInviteByApplication(userRoles, intendedAuthority, role);
                     boolean mayInviteByAuthority = mayInviteByAuthority(userRoles, intendedAuthority, role);
                     return mayInviteByInstitutionAdmin || mayInviteByApplication || mayInviteByAuthority;
@@ -230,7 +232,7 @@ public class UserPermissions {
         if (accessRole == null) {
             throw new UserRestrictionException("Role is NULL");
         }
-        if (user.isInstitutionAdmin() && user.getOrganizationGUID().equals(accessRole.getOrganizationGUID())) {
+        if (isInstitutionAdminOfRole(user, accessRole)) {
             return;
         }
         if (!user.getUserApplications().isEmpty()) {
@@ -250,6 +252,26 @@ public class UserPermissions {
                 .findFirst()
                 .orElseThrow(() -> new UserRestrictionException(String.format("User %s has no access to role %s",
                         user.getEmail(), accessRole.getName())));
+    }
+
+    //Same as with the creation of roles, application managers may only add the applications they own
+    public static void assertAddedApplications(User user, Role persistedRole, Role role) {
+        if (user.isSuperUser() || isInstitutionAdminOfRole(user, persistedRole)) {
+            return;
+        }
+        Set<Application> allowedApplications = new HashSet<>(persistedRole.applicationsUsed());
+        user.getUserApplications().forEach(userApplication -> allowedApplications.add(userApplication.getApplication()));
+        if (!allowedApplications.containsAll(role.applicationsUsed())) {
+            throw new UserRestrictionException(String.format("User %s does not own all added applications for role %s",
+                    user.getEmail(), persistedRole.getName()));
+        }
+    }
+
+    //An institution admin without organizationGUID does not own any role, missing organizationGUID's must never match
+    public static boolean isInstitutionAdminOfRole(User user, Role role) {
+        return user.isInstitutionAdmin()
+                && StringUtils.hasText(user.getOrganizationGUID())
+                && user.getOrganizationGUID().equals(role.getOrganizationGUID());
     }
 
     //Does one of the userRoles has Authority.MANAGE and has the same application as the role

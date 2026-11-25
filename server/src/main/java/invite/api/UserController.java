@@ -11,18 +11,17 @@ import invite.logging.AccessLogger;
 import invite.logging.Event;
 import invite.manage.EntityType;
 import invite.manage.Manage;
+import invite.model.Application;
 import invite.model.Authority;
-import invite.model.Invitation;
-import invite.model.RemoteProvisionedUser;
 import invite.model.Role;
 import invite.model.RoleSummary;
 import invite.model.User;
+import invite.model.UserApplication;
 import invite.model.UserRole;
 import invite.model.UserRoles;
 import invite.provision.Provisioning;
 import invite.provision.ProvisioningService;
 import invite.provision.graph.GraphClient;
-import invite.repository.InvitationRepository;
 import invite.repository.RemoteProvisionedUserRepository;
 import invite.repository.RoleRepository;
 import invite.repository.UserRepository;
@@ -73,8 +72,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static invite.SwaggerOpenIdConfig.API_TOKENS_SCHEME_NAME;
@@ -93,7 +91,6 @@ public class UserController {
 
     private final Config config;
     private final UserRepository userRepository;
-    private final InvitationRepository invitationRepository;
     private final RoleRepository roleRepository;
     private final Manage manage;
     private final ObjectMapper objectMapper;
@@ -105,7 +102,7 @@ public class UserController {
     @Autowired
     public UserController(Config config,
                           UserRepository userRepository,
-                          InvitationRepository invitationRepository, RoleRepository roleRepository,
+                          RoleRepository roleRepository,
                           Manage manage,
                           ObjectMapper objectMapper,
                           RemoteProvisionedUserRepository remoteProvisionedUserRepository,
@@ -115,7 +112,6 @@ public class UserController {
                           @Value("${voot.group_urn_domain}") String groupUrnPrefix,
                           ProvisioningService provisioningService,
                           AccessMenuClient accessMenuClient) {
-        this.invitationRepository = invitationRepository;
         this.roleRepository = roleRepository;
         this.provisioningService = provisioningService;
         this.accessMenuClient = accessMenuClient;
@@ -310,24 +306,24 @@ public class UserController {
 
     @GetMapping("ms-accept-return/{manageId}/{userId}")
     @Operation(summary = "Microsoft invitation accept return", description = "Handle callback redirect after Microsoft graph invitation acceptance")
-    public View msAcceptReturn(@PathVariable("manageId") String manageId, @PathVariable("userId") Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+    public View msAcceptReturn(@PathVariable("manageId") String manageId,
+                               @PathVariable("userId") Long userId,
+                               @Parameter(hidden = true) User user) {
+        //The callback is only valid for the user that has accepted the invitation, therefore no difference for unknown users
+        if (user == null || !Objects.equals(user.getId(), userId)) {
+            throw new UserRestrictionException("Not allowed to return from MS accept for a different user");
+        }
 
         LOG.info(String.format("Return from MS accept. User %s", user.getEduPersonPrincipalName()));
 
-        Map<String, Object> provisioningMap = manage.providerById(EntityType.PROVISIONING, manageId);
-        Provisioning provisioning = new Provisioning(provisioningMap);
-        AtomicReference<String> redirectReference = new AtomicReference<>(this.config.getWelcomeUrl());
-        Optional<RemoteProvisionedUser> remoteProvisionedUserOptional = remoteProvisionedUserRepository
-                .findByManageProvisioningIdAndUser(manageId, user);
-        remoteProvisionedUserOptional.ifPresent(remoteProvisionedUser -> {
-            graphClient.updateUserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
-            String invitationHash = invitationRepository.findTopBySubInviteeOrderByCreatedAtDesc(user.getSub())
-                    .map(Invitation::getHash).orElse("");
-            String redirectUrl = String.format("%s/proceed?hash=%s&isRedirect=true", config.getWelcomeUrl(), invitationHash);
-            redirectReference.set(redirectUrl);
-        });
-        return new RedirectView(redirectReference.get());
+        remoteProvisionedUserRepository
+                .findByManageProvisioningIdAndUser(manageId, user)
+                .ifPresent(remoteProvisionedUser -> {
+                    Provisioning provisioning = new Provisioning(manage.providerById(EntityType.PROVISIONING, manageId));
+                    graphClient.updateUserRequest(user, provisioning, remoteProvisionedUser.getRemoteIdentifier());
+                });
+        //The invitation is already accepted, therefore the hash of the invitation is never part of the redirect
+        return new RedirectView(config.getWelcomeUrl() + "/profile");
     }
 
     @DeleteMapping("/{userId}")
@@ -373,7 +369,7 @@ public class UserController {
     }
 
     @PutMapping("/removeApplicationManager/{userId}")
-    @Operation(summary = "Remove application manager rights", description = "Clear application manager applications for a user")
+    @Operation(summary = "Remove application manager rights", description = "Clear application manager applications for a user. Institution admins only clear the applications of their own institution")
     public ResponseEntity<Map<String, Integer>> removeApplicationManager(@PathVariable("userId") Long userId,
                                                                          @Parameter(hidden = true) User user) {
         User other = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
@@ -381,11 +377,33 @@ public class UserController {
         LOG.debug(String.format("removeApplicationManager for user %s by %s",
                 other.getEduPersonPrincipalName(), user.getEduPersonPrincipalName()));
         UserPermissions.assertInstitutionAdmin(user);
-
-        other.getUserApplications().clear();
+        Set<UserApplication> userApplications = other.getUserApplications();
+        if (user.isSuperUser()) {
+            userApplications.clear();
+        } else if (!userApplications.isEmpty()) {
+            //An institution admin may only revoke application manager rights for applications of the own institution
+            Set<Application> ownedApplications = applicationsOwnedByInstitution(user.getOrganizationGUID(), userApplications);
+            boolean removed = userApplications.removeIf(userApplication -> ownedApplications.contains(userApplication.getApplication()));
+            if (!removed) {
+                throw new UserRestrictionException("Not allowed to removeApplicationManager for applications of a different institution");
+            }
+        }
 
         userRepository.save(other);
         return Results.okResult();
+    }
+
+    private Set<Application> applicationsOwnedByInstitution(String organizationGUID, Set<UserApplication> userApplications) {
+        Map<EntityType, List<String>> manageIdentifiersByType = userApplications.stream()
+                .map(UserApplication::getApplication)
+                .collect(Collectors.groupingBy(Application::getManageType,
+                        Collectors.mapping(Application::getManageId, Collectors.toList())));
+        //Applications that are unknown in Manage are not owned by any institution
+        return manageIdentifiersByType.entrySet().stream()
+                .flatMap(entry -> manage.providersByIdIn(entry.getKey(), entry.getValue()).stream()
+                        .filter(provider -> organizationGUID.equals(provider.get("institutionGuid")))
+                        .map(provider -> new Application((String) provider.get("id"), entry.getKey())))
+                .collect(Collectors.toSet());
     }
 
     @GetMapping("/institution-admins/{roleId}")

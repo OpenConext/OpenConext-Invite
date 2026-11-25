@@ -409,6 +409,10 @@ class InvitationControllerTest extends AbstractTest {
         assertEquals("https://www.google.com", results.get("inviteRedeemUrl"));
 
         User user = userRepository.findBySubIgnoreCase("graph@new.com").get();
+        //The redirect URL must point to the callback in the UserController
+        verify(postRequestedFor(urlPathEqualTo("/graph/users"))
+                .withRequestBody(matchingJsonPath("$.inviteRedirectUrl",
+                        matching(".*/api/v1/users/ms-accept-return/[^/]+/" + user.getId()))));
         assertEquals(1, user.getUserRoles().size());
         //no roles provisioned to GRAPH
         assertEquals(0, remoteProvisionedGroupRepository.count());

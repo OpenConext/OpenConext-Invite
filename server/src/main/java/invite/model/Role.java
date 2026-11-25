@@ -206,6 +206,20 @@ public class Role implements Serializable, Provisionable {
         return Instant.now().plus(this.defaultExpiryDays, ChronoUnit.DAYS);
     }
 
+    //Attributes that determine the identity (e.g. URN) and the origin of a Role are never changed by client input.
+    //The getters are required, as previousRole might be a Hibernate proxy
+    public void copyImmutableAttributes(Role previousRole) {
+        this.shortName = previousRole.getShortName();
+        this.identifier = previousRole.getIdentifier();
+        this.urn = previousRole.getUrn();
+        this.teamsOrigin = previousRole.isTeamsOrigin();
+        this.remoteApiUser = previousRole.getRemoteApiUser();
+        this.organisation = previousRole.getOrganisation();
+        this.crmRoleId = previousRole.getCrmRoleId();
+        this.crmRoleName = previousRole.getCrmRoleName();
+        this.crmRoleAbbrevation = previousRole.getCrmRoleAbbrevation();
+    }
+
     public void setApplicationUsages(Set<ApplicationUsage> applicationUsages) {
         //Mutate the existing collection in place - replacing the field reference outright breaks Hibernate's
         //orphan-removal tracking whenever this is called on an already-managed (attached) Role

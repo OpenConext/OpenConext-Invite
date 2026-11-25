@@ -76,6 +76,10 @@ public class InvitationOperations {
                 && CollectionUtils.isEmpty(invitationRequest.getManageIdentifiers())) {
             throw new NotAllowedException("Invitation for application manager must contain at least one application");
         }
+        if (user == null) {
+            //Must be asserted before any Application is created run-time
+            RemoteUserPermissions.assertInvitationAuthority(remoteUser, intendedAuthority, invitationRequest.getManageIdentifiers());
+        }
         //We need to assert validations on the roles soo we need to load them
         List<Role> requestedRoles = invitationRequest.getRoleIdentifiers().stream()
                 .map(id -> invitationResource.getRoleRepository().findById(id)
@@ -104,7 +108,7 @@ public class InvitationOperations {
             }
 
         } else {
-            RemoteUserPermissions.assertApplicationAccess(remoteUser, requestedRoles);
+            RemoteUserPermissions.assertInvitationRolesAccess(remoteUser, intendedAuthority, requestedRoles);
         }
 
         boolean isOverrideSettingsAllowed = requestedRoles.stream().allMatch(Role::isOverrideSettingsAllowed);
@@ -222,11 +226,10 @@ public class InvitationOperations {
         Invitation invitation = invitationRepository.findById(id).orElseThrow(() -> new NotFoundException("Invitation not found"));
         List<Role> requestedRoles = invitation.getRoles().stream()
                 .map(InvitationRole::getRole).toList();
-        Authority intendedAuthority = invitation.getIntendedAuthority();
         if (user != null) {
             UserPermissions.assertInvitationAccess(user, invitation);
         } else {
-            RemoteUserPermissions.assertApplicationAccess(remoteUser, requestedRoles);
+            RemoteUserPermissions.assertInvitationAccess(remoteUser, invitation);
         }
 
         List<GroupedProviders> groupedProviders = this.invitationResource.getManage().getGroupedProviders(requestedRoles);

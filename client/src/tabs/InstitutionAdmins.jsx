@@ -26,9 +26,10 @@ export const InstitutionAdmins = () => {
     const navigate = useNavigate();
 
     const loadAdmins = useCallback(() => {
-        Promise.all([applicationManagers(), institutionAdmins(true)])
+        return Promise.all([applicationManagers(), institutionAdmins(true)])
             .then(res => {
                 setAdmins(res[0].concat(res[1]));
+                return res[0];
             })
             .finally(() => {
                 setLoading(false);
@@ -128,15 +129,42 @@ export const InstitutionAdmins = () => {
         } else {
             setLoading(true);
             const promise = isInstitutionAdmin ? removeInstitutionAdmin(user) : removeApplicationManager(user);
-            promise
-                .then(() => {
+            promise.then(
+                () => {
                     setConfirmationOpen(false);
-                    setFlash(I18n.t("users.removeInstitutionAdminFlash", {userName: user.name}));
-                    loadAdmins();
-                }).finally(() => {
-                setLoading(false);
-            })
+                    loadAdmins().then(managers => {
+                        //The server only revokes the rights for applications owned by the institution of the current user
+                        if (!isInstitutionAdmin && managers.some(manager => manager.id === user.id)) {
+                            setFlash(I18n.t("users.removeApplicationManagerPartialFlash", {userName: user.name}), "warning");
+                        } else {
+                            setFlash(I18n.t("users.removeInstitutionAdminFlash", {userName: user.name}));
+                        }
+                    });
+                },
+                e => handleError(e, user, isInstitutionAdmin));
         }
+    };
+
+    const handleError = (e, user, isInstitutionAdmin) => {
+        setLoading(false);
+        if (!isInstitutionAdmin && e.response?.status === 403) {
+            setConfirmationOpen(false);
+            setFlash(I18n.t("users.removeApplicationManagerNotAllowed", {userName: user.name}), "error");
+            return;
+        }
+        Promise.resolve(e.response?.json())
+            .catch(() => null)
+            .then(j => {
+                setConfirmation({
+                    cancel: null,
+                    action: () => setConfirmationOpen(false),
+                    error: true,
+                    question: I18n.t("forms.error", {reference: j?.reference || 999}),
+                    confirmationTxt: I18n.t("forms.ok"),
+                    confirmationHeader: I18n.t("confirmationDialog.error")
+                });
+                setConfirmationOpen(true);
+            });
     };
 
     return (

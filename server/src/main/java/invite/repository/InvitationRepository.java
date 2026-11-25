@@ -31,8 +31,6 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long>, Q
 
     List<Invitation> findByCrmOrganisationIdAndStatus(String crmOrganisationId, Status status);
 
-    Optional<Invitation> findTopBySubInviteeOrderByCreatedAtDesc(String email);
-
     List<Invitation> findByStatus(Status status);
 
     List<Invitation> findByInviterAndStatus(User inviter, Status status);

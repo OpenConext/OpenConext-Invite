@@ -36,6 +36,20 @@ class InstitutionAdminTest {
     }
 
     @Test
+    void isInstitutionAdminByInvite() {
+        User user = new User();
+        user.setInstitutionAdmin(true);
+        user.setOrganizationGUID(UUID.randomUUID().toString());
+        assertFalse(InstitutionAdmin.isInstitutionAdminByInvite(user));
+
+        user.setInstitutionAdminByInvite(true);
+        assertTrue(InstitutionAdmin.isInstitutionAdminByInvite(user));
+
+        user.setOrganizationGUID(null);
+        assertFalse(InstitutionAdmin.isInstitutionAdminByInvite(user));
+    }
+
+    @Test
     void testIsInstitutionAdmin() {
         assertFalse(InstitutionAdmin.isInstitutionAdmin(Map.of(), entitlement));
         assertFalse(InstitutionAdmin.isInstitutionAdmin(Map.of("eduperson_entitlement", List.of()), entitlement));
