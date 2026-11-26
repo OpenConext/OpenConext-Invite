@@ -32,5 +32,8 @@ export function login(config, force = false, hash = null) {
         serverUrl = local ? "http://localhost:8888" :
             `${window.location.protocol}//${window.location.host}`
     }
-    window.location.href = sanitizeURL(`${serverUrl}/roles/api/v1/users/login${params}`);
+    // In local development the browser goes directly to the server, which does not know the /roles prefix that
+    // is stripped by the proxy in deployed environments
+    const prefix = import.meta.env.DEV ? "" : "/roles";
+    window.location.href = sanitizeURL(`${serverUrl}${prefix}/api/v1/users/login${params}`);
 }
