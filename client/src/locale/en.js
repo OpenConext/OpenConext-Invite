@@ -417,6 +417,7 @@ const en = {
         edit: "Edit",
         reset: "Reset",
         cancel: "Cancel",
+        delete: "Delete",
         save: "Save",
         specificDate: "Set specific date",
         and: "and",

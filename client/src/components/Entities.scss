@@ -78,6 +78,15 @@
         .search-filter {
             margin: 0 auto 0 20px;
             min-width: 180px;
+
+            // Filters placed directly next to the (left-aligned) search field
+            &.after-search {
+                margin: 0 0 0 12px;
+
+                @media (max-width: $medium) {
+                    margin: 12px 0 0 0;
+                }
+            }
         }
 
         div.filter-select__value-container {

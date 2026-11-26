@@ -22,6 +22,7 @@ import {UnitHeaderInviter} from "../components/UnitHeaderInviter";
 import {isEmpty, splitListSemantically} from "../utils/Utils";
 import {deriveExpirationDate, shortDateFromEpoch} from "../utils/Date";
 import {SearchGroupContext} from "../utils/SearchGroupContext";
+import Applications from "../tabs/Applications";
 
 export const Role = () => {
     const {id, tab = "users"} = useParams();
@@ -68,7 +69,7 @@ export const Role = () => {
                 if (isInviter) {
                     managersByRoleId(id).then(emails => setManagerEmails(emails));
                 }
-                const tabNames = ["guests", "invitations", ...(isEmpty(res.crmRoleId) ? ["maintainers"] : [])];
+                const tabNames = ["guests", "invitations", ...(isEmpty(res.crmRoleId) ? ["maintainers"] : []), "applications"];
                 loadCounts(res);
                 //Ensure the URL always reflects the actually active tab - even the default one - so a tab
                 //switch always results in a distinct, stable URL (see Home.jsx for the same pattern)
@@ -99,7 +100,8 @@ export const Role = () => {
         Promise.all(promises).then(pages => setCounts({
             guests: pages[0].totalElements,
             invitations: pages[1].totalElements,
-            maintainers: pages[2] ? pages[2].totalElements : null
+            maintainers: pages[2] ? pages[2].totalElements : null,
+            applications: (roleToCount.applicationMaps || []).filter(app => !isEmpty(app)).length
         }));
     }
 
@@ -127,8 +129,13 @@ export const Role = () => {
             <UserRoles role={role}
                        guests={false}
             />
-        </Page> : null
-    ];
+        </Page> : null,
+        <Page key="applications"
+              name="applications"
+              label={tabLabel("applications", "applications")}>
+            <Applications role={role}/>
+        </Page>
+    ].filter(t => t !== null);
 
     const separator = (role, index) => {
         const l = role.applicationMaps.length;

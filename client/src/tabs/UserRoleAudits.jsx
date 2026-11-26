@@ -120,6 +120,8 @@ export const UserRoleAudits = () => {
                 searchAttributes={["userEmail", "roleName"]}
                 loading={false}
                 filters={filters()}
+                filtersAfterSearch={true}
+                hideHeading={true}
                 inputFocus={!searching}
                 hideTitle={searching}
                 customSearch={search}

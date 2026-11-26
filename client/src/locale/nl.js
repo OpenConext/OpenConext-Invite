@@ -418,6 +418,7 @@ const nl = {
         reset: "Reset",
         cancel: "Annuleren",
         save: "Opslaan",
+        delete: "Delete",
         specificDate: "Zet specifieke datum",
         and: "en",
         more: "Meer",

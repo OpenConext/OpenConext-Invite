@@ -415,6 +415,7 @@ const pt = {
         edit: "Editar",
         reset: "Repor",
         cancel: "Cancelar",
+        delete: "Delete",
         save: "Guardar",
         specificDate: "Definir data específica",
         and: "e",

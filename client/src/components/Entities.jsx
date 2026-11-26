@@ -44,6 +44,7 @@ export const Entities = ({
                              actions,
                              title,
                              filters,
+                             filtersAfterSearch = false,
                              rowLinkMapper,
                              tableClassName,
                              className = "",
@@ -124,7 +125,8 @@ export const Entities = ({
                 {(!hideTitle && !hideHeading) &&
                     <h2>{title || `${I18n.t(`${modelName}.title`)} (${(totalElements || entities.length).toLocaleString()})`}</h2>}
                 {(loading || hideTitle) && <Spinner className="size-6"/>}
-                {!isEmpty(filters) && <div className={`${filterClassName} search-filter`}>{filters}</div>}
+                {(!isEmpty(filters) && !filtersAfterSearch) &&
+                    <div className={`${filterClassName} search-filter`}>{filters}</div>}
                 <div className={`search ${showNew ? "" : "standalone"}`}>
                     {hasSearch &&
                         <SearchField inputRef={searchRef}
@@ -132,6 +134,8 @@ export const Entities = ({
                                      value={query}
                                      placeholder={I18n.t(`${modelName}.searchPlaceHolder`)}/>}
                 </div>
+                {(!isEmpty(filters) && filtersAfterSearch) &&
+                    <div className={`${filterClassName} search-filter after-search`}>{filters}</div>}
                 {showNew &&
                     <Button onClick={newEntity}
                             className={`${hideTitle && !filters ? "no-title" : ""}`}>
