@@ -21,7 +21,7 @@ import {
     SidebarSeparator
 } from "@surfnet/curve-react";
 import {useAppStore} from "../stores/AppStore";
-import {accessUrl, allMenuGroups, mainMenuItems} from "../utils/MenuItems";
+import {accessUrl, allMenuGroups, mainMenuItems, withCrossAppParams} from "../utils/MenuItems";
 import {CaretUpDownIcon, CheckIcon} from "@phosphor-icons/react";
 import {menu as fetchMenu} from "../api";
 import {persistOrganization, readRequestedOrganization, stripOrganizationParam} from "../utils/Organization";
@@ -60,7 +60,7 @@ export const SharedMenu = () => {
     const visibleGroups = allMenuGroups
         .map(group => ({...group, items: group.items.filter(item => (menuModel.menuItems || []).includes(item.name))}))
         .filter(group => group.items.length > 0);
-    const hrefFor = item => `${ACCESS_URL}${item.path.replace("organizationId", currentOrganization?.id)}`;
+    const hrefFor = item => withCrossAppParams(`${ACCESS_URL}${item.path.replace("organizationId", currentOrganization?.id)}`);
 
     const organizationButtonContent = (
         <>
@@ -75,7 +75,7 @@ export const SharedMenu = () => {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" className="brand-button" render={
-                            <a href={`${ACCESS_URL}/`} className="brand-logo">
+                            <a href={withCrossAppParams(`${ACCESS_URL}/`)} className="brand-logo">
                                 <img src={logoUrl} alt="SURF Access"/>
                             </a>
                         }/>
@@ -97,7 +97,7 @@ export const SharedMenu = () => {
                                             <DropdownMenuItem key={org.id}
                                                               onClick={() => persistOrganization(org.id)}
                                                               render={
-                                                                  <a href={`${ACCESS_URL}/home?organizationId=${encodeURIComponent(org.id)}`}>
+                                                                  <a href={withCrossAppParams(`${ACCESS_URL}/home`, org.id)}>
                                                                       <span className="organization-option-name">{org.name}</span>
                                                                       {currentOrganization?.id === org.id && <CheckIcon/>}
                                                                   </a>

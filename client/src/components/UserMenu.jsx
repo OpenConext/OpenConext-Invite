@@ -18,7 +18,7 @@ import {useAppStore} from "../stores/AppStore";
 import {logout} from "../api";
 import {markExplicitLogout} from "../utils/Login";
 import {highestAuthority} from "../utils/UserRole";
-import {accessUrl} from "../utils/MenuItems";
+import {accessUrl, withCrossAppParams} from "../utils/MenuItems";
 
 //variant sidebar: rendered in the footer of the sidebar, the menu opens to the right. Variant header: top right.
 export const UserMenu = ({user, variant = "header", organizationName}) => {
@@ -27,7 +27,7 @@ export const UserMenu = ({user, variant = "header", organizationName}) => {
     const clearFlash = useAppStore(state => state.clearFlash);
     const config = useAppStore(state => state.config);
     //When SURF Access is connected (config.access-menu-enabled) the profile lives in Access (config.access-url)
-    const accessProfileUrl = config.accessMenuEnabled !== false && accessUrl(config) ? `${accessUrl(config)}/profile` : null;
+    const accessProfileUrl = config.accessMenuEnabled !== false && accessUrl(config) ? withCrossAppParams(`${accessUrl(config)}/profile`) : null;
 
     const roleName = I18n.t(`access.${highestAuthority(user, false)}`);
 

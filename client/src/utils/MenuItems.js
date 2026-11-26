@@ -12,12 +12,27 @@ import {
     LifebuoyIcon as HeadPhonesIcon,
     ChatCenteredTextIcon as FeedbackIcon
 } from "@phosphor-icons/react";
+import I18n from "../locale/I18n";
 
 // The sidebar is a copy of the SURF Access sidebar. Every item points to the Access
 // application, except for "invite" (Roles), which is this application.
 // The base url of SURF Access comes from the server (config.access-url), so one build works in every environment.
 // VITE_ACCESS_URL is only a fallback for local development.
 export const accessUrl = config => ((config && config.accessUrl) || import.meta.env.VITE_ACCESS_URL || "").replace(/\/$/, "");
+
+// Access runs on another domain and can't read our storage or cookies, so the organization (optional)
+// and the language travel in the url
+export const withCrossAppParams = (href, organizationId) => {
+    const params = new URLSearchParams();
+    if (organizationId) {
+        params.set("organizationId", organizationId);
+    }
+    if (I18n.locale) {
+        params.set("lang", I18n.locale);
+    }
+    const query = params.toString();
+    return query ? `${href}${href.includes("?") ? "&" : "?"}${query}` : href;
+}
 
 export const mainMenuItems = {
     home: "home",

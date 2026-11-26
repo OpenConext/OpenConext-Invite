@@ -6,7 +6,7 @@ import {LanguageSwitcher} from "./LanguageSwitcher";
 import {ThemeToggle} from "./ThemeToggle";
 import {useAppStore} from "../stores/AppStore";
 import I18n from "../locale/I18n";
-import {accessUrl, supportMenuItem} from "../utils/MenuItems";
+import {accessUrl, supportMenuItem, withCrossAppParams} from "../utils/MenuItems";
 
 export const AuthorizedHeader = () => {
     const user = useAppStore(state => state.user);
@@ -23,7 +23,7 @@ export const AuthorizedHeader = () => {
                 <ThemeToggle/>
                 {accessMenuEnabled ?
                     menuItems.includes(supportMenuItem.name) &&
-                    <a href={`${accessUrl(config)}${supportMenuItem.path}`} className="support-link">
+                    <a href={withCrossAppParams(`${accessUrl(config)}${supportMenuItem.path}`)} className="support-link">
                         {I18n.t(`navigation.${supportMenuItem.name}`)}
                     </a> :
                     (user && user.id) && <UserMenu user={user} variant="header"/>}
